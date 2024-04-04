@@ -116,13 +116,13 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'void CreateWrappedStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id);',
+            'void CreateWrappedOpenXrStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id);',
             file=self.outFile
         )
         self.newline()
         write('template <typename T>', file=self.outFile)
         write(
-            'T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
+            'T* MakeUnwrapOpenXrStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -148,7 +148,7 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         self.newline()
         write('template <typename T>', file=self.outFile)
         write(
-            'T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)',
+            'T* UnwrapOpenXrStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -157,11 +157,11 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         write('    if (value != nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
         write(
-            '        unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);',
+            '        unwrapped_struct = MakeUnwrapOpenXrStructs(value, 1, unwrap_memory);',
             file=self.outFile
         )
         write(
-            '        UnwrapStructHandles(unwrapped_struct, unwrap_memory);',
+            '        UnwrapOpenXrStructHandles(unwrapped_struct, unwrap_memory);',
             file=self.outFile
         )
         write('    }', file=self.outFile)
@@ -170,24 +170,44 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         write('}', file=self.outFile)
         self.newline()
         self.generate_create_wrapper_funcs()
+        write(
+            'template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename T>',
+            file=self.outFile
+        )
+        write(
+            'void CreateWrappedOpenXrStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)',
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    if (value != nullptr)', file=self.outFile)
+        write('    {', file=self.outFile)
+        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write(
+            '            CreateWrappedOpenXrStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, &value[i], get_id);',
+            file=self.outFile
+        )
+        write('        }', file=self.outFile)
+        write('    }', file=self.outFile)
+        write('}', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
         write(
-            'T* UnwrapStructArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
+            'T* UnwrapOpenXrStructArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
             file=self.outFile
         )
         write('{', file=self.outFile)
         write('    if ((values != nullptr) && (len > 0))', file=self.outFile)
         write('    {', file=self.outFile)
         write(
-            '        auto unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);',
+            '        auto unwrapped_structs = MakeUnwrapOpenXrStructs(values, len, unwrap_memory);',
             file=self.outFile
         )
         self.newline()
         write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
         write('        {', file=self.outFile)
         write(
-            '            UnwrapStructHandles(&unwrapped_structs[i], unwrap_memory);',
+            '            UnwrapOpenXrStructHandles(&unwrapped_structs[i], unwrap_memory);',
             file=self.outFile
         )
         write('        }', file=self.outFile)
@@ -236,6 +256,17 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
                 ) and (value.base_type in self.structs_with_handles
                        ) and (value.base_type not in self.output_structs):
                     self.output_structs.append(value.base_type)
+                    print(
+                        f' Adding member {value.base_type} to self.output_structs'
+                    )
+                    for member in self.feature_struct_members[value.base_type]:
+                        if self.is_struct(
+                            member.base_type
+                        ) and (member.base_type not in self.output_structs):
+                            print(
+                                f' Adding  child member {member.base_type} to self.output_structs'
+                            )
+                            self.output_structs.append(member.base_type)
 
         # Generate unwrap and rewrap code for input structures.
         for struct in self.get_filtered_struct_names():
@@ -244,16 +275,56 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
             ):
                 body = '\n'
-                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
+                body += 'void UnwrapOpenXrStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
                     struct
                 )
                 write(body, file=self.outFile)
 
     def generate_create_wrapper_funcs(self):
         """Generates functions that wrap struct handle members."""
+
         for struct in self.output_structs:
             body = 'template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper>\n'
-            body += 'void CreateWrappedStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, {}* value, PFN_GetHandleId get_id);\n'.format(
+            body += 'void CreateWrappedOpenXrStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, {}* value, PFN_GetHandleId get_id)\n'.format(
                 struct
             )
+            body += '{\n'
+            body += '    if (value != nullptr)\n'
+            body += '    {\n'
+
+            members = self.structs_with_handles[struct]
+            for member in members:
+                if self.is_struct(member.base_type):
+                    if member.is_array:
+                        body += '        CreateWrappedOpenXrStructArrayHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                            member.base_type, member.name, member.array_length
+                        )
+                    elif member.is_pointer:
+                        body += '        CreateWrappedOpenXrStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                            member.name
+                        )
+                    else:
+                        body += '        CreateWrappedOpenXrStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                            member.name
+                        )
+                else:
+                    member_wrapper_type = self.get_handle_wrapper(
+                        member.base_type
+                    )
+                    if member.is_array:
+                        body += '        CreateWrappedOpenXrHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                            member_wrapper_type, member.name,
+                            member.array_length
+                        )
+                    elif member.is_pointer:
+                        body += '        CreateWrappedOpenXrHandle<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, value->{}, get_id);\n'.format(
+                            member_wrapper_type, member.name
+                        )
+                    else:
+                        body += '        CreateWrappedOpenXrHandle<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, &value->{}, get_id);\n'.format(
+                            member_wrapper_type, member.name
+                        )
+
+            body += '    }\n'
+            body += '}\n'
             write(body, file=self.outFile)

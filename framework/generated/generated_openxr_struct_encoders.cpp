@@ -37,6 +37,7 @@
 #include "util/defines.h"
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -608,6 +609,37 @@ void EncodeStruct(ParameterEncoder* encoder, const XrColor4f& value)
     encoder->EncodeFloatValue(value.a);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerNextInfo& value)
+{
+    encoder->EncodeEnumValue(value.structType);
+    encoder->EncodeUInt32Value(value.structVersion);
+    encoder->EncodeSizeTValue(value.structSize);
+    encoder->EncodeString(value.layerName);
+    encoder->EncodeFunctionPtr(value.nextGetInstanceProcAddr);
+    encoder->EncodeFunctionPtr(value.nextCreateApiLayerInstance);
+    EncodeStructPtr(encoder, value.next);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerCreateInfo& value)
+{
+    encoder->EncodeEnumValue(value.structType);
+    encoder->EncodeUInt32Value(value.structVersion);
+    encoder->EncodeSizeTValue(value.structSize);
+    encoder->EncodeVoidPtr(value.loaderInstance);
+    encoder->EncodeString(value.settings_file_location);
+    EncodeStructPtr(encoder, value.nextInfo);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateApiLayerRequest& value)
+{
+    encoder->EncodeEnumValue(value.structType);
+    encoder->EncodeUInt32Value(value.structVersion);
+    encoder->EncodeSizeTValue(value.structSize);
+    encoder->EncodeUInt32Value(value.layerInterfaceVersion);
+    encoder->EncodeUInt64Value(value.layerApiVersion);
+    encoder->EncodeFunctionPtr(value.getInstanceProcAddr);
+    encoder->EncodeFunctionPtr(value.createApiLayerInstance);
+}
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCubeKHR& value)
 {

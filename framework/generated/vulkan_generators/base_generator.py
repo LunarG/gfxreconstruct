@@ -1396,10 +1396,10 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    def get_handle_prefix(self):
+    def get_prefix_from_type(self):
         return 'Vulkan'
 
-    def get_handle_wrapper_prefix(self):
+    def get_wrapper_prefix_from_type(self):
         return 'vulkan_wrappers'
 
     def make_encoder_method_call(
@@ -1479,7 +1479,7 @@ class BaseGenerator(OutputGenerator):
                 method_call += 'Value'
 
         if is_handle:
-            wrapper_prefix = self.get_handle_wrapper_prefix()
+            wrapper_prefix = self.get_wrapper_prefix_from_type()
             method_call += '<{}>'.format(wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper')
 
         if self.is_output_parameter(value) and omit_output_param:

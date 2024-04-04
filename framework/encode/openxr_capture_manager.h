@@ -55,19 +55,22 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class OpenXrCaptureManager : public ApiCaptureManager
 {
   public:
-    static OpenXrCaptureManager* Get() { return instance_; }
+    static OpenXrCaptureManager* Get() { return singleton_; }
 
     // Creates the capture manager instance if none exists, or increments a reference count if an instance already
     // exists.
     static bool CreateInstance();
+
+    static OpenXrCaptureManager* InitSingleton();
+    static void                  DestroySingleton();
 
     // Decrement the instance reference count, releasing resources when the count reaches zero.  Ignored if the count is
     // already zero.
     static void DestroyInstance();
 
     // Register special layer provided functions, which perform layer specific initialization.
-    // These must be set before the application calls xrCreateInstance.
-    static void SetLayerFuncs(PFN_xrCreateInstance create_instance);
+    // These must be set before the application calls xrCreateApiLayerInstance.
+    static void SetLayerFuncs(PFN_xrCreateApiLayerInstance create_api_layer_instance);
 
     // Called by the layer's xrCreateInstance function, after the driver's xrCreateInstance function has been called, to
     // check for failure.  If xrCreateInstance failed, the reference count will be decremented and resources will be
@@ -175,8 +178,9 @@ class OpenXrCaptureManager : public ApiCaptureManager
         EndApiCallCapture();
     }
 
-    static XrResult OverrideInitializeLoaderKHR(const XrLoaderInitInfoBaseHeaderKHR* loaderInitInfo);
-    static XrResult OverrideCreateInstance(const XrInstanceCreateInfo* pCreateInfo, XrInstance* pInstance);
+    static XrResult OverrideCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                   const XrApiLayerCreateInfo* apiLayerInfo,
+                                                   XrInstance*                 instance);
 
   protected:
     OpenXrCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_OpenXR) {}
@@ -190,7 +194,7 @@ class OpenXrCaptureManager : public ApiCaptureManager
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
   private:
-    static OpenXrCaptureManager*        instance_;
+    static OpenXrCaptureManager*        singleton_;
     static OpenXrLayerTable             layer_table_;
     std::unique_ptr<OpenXrStateTracker> state_tracker_;
 };

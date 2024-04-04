@@ -78,21 +78,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-/*
-XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance                           instance,
-                                                         const XrVulkanInstanceCreateInfoKHR* createInfo,
-                                                         VkInstance*                          vulkanInstance,
-                                                         VkResult*                            vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance                         instance,
-                                                       const XrVulkanDeviceCreateInfoKHR* createInfo,
-                                                       VkDevice*                          vulkanDevice,
-                                                       VkResult*                          vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance                              instance,
-                                                             const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,
-                                                             VkPhysicalDevice* vulkanPhysicalDevice);
-*/
 
 XRAPI_ATTR XrResult XRAPI_CALL xrCreateTriangleMeshFB(XrSession                         session,
                                                       const XrTriangleMeshCreateInfoFB* createInfo,

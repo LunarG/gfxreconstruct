@@ -35,6 +35,7 @@
 #include <functional>
 #include <map>
 #include <mutex>
+#include <shared_mutex>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)

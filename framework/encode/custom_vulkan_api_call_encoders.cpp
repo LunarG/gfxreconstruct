@@ -62,7 +62,7 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
                 auto   unwrapped_entry = reinterpret_cast<VkDescriptorImageInfo*>(unwrapped_data + offset);
 
                 memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorImageInfo));
-                UnwrapStructHandles(entry_info.type, unwrapped_entry, unwrap_memory);
+                UnwrapVulkanStructHandles(entry_info.type, unwrapped_entry, unwrap_memory);
             }
         }
 
@@ -75,7 +75,7 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
                 auto   unwrapped_entry = reinterpret_cast<VkDescriptorBufferInfo*>(unwrapped_data + offset);
 
                 memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorBufferInfo));
-                UnwrapStructHandles(unwrapped_entry, unwrap_memory);
+                UnwrapVulkanStructHandles(unwrapped_entry, unwrap_memory);
             }
         }
 
@@ -402,7 +402,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
 
     auto                                handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     const VkGraphicsPipelineCreateInfo* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+        UnwrapVulkanStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
     VkResult result = GetVulkanDeviceTable(device)->CreateGraphicsPipelines(
         device, pipelineCache, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
@@ -491,7 +491,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
 
     auto                               handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     const VkComputePipelineCreateInfo* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+        UnwrapVulkanStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
     VkResult result = GetVulkanDeviceTable(device)->CreateComputePipelines(
         device, pipelineCache, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);
@@ -581,7 +581,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
 
     auto                                    handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     const VkRayTracingPipelineCreateInfoNV* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+        UnwrapVulkanStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
     VkResult result = GetVulkanDeviceTable(device)->CreateRayTracingPipelinesNV(
         device, pipelineCache, createInfoCount, pCreateInfos_unwrapped, pAllocator, pPipelines);

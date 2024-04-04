@@ -120,9 +120,10 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                 '    case {}:'.format(self.next_structs[base_type]),
                 file=self.outFile
             )
+            prefix = self.get_prefix_from_type(base_type)
             write(
-                '        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
-                .format(base_type),
+                '        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrap{}Structs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
+                .format(prefix, base_type),
                 file=self.outFile
             )
             write('        break;', file=self.outFile)
@@ -174,7 +175,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                 file=self.outFile
             )
             write(
-                '            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
+                '            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
                 .format(base_type),
                 file=self.outFile
             )
@@ -182,74 +183,6 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         write('    }', file=self.outFile)
         self.newline()
         write('    return nullptr;', file=self.outFile)
-        write('}', file=self.outFile)
-
-        for struct in self.output_structs:
-            body = 'template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper>\n'
-            body += 'void CreateWrappedStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, {}* value, PFN_GetHandleId get_id)\n'.format(
-                struct
-            )
-            body += '{\n'
-            body += '    if (value != nullptr)\n'
-            body += '    {\n'
-
-            members = self.structs_with_handles[struct]
-            for member in members:
-                if self.is_struct(member.base_type):
-                    if member.is_array:
-                        body += '        CreateWrappedStructArrayHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
-                            member.base_type, member.name, member.array_length
-                        )
-                    elif member.is_pointer:
-                        body += '        CreateWrappedStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
-                            member.name
-                        )
-                    else:
-                        body += '        CreateWrappedStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
-                            member.name
-                        )
-                else:
-                    member_wrapper_type = self.get_handle_wrapper(
-                        member.base_type
-                    )
-                    if member.is_array:
-                        body += '        CreateWrappedOpenXrHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
-                            member_wrapper_type, member.name,
-                            member.array_length
-                        )
-                    elif member.is_pointer:
-                        body += '        CreateWrappedOpenXrHandle<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, value->{}, get_id);\n'.format(
-                            member_wrapper_type, member.name
-                        )
-                    else:
-                        body += '        CreateWrappedOpenXrHandle<OpenXrParentWrapper, OpenXrCoParentWrapper, {}>(parent, co_parent, &value->{}, get_id);\n'.format(
-                            member_wrapper_type, member.name
-                        )
-
-            body += '    }\n'
-            body += '}\n'
-            write(body, file=self.outFile)
-
-        self.newline()
-        write(
-            'template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename T>',
-            file=self.outFile
-        )
-        write(
-            'void CreateWrappedStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    if (value != nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
-        write('        {', file=self.outFile)
-        write(
-            '            CreateWrappedStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, &value[i], get_id);',
-            file=self.outFile
-        )
-        write('        }', file=self.outFile)
-        write('    }', file=self.outFile)
         write('}', file=self.outFile)
 
         self.newline()
@@ -313,7 +246,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                                                                          ]
 
                 body = '\n'
-                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
+                body += 'void UnwrapOpenXrStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
                     struct
                 )
                 body += '{\n'
@@ -342,15 +275,15 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
+                    body += '        value->{name} = UnwrapOpenXrStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
                         member.array_length, name=member.name
                     )
                 elif member.is_pointer:
-                    body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
+                    body += '        value->{name} = UnwrapOpenXrStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
                         name=member.name
                     )
                 else:
-                    body += '        UnwrapStructHandles(&value->{}, unwrap_memory);\n'.format(
+                    body += '        UnwrapOpenXrStructHandles(&value->{}, unwrap_memory);\n'.format(
                         member.name
                     )
         return body

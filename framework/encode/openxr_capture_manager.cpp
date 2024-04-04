@@ -24,7 +24,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 
 #include "encode/struct_pointer_encoder.h"
 #include "encode/openxr_capture_manager.h"
@@ -43,23 +43,13 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-OpenXrCaptureManager* OpenXrCaptureManager::instance_ = nullptr;
-VulkanLayerTable      OpenXrCaptureManager::layer_table_;
+OpenXrCaptureManager* OpenXrCaptureManager::singleton_ = nullptr;
+OpenXrLayerTable      OpenXrCaptureManager::layer_table_;
 
 bool OpenXrCaptureManager::CreateInstance()
 {
-    bool result = CaptureManager::CreateInstance([]() -> CaptureManager* { return instance_; },
-                                                 []() {
-                                                     assert(instance_ == nullptr);
-                                                     instance_ = new OpenXrCaptureManager();
-                                                 },
-                                                 []() {
-                                                     if (instance_)
-                                                     {
-                                                         delete instance_;
-                                                         instance_ = nullptr;
-                                                     }
-                                                 });
+    bool result = CommonCaptureManager::CreateInstance<OpenXrCaptureManager>();
+    GFXRECON_ASSERT(singleton_);
 
     GFXRECON_LOG_INFO("  OpenXR Header Version %u.%u.%u",
                       XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
@@ -69,25 +59,41 @@ bool OpenXrCaptureManager::CreateInstance()
     return result;
 }
 
+OpenXrCaptureManager* OpenXrCaptureManager::InitSingleton()
+{
+    if (!singleton_)
+    {
+        singleton_ = new OpenXrCaptureManager();
+    }
+    return singleton_;
+}
+
+void OpenXrCaptureManager::DestroySingleton()
+{
+    if (singleton_)
+    {
+        delete singleton_;
+        singleton_ = nullptr;
+    }
+}
+
 void OpenXrCaptureManager::DestroyInstance()
 {
-    CaptureManager::DestroyInstance([]() -> const CaptureManager* { return instance_; });
+    GFXRECON_ASSERT(singleton_ && singleton_->common_manager_);
+    singleton_->common_manager_->DestroyInstance(singleton_);
 }
 
 void OpenXrCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id)
 {
-    OpenXrStateWriter state_writer(file_stream, compressor_.get(), thread_id);
+    OpenXrStateWriter state_writer(file_stream, GetCompressor(), thread_id);
     uint64_t          n_blocks = state_tracker_->WriteState(&state_writer, GetCurrentFrame());
-    block_index_ += n_blocks;
-
-    auto thread_data          = GetThreadData();
-    thread_data->block_index_ = block_index_;
+    common_manager_->IncrementBlockIndex(n_blocks);
 }
 
-void OpenXrCaptureManager::SetLayerFuncs(PFN_vkCreateInstance create_instance)
+void OpenXrCaptureManager::SetLayerFuncs(PFN_xrCreateApiLayerInstance create_api_layer_instance)
 {
-    assert(create_instance != nullptr);
-    layer_table_.CreateInstance = create_instance;
+    assert(create_api_layer_instance != nullptr);
+    layer_table_.CreateApiLayerInstance = create_api_layer_instance;
 }
 
 void OpenXrCaptureManager::CheckXrCreateInstanceStatus(XrResult result)
@@ -109,26 +115,21 @@ void OpenXrCaptureManager::InitXrInstance(XrInstance* instance, PFN_xrGetInstanc
     LoadOpenXrInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-XrResult OpenXrCaptureManager::OverrideInitializeLoaderKHR(const XrLoaderInitInfoBaseHeaderKHR* loaderInitInfo)
+XrResult OpenXrCaptureManager::OverrideCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                              const XrApiLayerCreateInfo* apiLayerInfo,
+                                                              XrInstance*                 instance)
 {
-    XrResult result = VK_ERROR_INITIALIZATION_FAILED;
-
-    result = layer_table_.InitializeLoaderKHR(loaderInitInfo);
-}
-
-XrResult OpenXrCaptureManager::OverrideCreateInstance(const XrInstanceCreateInfo* createInfo, XrInstance* instance)
-{
-    XrResult result = VK_ERROR_INITIALIZATION_FAILED;
+    XrResult result = XR_ERROR_INITIALIZATION_FAILED;
 
     if (CreateInstance())
     {
-        result = layer_table_.CreateInstance(createInfo, pInstance);
+        result = layer_table_.CreateApiLayerInstance(info, apiLayerInfo, instance);
     }
 
-    if ((result == VK_SUCCESS) && (createInfo->pApplicationInfo != nullptr))
+    if (result == XR_SUCCESS)
     {
-        auto api_version              = createInfo->pApplicationInfo->apiVersion;
-        auto instance_wrapper         = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(*pInstance);
+        auto api_version              = info->applicationInfo.apiVersion;
+        auto instance_wrapper         = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(*instance);
         instance_wrapper->api_version = api_version;
 
         // Warn when enabled API version is newer than the supported API version.

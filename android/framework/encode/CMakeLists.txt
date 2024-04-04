@@ -23,11 +23,15 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/custom_vulkan_struct_handle_wrappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/descriptor_update_template_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/handle_unwrap_memory.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_capture_manager.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_capture_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_handle_wrappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_handle_wrapper_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_handle_wrapper_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_table_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_tracker.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_tracker.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_writer.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/openxr_state_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/parameter_buffer.h

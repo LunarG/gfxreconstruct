@@ -83,7 +83,7 @@ void OpenXrStateWriter::WriteSessionState(const OpenXrStateTable& state_table)
         assert(wrapper != nullptr);
 
         // Write creation call.
-        // TODO: WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }
 
@@ -93,7 +93,7 @@ void OpenXrStateWriter::WriteActionSetState(const OpenXrStateTable& state_table)
         assert(wrapper != nullptr);
 
         // Write creation call.
-        // TODO: WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }
 
@@ -103,7 +103,7 @@ void OpenXrStateWriter::WritePassthroughFBState(const OpenXrStateTable& state_ta
         assert(wrapper != nullptr);
 
         // Write creation call.
-        // TODO: WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+        WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
     });
 }
 

@@ -284,6 +284,49 @@ VKAPI_ATTR VkResult VKAPI_CALL dispatch_VulkanCreateDevice(VkPhysicalDevice     
     return result;
 }
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
+struct OpenXrInstanceInfo
+{
+    void*                     loader_instance;
+    PFN_xrGetInstanceProcAddr next_gipa;
+    std::vector<std::string>  enabled_extensions;
+};
+static std::unordered_map<XrInstance, OpenXrInstanceInfo> xr_instance_infos;
+
+XRAPI_ATTR XrResult XRAPI_CALL dispatch_OpenXrCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                                     const XrApiLayerCreateInfo* apiLayerInfo,
+                                                                     XrInstance*                 instance)
+{
+    if (info == nullptr || apiLayerInfo == nullptr || apiLayerInfo->nextInfo == nullptr || instance == nullptr)
+    {
+        return XR_ERROR_VALIDATION_FAILURE;
+    }
+    XrApiLayerNextInfo* next_info = apiLayerInfo->nextInfo;
+    if (strcmp(next_info->layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
+    {
+        return XR_ERROR_NAME_INVALID;
+    }
+    XrApiLayerCreateInfo next_layer_create_info;
+    assert(apiLayerInfo->structSize == sizeof(XrApiLayerCreateInfo));
+    memcpy(&next_layer_create_info, apiLayerInfo, sizeof(XrApiLayerCreateInfo));
+    next_layer_create_info.nextInfo = next_info->next;
+    XrResult result                 = next_info->nextCreateApiLayerInstance(info, &next_layer_create_info, instance);
+    if (result == XR_SUCCESS)
+    {
+        OpenXrInstanceInfo cur_instance_info;
+        cur_instance_info.loader_instance = apiLayerInfo->loaderInstance;
+        cur_instance_info.next_gipa       = next_info->nextGetInstanceProcAddr;
+        for (uint32_t iii = 0; iii < info->enabledExtensionCount; ++iii)
+        {
+            cur_instance_info.enabled_extensions.push_back(info->enabledExtensionNames[iii]);
+        }
+        gfxrecon::xr_instance_infos[*instance] = std::move(cur_instance_info);
+    }
+    return result;
+}
+#endif // ENABLE_OPENXR_SUPPORT
+
 VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VulkanGetInstanceProcAddr(VkInstance instance, const char* pName)
 {
     PFN_vkVoidFunction result = nullptr;
@@ -591,46 +634,6 @@ XRAPI_ATTR XrResult XRAPI_CALL OpenXrEnumerateInstanceExtensionProperties(const 
     return XR_SUCCESS;
 }
 
-struct OpenXrInstanceInfo
-{
-    void*                     loader_instance;
-    PFN_xrGetInstanceProcAddr next_gipa;
-    std::vector<std::string>  enabled_extensions;
-};
-static std::unordered_map<XrInstance, OpenXrInstanceInfo> xr_instance_infos;
-
-XRAPI_ATTR XrResult XRAPI_CALL OpenXrCreateApiLayerInstance(const XrInstanceCreateInfo* info,
-                                                            const XrApiLayerCreateInfo* apiLayerInfo,
-                                                            XrInstance*                 instance)
-{
-    if (info == nullptr || apiLayerInfo == nullptr || apiLayerInfo->nextInfo == nullptr || instance == nullptr)
-    {
-        return XR_ERROR_VALIDATION_FAILURE;
-    }
-    XrApiLayerNextInfo* next_info = apiLayerInfo->nextInfo;
-    if (strcmp(next_info->layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME))
-    {
-        return XR_ERROR_NAME_INVALID;
-    }
-    XrApiLayerCreateInfo next_layer_create_info;
-    assert(apiLayerInfo->structSize == sizeof(XrApiLayerCreateInfo));
-    memcpy(&next_layer_create_info, apiLayerInfo, sizeof(XrApiLayerCreateInfo));
-    next_layer_create_info.nextInfo = next_info->next;
-    XrResult result                 = next_info->nextCreateApiLayerInstance(info, &next_layer_create_info, instance);
-    if (result == XR_SUCCESS)
-    {
-        OpenXrInstanceInfo cur_instance_info;
-        cur_instance_info.loader_instance = apiLayerInfo->loaderInstance;
-        cur_instance_info.next_gipa       = next_info->nextGetInstanceProcAddr;
-        for (uint32_t iii = 0; iii < info->enabledExtensionCount; ++iii)
-        {
-            cur_instance_info.enabled_extensions.push_back(info->enabledExtensionNames[iii]);
-        }
-        gfxrecon::xr_instance_infos[*instance] = std::move(cur_instance_info);
-    }
-    return result;
-}
-
 XRAPI_ATTR XrResult XRAPI_CALL OpenXrEnumerateApiLayerProperties(uint32_t              propertyCapacityInput,
                                                                  uint32_t*             propertyCountOutput,
                                                                  XrApiLayerProperties* properties)
@@ -680,9 +683,10 @@ XRAPI_ATTR XrResult XRAPI_CALL OpenXrGetInstanceProcAddr(XrInstance          ins
     }
     else if (!strcmp(name, "xrCreateApiLayerInstance"))
     {
-        *function = reinterpret_cast<PFN_xrVoidFunction>(OpenXrCreateApiLayerInstance);
+        *function = reinterpret_cast<PFN_vkVoidFunction>(encode::xrCreateApiLayerInstance);
         result    = XR_SUCCESS;
     }
+
     // Everything past this point requires an instance, so if it's not valid by now,
     // return an error
     else if (instance == XR_NULL_HANDLE || xr_instance_infos.find(instance) == xr_instance_infos.end())

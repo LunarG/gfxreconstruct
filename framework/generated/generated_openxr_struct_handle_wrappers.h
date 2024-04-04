@@ -38,184 +38,185 @@
 #include "util/defines.h"
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrActionSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrActionSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrInteractionProfileSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrInteractionProfileSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSessionActionSetsAttachInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSessionActionSetsAttachInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrActionStateGetInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrActionStateGetInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrActiveActionSet* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrActiveActionSet* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrBoundSourcesForActionEnumerateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrBoundSourcesForActionEnumerateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrHapticActionInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrHapticActionInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSwapchainSubImage* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSwapchainSubImage* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerProjectionView* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerProjectionView* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerProjection* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerProjection* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerQuad* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerQuad* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataSessionStateChanged* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataSessionStateChanged* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataReferenceSpaceChangePending* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataReferenceSpaceChangePending* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataInteractionProfileChanged* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataInteractionProfileChanged* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerCylinderKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerCylinderKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrGraphicsBindingVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrGraphicsBindingVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerEquirect2KHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerEquirect2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpatialAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpatialAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrInteractionProfileDpadBindingEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrInteractionProfileDpadBindingEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrInteractionProfileAnalogThresholdVALVE* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrInteractionProfileAnalogThresholdVALVE* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSceneBoundsMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSceneBoundsMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrNewSceneComputeInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrNewSceneComputeInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSceneComponentsLocateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSceneComponentsLocateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpatialAnchorCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpatialAnchorCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataSpatialAnchorCreateCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataSpatialAnchorCreateCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataSpaceSetStatusCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataSpaceSetStatusCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSwapchainStateFoveationFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSwapchainStateFoveationFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrPassthroughLayerCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrPassthroughLayerCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerPassthroughFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerPassthroughFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrGeometryInstanceCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrGeometryInstanceCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrGeometryInstanceTransformFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrGeometryInstanceTransformFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataLocalizationChangedML* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataLocalizationChangedML* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpatialAnchorPersistenceInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpatialAnchorPersistenceInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpaceQueryResultFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpaceQueryResultFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpaceQueryResultsFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpaceQueryResultsFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpaceSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpaceSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpaceEraseInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpaceEraseInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataSpaceSaveCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataSpaceSaveCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataSpaceEraseCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataSpaceEraseCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSwapchainImageFoveationVulkanFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSwapchainImageFoveationVulkanFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrVirtualKeyboardSpaceCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrVirtualKeyboardSpaceCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrVirtualKeyboardLocationInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrVirtualKeyboardLocationInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrVirtualKeyboardInputInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrVirtualKeyboardInputInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardCommitTextMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardCommitTextMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardBackspaceMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardBackspaceMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardEnterMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardEnterMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardShownMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardShownMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardHiddenMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardHiddenMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpaceListSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpaceListSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrRecommendedLayerResolutionGetInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrRecommendedLayerResolutionGetInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrPassthroughColorMapLutMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrPassthroughColorMapLutMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrPassthroughColorMapInterpolatedLutMETA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrPassthroughColorMapInterpolatedLutMETA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrPassthroughMeshTransformInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrPassthroughMeshTransformInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrFoveationApplyInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrFoveationApplyInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrSpatialAnchorCreateInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrSpatialAnchorCreateInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrActiveActionSetPriorityEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrActiveActionSetPriorityEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrActiveActionSetPrioritiesEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrActiveActionSetPrioritiesEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrPlaneDetectorBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrPlaneDetectorBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrPlaneDetectorGetInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrPlaneDetectorGetInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapOpenXrStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);
 
 const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
 template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename T>
-void CreateWrappedStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id);
+void CreateWrappedOpenXrStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id);
 
 template <typename T>
-T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+T* MakeUnwrapOpenXrStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));
 
@@ -226,33 +227,59 @@ T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_mem
 }
 
 template <typename T>
-T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
+T* UnwrapOpenXrStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
 {
     T* unwrapped_struct = nullptr;
 
     if (value != nullptr)
     {
-        unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
-        UnwrapStructHandles(unwrapped_struct, unwrap_memory);
+        unwrapped_struct = MakeUnwrapOpenXrStructs(value, 1, unwrap_memory);
+        UnwrapOpenXrStructHandles(unwrapped_struct, unwrap_memory);
     }
 
     return unwrapped_struct;
 }
 
 template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper>
-void CreateWrappedStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, XrSpaceQueryResultsFB* value, PFN_GetHandleId get_id);
+void CreateWrappedOpenXrStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, XrSpaceQueryResultsFB* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedOpenXrStructArrayHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, XrSpaceQueryResultFB>(parent, co_parent, value->results, value->resultCapacityInput, get_id);
+    }
+}
 
+template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper>
+void CreateWrappedOpenXrStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, XrSpaceQueryResultFB* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedOpenXrHandle<OpenXrParentWrapper, OpenXrCoParentWrapper, openxr_wrappers::SpaceWrapper>(parent, co_parent, &value->space, get_id);
+    }
+}
+
+template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename T>
+void CreateWrappedOpenXrStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        for (size_t i = 0; i < len; ++i)
+        {
+            CreateWrappedOpenXrStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, &value[i], get_id);
+        }
+    }
+}
 
 template <typename T>
-T* UnwrapStructArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+T* UnwrapOpenXrStructArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((values != nullptr) && (len > 0))
     {
-        auto unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
+        auto unwrapped_structs = MakeUnwrapOpenXrStructs(values, len, unwrap_memory);
 
         for (size_t i = 0; i < len; ++i)
         {
-            UnwrapStructHandles(&unwrapped_structs[i], unwrap_memory);
+            UnwrapOpenXrStructHandles(&unwrapped_structs[i], unwrap_memory);
         }
 
         return unwrapped_structs;

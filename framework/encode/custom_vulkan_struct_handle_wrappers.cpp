@@ -43,11 +43,11 @@ static const VkDescriptorImageInfo* UnwrapDescriptorImageInfoStructArrayHandles(
         size_t         num_bytes = len * sizeof(values[0]);
 
         // Copy and transform handles.
-        VkDescriptorImageInfo* unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
+        VkDescriptorImageInfo* unwrapped_structs = MakeUnwrapVulkanStructs(values, len, unwrap_memory);
 
         for (size_t i = 0; i < len; ++i)
         {
-            UnwrapStructHandles(type, &unwrapped_structs[i], unwrap_memory);
+            UnwrapVulkanStructHandles(type, &unwrapped_structs[i], unwrap_memory);
         }
 
         return unwrapped_structs;
@@ -57,9 +57,10 @@ static const VkDescriptorImageInfo* UnwrapDescriptorImageInfoStructArrayHandles(
     return values;
 }
 
-void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, HandleUnwrapMemory* unwrap_memory) {}
+void UnwrapVulkanStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, HandleUnwrapMemory* unwrap_memory)
+{}
 
-void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapVulkanStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -83,7 +84,7 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 value->pBufferInfo =
-                    UnwrapStructArrayHandles(value->pBufferInfo, value->descriptorCount, unwrap_memory);
+                    UnwrapVulkanStructArrayHandles(value->pBufferInfo, value->descriptorCount, unwrap_memory);
                 break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:

@@ -213,7 +213,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             dispatchfunc = 'GetVulkanInstanceTable'
             if values[0].base_type == 'VkDevice':
                 object_name = 'physical_device'
-                wrapper_prefix = self.get_handle_wrapper_prefix()
+                wrapper_prefix = self.get_wrapper_prefix_from_type()
                 call_setup_expr.append("auto device_wrapper = GetVulkanWrapper<{}::DeviceWrapper>({});".format(wrapper_prefix, values[0].name))
                 call_setup_expr.append("auto physical_device = device_wrapper->physical_device->handle;")
         else:
@@ -442,7 +442,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if name == 'vkCreateInstance':
             decl = 'VulkanCaptureManager::Get()->'
 
-        wrapper_prefix = self.get_handle_wrapper_prefix()
+        wrapper_prefix = self.get_wrapper_prefix_from_type()
 
         if name.startswith('vkCreate') or name.startswith(
             'vkAllocate'
@@ -611,7 +611,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_handle_wrapping(self, values, indent):
         expr = ''
-        wrapper_prefix = self.get_handle_wrapper_prefix()
+        wrapper_prefix = self.get_wrapper_prefix_from_type()
 
         for value in values:
             if self.is_output_parameter(value) and (
@@ -665,7 +665,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedVulkanStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, value.base_type,
                             parent_value, co_parent_value, value.name,
                             length_name
@@ -679,7 +679,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedVulkanStructHandles<{}, {}>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, parent_value,
                             co_parent_value, value.name
                         )
@@ -699,13 +699,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         need_unwrap_memory = True
                         arg_name += '_unwrapped'
                         if value.is_array:
-                            expr += indent + '{} {name}_unwrapped = UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
+                            expr += indent + '{} {name}_unwrapped = UnwrapVulkanStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
                                 value.full_type,
                                 value.array_length,
                                 name=value.name
                             )
                         else:
-                            expr += indent + '{} {name}_unwrapped = UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
+                            expr += indent + '{} {name}_unwrapped = UnwrapVulkanStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
                                 value.full_type, name=value.name
                             )
             args.append(arg_name)
@@ -734,7 +734,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                 if ("Pool" in handle.base_type) and name.startswith('vkFree'):
                     handle = values[3]
 
-            wrapper_prefix = self.get_handle_wrapper_prefix()
+            wrapper_prefix = self.get_wrapper_prefix_from_type()
 
             if handle.is_array:
                 expr += indent + 'DestroyWrappedVulkanHandles<{}::{}Wrapper>({}, {});\n'.format(

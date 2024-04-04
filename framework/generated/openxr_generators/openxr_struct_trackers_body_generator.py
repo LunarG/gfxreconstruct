@@ -85,7 +85,7 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(openxr)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(openxr_trackers)', file=self.outFile)
         self.newline()
 
     def endFile(self):
@@ -128,7 +128,7 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
-        write('GFXRECON_END_NAMESPACE(openxr)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(openxr_trackers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -164,7 +164,7 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         write('    }', file=self.outFile)
         self.newline()
         write(
-            '    {}* unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);'
+            '    {}* unwrapped_struct = MakeUnwrapOpenXrStructs(value, 1, unwrap_memory);'
             .format(typename),
             file=self.outFile
         )
@@ -178,9 +178,9 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
                         value, 'unwrapped_struct->'
                     )
                     if value.base_type == 'void':
-                        call_expr = f'MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
+                        call_expr = f'MakeUnwrapOpenXrStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
                     else:
-                        call_expr = f'MakeUnwrapStructs({member_expr}, {length_expr}, unwrap_memory)'
+                        call_expr = f'MakeUnwrapOpenXrStructs({member_expr}, {length_expr}, unwrap_memory)'
                     write('    if ({})'.format(member_expr), file=self.outFile)
                     write('    {', file=self.outFile)
                     write(

@@ -80,6 +80,7 @@
 #endif
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -367,7 +368,7 @@ GFXRECON_END_NAMESPACE(noop)
 
 struct OpenXrLayerTable
 {
-    PFN_xrCreateInstance CreateInstance{ nullptr };
+    PFN_xrCreateApiLayerInstance CreateApiLayerInstance{ nullptr };
 };
 
 struct OpenXrInstanceTable

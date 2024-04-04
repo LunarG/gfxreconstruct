@@ -38,6 +38,7 @@
 #include "util/defines.h"
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 #include <unordered_map>
@@ -99,7 +100,6 @@ const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
     { "xrGetInputSourceLocalizedName",                                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::xrGetInputSourceLocalizedName) },
     { "xrApplyHapticFeedback",                                                                               reinterpret_cast<PFN_xrVoidFunction>(encode::xrApplyHapticFeedback) },
     { "xrStopHapticFeedback",                                                                                reinterpret_cast<PFN_xrVoidFunction>(encode::xrStopHapticFeedback) },
-    { "xrCreateApiLayerInstance",                                                                            reinterpret_cast<PFN_xrVoidFunction>(OpenXrCreateApiLayerInstance) },
     { "xrSetAndroidApplicationThreadKHR",                                                                    reinterpret_cast<PFN_xrVoidFunction>(encode::xrSetAndroidApplicationThreadKHR) },
     { "xrCreateSwapchainAndroidSurfaceKHR",                                                                  reinterpret_cast<PFN_xrVoidFunction>(encode::xrCreateSwapchainAndroidSurfaceKHR) },
     { "xrGetOpenGLGraphicsRequirementsKHR",                                                                  reinterpret_cast<PFN_xrVoidFunction>(encode::xrGetOpenGLGraphicsRequirementsKHR) },
@@ -115,7 +115,6 @@ const std::unordered_map<std::string, PFN_xrVoidFunction> openxr_func_table = {
     { "xrConvertTimeToWin32PerformanceCounterKHR",                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::xrConvertTimeToWin32PerformanceCounterKHR) },
     { "xrConvertTimespecTimeToTimeKHR",                                                                      reinterpret_cast<PFN_xrVoidFunction>(encode::xrConvertTimespecTimeToTimeKHR) },
     { "xrConvertTimeToTimespecTimeKHR",                                                                      reinterpret_cast<PFN_xrVoidFunction>(encode::xrConvertTimeToTimespecTimeKHR) },
-    { "xrInitializeLoaderKHR",                                                                               reinterpret_cast<PFN_xrVoidFunction>(encode::xrInitializeLoaderKHR) },
     { "xrCreateVulkanInstanceKHR",                                                                           reinterpret_cast<PFN_xrVoidFunction>(encode::xrCreateVulkanInstanceKHR) },
     { "xrCreateVulkanDeviceKHR",                                                                             reinterpret_cast<PFN_xrVoidFunction>(encode::xrCreateVulkanDeviceKHR) },
     { "xrGetVulkanGraphicsDevice2KHR",                                                                       reinterpret_cast<PFN_xrVoidFunction>(encode::xrGetVulkanGraphicsDevice2KHR) },
