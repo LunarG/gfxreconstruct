@@ -176,18 +176,47 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
 {
     PipelineBindPoints bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
 
+    uint32_t dynamic_offset_index = 0;
     for (size_t i = 0; i < descriptor_sets_infos.size(); ++i)
     {
+        uint32_t set_index = first_set + i;
+
+        DescriptorSetInfo* bound_descriptor_sets;
         if (bind_point == kBindPoint_compute)
         {
-            bound_descriptor_sets_compute[first_set + i] = descriptor_sets_infos[i];
+            bound_descriptor_sets = &bound_descriptor_sets_compute[set_index];
         }
         else
         {
             assert(bind_point == kBindPoint_ray_tracing);
-            bound_descriptor_sets_ray_tracing[first_set + i] = descriptor_sets_infos[i];
+            bound_descriptor_sets = &bound_descriptor_sets_ray_tracing[set_index];
+        }
+
+        *bound_descriptor_sets = *descriptor_sets_infos[i];
+
+        if (dynamicOffsetCount && pDynamicOffsets != nullptr)
+        {
+            for (const auto& binding : descriptor_sets_infos[i]->descriptors)
+            {
+                const uint32_t bindind_index = binding.first;
+
+                if (binding.second.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
+                    binding.second.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
+                {
+                    for (size_t ai = 0;
+                         ai < bound_descriptor_sets->descriptors[bindind_index].buffer_info.size();
+                         ++ai)
+                    {
+                        bound_descriptor_sets->descriptors[bindind_index].buffer_info[ai].offset +=
+                            pDynamicOffsets[dynamic_offset_index];
+                        ++dynamic_offset_index;
+                    }
+                }
+            }
         }
     }
+
+    assert((dynamic_offset_index == dynamicOffsetCount && pDynamicOffsets != nullptr) || (!dynamic_offset_index));
 }
 
 bool DispatchTraceRaysDumpingContext::MustDumpDispatch(uint64_t index) const
@@ -425,8 +454,8 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
                     const uint32_t binding_index = shader_desc_binding.first;
 
                     const DescriptorSetInfo* bound_descriptor_sets =
-                        is_dispatch ? bound_descriptor_sets_compute[desc_set_index]
-                                    : bound_descriptor_sets_ray_tracing[desc_set_index];
+                        is_dispatch ? &bound_descriptor_sets_compute[desc_set_index]
+                                    : &bound_descriptor_sets_ray_tracing[desc_set_index];
                     assert(bound_descriptor_sets != nullptr);
 
                     const auto& bound_desc_binding = bound_descriptor_sets->descriptors.find(binding_index);
@@ -1125,7 +1154,7 @@ void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptors(DispatchParameter
             continue;
         }
 
-        const DescriptorSetInfo* bound_descriptor_set = bound_descriptor_set_entry->second;
+        const DescriptorSetInfo* bound_descriptor_set = &bound_descriptor_set_entry->second;
 
         for (const auto& shader_desc_binding : shader_desc_set.second)
         {
@@ -1167,7 +1196,7 @@ void DispatchTraceRaysDumpingContext::SnapshotBoundDescriptors(TraceRaysParamete
                 continue;
             }
 
-            const DescriptorSetInfo* bound_descriptor_set = bound_descriptor_set_entry->second;
+            const DescriptorSetInfo* bound_descriptor_set = &bound_descriptor_set_entry->second;
 
             for (const auto& shader_desc_binding : shader_desc_set.second)
             {

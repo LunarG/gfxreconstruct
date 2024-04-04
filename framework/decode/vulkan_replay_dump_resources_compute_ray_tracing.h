@@ -152,8 +152,8 @@ class DispatchTraceRaysDumpingContext
     bool                           dump_all_image_subresources;
 
     // One entry per descriptor set for each compute and ray tracing binding points
-    std::unordered_map<uint32_t, const DescriptorSetInfo*> bound_descriptor_sets_compute;
-    std::unordered_map<uint32_t, const DescriptorSetInfo*> bound_descriptor_sets_ray_tracing;
+    std::unordered_map<uint32_t, DescriptorSetInfo> bound_descriptor_sets_compute;
+    std::unordered_map<uint32_t, DescriptorSetInfo> bound_descriptor_sets_ray_tracing;
 
     // For each Dispatch/TraceRays that we dump we create a clone of all mutable resources used in the
     // shaders/pipeline and the content of the original resources are copied into the clones

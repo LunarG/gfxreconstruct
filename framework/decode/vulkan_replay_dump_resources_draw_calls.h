@@ -179,9 +179,6 @@ class DrawCallsDumpingContext
     void SnapshotBoundDescriptors(uint64_t index);
 
   private:
-    // One entry per descriptor set
-    std::unordered_map<uint32_t, const DescriptorSetInfo*> bound_descriptor_sets_gr;
-
     std::vector<std::string> GenerateRenderTargetImageFilename(VkFormat format,
                                                                uint64_t cmd_buf_index,
                                                                uint64_t dc_index,
@@ -251,6 +248,9 @@ class DrawCallsDumpingContext
 
     // Render area is constant between subpasses so this array will be single dimension array
     std::vector<VkRect2D> render_area;
+
+    // One entry per descriptor set
+    std::unordered_map<uint32_t, DescriptorSetInfo> bound_descriptor_sets_gr;
 
     struct VertexInputState
     {
