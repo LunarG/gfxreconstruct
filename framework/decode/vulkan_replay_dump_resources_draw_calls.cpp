@@ -1016,6 +1016,14 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                             }
                             break;
 
+                            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                            {
+                                const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
+                                    desc_set_index, desc_set_binding_index);
+                                output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                            }
+                            break;
+
                             default:
                                 break;
                         }
@@ -1201,6 +1209,16 @@ std::string DrawCallsDumpingContext::GenerateBufferDescriptorFilename(format::Ha
     return (filedirname / filebasename).string();
 }
 
+std::string DrawCallsDumpingContext::GenerateInlineUniformBufferDescriptorFilename(uint32_t set, uint32_t binding) const
+{
+    std::stringstream filename;
+    filename << "InlineUniformBlock_set_" << set << "_binding_" << binding << ".bin";
+
+    std::filesystem::path filedirname(dump_resource_path);
+    std::filesystem::path filebasename(filename.str());
+    return (filedirname / filebasename).string();
+}
+
 VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const
 {
     // Create a list of all descriptors referenced by all draw calls
@@ -1212,6 +1230,14 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
         VkDeviceSize range;
     };
     std::unordered_map<const BufferInfo*, buffer_descriptor_info> buffer_descriptors;
+
+    struct inline_uniform_block_info
+    {
+        uint32_t                    set;
+        uint32_t                    binding;
+        const std::vector<uint8_t>* data;
+    };
+    std::unordered_map<const std::vector<uint8_t>*, inline_uniform_block_info> inline_uniform_blocks;
 
     for (const auto& dc_params : draw_call_params)
     {
@@ -1265,6 +1291,14 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
                                                                     desc_binding.second.buffer_info[i].range }));
                                 }
                             }
+                        }
+                        break;
+
+                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                        {
+                            inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
+                                desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
+                            };
                         }
                         break;
 
@@ -1336,6 +1370,12 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
 
         const std::string filename = GenerateBufferDescriptorFilename(buffer_info->capture_id);
         util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
+    }
+
+    for (const auto& iub : inline_uniform_blocks)
+    {
+        std::string filename = GenerateInlineUniformBufferDescriptorFilename(iub.second.set, iub.second.binding);
+        util::bufferwriter::WriteBuffer(filename, iub.second.data->data(), iub.second.data->size());
     }
 
     return VK_SUCCESS;

@@ -133,6 +133,8 @@ class DispatchTraceRaysDumpingContext
 
     std::string GenerateBufferDescriptorFilename(format::HandleId buffer_id) const;
 
+    std::string GenerateInlineUniformBufferDescriptorFilename(uint32_t set, uint32_t binding) const;
+
     VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const;
 
     void GenerateOutputJson(uint64_t qs_index, uint64_t bcb_index) const;

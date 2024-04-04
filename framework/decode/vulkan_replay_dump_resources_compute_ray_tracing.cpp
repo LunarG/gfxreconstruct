@@ -203,9 +203,7 @@ void DispatchTraceRaysDumpingContext::BindDescriptorSets(
                 if (binding.second.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
                     binding.second.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
                 {
-                    for (size_t ai = 0;
-                         ai < bound_descriptor_sets->descriptors[bindind_index].buffer_info.size();
-                         ++ai)
+                    for (size_t ai = 0; ai < bound_descriptor_sets->descriptors[bindind_index].buffer_info.size(); ++ai)
                     {
                         bound_descriptor_sets->descriptors[bindind_index].buffer_info[ai].offset +=
                             pDynamicOffsets[dynamic_offset_index];
@@ -1290,6 +1288,17 @@ std::string DispatchTraceRaysDumpingContext::GenerateBufferDescriptorFilename(fo
     return (filedirname / filebasename).string();
 }
 
+std::string DispatchTraceRaysDumpingContext::GenerateInlineUniformBufferDescriptorFilename(uint32_t set,
+                                                                                           uint32_t binding) const
+{
+    std::stringstream filename;
+    filename << "InlineUniformBlock_set_" << set << "_binding_" << binding << ".bin";
+
+    std::filesystem::path filedirname(dump_resource_path);
+    std::filesystem::path filebasename(filename.str());
+    return (filedirname / filebasename).string();
+}
+
 VkResult DispatchTraceRaysDumpingContext::DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const
 {
     // Create a list of all descriptors referenced by all commands
@@ -1301,6 +1310,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableResources(uint64_t qs_ind
         VkDeviceSize range;
     };
     std::unordered_map<const BufferInfo*, buffer_descriptor_info> buffer_descriptors;
+
+    struct inline_uniform_block_info
+    {
+        uint32_t                    set;
+        uint32_t                    binding;
+        const std::vector<uint8_t>* data;
+    };
+    std::unordered_map<const std::vector<uint8_t>*, inline_uniform_block_info> inline_uniform_blocks;
 
     // Scan through descriptors used in compute commands
     for (const auto& disp_params : dispatch_params)
@@ -1359,6 +1376,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableResources(uint64_t qs_ind
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                     case VK_DESCRIPTOR_TYPE_SAMPLER:
                         break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
+                            desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
+                        };
+                    }
+                    break;
 
                     default:
                         GFXRECON_LOG_WARNING_ONCE(
@@ -1431,6 +1456,14 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableResources(uint64_t qs_ind
                         case VK_DESCRIPTOR_TYPE_SAMPLER:
                             break;
 
+                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                        {
+                            inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
+                                desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
+                            };
+                        }
+                        break;
+
                         default:
                             GFXRECON_LOG_WARNING_ONCE(
                                 "%s(): Descriptor type (%s) not handled",
@@ -1495,6 +1528,12 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableResources(uint64_t qs_ind
 
         const std::string filename = GenerateBufferDescriptorFilename(buffer_info->capture_id);
         util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
+    }
+
+    for (const auto& iub : inline_uniform_blocks)
+    {
+        std::string filename = GenerateInlineUniformBufferDescriptorFilename(iub.second.set, iub.second.binding);
+        util::bufferwriter::WriteBuffer(filename, iub.second.data->data(), iub.second.data->size());
     }
 
     return VK_SUCCESS;
@@ -1792,6 +1831,14 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                         case VK_DESCRIPTOR_TYPE_SAMPLER:
                             break;
+
+                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                        {
+                            const std::string filename =
+                                GenerateInlineUniformBufferDescriptorFilename(desc_set_index, desc_binding_index);
+                            output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                        }
+                        break;
 
                         default:
                             GFXRECON_LOG_WARNING_ONCE(

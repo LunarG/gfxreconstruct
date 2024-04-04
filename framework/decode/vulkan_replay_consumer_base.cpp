@@ -8479,7 +8479,6 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
 
         for (uint32_t b = 0; b < in_pDescriptorWrites[s].descriptorCount; ++b)
         {
-
             switch (in_pDescriptorWrites[s].descriptorType)
             {
                 case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
@@ -8536,6 +8535,42 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
                         const uint32_t arr_idx = in_pDescriptorWrites[s].dstArrayElement + i;
                         bi.texel_buffer_view_info[arr_idx] =
                             object_info_table_.GetBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[b]);
+                    }
+                }
+                break;
+
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                {
+                    const VkBaseOutStructure* pnext =
+                        reinterpret_cast<const VkBaseOutStructure*>(in_pDescriptorWrites[s].pNext);
+                    while (pnext != nullptr)
+                    {
+                        if (pnext->sType == VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK)
+                        {
+                            const VkWriteDescriptorSetInlineUniformBlock* inline_uni_block_write =
+                                reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(pnext);
+
+                            if (dst_set_info->descriptors.find(in_pDescriptorWrites[s].dstBinding + b) !=
+                                dst_set_info->descriptors.end())
+                            {
+                                bi.inline_uniform_block =
+                                    std::move(dst_set_info->descriptors[in_pDescriptorWrites[s].dstBinding + b]
+                                                  .inline_uniform_block);
+                            }
+
+                            const uint32_t size   = inline_uni_block_write->dataSize;
+                            const uint32_t offset = in_pDescriptorWrites[s].dstArrayElement;
+
+                            if (bi.inline_uniform_block.size() < size + offset)
+                            {
+                                bi.inline_uniform_block.resize(size + offset);
+                            }
+
+                            util::platform::MemoryCopy(
+                                bi.inline_uniform_block.data() + offset, size, inline_uni_block_write->pData, size);
+                            break;
+                        }
+                        pnext = pnext->pNext;
                     }
                 }
                 break;
