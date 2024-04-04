@@ -188,6 +188,8 @@ class DrawCallsDumpingContext
 
     std::string GenerateBufferDescriptorFilename(format::HandleId buffer_id) const;
 
+    std::string GenerateInlineUniformBufferDescriptorFilename(uint32_t set, uint32_t binding) const;
+
     std::string GenerateVertexBufferFilename(uint64_t bind_vertex_buffer_index, uint32_t binding) const;
 
     std::string GenerateIndexBufferFilename(uint64_t bind_index_buffer_index, VkIndexType type) const;

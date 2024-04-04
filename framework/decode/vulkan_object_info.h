@@ -34,6 +34,7 @@
 
 #include "vulkan/vulkan.h"
 
+#include <cstdint>
 #include <memory>
 #include <map>
 #include <string>
@@ -594,6 +595,7 @@ struct DescriptorSetBindingInfo
     std::vector<DescriptorTypeImageInfo>  image_info;
     std::vector<DescriptorTypeBufferInfo> buffer_info;
     std::vector<const BufferViewInfo*>    texel_buffer_view_info;
+    std::vector<uint8_t>                  inline_uniform_block;
 };
 
 struct DescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
