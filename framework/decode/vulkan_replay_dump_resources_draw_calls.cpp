@@ -526,9 +526,9 @@ void DrawCallsDumpingContext::SnapshotBoundDescriptors(uint64_t index)
                     //     continue;
                     // }
 
-                    const auto& ppl_desc_binding = ppl_desc_set->second->descriptors.find(desc_set_binding_index);
-                    assert(ppl_desc_binding != ppl_desc_set->second->descriptors.end());
-                    if (ppl_desc_binding == ppl_desc_set->second->descriptors.end())
+                    const auto& ppl_desc_binding = ppl_desc_set->second.descriptors.find(desc_set_binding_index);
+                    assert(ppl_desc_binding != ppl_desc_set->second.descriptors.end());
+                    if (ppl_desc_binding == ppl_desc_set->second.descriptors.end())
                     {
                         continue;
                     }
@@ -2003,13 +2003,39 @@ void DrawCallsDumpingContext::BindDescriptorSets(VkPipelineBindPoint            
                                                  uint32_t                                     dynamicOffsetCount,
                                                  const uint32_t*                              pDynamicOffsets)
 {
+    uint32_t dynamic_offset_index = 0;
     for (size_t i = 0; i < descriptor_sets_infos.size(); ++i)
     {
+        uint32_t set_index = first_set + i;
+
         if (pipeline_bind_point == VK_PIPELINE_BIND_POINT_GRAPHICS)
         {
-            bound_descriptor_sets_gr[first_set + i] = descriptor_sets_infos[i];
+            bound_descriptor_sets_gr[set_index] = *descriptor_sets_infos[i];
+
+            if (dynamicOffsetCount && pDynamicOffsets != nullptr)
+            {
+                for (const auto& binding : descriptor_sets_infos[i]->descriptors)
+                {
+                    const uint32_t bindind_index = binding.first;
+
+                    if (binding.second.desc_type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
+                        binding.second.desc_type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC)
+                    {
+                        for (size_t ai = 0;
+                             ai < bound_descriptor_sets_gr[set_index].descriptors[bindind_index].buffer_info.size();
+                             ++ai)
+                        {
+                            bound_descriptor_sets_gr[set_index].descriptors[bindind_index].buffer_info[ai].offset +=
+                                pDynamicOffsets[dynamic_offset_index];
+                            ++dynamic_offset_index;
+                        }
+                    }
+                }
+            }
         }
     }
+
+    assert((dynamic_offset_index == dynamicOffsetCount && pDynamicOffsets != nullptr) || (!dynamic_offset_index));
 }
 
 VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  original_render_pass,
