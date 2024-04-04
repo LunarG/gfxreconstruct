@@ -26,6 +26,80 @@ The proposal is based on mapping the captured device address to a buffer and ret
 Addresses with offsets can be handled as well by searching based on known buffer addresses and sizes, then applying the same offset to found address.
 Buffers containing device addresses can be written to at any time, so for device operations - AS build commands specifically - the address replacement is delayed until the command buffer containing such commands is queued for execution.
 
+#### Register used device addresses
+All device addresses used in the trace had to be fetched via vkGetBufferDeviceAddress command.
+That assumption should be considered in trimming, where this call could be skipped. 
+```mermaid
+sequenceDiagram
+    box cpu
+        participant trace 
+        participant vulkan_consumer
+        participant acceleration_structure_builder
+    end
+    trace ->> vulkan_consumer: GetBufferDeviceAddress 
+    vulkan_consumer ->> gpu: GetBufferDeviceAddress
+    vulkan_consumer ->> acceleration_structure_builder: SetBufferInfo
+```
+
+#### Replace device addresses
+Device addresses can be used in api calls directly, like scratchData in vkCmdBuildAccelerationStructuresKHR, or have levels of indirection, like instances data in VkAccelerationStructureGeometryInstancesDataKHR. Lastly, they can be passed to compute shaders and processed on gpu.
+##### Immediate replacement
+In the simplest case device addresses can be replaced immediately in call override:
+```mermaid
+sequenceDiagram
+    box cpu
+        participant trace 
+        participant vulkan_consumer
+        participant acceleration_structure_builder
+    end
+    trace ->> vulkan_consumer: vkCmdBuildAccelerationStructuresKHR 
+    vulkan_consumer ->>+ acceleration_structure_builder: CmdBuildAccelerationStructures
+    acceleration_structure_builder->>acceleration_structure_builder: Replace scratch device address
+    acceleration_structure_builder->>-gpu: vkCmdBuildAccelerationStructuresKHR
+```
+##### Delayed replacement
+In the second case, if the device address was put inside a buffer, additionally to the immediate replacement the content of the buffer has to be replaced as well, like instances data in VkAccelerationStructureGeometryInstancesDataKHR.
+The problem is the content of the buffer can be filled at any time.
+In the proposed solution the buffers content is replaced right before QueueSubmit:
+```mermaid
+sequenceDiagram
+    box cpu
+        participant trace 
+        participant vulkan_consumer
+        participant acceleration_structure_builder
+    end
+    trace ->> vulkan_consumer: vkCmdBuildAccelerationStructuresKHR 
+    vulkan_consumer ->>+ acceleration_structure_builder: CmdBuildAccelerationStructures
+    acceleration_structure_builder->>acceleration_structure_builder: Replace instance buffer device address
+    acceleration_structure_builder->>gpu: vkCmdBuildAccelerationStructuresKHR
+    acceleration_structure_builder->>-acceleration_structure_builder: Store instance buffer content replacement data
+    trace ->> vulkan_consumer: FillMemoryCommand
+    vulkan_consumer ->> gpu: Original instance buffer content
+    trace ->> vulkan_consumer: QueueSubmit
+    vulkan_consumer ->>+ acceleration_structure_builder: OnQueueSubmit
+    acceleration_structure_builder ->> acceleration_structure_builder: CPU-side replacement of stored buffers contents
+    acceleration_structure_builder ->>- gpu: vkQueueSubmit
+```
+##### Capture-Assisted replacement
+In general, device addresses may end up in buffers passed to compute shaders for processing.
+There are cases where compute shaders read buffer content based on device address, or fill out the instance buffers for acceleration structure build commands.
+In this scenario finding the memory containing device address for replacement becomes a challange.
+Proposed solution is to scan content of FillMemoryCommand on capture. If a known device address is found, "FixDeviceAddressMemoryCommand" metacommand is injected, informing the replayer on the locations of device addresses within a buffer.
+
+```mermaid
+sequenceDiagram
+    box cpu
+        participant trace 
+        participant vulkan_consumer
+        participant acceleration_structure_builder
+    end
+
+    trace ->> vulkan_consumer: FillMemoryCommand
+    vulkan_consumer ->> gpu: Original instance buffer content
+    trace ->> vulkan_consumer: FixDeviceAddressMemoryCommand
+    vulkan_consumer ->> gpu: Update device addresses in filled memory
+```
+
 ### Buffer sizes
 Use similar approach to rebind allocator.
 Once AS build command is queued for execution:
@@ -80,4 +154,3 @@ A redundant set of calls will be traced and consumed in the replayer, creating p
 ```
 TODO: expose an api from the replayer to the capture layer signaling internal handling.
 ```
-
