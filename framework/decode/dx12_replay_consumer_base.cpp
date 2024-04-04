@@ -3844,15 +3844,24 @@ void Dx12ReplayConsumerBase::ApplyFillMemoryResourceValueCommand(uint64_t       
 
 void Dx12ReplayConsumerBase::PostReplay()
 {
-    if (ContainsDxrWorkload() || ContainsEiWorkload())
+    if (ContainsOptFillMem() == false)
     {
-        if (ContainsOptFillMem() == false)
+        bool rv_mappings_performed = false;
+        if (GetResourceValueMapper() != nullptr)
+        {
+            rv_mappings_performed = GetResourceValueMapper()->PerformedRvMapping();
+        }
+        if ((ContainsDxrWorkload() || ContainsEiWorkload()) && rv_mappings_performed)
         {
             GFXRECON_LOG_INFO_ONCE(
                 "This capture contains DXR and/or ExecuteIndirect workloads, but has not been optimized.");
-            GFXRECON_LOG_INFO_ONCE(
-                "Use gfxrecon-optimize to obtain an optimized capture with improved playback performance.");
         }
+        else
+        {
+            GFXRECON_LOG_INFO_ONCE("This capture has not been optimized.")
+        }
+        GFXRECON_LOG_INFO_ONCE(
+            "Use gfxrecon-optimize to obtain an optimized capture with improved playback performance.");
     }
 }
 
