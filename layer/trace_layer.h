@@ -47,9 +47,6 @@ XRAPI_ATTR XrResult XRAPI_CALL OpenXrEnumerateInstanceExtensionProperties(const 
 XRAPI_ATTR XrResult XRAPI_CALL OpenXrEnumerateApiLayerProperties(uint32_t              propertyCapacityInput,
                                                                  uint32_t*             propertyCountOutput,
                                                                  XrApiLayerProperties* properties);
-XRAPI_ATTR XrResult XRAPI_CALL OpenXrCreateApiLayerInstance(const XrInstanceCreateInfo* info,
-                                                            const XrApiLayerCreateInfo* apiLayerInfo,
-                                                            XrInstance*                 instance);
 XRAPI_ATTR XrResult XRAPI_CALL OpenXrGetInstanceProcAddr(XrInstance          instance,
                                                          const char*         name,
                                                          PFN_xrVoidFunction* function);
@@ -73,6 +70,11 @@ VKAPI_ATTR VkResult VKAPI_CALL           VulkanEnumerateDeviceLayerProperties(Vk
                                                                               uint32_t*          pPropertyCount,
                                                                               VkLayerProperties* pProperties);
 
+#ifdef ENABLE_OPENXR_SUPPORT
+XRAPI_ATTR XrResult XRAPI_CALL dispatch_OpenXrCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                                     const XrApiLayerCreateInfo* apiLayerInfo,
+                                                                     XrInstance*                 instance);
+#endif // ENABLE_OPENXR_SUPPORT
 VKAPI_ATTR VkResult VKAPI_CALL dispatch_VulkanCreateInstance(const VkInstanceCreateInfo*  pCreateInfo,
                                                              const VkAllocationCallbacks* pAllocator,
                                                              VkInstance*                  pInstance);

@@ -28,7 +28,6 @@
 #include "encode/custom_openxr_struct_handle_wrappers.h"
 #include "encode/openxr_handle_wrapper_util.h"
 #include "generated/generated_openxr_struct_trackers.h"
-#include "graphics/openxr_util.h"
 
 #include <algorithm>
 

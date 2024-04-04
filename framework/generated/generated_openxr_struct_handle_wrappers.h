@@ -38,6 +38,7 @@
 #include "util/defines.h"
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)

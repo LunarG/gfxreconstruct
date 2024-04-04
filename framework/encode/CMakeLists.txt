@@ -39,6 +39,8 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_api_call_encoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_encoders.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_handle_wrappers.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_handle_wrappers.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_encoder_commands.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_api_call_encoders.cpp
@@ -89,11 +91,15 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_rv_annotation_util.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_rv_annotation_util.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/handle_unwrap_memory.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_capture_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_wrappers.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_wrapper_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_handle_wrapper_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_state_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_state_table_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_tracker.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_state_tracker.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_state_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_state_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_buffer.h

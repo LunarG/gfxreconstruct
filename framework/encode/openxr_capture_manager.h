@@ -66,8 +66,8 @@ class OpenXrCaptureManager : public CaptureManager
     static void DestroyInstance();
 
     // Register special layer provided functions, which perform layer specific initialization.
-    // These must be set before the application calls xrCreateInstance.
-    static void SetLayerFuncs(PFN_xrCreateInstance create_instance);
+    // These must be set before the application calls xrCreateApiLayerInstance.
+    static void SetLayerFuncs(PFN_xrCreateApiLayerInstance create_api_layer_instance);
 
     // Called by the layer's xrCreateInstance function, after the driver's xrCreateInstance function has been called, to
     // check for failure.  If xrCreateInstance failed, the reference count will be decremented and resources will be
@@ -175,8 +175,9 @@ class OpenXrCaptureManager : public CaptureManager
         EndApiCallCapture();
     }
 
-    static XrResult OverrideInitializeLoaderKHR(const XrLoaderInitInfoBaseHeaderKHR* loaderInitInfo);
-    static XrResult OverrideCreateInstance(const XrInstanceCreateInfo* pCreateInfo, XrInstance* pInstance);
+    static XrResult OverrideCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                   const XrApiLayerCreateInfo* apiLayerInfo,
+                                                   XrInstance*                 instance);
 
   protected:
     OpenXrCaptureManager() : CaptureManager(format::ApiFamilyId::ApiFamily_OpenXR) {}

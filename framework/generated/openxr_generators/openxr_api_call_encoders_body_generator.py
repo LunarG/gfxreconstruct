@@ -100,6 +100,10 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             '#include "encode/custom_openxr_encoder_commands.h"',
             file=self.outFile
         )
+        write(
+            '#include "encode/custom_openxr_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
         write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "encode/openxr_capture_manager.h"', file=self.outFile)
@@ -580,7 +584,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                             )
                             break
                     if self.is_handle(value.base_type):
-                        handle_prefix = self.get_handle_prefix(value.base_type)
+                        handle_prefix = self.get_prefix_from_type(value.base_type)
                         handle_wrapper = self.get_handle_wrapper(
                             value.base_type
                         )
@@ -599,7 +603,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         )
                 else:
                     if self.is_handle(value.base_type):
-                        handle_prefix = self.get_handle_prefix(value.base_type)
+                        handle_prefix = self.get_prefix_from_type(value.base_type)
                         handle_wrapper = self.get_handle_wrapper(
                             value.base_type
                         )

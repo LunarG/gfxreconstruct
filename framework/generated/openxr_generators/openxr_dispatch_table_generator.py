@@ -128,7 +128,7 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
         write('struct OpenXrLayerTable', file=self.outFile)
         write('{', file=self.outFile)
         write(
-            '    PFN_xrCreateInstance CreateInstance{ nullptr };',
+            '    PFN_xrCreateApiLayerInstance CreateApiLayerInstance{ nullptr };',
             file=self.outFile
         )
         write('};', file=self.outFile)

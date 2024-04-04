@@ -80,6 +80,7 @@
 #endif
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 #include <cstdint>
@@ -161,6 +162,9 @@ void EncodeStruct(ParameterEncoder* encoder, const XrRect2Df& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrVector4f& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrColor4f& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerNextInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerCreateInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateApiLayerRequest& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCubeKHR& value);
 

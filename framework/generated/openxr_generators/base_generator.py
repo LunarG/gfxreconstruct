@@ -487,6 +487,7 @@ class BaseGenerator(OutputGenerator):
         """Write OpenXR header include statements
         """
         write('#include "openxr/openxr.h"', file=self.outFile)
+        write('#include "openxr/openxr_loader_negotiation.h"', file=self.outFile)
         write('#include "openxr/openxr_platform.h"', file=self.outFile)
         for extra_openxr_header in gen_opts.extraOpenXrHeaders:
             header_include_path = re.sub(r'\\', '/', extra_openxr_header)
@@ -1158,7 +1159,7 @@ class BaseGenerator(OutputGenerator):
         if self.is_struct(base_type):
             return base_type
         elif self.is_handle(base_type):
-            type_name = self.get_handle_prefix(base_type)
+            type_name = self.get_prefix_from_type(base_type)
             type_name += 'Handle'
             return type_name
         elif self.is_flags(base_type):
@@ -1344,7 +1345,7 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    def get_handle_prefix(self, handle_name):
+    def get_prefix_from_type(self, handle_name):
         if handle_name.startswith('Vk'):
             return 'Vulkan'
         elif handle_name.startswith('Xr'):
@@ -1352,7 +1353,7 @@ class BaseGenerator(OutputGenerator):
         else:
             return 'UNKNOWN'
 
-    def get_handle_wrapper_prefix(self, handle_name):
+    def get_wrapper_prefix_from_type(self, handle_name):
         if handle_name.startswith('Vk'):
             return 'vulkan_wrappers'
         elif handle_name.startswith('Xr'):
@@ -1441,7 +1442,7 @@ class BaseGenerator(OutputGenerator):
                 method_call += 'Value'
 
         if is_handle or is_atom:
-            wrapper_prefix = self.get_handle_wrapper_prefix(value.base_type)
+            wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             method_call += '<{}>'.format(
                 wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper'
             )

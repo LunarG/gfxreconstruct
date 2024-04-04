@@ -78,6 +78,7 @@
 #endif
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -333,6 +334,10 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStopHapticFeedback(
     XrSession                                   session,
     const XrHapticActionInfo*                   hapticActionInfo);
 
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
+    const XrInstanceCreateInfo*                 info,
+    const XrApiLayerCreateInfo*                 layerInfo,
+    XrInstance*                                 instance);
 
 XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(
     XrSession                                   session,
@@ -417,8 +422,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     XrTime                                      time,
     struct timespec*                            timespecTime);
 
-XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(
-    const XrLoaderInitInfoBaseHeaderKHR*        loaderInitInfo);
 
 XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(
     XrInstance                                  instance,

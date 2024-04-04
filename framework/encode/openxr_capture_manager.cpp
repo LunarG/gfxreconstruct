@@ -44,7 +44,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 OpenXrCaptureManager* OpenXrCaptureManager::instance_ = nullptr;
-VulkanLayerTable      OpenXrCaptureManager::layer_table_;
+OpenXrLayerTable      OpenXrCaptureManager::layer_table_;
 
 bool OpenXrCaptureManager::CreateInstance()
 {
@@ -84,10 +84,10 @@ void OpenXrCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream
     thread_data->block_index_ = block_index_;
 }
 
-void OpenXrCaptureManager::SetLayerFuncs(PFN_vkCreateInstance create_instance)
+void OpenXrCaptureManager::SetLayerFuncs(PFN_xrCreateApiLayerInstance create_api_layer_instance)
 {
-    assert(create_instance != nullptr);
-    layer_table_.CreateInstance = create_instance;
+    assert(create_api_layer_instance != nullptr);
+    layer_table_.CreateApiLayerInstance = create_api_layer_instance;
 }
 
 void OpenXrCaptureManager::CheckXrCreateInstanceStatus(XrResult result)
@@ -109,26 +109,21 @@ void OpenXrCaptureManager::InitXrInstance(XrInstance* instance, PFN_xrGetInstanc
     LoadOpenXrInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
-XrResult OpenXrCaptureManager::OverrideInitializeLoaderKHR(const XrLoaderInitInfoBaseHeaderKHR* loaderInitInfo)
+XrResult OpenXrCaptureManager::OverrideCreateApiLayerInstance(const XrInstanceCreateInfo* info,
+                                                              const XrApiLayerCreateInfo* apiLayerInfo,
+                                                              XrInstance*                 instance)
 {
-    XrResult result = VK_ERROR_INITIALIZATION_FAILED;
-
-    result = layer_table_.InitializeLoaderKHR(loaderInitInfo);
-}
-
-XrResult OpenXrCaptureManager::OverrideCreateInstance(const XrInstanceCreateInfo* createInfo, XrInstance* instance)
-{
-    XrResult result = VK_ERROR_INITIALIZATION_FAILED;
+    XrResult result = XR_ERROR_INITIALIZATION_FAILED;
 
     if (CreateInstance())
     {
-        result = layer_table_.CreateInstance(createInfo, pInstance);
+        result = layer_table_.CreateApiLayerInstance(info, apiLayerInfo, instance);
     }
 
-    if ((result == VK_SUCCESS) && (createInfo->pApplicationInfo != nullptr))
+    if (result == XR_SUCCESS)
     {
-        auto api_version              = createInfo->pApplicationInfo->apiVersion;
-        auto instance_wrapper         = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(*pInstance);
+        auto api_version              = info->applicationInfo.apiVersion;
+        auto instance_wrapper         = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(*instance);
         instance_wrapper->api_version = api_version;
 
         // Warn when enabled API version is newer than the supported API version.

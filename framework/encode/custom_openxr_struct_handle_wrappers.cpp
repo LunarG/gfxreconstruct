@@ -23,7 +23,8 @@
 
 #ifdef ENABLE_OPENXR_SUPPORT
 
-#include "encode/custom_vulkan_struct_handle_wrappers.h"
+#include "encode/custom_openxr_struct_handle_wrappers.h"
+#include "generated/generated_openxr_struct_handle_wrappers.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
 #include "util/logging.h"

@@ -76,7 +76,9 @@ class OpenXrLayerFuncTableGenerator(BaseGenerator):
         self.APICALL_BLACKLIST += [
             'xrNegotiateLoaderRuntimeInterface',
             'xrNegotiateLoaderApiLayerInterface',
+            'xrInitializeLoaderKHR',
             'xrCreateInstance',
+            'xrCreateApiLayerInstance',
         ]
 
         # These functions are provided directly by the layer, and are not encoded

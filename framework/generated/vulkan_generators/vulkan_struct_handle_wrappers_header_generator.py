@@ -273,7 +273,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
             body += '    if (value != nullptr)\n'
             body += '    {\n'
 
-            wrapper_prefix = self.get_handle_wrapper_prefix()
+            wrapper_prefix = self.get_wrapper_prefix_from_type()
 
             members = self.structs_with_handles[struct]
             for member in members:

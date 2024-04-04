@@ -85,8 +85,8 @@ class OpenXrStateTableHeaderGenerator(BaseGenerator):
 
     def add_wrapper_funcs(self, handle_atom):
         handle_name = handle_atom[2:]
-        wrapper_prefix = self.get_handle_wrapper_prefix(handle_atom)
-        handle_prefix = self.get_handle_prefix(handle_atom)
+        wrapper_prefix = self.get_wrapper_prefix_from_type(handle_atom)
+        handle_prefix = self.get_prefix_from_type(handle_atom)
         handle_wrapper_func = handle_prefix + handle_name + 'Wrapper'
         handle_wrapper_type = wrapper_prefix + '::' + handle_name + 'Wrapper'
         handle_map = handle_atom[0:1].lower() + '_' + handle_atom[2].lower(

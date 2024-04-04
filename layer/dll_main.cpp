@@ -21,6 +21,9 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "encode/openxr_capture_manager.h"
+#endif // ENABLE_OPENXR_SUPPORT
 #include "encode/vulkan_capture_manager.h"
 #include "layer/trace_layer.h"
 
@@ -37,6 +40,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         case DLL_PROCESS_ATTACH:
             gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::dispatch_VulkanCreateInstance,
                                                                   gfxrecon::dispatch_VulkanCreateDevice);
+#ifdef ENABLE_OPENXR_SUPPORT
+            gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(gfxrecon::dispatch_OpenXrCreateApiLayerInstance);
+#endif // ENABLE_OPENXR_SUPPORT
             break;
         case DLL_PROCESS_DETACH:
             // TODO: We assume that lpvReserved will always be NULL, because FreeLibrary should be
@@ -61,6 +67,9 @@ __attribute__((constructor)) static void create_trace_layer()
 {
     gfxrecon::encode::VulkanCaptureManager::SetLayerFuncs(gfxrecon::dispatch_VulkanCreateInstance,
                                                           gfxrecon::dispatch_VulkanCreateDevice);
+#ifdef ENABLE_OPENXR_SUPPORT
+    gfxrecon::encode::OpenXrCaptureManager::SetLayerFuncs(gfxrecon::dispatch_OpenXrCreateApiLayerInstance);
+#endif // ENABLE_OPENXR_SUPPORT
 }
 
 __attribute__((destructor)) static void destroy_trace_layer()

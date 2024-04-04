@@ -120,9 +120,10 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                 '    case {}:'.format(self.next_structs[base_type]),
                 file=self.outFile
             )
+            prefix = self.get_prefix_from_type(base_type)
             write(
-                '        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
-                .format(base_type),
+                '        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrap{}Structs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
+                .format(prefix, base_type),
                 file=self.outFile
             )
             write('        break;', file=self.outFile)

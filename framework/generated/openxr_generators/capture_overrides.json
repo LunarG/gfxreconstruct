@@ -1,6 +1,5 @@
 {
     "functions": {
-        "xrInitializeLoaderKHR": "OpenXrCaptureManager::OverrideInitializeLoaderKHR",
-        "xrCreateInstance": "OpenXrCaptureManager::OverrideCreateInstance"
+        "xrCreateApiLayerInstance": "OpenXrCaptureManager::OverrideCreateApiLayerInstance"
     }
 }

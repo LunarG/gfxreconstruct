@@ -43,7 +43,7 @@ static const VkDescriptorImageInfo* UnwrapDescriptorImageInfoStructArrayHandles(
         size_t         num_bytes = len * sizeof(values[0]);
 
         // Copy and transform handles.
-        VkDescriptorImageInfo* unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
+        VkDescriptorImageInfo* unwrapped_structs = MakeUnwrapVulkanStructs(values, len, unwrap_memory);
 
         for (size_t i = 0; i < len; ++i)
         {

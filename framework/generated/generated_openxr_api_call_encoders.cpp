@@ -32,6 +32,7 @@
 #include "generated/generated_openxr_api_call_encoders.h"
 
 #include "encode/custom_openxr_encoder_commands.h"
+#include "encode/custom_openxr_struct_handle_wrappers.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/openxr_capture_manager.h"
@@ -42,6 +43,7 @@
 #include "util/defines.h"
 
 #include "openxr/openxr.h"
+#include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -2260,6 +2262,49 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStopHapticFeedback(
     return result;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
+    const XrInstanceCreateInfo*                 info,
+    const XrApiLayerCreateInfo*                 layerInfo,
+    XrInstance*                                 instance)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(manager, info, layerInfo, instance);
+
+    XrResult result = OpenXrCaptureManager::OverrideCreateApiLayerInstance(info, layerInfo, instance);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateApiLayerInstance);
+    if (encoder)
+    {
+        EncodeStructPtr(encoder, info);
+        EncodeStructPtr(encoder, layerInfo);
+        encoder->EncodeOpenXrHandlePtr<openxr_wrappers::InstanceWrapper>(instance, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<const void*, openxr_wrappers::InstanceWrapper, XrApiLayerCreateInfo>(result, nullptr, instance, layerInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(manager, result, info, layerInfo, instance);
+
+    return result;
+}
 
 XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(
     XrSession                                   session,
@@ -2941,39 +2986,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(
-    const XrLoaderInitInfoBaseHeaderKHR*        loaderInitInfo)
-{
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrInitializeLoaderKHR>::Dispatch(manager, loaderInitInfo);
-
-    XrResult result = OpenXrCaptureManager::OverrideInitializeLoaderKHR(loaderInitInfo);
-
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrInitializeLoaderKHR);
-    if (encoder)
-    {
-        EncodeStructPtr(encoder, loaderInitInfo);
-        encoder->EncodeEnumValue(result);
-        manager->EndApiCallCapture();
-    }
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrInitializeLoaderKHR>::Dispatch(manager, result, loaderInitInfo);
-
-    return result;
-}
 
 XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(
     XrInstance                                  instance,
