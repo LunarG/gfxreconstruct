@@ -62,10 +62,8 @@ struct CopyResourceData
 
     std::vector<std::vector<uint8_t>> datas; // copy resource  drawcall
 
-    graphics::dx12::ID3D12CommandAllocatorComPtr    cmd_allocator{ nullptr };
-    graphics::dx12::ID3D12GraphicsCommandListComPtr cmd_list{ nullptr };
-    ID3D12Resource*                                 read_resource{ nullptr };
-    bool                                            read_resource_is_staging_buffer{ false };
+    ID3D12Resource* read_resource{ nullptr };
+    bool            read_resource_is_staging_buffer{ false };
 
     void Clear()
     {
@@ -80,8 +78,6 @@ struct CopyResourceData
         total_size        = 0;
         is_cpu_accessible = false;
         datas.clear();
-        cmd_allocator                   = nullptr;
-        cmd_list                        = nullptr;
         read_resource                   = nullptr;
         read_resource_is_staging_buffer = false;
     }
@@ -103,6 +99,11 @@ struct TrackDumpResources
     format::HandleId                         depth_stencil_heap_id{ format::kNullHandleId };
     D3D12_CPU_DESCRIPTOR_HANDLE              replay_depth_stencil_handle{ decode::kNullCpuAddress };
 
+    graphics::dx12::ID3D12CommandAllocatorComPtr    copy_cmd_allocator{ nullptr };
+    graphics::dx12::ID3D12GraphicsCommandListComPtr copy_cmd_list{ nullptr };
+    graphics::dx12::ID3D12ResourceComPtr            copy_staging_buffer{ nullptr };
+    uint64_t                                        copy_staging_buffer_size{ 0 };
+
     enum SplitCommandType
     {
         kBeforeDrawCall,
@@ -120,6 +121,9 @@ struct TrackDumpResources
         target.Clear();
         render_target_heap_ids.clear();
         replay_render_target_handles.clear();
+        copy_cmd_allocator  = nullptr;
+        copy_cmd_list       = nullptr;
+        copy_staging_buffer = nullptr;
     }
 };
 
