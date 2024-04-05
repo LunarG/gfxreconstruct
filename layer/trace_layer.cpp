@@ -45,7 +45,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
 const VkLayerProperties kLayerProps = {
-    GFXRECON_PROJECT_LAYER_NAME,
+    GFXRECON_PROJECT_VULKAN_LAYER_NAME,
     VK_HEADER_VERSION_COMPLETE,
     VK_MAKE_VERSION(GFXRECON_PROJECT_VERSION_MAJOR, GFXRECON_PROJECT_VERSION_MINOR, GFXRECON_PROJECT_VERSION_PATCH),
     GFXRECON_PROJECT_DESCRIPTION
@@ -279,7 +279,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     // Check for implementation in the next level
     if (instance != VK_NULL_HANDLE)
     {
-        auto table = encode::GetInstanceTable(instance);
+        auto table = encode::GetVulkanInstanceTable(instance);
         if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
         {
             has_implementation = (table->GetInstanceProcAddr(instance, pName) != nullptr);
@@ -304,9 +304,9 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     // the instance handle is null and we can't determine if it is available from the next level.
     if (has_implementation || (instance == VK_NULL_HANDLE))
     {
-        const auto entry = func_table.find(pName);
+        const auto entry = vulkan_func_table.find(pName);
 
-        if (entry != func_table.end())
+        if (entry != vulkan_func_table.end())
         {
             result = entry->second;
         }
@@ -335,7 +335,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
         bool has_implementation = false;
 
         // Check for implementation in the next level
-        auto table = encode::GetDeviceTable(device);
+        auto table = encode::GetVulkanDeviceTable(device);
         if ((table != nullptr) && (table->GetDeviceProcAddr != nullptr))
         {
             has_implementation = (table->GetDeviceProcAddr(device, pName) != nullptr);
@@ -358,8 +358,8 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetDeviceProcAddr(VkDevice device, cons
         // Only intercept the requested function if there is an implementation available
         if (has_implementation)
         {
-            const auto entry = func_table.find(pName);
-            if (entry != func_table.end())
+            const auto entry = vulkan_func_table.find(pName);
+            if (entry != vulkan_func_table.end())
             {
                 result = entry->second;
             }
@@ -432,7 +432,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(VkPhysicalDevi
         // provided extensions.
         // In order to screen out unsupported extensions, we always query the chain
         // twice, and remove those that are present from the count.
-        auto     instance_table            = encode::GetInstanceTable(physicalDevice);
+        auto     instance_table            = encode::GetVulkanInstanceTable(physicalDevice);
         uint32_t downstream_property_count = 0;
 
         result = instance_table->EnumerateDeviceExtensionProperties(

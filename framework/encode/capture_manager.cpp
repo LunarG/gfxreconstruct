@@ -104,7 +104,8 @@ CaptureManager::CaptureManager(format::ApiFamilyId api_family) :
 
 CaptureManager::~CaptureManager()
 {
-    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+        memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
     {
         util::PageGuardManager::Destroy();
     }
@@ -283,7 +284,7 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
             rv_annotation_info_.descriptor_mask);
     }
 
-    if (memory_tracking_mode_ == CaptureSettings::kPageGuard)
+    if (memory_tracking_mode_ == CaptureSettings::kPageGuard || memory_tracking_mode_ == CaptureSettings::kUserfaultfd)
     {
         page_guard_align_buffer_sizes_                  = trace_settings.page_guard_align_buffer_sizes;
         page_guard_track_ahb_memory_                    = trace_settings.page_guard_track_ahb_memory;
@@ -410,14 +411,21 @@ bool CaptureManager::Initialize(std::string base_filename, const CaptureSettings
 
     if (success)
     {
-        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        if (memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+            memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
         {
+            const util::PageGuardManager::MemoryProtectionMode mem_prot_mode =
+                memory_tracking_mode_ == CaptureSettings::MemoryTrackingMode::kPageGuard
+                    ? util::PageGuardManager::MemoryProtectionMode::kMProtectMode
+                    : util::PageGuardManager::MemoryProtectionMode::kUserFaultFdMode;
+
             util::PageGuardManager::Create(trace_settings.page_guard_copy_on_map,
                                            trace_settings.page_guard_separate_read,
                                            util::PageGuardManager::kDefaultEnableReadWriteSamePage,
                                            trace_settings.page_guard_unblock_sigsegv,
                                            trace_settings.page_guard_signal_handler_watcher,
-                                           trace_settings.page_guard_signal_handler_watcher_max_restores);
+                                           trace_settings.page_guard_signal_handler_watcher_max_restores,
+                                           mem_prot_mode);
         }
 
         if ((capture_mode_ & kModeTrack) == kModeTrack)
@@ -439,7 +447,7 @@ ParameterEncoder* CaptureManager::InitApiCallCapture(format::ApiCallId call_id)
     thread_data->call_id_ = call_id;
 
     // Reset the parameter buffer and reserve space for an uncompressed FunctionCallHeader.
-    thread_data->parameter_buffer_->ResetWithHeader(sizeof(format::FunctionCallHeader));
+    thread_data->parameter_buffer_->ClearWithHeader(sizeof(format::FunctionCallHeader));
 
     return thread_data->parameter_encoder_.get();
 }
@@ -451,7 +459,7 @@ ParameterEncoder* CaptureManager::InitMethodCallCapture(format::ApiCallId call_i
     thread_data->object_id_ = object_id;
 
     // Reset the parameter buffer and reserve space for an uncompressed MethodCallHeader.
-    thread_data->parameter_buffer_->ResetWithHeader(sizeof(format::MethodCallHeader));
+    thread_data->parameter_buffer_->ClearWithHeader(sizeof(format::MethodCallHeader));
 
     return thread_data->parameter_encoder_.get();
 }
@@ -1106,10 +1114,34 @@ void CaptureManager::WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64
 
 void CaptureManager::WriteToFile(const void* data, size_t size)
 {
+    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        if (manager)
+        {
+            // fwrite hides a lock inside to synchronize writes to files. If a thread is in the middle
+            // of a write to the capture file and the uffd mechanism interupts it, it will cause
+            // a deadlock as uffd will also try to write to the capture file as well. For this
+            // reason RT signal needs to be disabled while writing.
+            // This can be removed once writing to the capture file(s) is delegated to a separate thread.
+            manager->UffdBlockRtSignal();
+        }
+    }
+
     file_stream_->Write(data, size);
     if (force_file_flush_)
     {
         file_stream_->Flush();
+    }
+
+    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        if (manager)
+        {
+            // Enable again signal
+            manager->UffdUnblockRtSignal();
+        }
     }
 
     // Increment block index

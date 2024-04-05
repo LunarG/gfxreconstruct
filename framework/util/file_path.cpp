@@ -435,6 +435,24 @@ void GetApplicationInfo(FileInfo& file_info)
     {
         GFXRECON_LOG_WARNING("Failed to retrieve the application executable name");
     }
+#elif defined(__ANDROID__) || defined(__linux__)
+    std::ifstream cmdlineFile("/proc/self/cmdline");
+    if (cmdlineFile.is_open())
+    {
+        cmdlineFile.getline(file_info.AppName, sizeof(file_info.AppName), '\0');
+        if (strlen(file_info.AppName) > 0)
+        {
+            GetFileInfo(file_info, file_info.AppName);
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Application name is empty");
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to open '/proc/self/cmdline' to get the application executable name");
+    }
 #endif
 }
 

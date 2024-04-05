@@ -47,7 +47,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
                                                     const VkSwapchainCreateInfoKHR*       create_info,
                                                     const VkAllocationCallbacks*          allocator,
                                                     HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                    const encode::DeviceTable*            device_table)
+                                                    const encode::VulkanDeviceTable*      device_table)
 {
     VkDevice                 device = VK_NULL_HANDLE;
     VkSurfaceCapabilitiesKHR surfCapabilities{};
@@ -660,6 +660,13 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     if (queue_info == nullptr)
     {
         return VK_ERROR_FEATURE_NOT_PRESENT;
+    }
+    else if (swapchain_options_.skip_additional_present_blts)
+    {
+        // If we're to skip the BLT, just go ahead and perform the present even thought it won't
+        // produce the valid image to the screen.  The intent for this path is mostly for performance
+        // evaluation.
+        return func(queue_info->handle, present_info);
     }
 
     VkQueue  queue              = queue_info->handle;

@@ -711,6 +711,11 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdSetRenderingAttachmentLocationsKHR                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12e5),
     ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12e6),
     ApiCall_vkCmdSetLineStippleKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e7),
+    ApiCall_vkSetLatencySleepModeNV                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12e8),
+    ApiCall_vkLatencySleepNV                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12e9),
+    ApiCall_vkSetLatencyMarkerNV                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12ea),
+    ApiCall_vkGetLatencyTimingsNV                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12eb),
+    ApiCall_vkQueueNotifyOutOfBandNV                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12ec),
 
     ApiCall_VulkanLast,
 
@@ -1242,7 +1247,8 @@ enum ApiCallId : uint32_t
     ApiCall_Ags_agsDriverExtensionsDX12_PushMarker_6_0_1                                          = MakeApiCallId(ApiFamily_AGS, 0x1007),
     ApiCall_Ags_agsDriverExtensionsDX12_PopMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1008),
     ApiCall_Ags_agsDriverExtensionsDX12_SetMarker_6_0_1                                           = MakeApiCallId(ApiFamily_AGS, 0x1009),
-
+    ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0                                        = MakeApiCallId(ApiFamily_AGS, 0x100a),
+    
     ApiCall_D3D12Last,
 
     // clang-format on

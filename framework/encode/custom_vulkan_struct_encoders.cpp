@@ -38,7 +38,7 @@ void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDesc
     if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER))
     {
         // TODO: This should be ignored if the descriptor set layout was created with an immutable sampler.
-        encoder->EncodeHandleValue<SamplerWrapper>(value.sampler);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::SamplerWrapper>(value.sampler);
     }
     else
     {
@@ -51,7 +51,7 @@ void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDesc
     // Conditional encoding for image view handle based on descriptor type.
     if (type != VK_DESCRIPTOR_TYPE_SAMPLER)
     {
-        encoder->EncodeHandleValue<ImageViewWrapper>(value.imageView);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::ImageViewWrapper>(value.imageView);
     }
     else
     {
@@ -116,7 +116,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
 {
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeHandleValue<DescriptorSetWrapper>(value.dstSet);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorSetWrapper>(value.dstSet);
     encoder->EncodeUInt32Value(value.dstBinding);
     encoder->EncodeUInt32Value(value.dstArrayElement);
     encoder->EncodeUInt32Value(value.descriptorCount);
@@ -169,7 +169,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
     }
 
     EncodeStructArray(encoder, value.pBufferInfo, value.descriptorCount, omit_buffer_data);
-    encoder->EncodeHandleArray<BufferViewWrapper>(
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::BufferViewWrapper>(
         value.pTexelBufferView, value.descriptorCount, omit_texel_buffer_data);
 }
 

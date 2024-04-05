@@ -27,17 +27,18 @@
 #define GFXRECON_REPLAY_SETTINGS_H
 
 const char kOptions[] =
-    "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--"
-    "opcd|--omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
+    "-h|--help,--version,--log-debugview,--no-debug-popup,--paused,--sync,--sfa|--skip-failed-allocations,--opcd|--"
+    "omit-pipeline-cache-data,--remove-unsupported,--validate,--debug-device-lost,--create-dummy-allocations,--"
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-range,--fmr|--flush-"
-    "measurement-range,--flush-inside-measurement-range,--use-captured-swapchain-indices,--dcp,--"
-    "discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,"
-    "--offscreen-swapchain-frame-boundary";
+    "measurement-range,--flush-inside-measurement-range,--vssb|--virtual-swapchain-skip-blit,--use-captured-swapchain-"
+    "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
+    "offscreen-swapchain-frame-boundary";
 const char kArguments[] =
     "--log-level,--log-file,--gpu,--gpu-group,--pause-frame,--wsi,--surface-index,-m|--memory-translation,"
     "--replace-shaders,--screenshots,--denied-messages,--allowed-messages,--screenshot-format,--"
     "screenshot-dir,--screenshot-prefix,--screenshot-size,--screenshot-scale,--mfr|--measurement-frame-range,--fw|--"
-    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain";
+    "force-windowed,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-get-fence-status,--sgfr|--"
+    "skip-get-fence-ranges";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -64,6 +65,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--onhb | --omit-null-hardware-buffers]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[-m <mode> | --memory-translation <mode>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--swapchain <mode>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--vssb | --virtual-swapchain-skip-blit]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-captured-swapchain-indices]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--use-colorspace-fallback]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--offscreen-swapchain-frame-boundary]");
@@ -71,6 +73,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--measurement-file <file>] [--quit-after-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--flush-measurement-range]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fw <width,height> | --force-windowed <width,height>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
@@ -199,6 +203,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\t         \tcapture directly on the swapchain setup for replay.");
     GFXRECON_WRITE_CONSOLE("          \t\t    %s\tDisable creating swapchains, surfaces", kSwapchainOffscreen);
     GFXRECON_WRITE_CONSOLE("          \t\t         \tand windows. To see rendering, add the --screenshots option.");
+    GFXRECON_WRITE_CONSOLE("  --vssb");
+    GFXRECON_WRITE_CONSOLE("          \t\tSkip blit to real swapchain to gain performance during replay.");
     GFXRECON_WRITE_CONSOLE("  --use-captured-swapchain-indices");
     GFXRECON_WRITE_CONSOLE("          \t\tSame as \"--swapchain captured\".");
     GFXRECON_WRITE_CONSOLE("          \t\tIgnored if the \"--swapchain\" option is used.");
@@ -242,6 +248,16 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDeviceGroups.  Replay may fail");
     GFXRECON_WRITE_CONSOLE("          \t\tif the specified device group is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture device group.");
+    GFXRECON_WRITE_CONSOLE("  --sgfs <status>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify behaviour to skip calls to vkWaitForFences and vkGetFenceStatus:");
+    GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=0 : Don't skip");
+    GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=1 : Skip unsuccessful calls");
+    GFXRECON_WRITE_CONSOLE("          \t\t\tstatus=2 : Always skip");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf no skip frame range is specified (--sgfr), the status applies to all");
+    GFXRECON_WRITE_CONSOLE("          \t\tframes.");
+    GFXRECON_WRITE_CONSOLE("  --sgfr <frame-ranges>");
+    GFXRECON_WRITE_CONSOLE("          \t\tFrame ranges where --sgfs applies. The format is:");
+    GFXRECON_WRITE_CONSOLE("          \t\t\t<frame-start-1>-<frame-end-1>[,<frame-start-1>-<frame-end-1>]*");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")

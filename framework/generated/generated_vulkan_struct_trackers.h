@@ -834,6 +834,15 @@ VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* TrackStruct(const VkPhysicalDevic
 VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* TrackStruct(const VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* value, HandleUnwrapMemory* unwrap_memory);
 VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* TrackStruct(const VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
 VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* TrackStruct(const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* value, HandleUnwrapMemory* unwrap_memory);
+VkLatencySleepModeInfoNV* TrackStruct(const VkLatencySleepModeInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+VkLatencySleepInfoNV* TrackStruct(const VkLatencySleepInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+VkSetLatencyMarkerInfoNV* TrackStruct(const VkSetLatencyMarkerInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+VkLatencyTimingsFrameReportNV* TrackStruct(const VkLatencyTimingsFrameReportNV* value, HandleUnwrapMemory* unwrap_memory);
+VkGetLatencyMarkerInfoNV* TrackStruct(const VkGetLatencyMarkerInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+VkLatencySubmissionPresentIdNV* TrackStruct(const VkLatencySubmissionPresentIdNV* value, HandleUnwrapMemory* unwrap_memory);
+VkSwapchainLatencyCreateInfoNV* TrackStruct(const VkSwapchainLatencyCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+VkOutOfBandQueueTypeInfoNV* TrackStruct(const VkOutOfBandQueueTypeInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+VkLatencySurfaceCapabilitiesNV* TrackStruct(const VkLatencySurfaceCapabilitiesNV* value, HandleUnwrapMemory* unwrap_memory);
 VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* TrackStruct(const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* value, HandleUnwrapMemory* unwrap_memory);
 VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* TrackStruct(const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* value, HandleUnwrapMemory* unwrap_memory);
 VkPhysicalDevicePerStageDescriptorSetFeaturesNV* TrackStruct(const VkPhysicalDevicePerStageDescriptorSetFeaturesNV* value, HandleUnwrapMemory* unwrap_memory);

@@ -116,10 +116,10 @@ std::string AndroidWindow::GetWsiExtension() const
     return VK_KHR_ANDROID_SURFACE_EXTENSION_NAME;
 }
 
-VkResult AndroidWindow::CreateSurface(const encode::InstanceTable* table,
-                                      VkInstance                   instance,
-                                      VkFlags                      flags,
-                                      VkSurfaceKHR*                pSurface)
+VkResult AndroidWindow::CreateSurface(const encode::VulkanInstanceTable* table,
+                                      VkInstance                         instance,
+                                      VkFlags                            flags,
+                                      VkSurfaceKHR*                      pSurface)
 {
     if (table != nullptr)
     {
@@ -133,7 +133,7 @@ VkResult AndroidWindow::CreateSurface(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void AndroidWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void AndroidWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -165,9 +165,9 @@ void AndroidWindowFactory::Destroy(decode::Window* window)
     GFXRECON_UNREFERENCED_PARAMETER(window);
 }
 
-VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                    VkPhysicalDevice             physical_device,
-                                                                    uint32_t                     queue_family_index)
+VkBool32 AndroidWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                    VkPhysicalDevice                   physical_device,
+                                                                    uint32_t queue_family_index)
 {
     GFXRECON_UNREFERENCED_PARAMETER(table);
     GFXRECON_UNREFERENCED_PARAMETER(physical_device);

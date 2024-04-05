@@ -151,12 +151,12 @@ void ClearObjects(VulkanObjectInfoTable* table,
     }
 }
 
-void FreeAllLiveObjects(VulkanObjectInfoTable*                                   table,
-                        bool                                                     remove_entries,
-                        bool                                                     report_leaks,
-                        std::function<const encode::InstanceTable*(const void*)> get_instance_table,
-                        std::function<const encode::DeviceTable*(const void*)>   get_device_table,
-                        VulkanSwapchain*                                         swapchain)
+void FreeAllLiveObjects(VulkanObjectInfoTable*                                         table,
+                        bool                                                           remove_entries,
+                        bool                                                           report_leaks,
+                        std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,
+                        std::function<const encode::VulkanDeviceTable*(const void*)>   get_device_table,
+                        VulkanSwapchain*                                               swapchain)
 {
     FreeChildObjects<DeviceInfo, EventInfo>(
         table,
@@ -709,11 +709,11 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
     }
 }
 
-void FreeAllLiveInstances(VulkanObjectInfoTable*                                   table,
-                          bool                                                     remove_entries,
-                          bool                                                     report_leaks,
-                          std::function<const encode::InstanceTable*(const void*)> get_instance_table,
-                          std::function<const encode::DeviceTable*(const void*)>   get_device_table)
+void FreeAllLiveInstances(VulkanObjectInfoTable*                                         table,
+                          bool                                                           remove_entries,
+                          bool                                                           report_leaks,
+                          std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,
+                          std::function<const encode::VulkanDeviceTable*(const void*)>   get_device_table)
 {
     FreeParentObjects<InstanceInfo>(table,
                                     remove_entries,
