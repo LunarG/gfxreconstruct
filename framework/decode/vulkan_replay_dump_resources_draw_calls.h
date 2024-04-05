@@ -31,6 +31,7 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "format/format.h"
 #include "util/defines.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cstdint>
 #include <unordered_map>
@@ -82,6 +83,14 @@ class DrawCallsDumpingContext
 
     void EndRenderPass();
 
+    void BeginRendering(const std::vector<ImageInfo*>&    color_attachments,
+                        const std::vector<VkImageLayout>& color_attachment_layouts,
+                        ImageInfo*                        depth_attachment,
+                        VkImageLayout                     depth_attachment_layout,
+                        const VkRect2D&                   render_area);
+
+    void EndRendering();
+
     void BindVertexBuffers(uint64_t                              index,
                            uint32_t                              firstBinding,
                            const std::vector<const BufferInfo*>& buffer_infos,
@@ -107,9 +116,7 @@ class DrawCallsDumpingContext
 
     void FinalizeCommandBuffer();
 
-    void SetRenderTargets(const std::vector<const ImageInfo*>& color_att_imgs,
-                          const ImageInfo*                     depth_att_img,
-                          bool                                 new_renderpass);
+    void SetRenderTargets(const std::vector<ImageInfo*>& color_att_imgs, ImageInfo* depth_att_img, bool new_renderpass);
 
     void SetRenderArea(const VkRect2D& new_render_area);
 
@@ -210,6 +217,8 @@ class DrawCallsDumpingContext
 
     void GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_index, uint64_t qs_index, uint64_t bcb_index) const;
 
+    VkResult RevertRenderTargetImageLayouts(VkQueue queue, uint64_t dc_index);
+
     CommandBufferInfo*                 original_command_buffer_info;
     std::vector<VkCommandBuffer>       command_buffers;
     size_t                             current_cb_index;
@@ -225,7 +234,6 @@ class DrawCallsDumpingContext
     const std::string&                 dump_resource_path;
     util::ScreenshotFormat             image_file_format;
     float                              dump_resources_scale;
-    bool                               inside_renderpass;
     VulkanReplayDumpResourcesJson&     dump_json;
     bool                               dump_depth;
     int32_t                            color_attachment_to_dump;
@@ -234,14 +242,32 @@ class DrawCallsDumpingContext
     bool                               dump_immutable_resources;
     bool                               dump_all_image_subresources;
 
+    enum RenderPassType
+    {
+        kNone,
+        kRenderPass,
+        kDynamicRendering
+    };
+
+    RenderPassType current_render_pass_type;
+
     std::vector<std::vector<VkRenderPass>> render_pass_clones;
+
+    struct RenderPassAttachmentLayouts
+    {
+        bool                       is_dynamic;
+        std::vector<VkImageLayout> color_attachment_layouts;
+        VkImageLayout              depth_attachment_layout;
+    };
+
+    std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts;
 
     struct RenderTargets
     {
         RenderTargets() : depth_att_img(nullptr) {}
 
-        std::vector<const ImageInfo*> color_att_imgs;
-        const ImageInfo*              depth_att_img;
+        std::vector<ImageInfo*> color_att_imgs;
+        ImageInfo*              depth_att_img;
     };
 
     // render_targets is basically a 2d array (vector of vectors). It is indexed like render_targets[rp][sp]

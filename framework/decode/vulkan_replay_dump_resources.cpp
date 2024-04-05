@@ -1515,6 +1515,125 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysKHR(
     }
 }
 
+void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
+    const ApiCallInfo&                             call_info,
+    PFN_vkCmdBeginRendering                        func,
+    VkCommandBuffer                                commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
+{
+    assert(IsRecording(commandBuffer));
+
+    DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(commandBuffer);
+    if (dc_context != nullptr)
+    {
+        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        {
+            const auto   rendering_info_meta    = pRenderingInfo->GetMetaStructPointer();
+            const size_t n_color_attachments    = rendering_info_meta->pColorAttachments->GetLength();
+            const auto   color_attachments_meta = rendering_info_meta->pColorAttachments->GetMetaStructPointer();
+
+            std::vector<ImageInfo*>    color_attachments(n_color_attachments);
+            std::vector<VkImageLayout> color_attachment_layouts(n_color_attachments);
+            for (size_t i = 0; i < n_color_attachments; ++i)
+            {
+                const ImageViewInfo* img_view_info =
+                    object_info_table_.GetImageViewInfo(color_attachments_meta[i].imageView);
+                assert(img_view_info != nullptr);
+
+                ImageInfo* img_info = object_info_table_.GetImageInfo(img_view_info->image_id);
+                assert(img_info != nullptr);
+
+                color_attachments[i]        = img_info;
+                color_attachment_layouts[i] = color_attachments_meta[i].decoded_value->imageLayout;
+            }
+
+            ImageInfo*    depth_attachment;
+            VkImageLayout depth_attachment_layout;
+            if (rendering_info_meta->pDepthAttachment != nullptr)
+            {
+                const auto depth_attachment_meta = rendering_info_meta->pDepthAttachment->GetMetaStructPointer();
+                const ImageViewInfo* img_view_info =
+                    object_info_table_.GetImageViewInfo(depth_attachment_meta->imageView);
+                assert(img_view_info != nullptr);
+
+                ImageInfo* img_info = object_info_table_.GetImageInfo(img_view_info->image_id);
+                assert(img_info != nullptr);
+
+                depth_attachment        = img_info;
+                depth_attachment_layout = depth_attachment_meta->decoded_value->imageLayout;
+            }
+            else
+            {
+                depth_attachment = nullptr;
+            }
+
+            dc_context->BeginRendering(color_attachments,
+                                       color_attachment_layouts,
+                                       depth_attachment,
+                                       depth_attachment_layout,
+                                       pRenderingInfo->GetPointer()->renderArea);
+        }
+
+        CommandBufferIterator first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (CommandBufferIterator it = first; it < last; ++it)
+        {
+            func(*it, pRenderingInfo->GetPointer());
+        }
+    }
+
+    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+    if (dr_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dr_command_buffer, pRenderingInfo->GetPointer());
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderingKHR(
+    const ApiCallInfo&                             call_info,
+    PFN_vkCmdBeginRenderingKHR                     func,
+    VkCommandBuffer                                commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
+{
+    OverrideCmdBeginRendering(call_info, func, commandBuffer, pRenderingInfo);
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdEndRendering(const ApiCallInfo&    call_info,
+                                                            PFN_vkCmdEndRendering func,
+                                                            VkCommandBuffer       commandBuffer)
+{
+    assert(IsRecording(commandBuffer));
+
+    DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(commandBuffer);
+    if (dc_context != nullptr)
+    {
+        if (dc_context->ShouldHandleRenderPass(call_info.index))
+        {
+            dc_context->EndRendering();
+        }
+
+        CommandBufferIterator first, last;
+        dc_context->GetDrawCallActiveCommandBuffers(first, last);
+        for (CommandBufferIterator it = first; it < last; ++it)
+        {
+            func(*it);
+        }
+    }
+
+    VkCommandBuffer dr_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+    if (dr_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dr_command_buffer);
+    }
+}
+
+void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderingKHR(const ApiCallInfo&       call_info,
+                                                               PFN_vkCmdEndRenderingKHR func,
+                                                               VkCommandBuffer          commandBuffer)
+{
+    OverrideCmdEndRendering(call_info, func, commandBuffer);
+}
+
 bool VulkanReplayDumpResourcesBase::MustDumpDrawCall(VkCommandBuffer original_command_buffer, uint64_t index) const
 {
     assert(original_command_buffer != VK_NULL_HANDLE);

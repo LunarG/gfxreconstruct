@@ -1540,25 +1540,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginRendering(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginRendering                     func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInfo*                      pRenderingInfo)
+    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
     if (IsRecording(commandBuffer))
     {
-        CommandBufferIterator first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                 func(*it, pRenderingInfo);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, pRenderingInfo);
-        }
+        OverrideCmdBeginRendering(call_info, func, commandBuffer, pRenderingInfo);
     }
 }
 
@@ -1569,21 +1555,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRendering(
 {
     if (IsRecording(commandBuffer))
     {
-        CommandBufferIterator first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                 func(*it);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer);
-        }
+        OverrideCmdEndRendering(call_info, func, commandBuffer);
     }
 }
 
@@ -2091,25 +2063,11 @@ void VulkanReplayDumpResources::Process_vkCmdBeginRenderingKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginRenderingKHR                  func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInfo*                      pRenderingInfo)
+    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo)
 {
     if (IsRecording(commandBuffer))
     {
-        CommandBufferIterator first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                 func(*it, pRenderingInfo);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, pRenderingInfo);
-        }
+        OverrideCmdBeginRenderingKHR(call_info, func, commandBuffer, pRenderingInfo);
     }
 }
 
@@ -2120,21 +2078,7 @@ void VulkanReplayDumpResources::Process_vkCmdEndRenderingKHR(
 {
     if (IsRecording(commandBuffer))
     {
-        CommandBufferIterator first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                 func(*it);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer);
-        }
+        OverrideCmdEndRenderingKHR(call_info, func, commandBuffer);
     }
 }
 
