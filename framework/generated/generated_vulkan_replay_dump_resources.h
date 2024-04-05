@@ -574,7 +574,7 @@ void Process_vkCmdBeginRendering(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginRendering                     func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInfo*                      pRenderingInfo);
+    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo);
 
 void Process_vkCmdEndRendering(
     const ApiCallInfo&                          call_info,
@@ -722,7 +722,7 @@ void Process_vkCmdBeginRenderingKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBeginRenderingKHR                  func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInfo*                      pRenderingInfo);
+    StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo);
 
 void Process_vkCmdEndRenderingKHR(
     const ApiCallInfo&                          call_info,

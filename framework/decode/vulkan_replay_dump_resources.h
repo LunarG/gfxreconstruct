@@ -244,6 +244,23 @@ class VulkanReplayDumpResourcesBase
                                         VkDeviceSize                 size,
                                         VkIndexType                  indexType);
 
+    void OverrideCmdBeginRendering(const ApiCallInfo&                             call_info,
+                                   PFN_vkCmdBeginRendering                        func,
+                                   VkCommandBuffer                                commandBuffer,
+                                   StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo);
+
+    void OverrideCmdBeginRenderingKHR(const ApiCallInfo&                             call_info,
+                                      PFN_vkCmdBeginRenderingKHR                     func,
+                                      VkCommandBuffer                                commandBuffer,
+                                      StructPointerDecoder<Decoded_VkRenderingInfo>* pRenderingInfo);
+
+    void
+    OverrideCmdEndRendering(const ApiCallInfo& call_info, PFN_vkCmdEndRendering func, VkCommandBuffer commandBuffer);
+
+    void OverrideCmdEndRenderingKHR(const ApiCallInfo&       call_info,
+                                    PFN_vkCmdEndRenderingKHR func,
+                                    VkCommandBuffer          commandBuffer);
+
     VkResult QueueSubmit(const std::vector<VkSubmitInfo>& modified_submit_infos,
                          const encode::VulkanDeviceTable& device_table,
                          VkQueue                          queue,

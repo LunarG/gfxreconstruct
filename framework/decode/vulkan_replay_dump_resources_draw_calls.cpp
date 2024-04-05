@@ -67,7 +67,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
     dump_vertex_index_buffers(options.dump_resources_dump_vertex_index_buffer),
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
-    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources),
+    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), current_render_pass_type(kNone),
     currently_bound_vertex_buffers(bound_vertex_buffers.end()), currently_bound_index_buffer(bound_index_buffers.end())
 {
     must_backup_resources = (dc_indices.size() > 1);
@@ -627,13 +627,60 @@ void DrawCallsDumpingContext::CopyVertexInputStateInfo(uint64_t dc_index)
 
 void DrawCallsDumpingContext::FinalizeCommandBuffer()
 {
+    assert(current_render_pass_type == kRenderPass || current_render_pass_type == kDynamicRendering);
     assert(current_cb_index < command_buffers.size());
-    VkCommandBuffer current_command_buffer = command_buffers[current_cb_index];
     assert(device_table != nullptr);
 
-    assert(inside_renderpass);
+    VkCommandBuffer current_command_buffer = command_buffers[current_cb_index];
 
-    device_table->CmdEndRenderPass(current_command_buffer);
+    if (current_render_pass_type == kRenderPass)
+    {
+        device_table->CmdEndRenderPass(current_command_buffer);
+    }
+    else
+    {
+        device_table->CmdEndRenderingKHR(current_command_buffer);
+
+        // Transition render targets into TRANSFER_SRC_OPTIMAL
+        assert(current_renderpass == render_targets.size() - 1);
+        assert(render_targets[current_renderpass].size() == 1);
+        for (auto& rt : render_targets[current_renderpass])
+        {
+            for (auto& cat : rt.color_att_imgs)
+            {
+                if (cat->intermediate_layout != VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+                {
+                    VkImageMemoryBarrier barrier;
+                    barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+                    barrier.pNext               = nullptr;
+                    barrier.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+                    barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+                    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                    barrier.oldLayout           = cat->intermediate_layout;
+                    barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    barrier.image               = cat->handle;
+                    barrier.subresourceRange    = {
+                        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+                    };
+
+                    device_table->CmdPipelineBarrier(current_command_buffer,
+                                                     VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                                     0,
+                                                     0,
+                                                     nullptr,
+                                                     0,
+                                                     nullptr,
+                                                     1,
+                                                     &barrier);
+
+                    cat->intermediate_layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                }
+            }
+        }
+    }
+
     device_table->EndCommandBuffer(current_command_buffer);
 
     // Increment index of command buffer that is going to be finalized next
@@ -752,6 +799,12 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 
         // Dump render targets
         DumpRenderTargetAttachments(cb, qs_index, bcb_index);
+
+        res = RevertRenderTargetImageLayouts(queue, cb);
+        if (res != VK_SUCCESS)
+        {
+            return res;
+        }
 
         GenerateOutputJsonDrawCallInfo(cb, qs_index, bcb_index);
 
@@ -1038,6 +1091,142 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
         draw_call_output_json.VulkanReplayDumpResourcesJsonBlockEnd();
         draw_call_output_json.VulkanReplayDumpResourcesJsonClose();
     }
+}
+
+VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, uint64_t cmd_buf_index)
+{
+    const size_t                dc_index = dc_indices[CmdBufToDCVectorIndex(cmd_buf_index)];
+    const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
+    const uint64_t              rp       = RP_index.first;
+    const uint64_t              sp       = RP_index.second;
+
+    if (!render_targets[rp][sp].color_att_imgs.size() && render_targets[rp][sp].depth_att_img == nullptr)
+    {
+        return VK_SUCCESS;
+    }
+
+    const auto entry = dynamic_rendering_attachment_layouts.find(rp);
+    assert(entry != dynamic_rendering_attachment_layouts.end());
+
+    if (!entry->second.is_dynamic)
+    {
+        return VK_SUCCESS;
+    }
+
+    const VkCommandBufferBeginInfo bi{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, nullptr, 0, nullptr };
+    VkResult                       res = device_table->BeginCommandBuffer(aux_command_buffer, &bi);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR(
+            "(%s:%u) BeginCommandBuffer failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
+        return res;
+    }
+
+    std::vector<VkImageMemoryBarrier> img_barriers;
+
+    VkImageMemoryBarrier img_barrier;
+    img_barrier.sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+    img_barrier.pNext               = nullptr;
+    img_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+    img_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    img_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    img_barrier.subresourceRange    = {
+        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+    };
+
+    for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
+    {
+        if (color_attachment_to_dump != kUnspecifiedColorAttachment &&
+            static_cast<size_t>(color_attachment_to_dump) != i)
+        {
+            continue;
+        }
+
+        ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
+
+        img_barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+        img_barrier.newLayout     = entry->second.color_attachment_layouts[i];
+        img_barrier.image         = image_info->handle;
+        img_barriers.push_back(img_barrier);
+
+        image_info->intermediate_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+
+    if (dump_depth && render_targets[rp][sp].depth_att_img != nullptr)
+    {
+        ImageInfo* image_info = render_targets[rp][sp].depth_att_img;
+
+        img_barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        img_barrier.newLayout     = entry->second.depth_attachment_layout;
+        img_barrier.image         = image_info->handle;
+        img_barriers.push_back(img_barrier);
+
+        image_info->intermediate_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+
+    if (!img_barriers.empty())
+    {
+        device_table->CmdPipelineBarrier(aux_command_buffer,
+                                         VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                         VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                         0,
+                                         0,
+                                         nullptr,
+                                         0,
+                                         nullptr,
+                                         img_barriers.size(),
+                                         img_barriers.data());
+
+        res = device_table->EndCommandBuffer(aux_command_buffer);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) EndCommandBuffer failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+
+        VkSubmitInfo si;
+        si.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        si.pNext                = nullptr;
+        si.waitSemaphoreCount   = 0;
+        si.pWaitSemaphores      = nullptr;
+        si.pWaitDstStageMask    = nullptr;
+        si.commandBufferCount   = 1;
+        si.pCommandBuffers      = &aux_command_buffer;
+        si.signalSemaphoreCount = 0;
+        si.pSignalSemaphores    = nullptr;
+
+        const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+        assert(device_info);
+
+        res = device_table->ResetFences(device_info->handle, 1, &aux_fence);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) EndCommandBuffer failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+
+        res = device_table->QueueSubmit(queue, 1, &si, aux_fence);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+
+        // Wait
+        res = device_table->WaitForFences(device_info->handle, 1, &aux_fence, VK_TRUE, ~0UL);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR(
+                "(%s:%u) WaitForFences failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
+            return res;
+        }
+    }
+
+    return VK_SUCCESS;
 }
 
 VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t cmd_buf_index,
@@ -2271,12 +2460,12 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const RenderPassInfo*  render_
     assert(render_pass_info);
     assert(framebuffer_info);
 
-    std::vector<const ImageInfo*> color_att_imgs;
+    std::vector<ImageInfo*> color_att_imgs;
 
-    inside_renderpass  = true;
-    current_subpass    = 0;
-    active_renderpass  = render_pass_info;
-    active_framebuffer = framebuffer_info;
+    current_render_pass_type = kRenderPass;
+    current_subpass          = 0;
+    active_renderpass        = render_pass_info;
+    active_framebuffer       = framebuffer_info;
 
     // Parse color attachments
     uint32_t i = 0;
@@ -2288,13 +2477,13 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const RenderPassInfo*  render_
             object_info_table.GetImageViewInfo(framebuffer_info->attachment_image_view_ids[att_idx]);
         assert(img_view_info);
 
-        const ImageInfo* img_info = object_info_table.GetImageInfo(img_view_info->image_id);
+        ImageInfo* img_info = object_info_table.GetImageInfo(img_view_info->image_id);
         assert(img_info);
 
         color_att_imgs.push_back(img_info);
     }
 
-    const ImageInfo* depth_img_info;
+    ImageInfo* depth_img_info;
 
     if (active_renderpass->subpass_refs[current_subpass].has_depth)
     {
@@ -2367,6 +2556,11 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const RenderPassInfo*  render_
         device_table->CmdBeginRenderPass(*it, &bi, contents);
     }
 
+    auto new_entry = dynamic_rendering_attachment_layouts.emplace(
+        std::piecewise_construct, std::forward_as_tuple(current_renderpass), std::forward_as_tuple());
+    assert(new_entry.second);
+    new_entry.first->second.is_dynamic = false;
+
     return VK_SUCCESS;
 }
 
@@ -2375,7 +2569,7 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
     assert(active_renderpass);
     assert(active_framebuffer);
 
-    std::vector<const ImageInfo*>    color_att_imgs;
+    std::vector<ImageInfo*>          color_att_imgs;
     std::vector<VkAttachmentStoreOp> color_att_storeOps;
     std::vector<VkImageLayout>       color_att_final_layouts;
 
@@ -2405,7 +2599,7 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
             object_info_table.GetImageViewInfo(active_framebuffer->attachment_image_view_ids[att_idx]);
         assert(img_view_info);
 
-        const ImageInfo* img_info = object_info_table.GetImageInfo(img_view_info->image_id);
+        ImageInfo* img_info = object_info_table.GetImageInfo(img_view_info->image_id);
         assert(img_info);
 
         color_att_imgs.push_back(img_info);
@@ -2413,7 +2607,7 @@ void DrawCallsDumpingContext::NextSubpass(VkSubpassContents contents)
         color_att_final_layouts.push_back(active_renderpass->attachment_descs[att_idx].finalLayout);
     }
 
-    const ImageInfo*    depth_img_info;
+    ImageInfo*          depth_img_info;
     VkAttachmentStoreOp depth_att_storeOp;
     VkImageLayout       depth_final_layout;
 
@@ -2463,7 +2657,7 @@ void DrawCallsDumpingContext::BindPipeline(VkPipelineBindPoint pipeline_bind_poi
 
 void DrawCallsDumpingContext::EndRenderPass()
 {
-    assert(inside_renderpass);
+    assert(current_render_pass_type == kRenderPass);
 
     CommandBufferIterator first, last;
     GetDrawCallActiveCommandBuffers(first, last);
@@ -2485,7 +2679,24 @@ void DrawCallsDumpingContext::EndRenderPass()
 
     ++current_renderpass;
 
-    inside_renderpass = false;
+    current_render_pass_type = kNone;
+}
+
+void DrawCallsDumpingContext::EndRendering()
+{
+    assert(current_render_pass_type == kDynamicRendering);
+
+    CommandBufferIterator first, last;
+    GetDrawCallActiveCommandBuffers(first, last);
+    size_t cmd_buf_idx = current_cb_index;
+    for (CommandBufferIterator it = first; it < last; ++it, ++cmd_buf_idx)
+    {
+        device_table->CmdEndRendering(*it);
+    }
+
+    ++current_renderpass;
+
+    current_render_pass_type = kNone;
 }
 
 void DrawCallsDumpingContext::BindVertexBuffers(uint64_t                              index,
@@ -2603,9 +2814,9 @@ void DrawCallsDumpingContext::BindIndexBuffer(
     currently_bound_index_buffer = new_entry.first;
 }
 
-void DrawCallsDumpingContext::SetRenderTargets(const std::vector<const ImageInfo*>& color_att_imgs,
-                                               const ImageInfo*                     depth_att_img,
-                                               bool                                 new_render_pass)
+void DrawCallsDumpingContext::SetRenderTargets(const std::vector<ImageInfo*>& color_att_imgs,
+                                               ImageInfo*                     depth_att_img,
+                                               bool                           new_render_pass)
 {
     if (new_render_pass)
     {
@@ -2815,6 +3026,39 @@ uint32_t DrawCallsDumpingContext::GetDrawCallActiveCommandBuffers(CommandBufferI
     last  = command_buffers.end();
 
     return current_cb_index;
+}
+
+void DrawCallsDumpingContext::BeginRendering(const std::vector<ImageInfo*>&    color_attachments,
+                                             const std::vector<VkImageLayout>& color_attachment_layouts,
+                                             ImageInfo*                        depth_attachment,
+                                             VkImageLayout                     depth_attachment_layout,
+                                             const VkRect2D&                   render_area)
+{
+    assert(color_attachments.size() == color_attachment_layouts.size());
+    assert(current_render_pass_type == kNone);
+
+    current_render_pass_type = kDynamicRendering;
+
+    for (size_t i = 0; i < color_attachments.size(); ++i)
+    {
+        color_attachments[i]->intermediate_layout = color_attachment_layouts[i];
+    }
+
+    if (depth_attachment != nullptr)
+    {
+        depth_attachment->intermediate_layout = depth_attachment_layout;
+    }
+
+    SetRenderTargets(color_attachments, depth_attachment, true);
+    SetRenderArea(render_area);
+
+    auto new_entry = dynamic_rendering_attachment_layouts.emplace(
+        std::piecewise_construct, std::forward_as_tuple(current_renderpass), std::forward_as_tuple());
+    assert(new_entry.second);
+
+    new_entry.first->second.is_dynamic               = true;
+    new_entry.first->second.color_attachment_layouts = color_attachment_layouts;
+    new_entry.first->second.depth_attachment_layout  = depth_attachment_layout;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
