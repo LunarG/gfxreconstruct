@@ -3,11 +3,11 @@
 #Intended to be executed from the root of the GFXR repo
 
 import sys
+import glob
 import os
 import subprocess
 import platform
 import json
-import json_stream
 import threading
 import xml.etree.ElementTree as ET
 from collections.abc import Iterable
@@ -72,10 +72,6 @@ def is_windows():
 def usage():
     print(f"Usage: {script_name} <root traces directory>")
 
-def load_json(path):
-    f = open(path)
-    return json_stream.load(f)
-
 #Return a list of all sTypes inside a block
 def gather_stypes(block):
     sTypes = set()
@@ -101,7 +97,7 @@ def coverage_calc(capture_data, all_data):
             missingno += 1
     return 1.0 - missingno / len(all_data)
 
-def thread_main(in_stream, trace_path):
+def process_trace(in_stream, trace_path):
     features = {}
     features["sTypes"] = set()
     features["metas"] = set()
@@ -110,11 +106,10 @@ def thread_main(in_stream, trace_path):
     features["device_ppEnabledExtensionNames"] = []
     features["pEnabledFeatures"] = []
 
-    capture_json = json_stream.load(in_stream)
-
     #Iterate over all blocks and extract the function names
     try:
-        for block in capture_json.persistent():
+        for line in in_stream:
+            block = json.loads(line)
             if "function" in block:
                 #Grab function's name
                 fn_name = block["function"]["name"]
@@ -191,12 +186,11 @@ if __name__ == "__main__":
     #Early exit if we're missing our arguments
     if len(sys.argv) < 2:
         usage()
-        print("Error: missing path to capture directory")
+        print("usage: %s path-to-vk.xml path-to-captures-root/" % sys.argv[0])
         exit(-1)
-    root_traces_dir = sys.argv[1]
+    vk_xml_path = sys.argv[1]
+    root_traces_dir = sys.argv[2]
 
-    #Parse vk.xml
-    vk_xml_path = "external/Vulkan-Headers/registry/vk.xml"
     vk_xml_root = ET.parse(vk_xml_path).getroot()
 
     #Collect the names of all vk functions
@@ -238,95 +232,58 @@ if __name__ == "__main__":
                 if "values" in member.attrib and member.find("type").text == "VkStructureType":
                     all_vk_stypes.append(member.attrib["values"])
 
-    #Get name of gfxrecon-compress binary
-    GFXR_OPTIMIZE_NAME = "gfxrecon-optimize"
-    if is_windows():
-        GFXR_OPTIMIZE_NAME += ".exe"
-    optimize_tool_path = os.path.join(os.path.dirname(__file__), GFXR_OPTIMIZE_NAME)
-
     #Get name of gfxrecon-convert binary
     GFXR_CONVERT_NAME = "gfxrecon-convert"
-    if is_windows():
-        GFXR_CONVERT_NAME += ".exe"
-    convert_tool_path = os.path.join(os.path.dirname(__file__), GFXR_CONVERT_NAME)
+    # if is_windows():
+        # GFXR_CONVERT_NAME += ".exe"
+    convert_tool_path = GFXR_CONVERT_NAME # os.path.join(os.path.dirname(__file__), GFXR_CONVERT_NAME)
 
     #We expect to find commit-suite.json and extended-suite.json
-    #suite_jsons = ["commit-suite.json", "extended-suite.json"]
-    suite_jsons = ["commit-suite.json"]
+    suite_jsons = ["commit-suite.json", "extended-suite.json"]
 
     for traces_dir in os.listdir(root_traces_dir):
-        print("Top level loop")
         for suite_json in suite_jsons:
             full_suite_json_path = root_traces_dir + "/" + traces_dir + "/" + suite_json
             if not os.path.isfile(full_suite_json_path):
                 continue
                 
-            suite = load_json(full_suite_json_path)
-            persistent_traces = suite["traces"]
+            suite = json.load(open(full_suite_json_path))
             #Count how many traces there are
             #I hate that I can't just say len(persistent_traces)
-            trace_dir_count = 0
-            for t in persistent_traces:
-                trace_dir_count += 1
+            trace_dir_count = len(suite["traces"])
 
-            suite = load_json(full_suite_json_path)
-            persistent_traces = suite["traces"].persistent()
+            traces = suite["traces"]
 
             thread_count = int(os.cpu_count() / 2)
             convert_processes = []
             threads = []
             seen_traces = []
             trace_dirs_processed = 0
-            while trace_dirs_processed < trace_dir_count:
-                trace_iterations = min(trace_dir_count - trace_dirs_processed, thread_count)
-                print(f"While loop: trace_dirs_processed == {trace_dirs_processed} trace_dir_count == {trace_dir_count} trace_iterations == {trace_iterations}")
-                for i in range(trace_dirs_processed, trace_dirs_processed + trace_iterations):
-                    print(f"iteration loop. i == {i}")
-                    trace = persistent_traces[i]
-                    trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
-                    trace_dirs_processed += 1
 
-                    if trace_dir in seen_traces:
-                        print("Saw trace")
-                        continue
-                    seen_traces.append(trace_dir)
-                    
-                    if "api" in trace and trace["api"] != "vulkan":
-                        continue
+            for trace in traces:
+                trace_dir = root_traces_dir + "/" + traces_dir + "/" + trace["directory"]
+                full_trace_path = glob.glob(trace_dir + "/*.gfxr")[0]
 
-                    trace_files = os.listdir(trace_dir)
+                if trace_dir in seen_traces:
+                    print("Saw trace %s already" % (full_trace_path))
+                    continue
+                seen_traces.append(trace_dir)
+                
+                if "api" in trace and trace["api"] != "vulkan":
+                    continue
 
-                    for trace_file in trace_files:
-                        print("Directory scan loop")
-                        filename = os.fsdecode(trace_file)
-                        if not filename.endswith(".gfxr"):
-                            continue
+                temporary_jsonl_output = "/tmp/q.jsonl"
 
-                        #Launch "gfxrecon-compress | gfxrecon-convert | this process for analysis"
-                        full_trace_path = trace_dir + "/" + filename
 
-                        #Compress process
-                        #optimize_cmd = [optimize_tool_path, full_trace_path, "1"]
-                        #optimize_p = subprocess.Popen(optimize_cmd, stdout=subprocess.PIPE)
+                #Convert process
+                convert_cmd = [convert_tool_path, "--format", "jsonl", "--output", temporary_jsonl_output, full_trace_path]
+                print("%s" % full_trace_path)
+                result = subprocess.run(convert_cmd)
+                print("completed \"%s\"" % (" ".join(convert_cmd)))
 
-                        #Convert process
-                        convert_cmd = [convert_tool_path, "--output", "stdout", full_trace_path]
-                        convert_p = subprocess.Popen(convert_cmd, stdout=subprocess.PIPE)
-                        convert_processes.append(convert_p)
-
-                        db_output_path = os.path.splitext(full_trace_path)[0] + ".db.json"
-                        t = threading.Thread(target=thread_main, args=[convert_p.stdout, db_output_path])
-                        t.start()
-                        threads.append(t)
-
-                #Wait for threads to finish
-                #The threads read from the convert process's stdout until it's drained,
-                #and the convert process reads from the optimize process until *it's* drained,
-                #so I don't think I need to explicitly wait on either of those processes, just the threads
-                print("Waiting for the worker threads")
-                for t in threads:
-                    t.join()
-                print("Done waiting for the workers")
+                db_output_path = os.path.splitext(full_trace_path)[0] + ".db.json"
+                with open(temporary_jsonl_output) as in_stream:
+                    process_trace(in_stream, db_output_path)
 
     #Output collated results
     collated = {}
