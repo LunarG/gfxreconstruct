@@ -3766,6 +3766,48 @@ VulkanReplayConsumerBase::OverrideQueueBindSparse(PFN_vkQueueBindSparse         
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorSetLayout(
+    PFN_vkCreateDescriptorSetLayout                                func,
+    VkResult                                                       original_result,
+    const DeviceInfo*                                              device_info,
+    StructPointerDecoder<Decoded_VkDescriptorSetLayoutCreateInfo>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*           pAllocator,
+    HandlePointerDecoder<VkDescriptorSetLayout>*                   pSetLayout)
+{
+    assert((pCreateInfo != nullptr) && !pCreateInfo->IsNull() && pSetLayout != nullptr && !pSetLayout->IsNull());
+
+    auto       replay_set_layout = pSetLayout->GetHandlePointer();
+    const auto create_info       = pCreateInfo->GetPointer();
+
+    VkResult result = func(device_info->handle, create_info, GetAllocationCallbacks(pAllocator), replay_set_layout);
+
+    // The information gathered here is only relevant to the dump resources feature
+    if (result >= 0 && options_.dumping_resources)
+    {
+        auto layout_info = reinterpret_cast<DescriptorSetLayoutInfo*>(pSetLayout->GetConsumerData(0));
+        assert(layout_info != nullptr);
+
+        const auto create_info_meta = pCreateInfo->GetMetaStructPointer();
+        assert(create_info_meta != nullptr);
+        assert(create_info_meta->decoded_value != nullptr);
+
+        const uint32_t                      binding_count = create_info_meta->decoded_value->bindingCount;
+        const VkDescriptorSetLayoutBinding* p_bindings    = create_info_meta->decoded_value->pBindings;
+        if (binding_count && p_bindings != nullptr)
+        {
+            layout_info->bindings_layout.resize(binding_count);
+            for (uint32_t i = 0; i < binding_count; ++i)
+            {
+                layout_info->bindings_layout[i].type    = p_bindings[i].descriptorType;
+                layout_info->bindings_layout[i].count   = p_bindings[i].descriptorCount;
+                layout_info->bindings_layout[i].binding = p_bindings[i].binding;
+            }
+        }
+    }
+
+    return result;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorPool(
     PFN_vkCreateDescriptorPool                                      func,
     VkResult                                                        original_result,
@@ -3910,6 +3952,86 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateDescriptorSets(
                 modified_allocate_info.descriptorPool              = new_pool;
 
                 result = func(device_info->handle, &modified_allocate_info, pDescriptorSets->GetHandlePointer());
+            }
+        }
+
+        // The information gathered here is only relevant to the dump resources feature
+        if (result == VK_SUCCESS && options_.dumping_resources)
+        {
+            auto meta_info = pAllocateInfo->GetMetaStructPointer();
+            assert(meta_info->decoded_value != nullptr);
+
+            const uint32_t          desc_set_count = meta_info->decoded_value->descriptorSetCount;
+            const format::HandleId* set_layout_ids = meta_info->pSetLayouts.GetPointer();
+
+            assert(set_layout_ids != nullptr);
+            assert(meta_info->pSetLayouts.GetLength() == desc_set_count);
+
+            for (uint32_t i = 0; i < desc_set_count; ++i)
+            {
+                DescriptorSetInfo* desc_info =
+                    reinterpret_cast<DescriptorSetInfo*>(pDescriptorSets->GetConsumerData(i));
+                assert(desc_info != nullptr);
+
+                DescriptorSetLayoutInfo* set_layout_info =
+                    object_info_table_.GetDescriptorSetLayoutInfo(set_layout_ids[i]);
+                assert(set_layout_info != nullptr);
+
+                for (const auto& layout_binding : set_layout_info->bindings_layout)
+                {
+                    assert(desc_info->descriptors.find(layout_binding.binding) == desc_info->descriptors.end());
+                    auto new_entry = desc_info->descriptors.emplace(std::piecewise_construct,
+                                                                    std::forward_as_tuple(layout_binding.binding),
+                                                                    std::forward_as_tuple());
+                    assert(new_entry.second);
+
+                    new_entry.first->second.desc_type = layout_binding.type;
+
+                    switch (layout_binding.type)
+                    {
+                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                        {
+                            new_entry.first->second.image_info.resize(layout_binding.count);
+                        }
+                        break;
+
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                        {
+                            new_entry.first->second.buffer_info.resize(layout_binding.count);
+                        }
+                        break;
+
+                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                        {
+                            new_entry.first->second.texel_buffer_view_info.resize(layout_binding.count);
+                        }
+                        break;
+
+                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                        {
+                            new_entry.first->second.inline_uniform_block.resize(layout_binding.count);
+                        }
+                        break;
+
+                        case VK_DESCRIPTOR_TYPE_SAMPLER:
+                        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
+                            break;
+
+                        default:
+                            GFXRECON_LOG_WARNING("%s() Unrecognized/Unhandled descriptor type (%s)",
+                                                 __func__,
+                                                 util::ToString<VkDescriptorType>(layout_binding.type).c_str());
+                            break;
+                    }
+                }
             }
         }
     }
@@ -8465,128 +8587,122 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  p_pescriptor_copies)
 {
     const VkWriteDescriptorSet* in_pDescriptorWrites = p_descriptor_writes->GetPointer();
-    const auto*                 writes_meta          = p_descriptor_writes->GetMetaStructPointer();
-    for (uint32_t s = 0; s < descriptor_write_count; ++s)
-    {
-        DescriptorSetInfo* dst_set_info = GetObjectInfoTable().GetDescriptorSetInfo(writes_meta[s].dstSet);
-        assert(dst_set_info != nullptr);
-
-        DescriptorSetBindingInfo bi;
-        bi.desc_type = in_pDescriptorWrites[s].descriptorType;
-
-        const uint32_t descs_per_write_entry =
-            in_pDescriptorWrites[s].descriptorCount + in_pDescriptorWrites[s].dstArrayElement + 1;
-
-        for (uint32_t b = 0; b < in_pDescriptorWrites[s].descriptorCount; ++b)
-        {
-            switch (in_pDescriptorWrites[s].descriptorType)
-            {
-                case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-                case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                {
-                    if (bi.image_info.size() < descs_per_write_entry)
-                    {
-                        bi.image_info.resize(descs_per_write_entry);
-                    }
-
-                    for (uint32_t i = 0; i < in_pDescriptorWrites[s].descriptorCount; ++i)
-                    {
-                        const uint32_t arr_idx                 = in_pDescriptorWrites[s].dstArrayElement + i;
-                        bi.image_info[arr_idx].image_layout    = in_pDescriptorWrites[s].pImageInfo[b].imageLayout;
-                        bi.image_info[arr_idx].image_view_info = object_info_table_.GetImageViewInfo(
-                            writes_meta[s].pImageInfo->GetMetaStructPointer()[b].imageView);
-                    }
-                }
-                break;
-
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                {
-                    if (bi.buffer_info.size() < descs_per_write_entry)
-                    {
-                        bi.buffer_info.resize(descs_per_write_entry);
-                    }
-
-                    for (uint32_t i = 0; i < in_pDescriptorWrites[s].descriptorCount; ++i)
-                    {
-                        const uint32_t arr_idx              = in_pDescriptorWrites[s].dstArrayElement + i;
-                        bi.buffer_info[arr_idx].buffer_info = object_info_table_.GetBufferInfo(
-                            writes_meta[s].pBufferInfo->GetMetaStructPointer()[b].buffer);
-                        bi.buffer_info[arr_idx].offset = in_pDescriptorWrites[s].pBufferInfo[b].offset;
-                        bi.buffer_info[arr_idx].range  = in_pDescriptorWrites[s].pBufferInfo[b].range;
-                    }
-                }
-                break;
-
-                case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                {
-                    if (bi.texel_buffer_view_info.size() < descs_per_write_entry)
-                    {
-                        bi.texel_buffer_view_info.resize(descs_per_write_entry);
-                    }
-
-                    for (uint32_t i = 0; i < in_pDescriptorWrites[s].descriptorCount; ++i)
-                    {
-                        const uint32_t arr_idx = in_pDescriptorWrites[s].dstArrayElement + i;
-                        bi.texel_buffer_view_info[arr_idx] =
-                            object_info_table_.GetBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[b]);
-                    }
-                }
-                break;
-
-                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
-                {
-                    const VkBaseOutStructure* pnext =
-                        reinterpret_cast<const VkBaseOutStructure*>(in_pDescriptorWrites[s].pNext);
-                    while (pnext != nullptr)
-                    {
-                        if (pnext->sType == VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK)
-                        {
-                            const VkWriteDescriptorSetInlineUniformBlock* inline_uni_block_write =
-                                reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(pnext);
-
-                            if (dst_set_info->descriptors.find(in_pDescriptorWrites[s].dstBinding + b) !=
-                                dst_set_info->descriptors.end())
-                            {
-                                bi.inline_uniform_block =
-                                    std::move(dst_set_info->descriptors[in_pDescriptorWrites[s].dstBinding + b]
-                                                  .inline_uniform_block);
-                            }
-
-                            const uint32_t size   = inline_uni_block_write->dataSize;
-                            const uint32_t offset = in_pDescriptorWrites[s].dstArrayElement;
-
-                            if (bi.inline_uniform_block.size() < size + offset)
-                            {
-                                bi.inline_uniform_block.resize(size + offset);
-                            }
-
-                            util::platform::MemoryCopy(
-                                bi.inline_uniform_block.data() + offset, size, inline_uni_block_write->pData, size);
-                            break;
-                        }
-                        pnext = pnext->pNext;
-                    }
-                }
-                break;
-
-                default:
-                    break;
-            }
-
-            dst_set_info->descriptors[in_pDescriptorWrites[s].dstBinding + b] = std::move(bi);
-        }
-    }
-
-    const VkCopyDescriptorSet* in_pDescriptorCopies = p_pescriptor_copies->GetPointer();
+    const VkCopyDescriptorSet*  in_pDescriptorCopies = p_pescriptor_copies->GetPointer();
 
     func(
         device_info->handle, descriptor_write_count, in_pDescriptorWrites, descriptor_copy_count, in_pDescriptorCopies);
+
+    // The information gathered here is only relevant to the dump resources feature
+    if (options_.dumping_resources)
+    {
+        const auto* writes_meta = p_descriptor_writes->GetMetaStructPointer();
+        for (uint32_t s = 0; s < descriptor_write_count; ++s)
+        {
+            DescriptorSetInfo* desc_set_info = GetObjectInfoTable().GetDescriptorSetInfo(writes_meta[s].dstSet);
+
+            assert(desc_set_info != nullptr);
+
+            for (uint32_t b = 0; b < in_pDescriptorWrites[s].descriptorCount; ++b)
+            {
+                const VkWriteDescriptorSet* write = writes_meta[s].decoded_value;
+                assert(write != nullptr);
+
+                const uint32_t binding = write->dstBinding;
+
+                assert(desc_set_info->descriptors.find(binding) != desc_set_info->descriptors.end());
+                assert(desc_set_info->descriptors[binding].desc_type == write->descriptorType);
+
+                switch (write->descriptorType)
+                {
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    {
+                        assert(desc_set_info->descriptors[binding].image_info.size() >=
+                               write->dstArrayElement + write->descriptorCount);
+
+                        for (uint32_t i = 0; i < write->descriptorCount; ++i)
+                        {
+                            const uint32_t arr_idx = write->dstArrayElement + i;
+                            desc_set_info->descriptors[binding].image_info[arr_idx].image_layout =
+                                in_pDescriptorWrites[s].pImageInfo[b].imageLayout;
+                            desc_set_info->descriptors[binding].image_info[arr_idx].image_view_info =
+                                object_info_table_.GetImageViewInfo(
+                                    writes_meta[s].pImageInfo->GetMetaStructPointer()[b].imageView);
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    {
+                        assert(desc_set_info->descriptors[binding].buffer_info.size() >=
+                               write->dstArrayElement + write->descriptorCount);
+
+                        for (uint32_t i = 0; i < write->descriptorCount; ++i)
+                        {
+                            const uint32_t arr_idx = write->dstArrayElement + i;
+                            desc_set_info->descriptors[binding].buffer_info[arr_idx].buffer_info =
+                                object_info_table_.GetBufferInfo(
+                                    writes_meta[s].pBufferInfo->GetMetaStructPointer()[b].buffer);
+                            desc_set_info->descriptors[binding].buffer_info[arr_idx].offset =
+                                in_pDescriptorWrites[s].pBufferInfo[b].offset;
+                            desc_set_info->descriptors[binding].buffer_info[arr_idx].range =
+                                in_pDescriptorWrites[s].pBufferInfo[b].range;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        assert(desc_set_info->descriptors[binding].texel_buffer_view_info.size() >=
+                               write->dstArrayElement + write->descriptorCount);
+
+                        for (uint32_t i = 0; i < write->descriptorCount; ++i)
+                        {
+                            const uint32_t arr_idx = write->dstArrayElement + i;
+                            desc_set_info->descriptors[binding].texel_buffer_view_info[arr_idx] =
+                                object_info_table_.GetBufferViewInfo(writes_meta[s].pTexelBufferView.GetPointer()[b]);
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        const VkBaseOutStructure* pnext = reinterpret_cast<const VkBaseOutStructure*>(write->pNext);
+                        while (pnext != nullptr)
+                        {
+                            if (pnext->sType == VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK)
+                            {
+                                const VkWriteDescriptorSetInlineUniformBlock* inline_uni_block_write =
+                                    reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(pnext);
+
+                                const uint32_t offset = write->dstArrayElement;
+                                const uint32_t size   = write->descriptorCount;
+                                assert(desc_set_info->descriptors[binding].inline_uniform_block.size() >=
+                                       offset + size);
+                                util::platform::MemoryCopy(
+                                    desc_set_info->descriptors[binding].inline_uniform_block.data() + offset,
+                                    size,
+                                    inline_uni_block_write->pData,
+                                    size);
+                                break;
+                            }
+                            pnext = pnext->pNext;
+                        }
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(

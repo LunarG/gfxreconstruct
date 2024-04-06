@@ -24,6 +24,7 @@
     "vkQueueSubmit2": "OverrideQueueSubmit2",
     "vkQueueSubmit2KHR": "OverrideQueueSubmit2",
     "vkQueueBindSparse": "OverrideQueueBindSparse",
+    "vkCreateDescriptorSetLayout": "OverrideCreateDescriptorSetLayout",
     "vkCreateDescriptorPool": "OverrideCreateDescriptorPool",
     "vkDestroyDescriptorPool": "OverrideDestroyDescriptorPool",
     "vkAllocateDescriptorSets": "OverrideAllocateDescriptorSets",

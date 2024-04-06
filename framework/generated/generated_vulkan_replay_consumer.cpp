@@ -1109,17 +1109,17 @@ void VulkanReplayConsumer::Process_vkCreateDescriptorSetLayout(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkDescriptorSetLayout>* pSetLayout)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkDescriptorSetLayoutCreateInfo* in_pCreateInfo = pCreateInfo->GetPointer();
-    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    if (!pSetLayout->IsNull()) { pSetLayout->SetHandleLength(1); }
-    VkDescriptorSetLayout* out_pSetLayout = pSetLayout->GetHandlePointer();
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateDescriptorSetLayout(in_device, in_pCreateInfo, in_pAllocator, out_pSetLayout);
+    MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    if (!pSetLayout->IsNull()) { pSetLayout->SetHandleLength(1); }
+    DescriptorSetLayoutInfo handle_info;
+    pSetLayout->SetConsumerData(0, &handle_info);
+
+    VkResult replay_result = OverrideCreateDescriptorSetLayout(GetDeviceTable(in_device->handle)->CreateDescriptorSetLayout, returnValue, in_device, pCreateInfo, pAllocator, pSetLayout);
     CheckResult("vkCreateDescriptorSetLayout", returnValue, replay_result, call_info);
 
-    AddHandle<DescriptorSetLayoutInfo>(device, pSetLayout->GetPointer(), out_pSetLayout, &VulkanObjectInfoTable::AddDescriptorSetLayoutInfo);
+    AddHandle<DescriptorSetLayoutInfo>(device, pSetLayout->GetPointer(), pSetLayout->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddDescriptorSetLayoutInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyDescriptorSetLayout(
