@@ -633,7 +633,7 @@ VkResult VulkanCaptureManager::OverrideCreateDevice(VkPhysicalDevice            
 {
     auto                handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkDeviceCreateInfo* pCreateInfo_unwrapped =
-        const_cast<VkDeviceCreateInfo*>(UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory));
+        const_cast<VkDeviceCreateInfo*>(UnwrapVulkanStructPtrHandles(pCreateInfo, handle_unwrap_memory));
 
     assert(pCreateInfo_unwrapped != nullptr);
 
@@ -855,7 +855,7 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
                                                    VkImage*                     pImage)
 {
     auto                     handle_unwrap_memory  = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    const VkImageCreateInfo* pCreateInfo_unwrapped = UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+    const VkImageCreateInfo* pCreateInfo_unwrapped = UnwrapVulkanStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
     VkImageCreateInfo modified_create_info = (*pCreateInfo_unwrapped);
 
@@ -885,7 +885,7 @@ VulkanCaptureManager::OverrideCreateAccelerationStructureKHR(VkDevice           
     VkDevice                 device_unwrapped     = device_wrapper->handle;
     const VulkanDeviceTable* device_table         = GetVulkanDeviceTable(device);
     const VkAccelerationStructureCreateInfoKHR* pCreateInfo_unwrapped =
-        UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+        UnwrapVulkanStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
     VkResult result;
     if (device_wrapper->property_feature_info.feature_accelerationStructureCaptureReplay)
@@ -962,7 +962,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
     VkDevice              device_unwrapped     = device_wrapper->handle;
     auto                  handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
-        const_cast<VkMemoryAllocateInfo*>(UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
+        const_cast<VkMemoryAllocateInfo*>(UnwrapVulkanStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info =
@@ -1197,7 +1197,7 @@ VulkanCaptureManager::OverrideCreateRayTracingPipelinesKHR(VkDevice             
         handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     }
     const VkRayTracingPipelineCreateInfoKHR* pCreateInfos_unwrapped =
-        UnwrapStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
+        UnwrapVulkanStructArrayHandles(pCreateInfos, createInfoCount, handle_unwrap_memory);
 
     VkResult result;
     if (device_wrapper->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)

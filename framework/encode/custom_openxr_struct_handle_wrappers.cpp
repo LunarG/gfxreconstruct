@@ -34,31 +34,32 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void UnwrapStructHandles(XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(const XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {}
 }
 
-void UnwrapStructHandles(XrBindingModificationsKHR* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(const XrBindingModificationsKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {}
 }
 
-void UnwrapStructHandles(XrSecondaryViewConfigurationLayerInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(const XrSecondaryViewConfigurationLayerInfoMSFT* value,
+                               HandleUnwrapMemory*                              unwrap_memory)
 {
     if (value != nullptr)
     {}
 }
 
-void UnwrapStructHandles(XrVulkanInstanceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(const XrVulkanInstanceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {}
 }
 
-void UnwrapStructHandles(XrVulkanDeviceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(const XrVulkanDeviceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {}

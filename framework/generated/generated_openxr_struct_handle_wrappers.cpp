@@ -34,344 +34,14 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
-    }
-}
-
-void UnwrapStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrActionSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrInteractionProfileSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->suggestedBindings = UnwrapStructArrayHandles(value->suggestedBindings, value->countSuggestedBindings, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrSessionActionSetsAttachInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrActionStateGetInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrActiveActionSet* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->activeActionSets = UnwrapStructArrayHandles(value->activeActionSets, value->countActiveActionSets, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrBoundSourcesForActionEnumerateInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrHapticActionInfo* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSwapchainSubImage* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerProjectionView* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->subImage, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerProjection* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->views = UnwrapStructArrayHandles(value->views, value->viewCount, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerQuad* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->subImage, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrEventDataSessionStateChanged* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrEventDataReferenceSpaceChangePending* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrEventDataInteractionProfileChanged* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->subImage, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerCylinderKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->subImage, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->subImage, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrGraphicsBindingVulkanKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerEquirect2KHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->subImage, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrSpatialAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->viewConfigurationLayersInfo = UnwrapStructArrayHandles(value->viewConfigurationLayersInfo, value->viewConfigurationCount, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrInteractionProfileDpadBindingEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrInteractionProfileAnalogThresholdVALVE* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSceneBoundsMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrNewSceneComputeInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->bounds, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrSceneComponentsLocateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSpatialAnchorCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrEventDataSpatialAnchorCreateCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrEventDataSpaceSetStatusCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSwapchainStateFoveationFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrPassthroughLayerCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerPassthroughFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrGeometryInstanceCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrGeometryInstanceTransformFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -382,200 +52,326 @@ void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap
     }
 }
 
-void UnwrapStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataLocalizationChangedML* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrActionSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrSpatialAnchorPersistenceInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrInteractionProfileSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->suggestedBindings = UnwrapOpenXrStructArrayHandles(value->suggestedBindings, value->countSuggestedBindings, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSessionActionSetsAttachInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrActionStateGetInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrSpaceQueryResultFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrActiveActionSet* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrSpaceQueryResultsFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->results = UnwrapStructArrayHandles(value->results, value->resultCapacityInput, unwrap_memory);
+        value->activeActionSets = UnwrapOpenXrStructArrayHandles(value->activeActionSets, value->countActiveActionSets, unwrap_memory);
     }
 }
 
-void UnwrapStructHandles(XrSpaceSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrSpaceEraseInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrBoundSourcesForActionEnumerateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataSpaceSaveCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrHapticActionInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataSpaceEraseCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSwapchainSubImage* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrSwapchainImageFoveationVulkanFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrCompositionLayerProjectionView* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->subImage, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrCompositionLayerProjection* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->views = UnwrapOpenXrStructArrayHandles(value->views, value->viewCount, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrCompositionLayerQuad* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->subImage, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataSessionStateChanged* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrEventDataReferenceSpaceChangePending* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        UnwrapStructHandles(&value->motionVectorSubImage, unwrap_memory);
-        UnwrapStructHandles(&value->depthSubImage, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrEventDataInteractionProfileChanged* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrVirtualKeyboardSpaceCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrVirtualKeyboardLocationInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->subImage, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrCompositionLayerCylinderKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->subImage, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->subImage, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrGraphicsBindingVulkanKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrVirtualKeyboardInputInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardCommitTextMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardBackspaceMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardEnterMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrCompositionLayerEquirect2KHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->subImage, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpatialAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardShownMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataVirtualKeyboardHiddenMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrSpaceListSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrRecommendedLayerResolutionGetInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->layer = UnwrapStructPtrHandles(value->layer, unwrap_memory);
+        value->viewConfigurationLayersInfo = UnwrapOpenXrStructArrayHandles(value->viewConfigurationLayersInfo, value->viewConfigurationCount, unwrap_memory);
     }
 }
 
-void UnwrapStructHandles(XrPassthroughColorMapLutMETA* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrPassthroughColorMapInterpolatedLutMETA* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrPassthroughMeshTransformInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrInteractionProfileDpadBindingEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrInteractionProfileAnalogThresholdVALVE* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSceneBoundsMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrNewSceneComputeInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->bounds, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSceneComponentsLocateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpatialAnchorCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataSpatialAnchorCreateCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataSpaceSetStatusCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSwapchainStateFoveationFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrPassthroughLayerCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrCompositionLayerPassthroughFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrGeometryInstanceCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrGeometryInstanceTransformFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -586,51 +382,255 @@ void UnwrapStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMe
     }
 }
 
-void UnwrapStructHandles(XrFoveationApplyInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->subImages = UnwrapStructArrayHandles(value->subImages, value->subImageCount, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrSpatialAnchorCreateInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrActiveActionSetPriorityEXT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrEventDataLocalizationChangedML* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrActiveActionSetPrioritiesEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        value->actionSetPriorities = UnwrapStructArrayHandles(value->actionSetPriorities, value->actionSetPriorityCount, unwrap_memory);
-    }
-}
-
-void UnwrapStructHandles(XrPlaneDetectorBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSpatialAnchorPersistenceInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrPlaneDetectorGetInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
     }
 }
 
-void UnwrapStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapOpenXrStructHandles(XrSpaceQueryResultFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpaceQueryResultsFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->results = UnwrapOpenXrStructArrayHandles(value->results, value->resultCapacityInput, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpaceSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpaceEraseInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataSpaceSaveCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataSpaceEraseCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSwapchainImageFoveationVulkanFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        UnwrapOpenXrStructHandles(&value->motionVectorSubImage, unwrap_memory);
+        UnwrapOpenXrStructHandles(&value->depthSubImage, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrVirtualKeyboardSpaceCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrVirtualKeyboardLocationInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrVirtualKeyboardInputInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardCommitTextMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardBackspaceMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardEnterMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardShownMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataVirtualKeyboardHiddenMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpaceListSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrRecommendedLayerResolutionGetInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->layer = UnwrapOpenXrStructPtrHandles(value->layer, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrPassthroughColorMapLutMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrPassthroughColorMapInterpolatedLutMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrPassthroughMeshTransformInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrFoveationApplyInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->subImages = UnwrapOpenXrStructArrayHandles(value->subImages, value->subImageCount, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrSpatialAnchorCreateInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrActiveActionSetPriorityEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrActiveActionSetPrioritiesEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->actionSetPriorities = UnwrapOpenXrStructArrayHandles(value->actionSetPriorities, value->actionSetPriorityCount, unwrap_memory);
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrPlaneDetectorBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrPlaneDetectorGetInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapOpenXrStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -983,50 +983,29 @@ const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwra
             return copy;
         }
         case XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerDepthInfoKHR*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrCompositionLayerDepthInfoKHR*>(base), unwrap_memory);
         case XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrGraphicsBindingVulkanKHR*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrGraphicsBindingVulkanKHR*>(base), unwrap_memory);
         case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_FRAME_END_INFO_MSFT:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrSecondaryViewConfigurationFrameEndInfoMSFT*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrSecondaryViewConfigurationFrameEndInfoMSFT*>(base), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerPassthroughFB*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrCompositionLayerPassthroughFB*>(base), unwrap_memory);
         case XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrSwapchainImageFoveationVulkanFB*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrSwapchainImageFoveationVulkanFB*>(base), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerSpaceWarpInfoFB*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrCompositionLayerSpaceWarpInfoFB*>(base), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_LUT_META:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrPassthroughColorMapLutMETA*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrPassthroughColorMapLutMETA*>(base), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_INTERPOLATED_LUT_META:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrPassthroughColorMapInterpolatedLutMETA*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrPassthroughColorMapInterpolatedLutMETA*>(base), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrPassthroughMeshTransformInfoHTC*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrPassthroughMeshTransformInfoHTC*>(base), unwrap_memory);
         case XR_TYPE_ACTIVE_ACTION_SET_PRIORITIES_EXT:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrActiveActionSetPrioritiesEXT*>(base), unwrap_memory);
+            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const XrActiveActionSetPrioritiesEXT*>(base), unwrap_memory);
         }
     }
 
     return nullptr;
-}
-template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper>
-void CreateWrappedStructHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, XrSpaceQueryResultsFB* value, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        CreateWrappedStructArrayHandles<OpenXrParentWrapper, OpenXrCoParentWrapper, XrSpaceQueryResultFB>(parent, co_parent, value->results, value->resultCapacityInput, get_id);
-    }
-}
-
-
-template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename T>
-void CreateWrappedStructArrayHandles(typename OpenXrParentWrapper::HandleType parent, typename OpenXrCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
-{
-    if (value != nullptr)
-    {
-        for (size_t i = 0; i < len; ++i)
-        {
-            CreateWrappedStructHandles<OpenXrParentWrapper, OpenXrCoParentWrapper>(parent, co_parent, &value[i], get_id);
-        }
-    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

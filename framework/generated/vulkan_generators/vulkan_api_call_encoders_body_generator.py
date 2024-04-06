@@ -665,7 +665,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedVulkanStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, value.base_type,
                             parent_value, co_parent_value, value.name,
                             length_name
@@ -679,7 +679,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrappedStructHandles<{}, {}>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
+                        expr += indent + 'CreateWrappedVulkanStructHandles<{}, {}>({}, {}, {}, VulkanCaptureManager::GetUniqueId);\n'.format(
                             parent_type, co_parent_type, parent_value,
                             co_parent_value, value.name
                         )
@@ -699,13 +699,13 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         need_unwrap_memory = True
                         arg_name += '_unwrapped'
                         if value.is_array:
-                            expr += indent + '{} {name}_unwrapped = UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
+                            expr += indent + '{} {name}_unwrapped = UnwrapVulkanStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
                                 value.full_type,
                                 value.array_length,
                                 name=value.name
                             )
                         else:
-                            expr += indent + '{} {name}_unwrapped = UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
+                            expr += indent + '{} {name}_unwrapped = UnwrapVulkanStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
                                 value.full_type, name=value.name
                             )
             args.append(arg_name)

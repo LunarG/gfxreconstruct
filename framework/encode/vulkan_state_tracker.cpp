@@ -219,7 +219,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevic
 
     if (surface_info.pNext != nullptr)
     {
-        entry.surface_info.pNext = vulkan::TrackStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
+        entry.surface_info.pNext = vulkan_trackers::TrackStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
     }
 
     entry.surface_capabilities_pnext_memory.Reset();
@@ -230,7 +230,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceCapabilities2(VkPhysicalDevic
     if (surface_capabilities->pNext != nullptr)
     {
         entry.surface_capabilities.pNext = const_cast<void*>(
-            vulkan::TrackStruct(surface_capabilities->pNext, &entry.surface_capabilities_pnext_memory));
+            vulkan_trackers::TrackStruct(surface_capabilities->pNext, &entry.surface_capabilities_pnext_memory));
     }
 }
 
@@ -284,7 +284,8 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats2(VkPhysicalDevice    
 
         if (surface_info.pNext != nullptr)
         {
-            entry.surface_info.pNext = vulkan::TrackStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
+            entry.surface_info.pNext =
+                vulkan_trackers::TrackStruct(surface_info.pNext, &entry.surface_info_pnext_memory);
         }
 
         entry.surface_formats.resize(surface_format_count);
@@ -299,7 +300,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfaceFormats2(VkPhysicalDevice    
             if (surface_formats[i].pNext != nullptr)
             {
                 entry.surface_formats[i].pNext = const_cast<void*>(
-                    vulkan::TrackStruct(surface_formats[i].pNext, &entry.surface_formats_pnext_memory[i]));
+                    vulkan_trackers::TrackStruct(surface_formats[i].pNext, &entry.surface_formats_pnext_memory[i]));
             }
         }
     }
@@ -322,7 +323,7 @@ void VulkanStateTracker::TrackPhysicalDeviceSurfacePresentModes(VkPhysicalDevice
     entry.surface_info_pnext_memory.Reset();
     if (surface_info_pnext != nullptr)
     {
-        entry.surface_info_pnext = vulkan::TrackStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
+        entry.surface_info_pnext = vulkan_trackers::TrackStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
     }
 }
 
@@ -341,7 +342,7 @@ void VulkanStateTracker::TrackDeviceGroupSurfacePresentModes(VkDevice           
     entry.surface_info_pnext_memory.Reset();
     if (surface_info_pnext != nullptr)
     {
-        entry.surface_info_pnext = vulkan::TrackStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
+        entry.surface_info_pnext = vulkan_trackers::TrackStruct(surface_info_pnext, &entry.surface_info_pnext_memory);
     }
 }
 
@@ -368,7 +369,7 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
 
     if (bind_info_pnext != nullptr)
     {
-        wrapper->bind_pnext = vulkan::TrackStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
+        wrapper->bind_pnext = vulkan_trackers::TrackStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
     }
 }
 
@@ -433,7 +434,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
 
     if (bind_info_pnext != nullptr)
     {
-        wrapper->bind_pnext = vulkan::TrackStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
+        wrapper->bind_pnext = vulkan_trackers::TrackStruct(bind_info_pnext, &wrapper->bind_pnext_memory);
     }
 }
 

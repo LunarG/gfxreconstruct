@@ -487,7 +487,9 @@ class BaseGenerator(OutputGenerator):
         """Write OpenXR header include statements
         """
         write('#include "openxr/openxr.h"', file=self.outFile)
-        write('#include "openxr/openxr_loader_negotiation.h"', file=self.outFile)
+        write(
+            '#include "openxr/openxr_loader_negotiation.h"', file=self.outFile
+        )
         write('#include "openxr/openxr_platform.h"', file=self.outFile)
         for extra_openxr_header in gen_opts.extraOpenXrHeaders:
             header_include_path = re.sub(r'\\', '/', extra_openxr_header)

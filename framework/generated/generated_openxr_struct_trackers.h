@@ -81,10 +81,10 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
-GFXRECON_BEGIN_NAMESPACE(openxr)
+GFXRECON_BEGIN_NAMESPACE(openxr_trackers)
 
 template <typename T>
-T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+T* MakeUnwrapOpenXrStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));
 
@@ -444,7 +444,7 @@ XrUserCalibrationEnableEventsInfoML* TrackStruct(const XrUserCalibrationEnableEv
 
 void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory);
 
-GFXRECON_END_NAMESPACE(openxr)
+GFXRECON_END_NAMESPACE(openxr_trackers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

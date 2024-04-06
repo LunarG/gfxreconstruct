@@ -85,11 +85,11 @@ class OpenXrStructTrackersHeaderGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(openxr)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(openxr_trackers)', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
         write(
-            'T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
+            'T* MakeUnwrapOpenXrStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -122,7 +122,7 @@ class OpenXrStructTrackersHeaderGenerator(BaseGenerator):
             file=self.outFile
         )
         self.newline()
-        write('GFXRECON_END_NAMESPACE(openxr)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(openxr_trackers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
