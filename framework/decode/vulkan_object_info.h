@@ -194,7 +194,6 @@ typedef VulkanObjectInfo<VkEvent>                         EventInfo;
 typedef VulkanObjectInfo<VkQueryPool>                     QueryPoolInfo;
 typedef VulkanObjectInfo<VkPipelineLayout>                PipelineLayoutInfo;
 typedef VulkanObjectInfo<VkPrivateDataSlot>               PrivateDataSlotInfo;
-typedef VulkanObjectInfo<VkDescriptorSetLayout>           DescriptorSetLayoutInfo;
 typedef VulkanObjectInfo<VkSampler>                       SamplerInfo;
 typedef VulkanPoolInfo<VkCommandPool>                     CommandPoolInfo;
 typedef VulkanObjectInfo<VkSamplerYcbcrConversion>        SamplerYcbcrConversionInfo;
@@ -574,6 +573,18 @@ struct RenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<SubpassReferences> subpass_refs;
 
     std::vector<VkSubpassDependency> dependencies;
+};
+
+struct DescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLayout>
+{
+    struct DescriptorBindingLayout
+    {
+        VkDescriptorType type;
+        uint32_t         binding;
+        uint32_t         count;
+    };
+
+    std::vector<DescriptorBindingLayout> bindings_layout;
 };
 
 struct DescriptorTypeImageInfo
