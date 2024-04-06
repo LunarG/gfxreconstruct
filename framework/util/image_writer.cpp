@@ -211,15 +211,15 @@ static float Ufloat10ToFloat(uint16_t val)
     }
 }
 
-#define CheckFwriteRetVal(_val_, _expected_, _file_)                                   \
-    {                                                                                  \
-        if (_val_ != _expected_)                                                       \
-        {                                                                              \
-            GFXRECON_LOG_ERROR("%s(): fwrite failed (%s)", __func__, strerror(errno)); \
-            util::platform::FileClose(_file_);                                         \
-                                                                                       \
-            return false;                                                              \
-        }                                                                              \
+#define CheckFwriteRetVal(_val_, _expected_, _file_)                                                  \
+    {                                                                                                 \
+        if (_val_ != _expected_)                                                                      \
+        {                                                                                             \
+            GFXRECON_LOG_ERROR("%s() (%u): fwrite failed (%s)", __func__, __LINE__, strerror(errno)); \
+            util::platform::FileClose(_file_);                                                        \
+                                                                                                      \
+            return false;                                                                             \
+        }                                                                                             \
     }
 
 static const uint8_t* ConvertIntoTemporaryBuffer(
@@ -828,12 +828,14 @@ bool WriteAstcImage(const std::string& filename,
         ret = util::platform::FileWrite(data, size, 1, file);
         CheckFwriteRetVal(ret, 1, file);
 
-        ret = util::platform::FileClose(file);
-        CheckFwriteRetVal(ret, 1, file);
-
         if (!ferror(file))
         {
             success = true;
+        }
+
+        if (util::platform::FileClose(file))
+        {
+            GFXRECON_LOG_ERROR("%s() fclose failed (%s)", __func__, strerror(result));
         }
     }
     else
