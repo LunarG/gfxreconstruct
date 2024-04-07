@@ -2715,12 +2715,33 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                     .cmd_copy_query_pool_results    = device_table->CmdCopyQueryPoolResults,
                     .cmd_pipeline_barrier           = device_table->CmdPipelineBarrier,
                 };
+
+                auto table = GetInstanceTable(physical_device);
+
+                VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_pipeline_properties{};
+                ray_tracing_pipeline_properties.sType =
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR;
+                VkPhysicalDeviceProperties2 device_properties{};
+                device_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+                device_properties.pNext = &ray_tracing_pipeline_properties;
+                table->GetPhysicalDeviceProperties2(physical_device, &device_properties);
+
+                VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_features{};
+                acceleration_structure_features.sType =
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
+                VkPhysicalDeviceFeatures2 device_features{};
+                device_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+                device_features.pNext = &acceleration_structure_features;
+                table->GetPhysicalDeviceFeatures2(physical_device, &device_features);
+
                 acceleration_structure_builders_[*pDevice->GetPointer()] =
                     std::make_unique<VulkanAccelerationStructureBuilder>(
                         as_builder_functions,
                         *replay_device,
                         allocator,
-                        *physical_device_info->replay_device_info->memory_properties);
+                        *physical_device_info->replay_device_info->memory_properties,
+                        ray_tracing_pipeline_properties,
+                        acceleration_structure_features);
             }
         }
 
@@ -3421,7 +3442,7 @@ VkResult VulkanReplayConsumerBase::OverrideQueueSubmit(PFN_vkQueueSubmit func,
 
     if ((options_.sync_queue_submissions) && (result == VK_SUCCESS))
     {
-        GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle);
+        GFXRECON_ASSERT(VK_SUCCESS == GetDeviceTable(queue_info->handle)->QueueWaitIdle(queue_info->handle));
     }
 
     if (screenshot_handler_ != nullptr)
@@ -6701,7 +6722,17 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
                                                          &pPipelines->GetPointer()[createInfoCount]);
     }
 
-    if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        result = device_table->CreateRayTracingPipelinesKHR(device,
+                                                            in_deferredOperation,
+                                                            in_pipelineCache,
+                                                            createInfoCount,
+                                                            in_pCreateInfos,
+                                                            in_pAllocator,
+                                                            out_pPipelines);
+    }
+    else if (device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
     {
         // Modify pipeline create infos with capture replay flag and data.
         std::vector<VkRayTracingPipelineCreateInfoKHR>                 modified_create_infos;
@@ -6970,7 +7001,8 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     assert((device_info != nullptr) && (pipeline_info != nullptr) && (pData != nullptr) &&
            (pData->GetOutputPointer() != nullptr));
 
-    if (!device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay)
+    if (!device_info->property_feature_info.feature_rayTracingPipelineShaderGroupHandleCaptureReplay &&
+        device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
         GFXRECON_LOG_WARNING_ONCE(
             "The captured application used vkGetRayTracingShaderGroupHandlesKHR, which may require the "
@@ -6982,7 +7014,14 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     VkPipeline pipeline    = pipeline_info->handle;
     uint8_t*   output_data = pData->GetOutputPointer();
 
-    return func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
+    VkResult result = func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
+
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        acceleration_structure_builders_[device_info->capture_id]->RegisterShaderGroupHandleEntry(
+            groupCount, dataSize, pData->GetPointer(), pData->GetOutputPointer());
+    }
+    return result;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesANDROID(
@@ -7902,6 +7941,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
     if (!allocator->SupportsOpaqueDeviceAddresses())
     {
         acceleration_structure_builders_[in_commandBuffer->parent_id]->OnCmdTraceRaysKHR(
+            in_commandBuffer->handle,
             pRaygenShaderBindingTable->GetPointer(),
             pMissShaderBindingTable->GetPointer(),
             pHitShaderBindingTable->GetPointer(),

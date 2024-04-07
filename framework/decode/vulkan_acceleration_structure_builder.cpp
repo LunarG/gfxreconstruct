@@ -30,12 +30,18 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanAccelerationStructureBuilder::VulkanAccelerationStructureBuilder(
-    Functions                               functions,
-    VkDevice                                device,
-    VulkanResourceAllocator*                allocator,
-    const VkPhysicalDeviceMemoryProperties& memory_properties) :
+    Functions                                        functions,
+    VkDevice                                         device,
+    VulkanResourceAllocator*                         allocator,
+    const VkPhysicalDeviceMemoryProperties&          memory_properties,
+    VkPhysicalDeviceRayTracingPipelinePropertiesKHR  ray_tracing_pipeline_properties,
+    VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_features) :
     functions_(functions),
-    device_(device), allocator_(allocator), physical_device_memory_properties_(memory_properties)
+    device_(device), allocator_(allocator), physical_device_memory_properties_(memory_properties),
+    ray_tracing_pipeline_properties_(ray_tracing_pipeline_properties),
+    acceleration_structure_features_(acceleration_structure_features),
+    raytracing_pipeline_properties_(ray_tracing_pipeline_properties.shaderGroupHandleSize,
+                                    ray_tracing_pipeline_properties.shaderGroupHandleAlignment)
 {}
 
 VulkanAccelerationStructureBuilder::~VulkanAccelerationStructureBuilder()
@@ -454,6 +460,11 @@ void VulkanAccelerationStructureBuilder::UpdateInstanceBuffer(
     // Update the device address of the buffer itself in the geometry info
     UpdateBufferDeviceAddress(instances.data.deviceAddress);
 
+    if (build_range.primitiveCount == 0)
+    {
+        return;
+    }
+
     // Find the buffer by updated address, and record offset if any
     auto         instance_buffer = GetBufferByRuntimeDeviceAddress(instances.data.deviceAddress);
     VkDeviceSize offset          = instances.data.deviceAddress - GetBufferDeviceAddress(instance_buffer->handle_);
@@ -564,17 +575,33 @@ void VulkanAccelerationStructureBuilder::UpdateDeviceAddress(
         {
             continue;
         }
-        if (geometry_data.geometryType == VK_GEOMETRY_TYPE_TRIANGLES_KHR)
+        switch (geometry_data.geometryType)
         {
-            auto& triangles = geometry_data.geometry.triangles;
-            UpdateBufferDeviceAddress(triangles.indexData.deviceAddress);
-            UpdateBufferDeviceAddress(triangles.transformData.deviceAddress);
-            UpdateBufferDeviceAddress(triangles.vertexData.deviceAddress);
-        }
-        else if (geometry_data.geometryType == VK_GEOMETRY_TYPE_INSTANCES_KHR)
-        {
-            auto& instances = geometry_data.geometry.instances;
-            UpdateInstanceBuffer(command_buffer, instances, range_infos[geometry_index]);
+            case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+            {
+                auto& triangles = geometry_data.geometry.triangles;
+                UpdateBufferDeviceAddress(triangles.indexData.deviceAddress);
+                UpdateBufferDeviceAddress(triangles.transformData.deviceAddress);
+                UpdateBufferDeviceAddress(triangles.vertexData.deviceAddress);
+                break;
+            }
+            case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+            {
+                auto& instances = geometry_data.geometry.instances;
+                UpdateInstanceBuffer(command_buffer, instances, range_infos[geometry_index]);
+                break;
+            }
+            case VK_GEOMETRY_TYPE_AABBS_KHR:
+            {
+                auto& aabbs = geometry_data.geometry.aabbs;
+                UpdateBufferDeviceAddress(aabbs.data.deviceAddress);
+                break;
+            }
+            default:
+            {
+                GFXRECON_LOG_DEBUG("Unexpected geometry type");
+                break;
+            }
         }
     }
 }
@@ -692,8 +719,6 @@ void VulkanAccelerationStructureBuilder::CmdBuildAccelerationStructures(
 void VulkanAccelerationStructureBuilder::CmdCopyAccelerationStructure(VkCommandBuffer command_buffer,
                                                                       VkCopyAccelerationStructureInfoKHR* copy_info)
 {
-    // In the typical compaction scenario, we copy the built acceleration structure to a smaller storage,
-    // which is only created but not built
     VkCopyAccelerationStructureInfoKHR modified_info = *copy_info;
 
     if (VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR == modified_info.mode)
@@ -988,17 +1013,112 @@ void VulkanAccelerationStructureBuilder::OnQueueSubmit(uint32_t submitCount, con
             ++it;
         }
     }
+
+    // Update shader group handles if the submission contains vkCmdTraceRays command
+    for (int i = 0; i < submitCount; ++i)
+    {
+        auto submission = pSubmits[i];
+        for (int cmd_buffer_index = 0; cmd_buffer_index < submission.commandBufferCount; ++cmd_buffer_index)
+        {
+            auto submitted_buffer = submission.pCommandBuffers[cmd_buffer_index];
+
+            // Every command buffer containing CmdTraceRays has been recorded into trace_rays_ map along with the
+            // shader binding table data. These SBTs will contain shader group handles that need an update
+            for (auto& sbt_data : trace_rays_[submitted_buffer])
+            {
+                UpdateShaderBindingTable(sbt_data.raygen);
+                UpdateShaderBindingTable(sbt_data.hit);
+                UpdateShaderBindingTable(sbt_data.miss);
+                UpdateShaderBindingTable(sbt_data.callable);
+            }
+            trace_rays_.erase(submitted_buffer);
+        }
+    }
 }
 
-void VulkanAccelerationStructureBuilder::OnCmdTraceRaysKHR(VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+void VulkanAccelerationStructureBuilder::UpdateShaderBindingTable(const VkStridedDeviceAddressRegionKHR& sbt_entry)
+{
+    // early exit - address/size can be 0, nothing to update
+    if (!sbt_entry.size || !sbt_entry.deviceAddress)
+    {
+        return;
+    }
+    uint8_t*           mapped_sbt_buffer;
+    const BufferEntry* sbt_buffer = GetBufferByRuntimeDeviceAddress(sbt_entry.deviceAddress);
+    allocator_->MapResourceMemoryDirect(sbt_entry.size, 0, (void**)&mapped_sbt_buffer, sbt_buffer->allocator_data_);
+
+    // sbt device address may be offsetted, account for that in
+    const size_t sbt_offset = sbt_entry.deviceAddress - sbt_buffer->new_address_;
+
+    // points to the sbt within mapped buffer
+    uint8_t* sbt_start_address = mapped_sbt_buffer + sbt_offset;
+
+    // goes over all the known shader group handles tracked in the trace
+    // compares them with the values in the mapped buffer at provided offset
+    // and replaces if there's a match
+    auto update_entry = [&](VkDeviceSize handle_offset) {
+        uint8_t* handle_address = sbt_start_address + handle_offset;
+        for (const auto& entry : shader_group_handle_entries_)
+        {
+            // Assume shaderGroupHandleSize and shaderGroupHandleAlignment are the same
+            // TODO: shader group size/alignment might change on different platforms
+            assert(entry.original_data_.size() == entry.runtime_data_.size());
+            assert(entry.original_data_.size() == raytracing_pipeline_properties_.shader_group_handle_size_aligned);
+            if (0 == memcmp(entry.original_data_.data(), handle_address, entry.original_data_.size()))
+            {
+                memcpy(handle_address, entry.runtime_data_.data(), entry.original_data_.size());
+            }
+        }
+    };
+
+    // stride may be 0 if there's just a single value in the sbt
+    if (sbt_entry.stride > 0)
+    {
+        for (VkDeviceSize handle_offset = 0; handle_offset < sbt_entry.size; handle_offset += sbt_entry.stride)
+        {
+            update_entry(handle_offset);
+        }
+    }
+    else
+    {
+        update_entry(0);
+    }
+
+    allocator_->UnmapResourceMemoryDirect(sbt_buffer->allocator_data_);
+}
+
+void VulkanAccelerationStructureBuilder::OnCmdTraceRaysKHR(VkCommandBuffer                  command_buffer,
+                                                           VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
                                                            VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
                                                            VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
                                                            VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable)
 {
+    // SBT's device addresses can change, update them based on GetBufferDeviceAddress calls recorded earlier
     UpdateBufferDeviceAddress(pRaygenShaderBindingTable->deviceAddress);
     UpdateBufferDeviceAddress(pMissShaderBindingTable->deviceAddress);
     UpdateBufferDeviceAddress(pHitShaderBindingTable->deviceAddress);
     UpdateBufferDeviceAddress(pCallableShaderBindingTable->deviceAddress);
+
+    // Shader group handles stored in SBT's will require update as well, this should be done before QueueSubmit
+    // Store SBT data for later replacement
+    CmdTraceRaysEntry new_entry{
+        *pRaygenShaderBindingTable, *pMissShaderBindingTable, *pHitShaderBindingTable, *pCallableShaderBindingTable
+    };
+    trace_rays_[command_buffer].push_back(new_entry);
+}
+
+void VulkanAccelerationStructureBuilder::RegisterShaderGroupHandleEntry(uint32_t group_count,
+                                                                        size_t   data_size,
+                                                                        uint8_t* original_data,
+                                                                        uint8_t* runtime_data)
+{
+    const auto single_entry_size = data_size / group_count;
+    for (uint32_t group_index = 0; group_index < group_count; ++group_index)
+    {
+        shader_group_handle_entries_.emplace_back(original_data + (single_entry_size * group_index),
+                                                  runtime_data + (single_entry_size * group_index),
+                                                  single_entry_size);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)
