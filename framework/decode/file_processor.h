@@ -97,6 +97,8 @@ class FileProcessor
 
     bool EntireFileWasProcessed() const { return (feof(file_descriptor_) != 0); }
 
+    bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
+
   protected:
     bool ContinueDecoding();
 

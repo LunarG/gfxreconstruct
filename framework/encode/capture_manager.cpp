@@ -46,6 +46,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 // One based frame count.
 const uint32_t kFirstFrame           = 1;
 const size_t   kFileStreamBufferSize = 256 * 1024;
+const uint32_t kPresentTestFrame     = 0x1;
+
 
 std::mutex                                     CaptureManager::ThreadData::count_lock_;
 format::ThreadId                               CaptureManager::ThreadData::thread_count_ = 0;
@@ -753,7 +755,9 @@ void CaptureManager::WriteFrameMarker(format::MarkerType marker_type)
     }
 }
 
-void CaptureManager::EndFrame()
+void CaptureManager::EndFrame(uint32_t flags)
+{
+    if (!(flags & kPresentTestFrame))
 {
     // Write an end-of-frame marker to the capture file.
     WriteFrameMarker(format::MarkerType::kEndMarker);
@@ -774,6 +778,7 @@ void CaptureManager::EndFrame()
             // Check for start of capture frame range or hotkey trigger to start capture
             CheckStartCaptureForTrackMode(current_frame_);
         }
+    }
     }
 
     // Flush after presents to help avoid capture files with incomplete final blocks.

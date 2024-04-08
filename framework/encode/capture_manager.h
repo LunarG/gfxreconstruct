@@ -114,7 +114,7 @@ class CaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type);
 
-    void EndFrame();
+    void EndFrame(uint32_t flags = 0);
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.

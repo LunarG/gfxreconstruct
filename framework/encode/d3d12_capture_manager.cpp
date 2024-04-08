@@ -596,9 +596,9 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
     }
 }
 
-void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
+void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper, UINT flags)
 {
-    EndFrame();
+    EndFrame(flags);
 }
 
 void D3D12CaptureManager::PreProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrapper* wrapper,
@@ -635,7 +635,7 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain_Present(IDXGISwapChain_Wrap
     GFXRECON_UNREFERENCED_PARAMETER(sync_interval);
     GFXRECON_UNREFERENCED_PARAMETER(flags);
 
-    PostPresent(wrapper);
+    PostPresent(wrapper, flags);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wrapper*        wrapper,
@@ -650,7 +650,7 @@ void D3D12CaptureManager::PostProcess_IDXGISwapChain1_Present1(IDXGISwapChain_Wr
     GFXRECON_UNREFERENCED_PARAMETER(present_flags);
     GFXRECON_UNREFERENCED_PARAMETER(present_parameters);
 
-    PostPresent(wrapper);
+    PostPresent(wrapper, present_flags);
 }
 
 void D3D12CaptureManager::PostProcess_IDXGISwapChain_ResizeBuffers(IDXGISwapChain_Wrapper* wrapper,

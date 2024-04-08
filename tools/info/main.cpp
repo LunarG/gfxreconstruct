@@ -108,6 +108,7 @@ struct ApiAgnosticStats
     uint32_t                               trim_start_frame;
     uint32_t                               frame_count;
     gfxrecon::decode::FileProcessor::Error error_state;
+    bool                                   uses_frame_markers;
 };
 
 std::string AdapterTypeToString(gfxrecon::format::AdapterType type)
@@ -216,6 +217,7 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
     api_agnostic_stats.compression_type = compression_type;
     api_agnostic_stats.trim_start_frame = stat_consumer.GetTrimmedStartFrame();
     api_agnostic_stats.frame_count      = file_processor.GetCurrentFrameNumber();
+    api_agnostic_stats.uses_frame_markers = file_processor.UsesFrameMarkers();
 }
 
 std::string GetJsonValue(const nlohmann::json& json_obj, const std::string& key)
@@ -680,6 +682,12 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
             GFXRECON_WRITE_CONSOLE("\tApplication frame range: %u-%u",
                                    api_agnostic_stats.trim_start_frame,
                                    api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
+        }
+
+        if (dx12_consumer.GetDXGITestPresentCount() > 0 && 
+            api_agnostic_stats.uses_frame_markers == false)
+        {
+            GFXRECON_WRITE_CONSOLE("\tTest frames: %u", dx12_consumer.GetDXGITestPresentCount());
         }
 
         PrintDriverInfo(info_consumer);

@@ -69,6 +69,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void PostReplay();
 
+    void PresentTest(uint32_t flags);
+
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
@@ -545,7 +547,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
 
-    void PrePresent(DxObjectInfo* swapchain_object_info);
+    void PrePresent(DxObjectInfo* swapchain_object_info, UINT flags);
 
     void PostPresent();
 
