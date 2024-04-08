@@ -83,17 +83,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(openxr_trackers)
 
-template <typename T>
-T* MakeUnwrapOpenXrStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
-{
-    assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));
-
-    const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(values);
-    size_t         num_bytes = len * sizeof(T);
-
-    return reinterpret_cast<T*>(unwrap_memory->GetFilledBuffer(bytes, num_bytes));
-}
-
 XrApiLayerProperties* TrackStruct(const XrApiLayerProperties* value, HandleUnwrapMemory* unwrap_memory);
 XrExtensionProperties* TrackStruct(const XrExtensionProperties* value, HandleUnwrapMemory* unwrap_memory);
 XrInstanceCreateInfo* TrackStruct(const XrInstanceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);

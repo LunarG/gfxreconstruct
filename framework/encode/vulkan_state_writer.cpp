@@ -1933,7 +1933,7 @@ void VulkanStateWriter::WriteSwapchainImageState(const VulkanStateTable& state_t
 
             if (wrapper->image_acquired_info[i].last_presented_queue != VK_NULL_HANDLE)
             {
-                auto queue_wrapper = GetVulkanWrapper<vulkan_wrappers::QueueWrapper>(
+                auto queue_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::QueueWrapper>(
                     wrapper->image_acquired_info[i].last_presented_queue);
                 info.last_presented_queue_id = queue_wrapper->handle_id;
             }
@@ -2419,14 +2419,17 @@ void VulkanStateWriter::WriteQueryPoolReset(
     format::HandleId device_id, const std::vector<const vulkan_wrappers::QueryPoolWrapper*>& query_pool_wrappers)
 {
     // Retrieve a queue and create a command buffer for query pool reset.
-    WriteCommandProcessingCreateCommands(
-        device_id, kDefaultQueueFamilyIndex, kTempQueueId, kTempCommandPool, kTempCommandBufferId);
+    WriteCommandProcessingCreateCommands(device_id,
+                                         kDefaultQueueFamilyIndex,
+                                         vulkan_wrappers::kTempQueueId,
+                                         vulkan_wrappers::kTempCommandPool,
+                                         vulkan_wrappers::kTempCommandBufferId);
 
-    WriteCommandBegin(kTempCommandBufferId);
+    WriteCommandBegin(vulkan_wrappers::kTempCommandBufferId);
 
     for (auto wrapper : query_pool_wrappers)
     {
-        encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+        encoder_.EncodeHandleIdValue(vulkan_wrappers::kTempCommandBufferId);
         encoder_.EncodeHandleIdValue(wrapper->handle_id);
         encoder_.EncodeUInt32Value(0);
         encoder_.EncodeUInt32Value(wrapper->query_count);
@@ -2435,10 +2438,11 @@ void VulkanStateWriter::WriteQueryPoolReset(
         parameter_stream_.Clear();
     }
 
-    WriteCommandEnd(kTempCommandBufferId);
-    WriteCommandExecution(kTempQueueId, kTempCommandBufferId);
+    WriteCommandEnd(vulkan_wrappers::kTempCommandBufferId);
+    WriteCommandExecution(vulkan_wrappers::kTempQueueId, vulkan_wrappers::kTempCommandBufferId);
 
-    WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool, device_id, kTempCommandPoolId, nullptr);
+    WriteDestroyDeviceObject(
+        format::ApiCallId::ApiCall_vkDestroyCommandPool, device_id, vulkan_wrappers::kTempCommandPoolId, nullptr);
 }
 
 void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_id,
@@ -2448,16 +2452,19 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
     const VkPipelineStageFlagBits timestamp_stage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 
     // Retrieve a queue and create a command buffer for query activation.
-    WriteCommandProcessingCreateCommands(
-        device_id, queue_family_index, kTempQueueId, kTempCommandPool, kTempCommandBufferId);
+    WriteCommandProcessingCreateCommands(device_id,
+                                         queue_family_index,
+                                         vulkan_wrappers::kTempQueueId,
+                                         vulkan_wrappers::kTempCommandPool,
+                                         vulkan_wrappers::kTempCommandBufferId);
 
-    WriteCommandBegin(kTempCommandBufferId);
+    WriteCommandBegin(vulkan_wrappers::kTempCommandBufferId);
 
     for (auto query_entry : active_queries)
     {
         if (query_entry.type == VK_QUERY_TYPE_TIMESTAMP)
         {
-            encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+            encoder_.EncodeHandleIdValue(vulkan_wrappers::kTempCommandBufferId);
             encoder_.EncodeEnumValue(timestamp_stage);
             encoder_.EncodeHandleIdValue(query_entry.pool_id);
             encoder_.EncodeUInt32Value(query_entry.index);
@@ -2467,7 +2474,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
         }
         else if (query_entry.type == VK_QUERY_TYPE_TRANSFORM_FEEDBACK_STREAM_EXT)
         {
-            encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+            encoder_.EncodeHandleIdValue(vulkan_wrappers::kTempCommandBufferId);
             encoder_.EncodeHandleIdValue(query_entry.pool_id);
             encoder_.EncodeUInt32Value(query_entry.index);
             encoder_.EncodeFlagsValue(query_entry.flags);
@@ -2476,7 +2483,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQueryIndexedEXT, &parameter_stream_);
             parameter_stream_.Clear();
 
-            encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+            encoder_.EncodeHandleIdValue(vulkan_wrappers::kTempCommandBufferId);
             encoder_.EncodeHandleIdValue(query_entry.pool_id);
             encoder_.EncodeUInt32Value(query_entry.index);
             encoder_.EncodeUInt32Value(query_entry.type_index);
@@ -2498,7 +2505,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
         }
         else
         {
-            encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+            encoder_.EncodeHandleIdValue(vulkan_wrappers::kTempCommandBufferId);
             encoder_.EncodeHandleIdValue(query_entry.pool_id);
             encoder_.EncodeUInt32Value(query_entry.index);
             encoder_.EncodeFlagsValue(query_entry.flags);
@@ -2506,7 +2513,7 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
             WriteFunctionCall(format::ApiCallId::ApiCall_vkCmdBeginQuery, &parameter_stream_);
             parameter_stream_.Clear();
 
-            encoder_.EncodeHandleIdValue(kTempCommandBufferId);
+            encoder_.EncodeHandleIdValue(vulkan_wrappers::kTempCommandBufferId);
             encoder_.EncodeHandleIdValue(query_entry.pool_id);
             encoder_.EncodeUInt32Value(query_entry.index);
 
@@ -2515,10 +2522,11 @@ void VulkanStateWriter::WriteQueryActivation(format::HandleId           device_i
         }
     }
 
-    WriteCommandEnd(kTempCommandBufferId);
-    WriteCommandExecution(kTempQueueId, kTempCommandBufferId);
+    WriteCommandEnd(vulkan_wrappers::kTempCommandBufferId);
+    WriteCommandExecution(vulkan_wrappers::kTempQueueId, vulkan_wrappers::kTempCommandBufferId);
 
-    WriteDestroyDeviceObject(format::ApiCallId::ApiCall_vkDestroyCommandPool, device_id, kTempCommandPoolId, nullptr);
+    WriteDestroyDeviceObject(
+        format::ApiCallId::ApiCall_vkDestroyCommandPool, device_id, vulkan_wrappers::kTempCommandPoolId, nullptr);
 }
 
 void VulkanStateWriter::WriteCreateFence(format::HandleId device_id, format::HandleId fence_id, bool signaled)

@@ -74,7 +74,7 @@ class OpenXrStateTracker
 
         if (*new_handle != VK_NULL_HANDLE)
         {
-            auto wrapper = GetOpenXrWrapper<Wrapper>(*new_handle);
+            auto wrapper = openxr_wrappers::GetWrapper<Wrapper>(*new_handle);
 
             // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
             std::unique_lock<std::mutex> lock(state_table_mutex_);
@@ -103,7 +103,7 @@ class OpenXrStateTracker
 
         if (*new_handle != 0ULL)
         {
-            auto wrapper = GetOpenXrAtomWrapper<Wrapper>(*new_handle);
+            auto wrapper = openxr_wrappers::GetAtomWrapper<Wrapper>(*new_handle);
 
             // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
             std::unique_lock<std::mutex> lock(state_table_mutex_);
@@ -172,7 +172,7 @@ class OpenXrStateTracker
     {
         if (handle != VK_NULL_HANDLE)
         {
-            auto wrapper = GetOpenXrWrapper<Wrapper>(handle);
+            auto wrapper = openxr_wrappers::GetWrapper<Wrapper>(handle);
 
             // Scope the state table mutex lock because DestroyState also modifies the state table and will attempt to
             // lock the mutex.
@@ -207,7 +207,7 @@ class OpenXrStateTracker
         {
             if (new_handles[i] != VK_NULL_HANDLE)
             {
-                auto wrapper = GetOpenXrWrapper<Wrapper>(new_handles[i]);
+                auto wrapper = openxr_wrappers::GetWrapper<Wrapper>(new_handles[i]);
 
                 // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
                 if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))

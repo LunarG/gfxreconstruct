@@ -75,7 +75,7 @@ class VulkanStateTracker
 
         if (*new_handle != VK_NULL_HANDLE)
         {
-            auto wrapper = GetVulkanWrapper<Wrapper>(*new_handle);
+            auto wrapper = vulkan_wrappers::GetWrapper<Wrapper>(*new_handle);
 
             // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
             std::unique_lock<std::mutex> lock(state_table_mutex_);
@@ -111,7 +111,7 @@ class VulkanStateTracker
         {
             if (new_handles[i] != VK_NULL_HANDLE)
             {
-                auto wrapper = GetVulkanWrapper<Wrapper>(new_handles[i]);
+                auto wrapper = vulkan_wrappers::GetWrapper<Wrapper>(new_handles[i]);
 
                 // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
                 if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
@@ -206,7 +206,7 @@ class VulkanStateTracker
     {
         if (handle != VK_NULL_HANDLE)
         {
-            auto wrapper = GetVulkanWrapper<Wrapper>(handle);
+            auto wrapper = vulkan_wrappers::GetWrapper<Wrapper>(handle);
 
             // Scope the state table mutex lock because DestroyState also modifies the state table and will attempt to
             // lock the mutex.
@@ -229,7 +229,7 @@ class VulkanStateTracker
     {
         if (command_buffer != VK_NULL_HANDLE)
         {
-            auto wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
 
             TrackCommandExecution(wrapper, call_id, parameter_buffer);
         }
@@ -244,7 +244,7 @@ class VulkanStateTracker
     {
         if (command_buffer != VK_NULL_HANDLE)
         {
-            auto wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+            auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
 
             TrackCommandExecution(wrapper, call_id, parameter_buffer);
             func(wrapper, args...);
@@ -429,7 +429,7 @@ class VulkanStateTracker
         {
             if (new_handles[i] != VK_NULL_HANDLE)
             {
-                auto wrapper = GetVulkanWrapper<Wrapper>(new_handles[i]);
+                auto wrapper = vulkan_wrappers::GetWrapper<Wrapper>(new_handles[i]);
 
                 // Adds the handle wrapper to the object state table, filtering for duplicate handle retrieval.
                 if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))

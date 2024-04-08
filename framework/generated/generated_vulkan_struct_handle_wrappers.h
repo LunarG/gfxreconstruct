@@ -47,424 +47,425 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)
 
-void UnwrapVulkanStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBufferMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageMemoryBarrier* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDeviceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDeviceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMappedMemoryRange* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMappedMemoryRange* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSparseMemoryBind* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSparseMemoryBind* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSparseBufferMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSparseBufferMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSparseImageOpaqueMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSparseImageOpaqueMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSparseImageMemoryBind* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSparseImageMemoryBind* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSparseImageMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSparseImageMemoryBindInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindSparseInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindSparseInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBufferViewCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBufferViewCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageViewCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageViewCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkShaderModuleCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkShaderModuleCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPipelineShaderStageCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPipelineShaderStageCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkComputePipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkComputePipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGraphicsPipelineCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPipelineLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPipelineLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSamplerCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSamplerCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyDescriptorSet* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyDescriptorSet* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDescriptorBufferInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDescriptorBufferInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDescriptorSetAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDescriptorSetAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDescriptorSetLayoutBinding* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDescriptorSetLayoutBinding* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDescriptorSetLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDescriptorSetLayoutCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkFramebufferCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkFramebufferCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCommandBufferAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCommandBufferAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCommandBufferInheritanceInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCommandBufferInheritanceInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCommandBufferBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCommandBufferBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRenderPassBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRenderPassBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindBufferMemoryInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindBufferMemoryInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindImageMemoryInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindImageMemoryInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryDedicatedAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryDedicatedAllocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPhysicalDeviceGroupProperties* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPhysicalDeviceGroupProperties* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDeviceGroupDeviceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDeviceGroupDeviceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBufferMemoryRequirementsInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBufferMemoryRequirementsInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageMemoryRequirementsInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageMemoryRequirementsInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageSparseMemoryRequirementsInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageSparseMemoryRequirementsInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSamplerYcbcrConversionInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSamplerYcbcrConversionInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDescriptorUpdateTemplateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDescriptorUpdateTemplateCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRenderPassAttachmentBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRenderPassAttachmentBeginInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSemaphoreWaitInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSemaphoreWaitInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSemaphoreSignalInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSemaphoreSignalInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBufferDeviceAddressInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBufferDeviceAddressInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDeviceMemoryOpaqueCaptureAddressInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDeviceMemoryOpaqueCaptureAddressInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBufferMemoryBarrier2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBufferMemoryBarrier2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageMemoryBarrier2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageMemoryBarrier2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDependencyInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDependencyInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSemaphoreSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSemaphoreSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCommandBufferSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCommandBufferSubmitInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSubmitInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSubmitInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyBufferInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyBufferInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyBufferToImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyBufferToImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyImageToBufferInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyImageToBufferInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBlitImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBlitImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkResolveImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkResolveImageInfo2* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRenderingAttachmentInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRenderingAttachmentInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRenderingInfo* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRenderingInfo* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDeviceImageMemoryRequirements* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDeviceImageMemoryRequirements* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSwapchainCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSwapchainCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPresentInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPresentInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageSwapchainCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageSwapchainCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindImageMemorySwapchainInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindImageMemorySwapchainInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAcquireNextImageInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAcquireNextImageInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplayModePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplayModePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplayPlanePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplayPlanePropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplayPropertiesKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplaySurfaceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplaySurfaceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoPictureResourceInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoPictureResourceInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoReferenceSlotInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoReferenceSlotInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindVideoSessionMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindVideoSessionMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoSessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoSessionParametersCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoBeginCodingInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoBeginCodingInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoDecodeInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoDecodeInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRenderingFragmentShadingRateAttachmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRenderingFragmentShadingRateAttachmentInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRenderingFragmentDensityMapAttachmentInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRenderingFragmentDensityMapAttachmentInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkWin32KeyedMutexAcquireReleaseInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImportSemaphoreWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImportSemaphoreWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSemaphoreGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSemaphoreGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImportSemaphoreFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImportSemaphoreFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSemaphoreGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSemaphoreGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImportFenceWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImportFenceWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkFenceGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkFenceGetWin32HandleInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImportFenceFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImportFenceFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkFenceGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkFenceGetFdInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPhysicalDeviceSurfaceInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPhysicalDeviceSurfaceInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplayProperties2KHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplayProperties2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplayPlaneProperties2KHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplayPlaneProperties2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplayModeProperties2KHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplayModeProperties2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDisplayPlaneInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDisplayPlaneInfo2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPipelineInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPipelineExecutableInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryMapInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryMapInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryUnmapInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryUnmapInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPipelineLibraryCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoEncodeInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoEncodeInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoEncodeSessionParametersGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoEncodeSessionParametersGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDeviceImageSubresourceInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDeviceImageSubresourceInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkVideoInlineQueryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkVideoInlineQueryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindDescriptorSetsInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindDescriptorSetsInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPushConstantsInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPushConstantsInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPushDescriptorSetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPushDescriptorSetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPushDescriptorSetWithTemplateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPushDescriptorSetWithTemplateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSetDescriptorBufferOffsetsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSetDescriptorBufferOffsetsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindDescriptorBufferEmbeddedSamplersInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindDescriptorBufferEmbeddedSamplersInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDebugMarkerObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDebugMarkerObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDebugMarkerObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDedicatedAllocationMemoryAllocateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImageViewHandleInfoNVX* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImageViewHandleInfoNVX* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkWin32KeyedMutexAcquireReleaseInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkWin32KeyedMutexAcquireReleaseInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkConditionalRenderingBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDebugUtilsObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDebugUtilsObjectNameInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDebugUtilsObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDebugUtilsObjectTagInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryGetAndroidHardwareBufferInfoANDROID* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryGetAndroidHardwareBufferInfoANDROID* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkShaderModuleValidationCacheCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkShaderModuleValidationCacheCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRayTracingPipelineCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRayTracingPipelineCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGeometryTrianglesNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGeometryTrianglesNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGeometryAABBNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGeometryAABBNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGeometryDataNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGeometryDataNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGeometryNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGeometryNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkBindAccelerationStructureMemoryInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkBindAccelerationStructureMemoryInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkWriteDescriptorSetAccelerationStructureNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyMemoryToImageInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyMemoryToImageInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyImageToMemoryInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyImageToMemoryInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyImageToImageInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyImageToImageInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkHostImageLayoutTransitionInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkHostImageLayoutTransitionInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSwapchainPresentFenceInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSwapchainPresentFenceInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkReleaseSwapchainImagesInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkReleaseSwapchainImagesInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGraphicsShaderGroupCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGraphicsShaderGroupCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGraphicsPipelineShaderGroupsCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGraphicsPipelineShaderGroupsCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkIndirectCommandsStreamNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkIndirectCommandsStreamNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkIndirectCommandsLayoutTokenNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkIndirectCommandsLayoutTokenNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkIndirectCommandsLayoutCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkIndirectCommandsLayoutCreateInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGeneratedCommandsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGeneratedCommandsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkImportSemaphoreZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkImportSemaphoreZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkSemaphoreGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkSemaphoreGetZirconHandleInfoFUCHSIA* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMemoryGetRemoteAddressInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMemoryGetRemoteAddressInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkFrameBoundaryEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkFrameBoundaryEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMicromapBuildInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMicromapBuildInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkMicromapCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkMicromapCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyMicromapToMemoryInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyMicromapToMemoryInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyMemoryToMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyMemoryToMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyMicromapInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureTrianglesOpacityMicromapEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureTrianglesOpacityMicromapEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureTrianglesDisplacementMicromapNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureTrianglesDisplacementMicromapNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkDescriptorSetBindingReferenceVALVE* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkDescriptorSetBindingReferenceVALVE* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRenderPassStripeSubmitInfoARM* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRenderPassStripeSubmitInfoARM* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkPipelineIndirectDeviceAddressInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkPipelineIndirectDeviceAddressInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkShaderCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkShaderCreateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkLatencySleepInfoNV* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkLatencySleepInfoNV* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkWriteDescriptorSetAccelerationStructureKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkWriteDescriptorSetAccelerationStructureKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkAccelerationStructureDeviceAddressInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkAccelerationStructureDeviceAddressInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyAccelerationStructureToMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyAccelerationStructureToMemoryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyMemoryToAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkCopyAccelerationStructureInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapVulkanStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(VkRayTracingPipelineCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 VkBaseInStructure* CopyPNextStruct(const VkBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);
 
 const void* UnwrapPNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
-void CreateWrappedVulkanStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkPhysicalDeviceGroupProperties* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedVulkanHandles<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(parent, co_parent, value->physicalDevices, value->physicalDeviceCount, get_id);
+        vulkan_wrappers::CreateWrappedHandles<ParentWrapper, CoParentWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(parent, co_parent, value->physicalDevices, value->physicalDeviceCount, get_id);
     }
 }
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
-void CreateWrappedVulkanStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayPropertiesKHR* value, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayPropertiesKHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->display, get_id);
+        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->display, get_id);
     }
 }
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
-void CreateWrappedVulkanStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayPlanePropertiesKHR* value, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayPlanePropertiesKHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->currentDisplay, get_id);
+        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, vulkan_wrappers::DisplayKHRWrapper>(parent, co_parent, &value->currentDisplay, get_id);
     }
 }
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
-void CreateWrappedVulkanStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayModePropertiesKHR* value, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayModePropertiesKHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, vulkan_wrappers::DisplayModeKHRWrapper>(parent, co_parent, &value->displayMode, get_id);
+        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, vulkan_wrappers::DisplayModeKHRWrapper>(parent, co_parent, &value->displayMode, get_id);
     }
 }
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
-void CreateWrappedVulkanStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayProperties2KHR* value, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayProperties2KHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedVulkanStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value->displayProperties, get_id);
+        vulkan_wrappers::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->displayProperties, get_id);
     }
 }
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
-void CreateWrappedVulkanStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayPlaneProperties2KHR* value, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayPlaneProperties2KHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedVulkanStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value->displayPlaneProperties, get_id);
+        vulkan_wrappers::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->displayPlaneProperties, get_id);
     }
 }
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>
-void CreateWrappedVulkanStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, VkDisplayModeProperties2KHR* value, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, VkDisplayModeProperties2KHR* value, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
-        CreateWrappedVulkanStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value->displayModeProperties, get_id);
+        vulkan_wrappers::CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->displayModeProperties, get_id);
     }
 }
 
-template <typename VulkanParentWrapper, typename VulkanCoParentWrapper, typename T>
-void CreateWrappedVulkanStructArrayHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
+template <typename ParentWrapper, typename CoParentWrapper, typename T>
+void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)
 {
     if (value != nullptr)
     {
         for (size_t i = 0; i < len; ++i)
         {
-            CreateWrappedVulkanStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value[i], get_id);
+            CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value[i], get_id);
         }
     }
 }
 
 template <typename T>
-T* MakeUnwrapVulkanStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));
 
@@ -475,29 +476,29 @@ T* MakeUnwrapVulkanStructs(const T* values, size_t len, HandleUnwrapMemory* unwr
 }
 
 template <typename T>
-const T* UnwrapVulkanStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
+const T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
 {
     T* unwrapped_struct = nullptr;
 
     if (value != nullptr)
     {
-        unwrapped_struct = MakeUnwrapVulkanStructs(value, 1, unwrap_memory);
-        UnwrapVulkanStructHandles(unwrapped_struct, unwrap_memory);
+        unwrapped_struct = MakeUnwrapStructs(value, 1, unwrap_memory);
+        UnwrapStructHandles(unwrapped_struct, unwrap_memory);
     }
 
     return unwrapped_struct;
 }
 
 template <typename T>
-const T* UnwrapVulkanStructArrayHandles(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+const T* UnwrapStructArrayHandles(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     if ((values != nullptr) && (len > 0))
     {
-        auto unwrapped_structs = MakeUnwrapVulkanStructs(values, len, unwrap_memory);
+        auto unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
 
         for (size_t i = 0; i < len; ++i)
         {
-            UnwrapVulkanStructHandles(&unwrapped_structs[i], unwrap_memory);
+            UnwrapStructHandles(&unwrapped_structs[i], unwrap_memory);
         }
 
         return unwrapped_structs;
@@ -507,6 +508,7 @@ const T* UnwrapVulkanStructArrayHandles(const T* values, size_t len, HandleUnwra
     return values;
 }
 
+GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

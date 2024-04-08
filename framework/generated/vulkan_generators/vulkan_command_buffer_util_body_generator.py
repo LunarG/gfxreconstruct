@@ -217,7 +217,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                 value_name = '{}[{}]'.format(value_name, index_name)
             elif value.is_pointer:
                 value_name = '(*{})'.format(value_name)
-            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::{}].insert(GetVulkanWrappedId<{}>({}));\n'.format(
+            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::{}].insert(vulkan_wrappers::GetWrappedId<{}>({}));\n'.format(
                 value_name, type_enum_value, wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper' ,value_name
             )
 

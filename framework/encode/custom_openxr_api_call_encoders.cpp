@@ -65,14 +65,18 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateTriangleMeshFB(XrSession                 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateTriangleMeshFB>::Dispatch(
         manager, session, createInfo, outTriangleMesh);
 
-    XrResult result = GetOpenXrInstanceTable(session)->CreateTriangleMeshFB(session, createInfo, outTriangleMesh);
+    XrResult result =
+        openxr_wrappers::GetInstanceTable(session)->CreateTriangleMeshFB(session, createInfo, outTriangleMesh);
 
     if (result >= 0)
     {
-        CreateWrappedOpenXrHandle<openxr_wrappers::SessionWrapper,
-                                  OpenXrNoParentWrapper,
-                                  openxr_wrappers::TriangleMeshFBWrapper>(
-            session, OpenXrNoParentWrapper::kHandleValue, outTriangleMesh, OpenXrCaptureManager::GetUniqueId);
+        openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper,
+                                             openxr_wrappers::NoParentWrapper,
+                                             openxr_wrappers::TriangleMeshFBWrapper>(
+            session,
+            openxr_wrappers::NoParentWrapper::kHandleValue,
+            outTriangleMesh,
+            OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -88,7 +92,8 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateTriangleMeshFB(XrSession                 
         encoder->EncodeEnumValue(result);
         manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::TriangleMeshFBWrapper, XrTriangleMeshCreateInfoFB>(
             result, session, outTriangleMesh, createInfo);
-        auto tri_mesh_fb_wrapper = GetOpenXrWrapper<openxr_wrappers::TriangleMeshFBWrapper>(*outTriangleMesh);
+        auto tri_mesh_fb_wrapper =
+            openxr_wrappers::GetWrapper<openxr_wrappers::TriangleMeshFBWrapper>(*outTriangleMesh);
         memcpy(&tri_mesh_fb_wrapper->create_info, createInfo, sizeof(XrTriangleMeshCreateInfoFB));
         tri_mesh_fb_wrapper->create_info.next = nullptr;
     }
@@ -118,7 +123,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyTriangleMeshFB(XrTriangleMeshFB mesh)
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB>::Dispatch(manager, mesh);
 
     ScopedDestroyLock exclusive_scoped_lock;
-    XrResult          result = GetOpenXrInstanceTable(mesh)->DestroyTriangleMeshFB(mesh);
+    XrResult          result = openxr_wrappers::GetInstanceTable(mesh)->DestroyTriangleMeshFB(mesh);
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB);
     if (encoder)
@@ -130,7 +135,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyTriangleMeshFB(XrTriangleMeshFB mesh)
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB>::Dispatch(manager, result, mesh);
 
-    DestroyWrappedOpenXrHandle<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
+    openxr_wrappers::DestroyWrappedHandle<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
 
     return result;
 }
@@ -156,7 +161,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetVertexBufferFB(XrTriangleMeshFB 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshGetVertexBufferFB>::Dispatch(
         manager, mesh, outVertexBuffer);
 
-    XrResult result = GetOpenXrInstanceTable(mesh)->TriangleMeshGetVertexBufferFB(mesh, outVertexBuffer);
+    XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshGetVertexBufferFB(mesh, outVertexBuffer);
     if (result < 0)
     {
         omit_output_data = true;
@@ -167,7 +172,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetVertexBufferFB(XrTriangleMeshFB 
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
 
-        auto tri_mesh_fb_wrapper = GetOpenXrWrapper<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
+        auto tri_mesh_fb_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
         EncodeStructArray<XrVector3f>(
             encoder, *outVertexBuffer, tri_mesh_fb_wrapper->create_info.vertexCount, omit_output_data);
 
@@ -202,7 +207,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetIndexBufferFB(XrTriangleMeshFB m
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshGetIndexBufferFB>::Dispatch(
         manager, mesh, outIndexBuffer);
 
-    XrResult result = GetOpenXrInstanceTable(mesh)->TriangleMeshGetIndexBufferFB(mesh, outIndexBuffer);
+    XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshGetIndexBufferFB(mesh, outIndexBuffer);
     if (result < 0)
     {
         omit_output_data = true;
@@ -213,7 +218,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetIndexBufferFB(XrTriangleMeshFB m
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
 
-        auto tri_mesh_fb_wrapper = GetOpenXrWrapper<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
+        auto tri_mesh_fb_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::TriangleMeshFBWrapper>(mesh);
         encoder->EncodeUInt32Array(*outIndexBuffer, tri_mesh_fb_wrapper->create_info.triangleCount * 3);
 
         encoder->EncodeEnumValue(result);
