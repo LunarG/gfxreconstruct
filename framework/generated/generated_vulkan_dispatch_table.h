@@ -59,7 +59,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 typedef const void* DispatchKey;
 
 // Retrieve a dispatch key from a dispatchable handle
-static DispatchKey GetDispatchKey(const void* handle)
+static DispatchKey GetVulkanDispatchKey(const void* handle)
 {
     const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);
     return (*dispatch_key);

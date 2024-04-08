@@ -110,7 +110,7 @@ inline void InitializeState<VkPhysicalDevice, vulkan_wrappers::DeviceWrapper, Vk
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->physical_device = GetVulkanWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(parent_handle);
+    wrapper->physical_device = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(parent_handle);
 }
 
 template <>
@@ -138,7 +138,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::PipelineLayoutWrapper, Vk
         if (create_info->pSetLayouts[i] != VK_NULL_HANDLE)
         {
             auto layout_wrapper =
-                GetVulkanWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(create_info->pSetLayouts[i]);
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(create_info->pSetLayouts[i]);
             vulkan_state_info::CreateDependencyInfo info;
             info.handle_id         = layout_wrapper->handle_id;
             info.create_call_id    = layout_wrapper->create_call_id;
@@ -186,7 +186,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::QueryPoolWrapper, VkQuery
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device      = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->device      = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
     wrapper->query_type  = create_info->queryType;
     wrapper->query_count = create_info->queryCount;
     wrapper->pending_queries.resize(create_info->queryCount);
@@ -210,7 +210,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::FenceWrapper, VkFenceCrea
     wrapper->create_parameters = std::move(create_parameters);
 
     wrapper->created_signaled = ((create_info->flags & VK_FENCE_CREATE_SIGNALED_BIT) == VK_FENCE_CREATE_SIGNALED_BIT);
-    wrapper->device           = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->device           = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
 }
 
 template <>
@@ -230,7 +230,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::EventWrapper, VkEventCrea
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
 }
 
 template <>
@@ -248,7 +248,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::PipelineCacheWrapper, VkP
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
 
     wrapper->create_info = *create_info;
 }
@@ -270,7 +270,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::SemaphoreWrapper, VkSemap
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
 
     auto next = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
     while (next)
@@ -301,7 +301,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::FramebufferWrapper, VkFra
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto render_pass_wrapper = GetVulkanWrapper<vulkan_wrappers::RenderPassWrapper>(create_info->renderPass);
+    auto render_pass_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(create_info->renderPass);
     assert(render_pass_wrapper != nullptr);
     wrapper->render_pass_id                = render_pass_wrapper->handle_id;
     wrapper->render_pass_create_call_id    = render_pass_wrapper->create_call_id;
@@ -311,7 +311,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::FramebufferWrapper, VkFra
     {
         for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
         {
-            auto image_view_wrapper = GetVulkanWrapper<vulkan_wrappers::ImageViewWrapper>(create_info->pAttachments[i]);
+            auto image_view_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(create_info->pAttachments[i]);
             assert(image_view_wrapper != nullptr);
 
             wrapper->image_view_ids.push_back(image_view_wrapper->handle_id);
@@ -399,7 +400,7 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
         if (create_info->pStages[i].module != VK_NULL_HANDLE)
         {
             auto shader_wrapper =
-                GetVulkanWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->pStages[i].module);
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->pStages[i].module);
             if (shader_wrapper)
             {
                 vulkan_state_info::CreateDependencyInfo info;
@@ -412,7 +413,7 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
         }
     }
 
-    auto render_pass_wrapper = GetVulkanWrapper<vulkan_wrappers::RenderPassWrapper>(create_info->renderPass);
+    auto render_pass_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(create_info->renderPass);
     if (render_pass_wrapper)
     {
         wrapper->render_pass_dependency.handle_id         = render_pass_wrapper->handle_id;
@@ -422,7 +423,7 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
 
     if (create_info->layout != VK_NULL_HANDLE)
     {
-        auto layout_wrapper = GetVulkanWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+        auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
         assert(layout_wrapper != nullptr);
 
         wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -454,7 +455,7 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto shader_wrapper = GetVulkanWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->stage.module);
+    auto shader_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->stage.module);
     if (shader_wrapper)
     {
         vulkan_state_info::CreateDependencyInfo info;
@@ -464,7 +465,7 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
 
         wrapper->shader_module_dependencies.emplace_back(std::move(info));
     }
-    auto layout_wrapper = GetVulkanWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+    auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
     wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -499,7 +500,8 @@ InitializeGroupObjectState<VkDevice,
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
-        auto shader_wrapper = GetVulkanWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->pStages[i].module);
+        auto shader_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->pStages[i].module);
         if (shader_wrapper)
         {
             vulkan_state_info::CreateDependencyInfo info;
@@ -511,7 +513,7 @@ InitializeGroupObjectState<VkDevice,
         }
     }
 
-    auto layout_wrapper = GetVulkanWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+    auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
     wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -546,7 +548,8 @@ InitializeGroupObjectState<VkDevice,
 
     for (uint32_t i = 0; i < create_info->stageCount; ++i)
     {
-        auto shader_wrapper = GetVulkanWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->pStages[i].module);
+        auto shader_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(create_info->pStages[i].module);
         if (shader_wrapper)
         {
             vulkan_state_info::CreateDependencyInfo info;
@@ -558,7 +561,7 @@ InitializeGroupObjectState<VkDevice,
         }
     }
 
-    auto layout_wrapper = GetVulkanWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
+    auto layout_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(create_info->layout);
     assert(layout_wrapper != nullptr);
 
     wrapper->layout_dependency.handle_id         = layout_wrapper->handle_id;
@@ -664,8 +667,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::SwapchainKHRWrapper, VkSw
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device        = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
-    wrapper->surface       = GetVulkanWrapper<vulkan_wrappers::SurfaceKHRWrapper>(create_info->surface);
+    wrapper->device        = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->surface       = vulkan_wrappers::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(create_info->surface);
     wrapper->format        = create_info->imageFormat;
     wrapper->extent        = { create_info->imageExtent.width, create_info->imageExtent.height, 0 };
     wrapper->pre_transform = create_info->preTransform;
@@ -696,7 +699,7 @@ inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, vulkan_wrappers
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto swapchain_wrapper = GetVulkanWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain_handle);
+    auto swapchain_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(swapchain_handle);
     assert(swapchain_wrapper != nullptr);
 
     wrapper->image_type         = VK_IMAGE_TYPE_2D;
@@ -726,7 +729,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto buffer        = GetVulkanWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
+    auto buffer        = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
     wrapper->buffer_id = buffer->handle_id;
 }
 
@@ -747,7 +750,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageViewWrapper, VkImage
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    auto image        = GetVulkanWrapper<vulkan_wrappers::ImageWrapper>(create_info->image);
+    auto image        = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(create_info->image);
     wrapper->image_id = image->handle_id;
     wrapper->image    = image;
 }
@@ -825,10 +828,10 @@ inline void InitializePoolObjectState(VkDevice                               par
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->device = GetVulkanWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
+    wrapper->device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
 
     auto layout_wrapper =
-        GetVulkanWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(alloc_info->pSetLayouts[alloc_index]);
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(alloc_info->pSetLayouts[alloc_index]);
     assert(layout_wrapper != nullptr);
 
     // Add a binding entry for each binding described by the descriptor set layout.

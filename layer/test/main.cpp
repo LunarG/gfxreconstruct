@@ -591,7 +591,7 @@ TEST_CASE("Unsupported extension screening", "[layer]")
     SECTION("Screen an empty extensions list")
     {
         const auto start_size = extensions.size();
-        gfxrecon::remove_extensions(extensions, kExampleDeviceExtensions, 0);
+        gfxrecon::VulkanRemoveExtensions(extensions, kExampleDeviceExtensions, 0);
         REQUIRE(extensions.size() == start_size);
     }
 
@@ -605,9 +605,9 @@ TEST_CASE("Unsupported extension screening", "[layer]")
         };
         const auto start_size = extensions.size();
 
-        gfxrecon::remove_extensions(extensions, unsupported_device_extensions_not_present, 1);
+        gfxrecon::VulkanRemoveExtensions(extensions, unsupported_device_extensions_not_present, 1);
         REQUIRE(extensions.size() == start_size);
-        gfxrecon::remove_extensions(extensions, unsupported_device_extensions_present, 1);
+        gfxrecon::VulkanRemoveExtensions(extensions, unsupported_device_extensions_present, 1);
         REQUIRE(extensions.size() == start_size - 1);
     }
 
@@ -620,9 +620,9 @@ TEST_CASE("Unsupported extension screening", "[layer]")
              ++it, ++it_nop)
         {
             const auto start_size = extensions.size();
-            gfxrecon::remove_extensions(extensions, &*it_nop, 1);
+            gfxrecon::VulkanRemoveExtensions(extensions, &*it_nop, 1);
             REQUIRE(extensions.size() == start_size);
-            gfxrecon::remove_extensions(extensions, &*it, 1);
+            gfxrecon::VulkanRemoveExtensions(extensions, &*it, 1);
             REQUIRE(extensions.size() == start_size - 1);
         }
     }
@@ -630,14 +630,14 @@ TEST_CASE("Unsupported extension screening", "[layer]")
     SECTION("Screen all extensions")
     {
         const auto start_size = extensions.size();
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensionsUpper,
-                                    std::end(kExampleDeviceExtensionsUpper) -
-                                        std::begin(kExampleDeviceExtensionsUpper));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensionsUpper,
+                                         std::end(kExampleDeviceExtensionsUpper) -
+                                             std::begin(kExampleDeviceExtensionsUpper));
         REQUIRE(extensions.size() == start_size);
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensions,
-                                    std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensions,
+                                         std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
         REQUIRE(extensions.size() == 0);
     }
 
@@ -645,16 +645,16 @@ TEST_CASE("Unsupported extension screening", "[layer]")
     {
         std::reverse(std::begin(extensions), std::end(extensions));
         const auto start_size = extensions.size();
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensionsUpper,
-                                    std::end(kExampleDeviceExtensionsUpper) -
-                                        std::begin(kExampleDeviceExtensionsUpper));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensionsUpper,
+                                         std::end(kExampleDeviceExtensionsUpper) -
+                                             std::begin(kExampleDeviceExtensionsUpper));
         REQUIRE(extensions.size() == start_size);
 
         std::reverse(std::begin(extensions), std::end(extensions));
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensions,
-                                    std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensions,
+                                         std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
         REQUIRE(extensions.size() == 0);
     }
 
@@ -662,16 +662,16 @@ TEST_CASE("Unsupported extension screening", "[layer]")
     {
         trash_randomize(extensions);
         const auto start_size = extensions.size();
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensionsUpper,
-                                    std::end(kExampleDeviceExtensionsUpper) -
-                                        std::begin(kExampleDeviceExtensionsUpper));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensionsUpper,
+                                         std::end(kExampleDeviceExtensionsUpper) -
+                                             std::begin(kExampleDeviceExtensionsUpper));
         REQUIRE(extensions.size() == start_size);
 
         trash_randomize(extensions);
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensions,
-                                    std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensions,
+                                         std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
         REQUIRE(extensions.size() == 0);
     }
 
@@ -681,18 +681,18 @@ TEST_CASE("Unsupported extension screening", "[layer]")
         trash_randomize(extensions);
         trash_randomize(extensions);
         const auto start_size = extensions.size();
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensionsUpper,
-                                    std::end(kExampleDeviceExtensionsUpper) -
-                                        std::begin(kExampleDeviceExtensionsUpper));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensionsUpper,
+                                         std::end(kExampleDeviceExtensionsUpper) -
+                                             std::begin(kExampleDeviceExtensionsUpper));
         REQUIRE(extensions.size() == start_size);
 
         trash_randomize(extensions);
         trash_randomize(extensions);
         trash_randomize(extensions);
-        gfxrecon::remove_extensions(extensions,
-                                    kExampleDeviceExtensions,
-                                    std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
+        gfxrecon::VulkanRemoveExtensions(extensions,
+                                         kExampleDeviceExtensions,
+                                         std::end(kExampleDeviceExtensions) - std::begin(kExampleDeviceExtensions));
         REQUIRE(extensions.size() == 0);
     }
 
