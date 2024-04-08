@@ -100,6 +100,37 @@ sequenceDiagram
     vulkan_consumer ->> gpu: Update device addresses in filled memory
 ```
 
+##### GPU-based solution
+Alternative solution to capture-assisted approach is to replace device addresses during replay on the GPU.
+A compute shader would scan provided areas of memory for known device addresses and replace them right before QueueSubmit.
+This helps with situations where the instance buffers are filled by a compute shader in the same submission as the acceleration structure build command:
+
+```mermaid
+sequenceDiagram
+    box cpu
+        participant trace 
+        participant vulkan_consumer
+        participant acceleration_structure_builder
+    end
+
+    trace ->> vulkan_consumer: FillMemoryCommand
+    vulkan_consumer ->> gpu: compute shader input
+    trace ->> vulkan_consumer: vkCmdDispatch
+    vulkan_consumer ->> gpu: device address processing (e.g.instance buffer content)
+    trace ->> vulkan_consumer: vkCmdBuildAccelerationStructuresKHR 
+    vulkan_consumer ->>+ acceleration_structure_builder: CmdBuildAccelerationStructures
+    acceleration_structure_builder->>acceleration_structure_builder: Immediate replace scratch, geometry, instance device address
+    acceleration_structure_builder->>-gpu: vkCmdBuildAccelerationStructuresKHR
+
+
+    trace ->> vulkan_consumer: QueueSubmit
+    vulkan_consumer ->> acceleration_structure_builder: OnQueueSubmit
+    acceleration_structure_builder ->>+ gpu: vkCmdDispatch
+    gpu ->>- gpu: Scan and replace device addresses
+    acceleration_structure_builder ->> gpu: QueueSubmit
+```
+
+
 ### Buffer sizes
 Use similar approach to rebind allocator.
 Once AS build command is queued for execution:
