@@ -1424,8 +1424,9 @@ class BaseGenerator(OutputGenerator):
                     arg_name, handle_type_name
                 )
             else:
-                arg_name = 'GetVulkanWrappedId({}, {})'.format(
-                    arg_name, handle_type_name
+                wrapper = self.get_wrapper_prefix_from_type()
+                arg_name = '{}::GetWrappedId({}, {})'.format(
+                    wrapper, arg_name, handle_type_name
                 )
 
         args = [arg_name]

@@ -343,7 +343,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VulkanGetInstanceProcAddr(VkInstance in
     // Check for implementation in the next level
     if (instance != VK_NULL_HANDLE)
     {
-        auto table = encode::GetVulkanInstanceTable(instance);
+        auto table = encode::vulkan_wrappers::GetInstanceTable(instance);
         if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
         {
             has_implementation = (table->GetInstanceProcAddr(instance, pName) != nullptr);
@@ -399,7 +399,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL VulkanGetDeviceProcAddr(VkDevice device
         bool has_implementation = false;
 
         // Check for implementation in the next level
-        auto table = encode::GetVulkanDeviceTable(device);
+        auto table = encode::vulkan_wrappers::GetDeviceTable(device);
         if ((table != nullptr) && (table->GetDeviceProcAddr != nullptr))
         {
             has_implementation = (table->GetDeviceProcAddr(device, pName) != nullptr);
@@ -497,7 +497,7 @@ VKAPI_ATTR VkResult VKAPI_CALL VulkanEnumerateDeviceExtensionProperties(VkPhysic
         // provided extensions.
         // In order to screen out unsupported extensions, we always query the chain
         // twice, and remove those that are present from the count.
-        auto     instance_table            = encode::GetVulkanInstanceTable(physicalDevice);
+        auto     instance_table            = encode::vulkan_wrappers::GetInstanceTable(physicalDevice);
         uint32_t downstream_property_count = 0;
 
         result = instance_table->EnumerateDeviceExtensionProperties(
@@ -698,7 +698,7 @@ XRAPI_ATTR XrResult XRAPI_CALL OpenXrGetInstanceProcAddr(XrInstance          ins
     {
         const OpenXrInstanceInfo& info = xr_instance_infos[instance];
 
-        auto table = encode::GetOpenXrInstanceTable(instance);
+        auto table = encode::openxr_wrappers::GetInstanceTable(instance);
         if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
         {
             result = table->GetInstanceProcAddr(instance, name, function);

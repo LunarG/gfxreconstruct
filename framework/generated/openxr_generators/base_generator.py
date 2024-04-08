@@ -750,15 +750,6 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
-    def get_handle_wrapper(self, base_type):
-        handle_wrapper = ''
-        if base_type.startswith('Vk'):
-            handle_wrapper = 'vulkan_wrappers::'
-        else:
-            handle_wrapper = 'openxr_wrappers::'
-        handle_wrapper += base_type[2:] + 'Wrapper'
-        return handle_wrapper
-
     def is_dispatchable_handle(self, base_type):
         """Check for dispatchable handle type."""
         if base_type in self.DISPATCHABLE_HANDLE_TYPES:
@@ -1355,6 +1346,15 @@ class BaseGenerator(OutputGenerator):
         else:
             return 'UNKNOWN'
 
+    def get_handle_wrapper(self, base_type):
+        handle_wrapper = ''
+        if base_type.startswith('Vk'):
+            handle_wrapper = 'vulkan_wrappers::'
+        else:
+            handle_wrapper = 'openxr_wrappers::'
+        handle_wrapper += base_type[2:] + 'Wrapper'
+        return handle_wrapper
+
     def get_wrapper_prefix_from_type(self, handle_name):
         if handle_name.startswith('Vk'):
             return 'vulkan_wrappers'
@@ -1380,8 +1380,9 @@ class BaseGenerator(OutputGenerator):
                 handle_type_name += self.get_generic_cmd_handle_type_value(
                     name, value.name
                 )
-            arg_name = 'GetOpenXrWrappedId({}, {})'.format(
-                arg_name, handle_type_name
+            wrapper = self.get_wrapper_prefix_from_type(value.name)
+            arg_name = '{}::GetWrappedId({}, {})'.format(
+                wrapper, arg_name, handle_type_name
             )
 
         args = [arg_name]

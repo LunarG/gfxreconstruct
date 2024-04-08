@@ -223,7 +223,8 @@ class VulkanCaptureManager : public ApiCaptureManager
         if ((call_id == format::ApiCallId::ApiCall_vkBeginCommandBuffer) ||
             (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
         {
-            auto cmd_buffer_wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+            auto cmd_buffer_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
             GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
             cmd_buffer_wrapper->is_frame_boundary = false;
         }
@@ -937,7 +938,7 @@ class VulkanCaptureManager : public ApiCaptureManager
             for (uint32_t j = 0; j < pSubmits[i].commandBufferCount; ++j)
             {
                 auto cmd_buffer_wrapper =
-                    GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(pSubmits[i].pCommandBuffers[j]);
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(pSubmits[i].pCommandBuffers[j]);
                 if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
                 {
                     break;
@@ -976,7 +977,7 @@ class VulkanCaptureManager : public ApiCaptureManager
 
             for (uint32_t j = 0; j < pSubmits[i].commandBufferInfoCount; ++j)
             {
-                auto cmd_buffer_wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(
+                auto cmd_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(
                     pSubmits[i].pCommandBufferInfos[j].commandBuffer);
                 if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
                 {
@@ -1062,7 +1063,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                 state_tracker_->TrackResetDescriptorPool(descriptorPool);
             }
 
-            ResetDescriptorPoolWrapper(descriptorPool);
+            vulkan_wrappers::ResetDescriptorPoolWrapper(descriptorPool);
         }
     }
 

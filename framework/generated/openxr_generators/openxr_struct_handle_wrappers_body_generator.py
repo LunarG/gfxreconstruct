@@ -94,6 +94,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(openxr_wrappers)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -122,8 +123,8 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
             )
             prefix = self.get_prefix_from_type(base_type)
             write(
-                '        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrap{}Structs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
-                .format(prefix, base_type),
+                '        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
+                .format(base_type),
                 file=self.outFile
             )
             write('        break;', file=self.outFile)
@@ -175,7 +176,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                 file=self.outFile
             )
             write(
-                '            return UnwrapOpenXrStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
+                '            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
                 .format(base_type),
                 file=self.outFile
             )
@@ -186,6 +187,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
+        write('GFXRECON_END_NAMESPACE(openxr_wrappers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -246,7 +248,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                                                                          ]
 
                 body = '\n'
-                body += 'void UnwrapOpenXrStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
+                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
                     struct
                 )
                 body += '{\n'
@@ -275,15 +277,15 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    body += '        value->{name} = UnwrapOpenXrStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
+                    body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
                         member.array_length, name=member.name
                     )
                 elif member.is_pointer:
-                    body += '        value->{name} = UnwrapOpenXrStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
+                    body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
                         name=member.name
                     )
                 else:
-                    body += '        UnwrapOpenXrStructHandles(&value->{}, unwrap_memory);\n'.format(
+                    body += '        UnwrapStructHandles(&value->{}, unwrap_memory);\n'.format(
                         member.name
                     )
         return body

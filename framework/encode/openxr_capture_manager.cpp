@@ -108,10 +108,15 @@ void OpenXrCaptureManager::InitXrInstance(XrInstance* instance, PFN_xrGetInstanc
 {
     assert(instance != nullptr);
 
-    CreateWrappedOpenXrHandle<OpenXrNoParentWrapper, OpenXrNoParentWrapper, openxr_wrappers::InstanceWrapper>(
-        OpenXrNoParentWrapper::kHandleValue, OpenXrNoParentWrapper::kHandleValue, instance, GetUniqueId);
+    openxr_wrappers::CreateWrappedHandle<openxr_wrappers::NoParentWrapper,
+                                         openxr_wrappers::NoParentWrapper,
+                                         openxr_wrappers::InstanceWrapper>(
+        openxr_wrappers::NoParentWrapper::kHandleValue,
+        openxr_wrappers::NoParentWrapper::kHandleValue,
+        instance,
+        GetUniqueId);
 
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(*instance);
+    auto wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(*instance);
     LoadOpenXrInstanceTable(gpa, wrapper->handle, &wrapper->layer_table);
 }
 
@@ -129,7 +134,7 @@ XrResult OpenXrCaptureManager::OverrideCreateApiLayerInstance(const XrInstanceCr
     if (result == XR_SUCCESS)
     {
         auto api_version              = info->applicationInfo.apiVersion;
-        auto instance_wrapper         = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(*instance);
+        auto instance_wrapper         = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(*instance);
         instance_wrapper->api_version = api_version;
 
         // Warn when enabled API version is newer than the supported API version.

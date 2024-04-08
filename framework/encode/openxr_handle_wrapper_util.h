@@ -40,6 +40,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(openxr_wrappers)
 
 #if (XR_PTR_SIZE == 8) && XR_CPP_NULLPTR_SUPPORTED
 #define UINT64_TO_XR_HANDLE(handle_type, value) reinterpret_cast<handle_type>(value)
@@ -52,19 +53,19 @@ typedef format::HandleId (*PFN_GetHandleId)();
 extern OpenXrStateHandleTable openxr_state_handle_table_;
 
 template <typename Wrapper>
-format::HandleId GetTempOpenXrWrapperId(const typename Wrapper::HandleType& handle)
+format::HandleId GetTempWrapperId(const typename Wrapper::HandleType& handle)
 {
     return 0;
 }
 
 template <typename Wrapper>
-format::HandleId GetOpenXrWrappedId(const typename Wrapper::HandleType& handle)
+format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
 {
     if (handle == XR_NULL_HANDLE)
     {
         return format::kNullHandleId;
     }
-    auto temp_id = GetTempOpenXrWrapperId<Wrapper>(handle);
+    auto temp_id = GetTempWrapperId<Wrapper>(handle);
     if (temp_id != 0)
     {
         return temp_id;
@@ -73,7 +74,8 @@ format::HandleId GetOpenXrWrappedId(const typename Wrapper::HandleType& handle)
     auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("GetWrappedId() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetWrappedId() couldn't find Handle: %" PRIu64
+                             "'s wrapper. It might have been destroyed",
                              handle);
         return format::kNullHandleId;
     }
@@ -81,9 +83,9 @@ format::HandleId GetOpenXrWrappedId(const typename Wrapper::HandleType& handle)
 }
 
 template <typename Wrapper>
-format::HandleId GetOpenXrAtomWrappedId(const typename Wrapper::HandleType& handle)
+format::HandleId GetAtomWrappedId(const typename Wrapper::HandleType& handle)
 {
-    auto temp_id = GetTempOpenXrWrapperId<Wrapper>(handle);
+    auto temp_id = GetTempWrapperId<Wrapper>(handle);
     if (temp_id != 0)
     {
         return temp_id;
@@ -92,7 +94,8 @@ format::HandleId GetOpenXrAtomWrappedId(const typename Wrapper::HandleType& hand
     auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("GetWrappedId() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed",
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetAtomWrappedId() couldn't find Handle: %" PRIu64
+                             "'s wrapper. It might have been destroyed",
                              handle);
         return format::kNullHandleId;
     }
@@ -100,7 +103,7 @@ format::HandleId GetOpenXrAtomWrappedId(const typename Wrapper::HandleType& hand
 }
 
 template <typename Wrapper>
-Wrapper* GetOpenXrWrapper(const typename Wrapper::HandleType& handle)
+Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
 {
     if (handle == XR_NULL_HANDLE)
     {
@@ -109,14 +112,15 @@ Wrapper* GetOpenXrWrapper(const typename Wrapper::HandleType& handle)
     auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING(
-            "GetOpenXrWrapper() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed", handle);
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetWrapper() couldn't find Handle: %" PRIu64
+                             "'s wrapper. It might have been destroyed",
+                             handle);
     }
     return wrapper;
 }
 
 template <typename Wrapper>
-Wrapper* GetOpenXrAtomWrapper(const typename Wrapper::HandleType& handle)
+Wrapper* GetAtomWrapper(const typename Wrapper::HandleType& handle)
 {
     if (handle == 0ULL)
     {
@@ -125,19 +129,20 @@ Wrapper* GetOpenXrAtomWrapper(const typename Wrapper::HandleType& handle)
     auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING(
-            "GetOpenXrAtomWrapper() couldn't find Handle: %" PRIu64 "'s wrapper. It might have been destroyed", handle);
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetAtomWrapper() couldn't find Handle: %" PRIu64
+                             "'s wrapper. It might have been destroyed",
+                             handle);
     }
     return wrapper;
 }
 
 template <typename Wrapper>
-bool RemoveOpenXrWrapper(const Wrapper* wrapper)
+bool RemoveWrapper(const Wrapper* wrapper)
 {
     return openxr_state_handle_table_.RemoveWrapper(wrapper);
 }
 
-uint64_t GetOpenXrWrappedId(uint64_t object, XrObjectType object_type);
+uint64_t GetWrappedId(uint64_t object, XrObjectType object_type);
 
 enum OpenXrAtomName
 {
@@ -150,257 +155,257 @@ enum OpenXrAtomName
     OPENXR_ATOM_NAME_CONTROLLER_MODEL_KEY_MSFT,
 };
 
-uint64_t GetOpenXrWrappedId(uint64_t object, OpenXrAtomName atom_type);
+uint64_t GetWrappedId(uint64_t object, OpenXrAtomName atom_type);
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrInstance handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrInstance handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(handle);
+    auto wrapper = GetWrapper<InstanceWrapper>(handle);
     return &wrapper->layer_table;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSession handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSession handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SessionWrapper>(handle);
+    auto wrapper = GetWrapper<SessionWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSpace handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSpace handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SpaceWrapper>(handle);
+    auto wrapper = GetWrapper<SpaceWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrActionSet handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrActionSet handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::ActionSetWrapper>(handle);
+    auto wrapper = GetWrapper<ActionSetWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrAction handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrAction handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::ActionWrapper>(handle);
+    auto wrapper = GetWrapper<ActionWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSwapchain handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSwapchain handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SwapchainWrapper>(handle);
+    auto wrapper = GetWrapper<SwapchainWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrDebugUtilsMessengerEXT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrDebugUtilsMessengerEXT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(handle);
+    auto wrapper = GetWrapper<DebugUtilsMessengerEXTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrHandTrackerEXT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrHandTrackerEXT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::HandTrackerEXTWrapper>(handle);
+    auto wrapper = GetWrapper<HandTrackerEXTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrPlaneDetectorEXT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrPlaneDetectorEXT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::PlaneDetectorEXTWrapper>(handle);
+    auto wrapper = GetWrapper<PlaneDetectorEXTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrBodyTrackerFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrBodyTrackerFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::BodyTrackerFBWrapper>(handle);
+    auto wrapper = GetWrapper<BodyTrackerFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrEyeTrackerFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrEyeTrackerFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::EyeTrackerFBWrapper>(handle);
+    auto wrapper = GetWrapper<EyeTrackerFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrFaceTrackerFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrFaceTrackerFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::FaceTrackerFBWrapper>(handle);
+    auto wrapper = GetWrapper<FaceTrackerFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrFaceTracker2FB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrFaceTracker2FB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::FaceTracker2FBWrapper>(handle);
+    auto wrapper = GetWrapper<FaceTracker2FBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrFoveationProfileFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrFoveationProfileFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::FoveationProfileFBWrapper>(handle);
+    auto wrapper = GetWrapper<FoveationProfileFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrGeometryInstanceFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrGeometryInstanceFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::GeometryInstanceFBWrapper>(handle);
+    auto wrapper = GetWrapper<GeometryInstanceFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrPassthroughFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrPassthroughFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::PassthroughFBWrapper>(handle);
+    auto wrapper = GetWrapper<PassthroughFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrPassthroughLayerFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrPassthroughLayerFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::PassthroughLayerFBWrapper>(handle);
+    auto wrapper = GetWrapper<PassthroughLayerFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSpaceUserFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSpaceUserFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SpaceUserFBWrapper>(handle);
+    auto wrapper = GetWrapper<SpaceUserFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrTriangleMeshFB handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrTriangleMeshFB handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::TriangleMeshFBWrapper>(handle);
+    auto wrapper = GetWrapper<TriangleMeshFBWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrFacialTrackerHTC handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrFacialTrackerHTC handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::FacialTrackerHTCWrapper>(handle);
+    auto wrapper = GetWrapper<FacialTrackerHTCWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrPassthroughHTC handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrPassthroughHTC handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::PassthroughHTCWrapper>(handle);
+    auto wrapper = GetWrapper<PassthroughHTCWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrPassthroughColorLutMETA handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrPassthroughColorLutMETA handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::PassthroughColorLutMETAWrapper>(handle);
+    auto wrapper = GetWrapper<PassthroughColorLutMETAWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrVirtualKeyboardMETA handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrVirtualKeyboardMETA handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::VirtualKeyboardMETAWrapper>(handle);
+    auto wrapper = GetWrapper<VirtualKeyboardMETAWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrExportedLocalizationMapML handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrExportedLocalizationMapML handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::ExportedLocalizationMapMLWrapper>(handle);
+    auto wrapper = GetWrapper<ExportedLocalizationMapMLWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrMarkerDetectorML handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrMarkerDetectorML handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::MarkerDetectorMLWrapper>(handle);
+    auto wrapper = GetWrapper<MarkerDetectorMLWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSceneMSFT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSceneMSFT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SceneMSFTWrapper>(handle);
+    auto wrapper = GetWrapper<SceneMSFTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSceneObserverMSFT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSceneObserverMSFT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SceneObserverMSFTWrapper>(handle);
+    auto wrapper = GetWrapper<SceneObserverMSFTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSpatialAnchorMSFT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSpatialAnchorMSFT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SpatialAnchorMSFTWrapper>(handle);
+    auto wrapper = GetWrapper<SpatialAnchorMSFTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSpatialAnchorStoreConnectionMSFT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSpatialAnchorStoreConnectionMSFT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SpatialAnchorStoreConnectionMSFTWrapper>(handle);
+    auto wrapper = GetWrapper<SpatialAnchorStoreConnectionMSFTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
-inline const OpenXrInstanceTable* GetOpenXrInstanceTable(XrSpatialGraphNodeBindingMSFT handle)
+inline const OpenXrInstanceTable* GetInstanceTable(XrSpatialGraphNodeBindingMSFT handle)
 {
     assert(handle != XR_NULL_HANDLE);
-    auto wrapper = GetOpenXrWrapper<openxr_wrappers::SpatialGraphNodeBindingMSFTWrapper>(handle);
+    auto wrapper = GetWrapper<SpatialGraphNodeBindingMSFTWrapper>(handle);
     assert(wrapper->layer_table_ref != nullptr);
     return wrapper->layer_table_ref;
 }
 
 // Wrapper for create wrapper template instantiations that do not make use of all handle parameters.
-struct OpenXrNoParentWrapper : public openxr_wrappers::HandleWrapper<void*>
+struct NoParentWrapper : public HandleWrapper<void*>
 {
     static constexpr void* kHandleValue{ XR_NULL_HANDLE };
 };
 
-template <typename OpenXrParentWrapper, typename Wrapper>
-void CreateWrappedDispatchOpenXrHandle(typename OpenXrParentWrapper::HandleType parent,
-                                       typename Wrapper::HandleType*            handle,
-                                       PFN_GetHandleId                          get_id)
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
+                                 typename Wrapper::HandleType*      handle,
+                                 PFN_GetHandleId                    get_id)
 {
     ScopedDestroyLock shared_scoped_lock(true);
     assert(handle != nullptr);
@@ -421,7 +426,7 @@ void CreateWrappedDispatchOpenXrHandle(typename OpenXrParentWrapper::HandleType 
 }
 
 template <typename Wrapper>
-void CreateWrappedNonDispatchOpenXrHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
+void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
 {
     ScopedDestroyLock shared_scoped_lock(false);
     assert(handle != nullptr);
@@ -439,17 +444,17 @@ void CreateWrappedNonDispatchOpenXrHandle(typename Wrapper::HandleType* handle, 
     }
 }
 
-template <typename OpenXrParentWrapper, typename OpenXrCoParentWrapper, typename Wrapper>
-void CreateWrappedOpenXrHandle(typename OpenXrParentWrapper::HandleType,   // Unused by default case.
-                               typename OpenXrCoParentWrapper::HandleType, // Unused by default case.
-                               typename Wrapper::HandleType* handle,
-                               PFN_GetHandleId               get_id)
+template <typename ParentWrapper, typename CoParentWrapper, typename Wrapper>
+void CreateWrappedHandle(typename ParentWrapper::HandleType,   // Unused by default case.
+                         typename CoParentWrapper::HandleType, // Unused by default case.
+                         typename Wrapper::HandleType* handle,
+                         PFN_GetHandleId               get_id)
 {
-    CreateWrappedNonDispatchOpenXrHandle<Wrapper>(handle, get_id);
+    CreateWrappedNonDispatchHandle<Wrapper>(handle, get_id);
 }
 
 template <typename Wrapper>
-void CreateWrappedOpenXrAtom(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
+void CreateWrappedAtom(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
 {
     ScopedDestroyLock shared_scoped_lock(false);
     assert(handle != nullptr);
@@ -467,40 +472,38 @@ void CreateWrappedOpenXrAtom(typename Wrapper::HandleType* handle, PFN_GetHandle
     }
 }
 
-template <typename OpenXrParentWrapper, typename Wrapper>
-void CreateWrappedOpenXrAtom(typename OpenXrParentWrapper::HandleType, // Unused by default case.
-                             typename Wrapper::HandleType* handle,
-                             PFN_GetHandleId               get_id)
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedAtom(typename ParentWrapper::HandleType, // Unused by default case.
+                       typename Wrapper::HandleType* handle,
+                       PFN_GetHandleId               get_id)
 {
-    CreateWrappedOpenXrAtom<Wrapper>(handle, get_id);
+    CreateWrappedAtom<Wrapper>(handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrHandle<OpenXrNoParentWrapper, OpenXrNoParentWrapper, openxr_wrappers::InstanceWrapper>(
-    OpenXrNoParentWrapper::HandleType, // XrInstance does not have a parent.
-    OpenXrNoParentWrapper::HandleType, // XrInstance does not have a co-parent.
+inline void CreateWrappedHandle<NoParentWrapper, NoParentWrapper, InstanceWrapper>(
+    NoParentWrapper::HandleType, // XrInstance does not have a parent.
+    NoParentWrapper::HandleType, // XrInstance does not have a co-parent.
     XrInstance*     handle,
     PFN_GetHandleId get_id)
 {
-    CreateWrappedDispatchOpenXrHandle<OpenXrNoParentWrapper, openxr_wrappers::InstanceWrapper>(
-        OpenXrNoParentWrapper::kHandleValue, handle, get_id);
+    CreateWrappedDispatchHandle<NoParentWrapper, InstanceWrapper>(NoParentWrapper::kHandleValue, handle, get_id);
 }
 
 template <>
-inline void
-CreateWrappedOpenXrHandle<openxr_wrappers::InstanceWrapper, OpenXrNoParentWrapper, openxr_wrappers::SessionWrapper>(
+inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SessionWrapper>(
     XrInstance parent,
-    OpenXrNoParentWrapper::HandleType, // Does not have a co-parent
+    NoParentWrapper::HandleType, // Does not have a co-parent
     XrSession*      handle,
     PFN_GetHandleId get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(parent);
+    auto parent_wrapper = GetWrapper<InstanceWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::SessionWrapper* wrapper = nullptr;
+    SessionWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_sessions)
     {
         if (entry->handle == (*handle))
@@ -512,34 +515,30 @@ CreateWrappedOpenXrHandle<openxr_wrappers::InstanceWrapper, OpenXrNoParentWrappe
 
     if (wrapper == nullptr)
     {
-        CreateWrappedDispatchOpenXrHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::SessionWrapper>(
-            parent, handle, get_id);
+        CreateWrappedDispatchHandle<InstanceWrapper, SessionWrapper>(parent, handle, get_id);
 
-        wrapper                  = GetOpenXrWrapper<openxr_wrappers::SessionWrapper>(*handle);
+        wrapper                  = GetWrapper<SessionWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_sessions.push_back(wrapper);
     }
 
-    CreateWrappedDispatchOpenXrHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::SessionWrapper>(
-        XR_NULL_HANDLE, handle, get_id);
+    CreateWrappedDispatchHandle<InstanceWrapper, SessionWrapper>(XR_NULL_HANDLE, handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrHandle<openxr_wrappers::SessionWrapper,
-                                      OpenXrNoParentWrapper,
-                                      openxr_wrappers::PassthroughFBWrapper>(
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughFBWrapper>(
     XrSession parent,
-    OpenXrNoParentWrapper::HandleType, // Does not have a co-parent
+    NoParentWrapper::HandleType, // Does not have a co-parent
     XrPassthroughFB* handle,
     PFN_GetHandleId  get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::SessionWrapper>(parent);
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::PassthroughFBWrapper* wrapper = nullptr;
+    PassthroughFBWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_passthroughs)
     {
         if (entry->handle == (*handle))
@@ -551,33 +550,30 @@ inline void CreateWrappedOpenXrHandle<openxr_wrappers::SessionWrapper,
 
     if (wrapper == nullptr)
     {
-        CreateWrappedDispatchOpenXrHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::PassthroughFBWrapper>(
-            parent, handle, get_id);
+        CreateWrappedDispatchHandle<SessionWrapper, PassthroughFBWrapper>(parent, handle, get_id);
 
-        wrapper                  = GetOpenXrWrapper<openxr_wrappers::PassthroughFBWrapper>(*handle);
+        wrapper                  = GetWrapper<PassthroughFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
         parent_wrapper->child_passthroughs.push_back(wrapper);
     }
 
-    CreateWrappedDispatchOpenXrHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::PassthroughFBWrapper>(
-        XR_NULL_HANDLE, handle, get_id);
+    CreateWrappedDispatchHandle<SessionWrapper, PassthroughFBWrapper>(XR_NULL_HANDLE, handle, get_id);
 }
 
 template <>
-inline void
-CreateWrappedOpenXrHandle<openxr_wrappers::InstanceWrapper, OpenXrNoParentWrapper, openxr_wrappers::ActionSetWrapper>(
+inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, ActionSetWrapper>(
     XrInstance parent,
-    OpenXrNoParentWrapper::HandleType, // Does not have a co-parent
+    NoParentWrapper::HandleType, // Does not have a co-parent
     XrActionSet*    handle,
     PFN_GetHandleId get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(parent);
+    auto parent_wrapper = GetWrapper<InstanceWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::ActionSetWrapper* wrapper = nullptr;
+    ActionSetWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_action_sets)
     {
         if (entry->handle == (*handle))
@@ -589,29 +585,27 @@ CreateWrappedOpenXrHandle<openxr_wrappers::InstanceWrapper, OpenXrNoParentWrappe
 
     if (wrapper == nullptr)
     {
-        CreateWrappedDispatchOpenXrHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::ActionSetWrapper>(
-            parent, handle, get_id);
+        CreateWrappedDispatchHandle<InstanceWrapper, ActionSetWrapper>(parent, handle, get_id);
 
-        wrapper                  = GetOpenXrWrapper<openxr_wrappers::ActionSetWrapper>(*handle);
+        wrapper                  = GetWrapper<ActionSetWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_action_sets.push_back(wrapper);
     }
 
-    CreateWrappedDispatchOpenXrHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::ActionSetWrapper>(
-        XR_NULL_HANDLE, handle, get_id);
+    CreateWrappedDispatchHandle<InstanceWrapper, ActionSetWrapper>(XR_NULL_HANDLE, handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrAtom<openxr_wrappers::InstanceWrapper, openxr_wrappers::SystemIdWrapper>(
-    XrInstance parent, XrSystemId* handle, PFN_GetHandleId get_id)
+inline void
+CreateWrappedAtom<InstanceWrapper, SystemIdWrapper>(XrInstance parent, XrSystemId* handle, PFN_GetHandleId get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(parent);
+    auto parent_wrapper = GetWrapper<InstanceWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::SystemIdWrapper* wrapper = nullptr;
+    SystemIdWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_system_ids)
     {
         if (entry->handle == (*handle))
@@ -623,26 +617,25 @@ inline void CreateWrappedOpenXrAtom<openxr_wrappers::InstanceWrapper, openxr_wra
 
     if (wrapper == nullptr)
     {
-        CreateWrappedOpenXrAtom<openxr_wrappers::SystemIdWrapper>(handle, get_id);
+        CreateWrappedAtom<SystemIdWrapper>(handle, get_id);
 
-        wrapper = GetOpenXrAtomWrapper<openxr_wrappers::SystemIdWrapper>(*handle);
+        wrapper = GetAtomWrapper<SystemIdWrapper>(*handle);
         parent_wrapper->child_system_ids.push_back(wrapper);
     }
 
-    CreateWrappedOpenXrAtom<openxr_wrappers::SystemIdWrapper>(handle, get_id);
+    CreateWrappedAtom<SystemIdWrapper>(handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrAtom<openxr_wrappers::InstanceWrapper, openxr_wrappers::PathWrapper>(
-    XrInstance parent, XrPath* handle, PFN_GetHandleId get_id)
+inline void CreateWrappedAtom<InstanceWrapper, PathWrapper>(XrInstance parent, XrPath* handle, PFN_GetHandleId get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(parent);
+    auto parent_wrapper = GetWrapper<InstanceWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::PathWrapper* wrapper = nullptr;
+    PathWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_paths)
     {
         if (entry->handle == (*handle))
@@ -654,26 +647,27 @@ inline void CreateWrappedOpenXrAtom<openxr_wrappers::InstanceWrapper, openxr_wra
 
     if (wrapper == nullptr)
     {
-        CreateWrappedOpenXrAtom<openxr_wrappers::PathWrapper>(handle, get_id);
+        CreateWrappedAtom<PathWrapper>(handle, get_id);
 
-        wrapper = GetOpenXrAtomWrapper<openxr_wrappers::PathWrapper>(*handle);
+        wrapper = GetAtomWrapper<PathWrapper>(*handle);
         parent_wrapper->child_paths.push_back(wrapper);
     }
 
-    CreateWrappedOpenXrAtom<openxr_wrappers::PathWrapper>(handle, get_id);
+    CreateWrappedAtom<PathWrapper>(handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(
-    XrSession parent, XrAsyncRequestIdFB* handle, PFN_GetHandleId get_id)
+inline void CreateWrappedAtom<SessionWrapper, AsyncRequestIdFBWrapper>(XrSession           parent,
+                                                                       XrAsyncRequestIdFB* handle,
+                                                                       PFN_GetHandleId     get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::SessionWrapper>(parent);
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::AsyncRequestIdFBWrapper* wrapper = nullptr;
+    AsyncRequestIdFBWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_async_req_ids)
     {
         if (entry->handle == (*handle))
@@ -685,26 +679,27 @@ inline void CreateWrappedOpenXrAtom<openxr_wrappers::SessionWrapper, openxr_wrap
 
     if (wrapper == nullptr)
     {
-        CreateWrappedOpenXrAtom<openxr_wrappers::AsyncRequestIdFBWrapper>(handle, get_id);
+        CreateWrappedAtom<AsyncRequestIdFBWrapper>(handle, get_id);
 
-        wrapper = GetOpenXrAtomWrapper<openxr_wrappers::AsyncRequestIdFBWrapper>(*handle);
+        wrapper = GetAtomWrapper<AsyncRequestIdFBWrapper>(*handle);
         parent_wrapper->child_async_req_ids.push_back(wrapper);
     }
 
-    CreateWrappedOpenXrAtom<openxr_wrappers::AsyncRequestIdFBWrapper>(handle, get_id);
+    CreateWrappedAtom<AsyncRequestIdFBWrapper>(handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::RenderModelKeyFBWrapper>(
-    XrSession parent, XrRenderModelKeyFB* handle, PFN_GetHandleId get_id)
+inline void CreateWrappedAtom<SessionWrapper, RenderModelKeyFBWrapper>(XrSession           parent,
+                                                                       XrRenderModelKeyFB* handle,
+                                                                       PFN_GetHandleId     get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::SessionWrapper>(parent);
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::RenderModelKeyFBWrapper* wrapper = nullptr;
+    RenderModelKeyFBWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_render_model_keys)
     {
         if (entry->handle == (*handle))
@@ -716,26 +711,27 @@ inline void CreateWrappedOpenXrAtom<openxr_wrappers::SessionWrapper, openxr_wrap
 
     if (wrapper == nullptr)
     {
-        CreateWrappedOpenXrAtom<openxr_wrappers::RenderModelKeyFBWrapper>(handle, get_id);
+        CreateWrappedAtom<RenderModelKeyFBWrapper>(handle, get_id);
 
-        wrapper = GetOpenXrAtomWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(*handle);
+        wrapper = GetAtomWrapper<RenderModelKeyFBWrapper>(*handle);
         parent_wrapper->child_render_model_keys.push_back(wrapper);
     }
 
-    CreateWrappedOpenXrAtom<openxr_wrappers::RenderModelKeyFBWrapper>(handle, get_id);
+    CreateWrappedAtom<RenderModelKeyFBWrapper>(handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrAtom<openxr_wrappers::MarkerDetectorMLWrapper, openxr_wrappers::MarkerMLWrapper>(
-    XrMarkerDetectorML parent, XrMarkerML* handle, PFN_GetHandleId get_id)
+inline void CreateWrappedAtom<MarkerDetectorMLWrapper, MarkerMLWrapper>(XrMarkerDetectorML parent,
+                                                                        XrMarkerML*        handle,
+                                                                        PFN_GetHandleId    get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::MarkerDetectorMLWrapper>(parent);
+    auto parent_wrapper = GetWrapper<MarkerDetectorMLWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::MarkerMLWrapper* wrapper = nullptr;
+    MarkerMLWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_markers)
     {
         if (entry->handle == (*handle))
@@ -747,26 +743,27 @@ inline void CreateWrappedOpenXrAtom<openxr_wrappers::MarkerDetectorMLWrapper, op
 
     if (wrapper == nullptr)
     {
-        CreateWrappedOpenXrAtom<openxr_wrappers::MarkerMLWrapper>(handle, get_id);
+        CreateWrappedAtom<MarkerMLWrapper>(handle, get_id);
 
-        wrapper = GetOpenXrAtomWrapper<openxr_wrappers::MarkerMLWrapper>(*handle);
+        wrapper = GetAtomWrapper<MarkerMLWrapper>(*handle);
         parent_wrapper->child_markers.push_back(wrapper);
     }
 
-    CreateWrappedOpenXrAtom<openxr_wrappers::MarkerMLWrapper>(handle, get_id);
+    CreateWrappedAtom<MarkerMLWrapper>(handle, get_id);
 }
 
 template <>
-inline void CreateWrappedOpenXrAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::ControllerModelKeyMSFTWrapper>(
-    XrSession parent, XrControllerModelKeyMSFT* handle, PFN_GetHandleId get_id)
+inline void CreateWrappedAtom<SessionWrapper, ControllerModelKeyMSFTWrapper>(XrSession                 parent,
+                                                                             XrControllerModelKeyMSFT* handle,
+                                                                             PFN_GetHandleId           get_id)
 {
     assert(parent != XR_NULL_HANDLE);
     assert(handle != nullptr);
 
-    auto parent_wrapper = GetOpenXrWrapper<openxr_wrappers::SessionWrapper>(parent);
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
 
     // Filter duplicate object retrieval.
-    openxr_wrappers::ControllerModelKeyMSFTWrapper* wrapper = nullptr;
+    ControllerModelKeyMSFTWrapper* wrapper = nullptr;
     for (auto entry : parent_wrapper->child_controller_model_keys)
     {
         if (entry->handle == (*handle))
@@ -778,89 +775,90 @@ inline void CreateWrappedOpenXrAtom<openxr_wrappers::SessionWrapper, openxr_wrap
 
     if (wrapper == nullptr)
     {
-        CreateWrappedOpenXrAtom<openxr_wrappers::ControllerModelKeyMSFTWrapper>(handle, get_id);
+        CreateWrappedAtom<ControllerModelKeyMSFTWrapper>(handle, get_id);
 
-        wrapper = GetOpenXrAtomWrapper<openxr_wrappers::ControllerModelKeyMSFTWrapper>(*handle);
+        wrapper = GetAtomWrapper<ControllerModelKeyMSFTWrapper>(*handle);
         parent_wrapper->child_controller_model_keys.push_back(wrapper);
     }
 
-    CreateWrappedOpenXrAtom<openxr_wrappers::ControllerModelKeyMSFTWrapper>(handle, get_id);
+    CreateWrappedAtom<ControllerModelKeyMSFTWrapper>(handle, get_id);
 }
 
 template <typename Wrapper>
-void DestroyWrappedOpenXrHandle(typename Wrapper::HandleType handle)
+void DestroyWrappedHandle(typename Wrapper::HandleType handle)
 {
     if (handle != XR_NULL_HANDLE)
     {
-        auto wrapper = GetOpenXrWrapper<Wrapper>(handle);
-        RemoveOpenXrWrapper<Wrapper>(wrapper);
+        auto wrapper = GetWrapper<Wrapper>(handle);
+        RemoveWrapper<Wrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedOpenXrHandle<openxr_wrappers::InstanceWrapper>(XrInstance handle)
+inline void DestroyWrappedHandle<InstanceWrapper>(XrInstance handle)
 {
     if (handle != XR_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetOpenXrWrapper<openxr_wrappers::InstanceWrapper>(handle);
+        auto wrapper = GetWrapper<InstanceWrapper>(handle);
 
         for (auto session_wrapper : wrapper->child_sessions)
         {
-            RemoveOpenXrWrapper<openxr_wrappers::SessionWrapper>(session_wrapper);
+            RemoveWrapper<SessionWrapper>(session_wrapper);
             delete session_wrapper;
         }
 
         for (auto action_set_wrapper : wrapper->child_action_sets)
         {
-            RemoveOpenXrWrapper<openxr_wrappers::ActionSetWrapper>(action_set_wrapper);
+            RemoveWrapper<ActionSetWrapper>(action_set_wrapper);
             delete action_set_wrapper;
         }
 
-        RemoveOpenXrWrapper<openxr_wrappers::InstanceWrapper>(wrapper);
+        RemoveWrapper<InstanceWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedOpenXrHandle<openxr_wrappers::SessionWrapper>(XrSession handle)
+inline void DestroyWrappedHandle<SessionWrapper>(XrSession handle)
 {
     if (handle != XR_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetOpenXrWrapper<openxr_wrappers::SessionWrapper>(handle);
+        auto wrapper = GetWrapper<SessionWrapper>(handle);
 
         for (auto passthrough_wrapper : wrapper->child_passthroughs)
         {
-            RemoveOpenXrWrapper<openxr_wrappers::PassthroughFBWrapper>(passthrough_wrapper);
+            RemoveWrapper<PassthroughFBWrapper>(passthrough_wrapper);
             delete passthrough_wrapper;
         }
 
-        RemoveOpenXrWrapper<openxr_wrappers::SessionWrapper>(wrapper);
+        RemoveWrapper<SessionWrapper>(wrapper);
         delete wrapper;
     }
 }
 
 template <>
-inline void DestroyWrappedOpenXrHandle<openxr_wrappers::MarkerDetectorMLWrapper>(XrMarkerDetectorML handle)
+inline void DestroyWrappedHandle<MarkerDetectorMLWrapper>(XrMarkerDetectorML handle)
 {
     if (handle != XR_NULL_HANDLE)
     {
         // Destroy child wrappers.
-        auto wrapper = GetOpenXrWrapper<openxr_wrappers::MarkerDetectorMLWrapper>(handle);
+        auto wrapper = GetWrapper<MarkerDetectorMLWrapper>(handle);
 
         for (auto passthrough_wrapper : wrapper->child_markers)
         {
-            RemoveOpenXrWrapper<openxr_wrappers::MarkerMLWrapper>(passthrough_wrapper);
+            RemoveWrapper<MarkerMLWrapper>(passthrough_wrapper);
             delete passthrough_wrapper;
         }
 
-        RemoveOpenXrWrapper<openxr_wrappers::MarkerDetectorMLWrapper>(wrapper);
+        RemoveWrapper<MarkerDetectorMLWrapper>(wrapper);
         delete wrapper;
     }
 }
 
+GFXRECON_END_NAMESPACE(openxr_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

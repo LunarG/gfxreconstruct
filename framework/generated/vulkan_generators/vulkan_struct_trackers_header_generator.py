@@ -86,7 +86,7 @@ class VulkanStructTrackersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(vulkan_trackers)', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
-        write('T* MakeUnwrapVulkanStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
+        write('T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
         write('{', file=self.outFile)
         write('    assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));', file=self.outFile)
         self.newline()

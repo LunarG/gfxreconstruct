@@ -79,6 +79,14 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         BaseGenerator.beginFile(self, gen_opts)
 
         write(
+            '#include "generated/generated_openxr_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_vulkan_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
+        write(
             '#include "generated/generated_openxr_struct_trackers.h"',
             file=self.outFile
         )
@@ -163,9 +171,10 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
         write('        return nullptr;', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
+        wrapper_prefix = self.get_wrapper_prefix_from_type(typename) + '::'
         write(
-            '    {}* unwrapped_struct = MakeUnwrapOpenXrStructs(value, 1, unwrap_memory);'
-            .format(typename),
+            '    {}* unwrapped_struct = {}MakeUnwrapStructs(value, 1, unwrap_memory);'
+            .format(typename, wrapper_prefix),
             file=self.outFile
         )
         self.newline()
@@ -177,10 +186,18 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
                     length_expr = self.make_array_length_expression(
                         value, 'unwrapped_struct->'
                     )
+
+                    wrapper_prefix = self.get_wrapper_prefix_from_type(
+                        value.base_type
+                    )
+                    if wrapper_prefix == 'UNKNOWN_WRAPPERS':
+                        wrapper_prefix = 'openxr_wrappers'
+                    wrapper_prefix += '::'
+
                     if value.base_type == 'void':
-                        call_expr = f'MakeUnwrapOpenXrStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
+                        call_expr = f'{wrapper_prefix}MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
                     else:
-                        call_expr = f'MakeUnwrapOpenXrStructs({member_expr}, {length_expr}, unwrap_memory)'
+                        call_expr = f'{wrapper_prefix}MakeUnwrapStructs({member_expr}, {length_expr}, unwrap_memory)'
                     write('    if ({})'.format(member_expr), file=self.outFile)
                     write('    {', file=self.outFile)
                     write(

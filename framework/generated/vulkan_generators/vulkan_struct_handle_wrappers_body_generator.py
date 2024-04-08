@@ -94,6 +94,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
@@ -120,7 +121,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapVulkanStructs(reinterpret_cast<const VkLayerInstanceCreateInfo*>(base), 1, unwrap_memory));',
+            '        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLayerInstanceCreateInfo*>(base), 1, unwrap_memory));',
             file=self.outFile
         )
         write('        break;', file=self.outFile)
@@ -129,7 +130,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            '        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapVulkanStructs(reinterpret_cast<const VkLayerDeviceCreateInfo*>(base), 1, unwrap_memory));',
+            '        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const VkLayerDeviceCreateInfo*>(base), 1, unwrap_memory));',
             file=self.outFile
         )
         write('        break;', file=self.outFile)
@@ -139,7 +140,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
                 file=self.outFile
             )
             write(
-                '        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapVulkanStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
+                '        copy = reinterpret_cast<VkBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const {}*>(base), 1, unwrap_memory));'
                 .format(base_type),
                 file=self.outFile
             )
@@ -192,7 +193,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
                 file=self.outFile
             )
             write(
-                '            return UnwrapVulkanStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
+                '            return UnwrapStructPtrHandles(reinterpret_cast<const {}*>(base), unwrap_memory);'
                 .format(base_type),
                 file=self.outFile
             )
@@ -203,6 +204,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         write('}', file=self.outFile)
 
         self.newline()
+        write('GFXRECON_END_NAMESPACE(vulkan_wrappers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -251,7 +253,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
                                                                          ]
 
                 body = '\n'
-                body += 'void UnwrapVulkanStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
+                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory)\n'.format(
                     struct
                 )
                 body += '{\n'
@@ -280,15 +282,15 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    body += '        value->{name} = UnwrapVulkanStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
+                    body += '        value->{name} = UnwrapStructArrayHandles(value->{name}, value->{}, unwrap_memory);\n'.format(
                         member.array_length, name=member.name
                     )
                 elif member.is_pointer:
-                    body += '        value->{name} = UnwrapVulkanStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
+                    body += '        value->{name} = UnwrapStructPtrHandles(value->{name}, unwrap_memory);\n'.format(
                         name=member.name
                     )
                 else:
-                    body += '        UnwrapVulkanStructHandles(&value->{}, unwrap_memory);\n'.format(
+                    body += '        UnwrapStructHandles(&value->{}, unwrap_memory);\n'.format(
                         member.name
                     )
         return body

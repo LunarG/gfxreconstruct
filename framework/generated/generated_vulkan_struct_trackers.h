@@ -45,7 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(vulkan_trackers)
 
 template <typename T>
-T* MakeUnwrapVulkanStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
 {
     assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));
 

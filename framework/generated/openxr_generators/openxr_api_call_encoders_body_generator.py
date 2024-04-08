@@ -192,7 +192,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         """Generate the layer dispatch call invocation."""
         call_setup_expr = []
         object_name = values[0].name
-        dispatchfunc = 'GetOpenXrInstanceTable'
+        dispatchfunc = 'openxr_wrappers::GetInstanceTable'
 
         return [
             call_setup_expr, '{}({})->{}({})'.format(
@@ -455,7 +455,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
             if handle.is_array:
                 length_name = self.make_array_length_expression(handle)
-                handle_wrapper = self.get_handle_wrapper(handle.base_type)
 
                 if 'pAllocateInfo->' in length_name:
                     # This is a pool allocation call, which receives one allocate info structure that is shared by all object being allocated.
@@ -476,12 +475,12 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
                             self.structs_with_handles[handle.base_type]
                         )
-                        member_handle_wrapper = self.get_handle_wrapper(
+                        member_handle_wrapper = self.get_wrapper_prefix_from_type(
                             member_handle_type
                         )
 
                         if not member_array_length:
-                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}r* {{ return GetOpenXrWrapper<{wrapper}>(handle_struct->{}); }}'.format(
+                            unwrap_handle_def = '[]({}* handle_struct)->{wrapper}r* {{ return openxr_wrappers::GetWrapper<{wrapper}>(handle_struct->{}); }}'.format(
                                 handle.base_type,
                                 member_handle_name,
                                 wrapper=member_handle_wrapper
@@ -555,18 +554,33 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                     (value.base_type in self.structs_with_handles)
                 )
             ):
+                parent_prefix = 'openxr_wrappers::'
+                co_parent_prefix = 'openxr_wrappers::'
+                temp_prefix = self.get_wrapper_prefix_from_type(
+                    values[0].base_type
+                )
+                if temp_prefix != 'UNKNOWN_WRAPPERS':
+                    parent_prefix = temp_prefix + '::'
+
+                if values[1] is not None:
+                    temp_prefix = self.get_wrapper_prefix_from_type(
+                        values[1].base_type
+                    )
+                    if temp_prefix != 'UNKNOWN_WRAPPERS':
+                        co_parent_prefix = temp_prefix + '::'
+
                 # The VkInstance handle does not have parent, so the 'unused'
                 # values will be provided to the wrapper creation function.
-                parent_type = 'OpenXrNoParentWrapper'
-                parent_value = 'OpenXrNoParentWrapper::kHandleValue'
+                parent_type = parent_prefix + 'NoParentWrapper'
+                parent_value = parent_prefix + 'NoParentWrapper::kHandleValue'
                 if self.is_handle(values[0].base_type):
                     parent_type = self.get_handle_wrapper(values[0].base_type)
                     parent_value = values[0].name
 
                 # Some handles have two parent handles, such as swapchain images and display modes,
                 # or command buffers and descriptor sets allocated from pools.
-                co_parent_type = 'OpenXrNoParentWrapper'
-                co_parent_value = 'OpenXrNoParentWrapper::kHandleValue'
+                co_parent_type = co_parent_prefix + 'NoParentWrapper'
+                co_parent_value = co_parent_prefix + 'NoParentWrapper::kHandleValue'
                 if self.is_handle(
                     values[1].base_type
                 ) and not self.is_output_parameter(values[1]):
@@ -575,7 +589,9 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                     )
                     co_parent_value = values[1].name
 
-                type_prefix = self.get_prefix_from_type(value.base_type)
+                wrapper_prefix = self.get_wrapper_prefix_from_type(
+                    value.base_type
+                )
 
                 if value.is_array:
                     length_name = value.array_length
@@ -590,16 +606,16 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         handle_wrapper = self.get_handle_wrapper(
                             value.base_type
                         )
-                        expr += indent + 'CreateWrapped{}Handles<{}, {}, {}>({}, {}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
-                            type_prefix, parent_type, co_parent_type,
+                        expr += indent + '{}CreateWrappedHandles<{}, {}, {}>({}, {}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, co_parent_type,
                             handle_wrapper, parent_value, co_parent_value,
                             value.name, length_name
                         )
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrapped{}StructArrayHandles<{}, {}, {}>({}, {}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
-                            type_prefix, parent_type, co_parent_type,
+                        expr += indent + '{}CreateWrappedStructArrayHandles<{}, {}, {}>({}, {}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, co_parent_type,
                             value.base_type, parent_value, co_parent_value,
                             value.name, length_name
                         )
@@ -608,16 +624,16 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         handle_wrapper = self.get_handle_wrapper(
                             value.base_type
                         )
-                        expr += indent + 'CreateWrapped{}Handle<{}, {}, {}>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
-                            type_prefix, parent_type, co_parent_type,
+                        expr += indent + '{}CreateWrappedHandle<{}, {}, {}>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, co_parent_type,
                             handle_wrapper, parent_value, co_parent_value,
                             value.name
                         )
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
-                        expr += indent + 'CreateWrapped{}StructHandles<{}, {}>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
-                            type_prefix, parent_type, co_parent_type,
+                        expr += indent + '{}CreateWrappedStructHandles<{}, {}>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, co_parent_type,
                             parent_value, co_parent_value, value.name
                         )
         return expr
@@ -634,15 +650,21 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         ) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
                         need_unwrap_memory = True
                         arg_name += '_unwrapped'
+                        wrapper_prefix = self.get_wrapper_prefix_from_type(
+                            value.base_type
+                        ) + '::'
                         if value.is_array:
-                            expr += indent + '{} {name}_unwrapped = UnwrapOpenXrStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
+                            expr += indent + '{} {name}_unwrapped = {}UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
                                 value.full_type,
+                                wrapper_prefix,
                                 value.array_length,
                                 name=value.name
                             )
                         else:
-                            expr += indent + '{} {name}_unwrapped = UnwrapOpenXrStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
-                                value.full_type, name=value.name
+                            expr += indent + '{} {name}_unwrapped = {}UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
+                                value.full_type,
+                                wrapper_prefix,
+                                name=value.name
                             )
             args.append(arg_name)
         return expr, ', '.join(args), need_unwrap_memory
@@ -657,19 +679,19 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         expr = ''
         if name.startswith('xrDestroy'):
             handle = values[0]
-            handle_wrapper = self.get_handle_wrapper(handle.base_type)
-            handle_prefix = self.get_prefix_from_type(handle.base_type)
-            if handle_prefix == 'Vulkan':
-                handle_prefix = ''
+            wrapper_prefix = self.get_wrapper_prefix_from_type(
+                handle.base_type
+            ) + '::'
+            handle_prefix = self.get_handle_wrapper(handle.base_type)
 
             if handle.is_array:
-                expr += indent + 'DestroyWrapped{}Handles<{}>({}, {});\n'.format(
-                    handle_prefix, handle_wrapper, handle.name,
+                expr += indent + '{}DestroyWrappedHandles<{}>({}, {});\n'.format(
+                    wrapper_prefix, handle_prefix, handle.name,
                     handle.array_length
                 )
             else:
-                expr += indent + 'DestroyWrapped{}Handle<{}>({});\n'.format(
-                    handle_prefix, handle_wrapper, handle.name
+                expr += indent + '{}DestroyWrappedHandle<{}>({});\n'.format(
+                    wrapper_prefix, handle_prefix, handle.name
                 )
         return expr
 
