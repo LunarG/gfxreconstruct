@@ -121,7 +121,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static DispatchKey GetDispatchKey(const void* handle)',
+            'static DispatchKey GetVulkanDispatchKey(const void* handle)',
             file=self.outFile
         )
         write('{', file=self.outFile)

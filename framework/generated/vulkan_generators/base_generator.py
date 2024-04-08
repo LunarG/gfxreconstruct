@@ -1396,10 +1396,10 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
-    def get_handle_prefix(self):
+    def get_prefix_from_type(self):
         return 'Vulkan'
 
-    def get_handle_wrapper_prefix(self):
+    def get_wrapper_prefix_from_type(self):
         return 'vulkan_wrappers'
 
     def make_encoder_method_call(
@@ -1424,8 +1424,9 @@ class BaseGenerator(OutputGenerator):
                     arg_name, handle_type_name
                 )
             else:
-                arg_name = 'GetVulkanWrappedId({}, {})'.format(
-                    arg_name, handle_type_name
+                wrapper = self.get_wrapper_prefix_from_type()
+                arg_name = '{}::GetWrappedId({}, {})'.format(
+                    wrapper, arg_name, handle_type_name
                 )
 
         args = [arg_name]
@@ -1435,6 +1436,7 @@ class BaseGenerator(OutputGenerator):
         is_funcp = False
 
         type_name = self.make_invocation_type_name(value.base_type)
+        is_handle = ('Handle' == type_name)
 
         if self.is_struct(type_name):
             args = ['encoder'] + args
@@ -1446,8 +1448,6 @@ class BaseGenerator(OutputGenerator):
                 is_string = True
             elif type_name == 'FunctionPtr':
                 is_funcp = True
-            elif type_name == 'Handle':
-                method_call += self.get_handle_prefix()
 
             method_call += type_name
 
@@ -1479,8 +1479,8 @@ class BaseGenerator(OutputGenerator):
             else:
                 method_call += 'Value'
 
-        if type_name == 'Handle':
-            wrapper_prefix = self.get_handle_wrapper_prefix()
+        if is_handle:
+            wrapper_prefix = self.get_wrapper_prefix_from_type()
             method_call += '<{}>'.format(wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper')
 
         if self.is_output_parameter(value) and omit_output_param:

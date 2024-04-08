@@ -29,6 +29,7 @@
 #if defined(WIN32)
 #include "encode/dx12_object_wrapper_util.h"
 #endif
+
 #include "format/format.h"
 #include "util/defines.h"
 #include "util/output_stream.h"
@@ -78,7 +79,7 @@ class ParameterEncoder
     void EncodeFunctionPtr(T value)                                                                                   { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
 
     template<typename Wrapper>
-    void EncodeVulkanHandleValue(typename Wrapper::HandleType value)                                                  { EncodeHandleIdValue(GetVulkanWrappedId<Wrapper>(value)); }
+    void EncodeHandleValue(typename Wrapper::HandleType value)                                                        { EncodeHandleIdValue(vulkan_wrappers::GetWrappedId<Wrapper>(value)); }
     template<typename T>
     void EncodeEnumValue(T value)                                                                                     { EncodeValue(static_cast<format::EnumEncodeType>(value)); }
     template<typename T>
@@ -113,7 +114,7 @@ class ParameterEncoder
     void EncodeVoidPtrPtr(const T* const* ptr, bool omit_data = false, bool omit_addr = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
 
     template<typename Wrapper>
-    void EncodeVulkanHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedVulkanHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }
+    void EncodeHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedVulkanHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                  { EncodePointerConverted<format::EnumEncodeType>(ptr, omit_data, omit_addr); }
     template<typename T>
@@ -142,7 +143,7 @@ class ParameterEncoder
     void EncodeVoidArray(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
 
     template<typename Wrapper>
-    void EncodeVulkanHandleArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedVulkanHandleArray<Wrapper>(arr, len, omit_data, omit_addr); }
+    void EncodeHandleArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedVulkanHandleArray<Wrapper>(arr, len, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                    { EncodeArrayConverted<format::EnumEncodeType>(arr, len, omit_data, omit_addr); }
     template<typename T>
@@ -411,7 +412,7 @@ class ParameterEncoder
 
             if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
             {
-                EncodeVulkanHandleValue<Wrapper>(*ptr);
+                EncodeHandleValue<Wrapper>(*ptr);
             }
         }
     }
@@ -507,7 +508,7 @@ class ParameterEncoder
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    EncodeVulkanHandleValue<Wrapper>(arr[i]);
+                    EncodeHandleValue<Wrapper>(arr[i]);
                 }
             }
         }
