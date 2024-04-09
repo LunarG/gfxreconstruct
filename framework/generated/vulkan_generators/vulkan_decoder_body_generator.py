@@ -81,12 +81,12 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         BaseGenerator.beginFile(self, gen_opts)
 
         write('#include "decode/handle_pointer_decoder.h"', file=self.outFile)
-        write('#include "decode/pnext_node.h"', file=self.outFile)
         write('#include "decode/pointer_decoder.h"', file=self.outFile)
         write('#include "decode/string_array_decoder.h"', file=self.outFile)
         write('#include "decode/string_decoder.h"', file=self.outFile)
         write('#include "decode/struct_pointer_decoder.h"', file=self.outFile)
         write('#include "decode/value_decoder.h"', file=self.outFile)
+        write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
         write(
             '#include "generated/generated_vulkan_decoder.h"',
             file=self.outFile
