@@ -1096,8 +1096,7 @@ void* VulkanReplayConsumerBase::PreProcessExternalObject(uint64_t          objec
         }
         else
         {
-            GFXRECON_LOG_WARNING_ONCE("Failed to find a valid AHardwareBuffer handle for a call to "
-                                      "vkGetAndroidHardwareBufferPropertiesANDROID")
+            GFXRECON_LOG_WARNING_ONCE("Failed to find a valid AHardwareBuffer handle for a call to %s", call_name);
         }
     }
 #endif
