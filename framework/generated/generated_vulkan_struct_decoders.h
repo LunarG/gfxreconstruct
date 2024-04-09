@@ -32,11 +32,11 @@
 
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"
-#include "decode/pnext_node.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_array_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_pnext_node.h"
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"

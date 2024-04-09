@@ -19,8 +19,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/handle_pointer_decoder.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_node.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/portability.h
@@ -58,6 +56,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_pnext_node.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_pnext_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_realign_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_realign_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.h
