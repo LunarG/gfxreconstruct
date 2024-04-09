@@ -29,8 +29,8 @@
 
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/decode_allocator.h"
-#include "decode/pnext_node.h"
-#include "decode/pnext_typed_node.h"
+#include "decode/vulkan_pnext_node.h"
+#include "decode/vulkan_pnext_typed_node.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_enum_to_string.h"
 #include "util/logging.h"

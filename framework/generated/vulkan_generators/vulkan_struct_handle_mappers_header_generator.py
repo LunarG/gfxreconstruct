@@ -88,10 +88,10 @@ class VulkanStructHandleMappersHeaderGenerator(
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
-        write('#include "decode/pnext_node.h"', file=self.outFile)
         write(
             '#include "decode/vulkan_object_info_table.h"', file=self.outFile
         )
+        write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
         write('#include "format/platform_types.h"', file=self.outFile)
         write(
             '#include "decode/custom_vulkan_struct_handle_mappers.h"',
