@@ -239,6 +239,10 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
     enable_signal_handler_watcher_(enable_signal_handler_watcher),
     signal_handler_watcher_max_restores_(signal_handler_watcher_max_restores),
     enable_read_write_same_page_(expect_read_write_same_page), protection_mode_(protection_mode)
+#if USERFAULTFD_SUPPORTED == 1
+    ,
+    uffd_is_init_(false)
+#endif
 {
     if (kUserFaultFdMode == protection_mode_ && !USERFAULTFD_SUPPORTED)
     {
