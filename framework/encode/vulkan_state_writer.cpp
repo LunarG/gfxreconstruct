@@ -1230,6 +1230,8 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
     }
 #endif
 
+    WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+
     if (result != 0)
     {
         result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
@@ -1237,8 +1239,6 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
 
     if (result == 0)
     {
-        WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-
         if (data != nullptr)
         {
             WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
