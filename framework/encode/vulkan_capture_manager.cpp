@@ -1677,7 +1677,6 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
 
         if ((desc.usage & AHARDWAREBUFFER_USAGE_CPU_READ_MASK) != 0)
         {
-
             void* data   = nullptr;
             int   result = -1;
 
@@ -1708,6 +1707,15 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
             }
 #endif
 
+            // Only store buffer IDs and reference count if a creation command is written to the capture file.
+            format::HandleId memory_id = GetUniqueId();
+
+            HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
+            ahb_info.memory_id           = memory_id;
+            ahb_info.reference_count     = 0;
+
+            WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+
             if (result != 0)
             {
                 result =
@@ -1725,14 +1733,6 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
                     device_unwrapped, hardware_buffer, &properties);
                 if (result == VK_SUCCESS)
                 {
-                    // Only store buffer IDs and reference count if a creation command is written to the capture file.
-                    format::HandleId memory_id = GetUniqueId();
-
-                    HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
-                    ahb_info.memory_id           = memory_id;
-                    ahb_info.reference_count     = 0;
-
-                    WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
                     if (data != nullptr)
                     {
                         WriteFillMemoryCmd(memory_id, 0, properties.allocationSize, data);
