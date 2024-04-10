@@ -27,6 +27,9 @@
 #include "util/strings.h"
 #include "format/format_json.h"
 
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
 #include <codecvt> // For encoding wstring_view to utf8.
 
 #if defined(D3D12_SUPPORT)
