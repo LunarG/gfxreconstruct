@@ -146,9 +146,10 @@ bool WriteBmpImageNoAlpha(
         row_pitch = pitch;
     }
 
-    // BMP image data doesn't require row padding, so compute size with height * width * kImageBppNoAlpha, not row_pitch
-    // * height.
-    uint32_t bmp_image_size = height * width * kImageBppNoAlpha;
+    // BMP image data requires row to be a multiple of 4 bytes
+    // Round-up row size to next multiple of 4, if it isn't already
+    const uint32_t rowSizeNoAlpha = ((width * kImageBppNoAlpha) + 3u) & (~0x03);
+    uint32_t bmp_image_size = height * rowSizeNoAlpha;
     if (bmp_image_size <= data_size)
     {
         FILE*   file   = nullptr;
@@ -185,7 +186,7 @@ bool WriteBmpImageNoAlpha(
             auto bytes    = reinterpret_cast<const uint8_t*>(data);
 
             // Row data without alpha
-            uint8_t* rowBytes = new uint8_t[width * kImageBppNoAlpha];
+            uint8_t* rowBytes = new uint8_t[rowSizeNoAlpha]{ 0 };
             for (uint32_t i = 0; i < height; ++i)
             {
                 const uint32_t bytesOffset = (height_1 - i) * row_pitch;
@@ -193,7 +194,7 @@ bool WriteBmpImageNoAlpha(
                 {
                     memcpy(&rowBytes[j * kImageBppNoAlpha], &bytes[bytesOffset + (j * kImageBpp)], kImageBppNoAlpha);
                 }
-                util::platform::FileWrite(rowBytes, 1, width * kImageBppNoAlpha, file);
+                util::platform::FileWrite(rowBytes, 1, rowSizeNoAlpha, file);
             }
             delete[] rowBytes;
 
