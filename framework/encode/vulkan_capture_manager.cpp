@@ -1656,7 +1656,7 @@ VulkanCaptureManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* a
     return import_ahb_info;
 }
 
-bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer)
+void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer)
 {
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
     assert(hardware_buffer != nullptr);
@@ -1714,67 +1714,84 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
             ahb_info.memory_id           = memory_id;
             ahb_info.reference_count     = 0;
 
+            // Write CreateHardwareBufferCmd with or without the AHB payload
             WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
 
-            if (result != 0)
-            {
-                result =
-                    AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
-            }
+            // Query the AHB size
+            VkAndroidHardwareBufferPropertiesANDROID properties = {
+                VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
+            };
+            properties.pNext = nullptr;
 
-            if (result == 0)
-            {
-                VkAndroidHardwareBufferPropertiesANDROID properties = {
-                    VK_STRUCTURE_TYPE_ANDROID_HARDWARE_BUFFER_PROPERTIES_ANDROID
-                };
-                properties.pNext = nullptr;
+            VkResult vk_result =
+                device_table->GetAndroidHardwareBufferPropertiesANDROID(device_unwrapped, hardware_buffer, &properties);
 
-                result = device_table->GetAndroidHardwareBufferPropertiesANDROID(
-                    device_unwrapped, hardware_buffer, &properties);
-                if (result == VK_SUCCESS)
+            if (vk_result == VK_SUCCESS)
+            {
+                const size_t ahb_size = properties.allocationSize;
+                assert(ahb_size);
+
+                // If AHardwareBuffer_lockPlanes() failed (or is not available) try AHardwareBuffer_lock()
+                if (result != 0)
                 {
-                    if (data != nullptr)
+                    result =
+                        AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
+                }
+
+                if (result == 0 && data != nullptr)
+                {
+                    WriteFillMemoryCmd(memory_id, 0, ahb_size, data);
+
+                    // Track the memory with the PageGuardManager
+                    if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+                         GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
+                        GetPageGuardTrackAhbMemory())
                     {
-                        WriteFillMemoryCmd(memory_id, 0, properties.allocationSize, data);
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, ahb_size);
 
-                        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
-                             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
-                            GetPageGuardTrackAhbMemory())
-                        {
-                            GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, properties.allocationSize);
+                        util::PageGuardManager* manager = util::PageGuardManager::Get();
+                        assert(manager != nullptr);
 
-                            util::PageGuardManager* manager = util::PageGuardManager::Get();
-                            assert(manager != nullptr);
+                        manager->AddTrackedMemory(memory_id,
+                                                  data,
+                                                  0,
+                                                  static_cast<size_t>(ahb_size),
+                                                  util::PageGuardManager::kNullShadowHandle,
+                                                  false,  // No shadow memory for the imported AHB memory.
+                                                  false); // Write watch is not supported for this case.
+                    }
 
-                            manager->AddTrackedMemory(memory_id,
-                                                      data,
-                                                      0,
-                                                      static_cast<size_t>(properties.allocationSize),
-                                                      util::PageGuardManager::kNullShadowHandle,
-                                                      false,  // No shadow memory for the imported AHB memory.
-                                                      false); // Write watch is not supported for this case.
-                        }
+                    result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
+                    if (result != 0)
+                    {
+                        GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
                     }
                 }
                 else
                 {
                     GFXRECON_LOG_ERROR(
-                        "GetAndroidHardwareBufferPropertiesANDROID failed: hardware buffer creation will be "
-                        "omitted from the capture file.");
-                    return false;
-                }
+                        "AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
 
-                result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
-                if (result != 0)
-                {
-                    GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
+                    // Dump zeros for AHB payload.
+                    std::vector<uint8_t> zeros(ahb_size, 0);
+                    WriteFillMemoryCmd(memory_id, 0, ahb_size, zeros.data());
                 }
             }
             else
             {
                 GFXRECON_LOG_ERROR(
-                    "AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
-                return false;
+                    "GetAndroidHardwareBufferPropertiesANDROID failed: hardware buffer data will be omitted "
+                    "from the capture file");
+
+                // In case AHardwareBuffer_lockPlanes() succeeded
+                if (result == 0)
+                {
+                    result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
+                    if (result != 0)
+                    {
+                        GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed");
+                    }
+                }
             }
         }
         else
@@ -1793,7 +1810,6 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
 #else
     GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
 #endif
-    return true;
 }
 
 void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         device,
@@ -1806,26 +1822,15 @@ void VulkanCaptureManager::ProcessImportAndroidHardwareBuffer(VkDevice         d
     auto memory_wrapper = GetVulkanWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert((memory_wrapper != nullptr) && (hardware_buffer != nullptr));
 
-    bool processing_succeeded = ProcessReferenceToAndroidHardwareBuffer(device, hardware_buffer);
-    if (processing_succeeded)
-    {
-        auto entry = hardware_buffers_.find(hardware_buffer);
-        GFXRECON_ASSERT(entry != hardware_buffers_.end());
+    ProcessReferenceToAndroidHardwareBuffer(device, hardware_buffer);
+    auto entry = hardware_buffers_.find(hardware_buffer);
+    GFXRECON_ASSERT(entry != hardware_buffers_.end());
 
-        ++entry->second.reference_count;
+    ++entry->second.reference_count;
 
-        memory_wrapper->hardware_buffer           = hardware_buffer;
-        memory_wrapper->hardware_buffer_memory_id = entry->second.memory_id;
-    }
-    else
-    {
-
-        GFXRECON_LOG_ERROR_ONCE(
-            "Importing AHardwareBuffer failed, hardware buffer data will be omitted from the capture file");
-    }
-
+    memory_wrapper->hardware_buffer           = hardware_buffer;
+    memory_wrapper->hardware_buffer_memory_id = entry->second.memory_id;
 #else
-
     GFXRECON_UNREFERENCED_PARAMETER(device);
     GFXRECON_UNREFERENCED_PARAMETER(memory);
     GFXRECON_UNREFERENCED_PARAMETER(hardware_buffer);
