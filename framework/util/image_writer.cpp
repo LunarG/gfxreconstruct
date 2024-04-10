@@ -149,7 +149,7 @@ bool WriteBmpImageNoAlpha(
     // BMP image data requires row to be a multiple of 4 bytes
     // Round-up row size to next multiple of 4, if it isn't already
     const uint32_t rowSizeNoAlpha = ((width * kImageBppNoAlpha) + 3u) & (~0x03);
-    uint32_t bmp_image_size = height * rowSizeNoAlpha;
+    uint32_t       bmp_image_size = height * rowSizeNoAlpha;
     if (bmp_image_size <= data_size)
     {
         FILE*   file   = nullptr;
@@ -216,7 +216,7 @@ bool WritePngImage(
     bool success = false;
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
-    uint32_t row_pitch = pitch == 0 ? width * kImageBpp : pitch;
+    uint32_t row_pitch               = pitch == 0 ? width * kImageBpp : pitch;
     stbi_write_png_compression_level = 4;
     if (1 == stbi_write_png(filename.c_str(), width, height, kImageBpp, data, row_pitch))
     {
