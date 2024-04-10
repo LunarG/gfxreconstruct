@@ -546,6 +546,22 @@ bool PageGuardManager::UffdRegisterMemory(const void* address, size_t length)
 {
     assert(uffd_fd_ != -1);
 
+    if (!length || (length % system_page_size_))
+    {
+        GFXRECON_LOG_ERROR(
+            "Attempting to register a memory region with a non page aligned length (%zu) (system's page size %zu).",
+            length,
+            system_page_size_);
+    }
+
+    if (!util::platform::IsAddressAligned(address, system_page_size_))
+    {
+        GFXRECON_LOG_ERROR("Attempting to register a memory region with non page aligned base address (%zu) (system's "
+                           "page size: %zu).",
+                           address,
+                           system_page_size_);
+    }
+
     struct uffdio_register uffdio_register;
     uffdio_register.range.start = GFXRECON_PTR_TO_UINT64(address);
     uffdio_register.range.len   = length;

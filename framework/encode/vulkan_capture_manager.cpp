@@ -1737,7 +1737,8 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
                     {
                         WriteFillMemoryCmd(memory_id, 0, properties.allocationSize, data);
 
-                        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard) &&
+                        if ((GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+                             GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd) &&
                             GetPageGuardTrackAhbMemory())
                         {
                             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, properties.allocationSize);
@@ -1745,14 +1746,13 @@ bool VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
                             util::PageGuardManager* manager = util::PageGuardManager::Get();
                             assert(manager != nullptr);
 
-                            manager->AddTrackedMemory(
-                                memory_id,
-                                data,
-                                0,
-                                static_cast<size_t>(properties.allocationSize),
-                                util::PageGuardManager::kNullShadowHandle,
-                                false,  // No shadow memory for the imported AHB memory; Track directly with mprotect().
-                                false); // Write watch is not supported for this case.
+                            manager->AddTrackedMemory(memory_id,
+                                                      data,
+                                                      0,
+                                                      static_cast<size_t>(properties.allocationSize),
+                                                      util::PageGuardManager::kNullShadowHandle,
+                                                      false,  // No shadow memory for the imported AHB memory.
+                                                      false); // Write watch is not supported for this case.
                         }
                     }
                 }
@@ -1840,7 +1840,8 @@ void VulkanCaptureManager::ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardwar
     auto entry = hardware_buffers_.find(hardware_buffer);
     if ((entry != hardware_buffers_.end()) && (--entry->second.reference_count == 0))
     {
-        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard ||
+            GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
         {
             util::PageGuardManager* manager = util::PageGuardManager::Get();
             assert(manager != nullptr);
