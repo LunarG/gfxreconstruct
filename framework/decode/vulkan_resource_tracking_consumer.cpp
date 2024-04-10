@@ -275,10 +275,13 @@ void VulkanResourceTrackingConsumer::Process_vkEnumeratePhysicalDevices(
         if ((pPhysicalDevices->GetPointer() != nullptr) && (pPhysicalDevices->GetHandlePointer() != nullptr))
         {
             size_t capture_physical_device_length  = pPhysicalDevices->GetLength();
-            size_t playback_physical_device_length = *pPhysicalDeviceCount->GetOutputPointer();
+            size_t playback_physical_device_length = replay_device_count;
             size_t len = std::min(capture_physical_device_length, playback_physical_device_length);
 
             assert(len <= handle_info.size());
+
+            // TODO: better physical device mapping handling between capture time and replay time when
+            //       system has multiple replay physical devices.
 
             for (size_t i = 0; i < len; ++i)
             {
@@ -286,6 +289,21 @@ void VulkanResourceTrackingConsumer::Process_vkEnumeratePhysicalDevices(
                 info_iterator->SetHandleId(pPhysicalDevices->GetHandlePointer()[i]);
                 info_iterator->SetCaptureId(pPhysicalDevices->GetPointer()[i]);
                 GetTrackedObjectInfoTable()->AddTrackedPhysicalDeviceInfo(std::move(*info_iterator));
+            }
+
+            if ((playback_physical_device_length > 0) &&
+                (playback_physical_device_length < capture_physical_device_length))
+            {
+                VkPhysicalDevice overflow_device = replay_devices[0];
+
+                for (size_t i = playback_physical_device_length; i < capture_physical_device_length; ++i)
+                {
+                    TrackedPhysicalDeviceInfo overflow_info;
+
+                    overflow_info.SetHandleId(overflow_device);
+                    overflow_info.SetCaptureId(pPhysicalDevices->GetPointer()[i]);
+                    GetTrackedObjectInfoTable()->AddTrackedPhysicalDeviceInfo(std::move(overflow_info));
+                }
             }
         }
     }
