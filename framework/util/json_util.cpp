@@ -27,9 +27,6 @@
 #include "util/strings.h"
 #include "format/format_json.h"
 
-#if defined(__clang__)
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-#endif
 #include <codecvt> // For encoding wstring_view to utf8.
 
 #if defined(D3D12_SUPPORT)
@@ -182,7 +179,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const std::string_view data, con
 
 void FieldToJson(nlohmann::ordered_json& jdata, const std::wstring_view data, const util::JsonOptions& options)
 {
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
     std::wstring_convert<std::codecvt_utf8<wchar_t>> utf8_conv;
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
     jdata = utf8_conv.to_bytes(data.data(), data.data() + data.length());
 }
 
