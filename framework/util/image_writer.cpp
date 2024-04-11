@@ -148,7 +148,7 @@ bool WriteBmpImageNoAlpha(
 
     // BMP image data requires row to be a multiple of 4 bytes
     // Round-up row size to next multiple of 4, if it isn't already
-    const uint32_t rowSizeNoAlpha = ((width * kImageBppNoAlpha) + 3u) & (~0x03);
+    const uint32_t rowSizeNoAlpha = util::platform::GetAlignedSize(width * kImageBppNoAlpha, 4);
     uint32_t       bmp_image_size = height * rowSizeNoAlpha;
     if (bmp_image_size <= data_size)
     {
@@ -186,7 +186,7 @@ bool WriteBmpImageNoAlpha(
             auto bytes    = reinterpret_cast<const uint8_t*>(data);
 
             // Row data without alpha
-            uint8_t* rowBytes = new uint8_t[rowSizeNoAlpha]{ 0 };
+            std::vector<uint8_t> rowBytes(rowSizeNoAlpha, 0);
             for (uint32_t i = 0; i < height; ++i)
             {
                 const uint32_t bytesOffset = (height_1 - i) * row_pitch;
@@ -194,9 +194,8 @@ bool WriteBmpImageNoAlpha(
                 {
                     memcpy(&rowBytes[j * kImageBppNoAlpha], &bytes[bytesOffset + (j * kImageBpp)], kImageBppNoAlpha);
                 }
-                util::platform::FileWrite(rowBytes, 1, rowSizeNoAlpha, file);
+                util::platform::FileWrite(rowBytes.data(), 1, rowSizeNoAlpha, file);
             }
-            delete[] rowBytes;
 
             if (!ferror(file))
             {
@@ -236,9 +235,9 @@ bool WritePngImageNoAlpha(
     uint32_t row_pitch               = pitch == 0 ? width * kImageBpp : pitch;
     stbi_write_png_compression_level = 4;
 
-    const uint32_t row_pitch_no_alpha = (row_pitch * kImageBppNoAlpha) / kImageBpp;
-    uint8_t*       dataNoAlpha        = new uint8_t[height * kImageBppNoAlpha * row_pitch_no_alpha];
-    auto           dataWithAlpha      = reinterpret_cast<const uint8_t*>(data);
+    const uint32_t       row_pitch_no_alpha = (row_pitch * kImageBppNoAlpha) / kImageBpp;
+    std::vector<uint8_t> dataNoAlpha(height * kImageBppNoAlpha * row_pitch_no_alpha);
+    auto                 dataWithAlpha = reinterpret_cast<const uint8_t*>(data);
     for (uint32_t i = 0; i < height; i++)
     {
         const uint32_t offset_with_alpha = i * row_pitch;
@@ -250,11 +249,10 @@ bool WritePngImageNoAlpha(
                    kImageBppNoAlpha);
         }
     }
-    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBppNoAlpha, dataNoAlpha, row_pitch_no_alpha))
+    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBppNoAlpha, dataNoAlpha.data(), row_pitch_no_alpha))
     {
         success = true;
     }
-    delete[] dataNoAlpha;
 #endif
     return success;
 }
