@@ -687,7 +687,7 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
         if (dx12_consumer.GetDXGITestPresentCount() > 0 && 
             api_agnostic_stats.uses_frame_markers == false)
         {
-            GFXRECON_WRITE_CONSOLE("\tTest frames: %u", dx12_consumer.GetDXGITestPresentCount());
+            GFXRECON_WRITE_CONSOLE("\tTest present count: %u", dx12_consumer.GetDXGITestPresentCount());
         }
 
         PrintDriverInfo(info_consumer);

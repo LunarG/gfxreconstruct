@@ -69,8 +69,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void PostReplay();
 
-    void PresentTest(uint32_t flags);
-
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
