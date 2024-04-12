@@ -571,7 +571,7 @@ class BaseGenerator(OutputGenerator):
             else:
                 # Otherwise, look for base type inside type declaration
                 self.flags_types[name] = type_elem.find('type').text
-        elif (category == "basetype"):
+        elif (category == "basetype") and type_elem.find('type') is not None:
             self.base_types[name] = type_elem.find('type').text
 
     def genStruct(self, typeinfo, typename, alias):
@@ -750,6 +750,20 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
+    def is_atom(self, base_type):
+        if base_type in self.atom_names:
+            return True
+        return False
+
+    def has_basetype(self, base_type):
+        if base_type in self.base_types and self.base_types[base_type
+                                                            ] is not None:
+            return True
+        return False
+
+    def get_basetype(self, base_type):
+        return self.base_types[base_type]
+
     def is_dispatchable_handle(self, base_type):
         """Check for dispatchable handle type."""
         if base_type in self.DISPATCHABLE_HANDLE_TYPES:
@@ -891,6 +905,9 @@ class BaseGenerator(OutputGenerator):
         if combined_name in self.METHODCALL_BLACKLIST:
             return True
         return False
+
+    def is_dx12_class(self):
+        return True if ('Dx12' in self.__class__.__name__) else False
 
     def get_filtered_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
@@ -1392,8 +1409,8 @@ class BaseGenerator(OutputGenerator):
         is_funcp = False
 
         type_name = self.make_invocation_type_name(value.base_type)
-        is_handle = 'Handle' in type_name
-        is_atom = type_name in self.atom_names
+        is_handle = self.is_handle(value.base_type)
+        is_atom = self.is_atom(value.base_type)
 
         if self.is_struct(type_name):
             args = ['encoder'] + args
@@ -1410,9 +1427,8 @@ class BaseGenerator(OutputGenerator):
                 method_call += 'Flags'
             elif is_atom:
                 method_call += 'OpenXrAtom'
-            elif type_name in self.base_types and self.base_types[
-                type_name] is not None:
-                method_call += self.encode_types[self.base_types[type_name]]
+            elif self.has_basetype(type_name):
+                method_call += self.encode_types[self.get_basetype(type_name)]
             else:
                 method_call += type_name
 

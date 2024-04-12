@@ -121,6 +121,10 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size)       { return DecodeFrom<uint64_t>(buffer, buffer_size); }
     size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<float>(buffer, buffer_size); }
     size_t DecodeVkBool32(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<VkBool32>(buffer, buffer_size); }
+#ifdef ENABLE_OPENXR_SUPPORT
+    size_t DecodeXrBool32(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<XrBool32>(buffer, buffer_size); }
+    size_t DecodeIUnknown(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
+#endif // ENABLE_OPENXR_SUPPORT
 
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
     size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)      { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
@@ -259,6 +263,9 @@ class PointerDecoder<T*> : public PointerDecoderBase
     size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size)          { return DecodeFrom<uint64_t>(buffer, buffer_size); }
     size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<float>(buffer, buffer_size); }
     size_t DecodeVkBool32(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<VkBool32>(buffer, buffer_size); }
+#ifdef ENABLE_OPENXR_SUPPORT
+    size_t DecodeXrBool32(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<XrBool32>(buffer, buffer_size); }
+#endif // ENABLE_OPENXR_SUPPORT
 
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
     size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }

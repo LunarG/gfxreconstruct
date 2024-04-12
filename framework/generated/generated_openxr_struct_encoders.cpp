@@ -723,7 +723,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLXlibKH
     encoder->EncodeVoidPtr(value.xDisplay);
     encoder->EncodeUInt32Value(value.visualid);
     encoder->EncodeVoidPtr(value.glxFBConfig);
-    encoder->EncodeUInt32Value(value.glxDrawable);
+    encoder->EncodeSizeTValue(value.glxDrawable);
     encoder->EncodeVoidPtr(value.glxContext);
 }
 
@@ -815,14 +815,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D11KHR& va
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.device);
+    encoder->EncodeVoidPtr(value.device);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageD3D11KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.texture);
+    encoder->EncodeVoidPtr(value.texture);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D11KHR& value)
@@ -830,22 +830,22 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D11KH
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeInt64Value(value.adapterLuid);
-    encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
+    encoder->EncodeUInt32Value(value.minFeatureLevel);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D12KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.device);
-    encoder->EncodeVoidPtrPtr(value.queue);
+    encoder->EncodeVoidPtr(value.device);
+    encoder->EncodeVoidPtr(value.queue);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageD3D12KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.texture);
+    encoder->EncodeVoidPtr(value.texture);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D12KHR& value)
@@ -853,7 +853,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D12KH
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
     encoder->EncodeInt64Value(value.adapterLuid);
-    encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
+    encoder->EncodeUInt32Value(value.minFeatureLevel);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVisibilityMaskKHR& value)
@@ -1303,8 +1303,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHolographicWindowAttachment
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeIUnknownPtr(value.holographicSpace);
-    encoder->EncodeIUnknownPtr(value.coreWindow);
+    encoder->EncodeVoidPtr(value.holographicSpace);
+    encoder->EncodeVoidPtr(value.coreWindow);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerReprojectionInfoMSFT& value)

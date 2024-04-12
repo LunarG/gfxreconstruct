@@ -32,7 +32,11 @@ target_sources(gfxrecon_decode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/common_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_decoders.h
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_decoders.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/custom_openxr_struct_decoders_forward.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders_forward.h
@@ -66,6 +70,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/json_writer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/decode_json_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_next_node.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_next_typed_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/portability.h
@@ -187,6 +193,9 @@ target_sources(gfxrecon_decode
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_structs.cpp>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.h>
                     $<$<BOOL:${GFXRECON_TOCPP_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_cpp_consumer_extension.cpp>
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders_forward.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp

@@ -69,6 +69,12 @@ from openxr_enum_to_string_body_generator import OpenXrEnumToStringBodyGenerator
 from openxr_enum_to_string_header_generator import OpenXrEnumToStringHeaderGenerator, OpenXrEnumToStringHeaderGeneratorOptions
 from openxr_state_table_header_generator import OpenXrStateTableHeaderGenerator, OpenXrStateTableHeaderGeneratorOptions
 
+# Struct Decoders
+from openxr_struct_decoders_forward_generator import OpenXrStructDecodersForwardGenerator, OpenXrStructDecodersForwardGeneratorOptions
+from openxr_struct_decoders_header_generator import OpenXrStructDecodersHeaderGenerator, OpenXrStructDecodersHeaderGeneratorOptions
+from openxr_struct_decoders_body_generator import OpenXrStructDecodersBodyGenerator, OpenXrStructDecodersBodyGeneratorOptions
+from openxr_type_util_generator import OpenXrTypeUtilGenerator, OpenXrTypeUtilGeneratorOptions
+
 # Simple timer functions
 start_time = None
 
@@ -386,6 +392,63 @@ def make_gen_opts(args):
             prefixText=prefix_strings + xr_prefix_strings,
             protectFile=True,
             protectFeature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # Struct decoder generators
+    gen_opts['generated_openxr_struct_decoders.h'] = [
+        OpenXrStructDecodersHeaderGenerator,
+        OpenXrStructDecodersHeaderGeneratorOptions(
+            filename='generated_openxr_struct_decoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+    gen_opts['generated_openxr_struct_decoders.cpp'] = [
+        OpenXrStructDecodersBodyGenerator,
+        OpenXrStructDecodersBodyGeneratorOptions(
+            filename='generated_openxr_struct_decoders.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_decoders_forward.h'] = [
+        OpenXrStructDecodersForwardGenerator,
+        OpenXrStructDecodersForwardGeneratorOptions(
+            filename='generated_openxr_struct_decoders_forward.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_type_util.h'] = [
+        OpenXrTypeUtilGenerator,
+        OpenXrTypeUtilGeneratorOptions(
+            filename='generated_openxr_type_util.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]

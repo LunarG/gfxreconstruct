@@ -25,9 +25,13 @@
 #ifndef GFXRECON_DECODE_VALUE_DECODER_H
 #define GFXRECON_DECODE_VALUE_DECODER_H
 
+#include "format/platform_types.h"
 #include "format/format.h"
 #include "util/defines.h"
 
+#if ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
 #include "vulkan/vulkan.h"
 
 #include <cassert>
@@ -63,6 +67,9 @@ class ValueDecoder
     static size_t DecodeFloatValue(const uint8_t* buffer, size_t buffer_size, float* value)                         { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeDoubleValue(const uint8_t* buffer, size_t buffer_size, double* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeVkBool32Value(const uint8_t* buffer, size_t buffer_size, VkBool32* value)                   { return DecodeValue(buffer, buffer_size, value); }
+#if ENABLE_OPENXR_SUPPORT
+    static size_t DecodeXrBool32Value(const uint8_t* buffer, size_t buffer_size, XrBool32* value)                   { return DecodeValue(buffer, buffer_size, value); }
+#endif
 
     static size_t DecodeVkSampleMaskValue(const uint8_t* buffer, size_t buffer_size, VkSampleMask* value)           { return DecodeValueFrom<format::SampleMaskEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeVkDeviceSizeValue(const uint8_t* buffer, size_t buffer_size, VkDeviceSize* value)           { return DecodeValueFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, value); }
@@ -80,6 +87,16 @@ class ValueDecoder
     static size_t DecodeSizeTValue(const uint8_t* buffer, size_t buffer_size, LONG_PTR* value)                      { return DecodeValueFrom<format::SizeTEncodeType>(buffer, buffer_size, value); }
 #endif
 
+#if ENABLE_OPENXR_SUPPORT
+    static size_t DecodeD3D_FEATURE_LEVELValue(const uint8_t* buffer, size_t buffer_size, D3D_FEATURE_LEVEL* value) { return DecodeValueFrom<format::D3D_FEATURE_LEVELEncodeType>(buffer, buffer_size, value); }
+
+    static size_t DecodeMLCoordinateFrameUIDValue(const uint8_t* buffer, size_t buffer_size, MLCoordinateFrameUID* value)
+    {
+        return DecodeUInt64Array(buffer,buffer_size, value->data, 2);
+    }
+
+#endif // ENABLE_OPENXR_SUPPORT
+
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     static size_t DecodeAddress(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                         { return DecodeValueFrom<format::AddressEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                         { return DecodeAddress(buffer, buffer_size, value); }
@@ -94,12 +111,16 @@ class ValueDecoder
     static size_t DecodeFlags64Value(const uint8_t* buffer, size_t buffer_size, T* value)                           { return DecodeValueFrom<format::Flags64EncodeType>(buffer, buffer_size, value); }
 
     // Arrays
+    static size_t DecodeCharArray(const uint8_t* buffer, size_t buffer_size, char* arr, size_t len)                 { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeInt32Array(const uint8_t* buffer, size_t buffer_size, int32_t* arr, size_t len)             { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeUInt32Array(const uint8_t* buffer, size_t buffer_size, uint32_t* arr, size_t len)           { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeInt64Array(const uint8_t* buffer, size_t buffer_size, int64_t* arr, size_t len)             { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeUInt64Array(const uint8_t* buffer, size_t buffer_size, uint64_t* arr, size_t len)           { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeFloatArray(const uint8_t* buffer, size_t buffer_size, float* arr, size_t len)               { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeVkBool32Array(const uint8_t* buffer, size_t buffer_size, VkBool32* arr, size_t len)         { return DecodeArray(buffer, buffer_size, arr, len); }
+#if ENABLE_OPENXR_SUPPORT
+    static size_t DecodeXrBool32Array(const uint8_t* buffer, size_t buffer_size, XrBool32* arr, size_t len)         { return DecodeArray(buffer, buffer_size, arr, len); }
+#endif
 
     static size_t DecodeVkSampleMaskArray(const uint8_t* buffer, size_t buffer_size, VkSampleMask* arr, size_t len) { return DecodeArrayFrom<format::SampleMaskEncodeType>(buffer, buffer_size, arr, len); }
     static size_t DecodeVkDeviceSizeArray(const uint8_t* buffer, size_t buffer_size, VkDeviceSize* arr, size_t len) { return DecodeArrayFrom<format::DeviceSizeEncodeType>(buffer, buffer_size, arr, len); }

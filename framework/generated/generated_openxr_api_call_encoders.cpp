@@ -4511,7 +4511,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPerceptionAnchorMSFT(
     if (encoder)
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
-        encoder->EncodeIUnknownPtr(perceptionAnchor, omit_output_data);
+        encoder->EncodeVoidPtr(perceptionAnchor);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpatialAnchorMSFTWrapper, void>(result, session, anchor, nullptr);
@@ -4556,7 +4556,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor);
-        encoder->EncodeIUnknownPtrPtr(perceptionAnchor, omit_output_data);
+        encoder->EncodeVoidPtrPtr(perceptionAnchor, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }
