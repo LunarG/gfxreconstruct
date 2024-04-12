@@ -126,7 +126,7 @@ class OpenXrEnumToStringBodyGenerator(BaseGenerator):
                     # body = 'std::string {0}ToString(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
                     # Since every caller needs to know exactly what it is calling, we may as well
                     # dispense with the parameters that are always ignored:
-                    body = 'std::string {0}ToString(const {0} value)\n'
+                    body = 'std::string {0}ToString(const uint64_t& value)\n'
                 else:
                     body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
                 body += '{{\n'

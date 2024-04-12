@@ -122,14 +122,14 @@ class OpenXrEnumToStringHeaderGenerator(BaseGenerator):
             if not enum in self.processedEnums:
                 self.processedEnums.add(enum)
                 if not enum in self.enumAliases:
+                    body = ''
                     if self.is_flags_enum_64bit(enum):
-                        body = 'std::string {0}ToString(const {0} value);'
-                        body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
-                    else:
+                        body = 'std::string {0}ToString(const uint64_t value);'
+                        body += '\nstd::string {1}ToString(XrFlags64 vkFlags);'
+                    elif 'Bits' not in enum:
                         body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                        if 'Bits' in enum:
-                            body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    write(
-                        body.format(enum, BitsEnumToFlagsTypedef(enum)),
-                        file=self.outFile
-                    )
+                    if len(body) > 0:
+                        write(
+                            body.format(enum, BitsEnumToFlagsTypedef(enum)),
+                            file=self.outFile
+                        )

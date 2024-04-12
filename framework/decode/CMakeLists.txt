@@ -196,6 +196,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders_forward.h
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_next_decoder.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp
