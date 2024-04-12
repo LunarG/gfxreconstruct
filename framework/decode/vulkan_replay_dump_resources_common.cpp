@@ -508,6 +508,9 @@ VkResult DumpImageToFile(const ImageInfo*                image_info,
 
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reading from image resource %" PRIu64 " failed (%s)",
+                               image_info->capture_id,
+                               util::ToString<VkResult>(res).c_str())
             return res;
         }
 
