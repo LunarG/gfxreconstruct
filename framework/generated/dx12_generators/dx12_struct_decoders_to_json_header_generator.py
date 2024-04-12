@@ -44,6 +44,8 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
     def beginFile(self, gen_opts):
         """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
+        write('#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
+        self.newline()
 
         code = inspect.cleandoc('''
             /// @file Functions to convert decoded structs to JSON.
@@ -92,8 +94,13 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         custom_to_fields = format_cpp_code(custom_to_fields)
         write(custom_to_fields, file=self.outFile)
         self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        code = format_cpp_code('''
+            GFXRECON_END_NAMESPACE(decode)
+            GFXRECON_END_NAMESPACE(gfxrecon)
+
+            #endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+        ''')
+        write(code, file=self.outFile)
 
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)

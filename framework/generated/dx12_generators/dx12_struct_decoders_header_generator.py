@@ -24,7 +24,7 @@ import sys
 from base_generator import BaseGenerator, write
 from dx12_base_generator import Dx12BaseGenerator
 from base_struct_decoders_header_generator import BaseStructDecodersHeaderGenerator
-
+from reformat_code import format_cpp_code
 
 class Dx12StructDecodersHeaderGenerator(
     Dx12BaseGenerator, BaseStructDecodersHeaderGenerator
@@ -48,6 +48,8 @@ class Dx12StructDecodersHeaderGenerator(
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
+        write('#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
+        self.newline()
 
         self.write_include()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -62,9 +64,13 @@ class Dx12StructDecodersHeaderGenerator(
     def write_include(self):
         """Method override."""
         code = ''
+        code += '#ifdef WIN32\n'
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             code += '#include <{}>\n'.format(k)
+        code += '#else\n'
+        code += '#include "format/platform_types.h"\n'
+        code += '#endif // WIN32\n\n'
 
         code += (
             "#include \"decode/custom_dx12_struct_decoders_forward.h\"\n"
@@ -81,8 +87,13 @@ class Dx12StructDecodersHeaderGenerator(
     def endFile(self):
         """Method override."""
         self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        code = format_cpp_code('''
+            GFXRECON_END_NAMESPACE(decode)
+            GFXRECON_END_NAMESPACE(gfxrecon)
+
+            #endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+        ''')
+        write(code, file=self.outFile)
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)

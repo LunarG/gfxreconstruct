@@ -154,6 +154,7 @@ class BaseDecoderBodyGenerator():
         is_string = False
         is_funcp = False
         is_handle = False
+        is_atom = False
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -167,6 +168,8 @@ class BaseDecoderBodyGenerator():
             is_funcp = True
         elif self.is_handle(value.base_type):
             is_handle = True
+        elif self.is_atom(value.base_type):
+            is_atom = True
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:

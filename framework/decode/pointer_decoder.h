@@ -120,7 +120,6 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeInt64(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<int64_t>(buffer, buffer_size); }
     size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size)       { return DecodeFrom<uint64_t>(buffer, buffer_size); }
     size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<float>(buffer, buffer_size); }
-
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
     size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)      { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
 
@@ -136,6 +135,8 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
     size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
     size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+    size_t DecodeLARGE_INTEGER(const uint8_t* buffer, size_t buffer_size)   { return DecodeFrom<int64_t>(buffer, buffer_size); }
+    size_t DecodeLUID(const uint8_t* buffer, size_t buffer_size)            { return DecodeFrom<int64_t>(buffer, buffer_size); }
     // clang-format on
 
   private:

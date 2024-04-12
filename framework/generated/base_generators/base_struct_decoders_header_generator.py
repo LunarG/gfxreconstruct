@@ -72,6 +72,8 @@ class BaseStructDecodersHeaderGenerator():
             return True
         elif self.is_handle(value.base_type):
             return True
+        elif self.is_atom(value.base_type):
+            return True
         elif self.is_struct(value.base_type):
             return True
         elif self.is_generic_struct_handle_value(name, value.name):
@@ -98,6 +100,9 @@ class BaseStructDecodersHeaderGenerator():
             if value.name == 'pNext' and value.base_type == 'void':
                 # We have a special type to store the pNext chain
                 body += '    PNextNode* pNext{ nullptr };\n'
+            elif value.name == 'next' and value.base_type == 'void':
+                # We have a special type to store the next chain
+                body += '    OpenXrNextNode* next{ nullptr };\n'
             elif self.needs_member_declaration(name, value):
                 type_name = self.make_decoded_param_type(value)
                 if self.is_struct(value.base_type):

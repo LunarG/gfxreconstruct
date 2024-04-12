@@ -30,11 +30,17 @@
 #ifdef ENABLE_OPENXR_SUPPORT
 
 #include "generated/generated_openxr_struct_encoders.h"
+#include "generated/generated_vulkan_api_call_encoders.h"
 
+#include "encode/custom_dx12_struct_encoders.h"
+#include "encode/custom_openxr_struct_encoders.h"
+#include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "encode/openxr_handle_wrappers.h"
 #include "encode/struct_pointer_encoder.h"
 #include "util/defines.h"
+
+#include "format/platform_types.h"
 
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
@@ -42,6 +48,14 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+#ifndef D3D12_SUPPORT
+void EncodeStruct(ParameterEncoder* encoder, const LUID& value)
+{
+    encoder->EncodeUInt32Value(value.LowPart);
+    encoder->EncodeInt32Value(value.HighPart);
+}
+#endif /* D3D12_SUPPORT */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerProperties& value)
 {
@@ -723,7 +737,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingOpenGLXlibKH
     encoder->EncodeVoidPtr(value.xDisplay);
     encoder->EncodeUInt32Value(value.visualid);
     encoder->EncodeVoidPtr(value.glxFBConfig);
-    encoder->EncodeUInt32Value(value.glxDrawable);
+    encoder->EncodeSizeTValue(value.glxDrawable);
     encoder->EncodeVoidPtr(value.glxContext);
 }
 
@@ -815,21 +829,21 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D11KHR& va
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.device);
+    encoder->EncodeVoidPtr(value.device);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageD3D11KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.texture);
+    encoder->EncodeVoidPtr(value.texture);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D11KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeInt64Value(value.adapterLuid);
+    encoder->EncodeLUIDValue(value.adapterLuid);
     encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
 
@@ -837,22 +851,22 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D12KHR& va
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.device);
-    encoder->EncodeVoidPtrPtr(value.queue);
+    encoder->EncodeVoidPtr(value.device);
+    encoder->EncodeVoidPtr(value.queue);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageD3D12KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeVoidPtrPtr(value.texture);
+    encoder->EncodeVoidPtr(value.texture);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D12KHR& value)
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeInt64Value(value.adapterLuid);
+    encoder->EncodeLUIDValue(value.adapterLuid);
     encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
 
@@ -1303,8 +1317,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHolographicWindowAttachment
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeIUnknownPtr(value.holographicSpace);
-    encoder->EncodeIUnknownPtr(value.coreWindow);
+    encoder->EncodeVoidPtr(value.holographicSpace);
+    encoder->EncodeVoidPtr(value.coreWindow);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerReprojectionInfoMSFT& value)

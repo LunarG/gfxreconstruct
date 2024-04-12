@@ -88,22 +88,13 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanDeviceCreateInfoKHR& 
 
 void EncodeStruct(ParameterEncoder* encoder, const timespec& value)
 {
-    if (sizeof(value.tv_sec) == 8)
-    {
-        encoder->EncodeUInt64Value(value.tv_sec);
-    }
-    else
-    {
-        encoder->EncodeUInt32Value(value.tv_sec);
-    }
-    if (sizeof(value.tv_nsec) == 8)
-    {
-        encoder->EncodeInt64Value(value.tv_nsec);
-    }
-    else
-    {
-        encoder->EncodeInt32Value(value.tv_nsec);
-    }
+#if defined(__USE_TIME_BITS64) || __WORDSIZE == 64
+    encoder->EncodeInt64Value(value.tv_sec);
+    encoder->EncodeInt64Value(value.tv_nsec);
+#else
+    encoder->EncodeInt32Value(value.tv_sec);
+    encoder->EncodeUInt32Value(value.tv_nsec);
+#endif
 }
 
 GFXRECON_END_NAMESPACE(encode)

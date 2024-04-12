@@ -21,6 +21,19 @@
 */
 
 #include "decode_api_detection.h"
+#include "decode/file_processor.h"
+#include "decode/vulkan_detection_consumer.h"
+#include "generated/generated_vulkan_decoder.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_detection_consumer.h"
+#include "generated/generated_openxr_decoder.h"
+#endif
+
+#if defined(D3D12_SUPPORT)
+#include "decode/dx12_detection_consumer.h"
+#endif
+
 #ifdef GFXRECON_AGS_SUPPORT
 #include "decode/custom_ags_decoder.h"
 #include "decode/ags_detection_consumer.h"
@@ -29,10 +42,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vulkan_detected)
+bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vulkan_detected, bool& openxr_detected)
 {
     dx12_detected   = false;
     vulkan_detected = false;
+    openxr_detected = false;
 
     gfxrecon::decode::FileProcessor file_processor;
     if (file_processor.Initialize(input_filename))
@@ -55,6 +69,14 @@ bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vu
 #endif // GFXRECON_AGS_SUPPORT
 
 #endif
+
+#ifdef ENABLE_OPENXR_SUPPORT
+        gfxrecon::decode::OpenXrDetectionConsumer openxr_detection_consumer;
+        gfxrecon::decode::OpenXrDecoder           openxr_decoder;
+        openxr_decoder.AddConsumer(&openxr_detection_consumer);
+        file_processor.AddDecoder(&openxr_decoder);
+#endif // ENABLE_OPENXR_SUPPORT
+
         file_processor.ProcessAllFrames();
 #if defined(D3D12_SUPPORT)
         if (dx12_detection_consumer.WasD3D12APIDetected())
@@ -70,12 +92,20 @@ bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vu
 #endif // GFXRECON_AGS_SUPPORT
 
 #endif
+
         if (vulkan_detection_consumer.WasVulkanAPIDetected())
         {
             vulkan_detected = true;
         }
+
+#ifdef ENABLE_OPENXR_SUPPORT
+        if (openxr_detection_consumer.WasOpenXrAPIDetected())
+        {
+            openxr_detected = true;
+        }
+#endif // ENABLE_OPENXR_SUPPORT
     }
-    return dx12_detected || vulkan_detected;
+    return dx12_detected || vulkan_detected || openxr_detected;
 }
 
 GFXRECON_END_NAMESPACE(decode)

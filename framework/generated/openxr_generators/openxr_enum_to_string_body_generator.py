@@ -121,14 +121,17 @@ class OpenXrEnumToStringBodyGenerator(BaseGenerator):
                 continue
             if not enum in self.processedEnums and not enum in self.enumAliases:
                 self.processedEnums.add(enum)
+                body = ''
                 if self.is_flags_enum_64bit(enum):
                     # print(enum)
                     # body = 'std::string {0}ToString(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
                     # Since every caller needs to know exactly what it is calling, we may as well
                     # dispense with the parameters that are always ignored:
-                    body = 'std::string {0}ToString(const {0} value)\n'
-                else:
+                    body = 'std::string {0}ToString(const uint64_t& value)\n'
+                elif 'Bits' not in enum:
                     body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
+                else:
+                    continue
                 body += '{{\n'
                 enumerants = self.enumEnumerants[enum]
                 if len(enumerants):
@@ -155,14 +158,14 @@ class OpenXrEnumToStringBodyGenerator(BaseGenerator):
                         body += '            {{\n'
                         body += '                str += \'|\';\n'
                         body += '            }}\n'
-                        body += '            str.append({0}ToString(static_cast<{0}>(1U) << index));\n'
+                        body += '            str.append({0}ToString(static_cast<uint64_t>(1U << index)));\n'
                         body += '        }}\n'
                         body += '        ++index;\n'
                         body += '        xrFlags >>= 1U;\n'
                         body += '    }}\n'
                         body += '    if (str.empty())\n'
                         body += '    {{\n'
-                        body += '        str.append({0}ToString(0U));\n'
+                        body += '        str.append({0}ToString(static_cast<uint64_t>(0U)));\n'
                         body += '    }}\n'
                         body += '    return str;\n'
                         body += '}}\n'

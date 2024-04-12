@@ -41,10 +41,10 @@
 #include "util/output_stream.h"
 #include "util/platform.h"
 
-#include "vulkan/vulkan.h"
 #if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
 #endif
+#include "vulkan/vulkan.h"
 
 #include <cstring>
 #include <cwchar>
@@ -79,6 +79,8 @@ class ParameterEncoder
 #if ENABLE_OPENXR_SUPPORT
     void EncodeD3D_FEATURE_LEVELValue(D3D_FEATURE_LEVEL value)                                                        { EncodeValue(value); }
 #endif // ENABLE_OPENXR_SUPPORT
+    void EncodeLARGE_INTEGERValue(LARGE_INTEGER& value)                                                               { EncodeValue(value.QuadPart); }
+    void EncodeLUIDValue(LUID value)                                                                                  { EncodeValue(*reinterpret_cast<int64_t*>(&value)); }
 
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
     void EncodeAddress(const void* value)                                                                             { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
@@ -119,14 +121,12 @@ class ParameterEncoder
     void EncodeFloatPtr(const float* ptr, bool omit_data = false, bool omit_addr = false)                             { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeSizeTPtr(const size_t* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::SizeTEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeHandleIdPtr(const format::HandleId* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::HandleEncodeType>(ptr, omit_data, omit_addr); }
+    void EncodeLARGE_INTEGERPtr(const LARGE_INTEGER* ptr, bool omit_data = false, bool omit_addr = false)             { EncodePointer<int64_t>(&(ptr->QuadPart), omit_data, omit_addr); }
+    void EncodeLUIDPtr(const LUID* ptr, bool omit_data = false, bool omit_addr = false)                               { EncodePointer(reinterpret_cast<const int64_t*>(ptr), omit_data, omit_addr); }
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     template<typename T>
     void EncodeVoidPtrPtr(const T* const* ptr, bool omit_data = false, bool omit_addr = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
-#if ENABLE_OPENXR_SUPPORT
-    void EncodeIUnknownPtr(IUnknown* ptr, bool omit_data = false, bool omit_addr = false)                             { EncodePointer(ptr, omit_data, omit_addr); }
-    void EncodeIUnknownPtrPtr(IUnknown** ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
-#endif // ENABLE_OPENXR_SUPPORT
 
     template<typename Wrapper>
     void EncodeVulkanHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedVulkanHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }

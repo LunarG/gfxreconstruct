@@ -23,6 +23,8 @@
 #ifndef GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 #define GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H
 
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+
 #include "decode/custom_dx12_struct_decoders_forward.h"
 #include "decode/pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
@@ -30,7 +32,9 @@
 #include "generated/generated_dx12_struct_decoders.h"
 #include "util/defines.h"
 
+#ifdef WIN32
 #include <d3d12.h>
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -298,5 +302,7 @@ struct Decoded_D3D12_SAMPLER_DESC2
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 
 #endif // GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_H

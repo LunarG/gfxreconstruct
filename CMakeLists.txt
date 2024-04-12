@@ -300,6 +300,7 @@ target_compile_definitions(windows_specific INTERFACE
     NOMINMAX
     VK_USE_PLATFORM_WIN32_KHR
     XR_USE_PLATFORM_WIN32
+    XR_USE_GRAPHICS_API_VULKAN
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>
     $<$<BOOL:${BUILD_LAUNCHER_AND_INTERCEPTOR}>:"GFXR_INTERCEPTOR_PATH=\"$<TARGET_FILE:gfxrecon_interceptor>\"">
     $<$<BOOL:${D3D12_SUPPORT}>:"GFXR_D3D12_CAPTURE_PATH=\"$<TARGET_FILE:d3d12_capture>\"">
@@ -309,6 +310,7 @@ target_compile_definitions(windows_specific INTERFACE
 
 add_library(linux_specific INTERFACE)
 target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION
+    XR_USE_GRAPHICS_API_VULKAN
     $<$<BOOL:${X11_FOUND}>:VK_USE_PLATFORM_XLIB_KHR XR_USE_PLATFORM_XLIB>
     $<$<BOOL:${X11_Xrandr_FOUND}>:VK_USE_PLATFORM_XLIB_XRANDR_EXT>
     $<$<BOOL:${XCB_FOUND}>:VK_USE_PLATFORM_XCB_KHR XR_USE_PLATFORM_XCB>
@@ -318,6 +320,7 @@ target_compile_definitions(linux_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GU
 
 add_library(macos_specific INTERFACE)
 target_compile_definitions(macos_specific INTERFACE
+    XR_USE_GRAPHICS_API_VULKAN
     VK_USE_PLATFORM_METAL_EXT
     $<$<BOOL:${HEADLESS}>:VK_USE_PLATFORM_HEADLESS>)
 
