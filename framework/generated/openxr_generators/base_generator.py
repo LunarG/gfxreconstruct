@@ -256,6 +256,10 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.code_generator = True
         self.extraOpenXrHeaders = extraOpenXrHeaders
 
+        # Not used for Vulkan
+        self.base_header_structs = dict(
+        )  # Map of base header struct names to lists of child struct names
+
 
 class BaseGenerator(OutputGenerator):
     """BaseGenerator - subclass of OutputGenerator.
@@ -424,68 +428,12 @@ class BaseGenerator(OutputGenerator):
     def forceCommonXrDefines(self, gen_opts):
         """Write OpenXR defines to enable all entrypoint/struct visibility
         """
-        write(
-            '// Define the platform defines so that we can have entrypoints for each',
-            file=self.outFile
-        )
-        write(
-            '// possible entrypoint in our dispatch table.', file=self.outFile
-        )
-        write('#ifndef XR_USE_PLATFORM_WIN32', file=self.outFile)
-        write('#define XR_USE_PLATFORM_WIN32', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_WAYLAND', file=self.outFile)
-        write('#define XR_USE_PLATFORM_WAYLAND', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_XCB', file=self.outFile)
-        write('#define XR_USE_PLATFORM_XCB', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_XLIB', file=self.outFile)
-        write('#define XR_USE_PLATFORM_XLIB', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_ANDROID', file=self.outFile)
-        write('#define XR_USE_PLATFORM_ANDROID', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_ML', file=self.outFile)
-        write('#define XR_USE_PLATFORM_ML', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_EGL', file=self.outFile)
-        write('#define XR_USE_PLATFORM_EGL', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_TIMESPEC', file=self.outFile)
-        write('#define XR_USE_TIMESPEC', file=self.outFile)
-        write('#endif', file=self.outFile)
 
     def includeOpenXrHeaders(self, gen_opts):
         """Write OpenXR header include statements
         """
+        write('#include "format/platform_types.h"', file=self.outFile)
+        self.newline()
         write('#include "openxr/openxr.h"', file=self.outFile)
         write(
             '#include "openxr/openxr_loader_negotiation.h"', file=self.outFile
@@ -571,7 +519,7 @@ class BaseGenerator(OutputGenerator):
             else:
                 # Otherwise, look for base type inside type declaration
                 self.flags_types[name] = type_elem.find('type').text
-        elif (category == "basetype"):
+        elif (category == "basetype") and type_elem.find('type') is not None:
             self.base_types[name] = type_elem.find('type').text
 
     def genStruct(self, typeinfo, typename, alias):
@@ -750,6 +698,23 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
+    def is_atom(self, base_type):
+        if base_type in self.atom_names:
+            return True
+        return False
+
+    def get_default_handle_atom_value(self, base_type):
+        return '0'
+
+    def has_basetype(self, base_type):
+        if base_type in self.base_types and self.base_types[base_type
+                                                            ] is not None:
+            return True
+        return False
+
+    def get_basetype(self, base_type):
+        return self.base_types[base_type]
+
     def is_dispatchable_handle(self, base_type):
         """Check for dispatchable handle type."""
         if base_type in self.DISPATCHABLE_HANDLE_TYPES:
@@ -892,6 +857,12 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
+    def is_dx12_class(self):
+        return True if ('Dx12' in self.__class__.__name__) else False
+
+    def is_openxr_class(self):
+        return True if ('OpenXr' in self.__class__.__name__) else False
+
     def get_filtered_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
         return [
@@ -905,6 +876,12 @@ class BaseGenerator(OutputGenerator):
             key for key in self.feature_cmd_params
             if not self.is_cmd_black_listed(key)
         ]
+
+    def is_manually_generated_cmd_name(self, command):
+        """Determines if a command is in the list of manually generated command names."""
+        if self.MANUALLY_GENERATED_COMMANDS is not None and command in self.MANUALLY_GENERATED_COMMANDS:
+            return True
+        return False
 
     def clean_type_define(self, full_type):
         """Default to identity function, base classes may override."""
@@ -1221,7 +1198,7 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
                     type_name = 'uint64_t'
-            elif self.is_handle(type_name):
+            elif self.is_handle(type_name) or self.is_atom(type_name):
                 type_name = 'HandlePointerDecoder<{}>'.format(type_name)
             else:
                 if count > 1:
@@ -1338,6 +1315,14 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
+    def get_api_prefix(self):
+        platform_type = 'Vulkan'
+        if self.is_dx12_class():
+            platform_type = 'Dx12'
+        elif self.is_openxr_class():
+            platform_type = 'OpenXr'
+        return platform_type
+
     def get_prefix_from_type(self, handle_name):
         if handle_name.startswith('Vk'):
             return 'Vulkan'
@@ -1392,8 +1377,8 @@ class BaseGenerator(OutputGenerator):
         is_funcp = False
 
         type_name = self.make_invocation_type_name(value.base_type)
-        is_handle = 'Handle' in type_name
-        is_atom = type_name in self.atom_names
+        is_handle = self.is_handle(value.base_type)
+        is_atom = self.is_atom(value.base_type)
 
         if self.is_struct(type_name):
             args = ['encoder'] + args
@@ -1410,9 +1395,8 @@ class BaseGenerator(OutputGenerator):
                 method_call += 'Flags'
             elif is_atom:
                 method_call += 'OpenXrAtom'
-            elif type_name in self.base_types and self.base_types[
-                type_name] is not None:
-                method_call += self.encode_types[self.base_types[type_name]]
+            elif self.has_basetype(type_name):
+                method_call += self.encode_types[self.get_basetype(type_name)]
             else:
                 method_call += type_name
 

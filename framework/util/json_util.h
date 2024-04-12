@@ -189,12 +189,16 @@ void FieldToJson(nlohmann::ordered_json&  jdata,
                  const uint64_t           data[4],
                  const util::JsonOptions& options = util::JsonOptions());
 
+void FieldToJson(nlohmann::ordered_json& jdata, const LARGE_INTEGER& value, const JsonOptions& options = JsonOptions());
+
+void FieldToJson(nlohmann::ordered_json& jdata, const LUID& value, const JsonOptions& options = JsonOptions());
+
 void HandleToJson(nlohmann::ordered_json&  jdata,
                   const format::HandleId*  data,
                   size_t                   num_elements,
                   const util::JsonOptions& options = util::JsonOptions());
 
-#if defined(D3D12_SUPPORT)
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 /// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
 /// sequence as the identifier of the C macro defining it in a header like
 /// winerror.h.

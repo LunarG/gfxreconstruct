@@ -24,6 +24,7 @@
 import sys, inspect
 from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
+from reformat_code import format_cpp_code
 
 class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
     """TODO : Generates C++ functions responsible for Convert to texts."""
@@ -53,6 +54,8 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
     def beginFile(self, gen_opts):
         """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
+        write('#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
+        self.newline()
 
         self.write_include()
 
@@ -79,9 +82,11 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
 
     def write_include(self):
         code = ''
+        code += '#ifdef WIN32\n'
         header_dict = self.source_dict['header_dict']
         for k, v in header_dict.items():
             code += '#include <{}>\n'.format(k)
+        code += '#endif // WIN32\n\n'
 
         code += '#include "format/platform_types.h"\n'
         code += '#include "util/defines.h"\n'
@@ -93,8 +98,13 @@ class Dx12EnumToStringHeaderGenerator(Dx12BaseGenerator):
     def endFile(self):
         """Method override."""
         self.newline()
-        write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        code = format_cpp_code('''
+            GFXRECON_END_NAMESPACE(util)
+            GFXRECON_END_NAMESPACE(gfxrecon)
+
+            #endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+        ''')
+        write(code, file=self.outFile)
 
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)

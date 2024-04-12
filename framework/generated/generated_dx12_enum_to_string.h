@@ -28,6 +28,9 @@
 #ifndef  GFXRECON_GENERATED_DX12_ENUM_TO_STRING_H
 #define  GFXRECON_GENERATED_DX12_ENUM_TO_STRING_H
 
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+
+#ifdef WIN32
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -44,6 +47,8 @@
 #include <guiddef.h>
 #include <windef.h>
 #include <minwinbase.h>
+#endif // WIN32
+
 #include "format/platform_types.h"
 #include "util/defines.h"
 #include "util/to_string.h"
@@ -334,5 +339,7 @@ inline std::string ToString(const GUID& obj, ToStringFlags toStringFlags, uint32
 
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 
 #endif

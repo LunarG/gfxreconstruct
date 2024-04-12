@@ -23,8 +23,14 @@
 #ifndef GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_FORWARD_H
 #define GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_FORWARD_H
 
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+
 #include "generated/generated_dx12_struct_decoders_forward.h"
 #include "util/defines.h"
+
+#ifndef WIN32
+#include <cstddef>
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -94,5 +100,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SAM
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 
 #endif // GFXRECON_DECODE_CUSTOM_DX12_STRUCT_DECODERS_FORWARD_H

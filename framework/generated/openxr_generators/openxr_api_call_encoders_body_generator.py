@@ -24,6 +24,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo, json, write
+from reformat_code import format_cpp_code
 
 
 class OpenXrApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -92,32 +93,29 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             self.__load_capture_overrides(gen_opts.capture_overrides)
 
         write(
-            '#include "generated/generated_openxr_api_call_encoders.h"',
+            format_cpp_code(
+                '''
+            #include "encode/custom_openxr_encoder_commands.h"
+            #include "encode/custom_openxr_struct_handle_wrappers.h"
+            #include "encode/openxr_capture_manager.h"
+            #include "encode/openxr_handle_wrappers.h"
+            #include "encode/openxr_handle_wrapper_util.h"
+            #include "encode/parameter_encoder.h"
+            #include "encode/struct_pointer_encoder.h"
+
+            #include "format/api_call_id.h"
+
+            #include "generated/generated_openxr_api_call_encoders.h"
+            #include "generated/generated_openxr_struct_handle_wrappers.h"
+            #include "generated/generated_vulkan_struct_handle_wrappers.h"
+
+            #include "util/defines.h"
+
+        '''
+            ),
             file=self.outFile
         )
-        self.newline()
-        write(
-            '#include "encode/custom_openxr_encoder_commands.h"',
-            file=self.outFile
-        )
-        write(
-            '#include "encode/custom_openxr_struct_handle_wrappers.h"',
-            file=self.outFile
-        )
-        write('#include "encode/parameter_encoder.h"', file=self.outFile)
-        write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/openxr_capture_manager.h"', file=self.outFile)
-        write(
-            '#include "encode/openxr_handle_wrapper_util.h"',
-            file=self.outFile
-        )
-        write('#include "encode/openxr_handle_wrappers.h"', file=self.outFile)
-        write('#include "format/api_call_id.h"', file=self.outFile)
-        write(
-            '#include "generated/generated_openxr_struct_handle_wrappers.h"',
-            file=self.outFile
-        )
-        write('#include "util/defines.h"', file=self.outFile)
+
         self.newline()
         self.includeOpenXrHeaders(gen_opts)
         self.newline()
@@ -210,13 +208,13 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         arg_list = self.make_arg_list(values)
 
         capture_manager = 'manager'
-        if name == "xrCreateInstance":
+        if name == "xrCreateApiLayerInstance":
             capture_manager = 'OpenXrCaptureManager::Get()'
         body = ''
-        if name != "xrCreateInstance":
+        if name != "xrCreateApiLayerInstance":
             body += indent + 'OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();\n'
             body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
-        if name == "xrCreateInstance":
+        if name == "xrCreateApiLayerInstance":
             body += indent + 'auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();\n'
         else:
             body += indent + 'auto force_command_serialization = manager->GetForceCommandSerialization();\n'
@@ -375,7 +373,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_begin_api_call(self, name, values):
         capture_manager = 'manager'
-        if name == 'xrCreateInstance':
+        if name == 'xrCreateApiLayerInstance':
             capture_manager = 'OpenXrCaptureManager::Get()'
 
         if name.startswith('xrCreate') or name.startswith('xrDestroy'):
@@ -412,7 +410,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_end_api_call(self, name, values, return_type):
         decl = 'manager->'
-        if name == 'xrCreateInstance':
+        if name == 'xrCreateApiLayerInstance':
             decl = 'OpenXrCaptureManager::Get()->'
 
         if name.startswith('xrCreate'):

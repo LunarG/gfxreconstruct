@@ -1617,6 +1617,9 @@ class BaseGenerator(OutputGenerator):
     def is_resource_dump_class(self):
         return True if ('ReplayDumpResources' in self.__class__.__name__) else False
 
+    def is_openxr_class(self):
+        return True if ('OpenXr' in self.__class__.__name__) else False
+
     def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.
         From Vulkan-ValidationLayers common_codegen.py.

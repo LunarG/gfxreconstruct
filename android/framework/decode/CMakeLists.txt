@@ -10,6 +10,9 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_object_info_table.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/copy_shaders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders_forward.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders_forward.h
@@ -48,6 +51,11 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/value_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/metadata_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/marker_consumer_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_consumer_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_decoder_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_decoder_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_next_node.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_next_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
@@ -104,6 +112,13 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_offscreen_swapchain.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_offscreen_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_consumer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_decoder.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders_forward.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_next_decoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.cpp

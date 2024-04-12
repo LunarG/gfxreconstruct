@@ -21,7 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
+from base_generator import BaseGenerator, write
 from dx12_base_generator import Dx12BaseGenerator
 from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
 from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
@@ -48,6 +48,17 @@ class Dx12StructDecodersBodyGenerator(
         )
         self.check_blacklist = True
 
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
+        write('#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
+        self.newline()
+
+        self.write_include()
+        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        self.newline()
+
     def write_include(self):
         """Method override."""
         code = (
@@ -62,3 +73,14 @@ class Dx12StructDecodersBodyGenerator(
     def generate_feature(self):
         Dx12BaseGenerator.generate_feature(self)
         BaseStructDecodersBodyGenerator.generate_feature(self)
+
+    def endFile(self):
+        """Method override."""
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+        self.newline()
+        write('#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)

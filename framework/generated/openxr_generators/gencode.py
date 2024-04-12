@@ -55,6 +55,10 @@ from openxr_layer_func_table_generator import OpenXrLayerFuncTableGenerator, Ope
 from openxr_api_call_encoders_body_generator import OpenXrApiCallEncodersBodyGenerator, OpenXrApiCallEncodersBodyGeneratorOptions
 from openxr_api_call_encoders_header_generator import OpenXrApiCallEncodersHeaderGenerator, OpenXrApiCallEncodersHeaderGeneratorOptions
 
+# API Call Decoders
+from openxr_decoder_body_generator import OpenXrDecoderBodyGenerator, OpenXrDecoderBodyGeneratorOptions
+from openxr_decoder_header_generator import OpenXrDecoderHeaderGenerator, OpenXrDecoderHeaderGeneratorOptions
+
 # Struct Encoders
 from openxr_struct_encoders_body_generator import OpenXrStructEncodersBodyGenerator, OpenXrStructEncodersBodyGeneratorOptions
 from openxr_struct_encoders_header_generator import OpenXrStructEncodersHeaderGenerator, OpenXrStructEncodersHeaderGeneratorOptions
@@ -68,6 +72,26 @@ from openxr_struct_trackers_body_generator import OpenXrStructTrackersBodyGenera
 from openxr_enum_to_string_body_generator import OpenXrEnumToStringBodyGenerator, OpenXrEnumToStringBodyGeneratorOptions
 from openxr_enum_to_string_header_generator import OpenXrEnumToStringHeaderGenerator, OpenXrEnumToStringHeaderGeneratorOptions
 from openxr_state_table_header_generator import OpenXrStateTableHeaderGenerator, OpenXrStateTableHeaderGeneratorOptions
+
+# To Json
+from openxr_enum_to_json_body_generator import OpenXrEnumToJsonBodyGenerator, OpenXrEnumToJsonBodyGeneratorOptions
+from openxr_enum_to_json_header_generator import OpenXrEnumToJsonHeaderGenerator, OpenXrEnumToJsonHeaderGeneratorOptions
+from openxr_struct_to_json_header_generator import OpenXrStructToJsonHeaderGenerator, OpenXrStructToJsonHeaderGeneratorOptions
+from openxr_struct_to_json_body_generator import OpenXrStructToJsonBodyGenerator, OpenXrStructToJsonBodyGeneratorOptions
+
+# Struct Decoders
+from openxr_struct_decoders_forward_generator import OpenXrStructDecodersForwardGenerator, OpenXrStructDecodersForwardGeneratorOptions
+from openxr_struct_decoders_header_generator import OpenXrStructDecodersHeaderGenerator, OpenXrStructDecodersHeaderGeneratorOptions
+from openxr_struct_decoders_body_generator import OpenXrStructDecodersBodyGenerator, OpenXrStructDecodersBodyGeneratorOptions
+from openxr_struct_next_decoders_generator import OpenXrStructNextDecodersGenerator, OpenXrStructNextDecodersGeneratorOptions
+
+# Constants
+from openxr_type_util_generator import OpenXrTypeUtilGenerator, OpenXrTypeUtilGeneratorOptions
+
+# Consumers
+from openxr_consumer_header_generator import OpenXrConsumerHeaderGenerator, OpenXrConsumerHeaderGeneratorOptions
+from openxr_json_consumer_header_generator import OpenXrExportJsonConsumerHeaderGenerator, OpenXrExportJsonConsumerHeaderGeneratorOptions
+from openxr_json_consumer_body_generator import OpenXrExportJsonConsumerBodyGenerator, OpenXrExportJsonConsumerBodyGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -253,6 +277,36 @@ def make_gen_opts(args):
     ]
 
     #
+    # API call decoder generators
+    gen_opts['generated_openxr_decoder.h'] = [
+        OpenXrDecoderHeaderGenerator,
+        OpenXrDecoderHeaderGeneratorOptions(
+            filename='generated_openxr_decoder.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_decoder.cpp'] = [
+        OpenXrDecoderBodyGenerator,
+        OpenXrDecoderBodyGeneratorOptions(
+            filename='generated_openxr_decoder.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
     # Struct encoder/wrapper/tracker generators
     gen_opts['generated_openxr_struct_encoders.h'] = [
         OpenXrStructEncodersHeaderGenerator,
@@ -386,6 +440,185 @@ def make_gen_opts(args):
             prefixText=prefix_strings + xr_prefix_strings,
             protectFile=True,
             protectFeature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # Struct decoder generators
+    gen_opts['generated_openxr_struct_decoders.h'] = [
+        OpenXrStructDecodersHeaderGenerator,
+        OpenXrStructDecodersHeaderGeneratorOptions(
+            filename='generated_openxr_struct_decoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+    gen_opts['generated_openxr_struct_decoders.cpp'] = [
+        OpenXrStructDecodersBodyGenerator,
+        OpenXrStructDecodersBodyGeneratorOptions(
+            filename='generated_openxr_struct_decoders.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_decoders_forward.h'] = [
+        OpenXrStructDecodersForwardGenerator,
+        OpenXrStructDecodersForwardGeneratorOptions(
+            filename='generated_openxr_struct_decoders_forward.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_next_decoder.cpp'] = [
+        OpenXrStructNextDecodersGenerator,
+        OpenXrStructNextDecodersGeneratorOptions(
+            filename='generated_openxr_struct_next_decoder.cpp',
+            directory=directory,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    # To Json
+    gen_opts['generated_openxr_struct_to_json.h'] = [
+        OpenXrStructToJsonHeaderGenerator,
+        OpenXrStructToJsonHeaderGeneratorOptions(
+            filename='generated_openxr_struct_to_json.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_to_json.cpp'] = [
+        OpenXrStructToJsonBodyGenerator,
+        OpenXrStructToJsonBodyGeneratorOptions(
+            filename='generated_openxr_struct_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_enum_to_json.h'] = [
+        OpenXrEnumToJsonHeaderGenerator,
+        OpenXrEnumToJsonHeaderGeneratorOptions(
+            filename='generated_openxr_enum_to_json.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefixText=prefix_strings + xr_prefix_strings,
+            protectFile=True,
+            protectFeature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_enum_to_json.cpp'] = [
+        OpenXrEnumToJsonBodyGenerator,
+        OpenXrEnumToJsonBodyGeneratorOptions(
+            filename='generated_openxr_enum_to_json.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefixText=prefix_strings + xr_prefix_strings,
+            protectFile=False,
+            protectFeature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # Constant generators
+
+    gen_opts['generated_openxr_type_util.h'] = [
+        OpenXrTypeUtilGenerator,
+        OpenXrTypeUtilGeneratorOptions(
+            filename='generated_openxr_type_util.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # Consumer generation
+    gen_opts['generated_openxr_consumer.h'] = [
+        OpenXrConsumerHeaderGenerator,
+        OpenXrConsumerHeaderGeneratorOptions(
+            class_name='OpenXrConsumer',
+            base_class_header='openxr_consumer_base.h',
+            is_override=False,
+            filename='generated_openxr_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_json_consumer.h'] = [
+        OpenXrExportJsonConsumerHeaderGenerator,
+        OpenXrExportJsonConsumerHeaderGeneratorOptions(
+            class_name='OpenXrExportJsonConsumer',
+            base_class_header='openxr_json_consumer_base.h',
+            is_override=True,
+            filename='generated_openxr_json_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_json_consumer.cpp'] = [
+        OpenXrExportJsonConsumerBodyGenerator,
+        OpenXrExportJsonConsumerBodyGeneratorOptions(
+            filename='generated_openxr_json_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]
