@@ -46,7 +46,7 @@ template <> std::string ToString<XrActionType>(const XrActionType& value, ToStri
     return "Unhandled XrActionType";
 }
 
-std::string XrCompositionLayerFlagBitsToString(const XrCompositionLayerFlagBits value)
+std::string XrCompositionLayerFlagBitsToString(const uint64_t& value)
 {
     switch (value) {
     case XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT: return "XR_COMPOSITION_LAYER_CORRECT_CHROMATIC_ABERRATION_BIT";
@@ -113,7 +113,7 @@ template <> std::string ToString<XrFormFactor>(const XrFormFactor& value, ToStri
     return "Unhandled XrFormFactor";
 }
 
-std::string XrInputSourceLocalizedNameFlagBitsToString(const XrInputSourceLocalizedNameFlagBits value)
+std::string XrInputSourceLocalizedNameFlagBitsToString(const uint64_t& value)
 {
     switch (value) {
     case XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT: return "XR_INPUT_SOURCE_LOCALIZED_NAME_USER_PATH_BIT";
@@ -148,7 +148,7 @@ std::string XrInputSourceLocalizedNameFlagsToString(XrFlags64 xrFlags)
     return str;
 }
 
-std::string XrInstanceCreateFlagBitsToString(const XrInstanceCreateFlagBits value)
+std::string XrInstanceCreateFlagBitsToString(const uint64_t& value)
 {
     return "Unhandled XrInstanceCreateFlagBits";
 }
@@ -347,7 +347,7 @@ template <> std::string ToString<XrResult>(const XrResult& value, ToStringFlags,
     return "Unhandled XrResult";
 }
 
-std::string XrSessionCreateFlagBitsToString(const XrSessionCreateFlagBits value)
+std::string XrSessionCreateFlagBitsToString(const uint64_t& value)
 {
     return "Unhandled XrSessionCreateFlagBits";
 }
@@ -393,7 +393,7 @@ template <> std::string ToString<XrSessionState>(const XrSessionState& value, To
     return "Unhandled XrSessionState";
 }
 
-std::string XrSpaceLocationFlagBitsToString(const XrSpaceLocationFlagBits value)
+std::string XrSpaceLocationFlagBitsToString(const uint64_t& value)
 {
     switch (value) {
     case XR_SPACE_LOCATION_ORIENTATION_VALID_BIT: return "XR_SPACE_LOCATION_ORIENTATION_VALID_BIT";
@@ -429,7 +429,7 @@ std::string XrSpaceLocationFlagsToString(XrFlags64 xrFlags)
     return str;
 }
 
-std::string XrSpaceVelocityFlagBitsToString(const XrSpaceVelocityFlagBits value)
+std::string XrSpaceVelocityFlagBitsToString(const uint64_t& value)
 {
     switch (value) {
     case XR_SPACE_VELOCITY_LINEAR_VALID_BIT: return "XR_SPACE_VELOCITY_LINEAR_VALID_BIT";
@@ -809,7 +809,7 @@ template <> std::string ToString<XrStructureType>(const XrStructureType& value, 
     return "Unhandled XrStructureType";
 }
 
-std::string XrSwapchainCreateFlagBitsToString(const XrSwapchainCreateFlagBits value)
+std::string XrSwapchainCreateFlagBitsToString(const uint64_t& value)
 {
     switch (value) {
     case XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT: return "XR_SWAPCHAIN_CREATE_PROTECTED_CONTENT_BIT";
@@ -843,7 +843,7 @@ std::string XrSwapchainCreateFlagsToString(XrFlags64 xrFlags)
     return str;
 }
 
-std::string XrSwapchainUsageFlagBitsToString(const XrSwapchainUsageFlagBits value)
+std::string XrSwapchainUsageFlagBitsToString(const uint64_t& value)
 {
     switch (value) {
     case XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT: return "XR_SWAPCHAIN_USAGE_COLOR_ATTACHMENT_BIT";
@@ -895,7 +895,7 @@ template <> std::string ToString<XrViewConfigurationType>(const XrViewConfigurat
     return "Unhandled XrViewConfigurationType";
 }
 
-std::string XrViewStateFlagBitsToString(const XrViewStateFlagBits value)
+std::string XrViewStateFlagBitsToString(const uint64_t& value)
 {
     switch (value) {
     case XR_VIEW_STATE_ORIENTATION_VALID_BIT: return "XR_VIEW_STATE_ORIENTATION_VALID_BIT";

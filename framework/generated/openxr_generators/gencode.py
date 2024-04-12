@@ -73,6 +73,9 @@ from openxr_state_table_header_generator import OpenXrStateTableHeaderGenerator,
 from openxr_struct_decoders_forward_generator import OpenXrStructDecodersForwardGenerator, OpenXrStructDecodersForwardGeneratorOptions
 from openxr_struct_decoders_header_generator import OpenXrStructDecodersHeaderGenerator, OpenXrStructDecodersHeaderGeneratorOptions
 from openxr_struct_decoders_body_generator import OpenXrStructDecodersBodyGenerator, OpenXrStructDecodersBodyGeneratorOptions
+from openxr_struct_next_decoders_generator import OpenXrStructNextDecodersGenerator, OpenXrStructNextDecodersGeneratorOptions
+
+# Constants
 from openxr_type_util_generator import OpenXrTypeUtilGenerator, OpenXrTypeUtilGeneratorOptions
 
 # Simple timer functions
@@ -438,6 +441,21 @@ def make_gen_opts(args):
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]
+
+    gen_opts['generated_openxr_struct_next_decoder.cpp'] = [
+        OpenXrStructNextDecodersGenerator,
+        OpenXrStructNextDecodersGeneratorOptions(
+            filename='generated_openxr_struct_next_decoder.cpp',
+            directory=directory,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # Constant generators
 
     gen_opts['generated_openxr_type_util.h'] = [
         OpenXrTypeUtilGenerator,
