@@ -78,6 +78,11 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
 
 DrawCallsDumpingContext::~DrawCallsDumpingContext()
 {
+    Release();
+}
+
+void DrawCallsDumpingContext::Release()
+{
     if (original_command_buffer_info)
     {
         const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
@@ -111,6 +116,8 @@ DrawCallsDumpingContext::~DrawCallsDumpingContext()
 
         DestroyMutableResourceBackups();
         ReleaseIndirectDrawParams();
+
+        original_command_buffer_info = nullptr;
     }
 }
 

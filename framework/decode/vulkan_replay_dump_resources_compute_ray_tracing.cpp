@@ -65,6 +65,11 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
 {
+    Release();
+}
+
+void DispatchTraceRaysDumpingContext::Release()
+{
     if (original_command_buffer_info)
     {
         if (DR_command_buffer != VK_NULL_HANDLE)
@@ -86,6 +91,8 @@ DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
                 DR_command_buffer = VK_NULL_HANDLE;
             }
         }
+
+        original_command_buffer_info = nullptr;
     }
 }
 

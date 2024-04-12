@@ -125,6 +125,22 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     }
 }
 
+VulkanReplayDumpResourcesBase::~VulkanReplayDumpResourcesBase()
+{
+    Release();
+}
+
+void VulkanReplayDumpResourcesBase::Release()
+{
+    if (!output_json_per_command)
+    {
+        dump_json_.VulkanReplayDumpResourcesJsonClose();
+    }
+
+    draw_call_contexts.clear();
+    dispatch_ray_contexts.clear();
+}
+
 DrawCallsDumpingContext*
 VulkanReplayDumpResourcesBase::FindDrawCallCommandBufferContext(VkCommandBuffer original_command_buffer)
 {
@@ -1819,19 +1835,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         assert(index == QueueSubmit_indices_[0]);
         QueueSubmit_indices_.erase(QueueSubmit_indices_.begin());
 
-        // Once all submissions are complete terminate process
-        if (QueueSubmit_indices_.size() == 0)
+        // Once all submissions are complete
+        if (QueueSubmit_indices_.empty())
         {
-            // The code in VulkanReplayDumpResourcesJsonClose would ideally be in
-            // the VulkanReplayDumpResourcesJson destructor. But the destructor
-            // doesn't get called when exit(0) is called, so we call this method
-            // instead.
-            if (!output_json_per_command)
-            {
-                dump_json_.VulkanReplayDumpResourcesJsonClose();
-            }
-
-            exit(0);
+            Release();
         }
     }
 
