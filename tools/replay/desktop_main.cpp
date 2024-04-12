@@ -266,7 +266,7 @@ int main(int argc, const char** argv)
                     if (file_processor.UsesFrameMarkers() == false &&
                         dx12_replay_consumer.GetDXGITestPresentCount() > 0)
                     {
-                        GFXRECON_LOG_WARNING_ONCE("This capture contains %u test frames.",
+                        GFXRECON_LOG_WARNING("This capture contains %u test present count.",
                                                   dx12_replay_consumer.GetDXGITestPresentCount());
                     }
 #endif
