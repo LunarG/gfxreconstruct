@@ -30,7 +30,10 @@
 #include "decode/file_processor.h"
 #include "format/format.h"
 #include "format/format_util.h"
-#include "generated/generated_vulkan_consumer.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_decoder.h"
+#endif
 #include "generated/generated_vulkan_decoder.h"
 #include "decode/info_decoder.h"
 #include "decode/info_consumer.h"

@@ -1,6 +1,7 @@
 /*
-** Copyright (c) 2018-2020 Valve Corporation
+** Copyright (c) 2018-2023 Valve Corporation
 ** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,48 +22,30 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_OPENXR_NEXT_TYPED_NODE_H
-#define GFXRECON_DECODE_OPENXR_NEXT_TYPED_NODE_H
+#ifndef GFXRECON_DECODE_OPENXR_CONSUMER_BASE_H
+#define GFXRECON_DECODE_OPENXR_CONSUMER_BASE_H
 
-#if ENABLE_OPENXR_SUPPORT
+#ifdef ENABLE_OPENXR_SUPPORT
 
-#include "decode/struct_pointer_decoder.h"
-#include "format/format.h"
+#include "decode/common_consumer_base.h"
+#include "decode/api_decoder.h"
+#include "decode/custom_openxr_struct_decoders.h"
+#include "format/platform_types.h"
 #include "util/defines.h"
 
-#include <cassert>
-#include <memory>
+#include "openxr/openxr.h"
+
+#include <numeric>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-template <typename T>
-class OpenXrNextTypedNode : public OpenXrNextNode
+class OpenXrConsumerBase : public CommonConsumerBase
 {
   public:
-    OpenXrNextTypedNode() {}
+    OpenXrConsumerBase() {}
 
-    virtual ~OpenXrNextTypedNode() override {}
-
-    virtual uint32_t GetAttributeMask() const override { return struct_pointer_.GetAttributeMask(); }
-
-    virtual uint64_t GetAddress() const override { return struct_pointer_.GetAddress(); }
-
-    virtual void* GetPointer() override { return struct_pointer_.GetPointer(); }
-
-    virtual const void* GetPointer() const override { return struct_pointer_.GetPointer(); }
-
-    virtual void* GetMetaStructPointer() override { return struct_pointer_.GetMetaStructPointer(); }
-
-    virtual const void* GetMetaStructPointer() const override { return struct_pointer_.GetMetaStructPointer(); }
-
-    virtual size_t Decode(const uint8_t* buffer, size_t buffer_size) override
-    {
-        return struct_pointer_.Decode(buffer, buffer_size);
-    }
-
-  private:
-    StructPointerDecoder<T> struct_pointer_;
+    virtual ~OpenXrConsumerBase() {}
 };
 
 GFXRECON_END_NAMESPACE(decode)
@@ -70,4 +53,4 @@ GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // ENABLE_OPENXR_SUPPORT
 
-#endif // GFXRECON_DECODE_OPENXR_NEXT_TYPED_NODE_H
+#endif // GFXRECON_DECODE_OPENXR_CONSUMER_BASE_H
