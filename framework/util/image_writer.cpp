@@ -611,7 +611,6 @@ bool WriteBmpImage(const std::string& filename,
             {
                 const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
                 ret = util::platform::FileWrite(&bytes[(height_1 - y) * row_pitch], 1, width * kImageBpp, file);
-
                 CheckFwriteRetVal(ret, width * kImageBpp, file);
             }
         }
@@ -621,6 +620,7 @@ bool WriteBmpImage(const std::string& filename,
             for (uint32_t y = 0; y < height; ++y)
             {
                 ret = util::platform::FileWrite(&bytes[(height_1 - y) * width * kImageBpp], 1, width * kImageBpp, file);
+                CheckFwriteRetVal(ret, width * kImageBpp, file);
             }
         }
 

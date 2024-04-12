@@ -30,6 +30,7 @@
 #include "util/platform.h"
 #include "util/to_string.h"
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -115,7 +116,6 @@ VkResult DispatchTraceRaysDumpingContext::CloneCommandBuffer(CommandBufferInfo* 
     const DeviceInfo* dev_info = object_info_table.GetDeviceInfo(orig_cmd_buf_info->parent_id);
 
     VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &DR_command_buffer);
-
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
@@ -506,9 +506,11 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
                                                           img_info,
                                                           new_img_ptr,
                                                           new_img_memory_ptr);
-
                                 if (res != VK_SUCCESS)
                                 {
+                                    GFXRECON_LOG_ERROR("Cloning image resource %" PRIu64 " failed (%s)",
+                                                       img_info->capture_id,
+                                                       util::ToString<VkResult>(res).c_str())
                                     return res;
                                 }
 
@@ -555,6 +557,9 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
 
                                 if (res != VK_SUCCESS)
                                 {
+                                    GFXRECON_LOG_ERROR("Cloning buffer resource %" PRIu64 " failed (%s)",
+                                                       buf_info->capture_id,
+                                                       util::ToString<VkResult>(res).c_str())
                                     return res;
                                 }
 
@@ -748,7 +753,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
     if (fence == VK_NULL_HANDLE)
     {
         res = device_table->CreateFence(device_info->handle, &ci, nullptr, &submission_fence);
-
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
@@ -761,7 +765,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
     }
 
     res = device_table->QueueSubmit(queue, 1, &si, submission_fence);
-    assert(res == VK_SUCCESS);
     if (res != VK_SUCCESS)
     {
         device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
@@ -772,7 +775,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
 
     // Wait
     res = device_table->WaitForFences(device_info->handle, 1, &submission_fence, VK_TRUE, ~0UL);
-    assert(res == VK_SUCCESS);
     if (res != VK_SUCCESS)
     {
         device_table->DestroyFence(device_info->handle, submission_fence, nullptr);
@@ -786,39 +788,51 @@ VkResult DispatchTraceRaysDumpingContext::DumpDispatchTraceRays(
     }
 
     res = FetchIndirectParams();
-
-    if (res == VK_SUCCESS)
+    if (res != VK_SUCCESS)
     {
-        for (auto disp_index : dispatch_indices)
+        GFXRECON_LOG_ERROR("Fetching params for indirect calls failed (%s).", util::ToString<VkResult>(res).c_str())
+        return res;
+    }
+
+    for (auto disp_index : dispatch_indices)
+    {
+        GFXRECON_LOG_INFO("Dumping mutable resources for dispatch index %" PRIu64, disp_index);
+
+        res = DumpMutableResources(bcb_index, disp_index, qs_index, true);
+        if (res != VK_SUCCESS)
         {
-            res = DumpMutableResources(bcb_index, disp_index, qs_index, true);
-            if (res != VK_SUCCESS)
-            {
-                break;
-            }
+            GFXRECON_LOG_ERROR("Dumping compute mutable resources failed (%s).", util::ToString<VkResult>(res).c_str())
+            return res;
         }
     }
 
-    if (res == VK_SUCCESS)
+    for (auto tr_index : trace_rays_indices)
     {
-        for (auto tr_index : trace_rays_indices)
+        GFXRECON_LOG_INFO("Dumping mutable resources for trace rays index %" PRIu64, tr_index);
+
+        res = DumpMutableResources(bcb_index, tr_index, qs_index, false);
+        if (res != VK_SUCCESS)
         {
-            res = DumpMutableResources(bcb_index, tr_index, qs_index, false);
-            if (res != VK_SUCCESS)
-            {
-                break;
-            }
+            GFXRECON_LOG_ERROR("Dumping ray tracing mutable resources failed. (%s)",
+                               util::ToString<VkResult>(res).c_str())
+            return res;
         }
     }
 
-    if (dump_immutable_resources && res == VK_SUCCESS)
+    if (dump_immutable_resources)
     {
         res = DumpImmutableResources(qs_index, bcb_index);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s).", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
     }
 
     GenerateOutputJson(qs_index, bcb_index);
 
-    return res;
+    assert(res == VK_SUCCESS);
+    return VK_SUCCESS;
 }
 
 std::vector<std::string>
@@ -1021,9 +1035,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                            image_file_format,
                                            false,
                                            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-
             if (res != VK_SUCCESS)
             {
+                GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
                 return res;
             }
         }
@@ -1039,9 +1053,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                                                 0,
                                                                 buffer_info->queue_family_index,
                                                                 data);
-
             if (res != VK_SUCCESS)
             {
+                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
                 return res;
             }
 
@@ -1087,9 +1101,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
                                        image_file_format,
                                        false,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
     }
@@ -1102,9 +1116,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
 
         VkResult res = resource_util.ReadFromBufferResource(
             mutable_resources_clones.buffers[i], buffer_info->size, 0, buffer_info->queue_family_index, data);
-
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -1501,9 +1515,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableResources(uint64_t qs_ind
                                        dump_resources_scale,
                                        image_file_format,
                                        dump_all_image_subresources);
-
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
     }
@@ -1527,9 +1541,9 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableResources(uint64_t qs_ind
         std::vector<uint8_t> data;
         VkResult             res = resource_util.ReadFromBufferResource(
             buffer_info->handle, size, offset, buffer_info->queue_family_index, data);
-
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -1564,9 +1578,9 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(uint64_
                                &disp_params.dispatch_params_union.dispatch_indirect.new_params_buffer,
                                &disp_params.dispatch_params_union.dispatch_indirect.new_params_memory,
                                size);
-
     if (res != VK_SUCCESS)
     {
+        GFXRECON_LOG_ERROR("Cloning buffer resources failed (%s)", util::ToString<VkResult>(res).c_str())
         return res;
     }
 
@@ -1639,9 +1653,9 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
             0,
             VK_QUEUE_FAMILY_IGNORED,
             data);
-
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reading from buffer resources failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
 

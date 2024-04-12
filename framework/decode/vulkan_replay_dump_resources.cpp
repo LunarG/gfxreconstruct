@@ -139,6 +139,10 @@ void VulkanReplayDumpResourcesBase::Release()
 
     draw_call_contexts.clear();
     dispatch_ray_contexts.clear();
+    cmd_buf_begin_map_.clear();
+    QueueSubmit_indices_.clear();
+
+    recording_ = false;
 }
 
 DrawCallsDumpingContext*
@@ -279,34 +283,32 @@ VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t           bc
     if (dc_context != nullptr)
     {
         VkResult res = dc_context->CloneCommandBuffer(original_command_buffer_info, device_table, inst_table);
-        if (res == VK_SUCCESS)
+        if (res != VK_SUCCESS)
         {
-            recording_ = true;
-
-            assert(cmd_buf_begin_map_.find(original_command_buffer_info->handle) == cmd_buf_begin_map_.end());
-            cmd_buf_begin_map_[original_command_buffer_info->handle] = bcb_index;
-        }
-        else
-        {
+            GFXRECON_LOG_ERROR("Cloning command buffer for dumping draw calls failed (%s).",
+                               util::ToString<VkResult>(res).c_str())
             return res;
         }
+
+        assert(cmd_buf_begin_map_.find(original_command_buffer_info->handle) == cmd_buf_begin_map_.end());
+        cmd_buf_begin_map_[original_command_buffer_info->handle] = bcb_index;
+        recording_                                               = true;
     }
 
     DispatchTraceRaysDumpingContext* dr_context = FindDispatchRaysCommandBufferContext(bcb_index);
     if (dr_context != nullptr)
     {
         VkResult res = dr_context->CloneCommandBuffer(original_command_buffer_info, device_table, inst_table);
-        if (res == VK_SUCCESS)
+        if (res != VK_SUCCESS)
         {
-            recording_ = true;
-
-            assert(cmd_buf_begin_map_.find(original_command_buffer_info->handle) == cmd_buf_begin_map_.end());
-            cmd_buf_begin_map_[original_command_buffer_info->handle] = bcb_index;
-        }
-        else
-        {
+            GFXRECON_LOG_ERROR("Cloning command buffer for dumping compute/ray tracing failed (%s).",
+                               util::ToString<VkResult>(res).c_str())
             return res;
         }
+
+        assert(cmd_buf_begin_map_.find(original_command_buffer_info->handle) == cmd_buf_begin_map_.end());
+        cmd_buf_begin_map_[original_command_buffer_info->handle] = bcb_index;
+        recording_                                               = true;
     }
 
     return VK_SUCCESS;
@@ -1710,7 +1712,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 {
     bool     pre_submit = false;
     bool     submitted  = false;
-    VkResult res;
+    VkResult res        = VK_SUCCESS;
 
     // First do a submission with all command buffer except the ones we are interested in
     std::vector<VkSubmitInfo>                 modified_submit_infos = submit_infos;
@@ -1787,14 +1789,13 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
 
                 res = dc_context->DumpDrawCalls(
                     queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
-                if (res == VK_SUCCESS)
+                if (res != VK_SUCCESS)
                 {
-                    submitted = true;
-                }
-                else
-                {
+                    GFXRECON_LOG_ERROR("Dumping draw calls failed (%s).", util::ToString<VkResult>(res).c_str())
                     goto error;
                 }
+
+                submitted = true;
             }
 
             DispatchTraceRaysDumpingContext* dr_context =
@@ -1804,20 +1805,19 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
                 res = dr_context->DumpDispatchTraceRays(
                     queue, index, cmd_buf_begin_map_[command_buffer_handles[o]], modified_submit_infos[s], fence);
-
-                if (res == VK_SUCCESS)
+                if (res != VK_SUCCESS)
                 {
-                    submitted = true;
-                }
-                else
-                {
+                    GFXRECON_LOG_ERROR("Dumping dispatch/ray tracing failed (%s).",
+                                       util::ToString<VkResult>(res).c_str())
                     goto error;
                 }
+
+                submitted = true;
             }
         }
     }
 
-    assert(res >= 0);
+    assert(res == VK_SUCCESS);
 
     // Looks like we didn't submit anything. Do the submission as it would have been done
     // without further modifications
@@ -1835,7 +1835,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         assert(index == QueueSubmit_indices_[0]);
         QueueSubmit_indices_.erase(QueueSubmit_indices_.begin());
 
-        // Once all submissions are complete
+        // Once all submissions are complete release resources
         if (QueueSubmit_indices_.empty())
         {
             Release();
@@ -1843,10 +1843,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     }
 
 error:
-    if (res < 0)
+    if (res != VK_SUCCESS)
     {
-        GFXRECON_LOG_ERROR("Something went wrong. Terminating.")
-        exit(0);
+        GFXRECON_LOG_ERROR("Something went wrong (%s).", util::ToString<VkResult>(res).c_str())
+        Release();
     }
 
     return res;

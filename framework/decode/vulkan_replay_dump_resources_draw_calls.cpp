@@ -292,6 +292,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
                                    copy_buffer_size);
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -364,6 +365,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
                           count_buffer_size);
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -432,6 +434,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
                                    copy_buffer_size);
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Failed cloning vk buffer (%s).", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -805,11 +808,18 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
 
         // Dump render targets
-        DumpRenderTargetAttachments(cb, qs_index, bcb_index);
+        res = DumpRenderTargetAttachments(cb, qs_index, bcb_index);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Dumping render target attachments failed (%s)", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
 
         res = RevertRenderTargetImageLayouts(queue, cb);
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reverting render target attachments layouts failed(%s)",
+                               util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -821,24 +831,34 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
     }
 
+    assert(res == VK_SUCCESS);
+
     // Dump vertex/index buffers
-    if (dump_vertex_index_buffers && res == VK_SUCCESS)
+    if (dump_vertex_index_buffers)
     {
         res = DumpVertexIndexBuffers();
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_WRITE_CONSOLE("Dumping vertex/index buffers failed (%s)", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
     }
 
     // Dump immutable resources
-    if (dump_immutable_resources && res == VK_SUCCESS)
+    if (dump_immutable_resources)
     {
         res = DumpImmutableResources(qs_index, bcb_index);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_WRITE_CONSOLE("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
     }
 
-    if (res != VK_SUCCESS)
-    {
-        return res;
-    }
+    GFXRECON_LOG_INFO("Done.")
+    assert(res == VK_SUCCESS);
 
-    return res;
+    return VK_SUCCESS;
 }
 
 #define DEPTH_ATTACHMENT ~0
@@ -1295,6 +1315,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t cmd_buf_i
 
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
     }
@@ -1327,6 +1348,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t cmd_buf_i
 
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
     }
@@ -1535,6 +1557,7 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
 
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
         }
     }
@@ -1558,9 +1581,11 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
         std::vector<uint8_t> data;
         VkResult             res = resource_util.ReadFromBufferResource(
             buffer_info->handle, size, offset, buffer_info->queue_family_index, data);
-
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reading from buffer resource %" PRIu64 " failed (%s).",
+                               buffer_info->capture_id,
+                               util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -1644,6 +1669,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams()
                 ic_params.new_count_buffer, sizeof(uint32_t), 0, ic_params.count_buffer_info->queue_family_index, data);
             if (res != VK_SUCCESS)
             {
+                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
                 return res;
             }
 
@@ -1695,6 +1721,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams()
                                                        data);
             if (res != VK_SUCCESS)
             {
+                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
                 return res;
             }
 
@@ -1747,6 +1774,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams()
                                                                 params_data);
             if (res != VK_SUCCESS)
             {
+                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
                 return res;
             }
 
@@ -1779,6 +1807,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
     VkResult res = FetchDrawIndirectParams();
     if (res != VK_SUCCESS)
     {
+        GFXRECON_LOG_ERROR("Fetching indirect draw parameters failed (%s).", util::ToString<VkResult>(res).c_str())
         return res;
     }
 
@@ -1943,6 +1972,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
                                                    index_data);
         if (res != VK_SUCCESS)
         {
+            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
             return res;
         }
 
@@ -2153,6 +2183,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
                                                        offset,
                                                        vb_binding.second.buffer_info->queue_family_index,
                                                        vb_data);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
+                return res;
+            }
 
             std::string filename = GenerateVertexBufferFilename(bind_vertex_buffers_index, binding);
             util::bufferwriter::WriteBuffer(filename, vb_data.data(), vb_data.size());
@@ -2184,7 +2219,6 @@ VkResult DrawCallsDumpingContext::CloneCommandBuffer(CommandBufferInfo*         
     {
         assert(command_buffers[i] == VK_NULL_HANDLE);
         VkResult res = dev_table->AllocateCommandBuffers(dev_info->handle, &ai, &command_buffers[i]);
-
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
@@ -2217,7 +2251,6 @@ VkResult DrawCallsDumpingContext::CloneCommandBuffer(CommandBufferInfo*         
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("AllocateCommandBuffers failed with %s", util::ToString<VkResult>(res).c_str());
-        assert(0);
         return res;
     }
 
@@ -2226,7 +2259,6 @@ VkResult DrawCallsDumpingContext::CloneCommandBuffer(CommandBufferInfo*         
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("CreateFence failed with %s", util::ToString<VkResult>(res).c_str());
-        assert(0);
         return res;
     }
 
@@ -2514,6 +2546,7 @@ VkResult DrawCallsDumpingContext::BeginRenderPass(const RenderPassInfo*  render_
     VkResult res = CloneRenderPass(render_pass_info, framebuffer_info);
     if (res != VK_SUCCESS)
     {
+        GFXRECON_LOG_ERROR("Failed cloning render pass (%s).", util::ToString<VkResult>(res).c_str())
         return res;
     }
 
