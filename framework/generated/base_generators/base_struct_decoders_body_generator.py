@@ -62,6 +62,11 @@ class BaseStructDecodersBodyGenerator():
                     value.name
                 )
                 body += '    value->pNext = wrapper->pNext ? wrapper->pNext->GetPointer() : nullptr;\n'
+            elif 'next' == value.name and value.base_type == 'void':
+                body += '    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->{}));\n'.format(
+                    value.name
+                )
+                body += '    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;\n'
             else:
                 body += BaseStructDecodersBodyGenerator.make_decode_invocation(
                     self, name, value
@@ -81,6 +86,7 @@ class BaseStructDecodersBodyGenerator():
         is_funcp = False
         is_handle = False
         is_enum = False
+        is_atom = False
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -94,6 +100,8 @@ class BaseStructDecodersBodyGenerator():
             is_funcp = True
         elif self.is_handle(value.base_type):
             is_handle = True
+        elif self.is_atom(value.base_type):
+            is_atom = True
         elif type_name == 'Enum':
             is_enum = True
 

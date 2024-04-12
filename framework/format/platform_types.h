@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2018-2023 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
+** Copyright (c) 2018-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -27,6 +27,10 @@
 #include "util/logging.h"
 #include "VK_ANDROID_frame_boundary.h"
 
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
+
 #include "vulkan/vulkan.h"
 
 // System types for WIN32 platform extensions.
@@ -48,22 +52,38 @@ typedef void*          HGLRC;
 
 // Define a version of the WIN32 SECURITY_ATTRIBUTES struct that
 // is suitable for decoding on non-WIN32 platforms.
-typedef uint32_t DWORD;
-// typedef int32_t  BOOL; // Conflicts with objective-c declaration on macOS
-typedef void*         LPVOID;
-typedef uint8_t       BYTE;
-typedef uint16_t      WORD;
-typedef unsigned long ULONG;
-typedef uint32_t      HRESULT;
-typedef WORD          SECURITY_DESCRIPTOR_CONTROL;
-typedef uint32_t&     REFIID;
-
-class IUnknown
-{
-    virtual HRESULT QueryInterface(REFIID riid, void** ppvObject) = 0;
-    virtual ULONG   AddRef()                                      = 0;
-    virtual ULONG   Release()                                     = 0;
-};
+typedef uint32_t    DWORD;
+typedef void*       LPVOID;
+typedef char        CHAR;
+typedef wchar_t     WCHAR;
+typedef const char* LPCSTR;
+typedef size_t      LONG_PTR;
+typedef int8_t      INT8;
+typedef uint8_t     UINT8;
+typedef int16_t     INT16;
+typedef uint16_t    UINT16;
+typedef int32_t     INT32;
+typedef uint32_t    UINT32;
+typedef int64_t     INT64;
+typedef uint64_t    UINT64;
+typedef float       FLOAT;
+typedef double      DOUBLE;
+typedef uint8_t     BYTE;
+#ifndef __APPLE__
+// NOTE: Conflicts with objective-c declaration on macOS
+typedef int32_t   BOOL;
+#endif
+typedef uint16_t  WORD;
+typedef uint32_t  DWORD;
+typedef int32_t   INT;
+typedef uint32_t  UINT;
+typedef int32_t   LONG; // long on Windows is always 4 bytes
+typedef uint32_t  ULONG;
+typedef size_t    SIZE_T;
+typedef LONG      HRESULT;
+typedef WORD      SECURITY_DESCRIPTOR_CONTROL;
+typedef uint32_t& REFIID;
+typedef void*     IUnknown;
 
 struct SID_IDENTIFIER_AUTHORITY
 {
@@ -103,19 +123,51 @@ struct SECURITY_DESCRIPTOR
 
 struct SECURITY_ATTRIBUTES
 {
-    DWORD              nLength;
-    LPVOID             lpSecurityDescriptor;
-    int32_t /* BOOL */ bInheritHandle;
+    DWORD  nLength;
+    LPVOID lpSecurityDescriptor;
+    BOOL   bInheritHandle;
 };
 
-typedef int64_t      LUID;
-typedef int64_t      LARGE_INTEGER;
+struct GUID
+{
+    UINT32 Data1;
+    UINT16 Data2;
+    UINT16 Data3;
+    UINT8  Data4[8];
+};
+
+static bool operator==(GUID guid1, GUID guid2)
+{
+    return !memcmp(&guid1, &guid2, sizeof(GUID));
+}
+
+struct LUID
+{
+    DWORD LowPart;
+    LONG  HighPart;
+};
+
+typedef LUID* PLUID;
+typedef GUID  IID;
+
+struct LARGE_INTEGER
+{
+    int64_t QuadPart;
+};
 
 #endif // WIN32
 
-#ifdef XR_USE_PLATFORM_XLIB
+#ifndef __ANDROID__
+typedef void* jobject;
+#endif
+
+#if defined(XR_USE_PLATFORM_XLIB) && !defined(WIN32)
 #include <X11/Xlib.h>
 #include "GL/glx.h"
+#else
+typedef void*        GLXFBConfig;
+typedef size_t       GLXDrawable;
+typedef void*        GLXContext;
 #endif // XR_USE_PLATFORM_XLIB
 
 #ifdef XR_USE_GRAPHICS_API_OPENGL_ES
@@ -133,9 +185,9 @@ typedef void*        EGLContext;
 #endif
 
 #if !defined(XR_USE_PLATFORM_XLIB)
-typedef void*    GLXFBConfig;
-typedef uint32_t GLXDrawable;
-typedef void*    GLXContext;
+typedef void*  GLXFBConfig;
+typedef size_t GLXDrawable;
+typedef void*  GLXContext;
 #endif // !XR_USE_PLATFORM_XLIB
 
 #if !defined(VK_USE_PLATFORM_XCB_KHR) && !defined(XR_USE_PLATFORM_XCB)
@@ -234,28 +286,28 @@ struct VkAndroidHardwareBufferFormatProperties2ANDROID
     VkChromaLocation              suggestedYChromaOffset;
 };
 
-typedef struct VkPhysicalDeviceExternalFormatResolveFeaturesANDROID
+struct VkPhysicalDeviceExternalFormatResolveFeaturesANDROID
 {
     VkStructureType sType;
     void*           pNext;
     VkBool32        externalFormatResolve;
-} VkPhysicalDeviceExternalFormatResolveFeaturesANDROID;
+};
 
-typedef struct VkPhysicalDeviceExternalFormatResolvePropertiesANDROID
+struct VkPhysicalDeviceExternalFormatResolvePropertiesANDROID
 {
     VkStructureType  sType;
     void*            pNext;
     VkBool32         nullColorAttachmentWithExternalFormatResolve;
     VkChromaLocation externalFormatResolveChromaOffsetX;
     VkChromaLocation externalFormatResolveChromaOffsetY;
-} VkPhysicalDeviceExternalFormatResolvePropertiesANDROID;
+};
 
-typedef struct VkAndroidHardwareBufferFormatResolvePropertiesANDROID
+struct VkAndroidHardwareBufferFormatResolvePropertiesANDROID
 {
     VkStructureType sType;
     void*           pNext;
     VkFormat        colorAttachmentFormat;
-} VkAndroidHardwareBufferFormatResolvePropertiesANDROID;
+};
 
 extern "C"
 {
@@ -1248,43 +1300,466 @@ extern "C"
 
 #endif // VK_USE_PLATFORM_SCREEN_QNX
 
+#ifdef ENABLE_OPENXR_SUPPORT
+
 #if !defined(XR_USE_PLATFORM_ANDROID)
 typedef void* jobject;
 #endif // XR_USE_PLATFORM_ANDROID
 
-#if !defined(XR_USE_GRAPHICS_API_D3D11)
-typedef void* ID3D11Device;
-typedef void* ID3D11Texture2D;
-#endif // XR_USE_GRAPHICS_API_D3D11
-
-#if !defined(XR_USE_GRAPHICS_API_D3D12)
-typedef void* ID3D12Device;
-typedef void* ID3D12CommandQueue;
-typedef void* ID3D12Resource;
-typedef void* ID3D12CommandQueue;
-
-enum D3D_FEATURE_LEVEL
-{
-    D3D_FEATURE_LEVEL_1_0_GENERIC,
-    D3D_FEATURE_LEVEL_1_0_CORE,
-    D3D_FEATURE_LEVEL_9_1,
-    D3D_FEATURE_LEVEL_9_2,
-    D3D_FEATURE_LEVEL_9_3,
-    D3D_FEATURE_LEVEL_10_0,
-    D3D_FEATURE_LEVEL_10_1,
-    D3D_FEATURE_LEVEL_11_0,
-    D3D_FEATURE_LEVEL_11_1,
-    D3D_FEATURE_LEVEL_12_0,
-    D3D_FEATURE_LEVEL_12_1,
-    D3D_FEATURE_LEVEL_12_2
-};
-#endif // XR_USE_GRAPHICS_API_D3D12
+#include "platform_types_d3d_overrides.h"
 
 #if !defined(XR_USE_PLATFORM_ML)
 typedef struct MLCoordinateFrameUID
 {
     uint64_t data[2];
 } MLCoordinateFrameUID;
+
+typedef struct XrCoordinateSpaceCreateInfoML
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    MLCoordinateFrameUID     cfuid;
+    XrPosef                  poseInCoordinateSpace;
+} XrCoordinateSpaceCreateInfoML;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrCreateSpaceFromCoordinateFrameUIDML)(
+        XrSession session, const XrCoordinateSpaceCreateInfoML* createInfo, XrSpace* space);
+} // extern "C"
+
 #endif // XR_USE_PLATFORM_ML
+
+#ifndef XR_USE_PLATFORM_ANDROID
+typedef enum XrAndroidThreadTypeKHR
+{
+    XR_ANDROID_THREAD_TYPE_APPLICATION_MAIN_KHR   = 1,
+    XR_ANDROID_THREAD_TYPE_APPLICATION_WORKER_KHR = 2,
+    XR_ANDROID_THREAD_TYPE_RENDERER_MAIN_KHR      = 3,
+    XR_ANDROID_THREAD_TYPE_RENDERER_WORKER_KHR    = 4,
+    XR_ANDROID_THREAD_TYPE_MAX_ENUM_KHR           = 0x7FFFFFFF
+} XrAndroidThreadTypeKHR;
+
+typedef struct XrInstanceCreateInfoAndroidKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    void* XR_MAY_ALIAS       applicationVM;
+    void* XR_MAY_ALIAS       applicationActivity;
+} XrInstanceCreateInfoAndroidKHR;
+
+typedef struct XrLoaderInitInfoAndroidKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    void* XR_MAY_ALIAS       applicationVM;
+    void* XR_MAY_ALIAS       applicationContext;
+} XrLoaderInitInfoAndroidKHR;
+
+typedef XrFlags64 XrAndroidSurfaceSwapchainFlagsFB;
+
+// Flag bits for XrAndroidSurfaceSwapchainFlagsFB
+static const XrAndroidSurfaceSwapchainFlagsFB XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB    = 0x00000001;
+static const XrAndroidSurfaceSwapchainFlagsFB XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB = 0x00000002;
+
+typedef struct XrAndroidSurfaceSwapchainCreateInfoFB
+{
+    XrStructureType                  type;
+    const void* XR_MAY_ALIAS         next;
+    XrAndroidSurfaceSwapchainFlagsFB createFlags;
+} XrAndroidSurfaceSwapchainCreateInfoFB;
+
+typedef struct XrSwapchainStateAndroidSurfaceDimensionsFB
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    uint32_t           width;
+    uint32_t           height;
+} XrSwapchainStateAndroidSurfaceDimensionsFB;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrSetAndroidApplicationThreadKHR)(XrSession              session,
+                                                                      XrAndroidThreadTypeKHR threadType,
+                                                                      uint32_t               threadId);
+    typedef XrResult(XRAPI_PTR* PFN_xrCreateSwapchainAndroidSurfaceKHR)(XrSession                    session,
+                                                                        const XrSwapchainCreateInfo* info,
+                                                                        XrSwapchain*                 swapchain,
+                                                                        jobject*                     surface);
+} // extern "C"
+#endif // !XR_USE_PLATFORM_ANDROID
+
+#ifndef XR_USE_GRAPHICS_API_OPENGL
+typedef struct XrGraphicsBindingOpenGLWin32KHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    HDC                      hDC;
+    HGLRC                    hGLRC;
+} XrGraphicsBindingOpenGLWin32KHR;
+
+typedef struct XrGraphicsBindingOpenGLXlibKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    Display*                 xDisplay;
+    uint32_t                 visualid;
+    GLXFBConfig              glxFBConfig;
+    GLXDrawable              glxDrawable;
+    GLXContext               glxContext;
+} XrGraphicsBindingOpenGLXlibKHR;
+
+typedef struct XrGraphicsBindingOpenGLXcbKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    xcb_connection_t*        connection;
+    uint32_t                 screenNumber;
+    xcb_glx_fbconfig_t       fbconfigid;
+    xcb_visualid_t           visualid;
+    xcb_glx_drawable_t       glxDrawable;
+    xcb_glx_context_t        glxContext;
+} XrGraphicsBindingOpenGLXcbKHR;
+
+typedef struct XrGraphicsBindingOpenGLWaylandKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    struct wl_display*       display;
+} XrGraphicsBindingOpenGLWaylandKHR;
+
+typedef struct XrSwapchainImageOpenGLKHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    uint32_t           image;
+} XrSwapchainImageOpenGLKHR;
+
+typedef struct XrGraphicsRequirementsOpenGLKHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    XrVersion          minApiVersionSupported;
+    XrVersion          maxApiVersionSupported;
+} XrGraphicsRequirementsOpenGLKHR;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrGetOpenGLGraphicsRequirementsKHR)(
+        XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsOpenGLKHR* graphicsRequirements);
+} // extern "C"
+
+#endif // !XR_USE_GRAPHICS_API_OPENGL
+
+#ifndef XR_USE_GRAPHICS_API_OPENGL_ES
+typedef struct XrGraphicsBindingOpenGLESAndroidKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    EGLDisplay               display;
+    EGLConfig                config;
+    EGLContext               context;
+} XrGraphicsBindingOpenGLESAndroidKHR;
+
+typedef struct XrSwapchainImageOpenGLESKHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    uint32_t           image;
+} XrSwapchainImageOpenGLESKHR;
+
+typedef struct XrGraphicsRequirementsOpenGLESKHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    XrVersion          minApiVersionSupported;
+    XrVersion          maxApiVersionSupported;
+} XrGraphicsRequirementsOpenGLESKHR;
+
+typedef struct XrSwapchainStateSamplerOpenGLESFB
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    EGLenum            minFilter;
+    EGLenum            magFilter;
+    EGLenum            wrapModeS;
+    EGLenum            wrapModeT;
+    EGLenum            swizzleRed;
+    EGLenum            swizzleGreen;
+    EGLenum            swizzleBlue;
+    EGLenum            swizzleAlpha;
+    float              maxAnisotropy;
+    XrColor4f          borderColor;
+} XrSwapchainStateSamplerOpenGLESFB;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrGetOpenGLESGraphicsRequirementsKHR)(
+        XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsOpenGLESKHR* graphicsRequirements);
+} // extern "C"
+
+#endif // !XR_USE_GRAPHICS_API_OPENGL_ES
+
+#ifndef XR_USE_GRAPHICS_API_VULKAN
+
+typedef struct XrGraphicsBindingVulkanKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    VkInstance               instance;
+    VkPhysicalDevice         physicalDevice;
+    VkDevice                 device;
+    uint32_t                 queueFamilyIndex;
+    uint32_t                 queueIndex;
+} XrGraphicsBindingVulkanKHR;
+
+typedef struct XrSwapchainImageVulkanKHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    VkImage            image;
+} XrSwapchainImageVulkanKHR;
+
+typedef struct XrGraphicsRequirementsVulkanKHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    XrVersion          minApiVersionSupported;
+    XrVersion          maxApiVersionSupported;
+} XrGraphicsRequirementsVulkanKHR;
+
+typedef XrFlags64 XrVulkanInstanceCreateFlagsKHR;
+typedef XrFlags64 XrVulkanDeviceCreateFlagsKHR;
+typedef struct XrVulkanInstanceCreateInfoKHR
+{
+    XrStructureType                type;
+    const void* XR_MAY_ALIAS       next;
+    XrSystemId                     systemId;
+    XrVulkanInstanceCreateFlagsKHR createFlags;
+    PFN_vkGetInstanceProcAddr      pfnGetInstanceProcAddr;
+    const VkInstanceCreateInfo*    vulkanCreateInfo;
+    const VkAllocationCallbacks*   vulkanAllocator;
+} XrVulkanInstanceCreateInfoKHR;
+
+typedef struct XrVulkanDeviceCreateInfoKHR
+{
+    XrStructureType              type;
+    const void* XR_MAY_ALIAS     next;
+    XrSystemId                   systemId;
+    XrVulkanDeviceCreateFlagsKHR createFlags;
+    PFN_vkGetInstanceProcAddr    pfnGetInstanceProcAddr;
+    VkPhysicalDevice             vulkanPhysicalDevice;
+    const VkDeviceCreateInfo*    vulkanCreateInfo;
+    const VkAllocationCallbacks* vulkanAllocator;
+} XrVulkanDeviceCreateInfoKHR;
+
+typedef XrGraphicsBindingVulkanKHR XrGraphicsBindingVulkan2KHR;
+
+typedef struct XrVulkanGraphicsDeviceGetInfoKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    XrSystemId               systemId;
+    VkInstance               vulkanInstance;
+} XrVulkanGraphicsDeviceGetInfoKHR;
+
+typedef XrSwapchainImageVulkanKHR XrSwapchainImageVulkan2KHR;
+
+typedef XrGraphicsRequirementsVulkanKHR XrGraphicsRequirementsVulkan2KHR;
+
+typedef struct XrSwapchainImageFoveationVulkanFB
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    VkImage            image;
+    uint32_t           width;
+    uint32_t           height;
+} XrSwapchainImageFoveationVulkanFB;
+
+typedef struct XrSwapchainStateSamplerVulkanFB
+{
+    XrStructureType      type;
+    void* XR_MAY_ALIAS   next;
+    VkFilter             minFilter;
+    VkFilter             magFilter;
+    VkSamplerMipmapMode  mipmapMode;
+    VkSamplerAddressMode wrapModeS;
+    VkSamplerAddressMode wrapModeT;
+    VkComponentSwizzle   swizzleRed;
+    VkComponentSwizzle   swizzleGreen;
+    VkComponentSwizzle   swizzleBlue;
+    VkComponentSwizzle   swizzleAlpha;
+    float                maxAnisotropy;
+    XrColor4f            borderColor;
+} XrSwapchainStateSamplerVulkanFB;
+
+typedef struct XrVulkanSwapchainCreateInfoMETA
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    VkImageCreateFlags       additionalCreateFlags;
+    VkImageUsageFlags        additionalUsageFlags;
+} XrVulkanSwapchainCreateInfoMETA;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrGetVulkanInstanceExtensionsKHR)(XrInstance instance,
+                                                                      XrSystemId systemId,
+                                                                      uint32_t   bufferCapacityInput,
+                                                                      uint32_t*  bufferCountOutput,
+                                                                      char*      buffer);
+    typedef XrResult(XRAPI_PTR* PFN_xrGetVulkanDeviceExtensionsKHR)(XrInstance instance,
+                                                                    XrSystemId systemId,
+                                                                    uint32_t   bufferCapacityInput,
+                                                                    uint32_t*  bufferCountOutput,
+                                                                    char*      buffer);
+    typedef XrResult(XRAPI_PTR* PFN_xrGetVulkanGraphicsDeviceKHR)(XrInstance        instance,
+                                                                  XrSystemId        systemId,
+                                                                  VkInstance        vkInstance,
+                                                                  VkPhysicalDevice* vkPhysicalDevice);
+    typedef XrResult(XRAPI_PTR* PFN_xrGetVulkanGraphicsRequirementsKHR)(
+        XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsVulkanKHR* graphicsRequirements);
+    typedef XrResult(XRAPI_PTR* PFN_xrCreateVulkanInstanceKHR)(XrInstance                           instance,
+                                                               const XrVulkanInstanceCreateInfoKHR* createInfo,
+                                                               VkInstance*                          vulkanInstance,
+                                                               VkResult*                            vulkanResult);
+    typedef XrResult(XRAPI_PTR* PFN_xrCreateVulkanDeviceKHR)(XrInstance                         instance,
+                                                             const XrVulkanDeviceCreateInfoKHR* createInfo,
+                                                             VkDevice*                          vulkanDevice,
+                                                             VkResult*                          vulkanResult);
+    typedef XrResult(XRAPI_PTR* PFN_xrGetVulkanGraphicsDevice2KHR)(XrInstance                              instance,
+                                                                   const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,
+                                                                   VkPhysicalDevice* vulkanPhysicalDevice);
+    typedef XrResult(XRAPI_PTR* PFN_xrGetVulkanGraphicsRequirements2KHR)(
+        XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsVulkanKHR* graphicsRequirements);
+} // extern "C"
+
+#endif // !XR_USE_GRAPHICS_API_VULKAN
+
+#ifndef XR_USE_GRAPHICS_API_D3D11
+typedef struct XrGraphicsBindingD3D11KHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    ID3D11Device*            device;
+} XrGraphicsBindingD3D11KHR;
+
+typedef struct XrSwapchainImageD3D11KHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    ID3D11Texture2D*   texture;
+} XrSwapchainImageD3D11KHR;
+
+typedef struct XrGraphicsRequirementsD3D11KHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    LUID               adapterLuid;
+    D3D_FEATURE_LEVEL  minFeatureLevel;
+} XrGraphicsRequirementsD3D11KHR;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrGetD3D11GraphicsRequirementsKHR)(
+        XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D11KHR* graphicsRequirements);
+} // extern "C"
+#endif // XR_USE_GRAPHICS_API_D3D11
+
+#ifndef XR_USE_GRAPHICS_API_D3D12
+typedef struct XrGraphicsBindingD3D12KHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    ID3D12Device*            device;
+    ID3D12CommandQueue*      queue;
+} XrGraphicsBindingD3D12KHR;
+
+typedef struct XrSwapchainImageD3D12KHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    ID3D12Resource*    texture;
+} XrSwapchainImageD3D12KHR;
+
+typedef struct XrGraphicsRequirementsD3D12KHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    LUID               adapterLuid;
+    D3D_FEATURE_LEVEL  minFeatureLevel;
+} XrGraphicsRequirementsD3D12KHR;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrGetD3D12GraphicsRequirementsKHR)(
+        XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D12KHR* graphicsRequirements);
+} // extern "C"
+#endif // XR_USE_GRAPHICS_API_D3D12
+
+#ifndef XR_USE_PLATFORM_WIN32
+#define XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS 128
+
+typedef struct XrHolographicWindowAttachmentMSFT
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    IUnknown*                holographicSpace;
+    IUnknown*                coreWindow;
+} XrHolographicWindowAttachmentMSFT;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrConvertWin32PerformanceCounterToTimeKHR)(XrInstance           instance,
+                                                                               const LARGE_INTEGER* performanceCounter,
+                                                                               XrTime*              time);
+    typedef XrResult(XRAPI_PTR* PFN_xrConvertTimeToWin32PerformanceCounterKHR)(XrInstance     instance,
+                                                                               XrTime         time,
+                                                                               LARGE_INTEGER* performanceCounter);
+    typedef XrResult(XRAPI_PTR* PFN_xrCreateSpatialAnchorFromPerceptionAnchorMSFT)(XrSession session,
+                                                                                   IUnknown* perceptionAnchor,
+                                                                                   XrSpatialAnchorMSFT* anchor);
+    typedef XrResult(XRAPI_PTR* PFN_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT)(XrSession           session,
+                                                                                   XrSpatialAnchorMSFT anchor,
+                                                                                   IUnknown** perceptionAnchor);
+    typedef XrResult(XRAPI_PTR* PFN_xrGetAudioOutputDeviceGuidOculus)(
+        XrInstance instance, wchar_t buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS]);
+    typedef XrResult(XRAPI_PTR* PFN_xrGetAudioInputDeviceGuidOculus)(
+        XrInstance instance, wchar_t buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS]);
+} // extern "C"
+
+#endif // !XR_USE_PLATFORM_WIN32
+
+#ifndef XR_USE_TIMESPEC
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrConvertTimespecTimeToTimeKHR)(XrInstance             instance,
+                                                                    const struct timespec* timespecTime,
+                                                                    XrTime*                time);
+    typedef XrResult(XRAPI_PTR* PFN_xrConvertTimeToTimespecTimeKHR)(XrInstance       instance,
+                                                                    XrTime           time,
+                                                                    struct timespec* timespecTime);
+} // extern "C"
+
+#endif // !XR_USE_TIMESPEC
+
+#ifndef XR_USE_PLATFORM_EGL
+extern "C"
+{
+    typedef PFN_xrVoidFunction (*PFN_xrEglGetProcAddressMNDX)(const char* name);
+} // extern "C"
+
+typedef struct XrGraphicsBindingEGLMNDX
+{
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    PFN_xrEglGetProcAddressMNDX getProcAddress;
+    EGLDisplay                  display;
+    EGLConfig                   config;
+    EGLContext                  context;
+} XrGraphicsBindingEGLMNDX;
+#endif // !XR_USE_PLATFORM_EGL
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif // GFXRECON_PLATFORM_TYPES_H

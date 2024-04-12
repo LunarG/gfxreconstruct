@@ -29,18 +29,23 @@
 
 #ifdef ENABLE_OPENXR_SUPPORT
 
-#include "generated/generated_openxr_api_call_encoders.h"
-
 #include "encode/custom_openxr_encoder_commands.h"
 #include "encode/custom_openxr_struct_handle_wrappers.h"
+#include "encode/openxr_capture_manager.h"
+#include "encode/openxr_handle_wrappers.h"
+#include "encode/openxr_handle_wrapper_util.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
-#include "encode/openxr_capture_manager.h"
-#include "encode/openxr_handle_wrapper_util.h"
-#include "encode/openxr_handle_wrappers.h"
+
 #include "format/api_call_id.h"
+
+#include "generated/generated_openxr_api_call_encoders.h"
 #include "generated/generated_openxr_struct_handle_wrappers.h"
+#include "generated/generated_vulkan_struct_handle_wrappers.h"
+
 #include "util/defines.h"
+
+#include "format/platform_types.h"
 
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
@@ -2267,23 +2272,11 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
     const XrApiLayerCreateInfo*                 layerInfo,
     XrInstance*                                 instance)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+    auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
 
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(manager, info, layerInfo, instance);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(OpenXrCaptureManager::Get(), info, layerInfo, instance);
 
     XrResult result = OpenXrCaptureManager::OverrideCreateApiLayerInstance(info, layerInfo, instance);
     if (result < 0)
@@ -2291,17 +2284,17 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
         omit_output_data = true;
     }
 
-    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateApiLayerInstance);
+    auto encoder = OpenXrCaptureManager::Get()->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateApiLayerInstance);
     if (encoder)
     {
         EncodeStructPtr(encoder, info);
         EncodeStructPtr(encoder, layerInfo);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::InstanceWrapper>(instance, omit_output_data);
         encoder->EncodeEnumValue(result);
-        manager->EndCreateApiCallCapture<const void*, openxr_wrappers::InstanceWrapper, XrApiLayerCreateInfo>(result, nullptr, instance, layerInfo);
+        OpenXrCaptureManager::Get()->EndCreateApiCallCapture<const void*, openxr_wrappers::InstanceWrapper, XrApiLayerCreateInfo>(result, nullptr, instance, layerInfo);
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(manager, result, info, layerInfo, instance);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(OpenXrCaptureManager::Get(), result, info, layerInfo, instance);
 
     return result;
 }
@@ -2843,7 +2836,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(
     if (encoder)
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
-        encoder->EncodeInt64Ptr(performanceCounter);
+        encoder->EncodeLARGE_INTEGERPtr(performanceCounter);
         encoder->EncodeInt64Ptr(time, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
@@ -2888,7 +2881,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
         encoder->EncodeInt64Value(time);
-        encoder->EncodeInt64Ptr(performanceCounter, omit_output_data);
+        encoder->EncodeLARGE_INTEGERPtr(performanceCounter, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }
@@ -4511,7 +4504,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPerceptionAnchorMSFT(
     if (encoder)
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
-        encoder->EncodeIUnknownPtr(perceptionAnchor, omit_output_data);
+        encoder->EncodeVoidPtr(perceptionAnchor);
         encoder->EncodeOpenXrHandlePtr<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::SpatialAnchorMSFTWrapper, void>(result, session, anchor, nullptr);
@@ -4556,7 +4549,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpatialAnchorMSFTWrapper>(anchor);
-        encoder->EncodeIUnknownPtrPtr(perceptionAnchor, omit_output_data);
+        encoder->EncodeVoidPtrPtr(perceptionAnchor, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }

@@ -382,7 +382,7 @@ class BaseGenerator(OutputGenerator):
         self.generate_video = False
 
         # Typenames
-        self.base_types = dict()
+        self.base_types = dict()  # Set of OpenXR basetypes
         self.struct_names = set()  # Set of Vulkan struct typenames
         self.handle_names = set()  # Set of Vulkan handle typenames
         self.flags_types = dict(
@@ -774,6 +774,9 @@ class BaseGenerator(OutputGenerator):
         """Check for handle type."""
         if base_type in self.handle_names:
             return True
+        return False
+
+    def is_atom(self, base_type):
         return False
 
     def has_basetype(self, base_type):
@@ -1592,6 +1595,9 @@ class BaseGenerator(OutputGenerator):
 
     def is_resource_dump_class(self):
         return True if ('ReplayDumpResources' in self.__class__.__name__) else False
+
+    def is_openxr_class(self):
+        return True if ('OpenXr' in self.__class__.__name__) else False
 
     def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.

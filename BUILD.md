@@ -60,7 +60,7 @@ Use the following Git command to create a local copy of the GFXReconstruct
 repository:
 
 ```bash
-git clone https://github.com/LunarG/gfxreconstruct.git
+git clone --recursive  https://github.com/LunarG/gfxreconstruct.git
 ```
 
 ### Repository Dependencies
@@ -70,11 +70,14 @@ the [External Dependencies README.md](external/README.md) for details regarding
 individual dependencies.
 
 Required dependencies are included with the GFXReconstruct repository as Git
-submodules. After cloning the repository, execute the following command
-from within the GFXReconstruct project folder to initialize the submodules:
+submodules.
+
+If you clone the repository without the `--recursive` option, execute the
+following command from within th GFXReconstruct project folder to initialize
+the submodules:
 
 ```bash
-git submodule update --init
+git submodule update --init --recursive
 ```
 
 Submodules will be updated periodically as the GFXReconstruct project is
@@ -82,7 +85,7 @@ updated to support new Vulkan API releases. To obtain submodule updates,
 execute the following command from within the GFXReconstruct project folder:
 
 ```bash
-git submodule update
+git submodule update --recursive 
 ```
 
 Submodules will need to be updated when the repository status (e.g.
@@ -132,6 +135,19 @@ python scripts/build.py --skip-d3d12-support
 ```
 
 Run the script with the `-h` option for additional usage information.
+
+### Enabling OpenXR Support During a Build
+
+To enable OpenXR Support in GFXReconstruct enable the CMake option during build
+generation time by setting the CMake variable `GFXRECON_ENABLE_OPENXR` to `ON`
+in the following way:
+
+```bash
+cmake . -Bbuild -G ... -DGFXRECON_ENABLE_OPENXR=ON
+```
+
+**NOTE:**  OpenXR support is not fully implemented and should only be used at
+your own risk.
 
 ## Building for Windows
 

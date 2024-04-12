@@ -29,6 +29,7 @@
 #include "generated/generated_dx12_decoder.h"
 #endif
 #include "decode/file_processor.h"
+
 #include "decode/vulkan_default_allocator.h"
 #include "decode/vulkan_realign_allocator.h"
 #include "decode/vulkan_rebind_allocator.h"
@@ -36,12 +37,21 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_tracking_consumer.h"
 #include "decode/vulkan_tracked_object_info_table.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "generated/generated_openxr_decoder.h"
+#endif
 #include "generated/generated_vulkan_decoder.h"
+
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "util/options.h"
 #include "util/strings.h"
+
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "openxr/openxr.h"
+#endif
 
 #include "vulkan/vulkan_core.h"
 
@@ -167,12 +177,6 @@ const char kMemoryTranslationRebind[]  = "rebind";
 const char kSwapchainVirtual[]   = "virtual";
 const char kSwapchainCaptured[]  = "captured";
 const char kSwapchainOffscreen[] = "offscreen";
-
-#if defined(WIN32)
-const char kApiFamilyVulkan[] = "vulkan";
-const char kApiFamilyD3D12[]  = "d3d12";
-const char kApiFamilyAll[]    = "all";
-#endif
 
 const char kScreenshotFormatBmp[] = "bmp";
 const char kScreenshotFormatPng[] = "png";
@@ -1160,6 +1164,12 @@ static bool CheckOptionPrintVersion(const char* exe_name, const gfxrecon::util::
                                VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE),
                                VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE),
                                VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+#ifdef ENABLE_OPENXR_SUPPORT
+        GFXRECON_WRITE_CONSOLE("  OpenXR Header Version %u.%u.%u",
+                               XR_VERSION_MAJOR(XR_CURRENT_API_VERSION),
+                               XR_VERSION_MINOR(XR_CURRENT_API_VERSION),
+                               XR_VERSION_PATCH(XR_CURRENT_API_VERSION));
+#endif
 
         return true;
     }

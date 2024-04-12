@@ -37,6 +37,8 @@
 #include "format/platform_types.h"
 #include "util/defines.h"
 
+#include "format/platform_types.h"
+
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"

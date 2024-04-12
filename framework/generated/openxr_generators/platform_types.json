@@ -6,10 +6,7 @@
       "HGLRC"         : { "baseType" : "void",     "replaceWith" : "void*" },
       "HINSTANCE"     : { "baseType" : "void",     "replaceWith" : "void*" },
       "HWND"          : { "baseType" : "void",     "replaceWith" : "void*" },
-      "HMONITOR"      : { "baseType" : "void",     "replaceWith" : "void*" },
-      "LARGE_INTEGER" : { "baseType" : "int64_t",  "replaceWith" : "int64_t" },
-      "LPCWSTR"       : { "baseType" : "wchar_t",  "replaceWith" : "const wchar_t*" },
-      "LUID"          : { "baseType" : "int64_t",  "replaceWith" : "int64_t" }
+      "HMONITOR"      : { "baseType" : "void",     "replaceWith" : "void*" }
     },
     "structs" : [
       "ACL",
@@ -23,7 +20,7 @@
     "types" : {
       "Display"            : { "baseType" : "void",     "replaceWith" : "void" },
       "GLXFBConfig"        : { "baseType" : "void",     "replaceWith" : "void*" },
-      "GLXDrawable"        : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
+      "GLXDrawable"        : { "baseType" : "size_t",   "replaceWith" : "size_t" },
       "GLXContext"         : { "baseType" : "void",     "replaceWith" : "void*" },
       "MirConnection"      : { "baseType" : "void",     "replaceWith" : "void" },
       "MirSurface"         : { "baseType" : "void",     "replaceWith" : "void" },
@@ -63,17 +60,18 @@
   },
   "d3d": {
     "types": {
-      "ID3D11Device"       : { "baseType" : "void",     "replaceWith" : "void*" },
-      "ID3D11Texture2D"    : { "baseType" : "void",     "replaceWith" : "void*" },
-      "ID3D12Device"       : { "baseType" : "void",     "replaceWith" : "void*" },
-      "ID3D12CommandQueue" : { "baseType" : "void",     "replaceWith" : "void*" },
-      "ID3D12Resource"     : { "baseType" : "void",     "replaceWith" : "void*" }
+      "ID3D11Device"       : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D11Texture2D"    : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D12Device"       : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D12CommandQueue" : { "baseType" : "void",     "replaceWith" : "void" },
+      "ID3D12Resource"     : { "baseType" : "void",     "replaceWith" : "void" },
+      "IUnknown"           : { "baseType" : "void",     "replaceWith" : "void" }
     },
     "structs": []
   },
   "egl": {
     "types": {
-      "EGLenum"      : { "baseType" : "uint32_t",     "replaceWith" : "uint32_t" },
+      "EGLenum"      : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
       "EGLDisplay"   : { "baseType" : "void",     "replaceWith" : "void*" },
       "EGLConfig"    : { "baseType" : "void",     "replaceWith" : "void*" },
       "EGLContext"   : { "baseType" : "void",     "replaceWith" : "void*" }

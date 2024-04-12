@@ -25,10 +25,12 @@
 
 #include "util/defines.h"
 
+#ifdef WIN32
 #include <d3d12.h>
+#include <wrl/client.h>
+#endif
 
 #include <memory>
-#include <wrl/client.h>
 #include <vector>
 #include <set>
 #include <list>

@@ -47,6 +47,8 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/options.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/zstd_compressor.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/zstd_compressor.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_enum_to_string.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_enum_to_string.cpp
               )
@@ -58,12 +60,18 @@ target_compile_definitions(gfxrecon_util
                                GFXRECON_ENABLE_ZLIB_COMPRESSION
                                GFXRECON_ENABLE_PNG_SCREENSHOT)
 
+                           
 target_include_directories(gfxrecon_util
                            PUBLIC
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${GFXRECON_SOURCE_DIR}/external/stb
                                ${GFXRECON_SOURCE_DIR}/external/nlohmann/include
                                ${GFXRECON_SOURCE_DIR}/framework)
+
+if (OPENXR_SUPPORT_ENABLED)
+    target_include_directories(gfxrecon_util PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(gfxrecon_util PUBLIC ENABLE_OPENXR_SUPPORT=1)
+endif()
 
 target_link_libraries(gfxrecon_util
                           platform_specific
