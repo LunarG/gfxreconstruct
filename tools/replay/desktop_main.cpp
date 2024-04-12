@@ -263,7 +263,7 @@ int main(int argc, const char** argv)
                 {
 #if defined(D3D12_SUPPORT)
                     dx12_replay_consumer.PostReplay();
-                    if (file_processor.UsesFrameMarkers() == false && 
+                    if (file_processor.UsesFrameMarkers() == false &&
                         dx12_replay_consumer.GetDXGITestPresentCount() > 0)
                     {
                         GFXRECON_LOG_WARNING_ONCE("This capture contains %u test frames.",

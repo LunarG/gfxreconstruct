@@ -684,8 +684,7 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                                    api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
         }
 
-        if (dx12_consumer.GetDXGITestPresentCount() > 0 && 
-            api_agnostic_stats.uses_frame_markers == false)
+        if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
         {
             GFXRECON_WRITE_CONSOLE("\tTest present count: %u", dx12_consumer.GetDXGITestPresentCount());
         }
