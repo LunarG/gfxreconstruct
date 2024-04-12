@@ -185,6 +185,8 @@ class DrawCallsDumpingContext
 
     void SnapshotBoundDescriptors(uint64_t index);
 
+    void Release();
+
   private:
     std::vector<std::string> GenerateRenderTargetImageFilename(VkFormat format,
                                                                uint64_t cmd_buf_index,

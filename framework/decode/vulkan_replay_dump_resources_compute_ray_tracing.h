@@ -102,6 +102,8 @@ class DispatchTraceRaysDumpingContext
 
     VkResult CopyDispatchIndirectParameters(uint64_t index);
 
+    void Release();
+
   private:
     std::vector<std::string> GenerateDispatchTraceRaysImageFilename(VkFormat              format,
                                                                     uint32_t              levels,

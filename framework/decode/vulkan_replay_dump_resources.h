@@ -50,6 +50,8 @@ class VulkanReplayDumpResourcesBase
 
     VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options, VulkanObjectInfoTable& object_info_table);
 
+    ~VulkanReplayDumpResourcesBase();
+
     VkResult CloneCommandBuffer(uint64_t                           bcb_index,
                                 CommandBufferInfo*                 original_command_buffer_info,
                                 const encode::VulkanDeviceTable*   device_table,
@@ -284,6 +286,8 @@ class VulkanReplayDumpResourcesBase
                                          CommandBufferIterator& last) const;
 
     VkCommandBuffer GetDispatchRaysCommandBuffer(VkCommandBuffer original_command_buffer) const;
+
+    void Release();
 
   private:
     bool UpdateRecordingStatus();
