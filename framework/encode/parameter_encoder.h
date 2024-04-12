@@ -41,10 +41,10 @@
 #include "util/output_stream.h"
 #include "util/platform.h"
 
-#include "vulkan/vulkan.h"
 #if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
 #endif
+#include "vulkan/vulkan.h"
 
 #include <cstring>
 #include <cwchar>
@@ -130,10 +130,6 @@ class ParameterEncoder
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     template<typename T>
     void EncodeVoidPtrPtr(const T* const* ptr, bool omit_data = false, bool omit_addr = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
-#if ENABLE_OPENXR_SUPPORT
-    void EncodeIUnknownPtr(IUnknown* ptr, bool omit_data = false, bool omit_addr = false)                             { EncodePointer(ptr, omit_data, omit_addr); }
-    void EncodeIUnknownPtrPtr(IUnknown** ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
-#endif // ENABLE_OPENXR_SUPPORT
 
     template<typename Wrapper>
     void EncodeVulkanHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedVulkanHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }

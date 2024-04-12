@@ -57,13 +57,7 @@ typedef unsigned long ULONG;
 typedef uint32_t      HRESULT;
 typedef WORD          SECURITY_DESCRIPTOR_CONTROL;
 typedef uint32_t&     REFIID;
-
-class IUnknown
-{
-    virtual HRESULT QueryInterface(REFIID riid, void** ppvObject) = 0;
-    virtual ULONG   AddRef()                                      = 0;
-    virtual ULONG   Release()                                     = 0;
-};
+typedef void*         IUnknown;
 
 struct SID_IDENTIFIER_AUTHORITY
 {
@@ -134,7 +128,7 @@ typedef void*        EGLContext;
 
 #if !defined(XR_USE_PLATFORM_XLIB)
 typedef void* GLXFBConfig;
-typedef uint32_t GLXDrawable;
+typedef size_t GLXDrawable;
 typedef void* GLXContext;
 #endif // !XR_USE_PLATFORM_XLIB
 
@@ -1263,21 +1257,7 @@ typedef void* ID3D12CommandQueue;
 typedef void* ID3D12Resource;
 typedef void* ID3D12CommandQueue;
 
-enum D3D_FEATURE_LEVEL
-{
-    D3D_FEATURE_LEVEL_1_0_GENERIC,
-    D3D_FEATURE_LEVEL_1_0_CORE,
-    D3D_FEATURE_LEVEL_9_1,
-    D3D_FEATURE_LEVEL_9_2,
-    D3D_FEATURE_LEVEL_9_3,
-    D3D_FEATURE_LEVEL_10_0,
-    D3D_FEATURE_LEVEL_10_1,
-    D3D_FEATURE_LEVEL_11_0,
-    D3D_FEATURE_LEVEL_11_1,
-    D3D_FEATURE_LEVEL_12_0,
-    D3D_FEATURE_LEVEL_12_1,
-    D3D_FEATURE_LEVEL_12_2
-};
+typedef uint32_t D3D_FEATURE_LEVEL;
 #endif // XR_USE_GRAPHICS_API_D3D12
 
 #if !defined(XR_USE_PLATFORM_ML)

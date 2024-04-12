@@ -156,6 +156,7 @@ class BaseDecoderBodyGenerator():
         is_string = False
         is_funcp = False
         is_handle = False
+        is_atom = False
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -167,8 +168,10 @@ class BaseDecoderBodyGenerator():
             is_string = True
         elif type_name == 'FunctionPtr':
             is_funcp = True
-        elif type_name == 'VulkanHandle':
+        elif self.is_handle(value.base_type):
             is_handle = True
+        elif self.is_atom(value.base_type):
+            is_atom = True
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -194,6 +197,11 @@ class BaseDecoderBodyGenerator():
                     body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                         buffer_args, value.name
                     )
+                elif self.has_basetype(value.base_type):
+                    base_type = self.get_basetype(value.base_type)
+                    body += '    bytes_read += {}.Decode{}({});\n'.format(
+                        value.name, self.encode_types[base_type], buffer_args
+                    )
                 else:
                     body += '    bytes_read += {}.Decode{}({});\n'.format(
                         value.name, type_name, buffer_args
@@ -210,6 +218,11 @@ class BaseDecoderBodyGenerator():
             elif is_handle:
                 body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                     buffer_args, value.name
+                )
+            elif self.has_basetype(type_name) :
+                base_type = self.get_basetype(type_name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
+                    self.encode_types[base_type], buffer_args, value.name
                 )
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(

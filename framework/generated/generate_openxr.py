@@ -45,7 +45,7 @@ BASE_GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'base_generators')
 GENERATOR_DIR = os.path.join(SCRIPT_DIR, 'openxr_generators')
 XR_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'OpenXR-SDK')
 
-# File names to provide to the Vulkan XML Registry generator script.
+# File names to provide to the OpenXR XML Registry generator script.
 generate_targets = [
     'generated_openxr_dispatch_table.h',
     'generated_openxr_layer_func_table.h',
@@ -56,11 +56,15 @@ generate_targets = [
     'generated_openxr_state_table.h',
     'generated_openxr_struct_encoders.h',
     'generated_openxr_struct_encoders.cpp',
+    'generated_openxr_struct_decoders.h',
+    'generated_openxr_struct_decoders.cpp',
+    'generated_openxr_struct_decoders_forward.h',
     'generated_openxr_struct_handle_wrappers.h',
     'generated_openxr_struct_handle_wrappers.cpp',
     'generated_openxr_struct_next_encoder.cpp',
     'generated_openxr_struct_trackers.h',
     'generated_openxr_struct_trackers.cpp',
+    'generated_openxr_type_util.h',
 ]
 
 if __name__ == '__main__':
@@ -93,9 +97,9 @@ if __name__ == '__main__':
         default=None,
         help='\n'.join(
             [
-                'Path to a directory that holds additional Vulkan header files required to build.',
-                'These header files are included directly after the Vulkan header in all generated files.',
-                'All .h file under the given directory are assumed to be Vulkan headers.'
+                'Path to a directory that holds additional OpenXr header files required to build.',
+                'These header files are included directly after the OpenXr header in all generated files.',
+                'All .h file under the given directory are assumed to be OpenXr headers.'
             ]
         )
     )
