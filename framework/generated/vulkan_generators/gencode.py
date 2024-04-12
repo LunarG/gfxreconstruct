@@ -231,20 +231,6 @@ def make_gen_opts(args):
 
     #
     # API call decoder generators
-    gen_opts['generated_vulkan_decoder.cpp'] = [
-        VulkanDecoderBodyGenerator,
-        VulkanDecoderBodyGeneratorOptions(
-            filename='generated_vulkan_decoder.cpp',
-            directory=directory,
-            blacklists=blacklists,
-            platform_types=platform_types,
-            prefix_text=prefix_strings + vk_prefix_strings,
-            protect_file=False,
-            protect_feature=False,
-            extraVulkanHeaders=extraVulkanHeaders
-        )
-    ]
-
     gen_opts['generated_vulkan_decoder.h'] = [
         VulkanDecoderHeaderGenerator,
         VulkanDecoderHeaderGeneratorOptions(
@@ -254,6 +240,20 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_decoder.cpp'] = [
+        VulkanDecoderBodyGenerator,
+        VulkanDecoderBodyGeneratorOptions(
+            filename='generated_vulkan_decoder.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
             protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )

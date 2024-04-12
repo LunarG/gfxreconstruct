@@ -55,6 +55,10 @@ from openxr_layer_func_table_generator import OpenXrLayerFuncTableGenerator, Ope
 from openxr_api_call_encoders_body_generator import OpenXrApiCallEncodersBodyGenerator, OpenXrApiCallEncodersBodyGeneratorOptions
 from openxr_api_call_encoders_header_generator import OpenXrApiCallEncodersHeaderGenerator, OpenXrApiCallEncodersHeaderGeneratorOptions
 
+# API Call Decoders
+from openxr_decoder_body_generator import OpenXrDecoderBodyGenerator, OpenXrDecoderBodyGeneratorOptions
+from openxr_decoder_header_generator import OpenXrDecoderHeaderGenerator, OpenXrDecoderHeaderGeneratorOptions
+
 # Struct Encoders
 from openxr_struct_encoders_body_generator import OpenXrStructEncodersBodyGenerator, OpenXrStructEncodersBodyGeneratorOptions
 from openxr_struct_encoders_header_generator import OpenXrStructEncodersHeaderGenerator, OpenXrStructEncodersHeaderGeneratorOptions
@@ -77,6 +81,9 @@ from openxr_struct_next_decoders_generator import OpenXrStructNextDecodersGenera
 
 # Constants
 from openxr_type_util_generator import OpenXrTypeUtilGenerator, OpenXrTypeUtilGeneratorOptions
+
+# Consumers
+from openxr_consumer_header_generator import OpenXrConsumerHeaderGenerator, OpenXrConsumerHeaderGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -257,6 +264,36 @@ def make_gen_opts(args):
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=False,
             protect_feature=True,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # API call decoder generators
+    gen_opts['generated_openxr_decoder.h'] = [
+        OpenXrDecoderHeaderGenerator,
+        OpenXrDecoderHeaderGeneratorOptions(
+            filename='generated_openxr_decoder.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_decoder.cpp'] = [
+        OpenXrDecoderBodyGenerator,
+        OpenXrDecoderBodyGeneratorOptions(
+            filename='generated_openxr_decoder.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
             extraOpenXrHeaders=extraOpenXrHeaders
         )
     ]
@@ -461,6 +498,25 @@ def make_gen_opts(args):
         OpenXrTypeUtilGenerator,
         OpenXrTypeUtilGeneratorOptions(
             filename='generated_openxr_type_util.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
+    # Consumer generation
+    gen_opts['generated_openxr_consumer.h'] = [
+        OpenXrConsumerHeaderGenerator,
+        OpenXrConsumerHeaderGeneratorOptions(
+            class_name='OpenXrConsumer',
+            base_class_header='openxr_consumer_base.h',
+            is_override=False,
+            filename='generated_openxr_consumer.h',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,
