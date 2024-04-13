@@ -598,7 +598,7 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
 
 void D3D12CaptureManager::PostPresent(IDXGISwapChain_Wrapper* swapchain_wrapper, UINT flags)
 {
-    if (flags != DXGI_PRESENT_TEST)
+    if ((flags & DXGI_PRESENT_TEST) == 0)
     {
         EndFrame();
     }
