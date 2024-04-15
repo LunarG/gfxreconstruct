@@ -956,8 +956,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
         output_json_writer->VulkanReplayDumpResourcesJsonData("DrawIndex", dc_index);
         output_json_writer->VulkanReplayDumpResourcesJsonData("BeginCommandBufferIndex", bcb_index);
         output_json_writer->VulkanReplayDumpResourcesJsonData("QueueSubmitIndex", qs_index);
-        output_json_writer->VulkanReplayDumpResourcesJsonData(("RenderTargetImage_" + std::to_string(i)).c_str(),
-                                                              filenames[0]);
+        output_json_writer->VulkanReplayDumpResourcesJsonData(
+            ("RenderTargetImage_" + std::to_string(i)).c_str(),
+            filenames[0] + ImageFileExtension(image_info->format, image_file_format));
     }
 
     if (dump_depth && render_targets[rp][sp].depth_att_img != nullptr)
@@ -968,7 +969,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
 
         for (size_t i = 0; i < filenames.size(); ++i)
         {
-            output_json_writer->VulkanReplayDumpResourcesJsonData("RenderTargetDepth_", filenames[i]);
+            const std::string filename = filenames[i] + ImageFileExtension(image_info->format, image_file_format);
+            output_json_writer->VulkanReplayDumpResourcesJsonData("RenderTargetDepth_", filename);
         }
     }
 
