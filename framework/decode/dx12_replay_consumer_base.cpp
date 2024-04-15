@@ -701,9 +701,13 @@ ULONG Dx12ReplayConsumerBase::OverrideRelease(DxObjectInfo* replay_object_info, 
     return object->Release();
 }
 
-void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info)
+void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info, UINT flags)
 {
-    if (screenshot_handler_ != nullptr)
+    if (flags & DXGI_PRESENT_TEST)
+    {
+        dxgi_present_test_++;
+    }
+    else if(screenshot_handler_ != nullptr )
     {
         if (screenshot_handler_->IsScreenshotFrame())
         {
@@ -740,7 +744,7 @@ HRESULT Dx12ReplayConsumerBase::OverridePresent(DxObjectInfo* replay_object_info
                                                 UINT          flags)
 {
     auto replay_object = static_cast<IDXGISwapChain*>(replay_object_info->object);
-    PrePresent(replay_object_info);
+    PrePresent(replay_object_info, flags);
     auto result = replay_object->Present(sync_interval, flags);
     PostPresent();
 
@@ -755,7 +759,7 @@ Dx12ReplayConsumerBase::OverridePresent1(DxObjectInfo*                          
                                          StructPointerDecoder<Decoded_DXGI_PRESENT_PARAMETERS>* present_parameters)
 {
     auto replay_object = static_cast<IDXGISwapChain1*>(replay_object_info->object);
-    PrePresent(replay_object_info);
+    PrePresent(replay_object_info, flags);
     auto result = replay_object->Present1(sync_interval, flags, present_parameters->GetPointer());
     PostPresent();
 

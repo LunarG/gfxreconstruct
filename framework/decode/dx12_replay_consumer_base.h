@@ -545,7 +545,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
 
-    void PrePresent(DxObjectInfo* swapchain_object_info);
+    void PrePresent(DxObjectInfo* swapchain_object_info, UINT flags);
 
     void PostPresent();
 
