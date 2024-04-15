@@ -267,7 +267,7 @@ int main(int argc, const char** argv)
                         dx12_replay_consumer.GetDXGITestPresentCount() > 0)
                     {
                         GFXRECON_LOG_WARNING("This capture contains %u test present count.",
-                                                  dx12_replay_consumer.GetDXGITestPresentCount());
+                                             dx12_replay_consumer.GetDXGITestPresentCount());
                     }
 #endif
 
