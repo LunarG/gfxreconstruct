@@ -95,6 +95,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_offscreen_swapchain.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/window.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_consumer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_decoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders_forward.h

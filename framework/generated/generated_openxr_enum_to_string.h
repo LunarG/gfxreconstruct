@@ -34,44 +34,82 @@
 
 #include "format/platform_types.h"
 #include "util/to_string.h"
+
+// Define the platform defines so that we can have entrypoints for each
+// possible entrypoint in our dispatch table.
+#ifndef XR_USE_PLATFORM_WIN32
+#define XR_USE_PLATFORM_WIN32
+#endif
+#ifndef XR_USE_PLATFORM_WAYLAND
+#define XR_USE_PLATFORM_WAYLAND
+#endif
+#ifndef XR_USE_PLATFORM_XCB
+#define XR_USE_PLATFORM_XCB
+#endif
+#ifndef XR_USE_PLATFORM_XLIB
+#define XR_USE_PLATFORM_XLIB
+#endif
+#ifndef XR_USE_PLATFORM_ANDROID
+#define XR_USE_PLATFORM_ANDROID
+#endif
+#ifndef XR_USE_PLATFORM_ML
+#define XR_USE_PLATFORM_ML
+#endif
+#ifndef XR_USE_PLATFORM_EGL
+#define XR_USE_PLATFORM_EGL
+#endif
+#ifndef XR_USE_GRAPHICS_API_VULKAN
+#define XR_USE_GRAPHICS_API_VULKAN
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL
+#define XR_USE_GRAPHICS_API_OPENGL
+#endif
+#ifndef XR_USE_GRAPHICS_API_OPENGL_ES
+#define XR_USE_GRAPHICS_API_OPENGL_ES
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D11
+#define XR_USE_GRAPHICS_API_D3D11
+#endif
+#ifndef XR_USE_GRAPHICS_API_D3D12
+#define XR_USE_GRAPHICS_API_D3D12
+#endif
+#ifndef XR_USE_TIMESPEC
+#define XR_USE_TIMESPEC
+#endif
+
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
-template <> std::string ToString<VkComponentSwizzle>(const VkComponentSwizzle& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkFilter>(const VkFilter& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkFormat>(const VkFormat& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkResult>(const VkResult& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkSamplerAddressMode>(const VkSamplerAddressMode& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkSamplerMipmapMode>(const VkSamplerMipmapMode& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrActionType>(const XrActionType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string XrCompositionLayerFlagBitsToString(const uint64_t value);
+std::string XrCompositionLayerFlagBitsToString(const uint64_t& value);
 std::string XrCompositionLayerFlagsToString(XrFlags64 vkFlags);
 template <> std::string ToString<XrEnvironmentBlendMode>(const XrEnvironmentBlendMode& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrEyeVisibility>(const XrEyeVisibility& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrFormFactor>(const XrFormFactor& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string XrInputSourceLocalizedNameFlagBitsToString(const uint64_t value);
+std::string XrInputSourceLocalizedNameFlagBitsToString(const uint64_t& value);
 std::string XrInputSourceLocalizedNameFlagsToString(XrFlags64 vkFlags);
-std::string XrInstanceCreateFlagBitsToString(const uint64_t value);
+std::string XrInstanceCreateFlagBitsToString(const uint64_t& value);
 std::string XrInstanceCreateFlagsToString(XrFlags64 vkFlags);
 template <> std::string ToString<XrObjectType>(const XrObjectType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrReferenceSpaceType>(const XrReferenceSpaceType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrResult>(const XrResult& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string XrSessionCreateFlagBitsToString(const uint64_t value);
+std::string XrSessionCreateFlagBitsToString(const uint64_t& value);
 std::string XrSessionCreateFlagsToString(XrFlags64 vkFlags);
 template <> std::string ToString<XrSessionState>(const XrSessionState& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string XrSpaceLocationFlagBitsToString(const uint64_t value);
+std::string XrSpaceLocationFlagBitsToString(const uint64_t& value);
 std::string XrSpaceLocationFlagsToString(XrFlags64 vkFlags);
-std::string XrSpaceVelocityFlagBitsToString(const uint64_t value);
+std::string XrSpaceVelocityFlagBitsToString(const uint64_t& value);
 std::string XrSpaceVelocityFlagsToString(XrFlags64 vkFlags);
 template <> std::string ToString<XrStructureType>(const XrStructureType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string XrSwapchainCreateFlagBitsToString(const uint64_t value);
+std::string XrSwapchainCreateFlagBitsToString(const uint64_t& value);
 std::string XrSwapchainCreateFlagsToString(XrFlags64 vkFlags);
-std::string XrSwapchainUsageFlagBitsToString(const uint64_t value);
+std::string XrSwapchainUsageFlagBitsToString(const uint64_t& value);
 std::string XrSwapchainUsageFlagsToString(XrFlags64 vkFlags);
 template <> std::string ToString<XrViewConfigurationType>(const XrViewConfigurationType& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-std::string XrViewStateFlagBitsToString(const uint64_t value);
+std::string XrViewStateFlagBitsToString(const uint64_t& value);
 std::string XrViewStateFlagsToString(XrFlags64 vkFlags);
 template <> std::string ToString<XrLoaderInterfaceStructs>(const XrLoaderInterfaceStructs& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrAndroidThreadTypeKHR>(const XrAndroidThreadTypeKHR& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

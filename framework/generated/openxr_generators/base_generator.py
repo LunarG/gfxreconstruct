@@ -909,6 +909,9 @@ class BaseGenerator(OutputGenerator):
     def is_dx12_class(self):
         return True if ('Dx12' in self.__class__.__name__) else False
 
+    def is_openxr_class(self):
+        return True if ('OpenXr' in self.__class__.__name__) else False
+
     def get_filtered_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
         return [
@@ -1354,6 +1357,14 @@ class BaseGenerator(OutputGenerator):
             )
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
+
+    def get_api_prefix(self):
+        platform_type = 'Vulkan'
+        if self.is_dx12_class():
+            platform_type = 'Dx12'
+        elif self.is_openxr_class():
+            platform_type = 'OpenXr'
+        return platform_type
 
     def get_prefix_from_type(self, handle_name):
         if handle_name.startswith('Vk'):

@@ -69,14 +69,14 @@ std::string XrCompositionLayerFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrCompositionLayerFlagBitsToString(static_cast<XrCompositionLayerFlagBits>(1U) << index));
+            str.append(XrCompositionLayerFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrCompositionLayerFlagBitsToString(0U));
+        str.append(XrCompositionLayerFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -136,14 +136,14 @@ std::string XrInputSourceLocalizedNameFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrInputSourceLocalizedNameFlagBitsToString(static_cast<XrInputSourceLocalizedNameFlagBits>(1U) << index));
+            str.append(XrInputSourceLocalizedNameFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrInputSourceLocalizedNameFlagBitsToString(0U));
+        str.append(XrInputSourceLocalizedNameFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -165,14 +165,14 @@ std::string XrInstanceCreateFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrInstanceCreateFlagBitsToString(static_cast<XrInstanceCreateFlagBits>(1U) << index));
+            str.append(XrInstanceCreateFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrInstanceCreateFlagBitsToString(0U));
+        str.append(XrInstanceCreateFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -364,14 +364,14 @@ std::string XrSessionCreateFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrSessionCreateFlagBitsToString(static_cast<XrSessionCreateFlagBits>(1U) << index));
+            str.append(XrSessionCreateFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrSessionCreateFlagBitsToString(0U));
+        str.append(XrSessionCreateFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -417,14 +417,14 @@ std::string XrSpaceLocationFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrSpaceLocationFlagBitsToString(static_cast<XrSpaceLocationFlagBits>(1U) << index));
+            str.append(XrSpaceLocationFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrSpaceLocationFlagBitsToString(0U));
+        str.append(XrSpaceLocationFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -451,14 +451,14 @@ std::string XrSpaceVelocityFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrSpaceVelocityFlagBitsToString(static_cast<XrSpaceVelocityFlagBits>(1U) << index));
+            str.append(XrSpaceVelocityFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrSpaceVelocityFlagBitsToString(0U));
+        str.append(XrSpaceVelocityFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -831,14 +831,14 @@ std::string XrSwapchainCreateFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrSwapchainCreateFlagBitsToString(static_cast<XrSwapchainCreateFlagBits>(1U) << index));
+            str.append(XrSwapchainCreateFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrSwapchainCreateFlagBitsToString(0U));
+        str.append(XrSwapchainCreateFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -871,14 +871,14 @@ std::string XrSwapchainUsageFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrSwapchainUsageFlagBitsToString(static_cast<XrSwapchainUsageFlagBits>(1U) << index));
+            str.append(XrSwapchainUsageFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrSwapchainUsageFlagBitsToString(0U));
+        str.append(XrSwapchainUsageFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -919,14 +919,14 @@ std::string XrViewStateFlagsToString(XrFlags64 xrFlags)
             {
                 str += '|';
             }
-            str.append(XrViewStateFlagBitsToString(static_cast<XrViewStateFlagBits>(1U) << index));
+            str.append(XrViewStateFlagBitsToString(static_cast<uint64_t>(1U << index)));
         }
         ++index;
         xrFlags >>= 1U;
     }
     if (str.empty())
     {
-        str.append(XrViewStateFlagBitsToString(0U));
+        str.append(XrViewStateFlagBitsToString(static_cast<uint64_t>(0U)));
     }
     return str;
 }
@@ -966,26 +966,6 @@ template <> std::string ToString<XrVisibilityMaskTypeKHR>(const XrVisibilityMask
     default: break;
     }
     return "Unhandled XrVisibilityMaskTypeKHR";
-}
-
-template <> std::string ToString<XrVulkanDeviceCreateFlagBitsKHR>(const XrVulkanDeviceCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled XrVulkanDeviceCreateFlagBitsKHR";
-}
-
-template <> std::string ToString<XrVulkanDeviceCreateFlagBitsKHR>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrVulkanDeviceCreateFlagBitsKHR>(xrFlags);
-}
-
-template <> std::string ToString<XrVulkanInstanceCreateFlagBitsKHR>(const XrVulkanInstanceCreateFlagBitsKHR& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled XrVulkanInstanceCreateFlagBitsKHR";
-}
-
-template <> std::string ToString<XrVulkanInstanceCreateFlagBitsKHR>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrVulkanInstanceCreateFlagBitsKHR>(xrFlags);
 }
 
 template <> std::string ToString<XrPerfSettingsDomainEXT>(const XrPerfSettingsDomainEXT& value, ToStringFlags, uint32_t, uint32_t)
@@ -1030,78 +1010,6 @@ template <> std::string ToString<XrPerfSettingsSubDomainEXT>(const XrPerfSetting
     default: break;
     }
     return "Unhandled XrPerfSettingsSubDomainEXT";
-}
-
-template <> std::string ToString<XrDebugUtilsMessageSeverityFlagBitsEXT>(const XrDebugUtilsMessageSeverityFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT";
-    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT";
-    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT";
-    case XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled XrDebugUtilsMessageSeverityFlagBitsEXT";
-}
-
-template <> std::string ToString<XrDebugUtilsMessageSeverityFlagBitsEXT>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrDebugUtilsMessageSeverityFlagBitsEXT>(xrFlags);
-}
-
-template <> std::string ToString<XrDebugUtilsMessageTypeFlagBitsEXT>(const XrDebugUtilsMessageTypeFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT";
-    case XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT";
-    case XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT";
-    case XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT: return "XR_DEBUG_UTILS_MESSAGE_TYPE_CONFORMANCE_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled XrDebugUtilsMessageTypeFlagBitsEXT";
-}
-
-template <> std::string ToString<XrDebugUtilsMessageTypeFlagBitsEXT>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrDebugUtilsMessageTypeFlagBitsEXT>(xrFlags);
-}
-
-template <> std::string ToString<XrOverlayMainSessionFlagBitsEXTX>(const XrOverlayMainSessionFlagBitsEXTX& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX: return "XR_OVERLAY_MAIN_SESSION_ENABLED_COMPOSITION_LAYER_INFO_DEPTH_BIT_EXTX";
-    default: break;
-    }
-    return "Unhandled XrOverlayMainSessionFlagBitsEXTX";
-}
-
-template <> std::string ToString<XrOverlayMainSessionFlagBitsEXTX>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrOverlayMainSessionFlagBitsEXTX>(xrFlags);
-}
-
-template <> std::string ToString<XrOverlaySessionCreateFlagBitsEXTX>(const XrOverlaySessionCreateFlagBitsEXTX& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled XrOverlaySessionCreateFlagBitsEXTX";
-}
-
-template <> std::string ToString<XrOverlaySessionCreateFlagBitsEXTX>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrOverlaySessionCreateFlagBitsEXTX>(xrFlags);
-}
-
-template <> std::string ToString<XrCompositionLayerImageLayoutFlagBitsFB>(const XrCompositionLayerImageLayoutFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB: return "XR_COMPOSITION_LAYER_IMAGE_LAYOUT_VERTICAL_FLIP_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrCompositionLayerImageLayoutFlagBitsFB";
-}
-
-template <> std::string ToString<XrCompositionLayerImageLayoutFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrCompositionLayerImageLayoutFlagBitsFB>(xrFlags);
 }
 
 template <> std::string ToString<XrBlendFactorFB>(const XrBlendFactorFB& value, ToStringFlags, uint32_t, uint32_t)
@@ -1202,36 +1110,6 @@ template <> std::string ToString<XrReprojectionModeMSFT>(const XrReprojectionMod
     default: break;
     }
     return "Unhandled XrReprojectionModeMSFT";
-}
-
-template <> std::string ToString<XrAndroidSurfaceSwapchainFlagBitsFB>(const XrAndroidSurfaceSwapchainFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB: return "XR_ANDROID_SURFACE_SWAPCHAIN_SYNCHRONOUS_BIT_FB";
-    case XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB: return "XR_ANDROID_SURFACE_SWAPCHAIN_USE_TIMESTAMPS_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrAndroidSurfaceSwapchainFlagBitsFB";
-}
-
-template <> std::string ToString<XrAndroidSurfaceSwapchainFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrAndroidSurfaceSwapchainFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrCompositionLayerSecureContentFlagBitsFB>(const XrCompositionLayerSecureContentFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB: return "XR_COMPOSITION_LAYER_SECURE_CONTENT_EXCLUDE_LAYER_BIT_FB";
-    case XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB: return "XR_COMPOSITION_LAYER_SECURE_CONTENT_REPLACE_LAYER_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrCompositionLayerSecureContentFlagBitsFB";
-}
-
-template <> std::string ToString<XrCompositionLayerSecureContentFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrCompositionLayerSecureContentFlagBitsFB>(xrFlags);
 }
 
 template <> std::string ToString<XrBodyJointFB>(const XrBodyJointFB& value, ToStringFlags, uint32_t, uint32_t)
@@ -1516,28 +1394,6 @@ template <> std::string ToString<XrColorSpaceFB>(const XrColorSpaceFB& value, To
     return "Unhandled XrColorSpaceFB";
 }
 
-template <> std::string ToString<XrHandTrackingAimFlagBitsFB>(const XrHandTrackingAimFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB: return "XR_HAND_TRACKING_AIM_COMPUTED_BIT_FB";
-    case XR_HAND_TRACKING_AIM_VALID_BIT_FB: return "XR_HAND_TRACKING_AIM_VALID_BIT_FB";
-    case XR_HAND_TRACKING_AIM_INDEX_PINCHING_BIT_FB: return "XR_HAND_TRACKING_AIM_INDEX_PINCHING_BIT_FB";
-    case XR_HAND_TRACKING_AIM_MIDDLE_PINCHING_BIT_FB: return "XR_HAND_TRACKING_AIM_MIDDLE_PINCHING_BIT_FB";
-    case XR_HAND_TRACKING_AIM_RING_PINCHING_BIT_FB: return "XR_HAND_TRACKING_AIM_RING_PINCHING_BIT_FB";
-    case XR_HAND_TRACKING_AIM_LITTLE_PINCHING_BIT_FB: return "XR_HAND_TRACKING_AIM_LITTLE_PINCHING_BIT_FB";
-    case XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB: return "XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB";
-    case XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB: return "XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB";
-    case XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB: return "XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrHandTrackingAimFlagBitsFB";
-}
-
-template <> std::string ToString<XrHandTrackingAimFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrHandTrackingAimFlagBitsFB>(xrFlags);
-}
-
 template <> std::string ToString<XrSpaceComponentTypeFB>(const XrSpaceComponentTypeFB& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1553,31 +1409,6 @@ template <> std::string ToString<XrSpaceComponentTypeFB>(const XrSpaceComponentT
     default: break;
     }
     return "Unhandled XrSpaceComponentTypeFB";
-}
-
-template <> std::string ToString<XrSwapchainCreateFoveationFlagBitsFB>(const XrSwapchainCreateFoveationFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB: return "XR_SWAPCHAIN_CREATE_FOVEATION_SCALED_BIN_BIT_FB";
-    case XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB: return "XR_SWAPCHAIN_CREATE_FOVEATION_FRAGMENT_DENSITY_MAP_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrSwapchainCreateFoveationFlagBitsFB";
-}
-
-template <> std::string ToString<XrSwapchainCreateFoveationFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrSwapchainCreateFoveationFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrSwapchainStateFoveationFlagBitsFB>(const XrSwapchainStateFoveationFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled XrSwapchainStateFoveationFlagBitsFB";
-}
-
-template <> std::string ToString<XrSwapchainStateFoveationFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrSwapchainStateFoveationFlagBitsFB>(xrFlags);
 }
 
 template <> std::string ToString<XrFoveationDynamicFB>(const XrFoveationDynamicFB& value, ToStringFlags, uint32_t, uint32_t)
@@ -1602,52 +1433,6 @@ template <> std::string ToString<XrFoveationLevelFB>(const XrFoveationLevelFB& v
     return "Unhandled XrFoveationLevelFB";
 }
 
-template <> std::string ToString<XrKeyboardTrackingFlagBitsFB>(const XrKeyboardTrackingFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_KEYBOARD_TRACKING_EXISTS_BIT_FB: return "XR_KEYBOARD_TRACKING_EXISTS_BIT_FB";
-    case XR_KEYBOARD_TRACKING_LOCAL_BIT_FB: return "XR_KEYBOARD_TRACKING_LOCAL_BIT_FB";
-    case XR_KEYBOARD_TRACKING_REMOTE_BIT_FB: return "XR_KEYBOARD_TRACKING_REMOTE_BIT_FB";
-    case XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB: return "XR_KEYBOARD_TRACKING_CONNECTED_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrKeyboardTrackingFlagBitsFB";
-}
-
-template <> std::string ToString<XrKeyboardTrackingFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrKeyboardTrackingFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrKeyboardTrackingQueryFlagBitsFB>(const XrKeyboardTrackingQueryFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB: return "XR_KEYBOARD_TRACKING_QUERY_LOCAL_BIT_FB";
-    case XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB: return "XR_KEYBOARD_TRACKING_QUERY_REMOTE_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrKeyboardTrackingQueryFlagBitsFB";
-}
-
-template <> std::string ToString<XrKeyboardTrackingQueryFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrKeyboardTrackingQueryFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrTriangleMeshFlagBitsFB>(const XrTriangleMeshFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_TRIANGLE_MESH_MUTABLE_BIT_FB: return "XR_TRIANGLE_MESH_MUTABLE_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrTriangleMeshFlagBitsFB";
-}
-
-template <> std::string ToString<XrTriangleMeshFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrTriangleMeshFlagBitsFB>(xrFlags);
-}
-
 template <> std::string ToString<XrWindingOrderFB>(const XrWindingOrderFB& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -1657,37 +1442,6 @@ template <> std::string ToString<XrWindingOrderFB>(const XrWindingOrderFB& value
     default: break;
     }
     return "Unhandled XrWindingOrderFB";
-}
-
-template <> std::string ToString<XrPassthroughCapabilityFlagBitsFB>(const XrPassthroughCapabilityFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_PASSTHROUGH_CAPABILITY_BIT_FB: return "XR_PASSTHROUGH_CAPABILITY_BIT_FB";
-    case XR_PASSTHROUGH_CAPABILITY_COLOR_BIT_FB: return "XR_PASSTHROUGH_CAPABILITY_COLOR_BIT_FB";
-    case XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB: return "XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrPassthroughCapabilityFlagBitsFB";
-}
-
-template <> std::string ToString<XrPassthroughCapabilityFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrPassthroughCapabilityFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrPassthroughFlagBitsFB>(const XrPassthroughFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB: return "XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB";
-    case XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB: return "XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrPassthroughFlagBitsFB";
-}
-
-template <> std::string ToString<XrPassthroughFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrPassthroughFlagBitsFB>(xrFlags);
 }
 
 template <> std::string ToString<XrPassthroughLayerPurposeFB>(const XrPassthroughLayerPurposeFB& value, ToStringFlags, uint32_t, uint32_t)
@@ -1700,67 +1454,6 @@ template <> std::string ToString<XrPassthroughLayerPurposeFB>(const XrPassthroug
     default: break;
     }
     return "Unhandled XrPassthroughLayerPurposeFB";
-}
-
-template <> std::string ToString<XrPassthroughStateChangedFlagBitsFB>(const XrPassthroughStateChangedFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB: return "XR_PASSTHROUGH_STATE_CHANGED_REINIT_REQUIRED_BIT_FB";
-    case XR_PASSTHROUGH_STATE_CHANGED_NON_RECOVERABLE_ERROR_BIT_FB: return "XR_PASSTHROUGH_STATE_CHANGED_NON_RECOVERABLE_ERROR_BIT_FB";
-    case XR_PASSTHROUGH_STATE_CHANGED_RECOVERABLE_ERROR_BIT_FB: return "XR_PASSTHROUGH_STATE_CHANGED_RECOVERABLE_ERROR_BIT_FB";
-    case XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB: return "XR_PASSTHROUGH_STATE_CHANGED_RESTORED_ERROR_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrPassthroughStateChangedFlagBitsFB";
-}
-
-template <> std::string ToString<XrPassthroughStateChangedFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrPassthroughStateChangedFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrRenderModelFlagBitsFB>(const XrRenderModelFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB: return "XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB";
-    case XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB: return "XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrRenderModelFlagBitsFB";
-}
-
-template <> std::string ToString<XrRenderModelFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrRenderModelFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrFrameEndInfoFlagBitsML>(const XrFrameEndInfoFlagBitsML& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_FRAME_END_INFO_PROTECTED_BIT_ML: return "XR_FRAME_END_INFO_PROTECTED_BIT_ML";
-    case XR_FRAME_END_INFO_VIGNETTE_BIT_ML: return "XR_FRAME_END_INFO_VIGNETTE_BIT_ML";
-    default: break;
-    }
-    return "Unhandled XrFrameEndInfoFlagBitsML";
-}
-
-template <> std::string ToString<XrFrameEndInfoFlagBitsML>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrFrameEndInfoFlagBitsML>(xrFlags);
-}
-
-template <> std::string ToString<XrGlobalDimmerFrameEndInfoFlagBitsML>(const XrGlobalDimmerFrameEndInfoFlagBitsML& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML: return "XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML";
-    default: break;
-    }
-    return "Unhandled XrGlobalDimmerFrameEndInfoFlagBitsML";
-}
-
-template <> std::string ToString<XrGlobalDimmerFrameEndInfoFlagBitsML>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrGlobalDimmerFrameEndInfoFlagBitsML>(xrFlags);
 }
 
 template <> std::string ToString<XrMarkerAprilTagDictML>(const XrMarkerAprilTagDictML& value, ToStringFlags, uint32_t, uint32_t)
@@ -1907,25 +1600,6 @@ template <> std::string ToString<XrLocalizationMapConfidenceML>(const XrLocaliza
     return "Unhandled XrLocalizationMapConfidenceML";
 }
 
-template <> std::string ToString<XrLocalizationMapErrorFlagBitsML>(const XrLocalizationMapErrorFlagBitsML& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML: return "XR_LOCALIZATION_MAP_ERROR_UNKNOWN_BIT_ML";
-    case XR_LOCALIZATION_MAP_ERROR_OUT_OF_MAPPED_AREA_BIT_ML: return "XR_LOCALIZATION_MAP_ERROR_OUT_OF_MAPPED_AREA_BIT_ML";
-    case XR_LOCALIZATION_MAP_ERROR_LOW_FEATURE_COUNT_BIT_ML: return "XR_LOCALIZATION_MAP_ERROR_LOW_FEATURE_COUNT_BIT_ML";
-    case XR_LOCALIZATION_MAP_ERROR_EXCESSIVE_MOTION_BIT_ML: return "XR_LOCALIZATION_MAP_ERROR_EXCESSIVE_MOTION_BIT_ML";
-    case XR_LOCALIZATION_MAP_ERROR_LOW_LIGHT_BIT_ML: return "XR_LOCALIZATION_MAP_ERROR_LOW_LIGHT_BIT_ML";
-    case XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML: return "XR_LOCALIZATION_MAP_ERROR_HEADPOSE_BIT_ML";
-    default: break;
-    }
-    return "Unhandled XrLocalizationMapErrorFlagBitsML";
-}
-
-template <> std::string ToString<XrLocalizationMapErrorFlagBitsML>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrLocalizationMapErrorFlagBitsML>(xrFlags);
-}
-
 template <> std::string ToString<XrLocalizationMapStateML>(const XrLocalizationMapStateML& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2032,74 +1706,6 @@ template <> std::string ToString<XrSpacePersistenceModeFB>(const XrSpacePersiste
     return "Unhandled XrSpacePersistenceModeFB";
 }
 
-template <> std::string ToString<XrCompositionLayerSpaceWarpInfoFlagBitsFB>(const XrCompositionLayerSpaceWarpInfoFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB: return "XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrCompositionLayerSpaceWarpInfoFlagBitsFB";
-}
-
-template <> std::string ToString<XrCompositionLayerSpaceWarpInfoFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrCompositionLayerSpaceWarpInfoFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrSemanticLabelsSupportFlagBitsFB>(const XrSemanticLabelsSupportFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB: return "XR_SEMANTIC_LABELS_SUPPORT_MULTIPLE_SEMANTIC_LABELS_BIT_FB";
-    case XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_DESK_TO_TABLE_MIGRATION_BIT_FB: return "XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_DESK_TO_TABLE_MIGRATION_BIT_FB";
-    case XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB: return "XR_SEMANTIC_LABELS_SUPPORT_ACCEPT_INVISIBLE_WALL_FACE_BIT_FB";
-    default: break;
-    }
-    return "Unhandled XrSemanticLabelsSupportFlagBitsFB";
-}
-
-template <> std::string ToString<XrSemanticLabelsSupportFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrSemanticLabelsSupportFlagBitsFB>(xrFlags);
-}
-
-template <> std::string ToString<XrDigitalLensControlFlagBitsALMALENCE>(const XrDigitalLensControlFlagBitsALMALENCE& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE: return "XR_DIGITAL_LENS_CONTROL_PROCESSING_DISABLE_BIT_ALMALENCE";
-    default: break;
-    }
-    return "Unhandled XrDigitalLensControlFlagBitsALMALENCE";
-}
-
-template <> std::string ToString<XrDigitalLensControlFlagBitsALMALENCE>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrDigitalLensControlFlagBitsALMALENCE>(xrFlags);
-}
-
-template <> std::string ToString<XrFoveationEyeTrackedProfileCreateFlagBitsMETA>(const XrFoveationEyeTrackedProfileCreateFlagBitsMETA& value, ToStringFlags, uint32_t, uint32_t)
-{
-    return "Unhandled XrFoveationEyeTrackedProfileCreateFlagBitsMETA";
-}
-
-template <> std::string ToString<XrFoveationEyeTrackedProfileCreateFlagBitsMETA>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrFoveationEyeTrackedProfileCreateFlagBitsMETA>(xrFlags);
-}
-
-template <> std::string ToString<XrFoveationEyeTrackedStateFlagBitsMETA>(const XrFoveationEyeTrackedStateFlagBitsMETA& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META: return "XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META";
-    default: break;
-    }
-    return "Unhandled XrFoveationEyeTrackedStateFlagBitsMETA";
-}
-
-template <> std::string ToString<XrFoveationEyeTrackedStateFlagBitsMETA>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrFoveationEyeTrackedStateFlagBitsMETA>(xrFlags);
-}
-
 template <> std::string ToString<XrFaceConfidenceFB>(const XrFaceConfidenceFB& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2203,24 +1809,6 @@ template <> std::string ToString<XrEyePositionFB>(const XrEyePositionFB& value, 
     return "Unhandled XrEyePositionFB";
 }
 
-template <> std::string ToString<XrCompositionLayerSettingsFlagBitsFB>(const XrCompositionLayerSettingsFlagBitsFB& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB: return "XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB";
-    case XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SUPER_SAMPLING_BIT_FB: return "XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SUPER_SAMPLING_BIT_FB";
-    case XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SHARPENING_BIT_FB: return "XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SHARPENING_BIT_FB";
-    case XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SHARPENING_BIT_FB: return "XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SHARPENING_BIT_FB";
-    case XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META: return "XR_COMPOSITION_LAYER_SETTINGS_AUTO_LAYER_FILTER_BIT_META";
-    default: break;
-    }
-    return "Unhandled XrCompositionLayerSettingsFlagBitsFB";
-}
-
-template <> std::string ToString<XrCompositionLayerSettingsFlagBitsFB>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrCompositionLayerSettingsFlagBitsFB>(xrFlags);
-}
-
 template <> std::string ToString<XrCompareOpFB>(const XrCompareOpFB& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2247,20 +1835,6 @@ template <> std::string ToString<XrLocalDimmingModeMETA>(const XrLocalDimmingMod
     return "Unhandled XrLocalDimmingModeMETA";
 }
 
-template <> std::string ToString<XrPassthroughPreferenceFlagBitsMETA>(const XrPassthroughPreferenceFlagBitsMETA& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META: return "XR_PASSTHROUGH_PREFERENCE_DEFAULT_TO_ACTIVE_BIT_META";
-    default: break;
-    }
-    return "Unhandled XrPassthroughPreferenceFlagBitsMETA";
-}
-
-template <> std::string ToString<XrPassthroughPreferenceFlagBitsMETA>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrPassthroughPreferenceFlagBitsMETA>(xrFlags);
-}
-
 template <> std::string ToString<XrVirtualKeyboardInputSourceMETA>(const XrVirtualKeyboardInputSourceMETA& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2275,20 +1849,6 @@ template <> std::string ToString<XrVirtualKeyboardInputSourceMETA>(const XrVirtu
     default: break;
     }
     return "Unhandled XrVirtualKeyboardInputSourceMETA";
-}
-
-template <> std::string ToString<XrVirtualKeyboardInputStateFlagBitsMETA>(const XrVirtualKeyboardInputStateFlagBitsMETA& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META: return "XR_VIRTUAL_KEYBOARD_INPUT_STATE_PRESSED_BIT_META";
-    default: break;
-    }
-    return "Unhandled XrVirtualKeyboardInputStateFlagBitsMETA";
-}
-
-template <> std::string ToString<XrVirtualKeyboardInputStateFlagBitsMETA>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrVirtualKeyboardInputStateFlagBitsMETA>(xrFlags);
 }
 
 template <> std::string ToString<XrVirtualKeyboardLocationTypeMETA>(const XrVirtualKeyboardLocationTypeMETA& value, ToStringFlags, uint32_t, uint32_t)
@@ -2312,40 +1872,6 @@ template <> std::string ToString<XrExternalCameraAttachedToDeviceOCULUS>(const X
     default: break;
     }
     return "Unhandled XrExternalCameraAttachedToDeviceOCULUS";
-}
-
-template <> std::string ToString<XrExternalCameraStatusFlagBitsOCULUS>(const XrExternalCameraStatusFlagBitsOCULUS& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS: return "XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS";
-    case XR_EXTERNAL_CAMERA_STATUS_CALIBRATING_BIT_OCULUS: return "XR_EXTERNAL_CAMERA_STATUS_CALIBRATING_BIT_OCULUS";
-    case XR_EXTERNAL_CAMERA_STATUS_CALIBRATION_FAILED_BIT_OCULUS: return "XR_EXTERNAL_CAMERA_STATUS_CALIBRATION_FAILED_BIT_OCULUS";
-    case XR_EXTERNAL_CAMERA_STATUS_CALIBRATED_BIT_OCULUS: return "XR_EXTERNAL_CAMERA_STATUS_CALIBRATED_BIT_OCULUS";
-    case XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS: return "XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS";
-    default: break;
-    }
-    return "Unhandled XrExternalCameraStatusFlagBitsOCULUS";
-}
-
-template <> std::string ToString<XrExternalCameraStatusFlagBitsOCULUS>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrExternalCameraStatusFlagBitsOCULUS>(xrFlags);
-}
-
-template <> std::string ToString<XrPerformanceMetricsCounterFlagBitsMETA>(const XrPerformanceMetricsCounterFlagBitsMETA& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META: return "XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META";
-    case XR_PERFORMANCE_METRICS_COUNTER_UINT_VALUE_VALID_BIT_META: return "XR_PERFORMANCE_METRICS_COUNTER_UINT_VALUE_VALID_BIT_META";
-    case XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META: return "XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META";
-    default: break;
-    }
-    return "Unhandled XrPerformanceMetricsCounterFlagBitsMETA";
-}
-
-template <> std::string ToString<XrPerformanceMetricsCounterFlagBitsMETA>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrPerformanceMetricsCounterFlagBitsMETA>(xrFlags);
 }
 
 template <> std::string ToString<XrPerformanceMetricsCounterUnitMETA>(const XrPerformanceMetricsCounterUnitMETA& value, ToStringFlags, uint32_t, uint32_t)
@@ -2512,22 +2038,6 @@ template <> std::string ToString<XrTrackingOptimizationSettingsHintQCOM>(const X
     return "Unhandled XrTrackingOptimizationSettingsHintQCOM";
 }
 
-template <> std::string ToString<XrFoveationDynamicFlagBitsHTC>(const XrFoveationDynamicFlagBitsHTC& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC: return "XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC";
-    case XR_FOVEATION_DYNAMIC_CLEAR_FOV_ENABLED_BIT_HTC: return "XR_FOVEATION_DYNAMIC_CLEAR_FOV_ENABLED_BIT_HTC";
-    case XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC: return "XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC";
-    default: break;
-    }
-    return "Unhandled XrFoveationDynamicFlagBitsHTC";
-}
-
-template <> std::string ToString<XrFoveationDynamicFlagBitsHTC>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrFoveationDynamicFlagBitsHTC>(xrFlags);
-}
-
 template <> std::string ToString<XrFoveationLevelHTC>(const XrFoveationLevelHTC& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2575,26 +2085,6 @@ template <> std::string ToString<XrHandTrackingDataSourceEXT>(const XrHandTracki
     return "Unhandled XrHandTrackingDataSourceEXT";
 }
 
-template <> std::string ToString<XrPlaneDetectionCapabilityFlagBitsEXT>(const XrPlaneDetectionCapabilityFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT: return "XR_PLANE_DETECTION_CAPABILITY_PLANE_DETECTION_BIT_EXT";
-    case XR_PLANE_DETECTION_CAPABILITY_PLANE_HOLES_BIT_EXT: return "XR_PLANE_DETECTION_CAPABILITY_PLANE_HOLES_BIT_EXT";
-    case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_CEILING_BIT_EXT: return "XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_CEILING_BIT_EXT";
-    case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_FLOOR_BIT_EXT: return "XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_FLOOR_BIT_EXT";
-    case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_WALL_BIT_EXT: return "XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_WALL_BIT_EXT";
-    case XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_PLATFORM_BIT_EXT: return "XR_PLANE_DETECTION_CAPABILITY_SEMANTIC_PLATFORM_BIT_EXT";
-    case XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT: return "XR_PLANE_DETECTION_CAPABILITY_ORIENTATION_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled XrPlaneDetectionCapabilityFlagBitsEXT";
-}
-
-template <> std::string ToString<XrPlaneDetectionCapabilityFlagBitsEXT>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrPlaneDetectionCapabilityFlagBitsEXT>(xrFlags);
-}
-
 template <> std::string ToString<XrPlaneDetectionStateEXT>(const XrPlaneDetectionStateEXT& value, ToStringFlags, uint32_t, uint32_t)
 {
     switch (value) {
@@ -2606,20 +2096,6 @@ template <> std::string ToString<XrPlaneDetectionStateEXT>(const XrPlaneDetectio
     default: break;
     }
     return "Unhandled XrPlaneDetectionStateEXT";
-}
-
-template <> std::string ToString<XrPlaneDetectorFlagBitsEXT>(const XrPlaneDetectorFlagBitsEXT& value, ToStringFlags, uint32_t, uint32_t)
-{
-    switch (value) {
-    case XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT: return "XR_PLANE_DETECTOR_ENABLE_CONTOUR_BIT_EXT";
-    default: break;
-    }
-    return "Unhandled XrPlaneDetectorFlagBitsEXT";
-}
-
-template <> std::string ToString<XrPlaneDetectorFlagBitsEXT>(XrFlags xrFlags, ToStringFlags, uint32_t, uint32_t)
-{
-    return BitmaskToString<XrPlaneDetectorFlagBitsEXT>(xrFlags);
 }
 
 template <> std::string ToString<XrPlaneDetectorOrientationEXT>(const XrPlaneDetectorOrientationEXT& value, ToStringFlags, uint32_t, uint32_t)

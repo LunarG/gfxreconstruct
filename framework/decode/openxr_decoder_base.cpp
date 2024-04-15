@@ -74,17 +74,6 @@ void OpenXrDecoderBase::DispatchDisplayMessageCommand(format::ThreadId thread_id
     }
 }
 
-void OpenXrDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
-                                           const ApiCallInfo& call_info,
-                                           const uint8_t*     parameter_buffer,
-                                           size_t             buffer_size)
-{
-    GFXRECON_UNREFERENCED_PARAMETER(call_id);
-    GFXRECON_UNREFERENCED_PARAMETER(call_info);
-    GFXRECON_UNREFERENCED_PARAMETER(parameter_buffer);
-    GFXRECON_UNREFERENCED_PARAMETER(buffer_size);
-}
-
 void OpenXrDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)
