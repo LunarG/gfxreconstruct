@@ -68,7 +68,13 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                     !strcmp(file_extension3, "bin") || !strcmp(file_extension4, "json") ||
                     !strcmp(file_extension4, "astc"))
                 {
-                    std::string full_path = options.dump_resources_output_dir + std::string(dir->d_name);
+                    std::string full_path = options.dump_resources_output_dir;
+                    char&       last_char = full_path.back();
+                    if (last_char != '/')
+                    {
+                        full_path += '/';
+                    }
+                    full_path += std::string(dir->d_name);
                     GFXRECON_LOG_INFO("Deleting file %s", full_path.c_str());
                     if (remove(full_path.c_str()))
                     {
