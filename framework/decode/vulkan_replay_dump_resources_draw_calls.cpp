@@ -930,7 +930,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
     if (output_json_per_command)
     {
         const std::string dc_json_filename = "DrawCall_" + std::to_string(dc_index);
-        draw_call_output_json.VulkanReplayDumpResourcesJsonOpen(dc_json_filename, dump_resource_path);
+        draw_call_output_json.VulkanReplayDumpResourcesJsonOpen(
+            dc_json_filename, dump_resource_path, dump_resources_scale);
         draw_call_output_json.VulkanReplayDumpResourcesJsonBlockStart();
 
         output_json_writer = &draw_call_output_json;

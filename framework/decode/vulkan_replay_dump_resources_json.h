@@ -34,26 +34,27 @@ class VulkanReplayDumpResourcesJson
   public:
     VulkanReplayDumpResourcesJson();
 
-    void VulkanReplayDumpResourcesJsonOpen(const std::string& infile, const std::string& outdir);
+    ~VulkanReplayDumpResourcesJson();
+
+    void VulkanReplayDumpResourcesJsonOpen(const std::string& infile, const std::string& outdir, float scale);
+
+    void VulkanReplayDumpResourcesJsonClose();
 
     void VulkanReplayDumpResourcesJsonBlockStart();
 
     void VulkanReplayDumpResourcesJsonBlockEnd();
 
-    void VulkanReplayDumpResourcesJsonData(const std::string descriptor, const std::string value);
-
-    void VulkanReplayDumpResourcesJsonData(const std::string descriptor, const uint64_t value);
-
-    void VulkanReplayDumpResourcesJsonClose();
-
-    ~VulkanReplayDumpResourcesJson();
+    template <typename T>
+    void VulkanReplayDumpResourcesJsonData(const std::string& descriptor, const T& value)
+    {
+        (*json_data_)[descriptor] = value;
+    }
 
   private:
-    FILE*                                                   jsonFileHandle_{ NULL };
+    FILE*                                                   jsonFileHandle_{ nullptr };
     std::unique_ptr<gfxrecon::util::FileNoLockOutputStream> out_stream_;
     std::unique_ptr<gfxrecon::decode::JsonWriter>           json_writer_;
-    std::unique_ptr<nlohmann::ordered_json>                 dump_;
-    nlohmann::ordered_json*                                 json_data_{ NULL };
+    nlohmann::ordered_json*                                 json_data_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

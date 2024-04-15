@@ -23,7 +23,7 @@
 #include "vulkan_replay_dump_resources_json.h"
 #include "project_version.h"
 #include "util/logging.h"
-#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -31,7 +31,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(){};
 
 void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonOpen(const std::string& infile,
-                                                                      const std::string& outdir)
+                                                                      const std::string& outdir,
+                                                                      float              scale)
 {
 
     std::filesystem::path path_outfile(outdir);
@@ -46,9 +47,14 @@ void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonOpen(const std:
     }
     outfile = outfile + "_rd.json";
 
-    gfxrecon::util::platform::FileOpen(&jsonFileHandle_, outfile.c_str(), "w");
-    if (!jsonFileHandle_) {
+    int ret = gfxrecon::util::platform::FileOpen(&jsonFileHandle_, outfile.c_str(), "w");
+    if (ret || jsonFileHandle_ == nullptr)
+    {
+#if defined(WIN32)
         GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s", outfile.c_str());
+#else
+        GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s (%s)", outfile.c_str(), strerror(ret));
+#endif
         exit(1);
     }
 
@@ -67,42 +73,20 @@ void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonOpen(const std:
         std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
         std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
         std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+    json_writer_->GetHeaderJson()["Dumped images scale factor"] = scale;
     json_writer_->StartStream(out_stream_.get());
-
-    dump_ = std::unique_ptr<nlohmann::ordered_json>(new nlohmann::ordered_json());
 }
 
 void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonBlockStart()
 {
     json_data_ = &json_writer_->WriteBlockStart();
-    (*dump_).clear();
 }
 
 void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonBlockEnd()
 {
-    static uint32_t n                                    = 0;
-    (*json_data_)["resourceDump_" + std::to_string(n++)] = *dump_;
     json_writer_->WriteBlockEnd();
 }
 
-void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonData(const std::string descriptor,
-                                                                      const std::string value)
-{
-    (*dump_)[descriptor] = value;
-}
-
-void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonData(const std::string descriptor,
-                                                                      const uint64_t    value)
-{
-    (*dump_)[descriptor] = value;
-}
-
-// TODO:
-// Should move this code to the destructor and delete this method. But it's a
-// a separate method because VulkanReplayResourceDump is calling exit(0),
-// which results in destructors not being called and the json file not getting
-// closed out. VulkanReplayResourceDump explicity calls this method before
-// calling exit(0).
 void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonClose()
 {
     if (jsonFileHandle_)
