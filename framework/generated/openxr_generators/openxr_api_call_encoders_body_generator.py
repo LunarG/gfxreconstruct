@@ -210,13 +210,13 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         arg_list = self.make_arg_list(values)
 
         capture_manager = 'manager'
-        if name == "xrCreateInstance":
+        if name == "xrCreateApiLayerInstance":
             capture_manager = 'OpenXrCaptureManager::Get()'
         body = ''
-        if name != "xrCreateInstance":
+        if name != "xrCreateApiLayerInstance":
             body += indent + 'OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();\n'
             body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
-        if name == "xrCreateInstance":
+        if name == "xrCreateApiLayerInstance":
             body += indent + 'auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();\n'
         else:
             body += indent + 'auto force_command_serialization = manager->GetForceCommandSerialization();\n'
@@ -375,7 +375,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_begin_api_call(self, name, values):
         capture_manager = 'manager'
-        if name == 'xrCreateInstance':
+        if name == 'xrCreateApiLayerInstance':
             capture_manager = 'OpenXrCaptureManager::Get()'
 
         if name.startswith('xrCreate') or name.startswith('xrDestroy'):
@@ -412,7 +412,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
     def make_end_api_call(self, name, values, return_type):
         decl = 'manager->'
-        if name == 'xrCreateInstance':
+        if name == 'xrCreateApiLayerInstance':
             decl = 'OpenXrCaptureManager::Get()->'
 
         if name.startswith('xrCreate'):

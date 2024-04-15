@@ -1421,6 +1421,9 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
+    def get_api_prefix(self):
+        return 'Vulkan'
+
     def get_prefix_from_type(self):
         return 'Vulkan'
 
@@ -1515,6 +1518,9 @@ class BaseGenerator(OutputGenerator):
 
     def is_dx12_class(self):
         return True if ('Dx12' in self.__class__.__name__) else False
+
+    def is_openxr_class(self):
+        return True if ('OpenXr' in self.__class__.__name__) else False
 
     def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.

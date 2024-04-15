@@ -107,6 +107,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanD
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_timespec* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t    bytes_read = 0;
+    timespec* value      = wrapper->decoded_value;
+
+    return bytes_read;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

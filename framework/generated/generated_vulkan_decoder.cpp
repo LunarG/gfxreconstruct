@@ -13556,6 +13556,7 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     default:
         VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
         break;
+
     case format::ApiCallId::ApiCall_vkCreateInstance:
         Decode_vkCreateInstance(call_info, parameter_buffer, buffer_size);
         break;

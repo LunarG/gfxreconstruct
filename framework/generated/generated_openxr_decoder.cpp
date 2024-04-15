@@ -49,7 +49,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-size_t VulkanDecoder::Decode_xrDestroyInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -67,7 +67,7 @@ size_t VulkanDecoder::Decode_xrDestroyInstance(const ApiCallInfo& call_info, con
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetInstanceProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetInstanceProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -87,7 +87,7 @@ size_t VulkanDecoder::Decode_xrGetInstanceProperties(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPollEvent(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPollEvent(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -107,7 +107,7 @@ size_t VulkanDecoder::Decode_xrPollEvent(const ApiCallInfo& call_info, const uin
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrResultToString(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrResultToString(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -129,7 +129,7 @@ size_t VulkanDecoder::Decode_xrResultToString(const ApiCallInfo& call_info, cons
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrStructureTypeToString(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrStructureTypeToString(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -151,7 +151,7 @@ size_t VulkanDecoder::Decode_xrStructureTypeToString(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSystem(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSystem(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -173,7 +173,7 @@ size_t VulkanDecoder::Decode_xrGetSystem(const ApiCallInfo& call_info, const uin
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSystemProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSystemProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -195,7 +195,7 @@ size_t VulkanDecoder::Decode_xrGetSystemProperties(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateEnvironmentBlendModes(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateEnvironmentBlendModes(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -223,7 +223,7 @@ size_t VulkanDecoder::Decode_xrEnumerateEnvironmentBlendModes(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -245,7 +245,7 @@ size_t VulkanDecoder::Decode_xrCreateSession(const ApiCallInfo& call_info, const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -263,7 +263,7 @@ size_t VulkanDecoder::Decode_xrDestroySession(const ApiCallInfo& call_info, cons
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateReferenceSpaces(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateReferenceSpaces(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -287,7 +287,7 @@ size_t VulkanDecoder::Decode_xrEnumerateReferenceSpaces(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateReferenceSpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateReferenceSpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -309,7 +309,7 @@ size_t VulkanDecoder::Decode_xrCreateReferenceSpace(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetReferenceSpaceBoundsRect(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetReferenceSpaceBoundsRect(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -331,7 +331,7 @@ size_t VulkanDecoder::Decode_xrGetReferenceSpaceBoundsRect(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateActionSpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateActionSpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -353,7 +353,7 @@ size_t VulkanDecoder::Decode_xrCreateActionSpace(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrLocateSpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrLocateSpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -377,7 +377,7 @@ size_t VulkanDecoder::Decode_xrLocateSpace(const ApiCallInfo& call_info, const u
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySpace(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -395,7 +395,7 @@ size_t VulkanDecoder::Decode_xrDestroySpace(const ApiCallInfo& call_info, const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateViewConfigurations(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateViewConfigurations(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -421,7 +421,7 @@ size_t VulkanDecoder::Decode_xrEnumerateViewConfigurations(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetViewConfigurationProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetViewConfigurationProperties(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -445,7 +445,7 @@ size_t VulkanDecoder::Decode_xrGetViewConfigurationProperties(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateViewConfigurationViews(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateViewConfigurationViews(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -473,7 +473,7 @@ size_t VulkanDecoder::Decode_xrEnumerateViewConfigurationViews(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateSwapchainFormats(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateSwapchainFormats(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -497,7 +497,7 @@ size_t VulkanDecoder::Decode_xrEnumerateSwapchainFormats(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSwapchain(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSwapchain(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -519,7 +519,7 @@ size_t VulkanDecoder::Decode_xrCreateSwapchain(const ApiCallInfo& call_info, con
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySwapchain(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySwapchain(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -537,7 +537,7 @@ size_t VulkanDecoder::Decode_xrDestroySwapchain(const ApiCallInfo& call_info, co
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateSwapchainImages(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateSwapchainImages(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -561,7 +561,7 @@ size_t VulkanDecoder::Decode_xrEnumerateSwapchainImages(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrAcquireSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrAcquireSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -583,7 +583,7 @@ size_t VulkanDecoder::Decode_xrAcquireSwapchainImage(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrWaitSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrWaitSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -603,7 +603,7 @@ size_t VulkanDecoder::Decode_xrWaitSwapchainImage(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrReleaseSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrReleaseSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -623,7 +623,7 @@ size_t VulkanDecoder::Decode_xrReleaseSwapchainImage(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrBeginSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrBeginSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -643,7 +643,7 @@ size_t VulkanDecoder::Decode_xrBeginSession(const ApiCallInfo& call_info, const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEndSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEndSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -661,7 +661,7 @@ size_t VulkanDecoder::Decode_xrEndSession(const ApiCallInfo& call_info, const ui
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrRequestExitSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrRequestExitSession(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -679,7 +679,7 @@ size_t VulkanDecoder::Decode_xrRequestExitSession(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrWaitFrame(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrWaitFrame(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -701,7 +701,7 @@ size_t VulkanDecoder::Decode_xrWaitFrame(const ApiCallInfo& call_info, const uin
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrBeginFrame(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrBeginFrame(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -721,7 +721,7 @@ size_t VulkanDecoder::Decode_xrBeginFrame(const ApiCallInfo& call_info, const ui
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEndFrame(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEndFrame(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -741,7 +741,7 @@ size_t VulkanDecoder::Decode_xrEndFrame(const ApiCallInfo& call_info, const uint
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrLocateViews(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrLocateViews(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -769,7 +769,7 @@ size_t VulkanDecoder::Decode_xrLocateViews(const ApiCallInfo& call_info, const u
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrStringToPath(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrStringToPath(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -791,7 +791,7 @@ size_t VulkanDecoder::Decode_xrStringToPath(const ApiCallInfo& call_info, const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPathToString(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPathToString(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -817,7 +817,7 @@ size_t VulkanDecoder::Decode_xrPathToString(const ApiCallInfo& call_info, const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateActionSet(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateActionSet(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -839,7 +839,7 @@ size_t VulkanDecoder::Decode_xrCreateActionSet(const ApiCallInfo& call_info, con
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyActionSet(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyActionSet(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -857,7 +857,7 @@ size_t VulkanDecoder::Decode_xrDestroyActionSet(const ApiCallInfo& call_info, co
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateAction(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateAction(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -879,7 +879,7 @@ size_t VulkanDecoder::Decode_xrCreateAction(const ApiCallInfo& call_info, const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyAction(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyAction(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -897,7 +897,7 @@ size_t VulkanDecoder::Decode_xrDestroyAction(const ApiCallInfo& call_info, const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSuggestInteractionProfileBindings(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSuggestInteractionProfileBindings(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -917,7 +917,7 @@ size_t VulkanDecoder::Decode_xrSuggestInteractionProfileBindings(const ApiCallIn
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrAttachSessionActionSets(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrAttachSessionActionSets(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -937,7 +937,7 @@ size_t VulkanDecoder::Decode_xrAttachSessionActionSets(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetCurrentInteractionProfile(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetCurrentInteractionProfile(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -959,7 +959,7 @@ size_t VulkanDecoder::Decode_xrGetCurrentInteractionProfile(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetActionStateBoolean(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetActionStateBoolean(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -981,7 +981,7 @@ size_t VulkanDecoder::Decode_xrGetActionStateBoolean(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetActionStateFloat(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetActionStateFloat(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1003,7 +1003,7 @@ size_t VulkanDecoder::Decode_xrGetActionStateFloat(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetActionStateVector2f(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetActionStateVector2f(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1025,7 +1025,7 @@ size_t VulkanDecoder::Decode_xrGetActionStateVector2f(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetActionStatePose(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetActionStatePose(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1047,7 +1047,7 @@ size_t VulkanDecoder::Decode_xrGetActionStatePose(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSyncActions(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSyncActions(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1067,7 +1067,7 @@ size_t VulkanDecoder::Decode_xrSyncActions(const ApiCallInfo& call_info, const u
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateBoundSourcesForAction(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateBoundSourcesForAction(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1093,7 +1093,7 @@ size_t VulkanDecoder::Decode_xrEnumerateBoundSourcesForAction(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetInputSourceLocalizedName(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetInputSourceLocalizedName(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1119,7 +1119,7 @@ size_t VulkanDecoder::Decode_xrGetInputSourceLocalizedName(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrApplyHapticFeedback(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrApplyHapticFeedback(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1141,7 +1141,7 @@ size_t VulkanDecoder::Decode_xrApplyHapticFeedback(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrStopHapticFeedback(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrStopHapticFeedback(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1161,7 +1161,7 @@ size_t VulkanDecoder::Decode_xrStopHapticFeedback(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateApiLayerInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateApiLayerInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1183,7 +1183,7 @@ size_t VulkanDecoder::Decode_xrCreateApiLayerInstance(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetAndroidApplicationThreadKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetAndroidApplicationThreadKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1205,7 +1205,7 @@ size_t VulkanDecoder::Decode_xrSetAndroidApplicationThreadKHR(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSwapchainAndroidSurfaceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSwapchainAndroidSurfaceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1229,7 +1229,7 @@ size_t VulkanDecoder::Decode_xrCreateSwapchainAndroidSurfaceKHR(const ApiCallInf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetOpenGLGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetOpenGLGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1251,7 +1251,7 @@ size_t VulkanDecoder::Decode_xrGetOpenGLGraphicsRequirementsKHR(const ApiCallInf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetOpenGLESGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetOpenGLESGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1273,7 +1273,7 @@ size_t VulkanDecoder::Decode_xrGetOpenGLESGraphicsRequirementsKHR(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVulkanInstanceExtensionsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVulkanInstanceExtensionsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1299,7 +1299,7 @@ size_t VulkanDecoder::Decode_xrGetVulkanInstanceExtensionsKHR(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVulkanDeviceExtensionsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVulkanDeviceExtensionsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1325,7 +1325,7 @@ size_t VulkanDecoder::Decode_xrGetVulkanDeviceExtensionsKHR(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1349,7 +1349,7 @@ size_t VulkanDecoder::Decode_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVulkanGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1371,7 +1371,7 @@ size_t VulkanDecoder::Decode_xrGetVulkanGraphicsRequirementsKHR(const ApiCallInf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetD3D11GraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetD3D11GraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1393,7 +1393,7 @@ size_t VulkanDecoder::Decode_xrGetD3D11GraphicsRequirementsKHR(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetD3D12GraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetD3D12GraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1415,7 +1415,7 @@ size_t VulkanDecoder::Decode_xrGetD3D12GraphicsRequirementsKHR(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVisibilityMaskKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVisibilityMaskKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1441,7 +1441,7 @@ size_t VulkanDecoder::Decode_xrGetVisibilityMaskKHR(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrConvertWin32PerformanceCounterToTimeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrConvertWin32PerformanceCounterToTimeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1463,7 +1463,7 @@ size_t VulkanDecoder::Decode_xrConvertWin32PerformanceCounterToTimeKHR(const Api
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrConvertTimeToWin32PerformanceCounterKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrConvertTimeToWin32PerformanceCounterKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1485,7 +1485,7 @@ size_t VulkanDecoder::Decode_xrConvertTimeToWin32PerformanceCounterKHR(const Api
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrConvertTimespecTimeToTimeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrConvertTimespecTimeToTimeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1507,7 +1507,7 @@ size_t VulkanDecoder::Decode_xrConvertTimespecTimeToTimeKHR(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrConvertTimeToTimespecTimeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrConvertTimeToTimespecTimeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1530,7 +1530,7 @@ size_t VulkanDecoder::Decode_xrConvertTimeToTimespecTimeKHR(const ApiCallInfo& c
 }
 
 
-size_t VulkanDecoder::Decode_xrCreateVulkanInstanceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateVulkanInstanceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1554,7 +1554,7 @@ size_t VulkanDecoder::Decode_xrCreateVulkanInstanceKHR(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateVulkanDeviceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateVulkanDeviceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1578,7 +1578,7 @@ size_t VulkanDecoder::Decode_xrCreateVulkanDeviceKHR(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVulkanGraphicsDevice2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsDevice2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1600,7 +1600,7 @@ size_t VulkanDecoder::Decode_xrGetVulkanGraphicsDevice2KHR(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVulkanGraphicsRequirements2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsRequirements2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1622,7 +1622,7 @@ size_t VulkanDecoder::Decode_xrGetVulkanGraphicsRequirements2KHR(const ApiCallIn
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPerfSettingsSetPerformanceLevelEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPerfSettingsSetPerformanceLevelEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1644,7 +1644,7 @@ size_t VulkanDecoder::Decode_xrPerfSettingsSetPerformanceLevelEXT(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrThermalGetTemperatureTrendEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrThermalGetTemperatureTrendEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1670,7 +1670,7 @@ size_t VulkanDecoder::Decode_xrThermalGetTemperatureTrendEXT(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetDebugUtilsObjectNameEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetDebugUtilsObjectNameEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1690,7 +1690,7 @@ size_t VulkanDecoder::Decode_xrSetDebugUtilsObjectNameEXT(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateDebugUtilsMessengerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateDebugUtilsMessengerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1712,7 +1712,7 @@ size_t VulkanDecoder::Decode_xrCreateDebugUtilsMessengerEXT(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyDebugUtilsMessengerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyDebugUtilsMessengerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1730,7 +1730,7 @@ size_t VulkanDecoder::Decode_xrDestroyDebugUtilsMessengerEXT(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSubmitDebugUtilsMessageEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSubmitDebugUtilsMessageEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1754,7 +1754,7 @@ size_t VulkanDecoder::Decode_xrSubmitDebugUtilsMessageEXT(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSessionBeginDebugUtilsLabelRegionEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSessionBeginDebugUtilsLabelRegionEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1774,7 +1774,7 @@ size_t VulkanDecoder::Decode_xrSessionBeginDebugUtilsLabelRegionEXT(const ApiCal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSessionEndDebugUtilsLabelRegionEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSessionEndDebugUtilsLabelRegionEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1792,7 +1792,7 @@ size_t VulkanDecoder::Decode_xrSessionEndDebugUtilsLabelRegionEXT(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSessionInsertDebugUtilsLabelEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSessionInsertDebugUtilsLabelEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1812,7 +1812,7 @@ size_t VulkanDecoder::Decode_xrSessionInsertDebugUtilsLabelEXT(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1834,7 +1834,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialAnchorMSFT(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialAnchorSpaceMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorSpaceMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1856,7 +1856,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialAnchorSpaceMSFT(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1874,7 +1874,7 @@ size_t VulkanDecoder::Decode_xrDestroySpatialAnchorMSFT(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetInputDeviceActiveEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetInputDeviceActiveEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1898,7 +1898,7 @@ size_t VulkanDecoder::Decode_xrSetInputDeviceActiveEXT(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetInputDeviceStateBoolEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetInputDeviceStateBoolEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1922,7 +1922,7 @@ size_t VulkanDecoder::Decode_xrSetInputDeviceStateBoolEXT(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetInputDeviceStateFloatEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetInputDeviceStateFloatEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1946,7 +1946,7 @@ size_t VulkanDecoder::Decode_xrSetInputDeviceStateFloatEXT(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetInputDeviceStateVector2fEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetInputDeviceStateVector2fEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -1972,7 +1972,7 @@ size_t VulkanDecoder::Decode_xrSetInputDeviceStateVector2fEXT(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetInputDeviceLocationEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetInputDeviceLocationEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2000,7 +2000,7 @@ size_t VulkanDecoder::Decode_xrSetInputDeviceLocationEXT(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialGraphNodeSpaceMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialGraphNodeSpaceMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2022,7 +2022,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialGraphNodeSpaceMSFT(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrTryCreateSpatialGraphStaticNodeBindingMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrTryCreateSpatialGraphStaticNodeBindingMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2044,7 +2044,7 @@ size_t VulkanDecoder::Decode_xrTryCreateSpatialGraphStaticNodeBindingMSFT(const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySpatialGraphNodeBindingMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySpatialGraphNodeBindingMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2062,7 +2062,7 @@ size_t VulkanDecoder::Decode_xrDestroySpatialGraphNodeBindingMSFT(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpatialGraphNodeBindingPropertiesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpatialGraphNodeBindingPropertiesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2084,7 +2084,7 @@ size_t VulkanDecoder::Decode_xrGetSpatialGraphNodeBindingPropertiesMSFT(const Ap
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateHandTrackerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateHandTrackerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2106,7 +2106,7 @@ size_t VulkanDecoder::Decode_xrCreateHandTrackerEXT(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyHandTrackerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyHandTrackerEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2124,7 +2124,7 @@ size_t VulkanDecoder::Decode_xrDestroyHandTrackerEXT(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrLocateHandJointsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrLocateHandJointsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2146,7 +2146,7 @@ size_t VulkanDecoder::Decode_xrLocateHandJointsEXT(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateHandMeshSpaceMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateHandMeshSpaceMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2168,7 +2168,7 @@ size_t VulkanDecoder::Decode_xrCreateHandMeshSpaceMSFT(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrUpdateHandMeshMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrUpdateHandMeshMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2190,7 +2190,7 @@ size_t VulkanDecoder::Decode_xrUpdateHandMeshMSFT(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetControllerModelKeyMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetControllerModelKeyMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2212,7 +2212,7 @@ size_t VulkanDecoder::Decode_xrGetControllerModelKeyMSFT(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrLoadControllerModelMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrLoadControllerModelMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2238,7 +2238,7 @@ size_t VulkanDecoder::Decode_xrLoadControllerModelMSFT(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetControllerModelPropertiesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetControllerModelPropertiesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2260,7 +2260,7 @@ size_t VulkanDecoder::Decode_xrGetControllerModelPropertiesMSFT(const ApiCallInf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetControllerModelStateMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetControllerModelStateMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2282,7 +2282,7 @@ size_t VulkanDecoder::Decode_xrGetControllerModelStateMSFT(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialAnchorFromPerceptionAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorFromPerceptionAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2304,7 +2304,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialAnchorFromPerceptionAnchorMSFT(const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2326,7 +2326,7 @@ size_t VulkanDecoder::Decode_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateReprojectionModesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateReprojectionModesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2354,7 +2354,7 @@ size_t VulkanDecoder::Decode_xrEnumerateReprojectionModesMSFT(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrUpdateSwapchainFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrUpdateSwapchainFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2374,7 +2374,7 @@ size_t VulkanDecoder::Decode_xrUpdateSwapchainFB(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSwapchainStateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSwapchainStateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2394,7 +2394,7 @@ size_t VulkanDecoder::Decode_xrGetSwapchainStateFB(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateBodyTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateBodyTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2416,7 +2416,7 @@ size_t VulkanDecoder::Decode_xrCreateBodyTrackerFB(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyBodyTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyBodyTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2434,7 +2434,7 @@ size_t VulkanDecoder::Decode_xrDestroyBodyTrackerFB(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrLocateBodyJointsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrLocateBodyJointsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2456,7 +2456,7 @@ size_t VulkanDecoder::Decode_xrLocateBodyJointsFB(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetBodySkeletonFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetBodySkeletonFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2476,7 +2476,7 @@ size_t VulkanDecoder::Decode_xrGetBodySkeletonFB(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateSceneComputeFeaturesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateSceneComputeFeaturesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2502,7 +2502,7 @@ size_t VulkanDecoder::Decode_xrEnumerateSceneComputeFeaturesMSFT(const ApiCallIn
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSceneObserverMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSceneObserverMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2524,7 +2524,7 @@ size_t VulkanDecoder::Decode_xrCreateSceneObserverMSFT(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySceneObserverMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySceneObserverMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2542,7 +2542,7 @@ size_t VulkanDecoder::Decode_xrDestroySceneObserverMSFT(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2564,7 +2564,7 @@ size_t VulkanDecoder::Decode_xrCreateSceneMSFT(const ApiCallInfo& call_info, con
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2582,7 +2582,7 @@ size_t VulkanDecoder::Decode_xrDestroySceneMSFT(const ApiCallInfo& call_info, co
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrComputeNewSceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrComputeNewSceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2602,7 +2602,7 @@ size_t VulkanDecoder::Decode_xrComputeNewSceneMSFT(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSceneComputeStateMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSceneComputeStateMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2622,7 +2622,7 @@ size_t VulkanDecoder::Decode_xrGetSceneComputeStateMSFT(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSceneComponentsMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSceneComponentsMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2644,7 +2644,7 @@ size_t VulkanDecoder::Decode_xrGetSceneComponentsMSFT(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrLocateSceneComponentsMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrLocateSceneComponentsMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2666,7 +2666,7 @@ size_t VulkanDecoder::Decode_xrLocateSceneComponentsMSFT(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSceneMeshBuffersMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSceneMeshBuffersMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2688,7 +2688,7 @@ size_t VulkanDecoder::Decode_xrGetSceneMeshBuffersMSFT(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDeserializeSceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDeserializeSceneMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2708,7 +2708,7 @@ size_t VulkanDecoder::Decode_xrDeserializeSceneMSFT(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSerializedSceneFragmentDataMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSerializedSceneFragmentDataMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2734,7 +2734,7 @@ size_t VulkanDecoder::Decode_xrGetSerializedSceneFragmentDataMSFT(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateDisplayRefreshRatesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateDisplayRefreshRatesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2758,7 +2758,7 @@ size_t VulkanDecoder::Decode_xrEnumerateDisplayRefreshRatesFB(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetDisplayRefreshRateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetDisplayRefreshRateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2778,7 +2778,7 @@ size_t VulkanDecoder::Decode_xrGetDisplayRefreshRateFB(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrRequestDisplayRefreshRateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrRequestDisplayRefreshRateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2798,7 +2798,7 @@ size_t VulkanDecoder::Decode_xrRequestDisplayRefreshRateFB(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateViveTrackerPathsHTCX(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateViveTrackerPathsHTCX(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2822,7 +2822,7 @@ size_t VulkanDecoder::Decode_xrEnumerateViveTrackerPathsHTCX(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateFacialTrackerHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateFacialTrackerHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2844,7 +2844,7 @@ size_t VulkanDecoder::Decode_xrCreateFacialTrackerHTC(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyFacialTrackerHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyFacialTrackerHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2862,7 +2862,7 @@ size_t VulkanDecoder::Decode_xrDestroyFacialTrackerHTC(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetFacialExpressionsHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetFacialExpressionsHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2882,7 +2882,7 @@ size_t VulkanDecoder::Decode_xrGetFacialExpressionsHTC(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateColorSpacesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateColorSpacesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2906,7 +2906,7 @@ size_t VulkanDecoder::Decode_xrEnumerateColorSpacesFB(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetColorSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetColorSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2926,7 +2926,7 @@ size_t VulkanDecoder::Decode_xrSetColorSpaceFB(const ApiCallInfo& call_info, con
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetHandMeshFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetHandMeshFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2946,7 +2946,7 @@ size_t VulkanDecoder::Decode_xrGetHandMeshFB(const ApiCallInfo& call_info, const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialAnchorFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2968,7 +2968,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialAnchorFB(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceUuidFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceUuidFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -2988,7 +2988,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceUuidFB(const ApiCallInfo& call_info, cons
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateSpaceSupportedComponentsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateSpaceSupportedComponentsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3012,7 +3012,7 @@ size_t VulkanDecoder::Decode_xrEnumerateSpaceSupportedComponentsFB(const ApiCall
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetSpaceComponentStatusFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetSpaceComponentStatusFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3034,7 +3034,7 @@ size_t VulkanDecoder::Decode_xrSetSpaceComponentStatusFB(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceComponentStatusFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceComponentStatusFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3056,7 +3056,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceComponentStatusFB(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateFoveationProfileFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateFoveationProfileFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3078,7 +3078,7 @@ size_t VulkanDecoder::Decode_xrCreateFoveationProfileFB(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyFoveationProfileFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyFoveationProfileFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3096,7 +3096,7 @@ size_t VulkanDecoder::Decode_xrDestroyFoveationProfileFB(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrQuerySystemTrackedKeyboardFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrQuerySystemTrackedKeyboardFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3118,7 +3118,7 @@ size_t VulkanDecoder::Decode_xrQuerySystemTrackedKeyboardFB(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateKeyboardSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateKeyboardSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3140,7 +3140,7 @@ size_t VulkanDecoder::Decode_xrCreateKeyboardSpaceFB(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrTriangleMeshBeginUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrTriangleMeshBeginUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3158,7 +3158,7 @@ size_t VulkanDecoder::Decode_xrTriangleMeshBeginUpdateFB(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrTriangleMeshEndUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrTriangleMeshEndUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3180,7 +3180,7 @@ size_t VulkanDecoder::Decode_xrTriangleMeshEndUpdateFB(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrTriangleMeshBeginVertexBufferUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrTriangleMeshBeginVertexBufferUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3200,7 +3200,7 @@ size_t VulkanDecoder::Decode_xrTriangleMeshBeginVertexBufferUpdateFB(const ApiCa
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrTriangleMeshEndVertexBufferUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrTriangleMeshEndVertexBufferUpdateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3218,7 +3218,7 @@ size_t VulkanDecoder::Decode_xrTriangleMeshEndVertexBufferUpdateFB(const ApiCall
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreatePassthroughFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreatePassthroughFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3240,7 +3240,7 @@ size_t VulkanDecoder::Decode_xrCreatePassthroughFB(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyPassthroughFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyPassthroughFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3258,7 +3258,7 @@ size_t VulkanDecoder::Decode_xrDestroyPassthroughFB(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPassthroughStartFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPassthroughStartFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3276,7 +3276,7 @@ size_t VulkanDecoder::Decode_xrPassthroughStartFB(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPassthroughPauseFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPassthroughPauseFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3294,7 +3294,7 @@ size_t VulkanDecoder::Decode_xrPassthroughPauseFB(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreatePassthroughLayerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreatePassthroughLayerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3316,7 +3316,7 @@ size_t VulkanDecoder::Decode_xrCreatePassthroughLayerFB(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyPassthroughLayerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyPassthroughLayerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3334,7 +3334,7 @@ size_t VulkanDecoder::Decode_xrDestroyPassthroughLayerFB(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPassthroughLayerPauseFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPassthroughLayerPauseFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3352,7 +3352,7 @@ size_t VulkanDecoder::Decode_xrPassthroughLayerPauseFB(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPassthroughLayerResumeFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPassthroughLayerResumeFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3370,7 +3370,7 @@ size_t VulkanDecoder::Decode_xrPassthroughLayerResumeFB(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPassthroughLayerSetStyleFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPassthroughLayerSetStyleFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3390,7 +3390,7 @@ size_t VulkanDecoder::Decode_xrPassthroughLayerSetStyleFB(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateGeometryInstanceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateGeometryInstanceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3412,7 +3412,7 @@ size_t VulkanDecoder::Decode_xrCreateGeometryInstanceFB(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyGeometryInstanceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyGeometryInstanceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3430,7 +3430,7 @@ size_t VulkanDecoder::Decode_xrDestroyGeometryInstanceFB(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGeometryInstanceSetTransformFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGeometryInstanceSetTransformFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3450,7 +3450,7 @@ size_t VulkanDecoder::Decode_xrGeometryInstanceSetTransformFB(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateRenderModelPathsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateRenderModelPathsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3474,7 +3474,7 @@ size_t VulkanDecoder::Decode_xrEnumerateRenderModelPathsFB(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetRenderModelPropertiesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetRenderModelPropertiesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3496,7 +3496,7 @@ size_t VulkanDecoder::Decode_xrGetRenderModelPropertiesFB(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrLoadRenderModelFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrLoadRenderModelFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3518,7 +3518,7 @@ size_t VulkanDecoder::Decode_xrLoadRenderModelFB(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetEnvironmentDepthEstimationVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetEnvironmentDepthEstimationVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3538,7 +3538,7 @@ size_t VulkanDecoder::Decode_xrSetEnvironmentDepthEstimationVARJO(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetMarkerTrackingVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetMarkerTrackingVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3558,7 +3558,7 @@ size_t VulkanDecoder::Decode_xrSetMarkerTrackingVARJO(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetMarkerTrackingTimeoutVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetMarkerTrackingTimeoutVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3580,7 +3580,7 @@ size_t VulkanDecoder::Decode_xrSetMarkerTrackingTimeoutVARJO(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetMarkerTrackingPredictionVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetMarkerTrackingPredictionVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3602,7 +3602,7 @@ size_t VulkanDecoder::Decode_xrSetMarkerTrackingPredictionVARJO(const ApiCallInf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetMarkerSizeVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetMarkerSizeVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3624,7 +3624,7 @@ size_t VulkanDecoder::Decode_xrGetMarkerSizeVARJO(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateMarkerSpaceVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateMarkerSpaceVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3646,7 +3646,7 @@ size_t VulkanDecoder::Decode_xrCreateMarkerSpaceVARJO(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetViewOffsetVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetViewOffsetVARJO(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3666,7 +3666,7 @@ size_t VulkanDecoder::Decode_xrSetViewOffsetVARJO(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpaceFromCoordinateFrameUIDML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpaceFromCoordinateFrameUIDML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3688,7 +3688,7 @@ size_t VulkanDecoder::Decode_xrCreateSpaceFromCoordinateFrameUIDML(const ApiCall
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateMarkerDetectorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateMarkerDetectorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3710,7 +3710,7 @@ size_t VulkanDecoder::Decode_xrCreateMarkerDetectorML(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyMarkerDetectorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyMarkerDetectorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3728,7 +3728,7 @@ size_t VulkanDecoder::Decode_xrDestroyMarkerDetectorML(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSnapshotMarkerDetectorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSnapshotMarkerDetectorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3748,7 +3748,7 @@ size_t VulkanDecoder::Decode_xrSnapshotMarkerDetectorML(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetMarkerDetectorStateML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetMarkerDetectorStateML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3768,7 +3768,7 @@ size_t VulkanDecoder::Decode_xrGetMarkerDetectorStateML(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetMarkersML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetMarkersML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3792,7 +3792,7 @@ size_t VulkanDecoder::Decode_xrGetMarkersML(const ApiCallInfo& call_info, const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetMarkerReprojectionErrorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetMarkerReprojectionErrorML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3814,7 +3814,7 @@ size_t VulkanDecoder::Decode_xrGetMarkerReprojectionErrorML(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetMarkerLengthML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetMarkerLengthML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3836,7 +3836,7 @@ size_t VulkanDecoder::Decode_xrGetMarkerLengthML(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetMarkerNumberML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetMarkerNumberML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3858,7 +3858,7 @@ size_t VulkanDecoder::Decode_xrGetMarkerNumberML(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetMarkerStringML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetMarkerStringML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3884,7 +3884,7 @@ size_t VulkanDecoder::Decode_xrGetMarkerStringML(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateMarkerSpaceML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateMarkerSpaceML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3906,7 +3906,7 @@ size_t VulkanDecoder::Decode_xrCreateMarkerSpaceML(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnableLocalizationEventsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnableLocalizationEventsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3926,7 +3926,7 @@ size_t VulkanDecoder::Decode_xrEnableLocalizationEventsML(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrQueryLocalizationMapsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrQueryLocalizationMapsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3952,7 +3952,7 @@ size_t VulkanDecoder::Decode_xrQueryLocalizationMapsML(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrRequestMapLocalizationML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrRequestMapLocalizationML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3972,7 +3972,7 @@ size_t VulkanDecoder::Decode_xrRequestMapLocalizationML(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrImportLocalizationMapML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrImportLocalizationMapML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -3994,7 +3994,7 @@ size_t VulkanDecoder::Decode_xrImportLocalizationMapML(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateExportedLocalizationMapML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateExportedLocalizationMapML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4016,7 +4016,7 @@ size_t VulkanDecoder::Decode_xrCreateExportedLocalizationMapML(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyExportedLocalizationMapML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyExportedLocalizationMapML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4034,7 +4034,7 @@ size_t VulkanDecoder::Decode_xrDestroyExportedLocalizationMapML(const ApiCallInf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetExportedLocalizationMapDataML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetExportedLocalizationMapDataML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4058,7 +4058,7 @@ size_t VulkanDecoder::Decode_xrGetExportedLocalizationMapDataML(const ApiCallInf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialAnchorStoreConnectionMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorStoreConnectionMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4078,7 +4078,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialAnchorStoreConnectionMSFT(const ApiC
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySpatialAnchorStoreConnectionMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySpatialAnchorStoreConnectionMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4096,7 +4096,7 @@ size_t VulkanDecoder::Decode_xrDestroySpatialAnchorStoreConnectionMSFT(const Api
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPersistSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPersistSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4116,7 +4116,7 @@ size_t VulkanDecoder::Decode_xrPersistSpatialAnchorMSFT(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumeratePersistedSpatialAnchorNamesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumeratePersistedSpatialAnchorNamesMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4140,7 +4140,7 @@ size_t VulkanDecoder::Decode_xrEnumeratePersistedSpatialAnchorNamesMSFT(const Ap
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialAnchorFromPersistedNameMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorFromPersistedNameMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4162,7 +4162,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialAnchorFromPersistedNameMSFT(const Ap
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrUnpersistSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrUnpersistSpatialAnchorMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4182,7 +4182,7 @@ size_t VulkanDecoder::Decode_xrUnpersistSpatialAnchorMSFT(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrClearSpatialAnchorStoreMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrClearSpatialAnchorStoreMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4200,7 +4200,7 @@ size_t VulkanDecoder::Decode_xrClearSpatialAnchorStoreMSFT(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSceneMarkerRawDataMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSceneMarkerRawDataMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4226,7 +4226,7 @@ size_t VulkanDecoder::Decode_xrGetSceneMarkerRawDataMSFT(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSceneMarkerDecodedStringMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSceneMarkerDecodedStringMSFT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4252,7 +4252,7 @@ size_t VulkanDecoder::Decode_xrGetSceneMarkerDecodedStringMSFT(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrQuerySpacesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrQuerySpacesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4274,7 +4274,7 @@ size_t VulkanDecoder::Decode_xrQuerySpacesFB(const ApiCallInfo& call_info, const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrRetrieveSpaceQueryResultsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrRetrieveSpaceQueryResultsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4296,7 +4296,7 @@ size_t VulkanDecoder::Decode_xrRetrieveSpaceQueryResultsFB(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSaveSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSaveSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4318,7 +4318,7 @@ size_t VulkanDecoder::Decode_xrSaveSpaceFB(const ApiCallInfo& call_info, const u
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEraseSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEraseSpaceFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4340,7 +4340,7 @@ size_t VulkanDecoder::Decode_xrEraseSpaceFB(const ApiCallInfo& call_info, const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetAudioOutputDeviceGuidOculus(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetAudioOutputDeviceGuidOculus(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4360,7 +4360,7 @@ size_t VulkanDecoder::Decode_xrGetAudioOutputDeviceGuidOculus(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetAudioInputDeviceGuidOculus(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetAudioInputDeviceGuidOculus(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4380,7 +4380,7 @@ size_t VulkanDecoder::Decode_xrGetAudioInputDeviceGuidOculus(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrShareSpacesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrShareSpacesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4402,7 +4402,7 @@ size_t VulkanDecoder::Decode_xrShareSpacesFB(const ApiCallInfo& call_info, const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceBoundingBox2DFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceBoundingBox2DFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4424,7 +4424,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceBoundingBox2DFB(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceBoundingBox3DFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceBoundingBox3DFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4446,7 +4446,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceBoundingBox3DFB(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceSemanticLabelsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceSemanticLabelsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4468,7 +4468,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceSemanticLabelsFB(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceBoundary2DFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceBoundary2DFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4490,7 +4490,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceBoundary2DFB(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceRoomLayoutFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceRoomLayoutFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4512,7 +4512,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceRoomLayoutFB(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetDigitalLensControlALMALENCE(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetDigitalLensControlALMALENCE(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4532,7 +4532,7 @@ size_t VulkanDecoder::Decode_xrSetDigitalLensControlALMALENCE(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrRequestSceneCaptureFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrRequestSceneCaptureFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4554,7 +4554,7 @@ size_t VulkanDecoder::Decode_xrRequestSceneCaptureFB(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceContainerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceContainerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4576,7 +4576,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceContainerFB(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetFoveationEyeTrackedStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetFoveationEyeTrackedStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4596,7 +4596,7 @@ size_t VulkanDecoder::Decode_xrGetFoveationEyeTrackedStateMETA(const ApiCallInfo
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateFaceTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateFaceTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4618,7 +4618,7 @@ size_t VulkanDecoder::Decode_xrCreateFaceTrackerFB(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyFaceTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyFaceTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4636,7 +4636,7 @@ size_t VulkanDecoder::Decode_xrDestroyFaceTrackerFB(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetFaceExpressionWeightsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetFaceExpressionWeightsFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4658,7 +4658,7 @@ size_t VulkanDecoder::Decode_xrGetFaceExpressionWeightsFB(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateEyeTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateEyeTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4680,7 +4680,7 @@ size_t VulkanDecoder::Decode_xrCreateEyeTrackerFB(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyEyeTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyEyeTrackerFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4698,7 +4698,7 @@ size_t VulkanDecoder::Decode_xrDestroyEyeTrackerFB(const ApiCallInfo& call_info,
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetEyeGazesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetEyeGazesFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4720,7 +4720,7 @@ size_t VulkanDecoder::Decode_xrGetEyeGazesFB(const ApiCallInfo& call_info, const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrPassthroughLayerSetKeyboardHandsIntensityFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrPassthroughLayerSetKeyboardHandsIntensityFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4740,7 +4740,7 @@ size_t VulkanDecoder::Decode_xrPassthroughLayerSetKeyboardHandsIntensityFB(const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetDeviceSampleRateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetDeviceSampleRateFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4762,7 +4762,7 @@ size_t VulkanDecoder::Decode_xrGetDeviceSampleRateFB(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetPassthroughPreferencesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetPassthroughPreferencesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4782,7 +4782,7 @@ size_t VulkanDecoder::Decode_xrGetPassthroughPreferencesMETA(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateVirtualKeyboardMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateVirtualKeyboardMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4804,7 +4804,7 @@ size_t VulkanDecoder::Decode_xrCreateVirtualKeyboardMETA(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyVirtualKeyboardMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyVirtualKeyboardMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4822,7 +4822,7 @@ size_t VulkanDecoder::Decode_xrDestroyVirtualKeyboardMETA(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateVirtualKeyboardSpaceMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateVirtualKeyboardSpaceMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4846,7 +4846,7 @@ size_t VulkanDecoder::Decode_xrCreateVirtualKeyboardSpaceMETA(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSuggestVirtualKeyboardLocationMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSuggestVirtualKeyboardLocationMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4866,7 +4866,7 @@ size_t VulkanDecoder::Decode_xrSuggestVirtualKeyboardLocationMETA(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVirtualKeyboardScaleMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVirtualKeyboardScaleMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4886,7 +4886,7 @@ size_t VulkanDecoder::Decode_xrGetVirtualKeyboardScaleMETA(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetVirtualKeyboardModelVisibilityMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetVirtualKeyboardModelVisibilityMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4906,7 +4906,7 @@ size_t VulkanDecoder::Decode_xrSetVirtualKeyboardModelVisibilityMETA(const ApiCa
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVirtualKeyboardModelAnimationStatesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVirtualKeyboardModelAnimationStatesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4926,7 +4926,7 @@ size_t VulkanDecoder::Decode_xrGetVirtualKeyboardModelAnimationStatesMETA(const 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVirtualKeyboardDirtyTexturesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVirtualKeyboardDirtyTexturesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4950,7 +4950,7 @@ size_t VulkanDecoder::Decode_xrGetVirtualKeyboardDirtyTexturesMETA(const ApiCall
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetVirtualKeyboardTextureDataMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetVirtualKeyboardTextureDataMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4972,7 +4972,7 @@ size_t VulkanDecoder::Decode_xrGetVirtualKeyboardTextureDataMETA(const ApiCallIn
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSendVirtualKeyboardInputMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSendVirtualKeyboardInputMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -4994,7 +4994,7 @@ size_t VulkanDecoder::Decode_xrSendVirtualKeyboardInputMETA(const ApiCallInfo& c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrChangeVirtualKeyboardTextContextMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrChangeVirtualKeyboardTextContextMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5014,7 +5014,7 @@ size_t VulkanDecoder::Decode_xrChangeVirtualKeyboardTextContextMETA(const ApiCal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumerateExternalCamerasOCULUS(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumerateExternalCamerasOCULUS(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5038,7 +5038,7 @@ size_t VulkanDecoder::Decode_xrEnumerateExternalCamerasOCULUS(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnumeratePerformanceMetricsCounterPathsMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnumeratePerformanceMetricsCounterPathsMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5062,7 +5062,7 @@ size_t VulkanDecoder::Decode_xrEnumeratePerformanceMetricsCounterPathsMETA(const
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetPerformanceMetricsStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetPerformanceMetricsStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5082,7 +5082,7 @@ size_t VulkanDecoder::Decode_xrSetPerformanceMetricsStateMETA(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetPerformanceMetricsStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetPerformanceMetricsStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5102,7 +5102,7 @@ size_t VulkanDecoder::Decode_xrGetPerformanceMetricsStateMETA(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrQueryPerformanceMetricsCounterMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrQueryPerformanceMetricsCounterMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5124,7 +5124,7 @@ size_t VulkanDecoder::Decode_xrQueryPerformanceMetricsCounterMETA(const ApiCallI
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSaveSpaceListFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSaveSpaceListFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5146,7 +5146,7 @@ size_t VulkanDecoder::Decode_xrSaveSpaceListFB(const ApiCallInfo& call_info, con
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpaceUserFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpaceUserFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5168,7 +5168,7 @@ size_t VulkanDecoder::Decode_xrCreateSpaceUserFB(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceUserIdFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceUserIdFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5188,7 +5188,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceUserIdFB(const ApiCallInfo& call_info, co
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroySpaceUserFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroySpaceUserFB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5206,7 +5206,7 @@ size_t VulkanDecoder::Decode_xrDestroySpaceUserFB(const ApiCallInfo& call_info, 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetRecommendedLayerResolutionMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetRecommendedLayerResolutionMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5228,7 +5228,7 @@ size_t VulkanDecoder::Decode_xrGetRecommendedLayerResolutionMETA(const ApiCallIn
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreatePassthroughColorLutMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreatePassthroughColorLutMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5250,7 +5250,7 @@ size_t VulkanDecoder::Decode_xrCreatePassthroughColorLutMETA(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyPassthroughColorLutMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyPassthroughColorLutMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5268,7 +5268,7 @@ size_t VulkanDecoder::Decode_xrDestroyPassthroughColorLutMETA(const ApiCallInfo&
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrUpdatePassthroughColorLutMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrUpdatePassthroughColorLutMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5288,7 +5288,7 @@ size_t VulkanDecoder::Decode_xrUpdatePassthroughColorLutMETA(const ApiCallInfo& 
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpaceTriangleMeshMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpaceTriangleMeshMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5310,7 +5310,7 @@ size_t VulkanDecoder::Decode_xrGetSpaceTriangleMeshMETA(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateFaceTracker2FB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateFaceTracker2FB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5332,7 +5332,7 @@ size_t VulkanDecoder::Decode_xrCreateFaceTracker2FB(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyFaceTracker2FB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyFaceTracker2FB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5350,7 +5350,7 @@ size_t VulkanDecoder::Decode_xrDestroyFaceTracker2FB(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetFaceExpressionWeights2FB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetFaceExpressionWeights2FB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5372,7 +5372,7 @@ size_t VulkanDecoder::Decode_xrGetFaceExpressionWeights2FB(const ApiCallInfo& ca
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrSetTrackingOptimizationSettingsHintQCOM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrSetTrackingOptimizationSettingsHintQCOM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5394,7 +5394,7 @@ size_t VulkanDecoder::Decode_xrSetTrackingOptimizationSettingsHintQCOM(const Api
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreatePassthroughHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreatePassthroughHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5416,7 +5416,7 @@ size_t VulkanDecoder::Decode_xrCreatePassthroughHTC(const ApiCallInfo& call_info
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyPassthroughHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyPassthroughHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5434,7 +5434,7 @@ size_t VulkanDecoder::Decode_xrDestroyPassthroughHTC(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrApplyFoveationHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrApplyFoveationHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5454,7 +5454,7 @@ size_t VulkanDecoder::Decode_xrApplyFoveationHTC(const ApiCallInfo& call_info, c
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreateSpatialAnchorHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5476,7 +5476,7 @@ size_t VulkanDecoder::Decode_xrCreateSpatialAnchorHTC(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetSpatialAnchorNameHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetSpatialAnchorNameHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5496,7 +5496,7 @@ size_t VulkanDecoder::Decode_xrGetSpatialAnchorNameHTC(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrApplyForceFeedbackCurlMNDX(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrApplyForceFeedbackCurlMNDX(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5516,7 +5516,7 @@ size_t VulkanDecoder::Decode_xrApplyForceFeedbackCurlMNDX(const ApiCallInfo& cal
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrCreatePlaneDetectorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrCreatePlaneDetectorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5538,7 +5538,7 @@ size_t VulkanDecoder::Decode_xrCreatePlaneDetectorEXT(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrDestroyPlaneDetectorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrDestroyPlaneDetectorEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5556,7 +5556,7 @@ size_t VulkanDecoder::Decode_xrDestroyPlaneDetectorEXT(const ApiCallInfo& call_i
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrBeginPlaneDetectionEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrBeginPlaneDetectionEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5576,7 +5576,7 @@ size_t VulkanDecoder::Decode_xrBeginPlaneDetectionEXT(const ApiCallInfo& call_in
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetPlaneDetectionStateEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetPlaneDetectionStateEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5596,7 +5596,7 @@ size_t VulkanDecoder::Decode_xrGetPlaneDetectionStateEXT(const ApiCallInfo& call
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetPlaneDetectionsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetPlaneDetectionsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5618,7 +5618,7 @@ size_t VulkanDecoder::Decode_xrGetPlaneDetectionsEXT(const ApiCallInfo& call_inf
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrGetPlanePolygonBufferEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrGetPlanePolygonBufferEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5642,7 +5642,7 @@ size_t VulkanDecoder::Decode_xrGetPlanePolygonBufferEXT(const ApiCallInfo& call_
     return bytes_read;
 }
 
-size_t VulkanDecoder::Decode_xrEnableUserCalibrationEventsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+size_t OpenXrDecoder::Decode_xrEnableUserCalibrationEventsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -5662,7 +5662,7 @@ size_t VulkanDecoder::Decode_xrEnableUserCalibrationEventsML(const ApiCallInfo& 
     return bytes_read;
 }
 
-void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
+void OpenXrDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
                                        const ApiCallInfo&            call_info,
                                        const uint8_t*                parameter_buffer,
                                        size_t                        buffer_size)
@@ -5670,8 +5670,9 @@ void VulkanDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     switch(call_id)
     {
     default:
-        VulkanDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
+        OpenXrDecoderBase::DecodeFunctionCall(call_id, call_info, parameter_buffer, buffer_size);
         break;
+
     case format::ApiCallId::ApiCall_xrDestroyInstance:
         Decode_xrDestroyInstance(call_info, parameter_buffer, buffer_size);
         break;
