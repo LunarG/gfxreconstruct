@@ -93,7 +93,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
 
     if (!options.dump_resources_json_per_command)
     {
-        dump_json_.VulkanReplayDumpResourcesJsonOpen(options.filename, options.dump_resources_output_dir);
+        dump_json_.VulkanReplayDumpResourcesJsonOpen(
+            options.filename, options.dump_resources_output_dir, options.dump_resources_scale);
     }
 
     for (size_t i = 0; i < options.BeginCommandBuffer_Indices.size(); ++i)

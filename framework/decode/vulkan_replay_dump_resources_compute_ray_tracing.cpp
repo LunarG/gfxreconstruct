@@ -1680,7 +1680,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
         if (output_json_per_command)
         {
             const std::string dc_json_filename = "Dispatch_" + std::to_string(index);
-            output_json_writer->VulkanReplayDumpResourcesJsonOpen(dc_json_filename, dump_resource_path);
+            output_json_writer->VulkanReplayDumpResourcesJsonOpen(
+                dc_json_filename, dump_resource_path, dump_resources_scale);
         }
 
         output_json_writer->VulkanReplayDumpResourcesJsonBlockStart();
@@ -1888,7 +1889,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
         if (output_json_per_command)
         {
             const std::string dc_json_filename = "TraceRays_" + std::to_string(index);
-            output_json_writer->VulkanReplayDumpResourcesJsonOpen(dc_json_filename, dump_resource_path);
+            output_json_writer->VulkanReplayDumpResourcesJsonOpen(
+                dc_json_filename, dump_resource_path, dump_resources_scale);
         }
 
         output_json_writer->VulkanReplayDumpResourcesJsonBlockStart();
