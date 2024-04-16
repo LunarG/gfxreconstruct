@@ -550,21 +550,6 @@ bool WriteBmpImage(const std::string& filename,
 
     GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
 
-#if defined(__ANDROID__)
-    // In Android there is an issue with files which are manually deleted (for example from adb shell) then fopen with
-    // "wb" will fail with the error that the file already exists. Deleting the file from the code can workaround this
-    // problem
-    if (access(filename.c_str(), F_OK) != -1)
-    {
-        GFXRECON_LOG_INFO("File already exists. Will attempt to delete it");
-        if (remove(filename.c_str()) != -1)
-        {
-            GFXRECON_LOG_ERROR("Failed to delete file %s (%s)", filename.c_str(), strerror(errno));
-            return false;
-        }
-    }
-#endif
-
     if (pitch != 0)
     {
         row_pitch = pitch;
@@ -816,10 +801,8 @@ bool WriteAstcImage(const std::string& filename,
     bool    success = false;
     FILE*   file    = nullptr;
     int32_t result  = util::platform::FileOpen(&file, filename.c_str(), "wb");
-    if (!result)
+    if (!result && file != nullptr)
     {
-        assert(file != nullptr);
-
         // Write the header
         int ret = util::platform::FileWrite(&header, sizeof(header), 1, file);
         CheckFwriteRetVal(ret, 1, file);
