@@ -40,6 +40,7 @@ typedef void(^GFXReconKeyCallback)(gfxrecon::application::Application*);
 
 @implementation GFXReconWindowDelegate
 - (void)windowWillClose:(NSNotification*)notification {
+    GFXRECON_LOG_DEBUG_ONCE("User closed window");
     [NSApp terminate:self];
 }
 @end
@@ -142,6 +143,7 @@ bool MetalWindow::Destroy()
     if (window_)
     {
         [static_cast<GFXReconView*>([window_ contentView]) setApp:nil];
+        [window_ setDelegate:nil];
         [window_ close];
         metal_context_->UnregisterWindow(this);
     }
