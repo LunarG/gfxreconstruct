@@ -38,8 +38,6 @@
 #include <dirent.h>
 #endif
 
-#define DELETE_STALE_DUMP_FILES
-
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -49,43 +47,6 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command)
 {
-#if defined(__ANDROID__) && defined(DELETE_STALE_DUMP_FILES)
-    // On Android there is an issue with files which are manually deleted (for example from adb shell) then fopen with
-    // "wb" might fail with the error that the file already exists. Deleting the file from code can workaround this
-    DIR* dump_resource_dir = opendir(options.dump_resources_output_dir.c_str());
-    if (dump_resource_dir != nullptr)
-    {
-        struct dirent* dir;
-        while ((dir = readdir(dump_resource_dir)) != nullptr)
-        {
-            const int len = strlen(dir->d_name);
-            if (len > 3)
-            {
-                const char* file_extension3 = &dir->d_name[len - 3];
-                const char* file_extension4 = &dir->d_name[len - 4];
-
-                if (!strcmp(file_extension3, "bmp") || !strcmp(file_extension3, "png") ||
-                    !strcmp(file_extension3, "bin") || !strcmp(file_extension4, "json") ||
-                    !strcmp(file_extension4, "astc"))
-                {
-                    std::string full_path = options.dump_resources_output_dir;
-                    char&       last_char = full_path.back();
-                    if (last_char != '/')
-                    {
-                        full_path += '/';
-                    }
-                    full_path += std::string(dir->d_name);
-                    GFXRECON_LOG_INFO("Deleting file %s", full_path.c_str());
-                    if (remove(full_path.c_str()))
-                    {
-                        GFXRECON_LOG_ERROR("Failed to delete file %s (%s)", dir->d_name, strerror(errno));
-                    }
-                }
-            }
-        }
-    }
-#endif
-
     if (!options.Draw_Indices.size() && !options.Dispatch_Indices.size() && !options.TraceRays_Indices.size())
     {
         return;
