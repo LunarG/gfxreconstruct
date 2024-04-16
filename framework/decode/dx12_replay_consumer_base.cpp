@@ -4464,6 +4464,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                     {
                         mip_size = mip_count;
                     }
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
                     if (view.MostDetailedMip != 0)
                     {
                         if (mip_size == -1)
@@ -4474,7 +4479,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                                                                                    mip_size,
                                                                                    mip_count,
                                                                                    view.FirstArraySlice,
-                                                                                   view.ArraySize,
+                                                                                   array_size,
                                                                                    array_count,
                                                                                    0);
                     }
@@ -4485,7 +4490,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                                                                                    mip_size,
                                                                                    mip_count,
                                                                                    view.FirstArraySlice,
-                                                                                   view.ArraySize,
+                                                                                   array_size,
                                                                                    array_count,
                                                                                    0);
                     }
@@ -4524,6 +4529,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                     {
                         mip_size = mip_count;
                     }
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
                     if (view.MostDetailedMip != 0)
                     {
                         if (mip_size == -1)
@@ -4534,7 +4544,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                                                                                    mip_size,
                                                                                    mip_count,
                                                                                    view.FirstArraySlice,
-                                                                                   view.ArraySize,
+                                                                                   array_size,
                                                                                    array_count,
                                                                                    view.PlaneSlice);
                     }
@@ -4545,7 +4555,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                                                                                    mip_size,
                                                                                    mip_count,
                                                                                    view.FirstArraySlice,
-                                                                                   view.ArraySize,
+                                                                                   array_size,
                                                                                    array_count,
                                                                                    view.PlaneSlice);
                     }
@@ -4558,9 +4568,14 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                 }
                 case D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY:
                 {
-                    auto view                = info.view.Texture2DMSArray;
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
                     info.subresource_indices = GetDescriptorSubresourceIndices(
-                        0, 1, mip_count, view.FirstArraySlice, view.ArraySize, array_count, 0);
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
                 }
                 case D3D12_SRV_DIMENSION_TEXTURE3D:
@@ -4620,6 +4635,11 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                     {
                         mip_size = mip_count;
                     }
+                    auto array_size = view.NumCubes;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
                     if (view.MostDetailedMip != 0)
                     {
                         if (mip_size == -1)
@@ -4630,7 +4650,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                                                                                    mip_size,
                                                                                    mip_count,
                                                                                    view.First2DArrayFace,
-                                                                                   view.NumCubes,
+                                                                                   array_size,
                                                                                    array_count,
                                                                                    0);
                     }
@@ -4640,7 +4660,7 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
                                                                                    mip_size,
                                                                                    mip_count,
                                                                                    view.First2DArrayFace,
-                                                                                   view.NumCubes,
+                                                                                   array_size,
                                                                                    array_count,
                                                                                    0);
                     }
@@ -4696,40 +4716,48 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateUnorderedAccessView(
                         info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
                     break;
                 case D3D12_UAV_DIMENSION_TEXTURE1DARRAY:
-                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture1DArray.MipSlice,
-                                                                               1,
-                                                                               mip_count,
-                                                                               info.view.Texture1DArray.FirstArraySlice,
-                                                                               info.view.Texture1DArray.ArraySize,
-                                                                               array_count,
-                                                                               0);
+                {
+                    auto view       = info.view.Texture1DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
+                }
                 case D3D12_UAV_DIMENSION_TEXTURE2D:
                     info.subresource_indices = GetDescriptorSubresourceIndices(
                         info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, info.view.Texture2D.PlaneSlice);
                     break;
                 case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
-                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture2DArray.MipSlice,
-                                                                               1,
-                                                                               mip_count,
-                                                                               info.view.Texture2DArray.FirstArraySlice,
-                                                                               info.view.Texture2DArray.ArraySize,
-                                                                               array_count,
-                                                                               info.view.Texture2DArray.PlaneSlice);
+                {
+                    auto view       = info.view.Texture2DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, view.PlaneSlice);
                     break;
+                }
                 case D3D12_UAV_DIMENSION_TEXTURE2DMS:
                     info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
                     break;
                 case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
-                    info.subresource_indices =
-                        GetDescriptorSubresourceIndices(0,
-                                                        1,
-                                                        mip_count,
-                                                        info.view.Texture2DMSArray.FirstArraySlice,
-                                                        info.view.Texture2DMSArray.ArraySize,
-                                                        array_count,
-                                                        0);
+                {
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
+                }
                 case D3D12_UAV_DIMENSION_TEXTURE3D:
                 {
                     // DUMPTODO: handle FirstWSlice and WSize
@@ -4785,40 +4813,48 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
                         info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
                     break;
                 case D3D12_RTV_DIMENSION_TEXTURE1DARRAY:
-                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture1DArray.MipSlice,
-                                                                               1,
-                                                                               mip_count,
-                                                                               info.view.Texture1DArray.FirstArraySlice,
-                                                                               info.view.Texture1DArray.ArraySize,
-                                                                               array_count,
-                                                                               0);
+                {
+                    auto view       = info.view.Texture1DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
+                }
                 case D3D12_RTV_DIMENSION_TEXTURE2D:
                     info.subresource_indices = GetDescriptorSubresourceIndices(
                         info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, info.view.Texture2D.PlaneSlice);
                     break;
                 case D3D12_RTV_DIMENSION_TEXTURE2DARRAY:
-                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture2DArray.MipSlice,
-                                                                               1,
-                                                                               mip_count,
-                                                                               info.view.Texture2DArray.FirstArraySlice,
-                                                                               info.view.Texture2DArray.ArraySize,
-                                                                               array_count,
-                                                                               info.view.Texture2DArray.PlaneSlice);
+                {
+                    auto view       = info.view.Texture2DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, view.PlaneSlice);
                     break;
+                }
                 case D3D12_RTV_DIMENSION_TEXTURE2DMS:
                     info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
                     break;
                 case D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY:
-                    info.subresource_indices =
-                        GetDescriptorSubresourceIndices(0,
-                                                        1,
-                                                        mip_count,
-                                                        info.view.Texture2DMSArray.FirstArraySlice,
-                                                        info.view.Texture2DMSArray.ArraySize,
-                                                        array_count,
-                                                        0);
+                {
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
+                }
                 case D3D12_RTV_DIMENSION_TEXTURE3D:
                 {
                     // DUMPTODO: Handle FirstWSlice and WSize
@@ -4871,40 +4907,48 @@ void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
                         info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
                     break;
                 case D3D12_DSV_DIMENSION_TEXTURE1DARRAY:
-                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture1DArray.MipSlice,
-                                                                               1,
-                                                                               mip_count,
-                                                                               info.view.Texture1DArray.FirstArraySlice,
-                                                                               info.view.Texture1DArray.ArraySize,
-                                                                               array_count,
-                                                                               0);
+                {
+                    auto view       = info.view.Texture1DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
+                }
                 case D3D12_DSV_DIMENSION_TEXTURE2D:
                     info.subresource_indices = GetDescriptorSubresourceIndices(
                         info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
                     break;
                 case D3D12_DSV_DIMENSION_TEXTURE2DARRAY:
-                    info.subresource_indices = GetDescriptorSubresourceIndices(info.view.Texture2DArray.MipSlice,
-                                                                               1,
-                                                                               mip_count,
-                                                                               info.view.Texture2DArray.FirstArraySlice,
-                                                                               info.view.Texture2DArray.ArraySize,
-                                                                               array_count,
-                                                                               0);
+                {
+                    auto view       = info.view.Texture2DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
+                }
                 case D3D12_DSV_DIMENSION_TEXTURE2DMS:
                     info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
                     break;
                 case D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY:
-                    info.subresource_indices =
-                        GetDescriptorSubresourceIndices(0,
-                                                        1,
-                                                        mip_count,
-                                                        info.view.Texture2DMSArray.FirstArraySlice,
-                                                        info.view.Texture2DMSArray.ArraySize,
-                                                        array_count,
-                                                        0);
+                {
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
                     break;
+                }
                 case D3D12_DSV_DIMENSION_UNKNOWN:
                 default:
                     GFXRECON_LOG_ERROR("Unknown D3D12_DSV_DIMENSION.");
