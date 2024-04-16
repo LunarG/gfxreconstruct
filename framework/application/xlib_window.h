@@ -62,12 +62,13 @@ class XlibWindow : public decode::Window
 
     virtual std::string GetWsiExtension() const override;
 
-    virtual VkResult CreateSurface(const encode::InstanceTable* table,
-                                   VkInstance                   instance,
-                                   VkFlags                      flags,
-                                   VkSurfaceKHR*                pSurface) override;
+    virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
+                                   VkInstance                         instance,
+                                   VkFlags                            flags,
+                                   VkSurfaceKHR*                      pSurface) override;
 
-    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+    virtual void
+    DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
     void SetFullscreen(bool fullscreen);
@@ -97,9 +98,9 @@ class XlibWindowFactory : public decode::WindowFactory
 
     void Destroy(decode::Window* window) override;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                          VkPhysicalDevice             physical_device,
-                                                          uint32_t                     queue_family_index) override;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                          VkPhysicalDevice                   physical_device,
+                                                          uint32_t queue_family_index) override;
 
   private:
     XlibContext* xlib_context_;

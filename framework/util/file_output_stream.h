@@ -48,7 +48,7 @@ class FileOutputStream : public OutputStream
 
     /// @brief Change from current file to a new one, closing the old only if it was owned.
     /// @param file The new file to stream writes into.
-    void Reset(FILE* file);
+    virtual void Reset(FILE* file);
 
     virtual ~FileOutputStream() override;
 

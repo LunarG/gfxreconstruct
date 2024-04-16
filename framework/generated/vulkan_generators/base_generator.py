@@ -46,6 +46,7 @@ from collections import OrderedDict
 from generator import (GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write)
 from vkconventions import VulkanConventions
 
+
 def _make_re_string(list, default=None):
     """Turn a list of strings into a regexp string matching exactly those strings.
     From Khronos genvk.py
@@ -81,10 +82,6 @@ _remove_extensions = [
     "VK_HUAWEI_subpass_shading", # Limited tile shader
     "VK_NVX_binary_import",
     "VK_NV_copy_memory_indirect",
-    ## This extension was still baking despite being released to public in header
-    ## 1.3.262. It breaks codegen with its non-const pInfoXs.
-    ## @todo Check for pInfo ptrs changed to const in header updates.
-    "VK_NV_low_latency2",
     "VK_NV_memory_decompression",
     "VK_QNX_external_memory_screen_buffer",
     "VK_NV_cuda_kernel_launch",
@@ -1399,6 +1396,12 @@ class BaseGenerator(OutputGenerator):
             arg_list = ', '.join([v.name for v in values])
             return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
+    def get_handle_prefix(self):
+        return 'Vulkan'
+
+    def get_handle_wrapper_prefix(self):
+        return 'vulkan_wrappers'
+
     def make_encoder_method_call(
         self, name, value, values, prefix, omit_output_param=None
     ):
@@ -1421,7 +1424,7 @@ class BaseGenerator(OutputGenerator):
                     arg_name, handle_type_name
                 )
             else:
-                arg_name = 'GetWrappedId({}, {})'.format(
+                arg_name = 'GetVulkanWrappedId({}, {})'.format(
                     arg_name, handle_type_name
                 )
 
@@ -1438,12 +1441,15 @@ class BaseGenerator(OutputGenerator):
             is_struct = True
             method_call = 'EncodeStruct'
         else:
+            method_call = 'encoder->Encode'
             if type_name in ['String', 'WString']:
                 is_string = True
             elif type_name == 'FunctionPtr':
                 is_funcp = True
+            elif type_name == 'Handle':
+                method_call += self.get_handle_prefix()
 
-            method_call = 'encoder->Encode' + type_name
+            method_call += type_name
 
         if is_string:
             if value.is_array and value.is_dynamic:
@@ -1473,9 +1479,9 @@ class BaseGenerator(OutputGenerator):
             else:
                 method_call += 'Value'
 
-        if (method_call == 'encoder->EncodeHandleValue' or method_call == 'encoder->EncodeHandleArray' 
-            or method_call == 'encoder->EncodeHandlePtr'):
-            method_call += '<{}>'.format(value.base_type[2:] + 'Wrapper')
+        if type_name == 'Handle':
+            wrapper_prefix = self.get_handle_wrapper_prefix()
+            method_call += '<{}>'.format(wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper')
 
         if self.is_output_parameter(value) and omit_output_param:
             args.append(omit_output_param)

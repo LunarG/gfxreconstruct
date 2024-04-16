@@ -1356,6 +1356,18 @@ void Dx12ResourceValueMapper::MapResources(const ResourceValueInfoMap&          
             bool write_back = false;
             for (const auto& value_info : value_infos)
             {
+                if (performed_rv_mapping_ == false)
+                {
+                    if ((value_info.type == ResourceValueType::kGpuVirtualAddress) ||
+                        (value_info.type == ResourceValueType::kGpuDescriptorHandle) ||
+                        (value_info.type == ResourceValueType::kShaderIdentifier) ||
+                        (value_info.type == ResourceValueType::kIndirectArgumentDispatchRays))
+                    {
+                        // condition for DXR/EI optimization really being done in gfxrecon-optimize
+                        performed_rv_mapping_ = true;
+                    }
+                }
+
                 if (MapValue(value_info,
                              temp_resource_data,
                              resource_object_info->capture_id,

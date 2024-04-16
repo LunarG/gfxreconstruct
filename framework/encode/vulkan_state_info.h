@@ -36,6 +36,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(vulkan_state_info)
 
 //
 // Types for state tracking.
@@ -135,6 +136,7 @@ enum CommandHandleType : uint32_t
     NumHandleTypes // THIS MUST BE THE LAST ENUM VALUE !
 };
 
+GFXRECON_END_NAMESPACE(vulkan_state_info)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

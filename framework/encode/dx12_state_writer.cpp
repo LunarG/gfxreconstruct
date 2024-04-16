@@ -429,7 +429,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart,
                             heap_wrapper->GetCaptureId(),
                             &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
 
         // Write GetGPUDescriptorHandleForHeapStart call.
@@ -441,7 +441,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DescriptorHeap_GetGPUDescriptorHandleForHeapStart,
                             heap_wrapper->GetCaptureId(),
                             &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
 
         // Write call to query the device for heap increment size.
@@ -450,7 +450,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Device_GetDescriptorHandleIncrementSize,
                         heap_info->create_object_id,
                         &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         // Write descriptor creation calls, not use StandardCreateWrite.
         for (uint32_t i = 0; i < heap_desc.NumDescriptors; ++i)
@@ -476,7 +476,7 @@ void Dx12StateWriter::WriteDescriptorState(const Dx12StateTable& state_table)
                     parameter_stream_.Write(&dest_index, sizeof(dest_index));
                     WriteMethodCall(
                         descriptor_info.create_call_id, descriptor_info.create_object_id, &parameter_stream_);
-                    parameter_stream_.Reset();
+                    parameter_stream_.Clear();
                 }
                 else
                 {
@@ -519,7 +519,7 @@ void Dx12StateWriter::WritePrivateData(format::HandleId handle_id, const DxWrapp
         {
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Object_SetPrivateData, handle_id, &parameter_stream_);
         }
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
 }
 
@@ -527,14 +527,14 @@ void Dx12StateWriter::WriteAddRefCommand(format::HandleId handle_id, unsigned lo
 {
     encoder_.EncodeUInt32Value(result_ref_count);
     WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_AddRef, handle_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 void Dx12StateWriter::WriteReleaseCommand(format::HandleId handle_id, unsigned long result_ref_count)
 {
     encoder_.EncodeUInt32Value(result_ref_count);
     WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, handle_id, &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 
 #if GFXRECON_DEBUG_WRITTEN_OBJECTS
     if (result_ref_count == 0)
@@ -586,7 +586,7 @@ void Dx12StateWriter::WriteResourceCreationState(
             WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Resource_GetGPUVirtualAddress,
                             resource_wrapper->GetCaptureId(),
                             &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
 
             // Track the GPU VAs for buffers written to the trim state block. This map is used to determine if a given
             // GPU VA references a buffer that was written to the trim state block. Addresses do not need to be mapped,
@@ -677,7 +677,7 @@ void Dx12StateWriter::WriteResourceCreationState(
 
         mappable_resource->Unmap(map_info.subresource, &graphics::dx12::kZeroRange);
 
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     }
 }
 
@@ -942,7 +942,7 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
                 WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Fence_SetEventOnCompletion,
                                 fence_wrapper->GetCaptureId(),
                                 &parameter_stream_);
-                parameter_stream_.Reset();
+                parameter_stream_.Clear();
             }
         }
 
@@ -951,7 +951,7 @@ void Dx12StateWriter::WriteFenceState(const Dx12StateTable& state_table)
         encoder_.EncodeInt32Value(S_OK);
         WriteMethodCall(
             format::ApiCallId::ApiCall_ID3D12Fence_Signal, fence_wrapper->GetCaptureId(), &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
     });
 }
 
@@ -983,7 +983,7 @@ void Dx12StateWriter::WriteResidencyPriority(const Dx12StateTable& state_table)
             encoder_.EncodeInt32Value(S_OK);
             WriteMethodCall(
                 format::ApiCallId::ApiCall_ID3D12Device1_SetResidencyPriority, handle_id, &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
     });
 }
@@ -1108,7 +1108,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
                 // Ags function call, targeting command list.
                 parameter_stream_.Write(parameter_data, (*parameter_size));
                 WriteFunctionCall((*call_id), &parameter_stream_);
-                parameter_stream_.Reset();
+                parameter_stream_.Clear();
 
                 // The output below, in this case, should be skipped.
                 write_current_command = false;
@@ -1120,7 +1120,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
         {
             parameter_stream_.Write(parameter_data, (*parameter_size));
             WriteMethodCall((*call_id), list_wrapper->GetCaptureId(), &parameter_stream_);
-            parameter_stream_.Reset();
+            parameter_stream_.Clear();
         }
         offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
     }
@@ -1149,7 +1149,7 @@ void Dx12StateWriter::WriteCommandListClose(const ID3D12CommandList_Wrapper* lis
     encoder_.EncodeUInt32Value(S_OK);
     WriteMethodCall(
         format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close, list_wrapper->GetCaptureId(), &parameter_stream_);
-    parameter_stream_.Reset();
+    parameter_stream_.Clear();
 }
 
 bool Dx12StateWriter::CheckCommandListObjects(const ID3D12CommandListInfo* list_info, const Dx12StateTable& state_table)
@@ -1329,7 +1329,7 @@ void Dx12StateWriter::WriteEnableDebugLayer()
         encoder_.EncodeHandleIdPtr(&debug_object_id);
         encoder_.EncodeUInt32Value(S_OK);
         WriteFunctionCall(format::ApiCallId::ApiCall_D3D12GetDebugInterface, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12Debug_EnableDebugLayer, debug_object_id, &parameter_stream_);
         WriteMethodCall(format::ApiCallId::ApiCall_IUnknown_Release, debug_object_id, &parameter_stream_);
     }
@@ -1344,26 +1344,26 @@ void Dx12StateWriter::WriteEnableDRED()
         encoder_.EncodeHandleIdPtr(&enable_dred_info.dred_settings1_object_id);
         encoder_.EncodeUInt32Value(S_OK);
         WriteFunctionCall(format::ApiCallId::ApiCall_D3D12GetDebugInterface, &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         encoder_.EncodeEnumValue(enable_dred_info.set_auto_breadcrumbs_enablement_);
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetAutoBreadcrumbsEnablement,
                         enable_dred_info.dred_settings1_object_id,
                         &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         encoder_.EncodeEnumValue(enable_dred_info.set_breadcrumb_context_enablement_);
         WriteMethodCall(
             format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings1_SetBreadcrumbContextEnablement,
             enable_dred_info.dred_settings1_object_id,
             &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         encoder_.EncodeEnumValue(enable_dred_info.set_page_fault_enablement_);
         WriteMethodCall(format::ApiCallId::ApiCall_ID3D12DeviceRemovedExtendedDataSettings_SetPageFaultEnablement,
                         enable_dred_info.dred_settings1_object_id,
                         &parameter_stream_);
-        parameter_stream_.Reset();
+        parameter_stream_.Clear();
 
         WriteMethodCall(
             format::ApiCallId::ApiCall_IUnknown_Release, enable_dred_info.dred_settings1_object_id, &parameter_stream_);

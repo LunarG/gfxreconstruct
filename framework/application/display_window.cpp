@@ -34,9 +34,9 @@ DisplayWindow::DisplayWindow(DisplayContext* display_context) : display_context_
     assert(display_context_ != nullptr);
 }
 
-VkResult DisplayWindow::SelectPhysicalDevice(const encode::InstanceTable* table,
-                                             VkInstance                   instance,
-                                             VkPhysicalDevice*            physical_device) const
+VkResult DisplayWindow::SelectPhysicalDevice(const encode::VulkanInstanceTable* table,
+                                             VkInstance                         instance,
+                                             VkPhysicalDevice*                  physical_device) const
 {
     assert(table);
     uint32_t physical_device_count = 0;
@@ -73,9 +73,9 @@ VkResult DisplayWindow::SelectPhysicalDevice(const encode::InstanceTable* table,
     return VK_SUCCESS;
 }
 
-VkResult DisplayWindow::SelectDisplay(const encode::InstanceTable* table,
-                                      VkPhysicalDevice             physical_device,
-                                      VkDisplayKHR*                display) const
+VkResult DisplayWindow::SelectDisplay(const encode::VulkanInstanceTable* table,
+                                      VkPhysicalDevice                   physical_device,
+                                      VkDisplayKHR*                      display) const
 {
     assert(table);
     uint32_t num_displays;
@@ -101,10 +101,10 @@ VkResult DisplayWindow::SelectDisplay(const encode::InstanceTable* table,
     return VK_SUCCESS;
 }
 
-VkResult DisplayWindow::SelectMode(const encode::InstanceTable* table,
-                                   VkPhysicalDevice             physical_device,
-                                   VkDisplayKHR                 display,
-                                   VkDisplayModePropertiesKHR*  mode_props) const
+VkResult DisplayWindow::SelectMode(const encode::VulkanInstanceTable* table,
+                                   VkPhysicalDevice                   physical_device,
+                                   VkDisplayKHR                       display,
+                                   VkDisplayModePropertiesKHR*        mode_props) const
 {
     assert(table);
     uint32_t num_modes;
@@ -128,11 +128,11 @@ VkResult DisplayWindow::SelectMode(const encode::InstanceTable* table,
     return VK_SUCCESS;
 }
 
-VkResult DisplayWindow::SelectPlane(const encode::InstanceTable* table,
-                                    VkPhysicalDevice             physical_device,
-                                    VkDisplayKHR                 display,
-                                    uint32_t*                    plane_index,
-                                    VkDisplayPlanePropertiesKHR* plane_props) const
+VkResult DisplayWindow::SelectPlane(const encode::VulkanInstanceTable* table,
+                                    VkPhysicalDevice                   physical_device,
+                                    VkDisplayKHR                       display,
+                                    uint32_t*                          plane_index,
+                                    VkDisplayPlanePropertiesKHR*       plane_props) const
 {
     assert(table);
     uint32_t num_planes;
@@ -199,10 +199,10 @@ std::string DisplayWindow::GetWsiExtension() const
     return VK_KHR_DISPLAY_EXTENSION_NAME;
 }
 
-VkResult DisplayWindow::CreateSurface(const encode::InstanceTable* table,
-                                      VkInstance                   instance,
-                                      VkFlags                      flags,
-                                      VkSurfaceKHR*                pSurface)
+VkResult DisplayWindow::CreateSurface(const encode::VulkanInstanceTable* table,
+                                      VkInstance                         instance,
+                                      VkFlags                            flags,
+                                      VkSurfaceKHR*                      pSurface)
 {
     VkResult error = VK_ERROR_INITIALIZATION_FAILED;
     if (table)
@@ -264,7 +264,7 @@ VkResult DisplayWindow::CreateSurface(const encode::InstanceTable* table,
     return error;
 }
 
-void DisplayWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void DisplayWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table)
     {
@@ -297,9 +297,9 @@ void DisplayWindowFactory::Destroy(decode::Window* window)
     GFXRECON_UNREFERENCED_PARAMETER(window);
 }
 
-VkBool32 DisplayWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                    VkPhysicalDevice             physical_device,
-                                                                    uint32_t                     queue_family_index)
+VkBool32 DisplayWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                    VkPhysicalDevice                   physical_device,
+                                                                    uint32_t queue_family_index)
 {
     GFXRECON_UNREFERENCED_PARAMETER(table);
     GFXRECON_UNREFERENCED_PARAMETER(physical_device);

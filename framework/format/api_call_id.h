@@ -711,6 +711,11 @@ enum ApiCallId : uint32_t
     ApiCall_vkCmdSetRenderingAttachmentLocationsKHR                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12e5),
     ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12e6),
     ApiCall_vkCmdSetLineStippleKHR                                                                = MakeApiCallId(ApiFamily_Vulkan, 0x12e7),
+    ApiCall_vkSetLatencySleepModeNV                                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12e8),
+    ApiCall_vkLatencySleepNV                                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12e9),
+    ApiCall_vkSetLatencyMarkerNV                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12ea),
+    ApiCall_vkGetLatencyTimingsNV                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12eb),
+    ApiCall_vkQueueNotifyOutOfBandNV                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12ec),
 
     ApiCall_VulkanLast,
 

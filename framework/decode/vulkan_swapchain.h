@@ -41,6 +41,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 class ScreenshotHandler;
 
+struct VulkanSwapchainOptions
+{
+    bool    skip_additional_present_blts{ false };
+    int32_t select_surface_index{ -1 };
+};
+
 class VulkanSwapchain
 {
   public:
@@ -48,14 +54,15 @@ class VulkanSwapchain
 
     virtual void Clean();
 
+    void SetOptions(VulkanSwapchainOptions& options) { swapchain_options_ = options; }
+
     virtual VkResult CreateSurface(VkResult                            original_result,
                                    InstanceInfo*                       instance_info,
                                    const std::string&                  wsi_extension,
                                    VkFlags                             flags,
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                   const encode::InstanceTable*        instance_table,
-                                   application::Application*           application,
-                                   const VulkanReplayOptions&          replay_options);
+                                   const encode::VulkanInstanceTable*  instance_table,
+                                   application::Application*           application);
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const InstanceInfo*          instance_info,
@@ -68,7 +75,7 @@ class VulkanSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::DeviceTable*            device_table) = 0;
+                                        const encode::VulkanDeviceTable*      device_table) = 0;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -154,13 +161,13 @@ class VulkanSwapchain
   protected:
     typedef std::unordered_set<Window*> ActiveWindows;
 
-    const encode::InstanceTable* instance_table_{ nullptr };
-    const encode::DeviceTable*   device_table_{ nullptr };
+    const encode::VulkanInstanceTable* instance_table_{ nullptr };
+    const encode::VulkanDeviceTable*   device_table_{ nullptr };
 
     application::Application* application_{ nullptr };
     ActiveWindows             active_windows_;
     int32_t                   create_surface_count_{ 0 };
-    int32_t                   options_surface_index_{ 0 };
+    VulkanSwapchainOptions    swapchain_options_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

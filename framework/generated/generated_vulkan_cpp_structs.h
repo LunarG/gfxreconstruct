@@ -1981,6 +1981,24 @@ std::string GenerateStruct_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEX
 
 std::string GenerateStruct_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT(std::ostream &out, const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* structInfo, Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
+std::string GenerateStruct_VkGetLatencyMarkerInfoNV(std::ostream &out, const VkGetLatencyMarkerInfoNV* structInfo, Decoded_VkGetLatencyMarkerInfoNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkLatencySleepInfoNV(std::ostream &out, const VkLatencySleepInfoNV* structInfo, Decoded_VkLatencySleepInfoNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkLatencySleepModeInfoNV(std::ostream &out, const VkLatencySleepModeInfoNV* structInfo, Decoded_VkLatencySleepModeInfoNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkLatencySubmissionPresentIdNV(std::ostream &out, const VkLatencySubmissionPresentIdNV* structInfo, Decoded_VkLatencySubmissionPresentIdNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkLatencySurfaceCapabilitiesNV(std::ostream &out, const VkLatencySurfaceCapabilitiesNV* structInfo, Decoded_VkLatencySurfaceCapabilitiesNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkLatencyTimingsFrameReportNV(std::ostream &out, const VkLatencyTimingsFrameReportNV* structInfo, Decoded_VkLatencyTimingsFrameReportNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkOutOfBandQueueTypeInfoNV(std::ostream &out, const VkOutOfBandQueueTypeInfoNV* structInfo, Decoded_VkOutOfBandQueueTypeInfoNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSetLatencyMarkerInfoNV(std::ostream &out, const VkSetLatencyMarkerInfoNV* structInfo, Decoded_VkSetLatencyMarkerInfoNV* metaInfo, VulkanCppConsumerBase &consumer);
+
+std::string GenerateStruct_VkSwapchainLatencyCreateInfoNV(std::ostream &out, const VkSwapchainLatencyCreateInfoNV* structInfo, Decoded_VkSwapchainLatencyCreateInfoNV* metaInfo, VulkanCppConsumerBase &consumer);
+
 std::string GenerateStruct_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM(std::ostream &out, const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* structInfo, Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM(std::ostream &out, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* structInfo, Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* metaInfo, VulkanCppConsumerBase &consumer);

@@ -136,7 +136,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         self.generate_no_op_funcs()
         self.newline()
 
-        write('struct LayerTable', file=self.outFile)
+        write('struct VulkanLayerTable', file=self.outFile)
         write('{', file=self.outFile)
         write(
             '    PFN_vkCreateInstance CreateInstance{ nullptr };',
@@ -219,7 +219,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
     def generate_instance_cmd_table(self):
         """Generate instance dispatch table structure."""
-        write('struct InstanceTable', file=self.outFile)
+        write('struct VulkanInstanceTable', file=self.outFile)
         write('{', file=self.outFile)
 
         for name in self.instance_cmd_names:
@@ -232,7 +232,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
 
     def generate_device_cmd_table(self):
         """Generate device dispatch table structure."""
-        write('struct DeviceTable', file=self.outFile)
+        write('struct VulkanDeviceTable', file=self.outFile)
         write('{', file=self.outFile)
 
         for name in self.device_cmd_names:
@@ -260,7 +260,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def generate_load_instance_table_func(self):
         """Generate function to set the instance table's functions with a getprocaddress routine."""
         write(
-            'static void LoadInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, InstanceTable* table)',
+            'static void LoadVulkanInstanceTable(PFN_vkGetInstanceProcAddr gpa, VkInstance instance, VulkanInstanceTable* table)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -283,7 +283,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
     def generate_load_device_table_func(self):
         """Generate function to set the device table's functions with a getprocaddress routine."""
         write(
-            'static void LoadDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, DeviceTable* table)',
+            'static void LoadVulkanDeviceTable(PFN_vkGetDeviceProcAddr gpa, VkDevice device, VulkanDeviceTable* table)',
             file=self.outFile
         )
         write('{', file=self.outFile)
