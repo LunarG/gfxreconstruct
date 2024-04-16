@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2019-2020 Valve Corporation
 ** Copyright (c) 2019-2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -51,6 +52,9 @@ struct ReplayOptions
     bool     force_windowed{ false };
     uint32_t windowed_width{ 0 };
     uint32_t windowed_height{ 0 };
+    bool     force_windowed_origin{ false };
+    int32_t  window_topleft_x{ 0 };
+    int32_t  window_topleft_y{ 0 };
     int32_t  override_gpu_index{ -1 };
 };
 

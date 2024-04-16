@@ -6368,7 +6368,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAndroidSurfaceKHR(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
@@ -6395,7 +6400,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWin32SurfaceKHR(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWin32PresentationSupportKHR(
@@ -6440,7 +6450,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXcbSurfaceKHR(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXcbPresentationSupportKHR(
@@ -6489,7 +6504,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateXlibSurfaceKHR(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceXlibPresentationSupportKHR(
@@ -6538,7 +6558,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateWaylandSurfaceKHR(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateDisplayPlaneSurfaceKHR(
@@ -6565,7 +6590,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDisplayPlaneSurfaceKHR(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateHeadlessSurfaceEXT(
@@ -6592,7 +6622,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateHeadlessSurfaceEXT(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 VkBool32 VulkanReplayConsumerBase::OverrideGetPhysicalDeviceWaylandPresentationSupportKHR(
@@ -6639,7 +6674,12 @@ VkResult VulkanReplayConsumerBase::OverrideCreateMetalSurfaceEXT(
                                      replay_create_info->flags,
                                      pSurface,
                                      GetInstanceTable(instance_info->handle),
-                                     application_.get());
+                                     application_.get(),
+                                     options_.window_topleft_x,
+                                     options_.window_topleft_y,
+                                     kDefaultWindowWidth,
+                                     kDefaultWindowHeight,
+                                     options_.force_windowed || options_.force_windowed_origin);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroySurfaceKHR(
