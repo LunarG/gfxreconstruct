@@ -3180,7 +3180,10 @@ VkResult VulkanReplayConsumerBase::OverrideWaitForFences(PFN_vkWaitForFences    
     {
         // Ensure that wait for fences waits until the fences have been signaled (or error occurs) by changing the
         // timeout to UINT64_MAX.
-        result = func(device, modified_fence_count, modified_fences, waitAll, std::numeric_limits<uint64_t>::max());
+        if (modified_fence_count > 0)
+        {
+            result = func(device, modified_fence_count, modified_fences, waitAll, std::numeric_limits<uint64_t>::max());
+        }
     }
     else
     {
