@@ -101,7 +101,7 @@ MetalWindow::MetalWindow(MetalContext* metal_context)
 
 MetalWindow::~MetalWindow() = default;
 
-bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height, bool force_windowed = false)
+bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     @autoreleasepool
     {
@@ -264,7 +264,7 @@ MetalWindowFactory::MetalWindowFactory(MetalContext* metal_context) : metal_cont
     assert(metal_context_);
 }
 
-decode::Window* MetalWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed = false)
+decode::Window* MetalWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(metal_context_);
     decode::Window* window = new MetalWindow(metal_context_);
