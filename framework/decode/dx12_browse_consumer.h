@@ -106,7 +106,7 @@ struct TrackDumpCommandList
     // Track render target info in replay, not here.
     // Because the useful info is replay cpuDescriptor. It's only available in replay.
 
-    std::vector<TrackDumpDrawcall> track_dump_drawcalls;
+    std::vector<std::shared_ptr<TrackDumpDrawcall>> track_dump_drawcalls;
 
     void Clear()
     {
@@ -161,9 +161,9 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                   dump_resources_target_.command_index,
                                   dump_resources_target_.drawcall_index);
             }
-            auto& target                 = it->second.track_dump_drawcalls[target_drawcall_index_];
-            target.dump_resources_target = dump_resources_target_;
-            return &target;
+            auto& target                  = it->second.track_dump_drawcalls[target_drawcall_index_];
+            target->dump_resources_target = dump_resources_target_;
+            return target.get();
         }
         return nullptr;
     }
@@ -420,7 +420,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 it->second.close_block_index = call_info.index;
                 for (auto& drawcall : it->second.track_dump_drawcalls)
                 {
-                    drawcall.close_block_index = call_info.index;
+                    drawcall->close_block_index = call_info.index;
                 }
             }
         }
@@ -468,9 +468,9 @@ class Dx12BrowseConsumer : public Dx12Consumer
                     uint32_t drawcall_index     = 0;
                     for (auto& drawcall : it->second.track_dump_drawcalls)
                     {
-                        if (drawcall.bundle_commandlist_id != format::kNullHandleId)
+                        if (drawcall->bundle_commandlist_id != format::kNullHandleId)
                         {
-                            auto bundle_it = track_commandlist_infos_.find(drawcall.bundle_commandlist_id);
+                            auto bundle_it = track_commandlist_infos_.find(drawcall->bundle_commandlist_id);
                             if (bundle_it != track_commandlist_infos_.end())
                             {
                                 for (auto& bundle_drawcall : bundle_it->second.track_dump_drawcalls)
@@ -478,7 +478,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                     ++all_drawcall_count;
                                     if (all_drawcall_count > dump_resources_target_.drawcall_index)
                                     {
-                                        if (TEST_AVAILABLE_ARGS == 2 && !bundle_drawcall.is_draw)
+                                        if (TEST_AVAILABLE_ARGS == 2 && !bundle_drawcall->is_draw)
                                         {
                                             // Find a draw drawcall in the following drawcall.
                                             is_modified_args = true;
@@ -486,12 +486,11 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                         }
                                         else
                                         {
-                                            drawcall.bundle_target_drawcall =
-                                                std::make_shared<TrackDumpDrawcall>(bundle_drawcall);
+                                            drawcall->bundle_target_drawcall = bundle_drawcall;
 
-                                            drawcall.execute_block_index = call_info.index;
-                                            target_command_list_         = cmd_list;
-                                            target_drawcall_index_       = drawcall_index;
+                                            drawcall->execute_block_index = call_info.index;
+                                            target_command_list_          = cmd_list;
+                                            target_drawcall_index_        = drawcall_index;
                                             break;
                                         }
                                     }
@@ -503,7 +502,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                             ++all_drawcall_count;
                             if (all_drawcall_count > dump_resources_target_.drawcall_index)
                             {
-                                if (TEST_AVAILABLE_ARGS == 2 && !drawcall.is_draw)
+                                if (TEST_AVAILABLE_ARGS == 2 && !drawcall->is_draw)
                                 {
                                     // Find a draw drawcall in the following drawcall.
                                     is_modified_args = true;
@@ -511,9 +510,9 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                 }
                                 else
                                 {
-                                    drawcall.execute_block_index = call_info.index;
-                                    target_command_list_         = cmd_list;
-                                    target_drawcall_index_       = drawcall_index;
+                                    drawcall->execute_block_index = call_info.index;
+                                    target_command_list_          = cmd_list;
+                                    target_drawcall_index_        = drawcall_index;
                                     break;
                                 }
                             }
@@ -620,7 +619,8 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 track_drawcall.exe_indirect_count_offset       = exe_indirect_count_offset;
                 track_drawcall.bundle_commandlist_id           = bundle_commandlist_id;
 
-                it->second.track_dump_drawcalls.emplace_back(std::move(track_drawcall));
+                it->second.track_dump_drawcalls.emplace_back(
+                    std::make_shared<TrackDumpDrawcall>(std::move(track_drawcall)));
             }
         }
     }
