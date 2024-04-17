@@ -66,7 +66,7 @@ class DrawCallsDumpingContext
 
     void BindPipeline(VkPipelineBindPoint bind_point, const PipelineInfo* pipeline);
 
-    VkResult CloneCommandBuffer(CommandBufferInfo*           orig_cmd_buf_info,
+    VkResult CloneCommandBuffer(CommandBufferInfo*                 orig_cmd_buf_info,
                                 const encode::VulkanDeviceTable*   dev_table,
                                 const encode::VulkanInstanceTable* inst_table);
 
@@ -663,8 +663,8 @@ class DrawCallsDumpingContext
     VkFence         aux_fence;
     bool            must_backup_resources;
 
-    const encode::VulkanDeviceTable*              device_table;
-    const encode::VulkanInstanceTable*            instance_table;
+    const encode::VulkanDeviceTable*        device_table;
+    const encode::VulkanInstanceTable*      instance_table;
     VulkanObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
 };

@@ -1673,7 +1673,7 @@ bool VulkanReplayDumpResourcesBase::MustDumpTraceRays(VkCommandBuffer original_c
 }
 
 VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitInfo>& submit_infos,
-                                                    const encode::VulkanDeviceTable&       device_table,
+                                                    const encode::VulkanDeviceTable& device_table,
                                                     VkQueue                          queue,
                                                     VkFence                          fence,
                                                     uint64_t                         index)

@@ -2200,7 +2200,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::CloneCommandBuffer(CommandBufferInfo*           orig_cmd_buf_info,
+VkResult DrawCallsDumpingContext::CloneCommandBuffer(CommandBufferInfo*                 orig_cmd_buf_info,
                                                      const encode::VulkanDeviceTable*   dev_table,
                                                      const encode::VulkanInstanceTable* inst_table)
 {
