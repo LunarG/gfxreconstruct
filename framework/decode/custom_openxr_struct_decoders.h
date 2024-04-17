@@ -44,25 +44,34 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 struct Decoded_XrFrameEndInfo
 {
     using struct_type = XrFrameEndInfo;
-    XrFrameEndInfo* decoded_value{ nullptr };
+    XrFrameEndInfo*                                              decoded_value{ nullptr };
+    OpenXrNextNode*                                              next{ nullptr };
+    StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>* layers{ nullptr };
 };
 
 struct Decoded_XrBindingModificationsKHR
 {
     using struct_type = XrBindingModificationsKHR;
-    XrBindingModificationsKHR* decoded_value{ nullptr };
+    XrBindingModificationsKHR*                                         decoded_value{ nullptr };
+    OpenXrNextNode*                                                    next{ nullptr };
+    StructPointerDecoder<Decoded_XrBindingModificationBaseHeaderKHR*>* bindingModifications{ nullptr };
 };
 
 struct Decoded_XrSecondaryViewConfigurationLayerInfoMSFT
 {
     using struct_type = XrSecondaryViewConfigurationLayerInfoMSFT;
-    XrSecondaryViewConfigurationLayerInfoMSFT* decoded_value{ nullptr };
+    XrSecondaryViewConfigurationLayerInfoMSFT*                   decoded_value{ nullptr };
+    OpenXrNextNode*                                              next{ nullptr };
+    StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>* layers{ nullptr };
 };
 
 struct Decoded_XrVulkanInstanceCreateInfoKHR
 {
     using struct_type = XrVulkanInstanceCreateInfoKHR;
     XrVulkanInstanceCreateInfoKHR*                       decoded_value{ nullptr };
+    OpenXrNextNode*                                      next{ nullptr };
+    format::HandleId                                     systemId{ format::kNullHandleId };
+    uint64_t                                             pfnGetInstanceProcAddr{ 0 };
     StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  vulkanCreateInfo{ nullptr };
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* vulkanAllocator{ nullptr };
 };
@@ -71,6 +80,9 @@ struct Decoded_XrVulkanDeviceCreateInfoKHR
 {
     using struct_type = XrVulkanDeviceCreateInfoKHR;
     XrVulkanDeviceCreateInfoKHR*                         decoded_value{ nullptr };
+    OpenXrNextNode*                                      next{ nullptr };
+    format::HandleId                                     systemId{ format::kNullHandleId };
+    uint64_t                                             pfnGetInstanceProcAddr{ 0 };
     format::HandleId                                     vulkanPhysicalDevice{ format::kNullHandleId };
     StructPointerDecoder<Decoded_VkDeviceCreateInfo>*    vulkanCreateInfo{ nullptr };
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* vulkanAllocator{ nullptr };
