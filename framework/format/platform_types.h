@@ -1246,6 +1246,7 @@ extern "C"
 typedef void* jobject;
 #endif // XR_USE_PLATFORM_ANDROID
 
+#if !defined(WIN32)
 #if !defined(XR_USE_GRAPHICS_API_D3D11)
 typedef void* ID3D11Device;
 typedef void* ID3D11Texture2D;
@@ -1259,6 +1260,7 @@ typedef void* ID3D12CommandQueue;
 
 typedef uint32_t D3D_FEATURE_LEVEL;
 #endif // XR_USE_GRAPHICS_API_D3D12
+#endif // WIN32
 
 #if !defined(XR_USE_PLATFORM_ML)
 typedef struct MLCoordinateFrameUID
