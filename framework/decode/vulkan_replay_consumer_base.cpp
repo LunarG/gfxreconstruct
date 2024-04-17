@@ -7229,6 +7229,60 @@ VkResult VulkanReplayConsumerBase::OverrideCreateFramebuffer(
     return result;
 }
 
+void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID func,
+                                                            const DeviceInfo*          device_info,
+                                                            const SemaphoreInfo*       semaphore_info,
+                                                            const ImageInfo*           image_info)
+{
+    GFXRECON_ASSERT((device_info != nullptr));
+
+    VkDevice    device    = device_info->handle;
+    VkSemaphore semaphore = semaphore_info ? semaphore_info->handle : VK_NULL_HANDLE;
+    VkImage     image     = image_info ? image_info->handle : VK_NULL_HANDLE;
+
+    if (screenshot_handler_ != nullptr)
+    {
+        if (screenshot_handler_->IsScreenshotFrame() && image_info != nullptr)
+        {
+            const std::string filename_prefix =
+                screenshot_file_prefix_ + "_frame_" + std::to_string(screenshot_handler_->GetCurrentFrame());
+
+            const uint32_t screenshot_width =
+                options_.screenshot_scale
+                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.width)
+                    : (options_.screenshot_width ? options_.screenshot_width : image_info->extent.width);
+
+            const uint32_t screenshot_height =
+                options_.screenshot_scale
+                    ? static_cast<uint32_t>(options_.screenshot_scale * image_info->extent.height)
+                    : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
+
+            auto instance_table = GetInstanceTable(device_info->parent);
+            GFXRECON_ASSERT(instance_table != nullptr);
+
+            VkPhysicalDeviceMemoryProperties memory_properties;
+            instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
+
+            screenshot_handler_->WriteImage(filename_prefix,
+                                            device,
+                                            GetDeviceTable(device),
+                                            memory_properties,
+                                            device_info->allocator.get(),
+                                            image,
+                                            image_info->format,
+                                            image_info->extent.width,
+                                            image_info->extent.height,
+                                            screenshot_width,
+                                            screenshot_height,
+                                            image_info->current_layout);
+        }
+
+        screenshot_handler_->EndFrame();
+    }
+
+    func(device, semaphore, image);
+}
+
 // We want to allow skipping the query for tool properties because the capture layer actually adds this extension
 // and the application may end up using the query.  However, this extension may not be present for replay, so
 // we stub it out in that case.  This will generate warnings in the GfxReconstruct output, but it shouldn't result
