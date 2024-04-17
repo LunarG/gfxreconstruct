@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018,2020 Valve Corporation
 ** Copyright (c) 2018,2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -76,11 +77,16 @@ WaylandWindow::~WaylandWindow()
     }
 }
 
-bool WaylandWindow::Create(
-    const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+bool WaylandWindow::Create(const std::string& title,
+                           const int32_t      x,
+                           const int32_t      y,
+                           const uint32_t     width,
+                           const uint32_t     height,
+                           bool               force_windowed)
 {
     GFXRECON_UNREFERENCED_PARAMETER(x);
     GFXRECON_UNREFERENCED_PARAMETER(y);
+    GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
 
     auto& wl = wayland_context_->GetWaylandFunctionTable();
     surface_ = wl.compositor_create_surface(wayland_context_->GetCompositor());
@@ -351,14 +357,14 @@ WaylandWindowFactory::WaylandWindowFactory(WaylandContext* wayland_context) : wa
     assert(wayland_context_ != nullptr);
 }
 
-decode::Window*
-WaylandWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* WaylandWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(wayland_context_);
     decode::Window* window      = new WaylandWindow(wayland_context_);
     auto            application = wayland_context_->GetApplication();
     assert(application);
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 

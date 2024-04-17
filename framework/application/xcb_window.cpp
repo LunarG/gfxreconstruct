@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018,2020 Valve Corporation
 ** Copyright (c) 2018,2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -64,9 +65,14 @@ XcbWindow::~XcbWindow()
     }
 }
 
-bool XcbWindow::Create(
-    const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool XcbWindow::Create(const std::string& title,
+                       const int32_t      xpos,
+                       const int32_t      ypos,
+                       const uint32_t     width,
+                       const uint32_t     height,
+                       bool               force_windowed)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
     auto&             xcb        = xcb_context_->GetXcbFunctionTable();
     xcb_connection_t* connection = xcb_context_->GetConnection();
     xcb_screen_t*     screen     = xcb_context_->GetScreen();
@@ -515,13 +521,14 @@ XcbWindowFactory::XcbWindowFactory(XcbContext* xcb_context) : xcb_context_(xcb_c
     assert(xcb_context_ != nullptr);
 }
 
-decode::Window* XcbWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* XcbWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(xcb_context_);
     decode::Window* window      = new XcbWindow(xcb_context_);
     auto            application = xcb_context_->GetApplication();
     assert(application);
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 

@@ -98,6 +98,8 @@ const char kScreenshotSizeArgument[]             = "--screenshot-size";
 const char kScreenshotScaleArgument[]            = "--screenshot-scale";
 const char kForceWindowedShortArgument[]         = "--fw";
 const char kForceWindowedLongArgument[]          = "--force-windowed";
+const char kForceWindowWithOriginShortArgument[] = "--fwo";
+const char kForceWindowWithOriginLongArgument[]  = "--force-windowed-origin";
 const char kOutput[]                             = "--output";
 const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kMeasurementFileArgument[]            = "--measurement-file";
@@ -749,6 +751,29 @@ static void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxr
     }
 }
 
+static void SetWindowOrigin(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    auto value = arg_parser.GetArgumentValue(kForceWindowWithOriginShortArgument);
+
+    if (value.empty())
+    {
+        value = arg_parser.GetArgumentValue(kForceWindowWithOriginLongArgument);
+    }
+    if (!value.empty())
+    {
+        options.force_windowed_origin = true;
+
+        std::istringstream value_input;
+        value_input.str(value);
+        std::string val;
+
+        std::getline(value_input, val, ',');
+        options.window_topleft_x = std::stoi(val);
+        std::getline(value_input, val, ',');
+        options.window_topleft_y = std::stoi(val);
+    }
+}
+
 static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser& arg_parser,
                                             const char*                           filter_messages)
 {
@@ -828,6 +853,7 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     }
 
     IsForceWindowed(options, arg_parser);
+    SetWindowOrigin(options, arg_parser);
 }
 
 static gfxrecon::decode::VulkanReplayOptions
