@@ -33,7 +33,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 // If TEST_AVAILABLE_ARGS is enabled, it finds the available args that follow the original args, if the original args
 // are unavailable.
-const bool TEST_AVAILABLE_ARGS = false;
+// 0: disable
+// 1: enable. The target could be Draw or Dispatch.
+// 2: enable, and the target is Draw, not Dispatch.
+// ExecuteIndirect isn't available to check if it's Draw, so it doesn't work for 2.
+const int TEST_AVAILABLE_ARGS = 0;
 
 struct TrackDumpDrawcall
 {
@@ -44,6 +48,7 @@ struct TrackDumpDrawcall
     uint64_t            begin_renderpass_block_index{ 0 };
     uint64_t            set_render_targets_block_index{ 0 };
     format::HandleId    root_signature_handle_id{ format::kNullHandleId };
+    bool is_draw{ false }; // true: DrawInstanced, DrawIndexedInstanced, false: Dispatch, ExecuteIndirect, ExecuteBundle
 
     // vertex
     std::vector<D3D12_VERTEX_BUFFER_VIEW> captured_vertex_buffer_views;
@@ -134,7 +139,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
             GFXRECON_LOG_FATAL("The target submit index(%d) of dump resources is out of range(%d).",
                                dump_resources_target_.submit_index,
                                track_submit_index_);
-            if (TEST_AVAILABLE_ARGS)
+            if (TEST_AVAILABLE_ARGS > 0)
             {
                 GFXRECON_LOG_FATAL("Although TEST_AVAILABLE_ARGS is enabled, it cann't find the available args that "
                                    "follow the original args.");
@@ -359,7 +364,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                                  UINT               StartVertexLocation,
                                                                  UINT               StartInstanceLocation)
     {
-        TrackTargetDrawcall(call_info, object_id);
+        TrackTargetDrawcall(call_info, object_id, true);
     }
 
     virtual void Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(const ApiCallInfo& call_info,
@@ -370,7 +375,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                                         INT                BaseVertexLocation,
                                                                         UINT               StartInstanceLocation)
     {
-        TrackTargetDrawcall(call_info, object_id);
+        TrackTargetDrawcall(call_info, object_id, true);
     }
 
     virtual void Process_ID3D12GraphicsCommandList_Dispatch(const ApiCallInfo& call_info,
@@ -379,7 +384,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                             UINT               ThreadGroupCountY,
                                                             UINT               ThreadGroupCountZ)
     {
-        TrackTargetDrawcall(call_info, object_id);
+        TrackTargetDrawcall(call_info, object_id, false);
     }
 
     virtual void Process_ID3D12GraphicsCommandList_ExecuteIndirect(const ApiCallInfo& call_info,
@@ -392,14 +397,15 @@ class Dx12BrowseConsumer : public Dx12Consumer
                                                                    UINT64             CountBufferOffset)
     {
         TrackTargetDrawcall(
-            call_info, object_id, pArgumentBuffer, ArgumentBufferOffset, pCountBuffer, CountBufferOffset);
+            call_info, object_id, false, pArgumentBuffer, ArgumentBufferOffset, pCountBuffer, CountBufferOffset);
     }
 
     virtual void Process_ID3D12GraphicsCommandList_ExecuteBundle(const ApiCallInfo& call_info,
                                                                  format::HandleId   object_id,
                                                                  format::HandleId   pCommandList)
     {
-        TrackTargetDrawcall(call_info, object_id, format::kNullHandleId, 0, format::kNullHandleId, 0, pCommandList);
+        TrackTargetDrawcall(
+            call_info, object_id, false, format::kNullHandleId, 0, format::kNullHandleId, 0, pCommandList);
     }
 
     virtual void Process_ID3D12GraphicsCommandList_Close(const ApiCallInfo& call_info,
@@ -432,7 +438,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
             {
                 if (NumCommandLists <= dump_resources_target_.command_index)
                 {
-                    if (TEST_AVAILABLE_ARGS)
+                    if (TEST_AVAILABLE_ARGS > 0)
                     {
                         ++track_submit_index_;
                         ++dump_resources_target_.submit_index;
@@ -464,31 +470,53 @@ class Dx12BrowseConsumer : public Dx12Consumer
                     {
                         if (drawcall.bundle_commandlist_id != format::kNullHandleId)
                         {
-                            auto bundle_it     = track_commandlist_infos_.find(drawcall.bundle_commandlist_id);
-                            auto drawcall_size = bundle_it->second.track_dump_drawcalls.size();
-                            if (drawcall_size > 0)
+                            auto bundle_it = track_commandlist_infos_.find(drawcall.bundle_commandlist_id);
+                            if (bundle_it != track_commandlist_infos_.end())
                             {
-                                all_drawcall_count += drawcall_size;
-                                if (all_drawcall_count > dump_resources_target_.drawcall_index)
+                                for (auto& bundle_drawcall : bundle_it->second.track_dump_drawcalls)
                                 {
-                                    auto target_drawcall_index =
-                                        dump_resources_target_.drawcall_index + drawcall_size - all_drawcall_count;
+                                    ++all_drawcall_count;
+                                    if (all_drawcall_count > dump_resources_target_.drawcall_index)
+                                    {
+                                        if (TEST_AVAILABLE_ARGS == 2 && !bundle_drawcall.is_draw)
+                                        {
+                                            // Find a draw drawcall in the following drawcall.
+                                            is_modified_args = true;
+                                            ++dump_resources_target_.drawcall_index;
+                                        }
+                                        else
+                                        {
+                                            drawcall.bundle_target_drawcall =
+                                                std::make_shared<TrackDumpDrawcall>(bundle_drawcall);
 
-                                    drawcall.bundle_target_drawcall = std::make_shared<TrackDumpDrawcall>(
-                                        bundle_it->second.track_dump_drawcalls[target_drawcall_index]);
+                                            drawcall.execute_block_index = call_info.index;
+                                            target_command_list_         = cmd_list;
+                                            target_drawcall_index_       = drawcall_index;
+                                            break;
+                                        }
+                                    }
                                 }
                             }
                         }
                         else
                         {
                             ++all_drawcall_count;
-                        }
-                        if (all_drawcall_count > dump_resources_target_.drawcall_index)
-                        {
-                            drawcall.execute_block_index = call_info.index;
-                            target_command_list_         = cmd_list;
-                            target_drawcall_index_       = drawcall_index;
-                            break;
+                            if (all_drawcall_count > dump_resources_target_.drawcall_index)
+                            {
+                                if (TEST_AVAILABLE_ARGS == 2 && !drawcall.is_draw)
+                                {
+                                    // Find a draw drawcall in the following drawcall.
+                                    is_modified_args = true;
+                                    ++dump_resources_target_.drawcall_index;
+                                }
+                                else
+                                {
+                                    drawcall.execute_block_index = call_info.index;
+                                    target_command_list_         = cmd_list;
+                                    target_drawcall_index_       = drawcall_index;
+                                    break;
+                                }
+                            }
                         }
                         ++drawcall_index;
                     }
@@ -496,7 +524,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                     // It didn't find the target drawcall.
                     if (target_command_list_ == format::kNullHandleId)
                     {
-                        if (TEST_AVAILABLE_ARGS)
+                        if (TEST_AVAILABLE_ARGS > 0)
                         {
                             // Find a drawcall in the following command list.
                             is_modified_args = true;
@@ -515,7 +543,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 }
 
                 // It didn't find the target drawcall.
-                if (TEST_AVAILABLE_ARGS && target_command_list_ == format::kNullHandleId)
+                if (TEST_AVAILABLE_ARGS > 0 && target_command_list_ == format::kNullHandleId)
                 {
                     // Find a drawcall in the following submit.
                     is_modified_args = true;
@@ -562,6 +590,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
 
     void TrackTargetDrawcall(const ApiCallInfo& call_info,
                              format::HandleId   object_id,
+                             bool               is_draw,
                              format::HandleId   exe_indirect_argument_id     = format::kNullHandleId,
                              uint64_t           exe_indirect_argument_offset = 0,
                              format::HandleId   exe_indirect_count_id        = format::kNullHandleId,
@@ -576,6 +605,7 @@ class Dx12BrowseConsumer : public Dx12Consumer
                 TrackDumpDrawcall track_drawcall               = {};
                 track_drawcall.command_list_id                 = object_id;
                 track_drawcall.drawcall_block_index            = call_info.index;
+                track_drawcall.is_draw                         = is_draw;
                 track_drawcall.begin_block_index               = it->second.begin_block_index;
                 track_drawcall.begin_renderpass_block_index    = it->second.current_begin_renderpass_block_index;
                 track_drawcall.set_render_targets_block_index  = it->second.current_set_render_targets_block_index;
