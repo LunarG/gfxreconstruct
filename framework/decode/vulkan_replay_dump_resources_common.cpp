@@ -159,7 +159,7 @@ uint32_t GetMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_prope
 }
 
 VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
-                    const encode::VulkanDeviceTable*              device_table,
+                    const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                     const ImageInfo*                        image_info,
                     VkImage*                                new_image,
@@ -230,7 +230,7 @@ VkResult CloneImage(VulkanObjectInfoTable&                  object_info_table,
 }
 
 VkResult CloneBuffer(VulkanObjectInfoTable&                  object_info_table,
-                     const encode::VulkanDeviceTable*              device_table,
+                     const encode::VulkanDeviceTable*        device_table,
                      const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
                      const BufferInfo*                       buffer_info,
                      VkBuffer*                               new_buffer,
@@ -436,17 +436,17 @@ uint32_t FindGreatestVertexIndex(const std::vector<uint8_t>& index_data,
     }
 }
 
-VkResult DumpImageToFile(const ImageInfo*                image_info,
-                         const DeviceInfo*               device_info,
-                         const encode::VulkanDeviceTable*      device_table,
-                         const encode::VulkanInstanceTable*    instance_table,
-                         VulkanObjectInfoTable&          object_info_table,
-                         const std::vector<std::string>& filenames,
-                         float                           scale,
-                         util::ScreenshotFormat          image_file_format,
-                         bool                            dump_all_subresources,
-                         VkImageLayout                   layout,
-                         const VkExtent3D*               extent_p)
+VkResult DumpImageToFile(const ImageInfo*                   image_info,
+                         const DeviceInfo*                  device_info,
+                         const encode::VulkanDeviceTable*   device_table,
+                         const encode::VulkanInstanceTable* instance_table,
+                         VulkanObjectInfoTable&             object_info_table,
+                         const std::vector<std::string>&    filenames,
+                         float                              scale,
+                         util::ScreenshotFormat             image_file_format,
+                         bool                               dump_all_subresources,
+                         VkImageLayout                      layout,
+                         const VkExtent3D*                  extent_p)
 {
     assert(image_info != nullptr);
     assert(device_info != nullptr);

@@ -266,7 +266,6 @@ class VulkanResourcesUtil
     VkDevice                                device_;
     const encode::VulkanDeviceTable&        device_table_;
     VkPhysicalDevice                        physical_device_;
-    const encode::VulkanDeviceTable&        device_table_;
     const encode::VulkanInstanceTable&      instance_table_;
     const VkPhysicalDeviceMemoryProperties& memory_properties_;
     uint32_t                                queue_family_index_;
