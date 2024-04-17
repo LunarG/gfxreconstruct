@@ -47,6 +47,19 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrFrameEn
     size_t          bytes_read = 0;
     XrFrameEndInfo* value      = wrapper->decoded_value;
 
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read +=
+        ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->displayTime));
+    bytes_read += ValueDecoder::DecodeEnumValue(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->environmentBlendMode));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
+    wrapper->layers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>>();
+    bytes_read += wrapper->layers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->layers = wrapper->layers->GetPointer();
+
     return bytes_read;
 }
 
@@ -56,6 +69,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrBinding
 
     size_t                     bytes_read = 0;
     XrBindingModificationsKHR* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeUInt32Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->bindingModificationCount));
+    wrapper->bindingModifications =
+        DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrBindingModificationBaseHeaderKHR*>>();
+    bytes_read += wrapper->bindingModifications->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->bindingModifications = wrapper->bindingModifications->GetPointer();
 
     return bytes_read;
 }
@@ -68,6 +91,19 @@ DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSecondaryViewC
     size_t                                     bytes_read = 0;
     XrSecondaryViewConfigurationLayerInfoMSFT* value      = wrapper->decoded_value;
 
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeEnumValue(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->viewConfigurationType));
+    bytes_read += ValueDecoder::DecodeEnumValue(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(value->environmentBlendMode));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
+    wrapper->layers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>>();
+    bytes_read += wrapper->layers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->layers = wrapper->layers->GetPointer();
+
     return bytes_read;
 }
 
@@ -78,10 +114,19 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanI
     size_t                         bytes_read = 0;
     XrVulkanInstanceCreateInfoKHR* value      = wrapper->decoded_value;
 
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->systemId));
+    bytes_read +=
+        ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->createFlags));
+    bytes_read += ValueDecoder::DecodeAddress(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pfnGetInstanceProcAddr));
+    value->pfnGetInstanceProcAddr = nullptr;
     wrapper->vulkanCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkInstanceCreateInfo>>();
     bytes_read += wrapper->vulkanCreateInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->vulkanCreateInfo = wrapper->vulkanCreateInfo->GetPointer();
-
+    value->vulkanCreateInfo  = wrapper->vulkanCreateInfo->GetPointer();
     wrapper->vulkanAllocator = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAllocationCallbacks>>();
     bytes_read += wrapper->vulkanAllocator->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->vulkanAllocator = wrapper->vulkanAllocator->GetPointer();
@@ -96,10 +141,21 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanD
     size_t                       bytes_read = 0;
     XrVulkanDeviceCreateInfoKHR* value      = wrapper->decoded_value;
 
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->systemId));
+    bytes_read +=
+        ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->createFlags));
+    bytes_read += ValueDecoder::DecodeAddress(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pfnGetInstanceProcAddr));
+    value->pfnGetInstanceProcAddr = nullptr;
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->vulkanPhysicalDevice));
     wrapper->vulkanCreateInfo = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkDeviceCreateInfo>>();
     bytes_read += wrapper->vulkanCreateInfo->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->vulkanCreateInfo = wrapper->vulkanCreateInfo->GetPointer();
-
+    value->vulkanCreateInfo  = wrapper->vulkanCreateInfo->GetPointer();
     wrapper->vulkanAllocator = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_VkAllocationCallbacks>>();
     bytes_read += wrapper->vulkanAllocator->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->vulkanAllocator = wrapper->vulkanAllocator->GetPointer();
@@ -113,6 +169,14 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_timespec*
 
     size_t    bytes_read = 0;
     timespec* value      = wrapper->decoded_value;
+
+#if defined(__USE_TIME_BITS64) || __WORDSIZE == 64
+    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
+    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_nsec));
+#else
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_nsec));
+#endif
 
     return bytes_read;
 }

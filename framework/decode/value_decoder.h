@@ -100,7 +100,6 @@ class ValueDecoder
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     static size_t DecodeAddress(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                         { return DecodeValueFrom<format::AddressEncodeType>(buffer, buffer_size, value); }
     static size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                         { return DecodeAddress(buffer, buffer_size, value); }
-    static size_t DecodeFunctionPtr(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                     { return DecodeAddress(buffer, buffer_size, value); }
 
     static size_t DecodeHandleIdValue(const uint8_t* buffer, size_t buffer_size, format::HandleId* value)           { return DecodeValueFrom<format::HandleEncodeType>(buffer, buffer_size, value); }
     template<typename T>
