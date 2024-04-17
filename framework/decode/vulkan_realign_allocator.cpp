@@ -327,7 +327,7 @@ VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedDev
 //         which is got from trace file without any adjustment for replay memory requirement difference.
 //
 // VkDeviceSize image_data_start_replay_time,
-//         The copied subresource belong to an image which is in a mapped memory, the parameter is the offset of
+//         The copied subresource belongs to an image which is in a mapped memory, the parameter is the offset of
 //         the image data start which is relative to the mapped memory, and the offset is the image replay time
 //         binding offset which is already after adjustment for replay time memory requirement difference.
 //
@@ -335,7 +335,7 @@ VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedDev
 //         These parameters are the create info of the image which has the subresource to be copied.
 //
 // MemoryData allocator_data,
-//         The info of the memory object for which the subresource data will be copied to, include its id and memory
+//         The info of the memory object for which the subresource data will be copied to, including its id and memory
 //         type.
 //
 // uint64_t offset,size,
@@ -392,11 +392,11 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
         // on subresource layout change between capture and replay time.
         //
         // Note: multi-planar format is not supported in the following handling, and for depth/stencil format,
-        //       we cannot handle the case that depth and stencil aspects is stored separately by driver
+        //       we cannot handle the case that depth and stencil aspects are stored separately by driver
         //       implementation.
 
         // TODO: add handling for multi-planar and the case for depth/stencil format that depth and stencil
-        //      aspects is stored separately by driver implementation.
+        //      aspects are stored separately by driver implementation.
 
         VkDeviceSize texel_size = 0;
         bool         is_texel_block_size;
@@ -419,7 +419,7 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
                      copy_subresource_info.image_subresource_layout_replay_time.rowPitch);
 
         // This is the subresource data range to be copied, the start and end of the range are capture time offset which
-        // is relative to the start of subresource data;
+        // is relative to the start of subresource data.
         VkDeviceSize copy_range_limit_start_to_subresource_start =
                          copy_subresource_info.subresource_data_offset -
                          copy_subresource_info.image_subresource_layout_capture_time.offset,
@@ -427,7 +427,7 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
                          copy_subresource_info.subresource_data_offset + copy_subresource_info.subresource_data_size -
                          copy_subresource_info.image_subresource_layout_capture_time.offset;
 
-        // we'll copy the subresource data range to replay time corresponding location from
+        // We'll copy the subresource data range to replay time corresponding location from
         // capture_time_row_data_offset_to_subresource_data_start. This is the capture time offset which is relative to
         // the start of the subresource data. We call it capture time location because this is the location in (or
         // determined by) trace file which is without any consideration of cross-GPU/Driver handling such as binding
@@ -637,14 +637,14 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
         }
         else
         {
-            // The resource is image and it bind to a mapped memory, the full or part image data within the range
+            // The resource is image and it binds to a mapped memory, the full or part image data within the range
             // (offset,size) will be updated by the following handling. According to the tiling of the image, there are
             // the following cases:
             //
             // 1. The tiling is VK_IMAGE_TILING_OPTIMAL
             //
             //    In general, target application should not select the tiling if uploading data to an image from host
-            //    because how texels are laid out in memory is opaque and depend on driver implementation. In the
+            //    because how texels are laid out in memory is opaque and depends on driver implementation. In the
             //    following code, if graphic hardware or driver is different with capture-time, an error message will be
             //    output for this case and image data update will be skipped. if graphic hardware and driver is same
             //    with capture-time, image data will be updated directly without any adjustment to memory location.
@@ -681,10 +681,10 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
 
                 if (create_info.tiling == VK_IMAGE_TILING_OPTIMAL)
                 {
-                    // How texels are laid out in memory is opaque and depend on driver implementation. The case is not
+                    // How texels are laid out in memory is opaque and depends on driver implementation. The case is not
                     // supported by the following handling, The image data update will be skipped with an error message
                     // output. Note, even the image subresource layout from vkGetImageSubresourceLayout is same with
-                    // capture time, still no garentee that the actual memory layout of this image is same.
+                    // capture time, still no guarantee that the actual memory layout of this image is same.
 
                     skip_update = true;
                     GFXRECON_LOG_WARNING_ONCE("Skip uploading data to VK_IMAGE_TILING_OPTIMAL image in mapped memory, "
@@ -758,7 +758,7 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                     // the image subresource data so we can update the image. The following is why and what
                     // we need to do during the process.
                     //
-                    // During capture-time, target application update a mapped memory range (offset, size) with
+                    // During capture-time, target application updates a mapped memory range (offset, size) with
                     // a data block (data, size). Assume there's an image for which its image data is located within
                     // (the case for partly overlapping is same) the range (offset,size), the image data range is
                     // (imgae_data_capture_time_start, image_data_capture_time_size). Note it's the offset

@@ -287,9 +287,9 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
     return found;
 }
 
-// Get the info of target image format. The function return true if the target format
-// is supported, and return texel size and other info to corresponding pointer if the
-// poinbter is not nullptr and the image format is supported.
+// Get the info on target image format. The function returns true if the target format
+// is supported, and returns texel size and other info to the corresponding pointer if the
+// pointer is not nullptr and the image format is supported.
 //
 // VkFormat format,
 //         The target image format for which the function will return its related info.
@@ -307,63 +307,67 @@ bool FindMemoryTypeIndex(const VkPhysicalDeviceMemoryProperties& memory_properti
 //         If *is_texel_block_size is true, the height of texel rectangle.
 //
 bool GetImageTexelSize(VkFormat      format,
-                       VkDeviceSize* texel_size,
-                       bool*         is_texel_block_size,
-                       uint16_t*     block_width_pointer,
-                       uint16_t*     block_height_pointer)
+                       VkDeviceSize* texel_size_ptr,
+                       bool*         is_texel_block_format_ptr,
+                       uint16_t*     block_width_ptr,
+                       uint16_t*     block_height_ptr)
 {
     if (vkuFormatPlaneCount(format) > 1)
     {
         // multi-planar format is not supported.
+        GFXRECON_LOG_WARNING_ONCE("The multi-planar format is not supported for the function GetImageTexelSize!");
         return false;
     }
     else
     {
-        const struct VKU_FORMAT_INFO format_info           = vkuGetFormatInfo(format);
-        bool                         is_texel_block_format = false;
+        const struct VKU_FORMAT_INFO format_info = vkuGetFormatInfo(format);
+
+        if (is_texel_block_format_ptr)
+        {
+            *is_texel_block_format_ptr = false;
+        }
 
         if (format_info.texel_per_block > 1)
         {
-            is_texel_block_format = true;
+            if (is_texel_block_format_ptr)
+            {
+                *is_texel_block_format_ptr = true;
+            }
         }
 
-        if (texel_size)
+        if (texel_size_ptr != nullptr)
         {
-            *texel_size = format_info.block_size;
+            *texel_size_ptr = format_info.block_size;
         }
 
-        if (is_texel_block_size)
+        if (block_width_ptr != nullptr)
         {
-            *is_texel_block_size = is_texel_block_format;
+            *block_width_ptr = format_info.block_extent.width;
         }
 
-        if (block_width_pointer != nullptr)
+        if (block_height_ptr != nullptr)
         {
-            *block_width_pointer = format_info.block_extent.width;
+            *block_height_ptr = format_info.block_extent.height;
         }
 
-        if (block_height_pointer != nullptr)
-        {
-            *block_height_pointer = format_info.block_extent.height;
-        }
         return true;
     }
 }
 
-// The function get texel coordinates for a specific location within subresource data range. There are the following two
-// cases for the location within subresource data range (The image must be a linear tiling image.):
+// The function gets texel coordinates for a specific location within subresource data range. There are the following
+// two cases for the location within subresource data range (The image must be a linear tiling image.):
 //
-//     1. The location point to a valid image texel. For this case, the coordinate (x,y,z,layer) of this texel will
-//        be returned to corresponding pointer, pointer_offset_in_texel_or_padding will return the offset which is
-//        relative to the start of the texel data. For example, assume texel size is 32 bytes for the image format, if
-//        the pointer_offset_in_texel_or_padding return value 6, it mean the input parameter
-//        offset_to_subresource_data_start point to the texel and at the location within the texel data where the offset
-//        is 6 (relative to the start of 32 bytes texel data). pointer_padding_location will return false.
-//        pointer_current_row_left_size return the size from this location to end of this row (only texel of this row be
-//        calculated, it doesn't include any padding after valid texel data).
+//     1. The location points to a valid image texel. For this case, the coordinate (x,y,z,layer) of this texel will
+//        be returned to the corresponding pointer, pointer_offset_in_texel_or_padding will return the offset which is
+//        relative to the start of the texel data. For example, assume the texel size is 32 bytes for the image format,
+//        if the pointer_offset_in_texel_or_padding return value 6, it means the input parameter
+//        offset_to_subresource_data_start points to the texel and at the location within the texel data where the
+//        offset is 6 (relative to the start of the 32 bytes texel data). pointer_padding_location will return false.
+//        pointer_current_row_left_size returns the size from this location to the end of this row (only texel of this
+//        row be calculated, it doesn't include any padding after valid texel data).
 //
-//     2. The location point to invalid image data which should be padding area within the subresource data range. For
-//        this case, the texel coordinates point to the texel of which its texel data just before the location.
+//     2. The location points to invalid image data which should be padding area within the subresource data range. For
+//        this case, the texel coordinates point to the texel of which its texel data is just before the location.
 //        pointer_padding_location will return true. pointer_offset_in_texel_or_padding will return the offset which is
 //        relative to the start of the padding range.
 //
@@ -386,8 +390,8 @@ bool GetImageTexelSize(VkFormat      format,
 //     If returned *pointer_padding_location is false, pointer_offset_in_texel_or_padding point to the returned offset
 //     in target texel.
 //
-// VkDeviceSize *pointer_current_row_left_size
-//     The left size which is from offset_to_subresource_data_start to the row end.
+// VkDeviceSize *pointer_current_row_remaining_size
+//     The remaining size which is the size of the range from offset_to_subresource_data_start to the row end.
 //
 bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                                    uint32_t                   arrayLayers,
@@ -395,14 +399,14 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                                    const VkExtent3D&          extent,
                                    const VkSubresourceLayout& subresource_layout,
                                    VkDeviceSize               offset_to_subresource_data_start,
-                                   bool*                      pointer_texel_rectangle_block_coordinates,
-                                   uint32_t*                  pointer_x,
-                                   uint32_t*                  pointer_y,
-                                   uint32_t*                  pointer_z,
-                                   uint32_t*                  pointer_layer,
-                                   VkDeviceSize*              pointer_offset_in_texel_or_padding,
-                                   bool*                      pointer_padding_location,
-                                   VkDeviceSize*              pointer_current_row_left_size)
+                                   bool*                      texel_rectangle_block_coordinates_ptr,
+                                   uint32_t*                  x_ptr,
+                                   uint32_t*                  y_ptr,
+                                   uint32_t*                  z_ptr,
+                                   uint32_t*                  layer_ptr,
+                                   VkDeviceSize*              offset_in_texel_or_padding_ptr,
+                                   bool*                      padding_location_ptr,
+                                   VkDeviceSize*              current_row_remaining_size_ptr)
 {
     bool         is_texel_block_size = false;
     VkDeviceSize texel_size          = 0;
@@ -412,13 +416,12 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
     if (!result)
     {
         // The image format is not supported
-        GFXRECON_LOG_WARNING_ONCE("Image format %d is not supported!");
         return false;
     }
 
     bool         padding_location = false;
     uint32_t     x, y, z, layer;
-    VkDeviceSize offset_in_texel_or_padding, current_row_left_size = 0;
+    VkDeviceSize offset_in_texel_or_padding, current_row_remaining_size = 0;
     VkDeviceSize current_offset = offset_to_subresource_data_start;
 
     if ((arrayLayers > 1) && (subresource_layout.arrayPitch != 0))
@@ -466,12 +469,12 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                     x                          = extent.width - 1;
                     offset_in_texel_or_padding = current_offset - static_cast<VkDeviceSize>(extent.width) * texel_size;
                     padding_location           = true;
-                    current_row_left_size      = 0;
+                    current_row_remaining_size = 0;
                 }
                 else
                 {
                     offset_in_texel_or_padding = current_offset % texel_size;
-                    current_row_left_size      = (extent.width - x) * texel_size - offset_in_texel_or_padding;
+                    current_row_remaining_size = (extent.width - x) * texel_size - offset_in_texel_or_padding;
                 }
             }
 
@@ -493,12 +496,12 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                 x                          = extent.width - 1;
                 offset_in_texel_or_padding = current_offset - static_cast<VkDeviceSize>(extent.width) * texel_size;
                 padding_location           = true;
-                current_row_left_size      = 0;
+                current_row_remaining_size = 0;
             }
             else
             {
                 offset_in_texel_or_padding = current_offset % texel_size;
-                current_row_left_size      = (extent.width - x) * texel_size - offset_in_texel_or_padding;
+                current_row_remaining_size = (extent.width - x) * texel_size - offset_in_texel_or_padding;
             }
 
             break;
@@ -515,12 +518,12 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
                 x                          = extent.width - 1;
                 offset_in_texel_or_padding = current_offset - static_cast<VkDeviceSize>(extent.width) * texel_size;
                 padding_location           = true;
-                current_row_left_size      = 0;
+                current_row_remaining_size = 0;
             }
             else
             {
                 offset_in_texel_or_padding = current_offset % texel_size;
-                current_row_left_size      = (extent.width - x) * texel_size - offset_in_texel_or_padding;
+                current_row_remaining_size = (extent.width - x) * texel_size - offset_in_texel_or_padding;
             }
 
             break;
@@ -530,51 +533,51 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
             break;
     }
 
-    if (pointer_x != nullptr)
+    if (x_ptr != nullptr)
     {
-        *pointer_x = x;
+        *x_ptr = x;
     }
 
-    if (pointer_y != nullptr)
+    if (y_ptr != nullptr)
     {
-        *pointer_y = y;
+        *y_ptr = y;
     }
 
-    if (pointer_z != nullptr)
+    if (z_ptr != nullptr)
     {
-        *pointer_z = z;
+        *z_ptr = z;
     }
 
-    if (pointer_layer != nullptr)
+    if (layer_ptr != nullptr)
     {
-        *pointer_layer = layer;
+        *layer_ptr = layer;
     }
 
-    if (pointer_texel_rectangle_block_coordinates != nullptr)
+    if (texel_rectangle_block_coordinates_ptr != nullptr)
     {
-        *pointer_texel_rectangle_block_coordinates = is_texel_block_size;
+        *texel_rectangle_block_coordinates_ptr = is_texel_block_size;
     }
 
-    if (pointer_offset_in_texel_or_padding != nullptr)
+    if (offset_in_texel_or_padding_ptr != nullptr)
     {
-        *pointer_offset_in_texel_or_padding = offset_in_texel_or_padding;
+        *offset_in_texel_or_padding_ptr = offset_in_texel_or_padding;
     }
 
-    if (pointer_padding_location != nullptr)
+    if (padding_location_ptr != nullptr)
     {
-        *pointer_padding_location = padding_location;
+        *padding_location_ptr = padding_location;
     }
 
-    if (pointer_current_row_left_size != nullptr)
+    if (current_row_remaining_size_ptr != nullptr)
     {
-        *pointer_current_row_left_size = current_row_left_size;
+        *current_row_remaining_size_ptr = current_row_remaining_size;
     }
 
     return result;
 }
 
 // Get the offset which is relative to the start of subresource data for a location (pointed by texel
-// coordicates and related values) within the subresource. The image must be a linear tiling image.
+// coordinates and related values) within the subresource. The image must be a linear tiling image.
 //
 // VkImageType imageType, uint32_t arrayLayers, VkFormat format, VkExtent3D &extent
 //     Image type, format, array layers and extent from the image create info.
@@ -583,17 +586,17 @@ bool GetTexelCoordinatesFromOffset(VkImageType                imageType,
 //     Target subresource layout info.
 //
 // bool *pointer_compressed_texel_block_coordinates
-//     If true, it indicate the coordinate (x ,y) unit is compressed texel block otherwise it's texel coordinate.
+//     If true, it indicates the coordinate (x ,y) unit is a compressed texel block otherwise it's texel coordinate.
 //
 // uint32_t x, y, z, layer
 //     The coordinates to specify the target location in subresource data.
 //
 // VkDeviceSize offset_in_texel_or_padding, bool padding_location,
 //     If padding_location is false, offset_in_texel_or_padding is the offset in texel, otherwise, it is the
-//     the offset from the target location to the start of the padding range.
+//     offset from the target location to the start of the padding range.
 //
 // VkDeviceSize offset_to_subresource_data_start
-//     the offset which is corresponding to target location.
+//     the offset which corresponds to the target location.
 //
 bool GetOffsetFromTexelCoordinates(VkImageType         imageType,
                                    uint32_t            arrayLayers,
@@ -669,8 +672,8 @@ bool GetOffsetFromTexelCoordinates(VkImageType         imageType,
 //     Image type, format, array layers and extent from the image create info.
 //
 // uint32_t& y, z, layer
-//     The coordinates to specify the target location in subresource data, the function get the next
-//     row of the target location and also return the corresponding next row coordinates to y, z,
+//     The coordinates to specify the target location in subresource data, the function gets the next
+//     row of the target location and also returns the corresponding next row coordinates to y, z,
 //     layer.
 //
 bool NextRowTexelCoordinates(VkImageType       imageType,
