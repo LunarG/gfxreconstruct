@@ -64,15 +64,12 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
 
         if (i < options.Draw_Indices.size() && options.Draw_Indices[i].size())
         {
-            draw_call_contexts.emplace(bcb_index,
-                                       DrawCallsDumpingContext(options.Draw_Indices[i].size() ? options.Draw_Indices[i]
-                                                                                              : std::vector<uint64_t>(),
-                                                               options.RenderPass_Indices[i].size()
-                                                                   ? options.RenderPass_Indices[i]
-                                                                   : std::vector<std::vector<uint64_t>>(),
-                                                               object_info_table,
-                                                               options,
-                                                               dump_json_));
+            assert(options.RenderPass_Indices[i].size());
+
+            draw_call_contexts.emplace(
+                bcb_index,
+                DrawCallsDumpingContext(
+                    options.Draw_Indices[i], options.RenderPass_Indices[i], object_info_table, options, dump_json_));
         }
 
         if ((i < options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size()) ||
