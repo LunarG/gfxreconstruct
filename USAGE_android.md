@@ -837,7 +837,14 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--use-colorspace-fallback] [--wait-before-present]
                           [--dump-resources <dump-args>]
                           [--dump-resources-before-draw] [--dump-resources-scale <scale>]
-                          [--dump-resources-dir <fir>] [file]
+                          [--dump-resources-dir <fir>]
+                          [--dump-resources-image-format <format>]
+                          [--dump-resources-dump-depth-attachment]
+                          [--dump-resources-dump-color-attachment-index]
+                          [--dump-resources-dump-vertex-index-buffers]
+                          [--dump-resources-json-output-per-command]
+                          [--dump-resources-dump-immutable-resources]
+                          [--dump-resources-dump-all-image-subresources] [file]
 
 Launch the replay tool.
 
@@ -1006,6 +1013,13 @@ optional arguments:
               based integer. Default is to dump all color attachment
   --dump-resources-dump-vertex-index-buffers
               Enables dumping of vertex and index buffers while dumping draw call resources.
+  --dump-resources-json-output-per-command
+              Enables storing a json output file for each dumped command. Overrides default behavior which
+              is generating one output json file that contains the information for all dumped commands.
+  --dump-resources-dump-immutable-resources
+              Enables dumping of resources that are used as inputs in the commands requested for dumping
+  --dump-resources-dump-all-image-subresources
+              Enables dumping of all image sub resources (mip map levels and array layers)
 ```
 
 The command will force-stop an active replay process before starting the replay
