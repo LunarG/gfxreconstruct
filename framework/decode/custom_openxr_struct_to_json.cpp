@@ -137,5 +137,17 @@ void FieldToJson(nlohmann::ordered_json&                    jdata,
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_timespec* data, const util::JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const timespec&         decoded_value = *data->decoded_value;
+        const Decoded_timespec& meta_struct   = *data;
+
+        FieldToJson(jdata["tv_sec"], decoded_value.tv_sec, options);
+        FieldToJson(jdata["tv_nsec"], decoded_value.tv_nsec, options);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
