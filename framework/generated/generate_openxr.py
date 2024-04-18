@@ -58,6 +58,8 @@ generate_targets = [
     'generated_openxr_enum_to_json.cpp',
     'generated_openxr_enum_to_string.h',
     'generated_openxr_enum_to_string.cpp',
+    'generated_openxr_json_consumer.h',
+    'generated_openxr_json_consumer.cpp',
     'generated_openxr_state_table.h',
     'generated_openxr_struct_encoders.h',
     'generated_openxr_struct_encoders.cpp',

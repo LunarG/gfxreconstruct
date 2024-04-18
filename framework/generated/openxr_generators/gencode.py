@@ -90,6 +90,8 @@ from openxr_type_util_generator import OpenXrTypeUtilGenerator, OpenXrTypeUtilGe
 
 # Consumers
 from openxr_consumer_header_generator import OpenXrConsumerHeaderGenerator, OpenXrConsumerHeaderGeneratorOptions
+from openxr_json_consumer_header_generator import OpenXrExportJsonConsumerHeaderGenerator, OpenXrExportJsonConsumerHeaderGeneratorOptions
+from openxr_json_consumer_body_generator import OpenXrExportJsonConsumerBodyGenerator, OpenXrExportJsonConsumerBodyGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -585,6 +587,37 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_json_consumer.h'] = [
+        OpenXrExportJsonConsumerHeaderGenerator,
+        OpenXrExportJsonConsumerHeaderGeneratorOptions(
+            class_name='OpenXrExportJsonConsumer',
+            base_class_header='openxr_json_consumer_base.h',
+            is_override=True,
+            filename='generated_openxr_json_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_json_consumer.cpp'] = [
+        OpenXrExportJsonConsumerBodyGenerator,
+        OpenXrExportJsonConsumerBodyGeneratorOptions(
+            filename='generated_openxr_json_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
             protect_feature=False,
             extraOpenXrHeaders=extraOpenXrHeaders
         )

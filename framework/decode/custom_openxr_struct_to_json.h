@@ -26,6 +26,10 @@
 #include "generated/generated_openxr_enum_to_json.h"
 #include "generated/generated_openxr_struct_to_json.h"
 #include "generated/generated_openxr_struct_decoders.h"
+#include "decode/custom_vulkan_struct_decoders.h"
+#include "generated/generated_vulkan_enum_to_json.h"
+#include "generated/generated_vulkan_struct_to_json.h"
+#include "generated/generated_vulkan_struct_decoders.h"
 #include "decode/decode_json_util.h"
 
 #include "util/defines.h"
@@ -34,6 +38,7 @@
 
 #include "nlohmann/json.hpp"
 #include "openxr/openxr.h"
+#include "vulkan/vulkan_core.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -41,6 +46,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 void FieldToJson(nlohmann::ordered_json&     jdata,
                  const MLCoordinateFrameUID& data,
                  const util::JsonOptions& = util::JsonOptions());
+
 void FieldToJson(nlohmann::ordered_json&                  jdata,
                  const Decoded_XrBindingModificationsKHR* data,
                  const util::JsonOptions& = util::JsonOptions());
@@ -55,6 +61,9 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const util::JsonOptions& = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json&                    jdata,
                  const Decoded_XrVulkanDeviceCreateInfoKHR* data,
+                 const util::JsonOptions& = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata,
+                 const Decoded_timespec* data,
                  const util::JsonOptions& = util::JsonOptions());
 
 GFXRECON_END_NAMESPACE(decode)
