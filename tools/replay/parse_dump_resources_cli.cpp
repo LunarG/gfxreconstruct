@@ -76,16 +76,6 @@ static bool AreIndicesSorted(const std::vector<uint64_t>& indices)
 static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& vulkan_replay_options)
 {
     // Indices should be provided sorted
-    if (vulkan_replay_options.BeginCommandBuffer_Indices.size() > 1)
-    {
-        if (!AreIndicesSorted(vulkan_replay_options.BeginCommandBuffer_Indices))
-        {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("BeginCommandBuffer indices are not sorted")
-            return true;
-        }
-    }
-
     if (vulkan_replay_options.Draw_Indices.size())
     {
         bool is_2d = false;
@@ -182,16 +172,6 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         {
             GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
             GFXRECON_LOG_ERROR("TraceRays indices must be a 2 dimensional array")
-            return true;
-        }
-    }
-
-    if (vulkan_replay_options.QueueSubmit_Indices.size() > 1)
-    {
-        if (!AreIndicesSorted(vulkan_replay_options.QueueSubmit_Indices))
-        {
-            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("QueueSubmit indices are not sorted")
             return true;
         }
     }
