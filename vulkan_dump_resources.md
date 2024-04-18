@@ -266,6 +266,10 @@ Dump resources feature can be control in several ways. To do so, a number of par
   --dump-resources-json-output-per-command
               Enables storing a json output file for each dumped command. Overrides default behavior which
               is generating one output json file that contains the information for all dumped commands.
+  --dump-resources-dump-immutable-resources
+              Enables dumping of resources that are used as inputs in the commands requested for dumping
+  --dump-resources-dump-all-image-subresources
+              Enables dumping of all image sub resources (mip map levels and array layers)
 ```
 
 ## Output
