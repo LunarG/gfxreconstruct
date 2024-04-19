@@ -1056,22 +1056,20 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                             {
                                 for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
                                 {
-                                    if (desc_binding.second.image_info[img].image_view_info == nullptr)
+                                    if (desc_binding.second.image_info[img].image_view_info != nullptr)
                                     {
-                                        continue;
-                                    }
+                                        const ImageInfo* img_info = object_info_table.GetImageInfo(
+                                            desc_binding.second.image_info[img].image_view_info->image_id);
+                                        assert(img_info != nullptr);
 
-                                    const ImageInfo* img_info = object_info_table.GetImageInfo(
-                                        desc_binding.second.image_info[img].image_view_info->image_id);
-                                    assert(img_info != nullptr);
+                                        desc_entry += "[" + std::to_string(img) + "]";
 
-                                    desc_entry += "[" + std::to_string(img) + "]";
-
-                                    std::vector<std::string> filenames = GenerateImageDescriptorFilename(img_info);
-                                    for (std::string& filename : filenames)
-                                    {
-                                        filename += ImageFileExtension(img_info->format, image_file_format);
-                                        output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                                        std::vector<std::string> filenames = GenerateImageDescriptorFilename(img_info);
+                                        for (std::string& filename : filenames)
+                                        {
+                                            filename += ImageFileExtension(img_info->format, image_file_format);
+                                            output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                                        }
                                     }
                                 }
                             }
@@ -1084,18 +1082,17 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                             case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                             {
-                                for (size_t buf = 0; buf < desc_binding.second.image_info.size(); ++buf)
+                                for (size_t buf = 0; buf < desc_binding.second.buffer_info.size(); ++buf)
                                 {
                                     const BufferInfo* buf_info = desc_binding.second.buffer_info[buf].buffer_info;
-                                    if (buf_info == nullptr)
+                                    if (buf_info != nullptr)
                                     {
-                                        continue;
+                                        desc_entry += "[" + std::to_string(buf) + "]";
+
+                                        const std::string filename =
+                                            GenerateBufferDescriptorFilename(buf_info->capture_id);
+                                        output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
                                     }
-
-                                    desc_entry += "[" + std::to_string(buf) + "]";
-
-                                    const std::string filename = GenerateBufferDescriptorFilename(buf_info->capture_id);
-                                    output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
                                 }
                             }
                             break;
@@ -1480,12 +1477,12 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
                         case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
                         case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                         {
-                            for (size_t i = 0; i < desc_binding.second.image_info.size(); ++i)
+                            for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
                             {
-                                if (desc_binding.second.image_info[i].image_view_info != nullptr)
+                                if (desc_binding.second.image_info[img].image_view_info != nullptr)
                                 {
                                     const ImageInfo* img_info = object_info_table.GetImageInfo(
-                                        desc_binding.second.image_info[i].image_view_info->image_id);
+                                        desc_binding.second.image_info[img].image_view_info->image_id);
                                     assert(img_info);
 
                                     image_descriptors.insert(img_info);
@@ -1501,16 +1498,16 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
                         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
                         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                         {
-                            for (size_t i = 0; i < desc_binding.second.buffer_info.size(); ++i)
+                            for (size_t buf = 0; buf < desc_binding.second.buffer_info.size(); ++buf)
                             {
-                                if (desc_binding.second.buffer_info[i].buffer_info != nullptr)
+                                if (desc_binding.second.buffer_info[buf].buffer_info != nullptr)
                                 {
                                     buffer_descriptors.emplace(
                                         std::piecewise_construct,
-                                        std::forward_as_tuple(desc_binding.second.buffer_info[i].buffer_info),
+                                        std::forward_as_tuple(desc_binding.second.buffer_info[buf].buffer_info),
                                         std::forward_as_tuple(
-                                            buffer_descriptor_info{ desc_binding.second.buffer_info[i].offset,
-                                                                    desc_binding.second.buffer_info[i].range }));
+                                            buffer_descriptor_info{ desc_binding.second.buffer_info[buf].offset,
+                                                                    desc_binding.second.buffer_info[buf].range }));
                                 }
                             }
                         }
