@@ -938,7 +938,6 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysBufferFile
 
     if (before_cmd)
     {
-        assert(0);
         filename << (is_dispatch ? "Dispatch_" : "TraceRays_") << index << "_before_stage_" << shader_stage_name
                  << "_set_" << desc_set << "_binding_" << desc_binding << "_buffer.bin";
     }
@@ -1783,7 +1782,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
             const uint32_t              desc_set = mutable_resource_entry.buffer_desc_set_binding_pair[i].first;
             const uint32_t              binding  = mutable_resource_entry.buffer_desc_set_binding_pair[i].second;
             const VkShaderStageFlagBits stage    = mutable_resource_entry.buffer_shader_stage[i];
-            std::string filename = GenerateDispatchTraceRaysBufferFilename(true, index, desc_set, binding, stage, true);
+            std::string filename = GenerateDispatchTraceRaysBufferFilename(true, index, desc_set, binding, stage, false);
 
             std::stringstream entry;
             entry << "ComputeStage_" << desc_set << "_" << binding;
