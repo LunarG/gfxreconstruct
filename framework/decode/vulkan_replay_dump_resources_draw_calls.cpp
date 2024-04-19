@@ -879,7 +879,7 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilen
         std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspects[i]));
         std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
         std::string attachment_str =
-            attachment_index != DEPTH_ATTACHMENT ? "_att_" + std::to_string(attachment_index) : "_depth_att_";
+            attachment_index != DEPTH_ATTACHMENT ? "_att_" + std::to_string(attachment_index) : "_depth_att";
 
         std::stringstream filename;
         if (VkFormatToImageWriterDataFormat(format) != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
@@ -971,7 +971,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
         for (size_t i = 0; i < filenames.size(); ++i)
         {
             const std::string filename = filenames[i] + ImageFileExtension(image_info->format, image_file_format);
-            output_json_writer->VulkanReplayDumpResourcesJsonData("RenderTargetDepth_", filename);
+            output_json_writer->VulkanReplayDumpResourcesJsonData(("RenderTargetDepth_" + std::to_string(i)).c_str(),
+                                                                  filename);
         }
     }
 
