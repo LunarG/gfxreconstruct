@@ -944,7 +944,7 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysBufferFile
     else
     {
         filename << (is_dispatch ? "Dispatch_" : "TraceRays_") << index << "_"
-                 << (dump_resources_before ? "_after_" : "") << "stage_" << shader_stage_name << "_set_" << desc_set
+                 << (dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name << "_set_" << desc_set
                  << "_binding_" << desc_binding << "_buffer.bin";
     }
 
