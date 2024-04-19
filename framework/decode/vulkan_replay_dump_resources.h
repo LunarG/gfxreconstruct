@@ -38,6 +38,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -290,7 +291,7 @@ class VulkanReplayDumpResourcesBase
     void Release();
 
   private:
-    bool UpdateRecordingStatus();
+    bool UpdateRecordingStatus(VkCommandBuffer original_command_buffer);
 
     DispatchTraceRaysDumpingContext* FindDispatchRaysCommandBufferContext(uint64_t bcb_id);
 
@@ -312,7 +313,7 @@ class VulkanReplayDumpResourcesBase
     // Mapping between the original VkCommandBuffer handle and BeginCommandBuffer index
     std::unordered_map<VkCommandBuffer, uint64_t> cmd_buf_begin_map_;
 
-    std::vector<uint64_t> QueueSubmit_indices_;
+    std::unordered_set<uint64_t> QueueSubmit_indices_;
 
     // One per BeginCommandBuffer index
     std::unordered_map<uint64_t, DrawCallsDumpingContext>         draw_call_contexts;

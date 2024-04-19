@@ -295,7 +295,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
 
             for (int idx0 = 0; idx0 < jargs["QueueSubmit"].size(); idx0++)
             {
-                vulkan_replay_options.QueueSubmit_Indices.push_back(jargs["QueueSubmit"][idx0].asUInt64());
+                vulkan_replay_options.QueueSubmit_Indices.insert(jargs["QueueSubmit"][idx0].asUInt64());
             }
         }
         catch (...)
@@ -442,7 +442,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                     vulkan_replay_options.TraceRays_Indices[i].push_back(TraceRays);
                 }
 
-                vulkan_replay_options.QueueSubmit_Indices.push_back(QueueSubmit);
+                vulkan_replay_options.QueueSubmit_Indices.insert(QueueSubmit);
             }
         }
 

@@ -31,6 +31,7 @@
 
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -83,7 +84,7 @@ struct VulkanReplayOptions : public ReplayOptions
     std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices;
     std::vector<std::vector<uint64_t>>              Dispatch_Indices;
     std::vector<std::vector<uint64_t>>              TraceRays_Indices;
-    std::vector<uint64_t>                           QueueSubmit_Indices;
+    std::unordered_set<uint64_t>                    QueueSubmit_Indices;
     std::string                                     dump_resources;
     std::string                                     dump_resources_output_dir;
     util::ScreenshotFormat                          dump_resources_image_format{ util::ScreenshotFormat::kBmp };
