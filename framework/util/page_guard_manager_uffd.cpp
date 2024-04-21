@@ -38,16 +38,16 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-static pthread_mutex_t reset_regions_mutex    = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t reset_regions_mutex    = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
 static pthread_cond_t  reset_regions_cond     = PTHREAD_COND_INITIALIZER;
 static bool            block_accessor_threads = false;
 
-static pthread_mutex_t wait_for_threads_mutex      = PTHREAD_MUTEX_INITIALIZER;
-static pthread_cond_t  wait_for_threads_cond       = PTHREAD_COND_INITIALIZER;
-static uint32_t        accessor_threads_in_handler = 0;
+static pthread_mutex_t wait_for_threads_mutex = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+static pthread_cond_t  wait_for_threads_cond  = PTHREAD_COND_INITIALIZER;
+static uint32_t        blocked_threads        = 0;
+static uint32_t        threads_to_block       = 0;
 
 std::atomic<bool> PageGuardManager::is_uffd_handler_thread_running_ = { false };
-std::atomic<bool> PageGuardManager::stop_uffd_handler_thread_       = { false };
 
 void PageGuardManager::UffdStaticSignalHandler(int sig)
 {
@@ -56,6 +56,21 @@ void PageGuardManager::UffdStaticSignalHandler(int sig)
     instance_->UffdSignalHandler(sig);
 }
 
+static void internal_thread_termination_handler(int sig)
+{
+    // The purpose of this handler is to gracefully terminate the uffd handler thread
+    pthread_exit(nullptr);
+}
+
+#define LOG_THREAD_SYNCHRONIZATION_ERROR(_tid, _func_name, _error)  \
+    GFXRECON_LOG_ERROR("[%" PRIu64 "] %s: %u %s() failed %d (%s) ", \
+                       (_tid),                                      \
+                       __func__,                                    \
+                       __LINE__,                                    \
+                       (_func_name),                                \
+                       (_error),                                    \
+                       strerror((_error)))
+
 void PageGuardManager::UffdSignalHandler(int sig)
 {
     assert(sig == uffd_rt_signal_used_);
@@ -63,30 +78,96 @@ void PageGuardManager::UffdSignalHandler(int sig)
 
     if (sig == uffd_rt_signal_used_)
     {
+        const uint64_t tid = util::platform::GetCurrentThreadId();
+
         // Signal reset regions
         {
-            pthread_mutex_lock(&wait_for_threads_mutex);
-            ++accessor_threads_in_handler;
-            pthread_cond_signal(&wait_for_threads_cond);
-            pthread_mutex_unlock(&wait_for_threads_mutex);
+            int ret = pthread_mutex_lock(&wait_for_threads_mutex);
+            if (ret == 0)
+            {
+                ++blocked_threads;
+                if (blocked_threads == threads_to_block)
+                {
+                    ret = pthread_cond_signal(&wait_for_threads_cond);
+                    if (ret)
+                    {
+                        LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_cond_signal()", ret);
+                        assert(0);
+                    }
+                }
+
+                ret = pthread_mutex_unlock(&wait_for_threads_mutex);
+                if (ret)
+                {
+                    LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_mutex_unlock()", ret);
+                    assert(0);
+                }
+            }
+            else
+            {
+                LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_mutex_lock()", ret);
+                assert(0);
+            }
         }
 
         // Wait for reset regions to finish
         {
-            pthread_mutex_lock(&reset_regions_mutex);
-            while (block_accessor_threads)
+            int ret = pthread_mutex_lock(&reset_regions_mutex);
+            if (ret == 0)
             {
-                pthread_cond_wait(&reset_regions_cond, &reset_regions_mutex);
+                while (block_accessor_threads)
+                {
+                    ret = pthread_cond_wait(&reset_regions_cond, &reset_regions_mutex);
+                    if (ret)
+                    {
+                        LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_cond_wait()", ret);
+                        assert(0);
+                    }
+                }
+
+                ret = pthread_mutex_unlock(&reset_regions_mutex);
+                if (ret)
+                {
+                    LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_mutex_unlock()", ret);
+                    assert(0);
+                }
             }
-            pthread_mutex_unlock(&reset_regions_mutex);
+            else
+            {
+                LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_mutex_lock()", ret);
+                assert(0);
+            }
         }
 
         // Decrement counter
         {
-            pthread_mutex_lock(&wait_for_threads_mutex);
-            --accessor_threads_in_handler;
-            pthread_cond_signal(&wait_for_threads_cond);
-            pthread_mutex_unlock(&wait_for_threads_mutex);
+            int ret = pthread_mutex_lock(&wait_for_threads_mutex);
+            if (ret == 0)
+            {
+                --blocked_threads;
+                if (!blocked_threads)
+                {
+                    ret = pthread_cond_signal(&wait_for_threads_cond);
+                    if (ret)
+                    {
+                        LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_cond_signal()", ret);
+                        assert(0);
+                    }
+                }
+
+                // GFXRECON_WRITE_CONSOLE("[%" PRIu64 "] CU", tid)
+                ret = pthread_mutex_unlock(&wait_for_threads_mutex);
+                if (ret)
+                {
+                    LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_mutex_unlock()", ret);
+                    assert(0);
+                }
+            }
+            else
+            {
+                LOG_THREAD_SYNCHRONIZATION_ERROR(tid, "pthread_mutex_lock()", ret);
+                assert(0);
+            }
         }
     }
     else
@@ -122,16 +203,32 @@ bool PageGuardManager::UffdSetSignalHandler()
     }
 
     // Install signal handler for the RT signal
-    struct sigaction sa = {};
-    sa.sa_flags         = SA_SIGINFO;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_handler = UffdStaticSignalHandler;
-
-    if (sigaction(uffd_rt_signal_used_, &sa, NULL))
     {
-        GFXRECON_LOG_ERROR("sigaction failed: %s", strerror(errno));
-        uffd_rt_signal_used_ = -1;
-        return false;
+        struct sigaction sa = {};
+        sa.sa_flags         = SA_SIGINFO;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_handler = UffdStaticSignalHandler;
+
+        if (sigaction(uffd_rt_signal_used_, &sa, NULL))
+        {
+            GFXRECON_LOG_ERROR("sigaction failed to register signal %d (%s)", uffd_rt_signal_used_, strerror(errno));
+            uffd_rt_signal_used_ = -1;
+            return false;
+        }
+    }
+
+    // Register a handler for SIGINT. We will use this signal to terminate the uffd handler thread
+    {
+        struct sigaction sa = {};
+        sa.sa_flags         = SA_SIGINFO;
+        sigemptyset(&sa.sa_mask);
+        sa.sa_handler = internal_thread_termination_handler;
+
+        if (sigaction(SIGINT, &sa, NULL))
+        {
+            GFXRECON_LOG_ERROR("sigaction failed to register SIGINT (%s)", uffd_rt_signal_used_, strerror(errno));
+            return false;
+        }
     }
 
     // Have uffd_signal_set_ prepared for when we need to block/unblock the signal
@@ -162,11 +259,20 @@ void PageGuardManager::UffdTerminate()
 {
     if (is_uffd_handler_thread_running_)
     {
-        stop_uffd_handler_thread_ = true;
-        if (pthread_join(uffd_handler_thread_, nullptr))
+        // Terminate handler thread
+        if (!pthread_kill(uffd_handler_thread_, SIGINT))
         {
-            GFXRECON_LOG_ERROR("%s() pthread_join failed: %s", __func__, strerror(errno));
+            if (pthread_join(uffd_handler_thread_, nullptr))
+            {
+                GFXRECON_LOG_ERROR("%s() pthread_join failed: %s", __func__, strerror(errno));
+            }
         }
+        else
+        {
+            GFXRECON_LOG_WARNING("pthread_kill failed to send signal to handler thread. Terminating anyway")
+        }
+
+        is_uffd_handler_thread_running_ = false;
     }
 
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
@@ -179,186 +285,112 @@ void PageGuardManager::UffdTerminate()
     if (uffd_fd_ != -1 && close(uffd_fd_))
     {
         GFXRECON_LOG_ERROR("Error closing uffd_fd: %s", strerror(errno));
+        uffd_fd_ = -1;
     }
 
     if (uffd_rt_signal_used_ != -1)
     {
         UffdRemoveSignalHandler();
+        uffd_rt_signal_used_ = -1;
     }
 
     uffd_is_init_ = false;
-    uffd_fd_      = -1;
 }
 
-bool PageGuardManager::UffdInit()
-{
-    if (uffd_fd_ == -1)
-    {
-        // open the userfault fd
-        uffd_fd_ = syscall(SYS_userfaultfd, UFFD_USER_MODE_ONLY | O_CLOEXEC | O_NONBLOCK);
-        if (uffd_fd_ == -1)
-        {
-            GFXRECON_LOG_ERROR("syscall/userfaultfd: %s", strerror(errno));
-            return false;
-        }
-
-        // enable for api version and check features
-        struct uffdio_api uffdio_api;
-        uffdio_api.api      = UFFD_API;
-        uffdio_api.features = UFFD_FEATURE_THREAD_ID;
-        if (ioctl(uffd_fd_, UFFDIO_API, &uffdio_api) == -1)
-        {
-            GFXRECON_LOG_ERROR("ioctl/uffdio_api: %s", strerror(errno));
-
-            return false;
-        }
-
-        if (uffdio_api.api != UFFD_API)
-        {
-            GFXRECON_LOG_ERROR("Unsupported userfaultfd api");
-
-            return false;
-        }
-
-        const uint64_t required_features[] = { UFFD_FEATURE_THREAD_ID };
-        for (size_t i = 0; i < sizeof(required_features) / sizeof(required_features[0]); ++i)
-        {
-            if ((uffdio_api.features & required_features[i]) != required_features[i])
-            {
-                GFXRECON_LOG_ERROR("Unsupported userfaultfd feature: 0x%" PRIx64 "\n", required_features[i]);
-
-                return false;
-            }
-        }
-
-        const uint64_t requested_ioctls[] = { 0x1 << _UFFDIO_REGISTER };
-        for (size_t i = 0; i < sizeof(requested_ioctls) / sizeof(requested_ioctls[0]); ++i)
-        {
-            if ((uffdio_api.ioctls & requested_ioctls[i]) != requested_ioctls[i])
-            {
-                GFXRECON_LOG_ERROR("Unsupported userfaultfd ioctl: 0x%" PRIx64 "\n", requested_ioctls[i]);
-
-                return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-bool PageGuardManager::UffdHandleFault(uint64_t address, uint64_t flags, bool wake_thread, uint64_t tid)
+bool PageGuardManager::UffdHandleFault(MemoryInfo* memory_info, uint64_t address, uint64_t flags, bool wake_thread)
 {
     assert(protection_mode_ == kUserFaultFdMode);
 
-    MemoryInfo* memory_info;
-    bool        found = FindMemory(reinterpret_cast<void*>(address), &memory_info);
+    // Pages are not touched before they are registed so only missing page faults are expected to happen
+    assert((flags & UFFD_PAGEFAULT_FLAG_WP) != UFFD_PAGEFAULT_FLAG_WP);
 
-    if (found)
+    memory_info->is_modified = true;
+
+    assert((memory_info != nullptr) && (memory_info->aligned_address != nullptr));
+    assert(static_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(memory_info->aligned_address));
+
+    // Get the offset from the start of the first protected memory page to the current address.
+    const size_t start_offset =
+        reinterpret_cast<uint8_t*>(address) - static_cast<uint8_t*>(memory_info->aligned_address);
+    const size_t page_index  = start_offset >> system_page_pot_shift_;
+    const size_t page_offset = page_index << system_page_pot_shift_;
+    assert(start_offset == page_offset);
+    const size_t segment_size = GetMemorySegmentSize(memory_info, page_index);
+    assert(segment_size <= system_page_size_);
+
+    assert(!(GFXRECON_PTR_TO_UINT64(memory_info->aligned_address) % system_page_size_));
+    assert(memory_info->aligned_offset == 0);
+
+    const bool is_write = (flags & UFFD_PAGEFAULT_FLAG_WRITE) == UFFD_PAGEFAULT_FLAG_WRITE;
+    if (is_write)
     {
-        // Pages are not touched before they are registed so only missing page faults are expected to happen
-        assert((flags & UFFD_PAGEFAULT_FLAG_WP) != UFFD_PAGEFAULT_FLAG_WP);
-
-        memory_info->uffd_fault_causing_threads.insert(tid);
-
-        memory_info->is_modified = true;
-
-        assert((memory_info != nullptr) && (memory_info->aligned_address != nullptr));
-        assert(static_cast<uintptr_t>(address) >= reinterpret_cast<uintptr_t>(memory_info->aligned_address));
-
-        // Get the offset from the start of the first protected memory page to the current address.
-        const size_t start_offset =
-            reinterpret_cast<uint8_t*>(address) - static_cast<uint8_t*>(memory_info->aligned_address);
-        const size_t page_index  = start_offset >> system_page_pot_shift_;
-        const size_t page_offset = page_index << system_page_pot_shift_;
-        assert(start_offset == page_offset);
-        const size_t segment_size = GetMemorySegmentSize(memory_info, page_index);
-        assert(segment_size <= system_page_size_);
-
-        assert(!(GFXRECON_PTR_TO_UINT64(memory_info->aligned_address) % system_page_size_));
-        assert(memory_info->aligned_offset == 0);
-
-        const bool is_write = (flags & UFFD_PAGEFAULT_FLAG_WRITE) == UFFD_PAGEFAULT_FLAG_WRITE;
-        if (is_write)
-        {
-            memory_info->status_tracker.SetActiveWriteBlock(page_index, true);
-        }
-        else
-        {
-            memory_info->status_tracker.SetActiveReadBlock(page_index, true);
-
-            if (enable_read_write_same_page_)
-            {
-                // The page guard has been removed from this page.  If we expect both reads and writes to the page,
-                // it needs to be marked for active write.
-                memory_info->status_tracker.SetActiveWriteBlock(page_index, true);
-            }
-        }
-
-        // Copy from the mapped memory to the shadow memory.
-        uint8_t* source_address;
-        if (segment_size < system_page_size_)
-        {
-            // This shouldn't happen, at least not often, as we should warn if mapped memory (and therefore shadow
-            // memory too) is not page aligned.
-            util::platform::MemoryCopy(uffd_page_size_tmp_buff_.get(),
-                                       segment_size,
-                                       static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset,
-                                       segment_size);
-
-            source_address = uffd_page_size_tmp_buff_.get();
-        }
-        else
-        {
-            source_address = static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset;
-        }
-
-        uint8_t* destination_address = static_cast<uint8_t*>(memory_info->shadow_memory) + page_offset;
-
-        // Pointers need to be properly casted to uint64_t to avoid sign extension in case it is a 32bit build
-        struct uffdio_copy copy;
-        copy.dst  = GFXRECON_PTR_TO_UINT64(destination_address);
-        copy.src  = GFXRECON_PTR_TO_UINT64(source_address);
-        copy.len  = system_page_size_;
-        copy.mode = wake_thread ? 0 : UFFDIO_COPY_MODE_DONTWAKE;
-
-        if (ioctl(uffd_fd_, UFFDIO_COPY, &copy))
-        {
-            if (errno == EEXIST)
-            {
-                // EEXIST is ok and can happen when for example 2 threads try to access the same page
-                // simultaneously. The first one will allocate the page when served, so the second one
-                // will generate EEXIST.
-                return true;
-            }
-            else
-            {
-                GFXRECON_LOG_ERROR("ioctl/uffdio_copy errno: %d: %s", errno, strerror(errno));
-                GFXRECON_LOG_ERROR("  is_write: %d", is_write);
-                GFXRECON_LOG_ERROR("  flags: 0x%" PRIx64, flags);
-                GFXRECON_LOG_ERROR("  destination_address: %p", destination_address);
-                GFXRECON_LOG_ERROR("  source_address: %p", source_address);
-                GFXRECON_LOG_ERROR("  copy.dst: 0x%" PRIx64, copy.dst);
-                GFXRECON_LOG_ERROR("  copy.src: 0x%" PRIx64, copy.src);
-                GFXRECON_LOG_ERROR("  copy.len: %" PRIu64, system_page_size_);
-
-                return false;
-            }
-        }
-
-        if (copy.copy != system_page_size_)
-        {
-            GFXRECON_LOG_ERROR("Unexpected copy.copy (%" PRId64 " != %zu)", copy.copy, system_page_size_);
-            return false;
-        }
-
-        return true;
+        memory_info->status_tracker.SetActiveWriteBlock(page_index, true);
     }
     else
     {
-        GFXRECON_LOG_ERROR("Could not find memory entry containing 0x%" PRIx64);
+        memory_info->status_tracker.SetActiveReadBlock(page_index, true);
+
+        if (enable_read_write_same_page_)
+        {
+            // The page guard has been removed from this page.  If we expect both reads and writes to the page,
+            // it needs to be marked for active write.
+            memory_info->status_tracker.SetActiveWriteBlock(page_index, true);
+        }
+    }
+
+    // Copy from the mapped memory to the shadow memory.
+    uint8_t* source_address;
+    if (segment_size < system_page_size_)
+    {
+        assert(0);
+        // This shouldn't happen, at least not often, as we should warn if mapped memory (and therefore shadow
+        // memory too) is not page aligned.
+        util::platform::MemoryCopy(uffd_page_size_tmp_buff_.get(),
+                                   segment_size,
+                                   static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset,
+                                   segment_size);
+
+        source_address = uffd_page_size_tmp_buff_.get();
+    }
+    else
+    {
+        assert(memory_info->aligned_offset == 0);
+        source_address = static_cast<uint8_t*>(memory_info->mapped_memory) + page_offset;
+    }
+
+    uint8_t* destination_address = static_cast<uint8_t*>(memory_info->shadow_memory) + page_offset;
+
+    // Pointers need to be properly casted to uint64_t to avoid sign extension in case it is a 32bit build
+    struct uffdio_copy copy;
+    copy.dst  = GFXRECON_PTR_TO_UINT64(destination_address);
+    copy.src  = GFXRECON_PTR_TO_UINT64(source_address);
+    copy.len  = system_page_size_;
+    copy.mode = wake_thread ? 0 : UFFDIO_COPY_MODE_DONTWAKE;
+
+    if (ioctl(uffd_fd_, UFFDIO_COPY, &copy))
+    {
+        if (errno != EEXIST)
+        {
+            GFXRECON_LOG_ERROR("ioctl/uffdio_copy errno: %d: %s", errno, strerror(errno));
+            GFXRECON_LOG_ERROR("  is_write: %d", is_write);
+            GFXRECON_LOG_ERROR("  flags: 0x%" PRIx64, flags);
+            GFXRECON_LOG_ERROR("  destination_address: %p", destination_address);
+            GFXRECON_LOG_ERROR("  source_address: %p", source_address);
+            GFXRECON_LOG_ERROR("  copy.dst: 0x%" PRIx64, copy.dst);
+            GFXRECON_LOG_ERROR("  copy.src: 0x%" PRIx64, copy.src);
+            GFXRECON_LOG_ERROR("  copy.len: %" PRIu64, copy.len);
+        }
 
         return false;
     }
+
+    if (copy.copy != system_page_size_)
+    {
+        GFXRECON_LOG_ERROR("Unexpected copy.copy (%" PRId64 " != %zu)", copy.copy, system_page_size_);
+        return false;
+    }
+
+    return true;
 }
 
 bool PageGuardManager::UffdWakeFaultingThread(uint64_t address)
@@ -380,55 +412,19 @@ void* PageGuardManager::UffdHandlerThread(void* args)
     GFXRECON_UNREFERENCED_PARAMETER(args);
     assert(uffd_fd_ != -1);
 
-    is_uffd_handler_thread_running_ = true;
-
     while (true)
     {
-        struct pollfd pollfd[1];
-        pollfd[0].fd     = uffd_fd_;
-        pollfd[0].events = POLLIN;
-
-        int pollres = poll(pollfd, 1, 200);
-
-        if (stop_uffd_handler_thread_)
-        {
-            goto exit;
-        }
-
-        switch (pollres)
-        {
-            case -1:
-                GFXRECON_LOG_ERROR("%s() poll error: %s", __func__, strerror(errno));
-                continue;
-                break;
-            case 0:
-                continue;
-                break;
-            case 1:
-                break;
-            default:
-                GFXRECON_LOG_ERROR("%s() poll error: got %d fds instead of 1\n", pollres);
-                goto exit;
-        }
-
-        if (pollfd[0].revents & POLLERR)
-        {
-            GFXRECON_LOG_ERROR("Poll got POLLERR");
-            goto exit;
-        }
-
-        if (!(pollfd[0].revents & POLLIN))
-        {
-            continue;
-        }
-
-        int64_t         readres;
         struct uffd_msg msg[16];
-        while ((readres = read(uffd_fd_, &msg, sizeof(msg))) < 0)
+        const int64_t   readres = read(uffd_fd_, &msg, sizeof(msg));
+
+        tracked_memory_lock_.lock();
+
+        if (readres <= 0)
         {
             if (errno == EAGAIN)
             {
                 // Try again
+                tracked_memory_lock_.unlock();
                 continue;
             }
             else
@@ -438,31 +434,35 @@ void* PageGuardManager::UffdHandlerThread(void* args)
             }
         }
 
-        if (readres % sizeof(uffd_msg))
-        {
-            GFXRECON_LOG_ERROR("Unexpected read size\n");
-            goto exit;
-        }
-
         if (readres == sizeof(msg))
         {
             GFXRECON_LOG_ERROR("Messages might have been lost");
         }
 
-        // Lock here instead of inside UffdHandleFault() in order to avoid multiple locks + unlocks
-        // in case of multiple messages.
-        tracked_memory_lock_.lock();
-
         const unsigned int n_messages = readres / sizeof(struct uffd_msg);
         for (unsigned int i = 0; i < n_messages; ++i)
         {
-            if (msg[i].event == UFFD_EVENT_PAGEFAULT)
+            assert(msg[i].event == UFFD_EVENT_PAGEFAULT);
+
+            const uint64_t address = msg[i].arg.pagefault.address;
+            MemoryInfo*    memory_info;
+            bool           found = FindMemory(reinterpret_cast<void*>(address), &memory_info);
+            if (!found)
             {
-                UffdHandleFault(msg[i].arg.pagefault.address,
-                                msg[i].arg.pagefault.flags,
-                                n_messages == 1,
-                                static_cast<uint64_t>(msg[i].arg.pagefault.feat.ptid));
+                GFXRECON_LOG_ERROR("Could not find memory entry containing 0x%" PRIx64, address);
+                continue;
             }
+
+            uffd_fault_causing_threads.insert(static_cast<uint64_t>(msg[i].arg.pagefault.feat.ptid));
+
+            // Skip repeating faults on the same page
+            if (i && (msg[i].arg.pagefault.address % system_page_size_) ==
+                         (msg[i - 1].arg.pagefault.address % system_page_size_))
+            {
+                continue;
+            }
+
+            UffdHandleFault(memory_info, msg[i].arg.pagefault.address, msg[i].arg.pagefault.flags, n_messages == 1);
         }
 
         // When there are multiple messages from multiple threads deferre waking
@@ -482,7 +482,7 @@ void* PageGuardManager::UffdHandlerThread(void* args)
     }
 exit:
 
-    is_uffd_handler_thread_running_ = false;
+    tracked_memory_lock_.unlock();
 
     return nullptr;
 }
@@ -501,10 +501,68 @@ bool PageGuardManager::UffdStartHandlerThread()
     if (pthread_create(&uffd_handler_thread_, nullptr, UffdHandlerThreadHelper, this))
     {
         GFXRECON_LOG_ERROR("%s() pthread_create: %s", __func__, strerror(errno));
+        assert(0);
         return false;
     }
 
-    stop_uffd_handler_thread_ = false;
+    sleep(1);
+
+    is_uffd_handler_thread_running_ = true;
+
+    return true;
+}
+
+bool PageGuardManager::UffdInit()
+{
+    assert(uffd_fd_ == -1);
+
+    // open the userfault fd
+    uffd_fd_ = syscall(SYS_userfaultfd, UFFD_USER_MODE_ONLY | O_CLOEXEC);
+    if (uffd_fd_ == -1)
+    {
+        GFXRECON_LOG_ERROR("syscall/userfaultfd: %s", strerror(errno));
+        return false;
+    }
+
+    // enable for api version and check features
+    struct uffdio_api uffdio_api;
+    uffdio_api.api      = UFFD_API;
+    uffdio_api.features = UFFD_FEATURE_THREAD_ID;
+    if (ioctl(uffd_fd_, UFFDIO_API, &uffdio_api) == -1)
+    {
+        GFXRECON_LOG_ERROR("ioctl/uffdio_api: %s", strerror(errno));
+
+        return false;
+    }
+
+    if (uffdio_api.api != UFFD_API)
+    {
+        GFXRECON_LOG_ERROR("Unsupported userfaultfd api");
+
+        return false;
+    }
+
+    const uint64_t required_features[] = { UFFD_FEATURE_THREAD_ID };
+    for (size_t i = 0; i < sizeof(required_features) / sizeof(required_features[0]); ++i)
+    {
+        if ((uffdio_api.features & required_features[i]) != required_features[i])
+        {
+            GFXRECON_LOG_ERROR("Unsupported userfaultfd feature: 0x%" PRIx64 "\n", required_features[i]);
+
+            return false;
+        }
+    }
+
+    const uint64_t requested_ioctls[] = { 0x1 << _UFFDIO_REGISTER };
+    for (size_t i = 0; i < sizeof(requested_ioctls) / sizeof(requested_ioctls[0]); ++i)
+    {
+        if ((uffdio_api.ioctls & requested_ioctls[i]) != requested_ioctls[i])
+        {
+            GFXRECON_LOG_ERROR("Unsupported userfaultfd ioctl: 0x%" PRIx64 "\n", requested_ioctls[i]);
+
+            return false;
+        }
+    }
 
     return true;
 }
@@ -513,23 +571,25 @@ bool PageGuardManager::InitializeUserFaultFd()
 {
     assert(!uffd_is_init_);
 
-    uffd_is_init_            = false;
     uffd_rt_signal_used_     = -1;
     uffd_fd_                 = -1;
     uffd_page_size_tmp_buff_ = std::make_unique<uint8_t[]>(util::platform::GetSystemPageSize());
 
     if (!UffdInit())
     {
+        assert(0);
         goto init_failed;
     }
 
     if (!UffdStartHandlerThread())
     {
+        assert(0);
         goto init_failed;
     }
 
     if (!UffdSetSignalHandler())
     {
+        assert(0);
         goto init_failed;
     }
 
@@ -569,12 +629,12 @@ bool PageGuardManager::UffdRegisterMemory(const void* address, size_t length)
     if (ioctl(uffd_fd_, UFFDIO_REGISTER, &uffdio_register) == -1)
     {
         GFXRECON_LOG_ERROR("ioctl/uffdio_register: %s", strerror(errno));
+        GFXRECON_LOG_ERROR("uffdio_register.range.start: 0x%" PRIx64, uffdio_register.range.start);
+        GFXRECON_LOG_ERROR("uffdio_register.range.len: %" PRId64, uffdio_register.range.len);
         return false;
     }
 
-    const uint64_t zero_page_ioctl = (uint64_t)0x1 << _UFFDIO_ZEROPAGE;
-    const uint64_t copy_ioctl      = (uint64_t)0x1 << _UFFDIO_COPY;
-    const uint64_t expected_ioctls = zero_page_ioctl | copy_ioctl;
+    const uint64_t expected_ioctls = (uint64_t)0x1 << _UFFDIO_COPY;
     if ((uffdio_register.ioctls & expected_ioctls) != expected_ioctls)
     {
         GFXRECON_LOG_ERROR("Unexpected userfaultfd ioctl set (expected: 0x%llx got: 0x%llx)\n",
@@ -596,6 +656,8 @@ void PageGuardManager::UffdUnregisterMemory(const void* address, size_t length)
     if (ioctl(uffd_fd_, UFFDIO_UNREGISTER, &uffdio_unregister) == -1)
     {
         GFXRECON_LOG_ERROR("ioctl/uffdio_unregister: %s", strerror(errno));
+        GFXRECON_LOG_ERROR("uffdio_unregister.start: 0x%" PRIx64, uffdio_unregister.start);
+        GFXRECON_LOG_ERROR("uffdio_unregister.len: %" PRId64, uffdio_unregister.len);
     }
 }
 
@@ -621,73 +683,151 @@ bool PageGuardManager::UffdResetRegion(void* guard_address, size_t guard_range)
     return UffdRegisterMemory(guard_address, guard_range);
 }
 
-uint32_t PageGuardManager::UffdBlockFaultingThreads(const MemoryInfo* memory_info)
+uint32_t PageGuardManager::UffdBlockFaultingThreads()
 {
-    assert(!accessor_threads_in_handler);
+    assert(!blocked_threads);
+
+    const uint64_t this_tid = util::platform::GetCurrentThreadId();
+
+    int ret = pthread_mutex_lock(&wait_for_threads_mutex);
+    if (ret)
+    {
+        LOG_THREAD_SYNCHRONIZATION_ERROR(this_tid, "pthread_mutex_lock()", ret);
+        assert(0);
+    }
 
     // Set to one before sending the signal to the threads
     block_accessor_threads = true;
 
-    uint32_t       n_threads_to_wait = 0;
-    const uint64_t this_tid          = util::platform::GetCurrentThreadId();
-    for (const auto& entry : memory_info->uffd_fault_causing_threads)
+    threads_to_block = 0;
+    for (const auto& entry : uffd_fault_causing_threads)
     {
         // Don't send the signal to this thread.
+        if (this_tid == entry)
+        {
+            continue;
+        }
+
         // Threads that do not exist any more do not count. In this case SendSignalToThread()
         // will return an error
-        if (this_tid != entry && util::platform::SendSignalToThread(entry, uffd_rt_signal_used_) == 0)
+        ret = util::platform::SendSignalToThread(entry, uffd_rt_signal_used_);
+        if (ret == 0)
         {
-            ++n_threads_to_wait;
+            ++threads_to_block;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Sending signal to thread %" PRIu64 " failed %d (%s - %s)", entry, ret, strerror(ret), strerror(errno));
         }
     }
 
     // If the signal was sent to any threads wait to make sure all of them have entered the signal handler
-    if (n_threads_to_wait)
+    if (threads_to_block)
     {
-        pthread_mutex_lock(&wait_for_threads_mutex);
-        while (accessor_threads_in_handler < n_threads_to_wait)
+        while (blocked_threads < threads_to_block)
         {
-            pthread_cond_wait(&wait_for_threads_cond, &wait_for_threads_mutex);
+            ret = pthread_cond_wait(&wait_for_threads_cond, &wait_for_threads_mutex);
+            if (ret)
+            {
+                LOG_THREAD_SYNCHRONIZATION_ERROR(this_tid, "pthread_cond_wait()", ret);
+                assert(0);
+            }
         }
-        pthread_mutex_unlock(&wait_for_threads_mutex);
+        ret = pthread_mutex_unlock(&wait_for_threads_mutex);
+        if (ret)
+        {
+            LOG_THREAD_SYNCHRONIZATION_ERROR(this_tid, "pthread_mutex_unlock()", ret);
+            assert(0);
+        }
+    }
+    else
+    {
+        ret = pthread_mutex_unlock(&wait_for_threads_mutex);
+        if (ret)
+        {
+            LOG_THREAD_SYNCHRONIZATION_ERROR(this_tid, "pthread_mutex_unlock()", ret);
+            assert(0);
+        }
     }
 
-    return n_threads_to_wait;
+    return threads_to_block;
 }
 
-void PageGuardManager::UffdUnblockFaultingThreads(MemoryInfo* memory_info, uint32_t n_threads_to_wait)
+void PageGuardManager::UffdUnblockFaultingThreads(uint32_t n_threads_to_wait)
 {
     if (n_threads_to_wait)
     {
-        pthread_mutex_lock(&reset_regions_mutex);
-        block_accessor_threads = false;
-        pthread_cond_broadcast(&reset_regions_cond);
-        pthread_mutex_unlock(&reset_regions_mutex);
+        int ret = pthread_mutex_lock(&reset_regions_mutex);
+        if (ret == 0)
+        {
+            // GFXRECON_WRITE_CONSOLE("rst")
+            block_accessor_threads = false;
+            ret                    = pthread_cond_broadcast(&reset_regions_cond);
+            if (ret)
+            {
+                GFXRECON_WRITE_CONSOLE("%s() broadcast failed %d %s", __func__, ret, strerror(ret));
+                assert(0);
+            }
+
+            ret = pthread_mutex_unlock(&reset_regions_mutex);
+            if (ret)
+            {
+                GFXRECON_WRITE_CONSOLE("%s() 1 unlock failed %d %s", __func__, ret, strerror(ret));
+                assert(0);
+            }
+        }
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("%s() 1 lock failed %d %s", __func__, ret, strerror(ret));
+            assert(0);
+        }
 
         // Wait for all threads to exit the signal handler. Otherwise there's race condition if we try to
         // send another batch of threads into the signal handler and the previous one haven't exited yet.
-        pthread_mutex_lock(&wait_for_threads_mutex);
-        while (accessor_threads_in_handler)
+        assert(n_threads_to_wait == threads_to_block);
+        ret = pthread_mutex_lock(&wait_for_threads_mutex);
+        if (ret == 0)
         {
-            pthread_cond_wait(&wait_for_threads_cond, &wait_for_threads_mutex);
+            // GFXRECON_WRITE_CONSOLE("wait: %u", n_threads_to_wait)
+            while (blocked_threads)
+            {
+                ret = pthread_cond_wait(&wait_for_threads_cond, &wait_for_threads_mutex);
+                if (ret)
+                {
+                    GFXRECON_WRITE_CONSOLE("%s() wait failed %d %s", __func__, ret, strerror(ret));
+                    assert(0);
+                }
+            }
+
+            ret = pthread_mutex_unlock(&wait_for_threads_mutex);
+            if (ret)
+            {
+                GFXRECON_WRITE_CONSOLE("%s() 2 unlock failed %d %s", __func__, ret, strerror(ret));
+                assert(0);
+            }
         }
-        pthread_mutex_unlock(&wait_for_threads_mutex);
+        else
+        {
+            GFXRECON_WRITE_CONSOLE("%s() 2 lock failed %d %s", __func__, ret, strerror(ret));
+        }
     }
     else
     {
         // No reason to synch. Just set it to false.
         block_accessor_threads = false;
     }
-
-    // Reset this, otherwise threads might start accumulate and we will have to sent too many signals
-    memory_info->uffd_fault_causing_threads.clear();
 }
 
 void PageGuardManager::UffdBlockRtSignal()
 {
     if (uffd_rt_signal_used_ != -1)
     {
-        sigprocmask(SIG_BLOCK, &uffd_signal_set_, NULL);
+        int ret = sigprocmask(SIG_BLOCK, &uffd_signal_set_, NULL);
+        if (ret)
+        {
+            GFXRECON_LOG_ERROR("%s sigprocmask failed with: %s", __func__, strerror(errno))
+        }
     }
 }
 
@@ -695,7 +835,11 @@ void PageGuardManager::UffdUnblockRtSignal()
 {
     if (uffd_rt_signal_used_ != -1)
     {
-        sigprocmask(SIG_UNBLOCK, &uffd_signal_set_, NULL);
+        int ret = sigprocmask(SIG_UNBLOCK, &uffd_signal_set_, NULL);
+        if (ret)
+        {
+            GFXRECON_LOG_ERROR("%s sigprocmask failed with: %s", __func__, strerror(errno))
+        }
     }
 }
 
@@ -728,15 +872,13 @@ void PageGuardManager::UffdUnregisterMemory(const void* address, size_t length)
     GFXRECON_UNREFERENCED_PARAMETER(length);
 }
 
-uint32_t PageGuardManager::UffdBlockFaultingThreads(const MemoryInfo* memory_info)
+uint32_t PageGuardManager::UffdBlockFaultingThreads()
 {
-    GFXRECON_UNREFERENCED_PARAMETER(memory_info);
     return 0;
 }
 
-void PageGuardManager::UffdUnblockFaultingThreads(MemoryInfo* memory_info, uint32_t n_threads_to_wait)
+void PageGuardManager::UffdUnblockFaultingThreads(uint32_t n_threads_to_wait)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(memory_info);
     GFXRECON_UNREFERENCED_PARAMETER(n_threads_to_wait);
 }
 
