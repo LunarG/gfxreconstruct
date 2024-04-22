@@ -4515,8 +4515,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const Jso
         case VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG:
             jdata = "VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG";
             break;
-        case VK_FORMAT_R16G16_S10_5_NV:
-            jdata = "VK_FORMAT_R16G16_S10_5_NV";
+        case VK_FORMAT_R16G16_SFIXED5_NV:
+            jdata = "VK_FORMAT_R16G16_SFIXED5_NV";
             break;
         case VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR:
             jdata = "VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR";
@@ -6664,6 +6664,9 @@ void FieldToJson(VkPipelineCreateFlagBits2KHR_t, nlohmann::ordered_json& jdata, 
             break;
         case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR:
             jdata = "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT";
             break;
         case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR:
             jdata = "VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR";
@@ -14386,6 +14389,8 @@ void FieldToJson(VkPipelineCreateFlags2KHR_t, nlohmann::ordered_json& jdata, con
                 return std::string("VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT_KHR");
             case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR:
                 return std::string("VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT");
             case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR:
                 return std::string("VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR");
             case VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT_KHR:
