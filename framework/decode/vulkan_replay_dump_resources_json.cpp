@@ -73,7 +73,7 @@ void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonOpen(const std:
         std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
         std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
         std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-    json_writer_->GetHeaderJson()["Dumped images scale factor"] = scale;
+    json_writer_->GetHeaderJson()["scale"] = scale;
     json_writer_->StartStream(out_stream_.get());
 }
 
