@@ -853,7 +853,7 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
                              const gfxrecon::util::ArgumentParser& arg_parser,
                              const std::string&                    filename)
 {
-    options.filename = filename;
+    options.capture_filename = filename;
 
     if (arg_parser.IsOptionSet(kValidateOption))
     {
