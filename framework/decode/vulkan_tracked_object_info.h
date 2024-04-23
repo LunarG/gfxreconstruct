@@ -471,7 +471,7 @@ class TrackedResourceInfo
         return result;
     }
 
-    size_t ImageSubresourceLayoutAmount() { return image_subresource_layouts_.size(); }
+    size_t GetImageSubresourceLayoutSize() { return image_subresource_layouts_.size(); }
 
     bool IsImageSubresourceLayoutChanged() { return image_subresource_layout_changed_; }
 

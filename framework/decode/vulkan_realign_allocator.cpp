@@ -693,7 +693,7 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                 else if (create_info.tiling == VK_IMAGE_TILING_LINEAR)
                 {
                     // Target application update image data for lenear titling image
-                    if (entry->ImageSubresourceLayoutAmount() == 0)
+                    if (entry->GetImageSubresourceLayoutSize() == 0)
                     {
                         update_data_without_change_memory_location = true;
                         GFXRECON_LOG_WARNING_ONCE("GPU or driver is different between capture time and replay time, no "
