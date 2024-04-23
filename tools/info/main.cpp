@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2020-2024 LunarG, Inc.
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -46,6 +46,7 @@
 #include "util/strings.h"
 #include "util/logging.h"
 #include "util/to_string.h"
+#include "util/platform.h"
 
 #include "vulkan/vulkan.h"
 
@@ -214,9 +215,9 @@ void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
             compression_type = static_cast<gfxrecon::format::CompressionType>(option.value);
         }
     }
-    api_agnostic_stats.compression_type = compression_type;
-    api_agnostic_stats.trim_start_frame = stat_consumer.GetTrimmedStartFrame();
-    api_agnostic_stats.frame_count      = file_processor.GetCurrentFrameNumber();
+    api_agnostic_stats.compression_type   = compression_type;
+    api_agnostic_stats.trim_start_frame   = stat_consumer.GetTrimmedStartFrame();
+    api_agnostic_stats.frame_count        = file_processor.GetCurrentFrameNumber();
     api_agnostic_stats.uses_frame_markers = file_processor.UsesFrameMarkers();
 }
 
@@ -289,6 +290,7 @@ void PrintAnnotations(uint32_t                          annotation_count,
     // If the capture file had target annotations, display them in an info block
     if (!all_annotation_infos.empty())
     {
+        GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("Annotations:");
 
         for (const auto& annotation_info : all_annotation_infos)
@@ -302,7 +304,15 @@ void PrintDriverInfo(const gfxrecon::decode::InfoConsumer& driver_info_consumer)
 {
     GFXRECON_WRITE_CONSOLE("");
     GFXRECON_WRITE_CONSOLE("Driver info:");
-    GFXRECON_WRITE_CONSOLE("\t%s", driver_info_consumer.GetDriverDesc());
+    if (gfxrecon::util::platform::StringLength(driver_info_consumer.GetDriverDesc()) > 0)
+    {
+        GFXRECON_WRITE_CONSOLE("\t%s", driver_info_consumer.GetDriverDesc());
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("\tDriver info not available.");
+        GFXRECON_WRITE_CONSOLE("");
+    }
 }
 
 void PrintExeInfo(const gfxrecon::decode::InfoConsumer& info_consumer)
@@ -326,6 +336,22 @@ void PrintExeInfo(const gfxrecon::decode::InfoConsumer& info_consumer)
         }
     }
     GFXRECON_WRITE_CONSOLE("\tProduct name: %s", app_data.c_str());
+}
+
+// A short pass to get exe info. Only processes the first blocks of a capture file.
+void GatherAndPrintExeInfo(const std::string& input_filename)
+{
+    gfxrecon::decode::InfoConsumer  info_consumer(true);
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        gfxrecon::decode::InfoDecoder info_decoder;
+        info_decoder.AddConsumer(&info_consumer);
+        file_processor.AddDecoder(&info_decoder);
+        file_processor.ProcessAllFrames();
+
+        PrintExeInfo(info_consumer);
+    }
 }
 
 void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
@@ -379,7 +405,7 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
 
         // Application info.
         uint32_t api_version = vulkan_stats_consumer.GetApiVersion();
-        GFXRECON_WRITE_CONSOLE("\nApplication info:");
+        GFXRECON_WRITE_CONSOLE("\nVulkan application info:");
         GFXRECON_WRITE_CONSOLE("\tApplication name: %s", vulkan_stats_consumer.GetAppName().c_str());
         GFXRECON_WRITE_CONSOLE("\tApplication version: %u", vulkan_stats_consumer.GetAppVersion());
         GFXRECON_WRITE_CONSOLE("\tEngine name: %s", vulkan_stats_consumer.GetEngineName().c_str());
@@ -403,7 +429,7 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         {
             for (auto entry : used_device_properties)
             {
-                GFXRECON_WRITE_CONSOLE("\nPhysical device info:");
+                GFXRECON_WRITE_CONSOLE("\nVulkan physical device info:");
                 GFXRECON_WRITE_CONSOLE("\tDevice name: %s", entry->deviceName);
                 GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", entry->deviceID);
                 GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", entry->vendorID);
@@ -414,7 +440,7 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         }
 
         auto alocation_count = vulkan_stats_consumer.GetAllocationCount();
-        GFXRECON_WRITE_CONSOLE("\nDevice memory allocation info:");
+        GFXRECON_WRITE_CONSOLE("\nVulkan device memory allocation info:");
         GFXRECON_WRITE_CONSOLE("\tTotal allocations: %" PRIu64, alocation_count);
 
         if (alocation_count > 0)
@@ -423,24 +449,10 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
             GFXRECON_WRITE_CONSOLE("\tMax allocation size: %" PRIu64, vulkan_stats_consumer.GetMaxAllocationSize());
         }
 
-        GFXRECON_WRITE_CONSOLE("\nPipeline info:");
+        GFXRECON_WRITE_CONSOLE("\nVulkan pipeline info:");
         GFXRECON_WRITE_CONSOLE("\tTotal graphics pipelines: %" PRIu64,
                                vulkan_stats_consumer.GetGraphicsPipelineCount());
         GFXRECON_WRITE_CONSOLE("\tTotal compute pipelines: %" PRIu64, vulkan_stats_consumer.GetComputePipelineCount());
-
-        // Print annotations relevant to Vulkan
-        std::vector<AnnotationInfo> target_annotations = {
-            { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
-            { "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion },
-            { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp },
-            { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions },
-            { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters }
-        };
-
-        GFXRECON_WRITE_CONSOLE("");
-        PrintAnnotations(annotation_recoder.GetAnnotationCount(),
-                         annotation_recoder.GetOperationAnnotationDatas(),
-                         target_annotations);
 
         // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls
         // executed when recorded once to a command buffer that is submitted/replayed more than once.
@@ -462,53 +474,6 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
     else
     {
         GFXRECON_WRITE_CONSOLE("File did not contain any frames");
-    }
-}
-
-void GatherExeInfo(const std::string& input_filename, gfxrecon::decode::InfoConsumer& info_consumer)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::InfoDecoder info_decoder;
-        info_decoder.AddConsumer(&info_consumer);
-        file_processor.AddDecoder(&info_decoder);
-        file_processor.ProcessAllFrames();
-    }
-}
-
-void GatherVulkanStats(const std::string& input_filename)
-{
-    gfxrecon::decode::FileProcessor file_processor;
-    if (file_processor.Initialize(input_filename))
-    {
-        gfxrecon::decode::VulkanStatsConsumer vulkan_stats_consumer;
-        gfxrecon::decode::StatDecoderBase     stat_decoder;
-        gfxrecon::decode::StatConsumer        stat_consumer;
-        gfxrecon::decode::VulkanDecoder       vulkan_decoder;
-
-        stat_decoder.AddConsumer(&stat_consumer);
-        file_processor.AddDecoder(&stat_decoder);
-        vulkan_decoder.AddConsumer(&vulkan_stats_consumer);
-        file_processor.AddDecoder(&vulkan_decoder);
-
-        AnnotationRecorder annotation_recorder;
-        file_processor.SetAnnotationProcessor(&annotation_recorder);
-
-        file_processor.ProcessAllFrames();
-        if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
-        {
-            ApiAgnosticStats api_agnostic_stats = {};
-            GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
-            gfxrecon::decode::InfoConsumer info_consumer(true);
-            GatherExeInfo(input_filename, info_consumer);
-            PrintExeInfo(info_consumer);
-            PrintVulkanStats(vulkan_stats_consumer, file_processor, api_agnostic_stats, annotation_recorder);
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("Encountered error while reading capture. Stats unavailable.");
-        }
     }
 }
 
@@ -630,10 +595,10 @@ void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
         GFXRECON_WRITE_CONSOLE("D3D12 DXR workload: no");
     }
 
-    GFXRECON_WRITE_CONSOLE("");
-
     if (dx12_consumer.ContainsEiWorkload() || dx12_consumer.ContainsDxrWorkload())
     {
+        GFXRECON_WRITE_CONSOLE("");
+
         if (dx12_consumer.ContainsOptFillMem())
         {
             GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: yes");
@@ -698,16 +663,6 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
         PrintDx12SwapchainInfo(dx12_consumer);
 
         PrintDxrEiInfo(dx12_consumer);
-
-        // Print annotations relevant to D3D12
-        std::vector<AnnotationInfo> target_annotations = {
-            { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
-            { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp }
-        };
-
-        PrintAnnotations(annotation_recoder.GetAnnotationCount(),
-                         annotation_recoder.GetOperationAnnotationDatas(),
-                         target_annotations);
     }
     else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
     {
@@ -764,30 +719,39 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
 }
 #endif
 
-void GatherD3D12Stats(const std::string& input_filename)
+void GatherAndPrintAllInfo(const std::string& input_filename)
 {
-#if defined(D3D12_SUPPORT)
     gfxrecon::decode::FileProcessor file_processor;
-
     if (file_processor.Initialize(input_filename))
     {
-        gfxrecon::decode::InfoConsumer info_consumer;
-        gfxrecon::decode::InfoDecoder  driver_info_decoder;
-        driver_info_decoder.AddConsumer(&info_consumer);
-        file_processor.AddDecoder(&driver_info_decoder);
-
-        gfxrecon::decode::Dx12StatsConsumer dx12_consumer;
-        gfxrecon::decode::StatDecoderBase   stat_decoder;
-        gfxrecon::decode::StatConsumer      stat_consumer;
-        gfxrecon::decode::Dx12Decoder       dx12_decoder;
-
+        gfxrecon::decode::StatDecoderBase stat_decoder;
+        gfxrecon::decode::StatConsumer    stat_consumer;
         stat_decoder.AddConsumer(&stat_consumer);
         file_processor.AddDecoder(&stat_decoder);
-        dx12_decoder.AddConsumer(&dx12_consumer);
-        file_processor.AddDecoder(&dx12_decoder);
+
+        gfxrecon::decode::InfoConsumer info_consumer;
+        gfxrecon::decode::InfoDecoder  info_decoder;
+        info_decoder.AddConsumer(&info_consumer);
+        file_processor.AddDecoder(&info_decoder);
 
         AnnotationRecorder annotation_recorder;
         file_processor.SetAnnotationProcessor(&annotation_recorder);
+
+        gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer;
+        gfxrecon::decode::VulkanStatsConsumer     vulkan_stats_consumer;
+        gfxrecon::decode::VulkanDecoder           vulkan_decoder;
+        vulkan_decoder.AddConsumer(&vulkan_detection_consumer);
+        vulkan_decoder.AddConsumer(&vulkan_stats_consumer);
+        file_processor.AddDecoder(&vulkan_decoder);
+
+#if defined(D3D12_SUPPORT)
+        gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer;
+        gfxrecon::decode::Dx12StatsConsumer     dx12_consumer;
+        gfxrecon::decode::Dx12Decoder           dx12_decoder;
+        dx12_decoder.AddConsumer(&dx12_detection_consumer);
+        dx12_decoder.AddConsumer(&dx12_consumer);
+        file_processor.AddDecoder(&dx12_decoder);
+#endif
 
         file_processor.ProcessAllFrames();
         if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
@@ -795,15 +759,53 @@ void GatherD3D12Stats(const std::string& input_filename)
             ApiAgnosticStats api_agnostic_stats = {};
             GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
 
+            std::vector<AnnotationInfo> target_annotations = {
+                { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
+                { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp }
+            };
+
+            // If no APIs were detected, print stats for all APIs.
+            bool print_all_apis = !vulkan_detection_consumer.WasVulkanAPIDetected();
+#if defined(D3D12_SUPPORT)
+            print_all_apis = print_all_apis && !dx12_detection_consumer.WasD3D12APIDetected();
+#endif
+
+            if (print_all_apis)
+            {
+                GFXRECON_WRITE_CONSOLE("Unable to detect capture file API(s). Writing all stats.");
+                GFXRECON_WRITE_CONSOLE("");
+            }
+
             PrintExeInfo(info_consumer);
-            PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
+
+            if (vulkan_detection_consumer.WasVulkanAPIDetected() || print_all_apis)
+            {
+                PrintVulkanStats(vulkan_stats_consumer, file_processor, api_agnostic_stats, annotation_recorder);
+
+                // Add annotations relevant to Vulkan
+                target_annotations.push_back({ "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion });
+                target_annotations.push_back(
+                    { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions });
+                target_annotations.push_back(
+                    { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters });
+            }
+
+#if defined(D3D12_SUPPORT)
+            if (dx12_detection_consumer.WasD3D12APIDetected() || print_all_apis)
+            {
+                PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
+            }
+#endif
+
+            PrintAnnotations(annotation_recorder.GetAnnotationCount(),
+                             annotation_recorder.GetOperationAnnotationDatas(),
+                             target_annotations);
         }
         else
         {
             GFXRECON_WRITE_CONSOLE("Encountered error while reading capture. Stats unavailable.");
         }
     }
-#endif
 }
 
 int main(int argc, const char** argv)
@@ -843,29 +845,13 @@ int main(int argc, const char** argv)
     const std::vector<std::string>& positional_arguments = arg_parser.GetPositionalArguments();
     std::string                     input_filename       = positional_arguments[0];
 
-    bool exe_info_only = arg_parser.IsOptionSet(kExeInfoOnlyOption);
-
-    if (exe_info_only == true)
+    if (arg_parser.IsOptionSet(kExeInfoOnlyOption))
     {
-        gfxrecon::decode::InfoConsumer info_consumer(true);
-        GatherExeInfo(input_filename, info_consumer);
-        PrintExeInfo(info_consumer);
+        GatherAndPrintExeInfo(input_filename);
     }
     else
     {
-        bool detected_d3d12  = false;
-        bool detected_vulkan = false;
-        if (gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan))
-        {
-            if (detected_d3d12)
-            {
-                GatherD3D12Stats(input_filename);
-            }
-            if (detected_vulkan)
-            {
-                GatherVulkanStats(input_filename);
-            }
-        }
+        GatherAndPrintAllInfo(input_filename);
     }
 
     gfxrecon::util::Log::Release();
