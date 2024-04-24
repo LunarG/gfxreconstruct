@@ -737,17 +737,19 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
         AnnotationRecorder annotation_recorder;
         file_processor.SetAnnotationProcessor(&annotation_recorder);
 
-        gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer;
-        gfxrecon::decode::VulkanStatsConsumer     vulkan_stats_consumer;
-        gfxrecon::decode::VulkanDecoder           vulkan_decoder;
+        gfxrecon::decode::VulkanDetectionConsumer vulkan_detection_consumer(
+            gfxrecon::decode::VulkanDetectionConsumer::kNoBlockLimit);
+        gfxrecon::decode::VulkanStatsConsumer vulkan_stats_consumer;
+        gfxrecon::decode::VulkanDecoder       vulkan_decoder;
         vulkan_decoder.AddConsumer(&vulkan_detection_consumer);
         vulkan_decoder.AddConsumer(&vulkan_stats_consumer);
         file_processor.AddDecoder(&vulkan_decoder);
 
 #if defined(D3D12_SUPPORT)
-        gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer;
-        gfxrecon::decode::Dx12StatsConsumer     dx12_consumer;
-        gfxrecon::decode::Dx12Decoder           dx12_decoder;
+        gfxrecon::decode::Dx12DetectionConsumer dx12_detection_consumer(
+            gfxrecon::decode::Dx12DetectionConsumer::kNoBlockLimit);
+        gfxrecon::decode::Dx12StatsConsumer dx12_consumer;
+        gfxrecon::decode::Dx12Decoder       dx12_decoder;
         dx12_decoder.AddConsumer(&dx12_detection_consumer);
         dx12_decoder.AddConsumer(&dx12_consumer);
         file_processor.AddDecoder(&dx12_decoder);
