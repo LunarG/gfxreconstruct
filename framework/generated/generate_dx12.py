@@ -27,7 +27,6 @@ import sys
 GENERATOR_PATH = './dx12_generators'
 LIB_CPPHEADERPARSER_PATH = '../../external'
 LIB_REGISTRY_PATH = '../../external/Vulkan-Headers/registry'
-VULKAN_GENERATOR_PATH = './vulkan_generators'
 BASE_GENERATOR_PATH = './base_generators'
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -114,9 +113,6 @@ if __name__ == '__main__':
     BASE_GENERATOR_DIR = os.path.normpath(
         os.path.join(CURRENT_DIR, BASE_GENERATOR_PATH)
     )
-    VULKAN_GENERATOR_DIR = os.path.normpath(
-        os.path.join(CURRENT_DIR, VULKAN_GENERATOR_PATH)
-    )
     LIB_REGISTRY_DIR = os.path.normpath(
         os.path.join(CURRENT_DIR, LIB_REGISTRY_PATH)
     )
@@ -126,11 +122,10 @@ if __name__ == '__main__':
 
     sys.path.append(GENERATOR_DIR)
     sys.path.append(BASE_GENERATOR_DIR)
-    sys.path.append(VULKAN_GENERATOR_DIR)
     sys.path.append(LIB_REGISTRY_DIR)
     sys.path.append(LIB_CPPHEADERPARSER_DIR)
 
-    from gencode import GenCode
+    from dx12_gencode import GenCode
     from dx12_generators.dx12_CppHeaderParser import Dx12CppHeader, Dx12CppClass
 
     header_dict = {}

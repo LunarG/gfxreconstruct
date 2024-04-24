@@ -147,7 +147,7 @@ if __name__ == '__main__':
         print('Generating', target)
         gencode_args = [
             sys.executable,
-            os.path.join(GENERATOR_DIR, 'gencode.py'),
+            os.path.join(GENERATOR_DIR, 'vulkan_gencode.py'),
             '-o',
             SCRIPT_DIR,
             '-configs',

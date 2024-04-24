@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{c847ae64-88bc-42fb-8b58-6bb84f90f1a1}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>gencode.py</StartupFile>
+    <StartupFile>vulkan_gencode.py</StartupFile>
     <SearchPath>..\..\..\external\Vulkan-Headers\registry</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -35,11 +35,11 @@
     <Compile Include="vulkan_referenced_resource_consumer_body_generator.py" />
     <Compile Include="vulkan_referenced_resource_consumer_header_generator.py" />
     <Compile Include="vulkan_replay_consumer_body_generator.py" />
-    <Compile Include="base_generator.py" />
+    <Compile Include="..\base_generators\base_generator.py" />
     <Compile Include="vulkan_struct_decoders_header_generator.py" />
     <Compile Include="decode_pnext_struct_generator.py" />
     <Compile Include="encode_pnext_struct_generator.py" />
-    <Compile Include="gencode.py" />
+    <Compile Include="vulkan_gencode.py" />
     <Compile Include="layer_func_table_generator.py" />
     <Compile Include="vulkan_struct_decoders_body_generator.py" />
     <Compile Include="vulkan_struct_decoders_forward_generator.py" />
