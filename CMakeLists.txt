@@ -229,6 +229,12 @@ if(WIN32)
 find_package(Detours)
 endif() # WIN32
 
+if(APPLE)
+    set(LZ4_USE_STATIC_LIBRARY TRUE)
+else()
+    set(LZ4_USE_STATIC_LIBRARY ${BUILD_STATIC})
+endif()
+
 find_package(LZ4)
 find_package(ZSTD)
 
