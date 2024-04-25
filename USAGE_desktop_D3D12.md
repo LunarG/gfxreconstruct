@@ -211,7 +211,6 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
-                        [--api <api>] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -272,12 +271,6 @@ Optional arguments:
                         original capture devices.
 
 Windows-only:
-  --api <api>           Use the specified API for replay
-                        Available values are:
-                            vulkan      Replay with the Vulkan API enabled.
-                            d3d12       Replay with the Direct3D API enabled.
-                            all         Replay with both the Vulkan and Direct3D 12 APIs
-                                        enabled. This is the default.
   --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.
                         (Same as --force-windowed-origin)
 

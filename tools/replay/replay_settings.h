@@ -81,9 +81,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
 #if defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
-#else
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] <file>\n");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
 #endif
 #else
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] <file>");
@@ -150,12 +148,6 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("Windows-only:")
-    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay");
-    GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Vulkan API enabled.", kApiFamilyVulkan);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Direct3D API enabled.", kApiFamilyD3D12);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and Direct3D 12 APIs", kApiFamilyAll);
-    GFXRECON_WRITE_CONSOLE("          \t\t         \tenabled. This is the default.");
     GFXRECON_WRITE_CONSOLE(
         "  --fwo <x,y>\t\tForce windowed mode if not already, and allow setting of a custom window location.");
     GFXRECON_WRITE_CONSOLE("          \t\t(Same as --force-windowed-origin)");
