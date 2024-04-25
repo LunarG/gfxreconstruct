@@ -112,13 +112,6 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(const std:
     return sub_entry;
 }
 
-nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(nlohmann::ordered_json& entry,
-                                                                      const std::string&      entry_name)
-{
-    nlohmann::ordered_json& sub_entry = entry[entry_name];
-    return sub_entry;
-}
-
 void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
                                                     const ImageInfo*        image_info,
                                                     const std::string&      filename,

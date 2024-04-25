@@ -48,7 +48,6 @@ class VulkanReplayDumpResourcesJson
     }
 
     nlohmann::ordered_json& InsertSubEntry(const std::string& entry_name);
-    nlohmann::ordered_json& InsertSubEntry(nlohmann::ordered_json& entry, const std::string& entry_name);
 
     void InsertImageInfo(nlohmann::ordered_json& json_entry,
                          const ImageInfo*        image_info,

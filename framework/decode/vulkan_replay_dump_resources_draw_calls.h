@@ -217,7 +217,10 @@ class DrawCallsDumpingContext
 
     VkResult FetchDrawIndirectParams();
 
-    void GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_index, uint64_t qs_index, uint64_t bcb_index) const;
+    void GenerateOutputJsonDrawCallInfo(uint64_t                cmd_buf_index,
+                                        uint64_t                qs_index,
+                                        uint64_t                bcb_index,
+                                        nlohmann::ordered_json& json_entry) const;
 
     VkResult RevertRenderTargetImageLayouts(VkQueue queue, uint64_t dc_index);
 
