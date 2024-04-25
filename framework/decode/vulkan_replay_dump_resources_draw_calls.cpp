@@ -843,20 +843,16 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
     }
 
+    dump_json.BlockStart();
+
+    auto& drawcall_json_entries = dump_json.InsertSubEntry("DrawCalls");
+
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
-        if (!output_json_per_command)
-        {
-            dump_json.BlockStart();
-        }
-
-        GenerateOutputJsonDrawCallInfo(cb, qs_index, bcb_index);
-
-        if (!output_json_per_command)
-        {
-            dump_json.BlockEnd();
-        }
+        GenerateOutputJsonDrawCallInfo(cb, qs_index, bcb_index, drawcall_json_entries);
     }
+
+    dump_json.BlockEnd();
 
     GFXRECON_LOG_INFO("Done.")
     assert(res == VK_SUCCESS);
@@ -919,9 +915,10 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilen
     return filenames;
 }
 
-void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_index,
-                                                             uint64_t qs_index,
-                                                             uint64_t bcb_index) const
+void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t                cmd_buf_index,
+                                                             uint64_t                qs_index,
+                                                             uint64_t                bcb_index,
+                                                             nlohmann::ordered_json& json_entry) const
 {
     const size_t                dc_index       = dc_indices[CmdBufToDCVectorIndex(cmd_buf_index)];
     const RenderPassSubpassPair RP_index       = GetRenderPassIndex(dc_index);
@@ -930,27 +927,14 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
     const auto&                 dc_param_entry = draw_call_params.find(dc_index);
     assert(dc_param_entry != draw_call_params.end());
 
-    VulkanReplayDumpResourcesJson  draw_call_output_json(dump_resources_scale);
-    VulkanReplayDumpResourcesJson* output_json_writer;
-    if (output_json_per_command)
-    {
-        const std::string dc_json_filename = "DrawCall_" + std::to_string(dc_index);
-        draw_call_output_json.Open(dc_json_filename, dump_resource_path, dump_resources_scale);
-        draw_call_output_json.BlockStart();
+    auto& draw_call_entry = json_entry[cmd_buf_index];
 
-        output_json_writer = &draw_call_output_json;
-    }
-    else
-    {
-        output_json_writer = &dump_json;
-    }
-
-    output_json_writer->InsertSingleEntry("DrawIndex", dc_index);
-    output_json_writer->InsertSingleEntry("BeginCommandBufferIndex", bcb_index);
-    output_json_writer->InsertSingleEntry("QueueSubmitIndex", qs_index);
+    draw_call_entry["DrawIndex"]               = dc_index;
+    draw_call_entry["BeginCommandBufferIndex"] = bcb_index;
+    draw_call_entry["QueueSubmitIndex"]        = qs_index;
 
     // Write draw call params
-    auto& dc_params_json_entry           = output_json_writer->InsertSubEntry("Parameters");
+    auto& dc_params_json_entry           = draw_call_entry["Parameters"];
     dc_params_json_entry["DrawCallType"] = DrawCallTypeToStr(dc_param_entry->second.type);
     switch (dc_param_entry->second.type)
     {
@@ -985,7 +969,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                 dc_param_entry->second.dc_params_union.draw_indirect;
 
             dc_params_json_entry["drawCount"] = dc_params.draw_count;
-            auto& indirect_param_entries      = output_json_writer->InsertSubEntry("indirect_params");
+            auto& indirect_param_entries      = dc_params_json_entry["indirect_params"];
             for (uint32_t di = 0; di < dc_params.draw_count; ++di)
             {
                 indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertex_count;
@@ -1002,7 +986,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                 dc_param_entry->second.dc_params_union.draw_indirect;
 
             dc_params_json_entry["drawCount"] = dc_params.draw_count;
-            auto& indirect_param_entries      = output_json_writer->InsertSubEntry("indirect_params");
+            auto& indirect_param_entries      = dc_params_json_entry["indirect_params"];
             for (uint32_t di = 0; di < dc_params.draw_count; ++di)
             {
                 indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].index_count;
@@ -1023,7 +1007,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
             dc_params_json_entry["maxDrawCount"]    = dc_params.max_draw_count;
             dc_params_json_entry["ActualDrawCount"] = dc_params.actual_draw_count;
 
-            auto& indirect_param_entries = output_json_writer->InsertSubEntry("indirect_params");
+            auto& indirect_param_entries = dc_params_json_entry["indirect_params"];
             for (uint32_t di = 0; di < dc_params.actual_draw_count; ++di)
             {
                 indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertex_count;
@@ -1043,7 +1027,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
             dc_params_json_entry["maxDrawCount"]    = dc_params.max_draw_count;
             dc_params_json_entry["ActualDrawCount"] = dc_params.actual_draw_count;
 
-            auto& indirect_param_entries = output_json_writer->InsertSubEntry("indirect_params");
+            auto& indirect_param_entries = dc_params_json_entry["indirect_params"];
             for (uint32_t di = 0; di < dc_params.actual_draw_count; ++di)
             {
                 indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].index_count;
@@ -1062,7 +1046,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
     // Write color attachment info
     if (!render_targets[rp][sp].color_att_imgs.empty())
     {
-        auto& rt_entries = output_json_writer->InsertSubEntry("ColorAttachments");
+        auto& rt_entries = draw_call_entry["ColorAttachments"];
 
         for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
         {
@@ -1078,14 +1062,14 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                 GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, dc_index, i);
 
             const std::string filename = filenames[0] + ImageFileExtension(image_info->format, image_file_format);
-            output_json_writer->InsertImageInfo(rt_entries[i], image_info, filename, VK_IMAGE_ASPECT_COLOR_BIT);
+            dump_json.InsertImageInfo(rt_entries[i], image_info, filename, VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 
     // Write depth attachment info
     if (dump_depth && render_targets[rp][sp].depth_att_img != nullptr)
     {
-        auto& depth_entries = output_json_writer->InsertSubEntry("DepthAttachments");
+        auto& depth_entries = draw_call_entry["DepthAttachments"];
 
         const ImageInfo*               image_info = render_targets[rp][sp].depth_att_img;
         const std::vector<std::string> filenames =
@@ -1098,7 +1082,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
         for (size_t i = 0; i < filenames.size(); ++i)
         {
             const std::string filename = filenames[i] + ImageFileExtension(image_info->format, image_file_format);
-            output_json_writer->InsertImageInfo(depth_entries[i], image_info, filename, aspects[i]);
+            dump_json.InsertImageInfo(depth_entries[i], image_info, filename, aspects[i]);
         }
     }
 
@@ -1118,20 +1102,20 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                     const std::string index_buffer_filename = GenerateIndexBufferFilename(
                         dc_param.referenced_bind_index_buffer, bound_index_buffer_entry->second.index_type);
 
-                    auto& json_entry = output_json_writer->InsertSubEntry("IndexBuffer");
+                    auto& json_entry = draw_call_entry["IndexBuffer"];
 
                     assert(bound_index_buffer_entry->second.actual_size);
-                    output_json_writer->InsertBufferInfo(json_entry,
-                                                         bound_index_buffer_entry->second.buffer_info,
-                                                         index_buffer_filename,
-                                                         bound_index_buffer_entry->second.actual_size);
+                    dump_json.InsertBufferInfo(json_entry,
+                                               bound_index_buffer_entry->second.buffer_info,
+                                               index_buffer_filename,
+                                               bound_index_buffer_entry->second.actual_size);
                 }
             }
 
             const auto& dc_vbo = bound_vertex_buffers.find(dc_param.referenced_bind_vertex_buffers);
             if (dc_vbo != bound_vertex_buffers.end())
             {
-                auto& json_entry = output_json_writer->InsertSubEntry("VertexBuffers");
+                auto& json_entry = draw_call_entry["VertexBuffers"];
 
                 uint32_t i = 0;
                 for (const auto& vb_binding : dc_vbo->second.vertex_input_state.input_binding_map)
@@ -1140,16 +1124,17 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                         dc_vbo->second.bound_vertex_buffer_per_binding.find(vb_binding.first);
                     assert(vb_binding_buffer != dc_vbo->second.bound_vertex_buffer_per_binding.end());
 
-                    if (vb_binding_buffer->second.buffer_info != nullptr && vb_binding.second.inputRate != VK_VERTEX_INPUT_RATE_INSTANCE)
+                    if (vb_binding_buffer->second.buffer_info != nullptr &&
+                        vb_binding.second.inputRate != VK_VERTEX_INPUT_RATE_INSTANCE)
                     {
                         const std::string vb_filename =
                             GenerateVertexBufferFilename(dc_param.referenced_bind_vertex_buffers, vb_binding.first);
 
                         assert(vb_binding_buffer->second.actual_size);
-                        output_json_writer->InsertBufferInfo(json_entry[i],
-                                                             vb_binding_buffer->second.buffer_info,
-                                                             vb_filename,
-                                                             vb_binding_buffer->second.actual_size);
+                        dump_json.InsertBufferInfo(json_entry[i],
+                                                   vb_binding_buffer->second.buffer_info,
+                                                   vb_filename,
+                                                   vb_binding_buffer->second.actual_size);
                     }
                 }
             }
@@ -1159,7 +1144,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
     // Emit in json output the references to dumped immutable descriptors
     if (dump_immutable_resources)
     {
-        auto&       descriptors_json_entry = output_json_writer->InsertSubEntry("Descriptors");
+        auto&       descriptors_json_entry = draw_call_entry["Descriptors"];
         const auto& dc_param_entry         = draw_call_params.find(dc_index);
         assert(dc_param_entry != draw_call_params.end());
         if (dc_param_entry != draw_call_params.end())
@@ -1179,8 +1164,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                     shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 18);
                 }
 
-                auto& desc_shader_stage_json_entry =
-                    output_json_writer->InsertSubEntry(descriptors_json_entry, shader_stage_name);
+                auto& desc_shader_stage_json_entry = descriptors_json_entry[shader_stage_name];
 
                 for (const auto& desc_set : shader_stage.second)
                 {
@@ -1188,9 +1172,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
 
                     for (const auto& desc_binding : desc_set.second)
                     {
-                        auto& desc_shader_binding_json_entry = output_json_writer->InsertSubEntry(
-                            desc_shader_stage_json_entry[stage_entry_index++],
-                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type));
+                        auto& desc_shader_binding_json_entry =
+                            desc_shader_stage_json_entry[stage_entry_index++][util::ToString<VkDescriptorType>(
+                                desc_binding.second.desc_type)];
 
                         const uint32_t desc_set_binding_index = desc_binding.first;
 
@@ -1218,12 +1202,12 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                                         for (std::string& filename : filenames)
                                         {
                                             filename += ImageFileExtension(img_info->format, image_file_format);
-                                            auto& image_descriptor_json_entry = output_json_writer->InsertSubEntry(
-                                                desc_shader_binding_json_entry, "image_descriptor");
-                                            output_json_writer->InsertImageInfo(image_descriptor_json_entry,
-                                                                                img_info,
-                                                                                filename,
-                                                                                VK_IMAGE_ASPECT_COLOR_BIT);
+                                            auto& image_descriptor_json_entry =
+                                                desc_shader_binding_json_entry["image_descriptor"];
+                                            dump_json.InsertImageInfo(image_descriptor_json_entry,
+                                                                      img_info,
+                                                                      filename,
+                                                                      VK_IMAGE_ASPECT_COLOR_BIT);
                                         }
                                     }
                                 }
@@ -1246,10 +1230,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
 
                                         const std::string filename =
                                             GenerateBufferDescriptorFilename(buf_info->capture_id);
-                                        auto& buffer_descriptor_json_entry = output_json_writer->InsertSubEntry(
-                                            desc_shader_binding_json_entry, "buffer_descriptor");
-                                        output_json_writer->InsertBufferInfo(
-                                            buffer_descriptor_json_entry, buf_info, filename);
+                                        auto& buffer_descriptor_json_entry =
+                                            desc_shader_binding_json_entry["buffer_descriptor"];
+                                        dump_json.InsertBufferInfo(buffer_descriptor_json_entry, buf_info, filename);
                                     }
                                 }
                             }
@@ -1259,11 +1242,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
                             {
                                 const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
                                     desc_set_index, desc_set_binding_index);
-                                // output_json_writer->InsertSingleEntry(desc_entry, filename);
-                                auto& buffer_descriptor_json_entry = output_json_writer->InsertSubEntry(
-                                    desc_shader_binding_json_entry, "inline_uniform_buffer_descriptor");
-                                // output_json_writer->InsertBufferInfo(buffer_descriptor_json_entry,
-                                // desc_binding.second.inline_uniform_block, filename);
+
+                                auto& buffer_descriptor_json_entry =
+                                    desc_shader_binding_json_entry["inline_uniform_buffer_descriptor"];
                                 buffer_descriptor_json_entry["size"] = desc_binding.second.inline_uniform_block.size();
                                 buffer_descriptor_json_entry["file"] = filename;
                             }
@@ -1278,11 +1259,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t cmd_buf_in
         }
     }
 
-    if (output_json_per_command)
-    {
-        draw_call_output_json.BlockEnd();
-        draw_call_output_json.Close();
-    }
+    // if (output_json_per_command)
+    // {
+    //     draw_call_output_json.BlockEnd();
+    //     draw_call_output_json.Close();
+    // }
 }
 
 VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, uint64_t cmd_buf_index)
@@ -2290,7 +2271,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
             {
                 continue;
             }
-
 
             const uint32_t offset = vb_binding.second.offset;
             uint32_t       total_size;
