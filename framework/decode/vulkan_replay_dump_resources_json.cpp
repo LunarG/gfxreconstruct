@@ -21,20 +21,28 @@
 */
 
 #include "vulkan_replay_dump_resources_json.h"
-#include "project_version.h"
-#include "util/logging.h"
+#include "util/platform.h"
 #include "vulkan/vulkan_core.h"
+#include <cstddef>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(){};
-
-void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonOpen(const std::string& infile,
-                                                                      const std::string& outdir,
-                                                                      float              scale)
+VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(float scale)
 {
+    header_["vulkan-version"] = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
+                                std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
+    header_["scale"] = scale;
+};
 
+VulkanReplayDumpResourcesJson::~VulkanReplayDumpResourcesJson()
+{
+    Close();
+}
+
+bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::string& outdir, float scale)
+{
     std::filesystem::path path_outfile(outdir);
     std::filesystem::path path_infile(infile);
     std::string           outfile;
@@ -47,60 +55,109 @@ void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonOpen(const std:
     }
     outfile = outfile + "_rd.json";
 
-    int ret = gfxrecon::util::platform::FileOpen(&jsonFileHandle_, outfile.c_str(), "w");
-    if (ret || jsonFileHandle_ == nullptr)
+    int ret = gfxrecon::util::platform::FileOpen(&file_, outfile.c_str(), "w");
+    if (ret || file_ == nullptr)
     {
 #if defined(WIN32)
         GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s", outfile.c_str());
 #else
         GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s (%s)", outfile.c_str(), strerror(ret));
 #endif
-        exit(1);
+        return false;
     }
 
-    out_stream_ = std::unique_ptr<gfxrecon::util::FileNoLockOutputStream>(
-        new gfxrecon::util::FileNoLockOutputStream(jsonFileHandle_, false));
+    util::platform::FileWrite("[\n", 2, 1, file_);
 
-    gfxrecon::util::JsonOptions json_options;
-    json_options.root_dir     = "."; // This field is not used
-    json_options.data_sub_dir = "."; // This field is not used
-    json_options.format       = gfxrecon::util::JsonFormat::JSON;
+    BlockStart();
+    json_data_["header"] = header_;
+    BlockEnd();
 
-    json_writer_ = std::unique_ptr<gfxrecon::decode::JsonWriter>(
-        new gfxrecon::decode::JsonWriter(json_options, GFXRECON_PROJECT_VERSION_STRING, infile));
-
-    json_writer_->GetHeaderJson()["vulkan-version"] =
-        std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-        std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-        std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
-    json_writer_->GetHeaderJson()["scale"] = scale;
-    json_writer_->StartStream(out_stream_.get());
+    return true;
 }
 
-void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonBlockStart()
+void VulkanReplayDumpResourcesJson::Close()
 {
-    json_data_ = &json_writer_->WriteBlockStart();
-}
-
-void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonBlockEnd()
-{
-    json_writer_->WriteBlockEnd();
-}
-
-void VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJsonClose()
-{
-    if (jsonFileHandle_)
+    if (file_)
     {
-        json_writer_->EndStream();
-        gfxrecon::util::platform::FileClose(jsonFileHandle_);
-        jsonFileHandle_ = NULL;
+        util::platform::FileWrite("]", 1, 1, file_);
+        gfxrecon::util::platform::FileClose(file_);
+        file_ = NULL;
     }
 }
 
-VulkanReplayDumpResourcesJson::~VulkanReplayDumpResourcesJson()
+nlohmann::ordered_json& VulkanReplayDumpResourcesJson::BlockStart()
 {
-    VulkanReplayDumpResourcesJsonClose();
-};
+    json_data_.clear();
+    return json_data_;
+}
+
+void VulkanReplayDumpResourcesJson::BlockEnd()
+{
+    static bool first_ = true;
+
+    if (!first_)
+    {
+        util::platform::FileWrite(",\n", 2, 1, file_);
+    }
+
+    first_ = false;
+
+    const std::string block = json_data_.dump(util::kJsonIndentWidth);
+    util::platform::FileWrite(block.c_str(), block.size(), 1, file_);
+}
+
+nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(const std::string& entry_name)
+{
+    nlohmann::ordered_json& sub_entry = json_data_[entry_name];
+    return sub_entry;
+}
+
+nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(nlohmann::ordered_json& entry,
+                                                                      const std::string&      entry_name)
+{
+    nlohmann::ordered_json& sub_entry = entry[entry_name];
+    return sub_entry;
+}
+
+void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
+                                                    const ImageInfo*        image_info,
+                                                    const std::string&      filename,
+                                                    VkImageAspectFlagBits   aspect,
+                                                    uint32_t                mip_level,
+                                                    uint32_t                array_layer,
+                                                    const VkExtent3D*       extent)
+{
+    assert(image_info != nullptr);
+
+    json_entry["image_id"] = image_info->capture_id;
+    json_entry["format"] = util::ToString<VkFormat>(image_info->format);
+    json_entry["type"]   = util::ToString<VkImageType>(image_info->type);
+
+    const std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspect));
+    const std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
+    json_entry["aspect"] = aspect_str;
+
+    json_entry["dimensions"][0] = extent != nullptr ? extent->width : image_info->extent.width;
+    json_entry["dimensions"][1] = extent != nullptr ? extent->height : image_info->extent.height;
+    json_entry["dimensions"][2] = extent != nullptr ? extent->depth : image_info->extent.depth;
+
+    json_entry["mip_level"]   = mip_level;
+    json_entry["array_layer"] = array_layer;
+
+    json_entry["file"] = filename;
+}
+
+void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& json_entry,
+                                                     const BufferInfo*       buffer_info,
+                                                     const std::string&      filename,
+                                                     size_t                  size)
+{
+    assert(buffer_info != nullptr);
+
+    json_entry["buffer_id"] = buffer_info->capture_id;
+    json_entry["size"]   = size ? size : buffer_info->size;
+    json_entry["file"]   = filename;
+}
 
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

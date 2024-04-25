@@ -23,8 +23,8 @@
 #ifndef GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 #define GFXRECON_VULKAN_REPLAY_DUMP_RESOURCES_JSON_H
 
-#include "decode/json_writer.h"
-#include "util/file_output_stream.h"
+#include "util/json_util.h"
+#include "decode/vulkan_object_info.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -32,29 +32,41 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayDumpResourcesJson
 {
   public:
-    VulkanReplayDumpResourcesJson();
-
+    VulkanReplayDumpResourcesJson(float scale);
     ~VulkanReplayDumpResourcesJson();
 
-    void VulkanReplayDumpResourcesJsonOpen(const std::string& infile, const std::string& outdir, float scale);
+    bool Open(const std::string& infile, const std::string& outdir, float scale);
+    void Close();
 
-    void VulkanReplayDumpResourcesJsonClose();
-
-    void VulkanReplayDumpResourcesJsonBlockStart();
-
-    void VulkanReplayDumpResourcesJsonBlockEnd();
+    nlohmann::ordered_json& BlockStart();
+    void                    BlockEnd();
 
     template <typename T>
-    void VulkanReplayDumpResourcesJsonData(const std::string& descriptor, const T& value)
+    void InsertSingleEntry(const std::string& descriptor, const T& value)
     {
-        (*json_data_)[descriptor] = value;
+        json_data_[descriptor] = value;
     }
 
+    nlohmann::ordered_json& InsertSubEntry(const std::string& entry_name);
+    nlohmann::ordered_json& InsertSubEntry(nlohmann::ordered_json& entry, const std::string& entry_name);
+
+    void InsertImageInfo(nlohmann::ordered_json& json_entry,
+                         const ImageInfo*        image_info,
+                         const std::string&      filename,
+                         VkImageAspectFlagBits   aspect,
+                         uint32_t                mip_level   = 0,
+                         uint32_t                array_layer = 0,
+                         const VkExtent3D*       extent      = nullptr);
+
+    void InsertBufferInfo(nlohmann::ordered_json& json_entry,
+                          const BufferInfo*       buffer_info,
+                          const std::string&      filename,
+                          size_t                  size = 0);
+
   private:
-    FILE*                                                   jsonFileHandle_{ nullptr };
-    std::unique_ptr<gfxrecon::util::FileNoLockOutputStream> out_stream_;
-    std::unique_ptr<gfxrecon::decode::JsonWriter>           json_writer_;
-    nlohmann::ordered_json*                                 json_data_{ nullptr };
+    FILE*                  file_{ nullptr };
+    nlohmann::ordered_json header_;
+    nlohmann::ordered_json json_data_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

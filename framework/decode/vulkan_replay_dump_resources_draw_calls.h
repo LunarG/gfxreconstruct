@@ -299,13 +299,14 @@ class DrawCallsDumpingContext
     {
         struct BufferPerBinding
         {
-            BufferPerBinding() : buffer_info(nullptr), offset(0) {}
+            BufferPerBinding() : buffer_info(nullptr), offset(0), size(0), stride(0), actual_size(0) {}
+
             BufferPerBinding(const BufferInfo* buffer_info,
                              VkDeviceSize      offset,
                              VkDeviceSize      size   = 0,
                              VkDeviceSize      stride = 0) :
                 buffer_info(buffer_info),
-                offset(offset), size(size), stride(stride)
+                offset(offset), size(size), stride(stride), actual_size(0)
             {}
 
             const BufferInfo* buffer_info;
@@ -314,6 +315,10 @@ class DrawCallsDumpingContext
             // These are provided only by CmdBindVertexBuffers2
             VkDeviceSize size;
             VkDeviceSize stride;
+
+            // This is the size actually used as an vertex buffer from all referencing draw calls
+            // and is calculated based on the indices (if an index buffer is used)
+            VkDeviceSize actual_size;
         };
 
         // One entry for each vertex buffer bound at each binding
@@ -344,7 +349,7 @@ class DrawCallsDumpingContext
                          VkIndexType       index_type,
                          VkDeviceSize      size) :
             buffer_info(buffer_info),
-            offset(offset), index_type(index_type), size(size)
+            offset(offset), index_type(index_type), size(size), actual_size(0)
         {}
 
         const BufferInfo* buffer_info;
@@ -356,6 +361,9 @@ class DrawCallsDumpingContext
 
         // A list of all draw calls that reference this index buffer
         std::vector<uint64_t> referencing_draw_calls;
+
+        // This is the size actually used as an index buffer from all referencing draw calls
+        VkDeviceSize actual_size;
     };
 
     // One entry for each vkCmdBindIndexBuffer
@@ -376,6 +384,32 @@ class DrawCallsDumpingContext
         kDrawIndexedIndirectCount,
         kDrawIndexedIndirectCountKHR
     };
+
+    static const char* DrawCallTypeToStr(DrawCallTypes type)
+    {
+        switch (type)
+        {
+            case kDraw:
+                return "vkCmdDraw";
+            case kDrawIndirect:
+                return "vkCmdDrawIndirect";
+            case kDrawIndirectCount:
+                return "vkCmdDrawIndirectCount";
+            case kDrawIndirectCountKHR:
+                return "vkCmdDrawIndirectCountKHR";
+            case kDrawIndexed:
+                return "vkCmdDrawIndexed";
+            case kDrawIndexedIndirect:
+                return "vkCmdDrawIndexedIndirect";
+            case kDrawIndexedIndirectCount:
+                return "vkCmdDrawIndexedIndirectCount";
+            case kDrawIndexedIndirectCountKHR:
+                return "vkCmdDrawIndexedIndirectCountKHR";
+            default:
+                assert(0);
+                return "Unrecognized draw call type";
+        }
+    }
 
     static bool IsDrawCallIndexed(DrawCallTypes dc_type)
     {
