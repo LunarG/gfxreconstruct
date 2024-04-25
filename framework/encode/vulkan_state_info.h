@@ -67,11 +67,8 @@ struct DescriptorBindingInfo
 struct DescriptorInfo
 {
     VkDescriptorType                              type;
-    const void*                                   write_pnext{ nullptr };
-    HandleUnwrapMemory                            write_pnext_memory;
-    std::vector<VkAccelerationStructureKHR>       record_write_set_accel_structs;
     uint32_t                                      count{ 0 };
-    bool                                          immutable_samplers{ 0 };
+    bool                                          immutable_samplers{ false };
     std::unique_ptr<bool[]>                       written;
     std::unique_ptr<format::HandleId[]>           handle_ids;  // Image, buffer, or buffer view IDs depending on type.
     std::unique_ptr<format::HandleId[]>           sampler_ids; // Sampler IDs for image type.

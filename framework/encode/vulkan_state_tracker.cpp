@@ -663,30 +663,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             {
                 auto& binding = wrapper->bindings[current_binding];
 
-                binding.write_pnext = nullptr;
-                binding.write_pnext_memory.Reset();
-                if (write->pNext != nullptr)
-                {
-                    binding.write_pnext = TrackStruct(write->pNext, &binding.write_pnext_memory);
-                    auto* pnext         = reinterpret_cast<const VkBaseInStructure*>(binding.write_pnext);
-                    switch (pnext->sType)
-                    {
-                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
-                        {
-                            auto* acc_struct = reinterpret_cast<VkWriteDescriptorSetAccelerationStructureKHR*>(
-                                const_cast<void*>(binding.write_pnext));
-                            binding.record_write_set_accel_structs.clear();
-                            std::copy(acc_struct->pAccelerationStructures,
-                                      acc_struct->pAccelerationStructures + acc_struct->accelerationStructureCount,
-                                      std::back_inserter(binding.record_write_set_accel_structs));
-                            acc_struct->pAccelerationStructures = binding.record_write_set_accel_structs.data();
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-
                 // Update current and write counts for binding's descriptor count. If current count is
                 // greater than the count for the descriptor range defined by dstArrayElement through binding count,
                 // consecutive bindings are being updated.
@@ -1145,17 +1121,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                     src_address += entry.stride;
                 }
-                // Because UpdateWithTemplate does not require pNext to update acceleration structures
-                // but state recreation uses UpdateDescriptorSets which does require pNext to update acceleration
-                // structures we create a relevant pNext
-                const VkWriteDescriptorSetAccelerationStructureKHR p_next{
-                    VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
-                    nullptr,
-                    current_writes,
-                    binding.acceleration_structures.get()
-                };
-
-                binding.write_pnext = TrackStruct(&p_next, &binding.write_pnext_memory);
 
                 // Check for consecutive update.
                 if (current_count == current_writes)

@@ -29,6 +29,7 @@
 #include "util/logging.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <limits>
 #include <unordered_map>
@@ -854,7 +855,6 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             const vulkan_state_info::DescriptorInfo* binding = &binding_entry.second;
             bool                                     active  = false;
 
-            write.pNext      = binding->write_pnext;
             write.dstBinding = binding_entry.first;
 
             for (uint32_t i = 0; i < binding->count; ++i)
@@ -2343,6 +2343,11 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
 
     const VkCopyDescriptorSet* copy = nullptr;
 
+    // scratch-space for a potential pNext-struct
+    constexpr size_t max_num_bytes_p_next_data = std::max(sizeof(VkWriteDescriptorSetAccelerationStructureKHR),
+                                                          sizeof(VkWriteDescriptorSetInlineUniformBlockEXT));
+    std::array<uint8_t, max_num_bytes_p_next_data> p_next_data{};
+
     switch (write->descriptorType)
     {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -2379,6 +2384,16 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
             write->pBufferInfo      = nullptr;
             write->pImageInfo       = nullptr;
             write->pTexelBufferView = nullptr;
+
+            if (binding->acceleration_structures != nullptr)
+            {
+                auto& p_next = *reinterpret_cast<VkWriteDescriptorSetAccelerationStructureKHR*>(p_next_data.data());
+                p_next.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+                p_next.pNext = nullptr;
+                p_next.accelerationStructureCount = binding->count;
+                p_next.pAccelerationStructures    = binding->acceleration_structures.get();
+                write->pNext                      = &p_next;
+            }
         }
         break;
         default:
