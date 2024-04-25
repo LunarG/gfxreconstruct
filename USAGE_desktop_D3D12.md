@@ -210,7 +210,6 @@ Usage:
                         [--fw <width,height> | --force-windowed <width,height>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
-                        [--api <api>] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -269,14 +268,6 @@ Optional arguments:
                         returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
                         Replay may fail if the specified device is not compatible with the
                         original capture devices.
-
-Windows-only:
-  --api <api>           Use the specified API for replay
-                        Available values are:
-                            vulkan      Replay with the Vulkan API enabled.
-                            d3d12       Replay with the Direct3D API enabled.
-                            all         Replay with both the Vulkan and Direct3D 12 APIs
-                                        enabled. This is the default.
 
 Vulkan-only:
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and

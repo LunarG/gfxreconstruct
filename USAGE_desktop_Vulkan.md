@@ -530,7 +530,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--api <api>] [--no-debug-popup] <file>
+                        [--no-debug-popup] <file>
                         [--use-colorspace-fallback]
 
 Required arguments:
@@ -631,12 +631,6 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
-  --api <api>           Use the specified API for replay (Windows only).
-                        Available values are:
-                            vulkan      Replay with the Vulkan API enabled.
-                            d3d12       Replay with the Direct3D API enabled.
-                            all         Replay with both the Vulkan and Direct3D 12 APIs
-                                        enabled. This is the default.
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
   --swapchain MODE      Choose a swapchain mode to replay. Available modes are:

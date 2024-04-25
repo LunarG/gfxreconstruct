@@ -79,9 +79,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
 #if defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] [--no-debug-popup] <file>\n");
-#else
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--api <api>] <file>\n");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
 #endif
 #else
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] <file>");
@@ -145,16 +143,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\treturned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.");
     GFXRECON_WRITE_CONSOLE("          \t\tReplay may fail if the specified device is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
-#if defined(WIN32)
-    GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("Windows-only:")
-    GFXRECON_WRITE_CONSOLE("  --api <api>\t\tUse the specified API for replay");
-    GFXRECON_WRITE_CONSOLE("          \t\tAvailable values are:");
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Vulkan API enabled.", kApiFamilyVulkan);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\tReplay with the Direct3D API enabled.", kApiFamilyD3D12);
-    GFXRECON_WRITE_CONSOLE("          \t\t    %s\t\tReplay with both the Vulkan and Direct3D 12 APIs", kApiFamilyAll);
-    GFXRECON_WRITE_CONSOLE("          \t\t         \tenabled. This is the default.");
-#endif
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("Vulkan-only:")
     GFXRECON_WRITE_CONSOLE("  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and");
