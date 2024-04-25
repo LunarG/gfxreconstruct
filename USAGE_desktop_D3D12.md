@@ -208,6 +208,7 @@ Usage:
                         [--onhb | --omit-null-hardware-buffers]
                         [-m <mode> | --memory-translation <mode>]
                         [--fw <width,height> | --force-windowed <width,height>]
+                        [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
 
@@ -268,6 +269,10 @@ Optional arguments:
                         returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
                         Replay may fail if the specified device is not compatible with the
                         original capture devices.
+
+Windows-only:
+  --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.
+                        (Same as --force-windowed-origin)
 
 Vulkan-only:
   --sfa                 Skip vkAllocateMemory, vkAllocateCommandBuffers, and

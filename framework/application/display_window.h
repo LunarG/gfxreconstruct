@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 Broadcom, Inc.
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -38,7 +39,12 @@ class DisplayWindow : public decode::Window
 
     virtual ~DisplayWindow() override {}
 
-    virtual bool Create(const std::string&, const int32_t, const int32_t, const uint32_t, const uint32_t) override
+    virtual bool Create(const std::string&,
+                        const int32_t,
+                        const int32_t,
+                        const uint32_t,
+                        const uint32_t,
+                        bool force_windowed = false) override
     {
         return true;
     }
@@ -99,8 +105,11 @@ class DisplayWindowFactory : public decode::WindowFactory
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_DISPLAY_EXTENSION_NAME; }
 
-    virtual decode::Window*
-    Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual decode::Window* Create(const int32_t  x,
+                                   const int32_t  y,
+                                   const uint32_t width,
+                                   const uint32_t height,
+                                   bool           force_windowed = false) override;
 
     void Destroy(decode::Window* window) override;
 

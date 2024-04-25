@@ -229,7 +229,24 @@ if(WIN32)
 find_package(Detours)
 endif() # WIN32
 
+option(LZ4_OPTIONAL "Allow building without LZ4-compression" OFF)
+
+if(APPLE)
+    set(LZ4_USE_STATIC_LIBRARY TRUE)
+else()
+    set(LZ4_USE_STATIC_LIBRARY ${BUILD_STATIC})
+endif()
+
 find_package(LZ4)
+
+if(NOT LZ4_FOUND)
+    if(LZ4_OPTIONAL)
+        message(STATUS "LZ4 library not found, but declared optional. LZ4 support is disabled.")
+    else()
+        message(FATAL_ERROR "LZ4 library not found. Please install LZ4 or allow building without it by setting LZ4_OPTIONAL to ON.")
+    endif()# LZ4_OPTIONAL
+endif()# NOT LZ4_FOUND
+
 find_package(ZSTD)
 
 if(UNIX AND NOT APPLE)

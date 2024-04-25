@@ -58,14 +58,14 @@ inline void WriteImageFile(const std::string&     filename,
             GFXRECON_LOG_ERROR("Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
             // Intentional fall-through
         case util::ScreenshotFormat::kBmp:
-            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, size, data))
+            if (!util::imagewriter::WriteBmpImageNoAlpha(filename + ".bmp", width, height, size, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
             }
             break;
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
         case util::ScreenshotFormat::kPng:
-            if (!util::imagewriter::WritePngImage(filename + ".png", width, height, size, data))
+            if (!util::imagewriter::WritePngImageNoAlpha(filename + ".png", width, height, size, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
             }

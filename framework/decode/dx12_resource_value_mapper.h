@@ -148,6 +148,8 @@ class Dx12ResourceValueMapper
 
     void RemoveGpuDescriptorHeap(uint64_t capture_gpu_start);
 
+    bool PerformedRvMapping() { return performed_rv_mapping_; };
+
   private:
     struct ProcessResourceMappingsArgs
     {
@@ -224,6 +226,7 @@ class Dx12ResourceValueMapper
 
     std::unique_ptr<graphics::Dx12ResourceDataUtil> resource_data_util_;
     std::unique_ptr<Dx12ResourceValueTracker>       resource_value_tracker_;
+    bool                                            performed_rv_mapping_{ false };
 
     const graphics::Dx12GpuVaMap&    gpu_va_map_;
     const decode::Dx12DescriptorMap& descriptor_map_;

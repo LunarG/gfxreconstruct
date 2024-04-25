@@ -204,11 +204,6 @@ class PageGuardManager
         bool        is_modified;
         bool        own_shadow_memory;
 
-#if USERFAULTFD_SUPPORTED == 1
-        // Keep a list of all the threads that accessed this region. Only useful for Userfaultfd method
-        std::unordered_set<uint64_t> uffd_fault_causing_threads;
-#endif
-
 #if defined(WIN32)
         // Memory for retrieving modified pages with GetWriteWatch.
         std::unique_ptr<void*[]> modified_addresses;
@@ -289,22 +284,23 @@ class PageGuardManager
 #endif
 
     MemoryProtectionMode protection_mode_;
+    bool                 uffd_is_init_;
 
 #if USERFAULTFD_SUPPORTED == 1
-    bool                       uffd_is_init_;
-    int                        uffd_rt_signal_used_;
-    sigset_t                   uffd_signal_set_;
-    int                        uffd_fd_;
-    pthread_t                  uffd_handler_thread_;
-    static std::atomic<bool>   is_uffd_handler_thread_running_;
-    static std::atomic<bool>   stop_uffd_handler_thread_;
-    std::unique_ptr<uint8_t[]> uffd_page_size_tmp_buff_;
+    int                          uffd_rt_signal_used_;
+    sigset_t                     uffd_signal_set_;
+    int                          uffd_fd_;
+    pthread_t                    uffd_handler_thread_;
+    static std::atomic<bool>     is_uffd_handler_thread_running_;
+    static std::atomic<bool>     stop_uffd_handler_thread_;
+    std::unique_ptr<uint8_t[]>   uffd_page_size_tmp_buff_;
+    std::unordered_set<uint64_t> uffd_fault_causing_threads;
 #endif
 
     bool     InitializeUserFaultFd();
     void     UffdTerminate();
-    uint32_t UffdBlockFaultingThreads(const MemoryInfo* memory_info);
-    void     UffdUnblockFaultingThreads(MemoryInfo* memory_info, uint32_t n_threads_to_wait);
+    uint32_t UffdBlockFaultingThreads();
+    void     UffdUnblockFaultingThreads(uint32_t n_threads_to_wait);
     bool     UffdRegisterMemory(const void* address, size_t length);
     void     UffdUnregisterMemory(const void* address, size_t length);
     bool     UffdResetRegion(void* guard_address, size_t guard_range);
@@ -314,7 +310,7 @@ class PageGuardManager
     bool         UffdSetSignalHandler();
     void         UffdRemoveSignalHandler();
     bool         UffdStartHandlerThread();
-    bool         UffdHandleFault(uint64_t address, uint64_t flags, bool wake_thread, uint64_t tid);
+    bool         UffdHandleFault(MemoryInfo* memory_info, uint64_t address, uint64_t flags, bool wake_thread);
     bool         UffdWakeFaultingThread(uint64_t address);
     void         UffdSignalHandler(int sig);
     void*        UffdHandlerThread(void* args);

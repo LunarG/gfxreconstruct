@@ -789,7 +789,7 @@ class D3D12CaptureManager : public CaptureManager
     bool                          RvAnnotationActive();
 
     void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
-    void                              PostPresent(IDXGISwapChain_Wrapper* wrapper);
+    void                              PostPresent(IDXGISwapChain_Wrapper* wrapper, UINT flags);
     static D3D12CaptureManager*       instance_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.

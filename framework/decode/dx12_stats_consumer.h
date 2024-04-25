@@ -275,6 +275,18 @@ class Dx12StatsConsumer : public Dx12Consumer
         ei_workload_ = true;
     }
 
+    void Process_IDXGISwapChain_Present(const ApiCallInfo& call_info,
+                                        format::HandleId   object_id,
+                                        HRESULT            return_value,
+                                        UINT               SyncInterval,
+                                        UINT               Flags)
+    {
+        if (Flags & DXGI_PRESENT_TEST)
+        {
+            dxgi_present_test_++;
+        }        
+    }
+
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header)
     {
         util::platform::MemoryCopy(&runtime_info_,

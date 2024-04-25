@@ -1230,6 +1230,10 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
     }
 #endif
 
+    // Write CreateHardwareBufferCmd with or without the AHB payload
+    WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+
+    // If AHardwareBuffer_lockPlanes failed (or is not available) try AHardwareBuffer_lock
     if (result != 0)
     {
         result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
@@ -1237,15 +1241,17 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
 
     if (result == 0)
     {
-        WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-
-        if (data != nullptr)
+        if (data == nullptr)
         {
-            WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
+            GFXRECON_LOG_WARNING("AHardwareBuffer_lock returned nullptr for data pointer");
+
+            // Dump zeros for AHB payload.
+            std::vector<uint8_t> zeros(allocation_size, 0);
+            WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
         }
         else
         {
-            GFXRECON_LOG_WARNING("AHardwareBuffer_lock returned nullptr for data pointer");
+            WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
         }
 
         result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
@@ -1257,6 +1263,10 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
     else
     {
         GFXRECON_LOG_ERROR("AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
+
+        // Dump zeros for AHB payload.
+        std::vector<uint8_t> zeros(allocation_size, 0);
+        WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(memory_id);

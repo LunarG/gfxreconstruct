@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018,2020 Valve Corporation
 ** Copyright (c) 2018,2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -52,8 +53,12 @@ Win32Window::~Win32Window()
     }
 }
 
-bool Win32Window::Create(
-    const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool Win32Window::Create(const std::string& title,
+                         const int32_t      xpos,
+                         const int32_t      ypos,
+                         const uint32_t     width,
+                         const uint32_t     height,
+                         bool               force_windowed)
 {
     const char class_name[] = "GFXReconstruct Window";
 
@@ -93,6 +98,16 @@ bool Win32Window::Create(
     int32_t  x            = xpos;
     int32_t  y            = ypos;
     fullscreen_           = false;
+    force_windowed_       = force_windowed;
+
+    if ((screen_height_ <= ypos) || (screen_width_ <= xpos))
+    {
+        GFXRECON_LOG_WARNING("Requested window location (%u, %u) exceeds current screen size (%ux%u).",
+                             xpos,
+                             ypos,
+                             screen_width_,
+                             screen_height_);
+    }
 
     if ((screen_height_ <= height) || (screen_width_ <= width))
     {
@@ -107,13 +122,16 @@ bool Win32Window::Create(
                 screen_height_);
         }
 
-        fullscreen_ = true;
+        if (!force_windowed)
+        {
+            fullscreen_ = true;
 
-        window_style = kFullscreenStyle;
+            window_style = kFullscreenStyle;
 
-        // Place fullscreen window at 0, 0.
-        x = 0;
-        y = 0;
+            // Place fullscreen window at 0, 0.
+            x = 0;
+            y = 0;
+        }
     }
 
     // Create the window.
@@ -196,18 +214,21 @@ void Win32Window::SetSize(const uint32_t width, const uint32_t height)
                     screen_height_);
             }
 
-            uint32_t swp_flags = 0;
+            uint32_t swp_flags = SWP_NOMOVE | SWP_NOZORDER;
 
-            if (!fullscreen_)
+            uint32_t current_window_style = GetWindowLong(hwnd_, GWL_STYLE);
+            uint32_t window_style = fullscreen_ ? (WS_VISIBLE | kFullscreenStyle) : (WS_VISIBLE | kWindowedStyle);
+
+            if (((current_window_style & kFullscreenStyle) != kFullscreenStyle) && (force_windowed_ == false))
             {
-                SetWindowLong(hwnd_, GWL_STYLE, WS_VISIBLE | kFullscreenStyle);
+                window_style = WS_VISIBLE | kFullscreenStyle;
+                SetWindowLong(hwnd_, GWL_STYLE, window_style);
                 swp_flags |= SWP_FRAMECHANGED;
-                fullscreen_ = true;
             }
 
-            AdjustWindowRect(&wr, kFullscreenStyle, FALSE);
+            AdjustWindowRect(&wr, window_style, FALSE);
 
-            // Move window to the 0,0 position when resizing.
+            // Keep window current position when resizing.
             SetWindowPos(hwnd_, HWND_TOPMOST, 0, 0, wr.right - wr.left, wr.bottom - wr.top, swp_flags);
         }
         else
@@ -295,14 +316,14 @@ Win32WindowFactory::Win32WindowFactory(Win32Context* win32_context) : win32_cont
     assert(win32_context_);
 }
 
-decode::Window*
-Win32WindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* Win32WindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(win32_context_);
     decode::Window* window      = new Win32Window(win32_context_);
     auto            application = win32_context_->GetApplication();
     assert(application);
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 

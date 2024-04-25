@@ -68,12 +68,26 @@ bool WriteBmpImage(const std::string& filename,
                    const void*        data,
                    uint32_t           pitch = 0);
 
+bool WriteBmpImageNoAlpha(const std::string& filename,
+                          uint32_t           width,
+                          uint32_t           height,
+                          uint64_t           data_size,
+                          const void*        data,
+                          uint32_t           pitch = 0);
+
 bool WritePngImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
                    uint64_t           data_size,
                    const void*        data,
                    uint32_t           pitch = 0);
+
+bool WritePngImageNoAlpha(const std::string& filename,
+                          uint32_t           width,
+                          uint32_t           height,
+                          uint64_t           data_size,
+                          const void*        data,
+                          uint32_t           pitch = 0);
 
 GFXRECON_END_NAMESPACE(imagewriter)
 GFXRECON_END_NAMESPACE(util)
