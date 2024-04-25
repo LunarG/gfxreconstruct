@@ -70,8 +70,8 @@ std::string DescriptorCreateInfoTypeToString(VkDescriptorType descriptorType)
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             return "VkBufferView";
-        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-            return "VkWriteDescriptorSetInlineUniformBlockEXT";
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+            return "VkWriteDescriptorSetInlineUniformBlock";
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             return "VkWriteDescriptorSetAccelerationStructureKHR";
         default:
@@ -99,7 +99,7 @@ DescriptorBaseType GetDescriptorBaseType(VkDescriptorType descriptorType)
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             return DESCRIPTOR_BASE_TYPE_TEXEL;
-        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             return DESCRIPTOR_BASE_TYPE_INLINE_UNIFORM_BLOCK;
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             return DESCRIPTOR_BASE_TYPE_ACCELERATION_STRUCTURE;

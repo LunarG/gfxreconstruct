@@ -186,12 +186,7 @@ void TrackCmdPushDescriptorSetKHRHandles(vulkan_wrappers::CommandBufferWrapper* 
                     }
                 }
                 break;
-                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                {
-                    assert(false && "Maintentance required to support pushed inline uniform block descriptors when "
-                                    "creating trimmed captures");
-                }
-                break;
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:

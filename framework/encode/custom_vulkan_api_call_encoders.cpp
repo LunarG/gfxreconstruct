@@ -105,6 +105,11 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
             }
         }
 
+        // Process VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK data
+        for (const auto& entry_info : info->inline_uniform_block)
+        {
+            memcpy(unwrapped_data + entry_info.offset, bytes + entry_info.offset, entry_info.count);
+        }
         return unwrapped_data;
     }
 
