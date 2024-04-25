@@ -1668,7 +1668,7 @@ VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
 
 void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint64_t bcb_index) const
 {
-    VulkanReplayDumpResourcesJson  draw_call_output_json;
+    VulkanReplayDumpResourcesJson  draw_call_output_json(dump_resources_scale);
     VulkanReplayDumpResourcesJson* output_json_writer = output_json_per_command ? &draw_call_output_json : &dump_json;
 
     // Handle Dispatch commands
@@ -1679,15 +1679,14 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
         if (output_json_per_command)
         {
             const std::string dc_json_filename = "Dispatch_" + std::to_string(index);
-            output_json_writer->VulkanReplayDumpResourcesJsonOpen(
-                dc_json_filename, dump_resource_path, dump_resources_scale);
+            output_json_writer->Open(dc_json_filename, dump_resource_path, dump_resources_scale);
         }
 
-        output_json_writer->VulkanReplayDumpResourcesJsonBlockStart();
+        output_json_writer->BlockStart();
 
-        output_json_writer->VulkanReplayDumpResourcesJsonData("BeginCommandBufferIndex", bcb_index);
-        output_json_writer->VulkanReplayDumpResourcesJsonData("DispatchIndex", index);
-        output_json_writer->VulkanReplayDumpResourcesJsonData("QueueSubmitIndex", qs_index);
+        output_json_writer->InsertSingleEntry("BeginCommandBufferIndex", bcb_index);
+        output_json_writer->InsertSingleEntry("DispatchIndex", index);
+        output_json_writer->InsertSingleEntry("QueueSubmitIndex", qs_index);
 
         if (dump_resources_before)
         {
@@ -1719,7 +1718,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                     std::stringstream entry;
                     entry << "ComputeStage_before_" << desc_set << "_" << binding;
                     filenames[i] += ImageFileExtension(img_info->format, image_file_format);
-                    output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filenames[i]);
+                    output_json_writer->InsertSingleEntry(entry.str(), filenames[i]);
                     entry.clear();
                 }
             }
@@ -1737,7 +1736,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
                 std::stringstream entry;
                 entry << "ComputeStage_before_" << desc_set << "_" << binding;
-                output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filename);
+                output_json_writer->InsertSingleEntry(entry.str(), filename);
                 entry.clear();
             }
         }
@@ -1769,7 +1768,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                 std::stringstream entry;
                 entry << "ComputeStage_" << desc_set << "_" << binding;
                 filenames[i] += ImageFileExtension(img_info->format, image_file_format);
-                output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filenames[i]);
+                output_json_writer->InsertSingleEntry(entry.str(), filenames[i]);
                 entry.clear();
             }
         }
@@ -1782,11 +1781,12 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
             const uint32_t              desc_set = mutable_resource_entry.buffer_desc_set_binding_pair[i].first;
             const uint32_t              binding  = mutable_resource_entry.buffer_desc_set_binding_pair[i].second;
             const VkShaderStageFlagBits stage    = mutable_resource_entry.buffer_shader_stage[i];
-            std::string filename = GenerateDispatchTraceRaysBufferFilename(true, index, desc_set, binding, stage, false);
+            std::string                 filename =
+                GenerateDispatchTraceRaysBufferFilename(true, index, desc_set, binding, stage, false);
 
             std::stringstream entry;
             entry << "ComputeStage_" << desc_set << "_" << binding;
-            output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filename);
+            output_json_writer->InsertSingleEntry(entry.str(), filename);
             entry.clear();
         }
 
@@ -1823,7 +1823,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                     for (auto& filename : filenames)
                                     {
                                         filename += ImageFileExtension(img_info->format, image_file_format);
-                                        output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                                        output_json_writer->InsertSingleEntry(desc_entry, filename);
                                     }
                                 }
                             }
@@ -1843,7 +1843,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                 {
                                     const std::string filename = GenerateBufferDescriptorFilename(
                                         desc_binding.second.buffer_info[i].buffer_info->capture_id);
-                                    output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                                    output_json_writer->InsertSingleEntry(desc_entry, filename);
                                 }
                             }
                         }
@@ -1857,7 +1857,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                         {
                             const std::string filename =
                                 GenerateInlineUniformBufferDescriptorFilename(desc_set_index, desc_binding_index);
-                            output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                            output_json_writer->InsertSingleEntry(desc_entry, filename);
                         }
                         break;
 
@@ -1872,11 +1872,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
             }
         }
 
-        output_json_writer->VulkanReplayDumpResourcesJsonBlockEnd();
+        output_json_writer->BlockEnd();
 
         if (output_json_per_command)
         {
-            output_json_writer->VulkanReplayDumpResourcesJsonClose();
+            output_json_writer->Close();
         }
     }
 
@@ -1888,15 +1888,14 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
         if (output_json_per_command)
         {
             const std::string dc_json_filename = "TraceRays_" + std::to_string(index);
-            output_json_writer->VulkanReplayDumpResourcesJsonOpen(
-                dc_json_filename, dump_resource_path, dump_resources_scale);
+            output_json_writer->Open(dc_json_filename, dump_resource_path, dump_resources_scale);
         }
 
-        output_json_writer->VulkanReplayDumpResourcesJsonBlockStart();
+        output_json_writer->BlockStart();
 
-        output_json_writer->VulkanReplayDumpResourcesJsonData("BeginCommandBufferIndex", bcb_index);
-        output_json_writer->VulkanReplayDumpResourcesJsonData("TraceRaysIndex", index);
-        output_json_writer->VulkanReplayDumpResourcesJsonData("QueueSubmitIndex", qs_index);
+        output_json_writer->InsertSingleEntry("BeginCommandBufferIndex", bcb_index);
+        output_json_writer->InsertSingleEntry("TraceRaysIndex", index);
+        output_json_writer->InsertSingleEntry("QueueSubmitIndex", qs_index);
 
         if (dump_resources_before)
         {
@@ -1928,7 +1927,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                     std::stringstream entry;
                     entry << "TraceRays_before_" << desc_set << "_" << binding;
                     filenames[i] += ImageFileExtension(img_info->format, image_file_format);
-                    output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filenames[i]);
+                    output_json_writer->InsertSingleEntry(entry.str(), filenames[i]);
                     entry.clear();
                 }
             }
@@ -1946,7 +1945,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
                 std::stringstream entry;
                 entry << "TraceRays_before_" << desc_set << "_" << binding;
-                output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filename);
+                output_json_writer->InsertSingleEntry(entry.str(), filename);
                 entry.clear();
             }
         }
@@ -1978,7 +1977,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                 std::stringstream entry;
                 entry << "TraceRays_" << desc_set << "_" << binding;
                 filenames[i] += ImageFileExtension(img_info->format, image_file_format);
-                output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filenames[i]);
+                output_json_writer->InsertSingleEntry(entry.str(), filenames[i]);
                 entry.clear();
             }
         }
@@ -1996,7 +1995,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
             std::stringstream entry;
             entry << "TraceRays_" << desc_set << "_" << binding;
-            output_json_writer->VulkanReplayDumpResourcesJsonData(entry.str(), filename);
+            output_json_writer->InsertSingleEntry(entry.str(), filename);
             entry.clear();
         }
 
@@ -2047,7 +2046,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                         for (auto& filename : filenames)
                                         {
                                             filename += ImageFileExtension(img_info->format, image_file_format);
-                                            output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                                            output_json_writer->InsertSingleEntry(desc_entry, filename);
                                         }
                                     }
                                 }
@@ -2067,7 +2066,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                     {
                                         const std::string filename = GenerateBufferDescriptorFilename(
                                             desc_binding.second.buffer_info[i].buffer_info->capture_id);
-                                        output_json_writer->VulkanReplayDumpResourcesJsonData(desc_entry, filename);
+                                        output_json_writer->InsertSingleEntry(desc_entry, filename);
                                     }
                                 }
                             }
@@ -2089,11 +2088,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
             }
         }
 
-        output_json_writer->VulkanReplayDumpResourcesJsonBlockEnd();
+        output_json_writer->BlockEnd();
 
         if (output_json_per_command)
         {
-            output_json_writer->VulkanReplayDumpResourcesJsonClose();
+            output_json_writer->Close();
         }
     }
 }

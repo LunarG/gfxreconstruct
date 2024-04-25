@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_replay_dump_resources_json.h"
 #include "format/format.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "vulkan_replay_dump_resources.h"
@@ -45,7 +46,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                              VulkanObjectInfoTable&     object_info_table) :
     QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
-    output_json_per_command(options.dump_resources_json_per_command)
+    output_json_per_command(options.dump_resources_json_per_command), dump_json_(options.dump_resources_scale)
 {
     if (!options.Draw_Indices.size() && !options.Dispatch_Indices.size() && !options.TraceRays_Indices.size())
     {
@@ -54,7 +55,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
 
     if (!options.dump_resources_json_per_command)
     {
-        dump_json_.VulkanReplayDumpResourcesJsonOpen(
+        dump_json_.Open(
             options.capture_filename, options.dump_resources_output_dir, options.dump_resources_scale);
     }
 
@@ -99,7 +100,7 @@ void VulkanReplayDumpResourcesBase::Release()
 {
     if (!output_json_per_command)
     {
-        dump_json_.VulkanReplayDumpResourcesJsonClose();
+        dump_json_.Close();
     }
 
     draw_call_contexts.clear();
