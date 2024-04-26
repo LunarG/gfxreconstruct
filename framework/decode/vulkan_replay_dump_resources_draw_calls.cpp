@@ -859,8 +859,7 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilen
                                                                                     int      attachment_index) const
 {
     std::vector<VkImageAspectFlagBits> aspects;
-    bool                               combined_depth_stencil;
-    graphics::GetFormatAspects(format, &aspects, &combined_depth_stencil);
+    graphics::GetFormatAspects(format, &aspects);
 
     std::vector<std::string> filenames(aspects.size());
 
@@ -1068,8 +1067,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                 GenerateRenderTargetImageFilename(image_info->format, cb, dc_index, DEPTH_ATTACHMENT);
 
             std::vector<VkImageAspectFlagBits> aspects;
-            bool                               combined_depth_stencil;
-            graphics::GetFormatAspects(image_info->format, &aspects, &combined_depth_stencil);
+            graphics::GetFormatAspects(image_info->format, &aspects);
 
             for (size_t i = 0; i < filenames.size(); ++i)
             {
@@ -1185,9 +1183,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                                 GenerateImageDescriptorFilename(img_info);
 
                                             std::vector<VkImageAspectFlagBits> aspects;
-                                            bool                               combined_depth_stencil;
-                                            graphics::GetFormatAspects(
-                                                img_info->format, &aspects, &combined_depth_stencil);
+                                            graphics::GetFormatAspects(img_info->format, &aspects);
 
                                             auto& image_descriptor_json_entry =
                                                 desc_shader_binding_json_entry["descriptor"];
@@ -1504,8 +1500,7 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilenam
     assert(img_info != nullptr);
 
     std::vector<VkImageAspectFlagBits> aspects;
-    bool                               combined_depth_stencil;
-    graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+    graphics::GetFormatAspects(img_info->format, &aspects);
 
     const uint32_t total_files =
         dump_all_image_subresources ? (aspects.size() * img_info->level_count * img_info->layer_count) : aspects.size();

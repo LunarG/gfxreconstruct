@@ -454,8 +454,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
     assert(instance_table != nullptr);
 
     std::vector<VkImageAspectFlagBits> aspects;
-    bool                               combined_depth_stencil;
-    graphics::GetFormatAspects(image_info->format, &aspects, &combined_depth_stencil);
+    graphics::GetFormatAspects(image_info->format, &aspects);
 
     const uint32_t total_files =
         dump_all_subresources ? (aspects.size() * image_info->layer_count * image_info->level_count) : aspects.size();

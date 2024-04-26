@@ -854,8 +854,7 @@ DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilename(VkFormat
 
     const std::string                  shader_stage_name = ShaderStageToStr(stage);
     std::vector<VkImageAspectFlagBits> aspects;
-    bool                               combined_depth_stencil;
-    graphics::GetFormatAspects(format, &aspects, &combined_depth_stencil);
+    graphics::GetFormatAspects(format, &aspects);
 
     const uint32_t total_files = dump_all_subresources ? (levels * layers * aspects.size()) : (aspects.size());
 
@@ -1228,8 +1227,7 @@ DispatchTraceRaysDumpingContext::GenerateImageDescriptorFilename(const ImageInfo
     assert(img_info != nullptr);
 
     std::vector<VkImageAspectFlagBits> aspects;
-    bool                               combined_depth_stencil;
-    graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+    graphics::GetFormatAspects(img_info->format, &aspects);
 
     const uint32_t total_files =
         dump_all_image_subresources ? (aspects.size() * img_info->level_count * img_info->layer_count) : aspects.size();
@@ -1698,8 +1696,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                                                dump_all_image_subresources);
 
                     std::vector<VkImageAspectFlagBits> aspects;
-                    bool                               combined_depth_stencil;
-                    graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+                    graphics::GetFormatAspects(img_info->format, &aspects);
 
                     auto& image_json_entry = before_command_output_image_entries[output_image_index++];
                     image_json_entry["type"] =
@@ -1772,8 +1769,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                                            dump_all_image_subresources);
 
                 std::vector<VkImageAspectFlagBits> aspects;
-                bool                               combined_depth_stencil;
-                graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+                graphics::GetFormatAspects(img_info->format, &aspects);
 
                 auto& image_json_entry  = image_outputs_json_entries[mutable_images_count++];
                 image_json_entry["set"] = util::ToString<VkDescriptorType>(mutable_resource_entry.image_desc_types[i]);
@@ -1848,8 +1844,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                     std::vector filenames = GenerateImageDescriptorFilename(img_info);
 
                                     std::vector<VkImageAspectFlagBits> aspects;
-                                    bool                               combined_depth_stencil;
-                                    graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+                                    graphics::GetFormatAspects(img_info->format, &aspects);
 
                                     for (size_t f = 0; f < filenames.size(); ++f)
                                     {
@@ -1975,8 +1970,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                                                dump_all_image_subresources);
 
                     std::vector<VkImageAspectFlagBits> aspects;
-                    bool                               combined_depth_stencil;
-                    graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+                    graphics::GetFormatAspects(img_info->format, &aspects);
 
                     auto& image_json_entry = before_command_output_image_entries[output_image_index++];
                     image_json_entry["type"] =
@@ -2048,8 +2042,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                                            dump_all_image_subresources);
 
                 std::vector<VkImageAspectFlagBits> aspects;
-                bool                               combined_depth_stencil;
-                graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+                graphics::GetFormatAspects(img_info->format, &aspects);
 
                 auto& image_json_entry   = image_outputs_json_entries[mutable_images_count++];
                 image_json_entry["type"] = util::ToString<VkDescriptorType>(mutable_resource_entry.image_desc_types[i]);
@@ -2133,8 +2126,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
                                         std::vector filenames = GenerateImageDescriptorFilename(img_info);
                                         std::vector<VkImageAspectFlagBits> aspects;
-                                        bool                               combined_depth_stencil;
-                                        graphics::GetFormatAspects(img_info->format, &aspects, &combined_depth_stencil);
+                                        graphics::GetFormatAspects(img_info->format, &aspects);
 
                                         for (size_t f = 0; f < filenames.size(); ++f)
                                         {
