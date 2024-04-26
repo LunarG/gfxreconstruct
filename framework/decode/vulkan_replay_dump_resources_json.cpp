@@ -86,13 +86,14 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
 
 void VulkanReplayDumpResourcesJson::Close()
 {
-    BlockEnd();
 
-    if (file_)
+    if (file_ != nullptr)
     {
+        BlockEnd();
+
         util::platform::FileWrite("]", 1, 1, file_);
         gfxrecon::util::platform::FileClose(file_);
-        file_ = NULL;
+        file_ = nullptr;
     }
 }
 
@@ -104,6 +105,8 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::BlockStart()
 
 void VulkanReplayDumpResourcesJson::BlockEnd()
 {
+    assert(file_ != nullptr);
+
     static bool first_ = true;
 
     if (!first_)
