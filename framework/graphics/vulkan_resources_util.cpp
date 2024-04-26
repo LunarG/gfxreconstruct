@@ -37,9 +37,9 @@ static constexpr bool IsMemoryCoherent(VkMemoryPropertyFlags property_flags)
 
 void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects, bool* combined_depth_stencil)
 {
-    assert((aspects != nullptr) && (combined_depth_stencil != nullptr));
+    assert(aspects != nullptr);
 
-    (*combined_depth_stencil) = false;
+    bool combined = false;
 
     switch (format)
     {
@@ -48,7 +48,7 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspec
         case VK_FORMAT_D32_SFLOAT_S8_UINT:
             aspects->push_back(VK_IMAGE_ASPECT_DEPTH_BIT);
             aspects->push_back(VK_IMAGE_ASPECT_STENCIL_BIT);
-            (*combined_depth_stencil) = true;
+            combined = true;
             break;
         case VK_FORMAT_D16_UNORM:
         case VK_FORMAT_X8_D24_UNORM_PACK32:
@@ -92,6 +92,11 @@ void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspec
         default:
             aspects->push_back(VK_IMAGE_ASPECT_COLOR_BIT);
             break;
+    }
+
+    if (combined_depth_stencil != nullptr)
+    {
+        *combined_depth_stencil = combined;
     }
 }
 
