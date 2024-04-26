@@ -104,6 +104,8 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
 
 bool CheckDescriptorCompatibility(VkDescriptorType desc_type_a, VkDescriptorType desc_type_b);
 
+std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

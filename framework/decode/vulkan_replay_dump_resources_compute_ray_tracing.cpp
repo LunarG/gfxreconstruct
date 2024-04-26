@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
+#include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format.h"
 #include "graphics/vulkan_resources_util.h"
 #include "util/image_writer.h"
@@ -851,17 +852,7 @@ DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilename(VkFormat
 {
     const util::imagewriter::DataFormats output_image_format = VkFormatToImageWriterDataFormat(format);
 
-    const std::string shader_stage_name_whole = util::ToString<VkShaderStageFlagBits>(stage);
-    std::string       shader_stage_name;
-    if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 4, 4, "_BIT"))
-    {
-        shader_stage_name = shader_stage_name_whole.substr(16, shader_stage_name_whole.size() - 20);
-    }
-    else if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 8, 8, "_BIT_KHR"))
-    {
-        shader_stage_name = shader_stage_name_whole.substr(16, shader_stage_name_whole.size() - 24);
-    }
-
+    const std::string                  shader_stage_name = ShaderStageToStr(stage);
     std::vector<VkImageAspectFlagBits> aspects;
     bool                               combined_depth_stencil;
     graphics::GetFormatAspects(format, &aspects, &combined_depth_stencil);
@@ -927,16 +918,7 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysBufferFile
 {
     std::stringstream filename;
 
-    const std::string shader_stage_name_whole = util::ToString<VkShaderStageFlagBits>(stage);
-    std::string       shader_stage_name;
-    if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 4, 4, "_BIT"))
-    {
-        shader_stage_name = shader_stage_name_whole.substr(16, shader_stage_name_whole.size() - 20);
-    }
-    else if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 8, 8, "_BIT_KHR"))
-    {
-        shader_stage_name = shader_stage_name_whole.substr(16, shader_stage_name_whole.size() - 24);
-    }
+    const std::string shader_stage_name = ShaderStageToStr(stage);
 
     if (before_cmd)
     {
@@ -2112,17 +2094,9 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
             auto& descriptor_entries = tr_entry["descriptors"];
             for (const auto& shader_stage : tr_params.second.referenced_descriptors)
             {
-                uint32_t          stage_entry_index       = 0;
-                const std::string shader_stage_name_whole = util::ToString<VkShaderStageFlagBits>(shader_stage.first);
-                std::string       shader_stage_name;
-                if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 4, 4, "_BIT"))
-                {
-                    shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 14);
-                }
-                else if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 8, 8, "_BIT_KHR"))
-                {
-                    shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 18);
-                }
+                uint32_t stage_entry_index = 0;
+
+                const std::string shader_stage_name = ShaderStageToStr(shader_stage.first);
 
                 auto& desc_shader_stage_json_entry = descriptor_entries[shader_stage_name];
 
