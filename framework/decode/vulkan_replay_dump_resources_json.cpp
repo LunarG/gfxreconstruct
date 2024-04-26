@@ -29,14 +29,23 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(float scale, const std::string& capture_file)
+VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayOptions& options)
 {
     header_["vulkanVersion"] = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE));
     header_["gfxreconVersion"] = GFXRECON_PROJECT_VERSION_STRING;
-    header_["captureFile"]     = capture_file;
-    header_["scale"]           = scale;
+    header_["captureFile"]     = options.capture_filename;
+
+    auto& dr_options                                    = header_["dumpResourcesOptions"];
+    dr_options["scale"]                                 = options.dump_resources_scale;
+    dr_options["dumpResourcesOutputDir"]                = options.dump_resources_output_dir;
+    dr_options["dumpResourcesColorAttachmentIndex"]     = options.dump_resources_color_attachment_index;
+    dr_options["dumpResourcesBefore"]                   = options.dump_resources_before;
+    dr_options["dumpResourcesDumpDepth"]                = options.dump_resources_dump_depth;
+    dr_options["dumpResourcesDumpVertexIndexBuffer"]    = options.dump_resources_dump_vertex_index_buffer;
+    dr_options["dumpResourcesDumpImmutableResources"]   = options.dump_resources_dump_immutable_resources;
+    dr_options["dumpResourcesDumpAllImageSubresources"] = options.dump_resources_dump_all_image_subresources;
 };
 
 bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::string& outdir, float scale)

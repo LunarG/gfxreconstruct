@@ -25,6 +25,7 @@
 
 #include "util/json_util.h"
 #include "decode/vulkan_object_info.h"
+#include "decode/vulkan_replay_options.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -32,7 +33,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayDumpResourcesJson
 {
   public:
-    VulkanReplayDumpResourcesJson(float scale, const std::string& capture_file);
+    VulkanReplayDumpResourcesJson(const VulkanReplayOptions& options);
 
     ~VulkanReplayDumpResourcesJson(){};
 
