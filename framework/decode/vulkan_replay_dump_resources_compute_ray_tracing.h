@@ -187,6 +187,22 @@ class DispatchTraceRaysDumpingContext
         kDispatchBase
     };
 
+    static const char* DispatchTypeToStr(DispatchTypes type)
+    {
+        switch (type)
+        {
+            case kDispatch:
+                return "vkCmdDispatch";
+            case kDispatchIndirect:
+                return "vkCmdDispatchIndirect";
+            case kDispatchBase:
+                return "vkCmdDispatchBase";
+            default:
+                assert(0);
+                return "UnrecognizedDispatchCommand";
+        }
+    }
+
     struct DispatchParameters
     {
         union DispatchParamsUnion
@@ -285,6 +301,20 @@ class DispatchTraceRaysDumpingContext
         kTraceRays,
         kTraceRaysIndirect
     };
+
+    static const char* TraceRaysTypeToStr(TraceRaysTypes type)
+    {
+        switch (type)
+        {
+            case kTraceRays:
+                return "vkCmdTraceRays";
+            case kTraceRaysIndirect:
+                return "vkCmdTraceRaysIndirect";
+            default:
+                assert(0);
+                return "UnrecognizedTraceRaysCommand";
+        }
+    }
 
     struct TraceRaysParameters
     {

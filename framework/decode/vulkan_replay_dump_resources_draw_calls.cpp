@@ -959,6 +959,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                 const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& dc_params =
                     dc_param_entry->second.dc_params_union.draw_indirect;
 
+                assert((dc_params.draw_count && dc_params.draw_params != nullptr) || !dc_params.draw_count);
+
                 dc_params_json_entry["drawCount"] = dc_params.draw_count;
                 auto& indirect_param_entries      = dc_params_json_entry["indirectParams"];
                 for (uint32_t di = 0; di < dc_params.draw_count; ++di)
@@ -975,6 +977,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
             {
                 const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& dc_params =
                     dc_param_entry->second.dc_params_union.draw_indirect;
+
+                assert((dc_params.draw_count && dc_params.draw_indexed_params != nullptr) || !dc_params.draw_count);
 
                 dc_params_json_entry["drawCount"] = dc_params.draw_count;
                 auto& indirect_param_entries      = dc_params_json_entry["indirectParams"];
