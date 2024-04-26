@@ -1663,6 +1663,51 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
         dispatch_entry["beginCommandBufferIndex"] = bcb_index;
         dispatch_entry["queueSubmitIndex"]        = qs_index;
 
+        auto& params_json_entries           = dispatch_entry["parameters"];
+        params_json_entries["dispatchType"] = DispatchTypeToStr(disp_params.second.type);
+        switch (disp_params.second.type)
+        {
+            case kDispatch:
+            {
+                const DispatchParameters::DispatchParamsUnion::DispatchParams& ds_params =
+                    disp_params.second.dispatch_params_union.dispatch;
+
+                params_json_entries["groupCountX"] = ds_params.groupCountX;
+                params_json_entries["groupCountY"] = ds_params.groupCountY;
+                params_json_entries["groupCountZ"] = ds_params.groupCountZ;
+            }
+            break;
+
+            case kDispatchIndirect:
+            {
+                const DispatchParameters::DispatchParamsUnion::DispatchIndirect& ds_params =
+                    disp_params.second.dispatch_params_union.dispatch_indirect;
+
+                assert(ds_params.dispatch_params != nullptr);
+                params_json_entries["groupCountX"] = ds_params.dispatch_params->groupCountX;
+                params_json_entries["groupCountY"] = ds_params.dispatch_params->groupCountY;
+                params_json_entries["groupCountZ"] = ds_params.dispatch_params->groupCountZ;
+            }
+            break;
+
+            case kDispatchBase:
+            {
+                const DispatchParameters::DispatchParamsUnion::DispatchBaseParams& ds_params =
+                    disp_params.second.dispatch_params_union.dispatch_base;
+
+                params_json_entries["baseGroupX"]  = ds_params.baseGroupX;
+                params_json_entries["baseGroupY"]  = ds_params.baseGroupY;
+                params_json_entries["baseGroupZ"]  = ds_params.baseGroupZ;
+                params_json_entries["groupCountX"] = ds_params.groupCountX;
+                params_json_entries["groupCountY"] = ds_params.groupCountY;
+                params_json_entries["groupCountZ"] = ds_params.groupCountZ;
+            }
+            break;
+
+            default:
+                assert(0);
+        }
+
         auto& outputs_json_entries = dispatch_entry["outputs"];
 
         if (dump_resources_before)
@@ -1936,6 +1981,36 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
         tr_entry["traceRaysIndex"]          = index;
         tr_entry["beginCommandBufferIndex"] = bcb_index;
         tr_entry["queueSubmitIndex"]        = qs_index;
+
+        auto& params_json_entries            = tr_entry["parameters"];
+        params_json_entries["traceRaysType"] = TraceRaysTypeToStr(tr_params.second.type);
+        switch (tr_params.second.type)
+        {
+            case kTraceRays:
+            {
+                const TraceRaysParameters::TraceRaysParamsUnion::TraceRaysParams& params =
+                    tr_params.second.trace_rays_params_union.trace_rays;
+
+                params_json_entries["width"]  = params.width;
+                params_json_entries["height"] = params.height;
+                params_json_entries["depth"]  = params.depth;
+            }
+            break;
+
+            case kTraceRaysIndirect:
+            {
+                const TraceRaysParameters::TraceRaysParamsUnion::TraceRaysIndirect& params =
+                    tr_params.second.trace_rays_params_union.trace_rays_indirect;
+
+                params_json_entries["width"]  = params.trace_rays_params.width;
+                params_json_entries["height"] = params.trace_rays_params.height;
+                params_json_entries["depth"]  = params.trace_rays_params.depth;
+            }
+            break;
+
+            default:
+                assert(0);
+        }
 
         auto& outputs_json_entries = tr_entry["outputs"];
 

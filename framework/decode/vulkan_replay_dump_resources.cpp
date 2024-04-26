@@ -98,11 +98,7 @@ VulkanReplayDumpResourcesBase::~VulkanReplayDumpResourcesBase()
 
 void VulkanReplayDumpResourcesBase::Release()
 {
-    if (!output_json_per_command)
-    {
-        dump_json_.Close();
-    }
-
+    dump_json_.Close();
     draw_call_contexts.clear();
     dispatch_ray_contexts.clear();
     cmd_buf_begin_map_.clear();
