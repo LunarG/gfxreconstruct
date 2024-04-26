@@ -32,14 +32,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayDumpResourcesJson
 {
   public:
-    VulkanReplayDumpResourcesJson(float scale);
-    ~VulkanReplayDumpResourcesJson();
+    VulkanReplayDumpResourcesJson(float scale, const std::string& capture_file);
+
+    ~VulkanReplayDumpResourcesJson(){};
 
     bool Open(const std::string& infile, const std::string& outdir, float scale);
     void Close();
 
-    nlohmann::ordered_json& BlockStart();
-    void                    BlockEnd();
+    nlohmann::ordered_json& GetData() { return json_data_; }
 
     template <typename T>
     void InsertSingleEntry(const std::string& descriptor, const T& value)
@@ -63,6 +63,9 @@ class VulkanReplayDumpResourcesJson
                           size_t                  size = 0);
 
   private:
+    nlohmann::ordered_json& BlockStart();
+    void                    BlockEnd();
+
     FILE*                  file_{ nullptr };
     nlohmann::ordered_json header_;
     nlohmann::ordered_json json_data_;

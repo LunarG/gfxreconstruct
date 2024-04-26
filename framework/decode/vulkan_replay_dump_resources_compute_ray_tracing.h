@@ -170,12 +170,14 @@ class DispatchTraceRaysDumpingContext
         std::vector<VkDeviceMemory>                image_memories;
         std::vector<std::pair<uint32_t, uint32_t>> image_desc_set_binding_pair;
         std::vector<VkShaderStageFlagBits>         image_shader_stage;
+        std::vector<VkDescriptorType>              image_desc_types;
 
         std::vector<const BufferInfo*>             original_buffers;
         std::vector<VkBuffer>                      buffers;
         std::vector<VkDeviceMemory>                buffer_memories;
         std::vector<std::pair<uint32_t, uint32_t>> buffer_desc_set_binding_pair;
         std::vector<VkShaderStageFlagBits>         buffer_shader_stage;
+        std::vector<VkDescriptorType>              buffer_desc_types;
     };
 
     enum DispatchTypes
