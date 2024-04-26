@@ -713,5 +713,21 @@ bool CheckDescriptorCompatibility(VkDescriptorType desc_type_a, VkDescriptorType
     }
 }
 
+std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage)
+{
+    const std::string shader_stage_name_whole = util::ToString<VkShaderStageFlagBits>(shader_stage);
+    std::string       shader_stage_name;
+    if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 4, 4, "_BIT"))
+    {
+        shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 14);
+    }
+    else if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 8, 8, "_BIT_KHR"))
+    {
+        shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 18);
+    }
+
+    return shader_stage_name;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

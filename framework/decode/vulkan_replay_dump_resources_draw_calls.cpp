@@ -1146,17 +1146,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                 for (const auto& shader_stage : dc_param.referenced_descriptors)
                 {
                     uint32_t          stage_entry_index = 0;
-                    const std::string shader_stage_name_whole =
-                        util::ToString<VkShaderStageFlagBits>(shader_stage.first);
-                    std::string shader_stage_name;
-                    if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 4, 4, "_BIT"))
-                    {
-                        shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 14);
-                    }
-                    else if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 8, 8, "_BIT_KHR"))
-                    {
-                        shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 18);
-                    }
+                    const std::string shader_stage_name = ShaderStageToStr(shader_stage.first);
 
                     auto& desc_shader_stage_json_entry = descriptors_json_entry[shader_stage_name];
 
