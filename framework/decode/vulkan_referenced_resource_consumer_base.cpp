@@ -501,7 +501,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
             switch (writes[i].descriptorType)
             {
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                     // Descriptor types that do not need to be tracked.
                     break;
                 case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:

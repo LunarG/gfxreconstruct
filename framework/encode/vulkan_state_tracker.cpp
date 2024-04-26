@@ -756,9 +756,21 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         }
                         break;
                     }
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                        // TODO
-                        break;
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        VkWriteDescriptorSetInlineUniformBlock* write_inline_uniform_struct =
+                            graphics::GetPNextStruct<VkWriteDescriptorSetInlineUniformBlock>(
+                                write, VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK);
+
+                        if (write_inline_uniform_struct != nullptr)
+                        {
+                            uint8_t*       dst_inline_uniform_data = binding.inline_uniform_block.get();
+                            const uint8_t* src_inline_uniform_data =
+                                reinterpret_cast<const uint8_t*>(write_inline_uniform_struct->pData);
+                            memcpy(dst_inline_uniform_data, src_inline_uniform_data, current_writes);
+                        }
+                    }
+                    break;
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                         // TODO
                         break;
@@ -864,6 +876,12 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     memcpy(&dst_binding.acceleration_structures[current_dst_array_element],
                            &src_binding.acceleration_structures[current_src_array_element],
                            (sizeof(VkWriteDescriptorSetAccelerationStructureKHR) * current_copies));
+                }
+                if (src_binding.inline_uniform_block != nullptr)
+                {
+                    memcpy(&dst_binding.inline_uniform_block[current_dst_array_element],
+                           &src_binding.inline_uniform_block[current_src_array_element],
+                           current_copies);
                 }
                 if (src_binding.texel_buffer_views != nullptr)
                 {
@@ -1133,6 +1151,44 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                     current_binding += 1;
                     current_array_element = 0;
                     current_offset += (current_writes * entry.stride);
+                }
+            }
+        }
+        for (const auto& entry : template_info->inline_uniform_block)
+        {
+            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
+            // will result in updates to consecutive bindings.
+            uint32_t current_count         = entry.count;
+            uint32_t current_binding       = entry.binding;
+            uint32_t current_array_element = entry.array_element;
+            size_t   current_offset        = entry.offset;
+
+            for (;;)
+            {
+                auto& binding = wrapper->bindings[entry.binding];
+                GFXRECON_ASSERT(binding.inline_uniform_block != nullptr);
+
+                // Check count for consecutive updates.
+                const uint32_t current_num_bytes = std::min(current_count, (binding.count - current_array_element));
+
+                bool* written_start = &binding.written[current_array_element];
+                std::fill(written_start, written_start + current_num_bytes, true);
+
+                const uint8_t* src_address = bytes + current_offset;
+                uint8_t*       dst_address = binding.inline_uniform_block.get() + entry.array_element;
+                memcpy(dst_address, src_address, current_num_bytes);
+
+                // Check for consecutive update.
+                if (current_count == current_num_bytes)
+                {
+                    break;
+                }
+                else
+                {
+                    current_count -= current_num_bytes;
+                    current_binding += 1;
+                    current_array_element = 0;
+                    current_offset += (current_num_bytes * entry.stride);
                 }
             }
         }

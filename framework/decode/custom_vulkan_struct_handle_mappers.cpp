@@ -98,12 +98,11 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
                 value->pTexelBufferView = handle_mapping::MapHandleArray<BufferViewInfo>(
                     &wrapper->pTexelBufferView, object_mapper, &VulkanObjectInfoTable::GetBufferViewInfo);
                 break;
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                // TODO
-                break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO
                 break;
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                // Handles are mapped in the VkWriteDescriptorSetInlineUniformBlock structure in the pNext chain
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 // Handles are mapped in the VkWriteDescriptorSetAccelerationStructureKHR structure in the pNext chain
                 break;
