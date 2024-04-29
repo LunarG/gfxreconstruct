@@ -129,7 +129,7 @@ class DrawCallsDumpingContext
 
     VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const;
 
-    VkResult DumpVertexIndexBuffers();
+    VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index);
 
     void InsertNewDrawParameters(
         uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
@@ -190,18 +190,31 @@ class DrawCallsDumpingContext
   private:
     std::vector<std::string> GenerateRenderTargetImageFilename(VkFormat format,
                                                                uint64_t cmd_buf_index,
+                                                               uint64_t qs_index,
+                                                               uint64_t bcb_index,
                                                                uint64_t dc_index,
                                                                int      attachment_index) const;
 
-    std::vector<std::string> GenerateImageDescriptorFilename(const ImageInfo* img_info) const;
+    std::vector<std::string>
+    GenerateImageDescriptorFilename(uint64_t qs_index, uint64_t bcb_index, const ImageInfo* img_info) const;
 
-    std::string GenerateBufferDescriptorFilename(format::HandleId buffer_id) const;
+    std::string
+    GenerateBufferDescriptorFilename(uint64_t qs_index, uint64_t bcb_index, format::HandleId buffer_id) const;
 
-    std::string GenerateInlineUniformBufferDescriptorFilename(uint32_t set, uint32_t binding) const;
+    std::string GenerateInlineUniformBufferDescriptorFilename(uint64_t qs_index,
+                                                              uint64_t bcb_index,
+                                                              uint32_t set,
+                                                              uint32_t binding) const;
 
-    std::string GenerateVertexBufferFilename(uint64_t bind_vertex_buffer_index, uint32_t binding) const;
+    std::string GenerateVertexBufferFilename(uint64_t qs_index,
+                                             uint64_t bcb_index,
+                                             uint64_t bind_vertex_buffer_index,
+                                             uint32_t binding) const;
 
-    std::string GenerateIndexBufferFilename(uint64_t bind_index_buffer_index, VkIndexType type) const;
+    std::string GenerateIndexBufferFilename(uint64_t    qs_index,
+                                            uint64_t    bcb_index,
+                                            uint64_t    bind_index_buffer_index,
+                                            VkIndexType type) const;
 
     using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
     RenderPassSubpassPair GetRenderPassIndex(uint64_t dc_index) const;
