@@ -80,7 +80,7 @@ class OpenXrCaptureManager : public ApiCaptureManager
 
     static const OpenXrLayerTable* GetLayerTable() { return &layer_table_; }
 
-    void InitXrInstance(XrInstance* instance, PFN_xrGetInstanceProcAddr gpa);
+    static void InitXrInstance(XrInstance* instance, PFN_xrGetInstanceProcAddr gpa);
 
     // Single object creation.
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
