@@ -76,7 +76,7 @@ class DispatchTraceRaysDumpingContext
     VkResult DumpDispatchTraceRays(
         VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
-    VkResult DumpMutableResources(uint64_t bcb_index, uint64_t cmd_index, uint64_t qs_index, bool is_dispatch);
+    VkResult DumpMutableResources(uint64_t bcb_index, uint64_t qs_index, uint64_t cmd_index, bool is_dispatch);
 
     void FinalizeCommandBuffer(bool is_dispatch);
 
@@ -110,6 +110,8 @@ class DispatchTraceRaysDumpingContext
                                                                     uint32_t              levels,
                                                                     uint32_t              layers,
                                                                     bool                  is_dispatch,
+                                                                    uint64_t              qs_index,
+                                                                    uint64_t              bcb_index,
                                                                     uint64_t              cmd_index,
                                                                     uint32_t              desc_set,
                                                                     uint32_t              desc_binding,
@@ -119,12 +121,25 @@ class DispatchTraceRaysDumpingContext
                                                                     bool                  dump_all_subresources) const;
 
     std::string GenerateDispatchTraceRaysBufferFilename(bool                  is_dispatch,
+                                                        uint64_t              qs_index,
+                                                        uint64_t              bcb_index,
                                                         uint64_t              cmd_index,
                                                         uint32_t              desc_set,
                                                         uint32_t              desc_binding,
                                                         uint32_t              array_index,
                                                         VkShaderStageFlagBits stage,
                                                         bool                  before_cmd) const;
+
+    std::vector<std::string>
+    GenerateImageDescriptorFilename(uint64_t bcb_index, uint64_t cmd_index, const ImageInfo* img_info) const;
+
+    std::string
+    GenerateBufferDescriptorFilename(uint64_t bcb_index, uint64_t cmd_index, format::HandleId buffer_id) const;
+
+    std::string GenerateInlineUniformBufferDescriptorFilename(uint64_t bcb_index,
+                                                              uint64_t cmd_index,
+                                                              uint32_t set,
+                                                              uint32_t binding) const;
 
     void CopyImageResource(const ImageInfo* src_image_info, VkImage dst_image);
 
@@ -133,12 +148,6 @@ class DispatchTraceRaysDumpingContext
     void DestroyMutableResourcesClones();
 
     VkResult FetchIndirectParams();
-
-    std::vector<std::string> GenerateImageDescriptorFilename(const ImageInfo* img_info) const;
-
-    std::string GenerateBufferDescriptorFilename(format::HandleId buffer_id) const;
-
-    std::string GenerateInlineUniformBufferDescriptorFilename(uint32_t set, uint32_t binding) const;
 
     VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const;
 

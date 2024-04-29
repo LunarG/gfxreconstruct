@@ -824,7 +824,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
     // Dump vertex/index buffers
     if (dump_vertex_index_buffers)
     {
-        res = DumpVertexIndexBuffers();
+        res = DumpVertexIndexBuffers(qs_index, bcb_index);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping vertex/index buffers failed (%s)", util::ToString<VkResult>(res).c_str())
@@ -855,6 +855,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 
 std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat format,
                                                                                     uint64_t cmd_buf_index,
+                                                                                    uint64_t qs_index,
+                                                                                    uint64_t bcb_index,
                                                                                     uint64_t dc_index,
                                                                                     int      attachment_index) const
 {
@@ -875,25 +877,27 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilen
         {
             if (dump_resources_before)
             {
-                filename << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << attachment_str
-                         << "_aspect_" << aspect_str;
+                filename << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
+                         << "_bcb_" << bcb_index << attachment_str << "_aspect_" << aspect_str;
             }
             else
             {
-                filename << "Draw_" << dc_index << attachment_str << "_aspect_" << aspect_str;
+                filename << "Draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << attachment_str
+                         << "_aspect_" << aspect_str;
             }
         }
         else
         {
             if (dump_resources_before)
             {
-                filename << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << attachment_str
+                filename << "Draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
+                         << "_bcb_" << bcb_index << "_" << qs_index << "_" << bcb_index << "_" << attachment_str
                          << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
             }
             else
             {
-                filename << "Draw_" << dc_index << attachment_str << util::ToString<VkFormat>(format) << "_aspect_"
-                         << aspect_str;
+                filename << "Draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dc_"
+                         << attachment_str << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
             }
         }
 
@@ -1054,7 +1058,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                 const ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
 
                 const std::vector<std::string> filenames =
-                    GenerateRenderTargetImageFilename(image_info->format, cb, dc_index, i);
+                    GenerateRenderTargetImageFilename(image_info->format, cb, qs_index, bcb_index, dc_index, i);
 
                 const std::string filename = filenames[0] + ImageFileExtension(image_info->format, image_file_format);
                 dump_json.InsertImageInfo(rt_entries[i], image_info, filename, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -1067,8 +1071,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
             auto& depth_entries = draw_call_entry["depthAttachments"];
 
             const ImageInfo*               image_info = render_targets[rp][sp].depth_att_img;
-            const std::vector<std::string> filenames =
-                GenerateRenderTargetImageFilename(image_info->format, cb, dc_index, DEPTH_ATTACHMENT);
+            const std::vector<std::string> filenames  = GenerateRenderTargetImageFilename(
+                image_info->format, cb, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
 
             std::vector<VkImageAspectFlagBits> aspects;
             graphics::GetFormatAspects(image_info->format, &aspects);
@@ -1094,8 +1098,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                     assert(bound_index_buffer_entry != bound_index_buffers.end());
                     if (bound_index_buffer_entry != bound_index_buffers.end())
                     {
-                        const std::string index_buffer_filename = GenerateIndexBufferFilename(
-                            dc_param.referenced_bind_index_buffer, bound_index_buffer_entry->second.index_type);
+                        const std::string index_buffer_filename =
+                            GenerateIndexBufferFilename(qs_index,
+                                                        bcb_index,
+                                                        dc_param.referenced_bind_index_buffer,
+                                                        bound_index_buffer_entry->second.index_type);
 
                         auto& json_entry = draw_call_entry["indexBuffer"];
 
@@ -1122,8 +1129,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                         if (vb_binding_buffer->second.buffer_info != nullptr &&
                             vb_binding.second.inputRate != VK_VERTEX_INPUT_RATE_INSTANCE)
                         {
-                            const std::string vb_filename =
-                                GenerateVertexBufferFilename(dc_param.referenced_bind_vertex_buffers, vb_binding.first);
+                            const std::string vb_filename = GenerateVertexBufferFilename(
+                                qs_index, bcb_index, dc_param.referenced_bind_vertex_buffers, vb_binding.first);
 
                             assert(vb_binding_buffer->second.actual_size);
                             dump_json.InsertBufferInfo(json_entry[i],
@@ -1184,7 +1191,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                             assert(img_info != nullptr);
 
                                             std::vector<std::string> filenames =
-                                                GenerateImageDescriptorFilename(img_info);
+                                                GenerateImageDescriptorFilename(qs_index, bcb_index, img_info);
 
                                             std::vector<VkImageAspectFlagBits> aspects;
                                             graphics::GetFormatAspects(img_info->format, &aspects);
@@ -1222,8 +1229,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                             desc_shader_binding_json_entry["binding"]    = desc_set_binding_index;
                                             desc_shader_binding_json_entry["arrayIndex"] = buf;
 
-                                            const std::string filename =
-                                                GenerateBufferDescriptorFilename(buf_info->capture_id);
+                                            const std::string filename = GenerateBufferDescriptorFilename(
+                                                qs_index, bcb_index, buf_info->capture_id);
                                             auto& buffer_descriptor_json_entry =
                                                 desc_shader_binding_json_entry["descriptor"];
                                             dump_json.InsertBufferInfo(
@@ -1238,7 +1245,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                 case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                                 {
                                     const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
-                                        desc_set_index, desc_set_binding_index);
+                                        qs_index, bcb_index, desc_set_index, desc_set_binding_index);
 
                                     desc_shader_binding_json_entry["type"] =
                                         util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
@@ -1441,7 +1448,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t cmd_buf_i
         const ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
 
         const std::vector<std::string> filenames =
-            GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, dc_index, i);
+            GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
 
         const VkExtent3D extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
         VkResult         res = DumpImageToFile(image_info,
@@ -1473,8 +1480,8 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t cmd_buf_i
         std::vector<uint64_t> subresource_sizes;
         bool                  scaling_supported;
 
-        const std::vector<std::string> filenames =
-            GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, dc_index, DEPTH_ATTACHMENT);
+        const std::vector<std::string> filenames = GenerateRenderTargetImageFilename(
+            image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
 
         const VkExtent3D extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
         VkResult         res = DumpImageToFile(image_info,
@@ -1499,7 +1506,9 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(uint64_t cmd_buf_i
     return VK_SUCCESS;
 }
 
-std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilename(const ImageInfo* img_info) const
+std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilename(uint64_t         qs_index,
+                                                                                  uint64_t         bcb_index,
+                                                                                  const ImageInfo* img_info) const
 {
     assert(img_info != nullptr);
 
@@ -1521,14 +1530,16 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilenam
         if (output_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED &&
             output_format != util::imagewriter::DataFormats::kFormat_ASTC)
         {
-            base_filename << "Image_" << img_info->capture_id << "_aspect_" << aspect_str;
+            base_filename << "Image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index
+                          << "_aspect_" << aspect_str;
         }
         else
         {
             std::string whole_format_name = util::ToString<VkFormat>(img_info->format);
             std::string format_name(whole_format_name.begin() + 10, whole_format_name.end());
 
-            base_filename << "Image_" << img_info->capture_id << "_" << format_name << "_aspect_" << aspect_str;
+            base_filename << "Image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_"
+                          << format_name << "_aspect_" << aspect_str;
         }
 
         if (dump_all_image_subresources && (img_info->level_count > 1 || img_info->layer_count > 1))
@@ -1558,21 +1569,27 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilenam
     return std::move(filenames);
 }
 
-std::string DrawCallsDumpingContext::GenerateBufferDescriptorFilename(format::HandleId buffer_id) const
+std::string DrawCallsDumpingContext::GenerateBufferDescriptorFilename(uint64_t         qs_index,
+                                                                      uint64_t         bcb_index,
+                                                                      format::HandleId buffer_id) const
 {
     std::stringstream filename;
 
-    filename << "Buffer_" << buffer_id << ".bin";
+    filename << "Buffer_" << buffer_id << "_qs_" << qs_index << "_bcb_" << bcb_index << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
     return (filedirname / filebasename).string();
 }
 
-std::string DrawCallsDumpingContext::GenerateInlineUniformBufferDescriptorFilename(uint32_t set, uint32_t binding) const
+std::string DrawCallsDumpingContext::GenerateInlineUniformBufferDescriptorFilename(uint64_t qs_index,
+                                                                                   uint64_t bcb_index,
+                                                                                   uint32_t set,
+                                                                                   uint32_t binding) const
 {
     std::stringstream filename;
-    filename << "InlineUniformBlock_set_" << set << "_binding_" << binding << ".bin";
+    filename << "InlineUniformBlock_set_" << set << "_binding_" << binding << "_qs_" << qs_index << "_bcb_" << bcb_index
+             << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
@@ -1685,7 +1702,7 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
 
     for (const auto& img_info : image_descriptors)
     {
-        const std::vector<std::string> filenames = GenerateImageDescriptorFilename(img_info);
+        const std::vector<std::string> filenames = GenerateImageDescriptorFilename(qs_index, bcb_index, img_info);
 
         VkResult res = DumpImageToFile(img_info,
                                        device_info,
@@ -1731,39 +1748,48 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
             return res;
         }
 
-        const std::string filename = GenerateBufferDescriptorFilename(buffer_info->capture_id);
+        const std::string filename = GenerateBufferDescriptorFilename(qs_index, bcb_index, buffer_info->capture_id);
         util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
     }
 
     for (const auto& iub : inline_uniform_blocks)
     {
-        std::string filename = GenerateInlineUniformBufferDescriptorFilename(iub.second.set, iub.second.binding);
+        std::string filename =
+            GenerateInlineUniformBufferDescriptorFilename(qs_index, bcb_index, iub.second.set, iub.second.binding);
         util::bufferwriter::WriteBuffer(filename, iub.second.data->data(), iub.second.data->size());
     }
 
     return VK_SUCCESS;
 }
 
-std::string DrawCallsDumpingContext::GenerateIndexBufferFilename(uint64_t    bind_index_buffer_index,
+std::string DrawCallsDumpingContext::GenerateIndexBufferFilename(uint64_t    qs_index,
+                                                                 uint64_t    bcb_index,
+                                                                 uint64_t    bind_index_buffer_index,
                                                                  VkIndexType type) const
 {
     std::stringstream filename;
 
     std::string index_type_name_whole = util::ToString<VkIndexType>(type);
     std::string index_type_name(index_type_name_whole.begin() + 13, index_type_name_whole.end());
-    filename << "IndexBuffer_" << bind_index_buffer_index << index_type_name << ".bin";
+    filename << "IndexBuffer_"
+             << "qs_" << qs_index << "_bcb_" << bcb_index << "_bvb_" << bind_index_buffer_index << index_type_name
+             << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
     return (filedirname / filebasename).string();
 }
 
-std::string DrawCallsDumpingContext::GenerateVertexBufferFilename(uint64_t bind_vertex_buffer_index,
+std::string DrawCallsDumpingContext::GenerateVertexBufferFilename(uint64_t qs_index,
+                                                                  uint64_t bcb_index,
+                                                                  uint64_t bind_vertex_buffer_index,
                                                                   uint32_t binding) const
 {
     std::stringstream filename;
 
-    filename << "VertexBuffers_" << bind_vertex_buffer_index << "_binding_" << binding << ".bin";
+    filename << "VertexBuffers_"
+             << "qs_" << qs_index << "_bcb_" << bcb_index << "_bib_" << bind_vertex_buffer_index << "_binding_"
+             << binding << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
@@ -1940,7 +1966,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams()
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
+VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index)
 {
     assert(draw_call_params.size() == dc_indices.size());
 
@@ -2120,7 +2146,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
             return res;
         }
 
-        std::string filename = GenerateIndexBufferFilename(bind_index_buffer_block_index, index_type);
+        std::string filename =
+            GenerateIndexBufferFilename(qs_index, bcb_index, bind_index_buffer_block_index, index_type);
         util::bufferwriter::WriteBuffer(filename, index_data.data(), index_data.size());
 
         // Parse indices and find the greatest vertex index. We should need this later
@@ -2335,7 +2362,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers()
                 return res;
             }
 
-            std::string filename = GenerateVertexBufferFilename(bind_vertex_buffers_index, binding);
+            std::string filename =
+                GenerateVertexBufferFilename(qs_index, bcb_index, bind_vertex_buffers_index, binding);
             util::bufferwriter::WriteBuffer(filename, vb_data.data(), vb_data.size());
         }
     }
