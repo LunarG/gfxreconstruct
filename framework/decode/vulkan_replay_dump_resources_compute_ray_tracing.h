@@ -31,6 +31,7 @@
 #include "decode/vulkan_replay_dump_resources_json.h"
 #include "format/format.h"
 #include "util/defines.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cstdint>
 #include <unordered_map>
@@ -75,7 +76,7 @@ class DispatchTraceRaysDumpingContext
     VkResult DumpDispatchTraceRays(
         VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
-    VkResult DumpMutableResources(uint64_t bcb_index, uint64_t index, uint64_t qs_index, bool is_dispatch);
+    VkResult DumpMutableResources(uint64_t bcb_index, uint64_t cmd_index, uint64_t qs_index, bool is_dispatch);
 
     void FinalizeCommandBuffer(bool is_dispatch);
 
@@ -109,17 +110,19 @@ class DispatchTraceRaysDumpingContext
                                                                     uint32_t              levels,
                                                                     uint32_t              layers,
                                                                     bool                  is_dispatch,
-                                                                    uint64_t              index,
+                                                                    uint64_t              cmd_index,
                                                                     uint32_t              desc_set,
                                                                     uint32_t              desc_binding,
+                                                                    uint32_t              array_index,
                                                                     VkShaderStageFlagBits stage,
                                                                     bool                  before_cmd,
                                                                     bool                  dump_all_subresources) const;
 
     std::string GenerateDispatchTraceRaysBufferFilename(bool                  is_dispatch,
-                                                        uint64_t              index,
+                                                        uint64_t              cmd_index,
                                                         uint32_t              desc_set,
                                                         uint32_t              desc_binding,
+                                                        uint32_t              array_index,
                                                         VkShaderStageFlagBits stage,
                                                         bool                  before_cmd) const;
 
@@ -165,19 +168,33 @@ class DispatchTraceRaysDumpingContext
     {
         MutableResourcesBackupContext() = default;
 
-        std::vector<const ImageInfo*>              original_images;
-        std::vector<VkImage>                       images;
-        std::vector<VkDeviceMemory>                image_memories;
-        std::vector<std::pair<uint32_t, uint32_t>> image_desc_set_binding_pair;
-        std::vector<VkShaderStageFlagBits>         image_shader_stage;
-        std::vector<VkDescriptorType>              image_desc_types;
+        struct ImageContext
+        {
+            const ImageInfo*      original_image{ nullptr };
+            VkImage               image{ VK_NULL_HANDLE };
+            VkDeviceMemory        image_memory{ VK_NULL_HANDLE };
+            VkShaderStageFlagBits stage;
+            VkDescriptorType      desc_type;
+            uint32_t              desc_set;
+            uint32_t              desc_binding;
+            uint32_t              array_index;
+        };
 
-        std::vector<const BufferInfo*>             original_buffers;
-        std::vector<VkBuffer>                      buffers;
-        std::vector<VkDeviceMemory>                buffer_memories;
-        std::vector<std::pair<uint32_t, uint32_t>> buffer_desc_set_binding_pair;
-        std::vector<VkShaderStageFlagBits>         buffer_shader_stage;
-        std::vector<VkDescriptorType>              buffer_desc_types;
+        std::vector<ImageContext> images;
+
+        struct BufferContext
+        {
+            const BufferInfo*     original_buffer{ nullptr };
+            VkBuffer              buffer{ VK_NULL_HANDLE };
+            VkDeviceMemory        buffer_memory{ VK_NULL_HANDLE };
+            VkShaderStageFlagBits stage;
+            VkDescriptorType      desc_type;
+            uint32_t              desc_set;
+            uint32_t              desc_binding;
+            uint32_t              array_index;
+        };
+
+        std::vector<BufferContext> buffers;
     };
 
     enum DispatchTypes
