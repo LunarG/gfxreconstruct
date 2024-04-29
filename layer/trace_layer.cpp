@@ -793,7 +793,7 @@ extern "C"
                                                                       XrNegotiateApiLayerRequest*  apiLayerRequest)
     {
         // Wrong layer name or something wrong with incoming structs
-        if (layerName == nullptr || strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME) || loaderInfo == nullptr ||
+        if (layerName == nullptr || (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME) != 0) || loaderInfo == nullptr ||
             apiLayerRequest == nullptr || loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO ||
             apiLayerRequest->structType != XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST)
         {
@@ -821,6 +821,7 @@ extern "C"
         apiLayerRequest->layerInterfaceVersion = layer_cur_interface_version;
         apiLayerRequest->layerApiVersion       = XR_CURRENT_API_VERSION;
         apiLayerRequest->getInstanceProcAddr   = gfxrecon::OpenXrGetInstanceProcAddr;
+        apiLayerRequest->createApiLayerInstance = gfxrecon::encode::xrCreateApiLayerInstance;
         return XR_SUCCESS;
     }
 #else

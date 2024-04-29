@@ -8,7 +8,7 @@
         "description": "GFXReconstruct Capture Layer Version @GFXRECONSTRUCT_VERSION_STRING@",
         "functions": {
             "xrNegotiateLoaderApiLayerInterface":
-                "GFXR_xrNegotiateLoaderApiLayerInterface"
+                "xrNegotiateLoaderApiLayerInterface"
         }
     }
 }
