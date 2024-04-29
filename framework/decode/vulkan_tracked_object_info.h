@@ -181,9 +181,9 @@ typedef struct SubresourceLayoutInfo
 {
     VkImageSubresource  image_subresource;
     bool                valid_capture_time = false;
-    VkSubresourceLayout image_subresource_layout_capture_time;
+    VkSubresourceLayout capture_image_subresource_layout;
     bool                valid_replay_time = false;
-    VkSubresourceLayout image_subresource_layout_replay_time;
+    VkSubresourceLayout replay_image_subresource_layout;
 
     // The range is defined for the image subresource data related handling,
     // It specify the actual data range which may not be whole subresource data.
@@ -300,15 +300,15 @@ class TrackedResourceInfo
     // Get image flag
     bool GetImageFlag() const { return is_image; };
 
-    bool IsSameImageSubresourceLayout(VkSubresourceLayout* image_subresource_layout_capture_time,
+    bool IsSameImageSubresourceLayout(VkSubresourceLayout* capture_image_subresource_layout,
                                       VkSubresourceLayout* image_subresource_layout_playback_time)
     {
         bool result = false;
-        if ((image_subresource_layout_capture_time->arrayPitch == image_subresource_layout_playback_time->arrayPitch) &&
-            (image_subresource_layout_capture_time->depthPitch == image_subresource_layout_playback_time->depthPitch) &&
-            (image_subresource_layout_capture_time->offset == image_subresource_layout_playback_time->offset) &&
-            (image_subresource_layout_capture_time->rowPitch == image_subresource_layout_playback_time->rowPitch) &&
-            (image_subresource_layout_capture_time->size == image_subresource_layout_playback_time->size))
+        if ((capture_image_subresource_layout->arrayPitch == image_subresource_layout_playback_time->arrayPitch) &&
+            (capture_image_subresource_layout->depthPitch == image_subresource_layout_playback_time->depthPitch) &&
+            (capture_image_subresource_layout->offset == image_subresource_layout_playback_time->offset) &&
+            (capture_image_subresource_layout->rowPitch == image_subresource_layout_playback_time->rowPitch) &&
+            (capture_image_subresource_layout->size == image_subresource_layout_playback_time->size))
         {
             result = true;
         }
@@ -317,31 +317,29 @@ class TrackedResourceInfo
 
     // Set image subresource layout
     void SetImageSubresourceLayout(VkImageSubresource*  image_subresource,
-                                   VkSubresourceLayout* image_subresource_layout_capture_time,
-                                   VkSubresourceLayout* image_subresource_layout_replay_time)
+                                   VkSubresourceLayout* capture_image_subresource_layout,
+                                   VkSubresourceLayout* replay_image_subresource_layout)
     {
-        if ((image_subresource != nullptr) && (image_subresource_layout_capture_time != nullptr))
+        if ((image_subresource != nullptr) && (capture_image_subresource_layout != nullptr))
         {
             SubresourceLayoutInfo subresource_layout_info;
-            subresource_layout_info.image_subresource                     = *image_subresource;
-            subresource_layout_info.image_subresource_layout_capture_time = *image_subresource_layout_capture_time;
-            subresource_layout_info.valid_capture_time                    = true;
-            subresource_layout_info.subresource_data_offset = image_subresource_layout_capture_time->offset;
-            subresource_layout_info.subresource_data_size   = image_subresource_layout_capture_time->size;
+            subresource_layout_info.image_subresource                = *image_subresource;
+            subresource_layout_info.capture_image_subresource_layout = *capture_image_subresource_layout;
+            subresource_layout_info.valid_capture_time               = true;
+            subresource_layout_info.subresource_data_offset          = capture_image_subresource_layout->offset;
+            subresource_layout_info.subresource_data_size            = capture_image_subresource_layout->size;
 
-            if (image_subresource_layout_replay_time != nullptr)
+            if (replay_image_subresource_layout != nullptr)
             {
-                subresource_layout_info.image_subresource_layout_replay_time = *image_subresource_layout_replay_time;
-                subresource_layout_info.valid_replay_time                    = true;
-                if (!IsSameImageSubresourceLayout(image_subresource_layout_capture_time,
-                                                  image_subresource_layout_replay_time))
+                subresource_layout_info.replay_image_subresource_layout = *replay_image_subresource_layout;
+                subresource_layout_info.valid_replay_time               = true;
+                if (!IsSameImageSubresourceLayout(capture_image_subresource_layout, replay_image_subresource_layout))
                 {
                     image_subresource_layout_changed_ = true;
                 }
             }
 
-            image_subresource_layouts_[image_subresource_layout_capture_time->offset] =
-                std::move(subresource_layout_info);
+            image_subresource_layouts_[capture_image_subresource_layout->offset] = std::move(subresource_layout_info);
         }
     };
 
@@ -401,9 +399,9 @@ class TrackedResourceInfo
     //         The matched image subresource layouts. For any subresource X in the returned vector,
     //         X.subresource_data_offset and X.subresource_data_size is the actual range of the subresource data, the
     //         actual range may be part or whole subresource data. The whole subresource data range is
-    //         (X.image_subresource_layout_capture_time.offset, X.image_subresource_layout_capture_time.size) for
-    //         capture-time or (X.image_subresource_layout_replay_time.offset,
-    //         X.image_subresource_layout_replay_time.size) for replay-time.
+    //         (X.capture_image_subresource_layout.offset, X.capture_image_subresource_layout.size) for
+    //         capture-time or (X.replay_image_subresource_layout.offset,
+    //         X.replay_image_subresource_layout.size) for replay-time.
     //
     bool GetImageSubresourceLayoutsInRange(VkDeviceSize                        offset_to_image_data_start,
                                            VkDeviceSize                        size,

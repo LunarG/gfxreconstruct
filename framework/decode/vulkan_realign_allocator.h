@@ -103,10 +103,10 @@ class VulkanRealignAllocator : public VulkanDefaultAllocator
         format::HandleId capture_id, MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data);
 
     VkResult CopyImageSubresourceDataAccordingToLayoutInfo(const SubresourceLayoutInfo& copy_subresource_info,
-                                                           VkDeviceSize                 image_data_start_capture_time,
-                                                           VkDeviceSize                 image_data_start_replay_time,
-                                                           VkImageType                  imageType,
-                                                           uint32_t                     arrayLayers,
+                                                           VkDeviceSize                 capture_image_data_start,
+                                                           VkDeviceSize                 replay_image_data_start,
+                                                           VkImageType                  image_type,
+                                                           uint32_t                     array_layers,
                                                            VkFormat                     format,
                                                            VkExtent3D                   extent,
                                                            MemoryData                   allocator_data,

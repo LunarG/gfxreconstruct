@@ -321,12 +321,12 @@ VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedDev
 //         whole subresource data.
 //
 //
-// VkDeviceSize image_data_start_capture_time,
+// VkDeviceSize capture_image_data_start,
 //         The copied subresource belong to an image which is in mapped memory, the parameter is the offset of the
 //         image data start which is relative to the mapped memory, and the offset is capture time binding offset
 //         which is got from trace file without any adjustment for replay memory requirement difference.
 //
-// VkDeviceSize image_data_start_replay_time,
+// VkDeviceSize replay_image_data_start,
 //         The copied subresource belongs to an image which is in a mapped memory, the parameter is the offset of
 //         the image data start which is relative to the mapped memory, and the offset is the image replay time
 //         binding offset which is already after adjustment for replay time memory requirement difference.
@@ -349,10 +349,10 @@ VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedDev
 
 VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
     const SubresourceLayoutInfo& copy_subresource_info,
-    VkDeviceSize                 image_data_start_capture_time,
-    VkDeviceSize                 image_data_start_replay_time,
+    VkDeviceSize                 capture_image_data_start,
+    VkDeviceSize                 replay_image_data_start,
     VkImageType                  image_type,
-    uint32_t                     image_arraylayers,
+    uint32_t                     image_array_layers,
     VkFormat                     image_format,
     VkExtent3D                   image_extent,
     MemoryData                   allocator_data,
@@ -361,29 +361,29 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
     const uint8_t*               data)
 {
     VkResult result                  = VK_ERROR_MEMORY_MAP_FAILED;
-    bool     same_subresource_layout = (copy_subresource_info.image_subresource_layout_capture_time.offset ==
-                                    copy_subresource_info.image_subresource_layout_replay_time.offset) &&
-                                   (copy_subresource_info.image_subresource_layout_capture_time.size ==
-                                    copy_subresource_info.image_subresource_layout_replay_time.size) &&
-                                   (copy_subresource_info.image_subresource_layout_capture_time.arrayPitch ==
-                                    copy_subresource_info.image_subresource_layout_replay_time.arrayPitch) &&
-                                   (copy_subresource_info.image_subresource_layout_capture_time.depthPitch ==
-                                    copy_subresource_info.image_subresource_layout_replay_time.depthPitch) &&
-                                   (copy_subresource_info.image_subresource_layout_capture_time.rowPitch ==
-                                    copy_subresource_info.image_subresource_layout_replay_time.rowPitch);
+    bool     same_subresource_layout = (copy_subresource_info.capture_image_subresource_layout.offset ==
+                                    copy_subresource_info.replay_image_subresource_layout.offset) &&
+                                   (copy_subresource_info.capture_image_subresource_layout.size ==
+                                    copy_subresource_info.replay_image_subresource_layout.size) &&
+                                   (copy_subresource_info.capture_image_subresource_layout.arrayPitch ==
+                                    copy_subresource_info.replay_image_subresource_layout.arrayPitch) &&
+                                   (copy_subresource_info.capture_image_subresource_layout.depthPitch ==
+                                    copy_subresource_info.replay_image_subresource_layout.depthPitch) &&
+                                   (copy_subresource_info.capture_image_subresource_layout.rowPitch ==
+                                    copy_subresource_info.replay_image_subresource_layout.rowPitch);
 
     if (same_subresource_layout)
     {
         // The layout for this subresource is same between capture time and replay time. So we don't need to
         // adjust the location of texel data relative to image data start because location and size for this
         // subresource and all texel data layout within the subresource keep same between capture and replay
-        // time. We just need to consider the replay time image data start is image_data_start_replay_time.
+        // time. We just need to consider the replay time image data start is replay_image_data_start.
 
         result = VulkanDefaultAllocator::WriteMappedMemoryRange(
             allocator_data,
-            image_data_start_replay_time + copy_subresource_info.subresource_data_offset,
+            replay_image_data_start + copy_subresource_info.subresource_data_offset,
             copy_subresource_info.subresource_data_size,
-            data + image_data_start_capture_time + copy_subresource_info.subresource_data_offset - offset);
+            data + capture_image_data_start + copy_subresource_info.subresource_data_offset - offset);
     }
     else
     {
@@ -415,17 +415,17 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
         bool         compressed_texel_block_coordinates, padding_location;
 
         VkDeviceSize copyable_row_pitch_memory_size =
-            std::min(copy_subresource_info.image_subresource_layout_capture_time.rowPitch,
-                     copy_subresource_info.image_subresource_layout_replay_time.rowPitch);
+            std::min(copy_subresource_info.capture_image_subresource_layout.rowPitch,
+                     copy_subresource_info.replay_image_subresource_layout.rowPitch);
 
         // This is the subresource data range to be copied, the start and end of the range are capture time offset which
         // is relative to the start of subresource data.
         VkDeviceSize copy_range_limit_start_to_subresource_start =
                          copy_subresource_info.subresource_data_offset -
-                         copy_subresource_info.image_subresource_layout_capture_time.offset,
+                         copy_subresource_info.capture_image_subresource_layout.offset,
                      copy_range_limit_end_to_subresource_start =
                          copy_subresource_info.subresource_data_offset + copy_subresource_info.subresource_data_size -
-                         copy_subresource_info.image_subresource_layout_capture_time.offset;
+                         copy_subresource_info.capture_image_subresource_layout.offset;
 
         // We'll copy the subresource data range to replay time corresponding location from
         // capture_time_row_data_offset_to_subresource_data_start. This is the capture time offset which is relative to
@@ -439,37 +439,37 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
         // In the following handling, we first get the texel coordicates corresponding to the capture time location
         // capture_time_row_data_offset_to_subresource_data_start, then calculate the replay time offset according to
         // the texel coordicates.
-        bool result_capture_time_offset_to_coordinates = gfxrecon::graphics::GetTexelCoordinatesFromOffset(
-            image_type,
-            image_arraylayers,
-            image_format,
-            image_extent,
-            copy_subresource_info.image_subresource_layout_capture_time,
-            capture_time_row_data_offset_to_subresource_data_start,
-            &compressed_texel_block_coordinates,
-            &x,
-            &y,
-            &z,
-            &layer,
-            &offset_in_texel,
-            &padding_location,
-            &current_row_left_size);
+        bool result_capture_time_offset_to_coordinates =
+            gfxrecon::graphics::GetTexelCoordinatesFromOffset(image_type,
+                                                              image_array_layers,
+                                                              image_format,
+                                                              image_extent,
+                                                              copy_subresource_info.capture_image_subresource_layout,
+                                                              capture_time_row_data_offset_to_subresource_data_start,
+                                                              &compressed_texel_block_coordinates,
+                                                              &x,
+                                                              &y,
+                                                              &z,
+                                                              &layer,
+                                                              &offset_in_texel,
+                                                              &padding_location,
+                                                              &current_row_left_size);
 
         VkDeviceSize replay_time_row_data_offset_to_subresource_data_start;
-        bool         result_coordinates_to_replay_time_offset = gfxrecon::graphics::GetOffsetFromTexelCoordinates(
-            image_type,
-            image_arraylayers,
-            image_format,
-            image_extent,
-            copy_subresource_info.image_subresource_layout_replay_time,
-            compressed_texel_block_coordinates,
-            x,
-            y,
-            z,
-            layer,
-            offset_in_texel,
-            padding_location,
-            &replay_time_row_data_offset_to_subresource_data_start);
+        bool         result_coordinates_to_replay_time_offset =
+            gfxrecon::graphics::GetOffsetFromTexelCoordinates(image_type,
+                                                              image_array_layers,
+                                                              image_format,
+                                                              image_extent,
+                                                              copy_subresource_info.replay_image_subresource_layout,
+                                                              compressed_texel_block_coordinates,
+                                                              x,
+                                                              y,
+                                                              z,
+                                                              layer,
+                                                              offset_in_texel,
+                                                              padding_location,
+                                                              &replay_time_row_data_offset_to_subresource_data_start);
 
         bool is_valid_row = result_capture_time_offset_to_coordinates && result_coordinates_to_replay_time_offset;
 
@@ -481,11 +481,10 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
             {
                 result = VulkanDefaultAllocator::WriteMappedMemoryRange(
                     allocator_data,
-                    image_data_start_replay_time + copy_subresource_info.image_subresource_layout_replay_time.offset +
+                    replay_image_data_start + copy_subresource_info.replay_image_subresource_layout.offset +
                         replay_time_row_data_offset_to_subresource_data_start,
                     current_row_left_size,
-                    data + image_data_start_capture_time +
-                        copy_subresource_info.image_subresource_layout_capture_time.offset +
+                    data + capture_image_data_start + copy_subresource_info.capture_image_subresource_layout.offset +
                         capture_time_row_data_offset_to_subresource_data_start - offset);
 
                 if (result != VK_SUCCESS)
@@ -496,7 +495,7 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
             }
 
             is_valid_row = gfxrecon::graphics::NextRowTexelCoordinates(
-                image_type, image_arraylayers, image_format, image_extent, y, z, layer);
+                image_type, image_array_layers, image_format, image_extent, y, z, layer);
 
             if (is_valid_row)
             {
@@ -507,10 +506,10 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
 
                 result_coordinates_to_replay_time_offset = gfxrecon::graphics::GetOffsetFromTexelCoordinates(
                     image_type,
-                    image_arraylayers,
+                    image_array_layers,
                     image_format,
                     image_extent,
-                    copy_subresource_info.image_subresource_layout_replay_time,
+                    copy_subresource_info.replay_image_subresource_layout,
                     compressed_texel_block_coordinates,
                     0,
                     y,
@@ -522,10 +521,10 @@ VkResult VulkanRealignAllocator::CopyImageSubresourceDataAccordingToLayoutInfo(
 
                 result_coordinates_to_capture_time_offset = gfxrecon::graphics::GetOffsetFromTexelCoordinates(
                     image_type,
-                    image_arraylayers,
+                    image_array_layers,
                     image_format,
                     image_extent,
-                    copy_subresource_info.image_subresource_layout_capture_time,
+                    copy_subresource_info.capture_image_subresource_layout,
                     compressed_texel_block_coordinates,
                     0,
                     y,
@@ -761,21 +760,21 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                     // During capture-time, target application updates a mapped memory range (offset, size) with
                     // a data block (data, size). Assume there's an image for which its image data is located within
                     // (the case for partly overlapping is same) the range (offset,size), the image data range is
-                    // (imgae_data_capture_time_start, image_data_capture_time_size). Note it's the offset
-                    // relative to mapped memory start for imgae_data_capture_time_start.
+                    // (capture_image_data_start, capture_image_data_size). Note it's the offset
+                    // relative to mapped memory start for capture_image_data_start.
                     //
                     // If without considering any memory requirement change, we can assume the image data range
                     // will keep same as capture_time. If considering the memory requirement change, we know
                     // that the binding offset for resource may have some change, assume the replay-time image
-                    // data range for the image is (imgae_data_replay_time_start,
-                    // image_data_replay_time_size), note it's the offset relative to mapped memory start for
-                    // imgae_data_replay_time_start.
+                    // data range for the image is (replay_image_data_start,
+                    // replay_image_data_size), note it's the offset relative to mapped memory start for
+                    // replay_image_data_start.
                     //
                     // So far, we only considered memory requirement change, let's further consider the
                     // subresource layout change. For the image. Image may have lots of subresource, assume one
-                    // of them located at (subresource_capture_time_start,
-                    // subresource_capture_time-size), during replay-time, the range is
-                    // (subresource_replay_time_start, subresource_replay_time-size), please note, the
+                    // of them located at (capture_subresource_start,
+                    // capture_subresource_size), during replay-time, the range is
+                    // (replay_subresource_start, replay_subresource_size), please note, the
                     // offset here is relative to image data start, not relative to memory start.
                     //
                     // So far, we considered offset/size change with subresource layout, that's not enough
@@ -795,11 +794,10 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                     // very possible that the captured mapped memory range only include part of image data or
                     // part of subresource data, the case is also included in the following handling.
 
-                    // imgae_data_capture_time_start and imgae_data_capture_time_end is the offset relative to
+                    // capture_image_data_start and capture_image_data_end is the offset relative to
                     // memory start and the range is the whole data range of the image.
-                    VkDeviceSize imgae_data_capture_time_start = entry->GetTraceBindOffset();
-                    VkDeviceSize imgae_data_capture_time_end =
-                        entry->GetTraceBindOffset() + entry->GetTraceResourceSize();
+                    VkDeviceSize capture_image_data_start = entry->GetTraceBindOffset();
+                    VkDeviceSize capture_image_data_end   = entry->GetTraceBindOffset() + entry->GetTraceResourceSize();
 
                     // copy_data_start and copy_data_end is the offset relative to memory start and the range
                     // define the aera the mapped memory data to be copied. Note, the image data could be
@@ -810,11 +808,10 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
 
                     // Get the copy destination offset which is relative to memory start. This is the replay
                     // time location which is adjusted according to replay time image/buffer memory requirement.
-                    VkDeviceSize imgae_data_replay_time_start = entry->GetReplayBindOffset();
+                    VkDeviceSize replay_image_data_start = entry->GetReplayBindOffset();
 
                     // Ignore the image that is outside the copy range.
-                    if ((copy_data_start >= imgae_data_capture_time_end) ||
-                        (imgae_data_capture_time_start >= copy_data_end))
+                    if ((copy_data_start >= capture_image_data_end) || (capture_image_data_start >= copy_data_end))
                     {
                         continue;
                     }
@@ -822,14 +819,14 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                     // The image copy data range (image_copy_data_start, image_copy_data_size) is the data of this
                     // image within the memory range (offset, size). Note: the range may be full or part data of the
                     // image.
-                    uint64_t image_copy_data_start = std::max(copy_data_start, imgae_data_capture_time_start);
+                    uint64_t image_copy_data_start = std::max(copy_data_start, capture_image_data_start);
                     uint64_t image_copy_data_size =
-                        std::min(copy_data_end, imgae_data_capture_time_end) - image_copy_data_start;
+                        std::min(copy_data_end, capture_image_data_end) - image_copy_data_start;
 
-                    // Get the offset of image_copy_data_start which is relative to imgae_data_capture_time_start,
+                    // Get the offset of image_copy_data_start which is relative to capture_image_data_start,
                     // it should be zero if the image copy data range is from beginning of whole image data.
                     VkDeviceSize image_copy_data_start_offset_to_image_start =
-                        image_copy_data_start - imgae_data_capture_time_start;
+                        image_copy_data_start - capture_image_data_start;
 
                     // Search and get all subresources which is inside or overlapped with the image copy data range
                     // (image_copy_data_start, image_copy_data_size)
@@ -843,8 +840,8 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                         {
                             result =
                                 CopyImageSubresourceDataAccordingToLayoutInfo(copy_subresource_info,
-                                                                              imgae_data_capture_time_start,
-                                                                              imgae_data_replay_time_start,
+                                                                              capture_image_data_start,
+                                                                              replay_image_data_start,
                                                                               entry->GetImageCreateInfo().imageType,
                                                                               entry->GetImageCreateInfo().arrayLayers,
                                                                               entry->GetImageCreateInfo().format,
