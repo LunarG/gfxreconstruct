@@ -194,6 +194,16 @@ class VulkanReplayDumpResourcesBase
                             uint32_t                                                       height,
                             uint32_t                                                       depth);
 
+    void OverrideCmdTraceRaysIndirectKHR(
+        const ApiCallInfo&                                             call_info,
+        PFN_vkCmdTraceRaysIndirectKHR                                  func,
+        VkCommandBuffer                                                original_command_buffer,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+        StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+        VkDeviceAddress                                                indirectDeviceAddress);
+
     void OverrideCmdBindDescriptorSets(const ApiCallInfo&          call_info,
                                        PFN_vkCmdBindDescriptorSets func,
                                        VkCommandBuffer             original_command_buffer,

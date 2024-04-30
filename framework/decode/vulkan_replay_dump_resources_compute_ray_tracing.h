@@ -93,6 +93,13 @@ class DispatchTraceRaysDumpingContext
                                       uint32_t                               height,
                                       uint32_t                               depth);
 
+    void InsertNewTraceRaysIndirectParameters(uint64_t                               index,
+                                              const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+                                              const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+                                              const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+                                              const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+                                              VkDeviceAddress                        indirectDeviceAddress);
+
     VkResult CloneDispatchMutableResources(uint64_t index, bool cloning_before_cmd);
 
     VkResult CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd);
@@ -102,6 +109,8 @@ class DispatchTraceRaysDumpingContext
     void SnapshotBoundDescriptorsTraceRays(uint64_t index);
 
     VkResult CopyDispatchIndirectParameters(uint64_t index);
+
+    VkResult CopyTraceRaysIndirectParameters(uint64_t index);
 
     void Release();
 
@@ -358,8 +367,12 @@ class DispatchTraceRaysDumpingContext
 
             struct TraceRaysIndirect
             {
-                const BufferInfo* params_buffer_info;
-                VkDeviceSize      params_buffer_offset;
+                VkDeviceAddress indirect_device_address;
+                VkBuffer        buffer_on_device_address;
+                VkDeviceMemory  buffer_on_device_address_memory;
+                VkBuffer        new_params_buffer;
+
+                VkDeviceMemory new_params_buffer_memory;
 
                 TraceRaysParams trace_rays_params;
             };
@@ -369,8 +382,9 @@ class DispatchTraceRaysDumpingContext
             TraceRaysParamsUnion(uint32_t width, uint32_t height, uint32_t depth) : trace_rays{ width, height, depth }
             {}
 
-            TraceRaysParamsUnion(const BufferInfo* params_buffer_info, VkDeviceSize params_buffer_offset) :
-                trace_rays_indirect{ params_buffer_info, params_buffer_offset }
+            TraceRaysParamsUnion(VkDeviceAddress indirect_device_address) :
+                trace_rays_indirect{ indirect_device_address, VK_NULL_HANDLE, VK_NULL_HANDLE,
+                                     VK_NULL_HANDLE,          VK_NULL_HANDLE, { 0 } }
             {}
         } trace_rays_params_union;
 
@@ -388,6 +402,20 @@ class DispatchTraceRaysDumpingContext
             pCallableShaderBindingTable(pCallableShaderBindingTable)
         {
             assert(type == kTraceRays);
+        }
+
+        TraceRaysParameters(TraceRaysTypes                         type,
+                            const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+                            const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+                            const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+                            const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+                            VkDeviceAddress                        indirectDeviceAddress) :
+            trace_rays_params_union(indirectDeviceAddress),
+            type(type), pRaygenShaderBindingTable(pRaygenShaderBindingTable),
+            pMissShaderBindingTable(pMissShaderBindingTable), pHitShaderBindingTable(pHitShaderBindingTable),
+            pCallableShaderBindingTable(pCallableShaderBindingTable)
+        {
+            assert(type == kTraceRaysIndirect);
         }
 
         TraceRaysTypes                         type;
@@ -418,6 +446,7 @@ class DispatchTraceRaysDumpingContext
     std::unordered_map<uint64_t, TraceRaysParameters> trace_rays_params;
 
     const encode::VulkanDeviceTable*        device_table;
+    VkDevice parent_device;
     const encode::VulkanInstanceTable*      instance_table;
     VulkanObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;

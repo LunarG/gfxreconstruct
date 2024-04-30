@@ -766,5 +766,70 @@ std::string IndexTypeToStr(VkIndexType type)
     return index_type_name;
 }
 
+VkResult CreateVkBuffer(VkDeviceSize                            size,
+                        const encode::VulkanDeviceTable*        device_table,
+                        VkDevice                                parent_device,
+                        VkBaseInStructure*                      pNext,
+                        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
+                        VkBuffer*                               new_buffer,
+                        VkDeviceMemory*                         new_memory)
+{
+    assert(size);
+    assert(device_table != nullptr);
+    assert(new_buffer != nullptr);
+    assert(new_memory != nullptr);
+    assert(parent_device != VK_NULL_HANDLE);
+    assert(replay_device_phys_mem_props);
+
+    VkBufferCreateInfo bci;
+    bci.sType                 = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bci.pNext                 = pNext;
+    bci.flags                 = 0;
+    bci.size                  = size;
+    bci.usage                 = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    bci.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
+    bci.queueFamilyIndexCount = 0;
+    bci.pQueueFamilyIndices   = nullptr;
+
+    VkResult res = device_table->CreateBuffer(parent_device, &bci, nullptr, new_buffer);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s(): CreateBuffer failed with: %s", __func__, util::ToString<VkResult>(res).c_str());
+        return res;
+    }
+
+    VkMemoryRequirements mem_reqs       = {};
+    VkMemoryAllocateInfo mem_alloc_info = { VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO, nullptr };
+
+    device_table->GetBufferMemoryRequirements(parent_device, *new_buffer, &mem_reqs);
+    mem_alloc_info.allocationSize = mem_reqs.size;
+
+    uint32_t mem_index =
+        GetMemoryTypeIndex(*replay_device_phys_mem_props, mem_reqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if (mem_index == std::numeric_limits<uint32_t>::max())
+    {
+        GFXRECON_LOG_ERROR("%s()%u failed to find an appropriate memory type", __func__, __LINE__);
+        return VK_ERROR_INITIALIZATION_FAILED;
+    }
+
+    mem_alloc_info.memoryTypeIndex = mem_index;
+
+    res = device_table->AllocateMemory(parent_device, &mem_alloc_info, nullptr, new_memory);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s(): AllocateMemory failed with %s", __func__, util::ToString<VkResult>(res).c_str());
+        return res;
+    }
+
+    res = device_table->BindBufferMemory(parent_device, *new_buffer, *new_memory, 0);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s(): BindBufferMemory failed with %s", __func__, util::ToString<VkResult>(res).c_str());
+        return res;
+    }
+
+    return VK_SUCCESS;
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
