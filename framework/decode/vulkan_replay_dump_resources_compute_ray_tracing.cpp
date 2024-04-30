@@ -276,10 +276,39 @@ bool DispatchTraceRaysDumpingContext::MustDumpTraceRays(uint64_t index) const
     return false;
 }
 
-void DispatchTraceRaysDumpingContext::CopyBufferResource(const BufferInfo* src_buffer_info, VkBuffer dst_buffer)
+void DispatchTraceRaysDumpingContext::CopyBufferResource(const BufferInfo* src_buffer_info,
+                                                         VkDeviceSize      offset,
+                                                         VkDeviceSize      range,
+                                                         VkBuffer          dst_buffer)
 {
     assert(src_buffer_info);
     assert(dst_buffer != VK_NULL_HANDLE);
+
+    VkBufferMemoryBarrier buf_barrier;
+    buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+    buf_barrier.pNext               = nullptr;
+    buf_barrier.srcAccessMask       = VK_ACCESS_MEMORY_WRITE_BIT;
+    buf_barrier.dstAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+    buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    buf_barrier.buffer              = src_buffer_info->handle;
+    buf_barrier.offset              = offset;
+    buf_barrier.size                = range;
+
+    assert(device_table != nullptr);
+    device_table->CmdPipelineBarrier(DR_command_buffer,
+                                     VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VkDependencyFlags(0),
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &buf_barrier,
+                                     0,
+                                     nullptr);
+
+    VkBufferCopy region = { offset, 0, range };
+    device_table->CmdCopyBuffer(DR_command_buffer, src_buffer_info->handle, dst_buffer, 1, &region);
 }
 
 void DispatchTraceRaysDumpingContext::CopyImageResource(const ImageInfo* src_image_info, VkImage dst_image)
@@ -547,7 +576,7 @@ VkResult DispatchTraceRaysDumpingContext::CloneMutableResources(MutableResources
                                     return res;
                                 }
 
-                                CopyBufferResource(buf_info, new_entry.buffer);
+                                CopyBufferResource(buf_info, buf_desc.offset, buf_desc.range, new_entry.buffer);
                             }
                         }
                         break;
