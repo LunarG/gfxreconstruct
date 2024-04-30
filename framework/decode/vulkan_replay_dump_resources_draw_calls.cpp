@@ -22,8 +22,10 @@
 
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
+#include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format.h"
 #include "graphics/vulkan_resources_util.h"
+#include "nlohmann/json.hpp"
 #include "util/image_writer.h"
 #include "util/buffer_writer.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
@@ -867,8 +869,7 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilen
 
     for (size_t i = 0; i < aspects.size(); ++i)
     {
-        std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspects[i]));
-        std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
+        std::string aspect_str = ImageAspectToStr(aspects[i]);
         std::string attachment_str =
             attachment_index != DEPTH_ATTACHMENT ? "_att_" + std::to_string(attachment_index) : "_depth_att";
 
@@ -1146,29 +1147,20 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
         // Emit in json output the references to dumped immutable descriptors
         if (dump_immutable_resources)
         {
-            auto&       descriptors_json_entry = draw_call_entry["descriptors"];
-            const auto& dc_param_entry         = draw_call_params.find(dc_index);
+            const auto& dc_param_entry = draw_call_params.find(dc_index);
             assert(dc_param_entry != draw_call_params.end());
             if (dc_param_entry != draw_call_params.end())
             {
                 const DrawCallParameters& dc_param = dc_param_entry->second;
                 for (const auto& shader_stage : dc_param.referenced_descriptors)
                 {
-                    uint32_t          stage_entry_index = 0;
-                    const std::string shader_stage_name = ShaderStageToStr(shader_stage.first);
-
-                    auto& desc_shader_stage_json_entry = descriptors_json_entry[shader_stage_name];
-
+                    uint32_t stage_entry_index = 0;
                     for (const auto& desc_set : shader_stage.second)
                     {
                         const uint32_t desc_set_index = desc_set.first;
-
                         for (const auto& desc_binding : desc_set.second)
                         {
-                            auto& desc_shader_binding_json_entry = desc_shader_stage_json_entry[stage_entry_index];
-
                             const uint32_t desc_set_binding_index = desc_binding.first;
-
                             switch (desc_binding.second.desc_type)
                             {
                                 case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1180,6 +1172,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                     {
                                         if (desc_binding.second.image_info[img].image_view_info != nullptr)
                                         {
+                                            auto& desc_shader_stage_json_entry =
+                                                draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
+                                            auto& desc_shader_binding_json_entry =
+                                                desc_shader_stage_json_entry[stage_entry_index++];
+
                                             desc_shader_binding_json_entry["type"] =
                                                 util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
                                             desc_shader_binding_json_entry["set"]        = desc_set_index;
@@ -1203,8 +1200,6 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                                 filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                                                 dump_json.InsertImageInfo(
                                                     image_descriptor_json_entry[f], img_info, filenames[f], aspects[f]);
-
-                                                ++stage_entry_index;
                                             }
                                         }
                                     }
@@ -1223,6 +1218,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                         const BufferInfo* buf_info = desc_binding.second.buffer_info[buf].buffer_info;
                                         if (buf_info != nullptr)
                                         {
+                                            auto& desc_shader_stage_json_entry =
+                                                draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
+                                            auto& desc_shader_binding_json_entry =
+                                                desc_shader_stage_json_entry[stage_entry_index++];
+
                                             desc_shader_binding_json_entry["type"] =
                                                 util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
                                             desc_shader_binding_json_entry["set"]        = desc_set_index;
@@ -1235,8 +1235,6 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                                 desc_shader_binding_json_entry["descriptor"];
                                             dump_json.InsertBufferInfo(
                                                 buffer_descriptor_json_entry, buf_info, filename);
-
-                                            ++stage_entry_index;
                                         }
                                     }
                                 }
@@ -1244,8 +1242,10 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
 
                                 case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                                 {
-                                    const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
-                                        qs_index, bcb_index, desc_set_index, desc_set_binding_index);
+                                    auto& desc_shader_stage_json_entry =
+                                        draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
+                                    auto& desc_shader_binding_json_entry =
+                                        desc_shader_stage_json_entry[stage_entry_index++];
 
                                     desc_shader_binding_json_entry["type"] =
                                         util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
@@ -1253,9 +1253,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, 
                                     desc_shader_binding_json_entry["binding"] = desc_set_binding_index;
                                     desc_shader_binding_json_entry["size"] =
                                         desc_binding.second.inline_uniform_block.size();
-                                    desc_shader_binding_json_entry["file"] = filename;
-
-                                    ++stage_entry_index;
+                                    desc_shader_binding_json_entry["file"] =
+                                        GenerateInlineUniformBufferDescriptorFilename(
+                                            qs_index, bcb_index, desc_set_index, desc_set_binding_index);
                                 }
                                 break;
 
@@ -1522,8 +1522,7 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilenam
     uint32_t f = 0;
     for (size_t i = 0; i < aspects.size(); ++i)
     {
-        std::string       aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspects[i]));
-        std::string       aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
+        std::string       aspect_str = ImageAspectToStr(aspects[i]);
         std::stringstream base_filename;
 
         const util::imagewriter::DataFormats output_format = VkFormatToImageWriterDataFormat(img_info->format);
@@ -1620,14 +1619,12 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
     {
         for (const auto& shader_stage : dc_params.second.referenced_descriptors)
         {
-            const VkShaderStageFlagBits stage = shader_stage.first;
             for (const auto& desc_set : shader_stage.second)
             {
                 const uint32_t desc_set_index = desc_set.first;
                 for (const auto& desc_binding : desc_set.second)
                 {
                     const uint32_t desc_binding_index = desc_binding.first;
-
                     switch (desc_binding.second.desc_type)
                     {
                         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1768,11 +1765,9 @@ std::string DrawCallsDumpingContext::GenerateIndexBufferFilename(uint64_t    qs_
                                                                  VkIndexType type) const
 {
     std::stringstream filename;
-
-    std::string index_type_name_whole = util::ToString<VkIndexType>(type);
-    std::string index_type_name(index_type_name_whole.begin() + 13, index_type_name_whole.end());
+    std::string       index_type_name = IndexTypeToStr(type);
     filename << "IndexBuffer_"
-             << "qs_" << qs_index << "_bcb_" << bcb_index << "_bvb_" << bind_index_buffer_index << index_type_name
+             << "qs_" << qs_index << "_bcb_" << bcb_index << "_bib_" << bind_index_buffer_index << index_type_name
              << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
@@ -1788,7 +1783,7 @@ std::string DrawCallsDumpingContext::GenerateVertexBufferFilename(uint64_t qs_in
     std::stringstream filename;
 
     filename << "VertexBuffers_"
-             << "qs_" << qs_index << "_bcb_" << bcb_index << "_bib_" << bind_vertex_buffer_index << "_binding_"
+             << "qs_" << qs_index << "_bcb_" << bcb_index << "_bvb_" << bind_vertex_buffer_index << "_binding_"
              << binding << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);

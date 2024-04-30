@@ -803,10 +803,9 @@ DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilename(VkFormat
     uint32_t f = 0;
     for (size_t a = 0; a < aspects.size(); ++a)
     {
-        std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspects[a]));
-        std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
-
+        std::string       aspect_str = ImageAspectToStr(aspects[a]);
         std::stringstream filename;
+
         if (before_cmd)
         {
             filename << (is_dispatch ? "Dispatch_" : "TraceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
@@ -1198,8 +1197,7 @@ std::vector<std::string> DispatchTraceRaysDumpingContext::GenerateImageDescripto
     uint32_t f = 0;
     for (size_t i = 0; i < aspects.size(); ++i)
     {
-        std::string       aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspects[i]));
-        std::string       aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
+        std::string       aspect_str = ImageAspectToStr(aspects[i]);
         std::stringstream base_filename;
 
         if (VkFormatToImageWriterDataFormat(img_info->format) != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
@@ -1209,9 +1207,7 @@ std::vector<std::string> DispatchTraceRaysDumpingContext::GenerateImageDescripto
         }
         else
         {
-            std::string whole_format_name = util::ToString<VkFormat>(img_info->format);
-            std::string format_name(whole_format_name.begin() + 10, whole_format_name.end());
-
+            std::string format_name = FormatToStr(img_info->format);
             base_filename << "Image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_"
                           << format_name << "_aspect_" << aspect_str;
         }
@@ -1682,12 +1678,10 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
         if (dump_resources_before)
         {
-            auto&       before_command_output_entries = outputs_json_entries["before"];
             const auto& mutable_resource_entry_before = disp_params.second.mutable_resources_clones_before;
-
             if (!mutable_resource_entry_before.images.empty())
             {
-                auto&    before_command_output_image_entries = before_command_output_entries["images"];
+                auto&    before_command_output_image_entries = outputs_json_entries["before"]["images"];
                 uint32_t output_image_index                  = 0;
 
                 for (const auto& image : mutable_resource_entry_before.images)
@@ -1734,7 +1728,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
             if (!mutable_resource_entry_before.buffers.empty())
             {
-                auto&    before_command_output_buffer_entries = before_command_output_entries["buffers"];
+                auto&    before_command_output_buffer_entries = outputs_json_entries["before"]["buffers"];
                 uint32_t output_buffer_index                  = 0;
 
                 for (const auto& buffer : mutable_resource_entry_before.buffers)
@@ -1760,13 +1754,13 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
         }
 
         const auto& mutable_resource_entry = disp_params.second.mutable_resources_clones;
-        auto& outputs_json_entries_after = dump_resources_before ? outputs_json_entries["after"] : outputs_json_entries;
-
         if (!mutable_resource_entry.images.empty())
         {
-            uint32_t mutable_images_count       = 0;
-            auto&    image_outputs_json_entries = outputs_json_entries_after["images"];
+            auto& outputs_json_entries_after =
+                dump_resources_before ? outputs_json_entries["after"] : outputs_json_entries;
+            auto& image_outputs_json_entries = outputs_json_entries_after["images"];
 
+            uint32_t mutable_images_count = 0;
             for (const auto& image : mutable_resource_entry.images)
             {
                 const uint32_t              desc_set    = image.desc_set;
@@ -1811,9 +1805,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
         if (!mutable_resource_entry.buffers.empty())
         {
-            uint32_t mutable_buffers_count       = 0;
-            auto&    buffer_outputs_json_entries = outputs_json_entries_after["buffers"];
+            auto& outputs_json_entries_after =
+                dump_resources_before ? outputs_json_entries["after"] : outputs_json_entries;
+            auto& buffer_outputs_json_entries = outputs_json_entries_after["buffers"];
 
+            uint32_t mutable_buffers_count = 0;
             for (const auto& buffer : mutable_resource_entry.buffers)
             {
                 const uint32_t              desc_set    = buffer.desc_set;
@@ -1837,16 +1833,13 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
         if (dump_immutable_resources)
         {
-            auto&    descriptor_entries       = dispatch_entry["descriptors"];
             uint32_t descriptor_entries_count = 0;
             for (const auto& desc_set : disp_params.second.referenced_descriptors)
             {
                 const uint32_t desc_set_index = desc_set.first;
-
                 for (const auto& desc_binding : desc_set.second)
                 {
                     const uint32_t desc_binding_index = desc_binding.first;
-
                     switch (desc_binding.second.desc_type)
                     {
                         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -1858,11 +1851,12 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                             {
                                 if (desc_binding.second.image_info[i].image_view_info != nullptr)
                                 {
-                                    descriptor_entries[descriptor_entries_count]["type"] =
-                                        util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                    descriptor_entries[descriptor_entries_count]["set"]        = desc_set_index;
-                                    descriptor_entries[descriptor_entries_count]["binding"]    = desc_binding_index;
-                                    descriptor_entries[descriptor_entries_count]["arrayIndex"] = i;
+                                    auto& entry = dispatch_entry["descriptors"][descriptor_entries_count++];
+
+                                    entry["type"]    = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
+                                    entry["set"]     = desc_set_index;
+                                    entry["binding"] = desc_binding_index;
+                                    entry["arrayIndex"] = i;
 
                                     const ImageInfo* img_info = object_info_table.GetImageInfo(
                                         desc_binding.second.image_info[i].image_view_info->image_id);
@@ -1876,13 +1870,10 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
                                     for (size_t f = 0; f < filenames.size(); ++f)
                                     {
-                                        auto& image_descriptor_json_entry =
-                                            descriptor_entries[descriptor_entries_count]["descriptor"];
+                                        auto& image_descriptor_json_entry = entry["descriptor"];
                                         filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                                         dump_json.InsertImageInfo(
                                             image_descriptor_json_entry, img_info, filenames[f], aspects[f]);
-
-                                        ++descriptor_entries_count;
                                     }
                                 }
                             }
@@ -1900,14 +1891,14 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                             {
                                 if (desc_binding.second.buffer_info[i].buffer_info != nullptr)
                                 {
-                                    descriptor_entries[descriptor_entries_count]["type"] =
-                                        util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                    descriptor_entries[descriptor_entries_count]["set"]        = desc_set_index;
-                                    descriptor_entries[descriptor_entries_count]["binding"]    = desc_binding_index;
-                                    descriptor_entries[descriptor_entries_count]["arrayIndex"] = i;
+                                    auto& entry = dispatch_entry["descriptors"][descriptor_entries_count++];
 
-                                    auto& buffer_descriptor_json_entry =
-                                        descriptor_entries[descriptor_entries_count]["descriptor"];
+                                    entry["type"]    = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
+                                    entry["set"]     = desc_set_index;
+                                    entry["binding"] = desc_binding_index;
+                                    entry["arrayIndex"] = i;
+
+                                    auto& buffer_descriptor_json_entry = entry["descriptor"];
 
                                     const std::string filename = GenerateBufferDescriptorFilename(
                                         qs_index,
@@ -1916,7 +1907,6 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                     dump_json.InsertBufferInfo(buffer_descriptor_json_entry,
                                                                desc_binding.second.buffer_info[i].buffer_info,
                                                                filename);
-                                    ++descriptor_entries_count;
                                 }
                             }
                         }
@@ -1928,17 +1918,16 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
                         case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                         {
-                            descriptor_entries[descriptor_entries_count]["type"] =
-                                util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                            descriptor_entries[descriptor_entries_count]["set"]     = desc_set_index;
-                            descriptor_entries[descriptor_entries_count]["binding"] = desc_binding_index;
-                            descriptor_entries[descriptor_entries_count]["size"] =
-                                desc_binding.second.inline_uniform_block.size();
+                            auto& entry = dispatch_entry["descriptors"][descriptor_entries_count++];
+
+                            entry["type"]    = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
+                            entry["set"]     = desc_set_index;
+                            entry["binding"] = desc_binding_index;
+                            entry["size"]    = desc_binding.second.inline_uniform_block.size();
 
                             const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
                                 qs_index, bcb_index, desc_set_index, desc_binding_index);
-                            descriptor_entries[descriptor_entries_count]["file"] = filename;
-                            ++descriptor_entries_count;
+                            entry["file"] = filename;
                         }
                         break;
 
@@ -2001,12 +1990,10 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
         if (dump_resources_before)
         {
-            auto&       before_command_output_entries = outputs_json_entries["before"];
             const auto& mutable_resource_entry_before = tr_params.second.mutable_resources_clones_before;
-
             if (!mutable_resource_entry_before.images.empty())
             {
-                auto&    before_command_output_image_entries = before_command_output_entries["images"];
+                auto&    before_command_output_image_entries = outputs_json_entries["before"]["images"];
                 uint32_t output_image_index                  = 0;
 
                 for (const auto& image : mutable_resource_entry_before.images)
@@ -2053,7 +2040,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
             if (!mutable_resource_entry_before.buffers.empty())
             {
-                auto&    before_command_output_buffer_entries = before_command_output_entries["buffers"];
+                auto&    before_command_output_buffer_entries = outputs_json_entries["before"]["buffers"];
                 uint32_t output_buffer_index                  = 0;
 
                 for (const auto& buffer : mutable_resource_entry_before.buffers)
@@ -2083,9 +2070,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
         if (!mutable_resource_entry.images.empty())
         {
-            uint32_t mutable_images_count       = 0;
-            auto&    image_outputs_json_entries = outputs_json_entries_after["images"];
-
+            uint32_t mutable_images_count = 0;
             for (const auto& image : mutable_resource_entry.images)
             {
                 const uint32_t              desc_set    = image.desc_set;
@@ -2113,7 +2098,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                 std::vector<VkImageAspectFlagBits> aspects;
                 graphics::GetFormatAspects(img_info->format, &aspects);
 
-                auto& image_json_entry         = image_outputs_json_entries[mutable_images_count++];
+                auto& image_json_entry         = outputs_json_entries_after["images"][mutable_images_count++];
                 image_json_entry["type"]       = util::ToString<VkDescriptorType>(image.desc_type);
                 image_json_entry["set"]        = desc_set;
                 image_json_entry["binding"]    = binding;
@@ -2130,9 +2115,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
         if (!mutable_resource_entry.buffers.empty())
         {
-            uint32_t mutable_buffers_count       = 0;
-            auto&    buffer_outputs_json_entries = outputs_json_entries_after["buffers"];
-
+            uint32_t mutable_buffers_count = 0;
             for (const auto& buffer : mutable_resource_entry.buffers)
             {
                 const uint32_t              desc_set    = buffer.desc_set;
@@ -2145,7 +2128,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                 std::string filename = GenerateDispatchTraceRaysBufferFilename(
                     false, qs_index, bcb_index, cmd_index, desc_set, binding, array_index, stage, false);
 
-                auto& buffer_json_entry         = buffer_outputs_json_entries[mutable_buffers_count++];
+                auto& buffer_json_entry         = outputs_json_entries_after["buffers"][mutable_buffers_count++];
                 buffer_json_entry["type"]       = util::ToString<VkDescriptorType>(buffer.desc_type);
                 buffer_json_entry["set"]        = desc_set;
                 buffer_json_entry["binding"]    = binding;
@@ -2156,15 +2139,10 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
         if (dump_immutable_resources)
         {
-            auto& descriptor_entries = tr_entry["descriptors"];
             for (const auto& shader_stage : tr_params.second.referenced_descriptors)
             {
-                uint32_t stage_entry_index = 0;
-
+                uint32_t          stage_entry_index = 0;
                 const std::string shader_stage_name = ShaderStageToStr(shader_stage.first);
-
-                auto& desc_shader_stage_json_entry = descriptor_entries[shader_stage_name];
-
                 for (const auto& desc_set : shader_stage.second)
                 {
                     const uint32_t desc_set_index = desc_set.first;
@@ -2184,17 +2162,16 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                 {
                                     if (desc_binding.second.image_info[img].image_view_info != nullptr)
                                     {
-                                        auto& desc_json_entry = desc_shader_stage_json_entry[stage_entry_index];
+                                        auto& entry = tr_entry["descriptors"][shader_stage_name][stage_entry_index++];
 
                                         const ImageInfo* img_info = object_info_table.GetImageInfo(
                                             desc_binding.second.image_info[img].image_view_info->image_id);
                                         assert(img_info);
 
-                                        desc_json_entry["type"] =
-                                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                        desc_json_entry["set"]        = desc_set_index;
-                                        desc_json_entry["binding"]    = desc_binding_index;
-                                        desc_json_entry["arrayIndex"] = img;
+                                        entry["type"] = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
+                                        entry["set"]  = desc_set_index;
+                                        entry["binding"]    = desc_binding_index;
+                                        entry["arrayIndex"] = img;
 
                                         std::vector filenames =
                                             GenerateImageDescriptorFilename(qs_index, bcb_index, img_info);
@@ -2204,11 +2181,9 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                         for (size_t f = 0; f < filenames.size(); ++f)
                                         {
                                             filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                                            auto& image_descriptor_json_entry = desc_json_entry["descriptor"];
+                                            auto& image_descriptor_json_entry = entry["descriptor"];
                                             dump_json.InsertImageInfo(
                                                 image_descriptor_json_entry[f], img_info, filenames[f], aspects[f]);
-
-                                            ++stage_entry_index;
                                         }
                                     }
                                 }
@@ -2226,24 +2201,21 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                 {
                                     if (desc_binding.second.buffer_info[i].buffer_info != nullptr)
                                     {
-                                        auto& desc_json_entry = desc_shader_stage_json_entry[stage_entry_index];
+                                        auto& entry = tr_entry["descriptors"][shader_stage_name][stage_entry_index++];
 
-                                        desc_json_entry["type"] =
-                                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                        desc_json_entry["set"]        = desc_set_index;
-                                        desc_json_entry["binding"]    = desc_binding_index;
-                                        desc_json_entry["arrayIndex"] = i;
+                                        entry["type"] = util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
+                                        entry["set"]  = desc_set_index;
+                                        entry["binding"]    = desc_binding_index;
+                                        entry["arrayIndex"] = i;
 
                                         const std::string filename = GenerateBufferDescriptorFilename(
                                             qs_index,
                                             bcb_index,
                                             desc_binding.second.buffer_info[i].buffer_info->capture_id);
-                                        auto& buffer_descriptor_json_entry = desc_json_entry["descriptor"];
+                                        auto& buffer_descriptor_json_entry = entry["descriptor"];
                                         dump_json.InsertBufferInfo(buffer_descriptor_json_entry,
                                                                    desc_binding.second.buffer_info[i].buffer_info,
                                                                    filename);
-
-                                        ++stage_entry_index;
                                     }
                                 }
                             }
@@ -2251,7 +2223,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
 
                             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                             {
-                                auto& desc_json_entry = desc_shader_stage_json_entry[stage_entry_index];
+                                auto& desc_json_entry = tr_entry["descriptors"][shader_stage_name][stage_entry_index++];
 
                                 const std::string filename = GenerateInlineUniformBufferDescriptorFilename(
                                     qs_index, bcb_index, desc_set_index, desc_binding_index);
@@ -2262,8 +2234,6 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                 desc_json_entry["binding"] = desc_binding_index;
                                 desc_json_entry["size"]    = desc_binding.second.inline_uniform_block.size();
                                 desc_json_entry["file"]    = filename;
-
-                                ++stage_entry_index;
                             }
                             break;
 
