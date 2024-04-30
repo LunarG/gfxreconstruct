@@ -106,6 +106,12 @@ bool CheckDescriptorCompatibility(VkDescriptorType desc_type_a, VkDescriptorType
 
 std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage);
 
+std::string ImageAspectToStr(VkImageAspectFlagBits aspect);
+
+std::string FormatToStr(VkFormat format);
+
+std::string IndexTypeToStr(VkIndexType type);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

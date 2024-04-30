@@ -718,14 +718,52 @@ std::string ShaderStageToStr(VkShaderStageFlagBits shader_stage)
     std::string       shader_stage_name;
     if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 4, 4, "_BIT"))
     {
-        shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 14);
+        shader_stage_name = shader_stage_name_whole.substr(16, shader_stage_name_whole.size() - 20);
     }
     else if (!shader_stage_name_whole.compare(shader_stage_name_whole.size() - 8, 8, "_BIT_KHR"))
     {
-        shader_stage_name = shader_stage_name_whole.substr(10, shader_stage_name_whole.size() - 18);
+        shader_stage_name = shader_stage_name_whole.substr(16, shader_stage_name_whole.size() - 24);
     }
 
+    std::transform(shader_stage_name.begin(), shader_stage_name.end(), shader_stage_name.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+
     return shader_stage_name;
+}
+
+std::string ImageAspectToStr(VkImageAspectFlagBits aspect)
+{
+    std::string aspect_str_whole(util::ToString<VkImageAspectFlagBits>(aspect));
+    std::string aspect_str(aspect_str_whole.begin() + 16, aspect_str_whole.end() - 4);
+
+    std::transform(
+        aspect_str.begin(), aspect_str.end(), aspect_str.begin(), [](unsigned char c) { return std::tolower(c); });
+
+    return aspect_str;
+}
+
+std::string FormatToStr(VkFormat format)
+{
+    std::string whole_format_name = util::ToString<VkFormat>(format);
+    std::string format_name(whole_format_name.begin() + 10, whole_format_name.end());
+
+    std::transform(
+        format_name.begin(), format_name.end(), format_name.begin(), [](unsigned char c) { return std::tolower(c); });
+
+    return format_name;
+}
+
+std::string IndexTypeToStr(VkIndexType type)
+{
+    std::string index_type_name_whole = util::ToString<VkIndexType>(type);
+    std::string index_type_name(index_type_name_whole.begin() + 13, index_type_name_whole.end());
+
+    std::transform(index_type_name.begin(), index_type_name.end(), index_type_name.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
+
+    return index_type_name;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
