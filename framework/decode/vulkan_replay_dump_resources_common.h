@@ -112,6 +112,14 @@ std::string FormatToStr(VkFormat format);
 
 std::string IndexTypeToStr(VkIndexType type);
 
+VkResult CreateVkBuffer(VkDeviceSize                            size,
+                        const encode::VulkanDeviceTable*        device_table,
+                        VkDevice                                parent_device,
+                        VkBaseInStructure*                      pNext,
+                        const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props,
+                        VkBuffer*                               new_buffer,
+                        VkDeviceMemory*                         new_memory);
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
 

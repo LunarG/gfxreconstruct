@@ -1931,10 +1931,10 @@ void Process_vkCmdTraceRaysIndirectKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdTraceRaysIndirectKHR               func,
     VkCommandBuffer                             commandBuffer,
-    const VkStridedDeviceAddressRegionKHR*      pRaygenShaderBindingTable,
-    const VkStridedDeviceAddressRegionKHR*      pMissShaderBindingTable,
-    const VkStridedDeviceAddressRegionKHR*      pHitShaderBindingTable,
-    const VkStridedDeviceAddressRegionKHR*      pCallableShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
     VkDeviceAddress                             indirectDeviceAddress);
 
 void Process_vkCmdSetRayTracingPipelineStackSizeKHR(

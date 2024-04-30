@@ -57,9 +57,10 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
     DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices), trace_rays_indices(trace_rays_indices),
     bound_pipelines{ nullptr }, dump_resources_before(options.dump_resources_before),
     dump_resource_path(options.dump_resources_output_dir), image_file_format(options.dump_resources_image_format),
-    dump_resources_scale(options.dump_resources_scale), device_table(nullptr), instance_table(nullptr),
-    object_info_table(object_info_table), replay_device_phys_mem_props(nullptr), current_dispatch_index(0),
-    current_trace_rays_index(0), dump_json(dump_json), output_json_per_command(options.dump_resources_json_per_command),
+    dump_resources_scale(options.dump_resources_scale), device_table(nullptr), parent_device(VK_NULL_HANDLE),
+    instance_table(nullptr), object_info_table(object_info_table), replay_device_phys_mem_props(nullptr),
+    current_dispatch_index(0), current_trace_rays_index(0), dump_json(dump_json),
+    output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
     dump_all_image_subresources(options.dump_resources_dump_all_image_subresources)
 {}
@@ -137,6 +138,9 @@ VkResult DispatchTraceRaysDumpingContext::CloneCommandBuffer(CommandBufferInfo* 
     assert(device_info->parent_id != format::kNullHandleId);
     const PhysicalDeviceInfo* phys_dev_info = object_info_table.GetPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
+
+    assert(parent_device == VK_NULL_HANDLE);
+    parent_device = device_info->handle;
 
     assert(phys_dev_info->replay_device_info);
     assert(phys_dev_info->replay_device_info->memory_properties.get());
@@ -1597,6 +1601,89 @@ VkResult DispatchTraceRaysDumpingContext::CopyDispatchIndirectParameters(uint64_
     return VK_SUCCESS;
 }
 
+VkResult DispatchTraceRaysDumpingContext::CopyTraceRaysIndirectParameters(uint64_t index)
+{
+    auto entry = trace_rays_params.find(index);
+    assert(entry != trace_rays_params.end());
+    TraceRaysParameters& params = entry->second;
+
+    assert(params.type == kTraceRaysIndirect);
+    if (params.trace_rays_params_union.trace_rays_indirect.indirect_device_address == 0)
+    {
+        return VK_SUCCESS;
+    }
+
+    TraceRaysParameters::TraceRaysParamsUnion::TraceRaysIndirect& itr_params =
+        params.trace_rays_params_union.trace_rays_indirect;
+
+    const VkDeviceSize size = sizeof(TraceRaysParameters::TraceRaysParamsUnion::TraceRaysParams);
+
+    // Create a buffer using the provided device address
+    VkBufferDeviceAddressCreateInfoEXT bdaci;
+    bdaci.sType         = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_CREATE_INFO_EXT;
+    bdaci.pNext         = nullptr;
+    bdaci.deviceAddress = itr_params.indirect_device_address;
+
+    VkResult res = CreateVkBuffer(size,
+                                  device_table,
+                                  parent_device,
+                                  reinterpret_cast<VkBaseInStructure*>(&bdaci),
+                                  replay_device_phys_mem_props,
+                                  &itr_params.buffer_on_device_address,
+                                  &itr_params.buffer_on_device_address_memory);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s(): Failed to create a buffer using device address (%s)",
+                           __func__,
+                           util::ToString<VkResult>(res).c_str());
+        return res;
+    }
+
+    // Create a new buffer where the parameters will be copied into from the buffer we created above
+    res = CreateVkBuffer(size,
+                         device_table,
+                         parent_device,
+                         reinterpret_cast<VkBaseInStructure*>(&bdaci),
+                         replay_device_phys_mem_props,
+                         &itr_params.new_params_buffer,
+                         &itr_params.new_params_buffer_memory);
+    if (res != VK_SUCCESS)
+    {
+        GFXRECON_LOG_ERROR("%s(): Failed to create buffer (%s)", __func__, util::ToString<VkResult>(res).c_str());
+        return res;
+    }
+
+    // Copy the parameters from one buffer into the other
+    const VkBufferCopy region = { 0, 0, size };
+    assert(device_table);
+    device_table->CmdCopyBuffer(
+        DR_command_buffer, itr_params.buffer_on_device_address, itr_params.new_params_buffer, 1, &region);
+
+    VkBufferMemoryBarrier buf_barrier;
+    buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
+    buf_barrier.pNext               = nullptr;
+    buf_barrier.buffer              = itr_params.new_params_buffer;
+    buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+    buf_barrier.srcAccessMask       = VK_ACCESS_TRANSFER_READ_BIT;
+    buf_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    buf_barrier.size                = size;
+    buf_barrier.offset              = 0;
+
+    device_table->CmdPipelineBarrier(DR_command_buffer,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VK_PIPELINE_STAGE_TRANSFER_BIT,
+                                     VkDependencyFlags{ 0 },
+                                     0,
+                                     nullptr,
+                                     1,
+                                     &buf_barrier,
+                                     0,
+                                     nullptr);
+
+    return VK_SUCCESS;
+}
+
 VkResult DispatchTraceRaysDumpingContext::FetchIndirectParams()
 {
     assert(original_command_buffer_info);
@@ -2329,6 +2416,26 @@ void DispatchTraceRaysDumpingContext::InsertNewTraceRaysParameters(
                                                         width,
                                                         height,
                                                         depth));
+    assert(new_entry.second);
+}
+
+void DispatchTraceRaysDumpingContext::InsertNewTraceRaysIndirectParameters(
+    uint64_t                               index,
+    const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+    const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+    VkDeviceAddress                        indirectDeviceAddress)
+{
+    auto new_entry = trace_rays_params.emplace(
+        std::piecewise_construct,
+        std::forward_as_tuple(index),
+        std::forward_as_tuple(DispatchTraceRaysDumpingContext::TraceRaysTypes::kTraceRaysIndirect,
+                              pRaygenShaderBindingTable,
+                              pMissShaderBindingTable,
+                              pHitShaderBindingTable,
+                              pCallableShaderBindingTable,
+                              indirectDeviceAddress));
     assert(new_entry.second);
 }
 
