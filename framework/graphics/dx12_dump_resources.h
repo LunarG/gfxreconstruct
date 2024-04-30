@@ -49,6 +49,10 @@ struct Dx12DumpResourcesConfig
 
 struct CopyResourceData
 {
+    // Allow default constructor, disallow copy constructor.
+    CopyResourceData()                        = default;
+    CopyResourceData(const CopyResourceData&) = delete;
+
     format::HandleId                                source_resource_id{ format::kNullHandleId };
     D3D12_RESOURCE_DESC                             desc{};
     std::vector<uint64_t>                           subresource_offsets;
@@ -60,10 +64,15 @@ struct CopyResourceData
     uint64_t                                        total_size{ 0 };
     bool                                            is_cpu_accessible{ false };
 
-    std::vector<std::vector<uint8_t>> datas; // copy resource  drawcall
+    std::vector<std::vector<uint8_t>> datas; // copy resource drawcall
 
-    ID3D12Resource* read_resource{ nullptr };
-    bool            read_resource_is_staging_buffer{ false };
+    graphics::dx12::ID3D12GraphicsCommandListComPtr cmd_list{ nullptr };
+    graphics::dx12::ID3D12ResourceComPtr            read_resource{ nullptr };
+    bool                                            read_resource_is_staging_buffer{ false };
+
+    std::vector<std::pair<std::string, int32_t>> json_path;
+    std::string                                  file_name;
+    std::string                                  write_type;
 
     void Clear()
     {
@@ -75,13 +84,16 @@ struct CopyResourceData
         subresource_footprint_sizes.clear();
         subresource_indices.clear();
         footprints.clear();
-        total_size        = 0;
-        is_cpu_accessible = false;
-        datas.clear();
+        total_size                      = 0;
+        is_cpu_accessible               = false;
+        datas                           = std::vector<std::vector<uint8_t>>();
+        cmd_list                        = nullptr;
         read_resource                   = nullptr;
         read_resource_is_staging_buffer = false;
     }
 };
+
+typedef std::shared_ptr<CopyResourceData> CopyResourceDataPtr;
 
 struct CommandSet
 {
@@ -99,10 +111,9 @@ struct TrackDumpResources
     format::HandleId                         depth_stencil_heap_id{ format::kNullHandleId };
     D3D12_CPU_DESCRIPTOR_HANDLE              replay_depth_stencil_handle{ decode::kNullCpuAddress };
 
-    graphics::dx12::ID3D12CommandAllocatorComPtr    copy_cmd_allocator{ nullptr };
-    graphics::dx12::ID3D12GraphicsCommandListComPtr copy_cmd_list{ nullptr };
-    graphics::dx12::ID3D12ResourceComPtr            copy_staging_buffer{ nullptr };
-    uint64_t                                        copy_staging_buffer_size{ 0 };
+    graphics::dx12::ID3D12CommandAllocatorComPtr copy_cmd_allocator{ nullptr };
+    graphics::dx12::ID3D12ResourceComPtr         copy_staging_buffer{ nullptr };
+    uint64_t                                     copy_staging_buffer_size{ 0 };
 
     enum SplitCommandType
     {
@@ -115,6 +126,7 @@ struct TrackDumpResources
 
     graphics::dx12::ID3D12FenceComPtr fence;
     HANDLE                            fence_event;
+    uint64_t                          fence_signal_value{ 1 };
 
     void Clear()
     {
@@ -122,7 +134,6 @@ struct TrackDumpResources
         render_target_heap_ids.clear();
         replay_render_target_handles.clear();
         copy_cmd_allocator  = nullptr;
-        copy_cmd_list       = nullptr;
         copy_staging_buffer = nullptr;
     }
 };
@@ -137,10 +148,7 @@ class Dx12DumpResources
     ~Dx12DumpResources();
 
     void StartDump(const TrackDumpResources& resources);
-    void WriteResource(const CopyResourceData&                             resource_data,
-                       const std::vector<std::pair<std::string, int32_t>>& json_path,
-                       const std::string&                                  file_name,
-                       const std::string&                                  type);
+    void WriteResource(const CopyResourceDataPtr resource_data);
     void CloseDump();
 
   private:
@@ -148,10 +156,10 @@ class Dx12DumpResources
 
     HRESULT Init(const Dx12DumpResourcesConfig& config);
 
-    void WriteResource(nlohmann::ordered_json& jdata,
-                       const std::string&      prefix_file_name,
-                       const std::string&      suffix,
-                       const CopyResourceData& resource_data);
+    void WriteResource(nlohmann::ordered_json&   jdata,
+                       const std::string&        prefix_file_name,
+                       const std::string&        suffix,
+                       const CopyResourceDataPtr resource_data);
 
     void StartFile();
     void EndFile();
@@ -162,15 +170,15 @@ class Dx12DumpResources
 
     bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
 
-    void TestWriteReadableResource(const std::string&      prefix_file_name,
-                                   const std::string&      suffix,
-                                   const CopyResourceData& resource_data);
-    void TestWriteFloatResource(const std::string&      prefix_file_name,
-                                const std::string&      suffix,
-                                const CopyResourceData& resource_data);
-    void TestWriteImageResource(const std::string&      prefix_file_name,
-                                const std::string&      suffix,
-                                const CopyResourceData& resource_data);
+    void TestWriteReadableResource(const std::string&        prefix_file_name,
+                                   const std::string&        suffix,
+                                   const CopyResourceDataPtr resource_data);
+    void TestWriteFloatResource(const std::string&        prefix_file_name,
+                                const std::string&        suffix,
+                                const CopyResourceDataPtr resource_data);
+    void TestWriteImageResource(const std::string&        prefix_file_name,
+                                const std::string&        suffix,
+                                const CopyResourceDataPtr resource_data);
 
     util::JsonOptions      json_options_;
     std::string            json_filename_;

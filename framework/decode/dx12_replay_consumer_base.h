@@ -1027,33 +1027,32 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                               format::HandleId                     source_resource_id,
                               uint64_t                             source_offset,
                               uint64_t                             source_size,
-                              graphics::CopyResourceData&          copy_resource_data);
+                              graphics::CopyResourceDataPtr        copy_resource_data);
 
     bool CopyResourceAsyncQueue(const std::vector<format::HandleId>& front_command_list_ids,
-                                graphics::CopyResourceData&          copy_resource_data,
+                                graphics::CopyResourceDataPtr        copy_resource_data,
                                 ID3D12CommandQueue*                  queue,
                                 ID3D12Fence*                         fence,
                                 UINT64                               fence_signal_value,
                                 UINT64                               fence_wait_value);
 
-    void CopyResourceAsyncRead(ID3D12Fence*                       fence,
-                               UINT64                             fence_wait_value,
-                               UINT64                             fence_signal_value,
-                               HANDLE                             fence_event,
-                               graphics::CopyResourceData*        copy_resource_data,
-                               std::vector<std::vector<uint8_t>>* subresource_datas);
+    void CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr fence,
+                               UINT64                            fence_wait_value,
+                               UINT64                            fence_signal_value,
+                               HANDLE                            fence_event,
+                               graphics::CopyResourceDataPtr     copy_resource_data);
 
     void CopyResourceAsync(DxObjectInfo*                        queue_object_info,
                            const std::vector<format::HandleId>& front_command_list_ids,
-                           graphics::CopyResourceData&          copy_resource_data,
-                           std::vector<std::vector<uint8_t>>&   copy_data);
+                           graphics::CopyResourceDataPtr        copy_resource_data);
 
-    QueueSyncEventInfo CreateCopyResourceAsyncReadQueueSyncEvent(ID3D12Fence*                       fence,
-                                                                 UINT64                             fence_wait_value,
-                                                                 UINT64                             fence_signal_value,
-                                                                 HANDLE                             fence_event,
-                                                                 graphics::CopyResourceData*        copy_resource_data,
-                                                                 std::vector<std::vector<uint8_t>>* subresource_datas);
+    QueueSyncEventInfo CreateCopyResourceAsyncReadQueueSyncEvent(graphics::dx12::ID3D12FenceComPtr fence,
+                                                                 UINT64                            fence_wait_value,
+                                                                 UINT64                            fence_signal_value,
+                                                                 HANDLE                            fence_event,
+                                                                 graphics::CopyResourceDataPtr     copy_resource_data);
+
+    void FinishDumpResources(DxObjectInfo* queue_object_info);
 
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;
@@ -1087,8 +1086,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     util::ScreenshotFormat                                screenshot_format_;
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
-    graphics::TrackDumpResources                          track_dump_resources_;
 
+    graphics::TrackDumpResources                 track_dump_resources_;
     std::unique_ptr<graphics::Dx12DumpResources> dump_resources_{ nullptr };
 };
 
