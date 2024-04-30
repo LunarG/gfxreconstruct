@@ -47,6 +47,7 @@ struct DescriptorUpdateTemplateEntries
     std::vector<VkDescriptorUpdateTemplateEntry> buffers;
     std::vector<VkDescriptorUpdateTemplateEntry> texels;
     std::vector<VkDescriptorUpdateTemplateEntry> accelerations;
+    std::vector<VkDescriptorUpdateTemplateEntry> inline_uniform_blocks;
 };
 
 // Track items that are specific to a given device
@@ -554,11 +555,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                             format::HandleId   device,
                                             format::HandleId   operation) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                           format::HandleId                 device,
-                                                           format::HandleId                 descriptorSet,
-                                                           format::HandleId                 descriptorUpdateTemplate,
-                                                           DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                   format::HandleId                 device,
+                                                   format::HandleId                 descriptorSet,
+                                                   format::HandleId                 descriptorUpdateTemplate,
+                                                   DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                                format::HandleId   commandBuffer,

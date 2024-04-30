@@ -48,6 +48,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     size_t GetBufferInfoCount() const { return buffer_info_count_; }
     size_t GetTexelBufferViewCount() const { return texel_buffer_view_count_; }
     size_t GetAccelerationStructureKHRCount() const { return acceleration_structure_khr_count_; }
+    size_t GetInlineUniformBlockCount() const { return acceleration_structure_khr_count_; }
 
     Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() { return decoded_image_info_; }
     Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() { return decoded_buffer_info_; }
@@ -69,6 +70,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     VkDescriptorBufferInfo*     GetBufferInfoPointer() { return buffer_info_; }
     VkBufferView*               GetTexelBufferViewPointer() { return texel_buffer_views_; }
     VkAccelerationStructureKHR* GetAccelerationStructureKHRPointer() { return acceleration_structures_khr_; }
+    uint8_t*                    GetInlineUniformBlockPointer() { return inline_uniform_block_; }
 
     const VkDescriptorImageInfo*      GetImageInfoPointer() const { return image_info_; }
     const VkDescriptorBufferInfo*     GetBufferInfoPointer() const { return buffer_info_; }
@@ -77,6 +79,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     {
         return acceleration_structures_khr_;
     }
+    const uint8_t* GetInlineUniformBlockPointer() const { return inline_uniform_block_; }
 
     size_t Decode(const uint8_t* buffer, size_t buffer_size);
 
@@ -98,6 +101,10 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     format::HandleId*           decoded_acceleration_structure_khr_handle_ids_;
     size_t                      acceleration_structure_khr_count_;
     VkAccelerationStructureKHR* acceleration_structures_khr_;
+
+    // inline uniform blocks
+    size_t   inline_uniform_block_count_;
+    uint8_t* inline_uniform_block_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

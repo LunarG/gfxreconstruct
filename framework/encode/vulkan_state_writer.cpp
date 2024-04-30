@@ -2357,6 +2357,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
     write->pBufferInfo      = nullptr;
     write->pImageInfo       = nullptr;
     write->pTexelBufferView = nullptr;
+    write->pNext            = nullptr;
 
     switch (write->descriptorType)
     {
