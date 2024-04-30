@@ -222,6 +222,9 @@ endif(MSVC)
 
 if(APPLE)
     add_link_options(-Wl,-dead_strip -Wl,-dead_strip_dylibs)
+    set(CMAKE_PREFIX_PATH
+        "${CMAKE_SOURCE_DIR}/external/precompiled/macos"
+        ${CMAKE_PREFIX_PATH})
 endif()
 
 # GFXReconstruct provided find modules
@@ -230,13 +233,6 @@ find_package(Detours)
 endif() # WIN32
 
 option(LZ4_OPTIONAL "Allow building without LZ4-compression" OFF)
-
-if(APPLE)
-    set(LZ4_USE_STATIC_LIBRARY TRUE)
-else()
-    set(LZ4_USE_STATIC_LIBRARY ${BUILD_STATIC})
-endif()
-
 find_package(LZ4)
 
 if(NOT LZ4_FOUND)
