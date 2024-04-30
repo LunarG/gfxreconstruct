@@ -29,6 +29,10 @@
 #include "format/format.h"
 #include "util/defines.h"
 
+#ifdef WIN32
+#include <d3dcommon.h>
+#endif
+
 #if ENABLE_OPENXR_SUPPORT
 #include "openxr/openxr.h"
 #endif
@@ -58,9 +62,11 @@ class ValueDecoder
 #if defined(WIN32)
     // Oveload for WIN32 LONG type.  Pointers from the LONG typedef of unsigned long are not compatible with int32_t pointers.
     static size_t DecodeInt32Value(const uint8_t* buffer, size_t buffer_size, long* value)                          { return DecodeValue(buffer, buffer_size, value); }
-    // Oveload for WIN32 DWORD type.  Pointers from the DWORD typedef of unsigned long are not compatible with uint32_t pointers.
+    // Oveload for WIN32 DWORD type.  Pointers from the DWORD and ULONG typedef of unsigned long are not compatible with uint32_t pointers.
     static size_t DecodeUInt32Value(const uint8_t* buffer, size_t buffer_size, unsigned long* value)                { return DecodeValue(buffer, buffer_size, value); }
+    // This is union of various parts of a uint64 under windows
 #endif
+    static size_t DecodeLARGE_INTEGERValue(const uint8_t* buffer, size_t buffer_size, LARGE_INTEGER* value)         { return DecodeValue(buffer, buffer_size, &value->QuadPart); }
 
     static size_t DecodeInt64Value(const uint8_t* buffer, size_t buffer_size, int64_t* value)                       { return DecodeValue(buffer, buffer_size, value); }
     static size_t DecodeUInt64Value(const uint8_t* buffer, size_t buffer_size, uint64_t* value)                     { return DecodeValue(buffer, buffer_size, value); }
@@ -88,6 +94,8 @@ class ValueDecoder
 #endif
 
 #if ENABLE_OPENXR_SUPPORT
+    static size_t DecodeLUIDValue(const uint8_t* buffer, size_t buffer_size, LUID* value)                           { return DecodeValue(buffer, buffer_size, reinterpret_cast<int64_t*>(value)); }
+
     static size_t DecodeD3D_FEATURE_LEVELValue(const uint8_t* buffer, size_t buffer_size, D3D_FEATURE_LEVEL* value) { return DecodeValueFrom<format::D3D_FEATURE_LEVELEncodeType>(buffer, buffer_size, value); }
 
     static size_t DecodeMLCoordinateFrameUIDValue(const uint8_t* buffer, size_t buffer_size, MLCoordinateFrameUID* value)

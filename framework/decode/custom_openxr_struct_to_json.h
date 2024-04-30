@@ -22,6 +22,8 @@
 #ifndef GFXRECON_DECODE_CUSTOM_OPENXR_STRUCT_TO_JSON_H
 #define GFXRECON_DECODE_CUSTOM_OPENXR_STRUCT_TO_JSON_H
 
+#if ENABLE_OPENXR_SUPPORT
+
 #include "decode/custom_openxr_struct_decoders.h"
 #include "generated/generated_openxr_enum_to_json.h"
 #include "generated/generated_openxr_struct_to_json.h"
@@ -68,5 +70,7 @@ void FieldToJson(nlohmann::ordered_json& jdata,
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif // GFXRECON_DECODE_CUSTOM_OPENXR_STRUCT_TO_JSON_H

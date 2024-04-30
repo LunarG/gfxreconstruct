@@ -24,16 +24,24 @@
 #ifndef GFXRECON_GRAPHICS_DX12_UTIL_H
 #define GFXRECON_GRAPHICS_DX12_UTIL_H
 
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+
 #include "util/defines.h"
 #include "util/logging.h"
 #include "util/options.h"
 #include "util/platform.h"
+#ifdef WIN32
 #include "graphics/dx12_image_renderer.h"
+#else
+#include "format/platform_types.h"
+#endif
 #include "format/format.h"
 
+#ifdef WIN32
 #include <comdef.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#endif
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -42,6 +50,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
+#ifdef WIN32
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
@@ -68,6 +77,7 @@ typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
     ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
+#endif
 
 struct ActiveAdapterInfo
 {
@@ -101,6 +111,7 @@ struct ResourceStateInfo
 const D3D12_RANGE kZeroRange       = { 0, 0 };
 const double      kMemoryTolerance = 2.1;
 
+#ifdef WIN32
 // Take a screenshot
 void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                                     queue,
@@ -235,6 +246,7 @@ bool IsMemoryAvailable(uint64_t requried_memory, IDXGIAdapter3* adapter, double 
 // Get GPU memory usage by resource desc
 uint64_t GetResourceSizeInBytes(ID3D12Device* device, const D3D12_RESOURCE_DESC* desc);
 uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC1* desc);
+#endif
 
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc);
 
@@ -266,6 +278,7 @@ inline format::AdapterType ExtractAdapterType(uint32_t extra_info)
     return static_cast<format::AdapterType>((extra_info & kAdapterTypeMask));
 }
 
+#ifdef WIN32
 void RobustGetCopyableFootprint(ID3D12Device*                       device,
                                 ID3D12Resource*                     resource,
                                 const D3D12_RESOURCE_DESC*          pResourceDesc,
@@ -276,9 +289,12 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
                                 UINT*                               pNumRows,
                                 UINT64*                             pRowSizeInBytes,
                                 UINT64*                             pTotalBytes);
+#endif
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 
 #endif // GFXRECON_GRAPHICS_DX12_UTIL_H

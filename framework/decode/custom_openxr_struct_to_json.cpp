@@ -20,6 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#if ENABLE_OPENXR_SUPPORT
+
 #include "custom_openxr_struct_to_json.h"
 #include "generated/generated_openxr_struct_decoders.h"
 #include "generated/generated_openxr_struct_to_json.h"
@@ -151,3 +153,5 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_timespec* data, co
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT

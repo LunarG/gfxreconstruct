@@ -30,11 +30,17 @@
 #ifdef ENABLE_OPENXR_SUPPORT
 
 #include "generated/generated_openxr_struct_encoders.h"
+#include "generated/generated_vulkan_api_call_encoders.h"
 
+#include "encode/custom_dx12_struct_encoders.h"
+#include "encode/custom_openxr_struct_encoders.h"
+#include "encode/custom_vulkan_struct_encoders.h"
 #include "encode/parameter_encoder.h"
 #include "encode/openxr_handle_wrappers.h"
 #include "encode/struct_pointer_encoder.h"
 #include "util/defines.h"
+
+#include "format/platform_types.h"
 
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
@@ -42,6 +48,14 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+#ifndef D3D12_SUPPORT
+void EncodeStruct(ParameterEncoder* encoder, const LUID& value)
+{
+    encoder->EncodeUInt32Value(value.LowPart);
+    encoder->EncodeInt32Value(value.HighPart);
+}
+#endif /* D3D12_SUPPORT */
 
 void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerProperties& value)
 {
@@ -829,8 +843,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D11KH
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeInt64Value(value.adapterLuid);
-    encoder->EncodeUInt32Value(value.minFeatureLevel);
+    encoder->EncodeLUIDValue(value.adapterLuid);
+    encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D12KHR& value)
@@ -852,8 +866,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D12KH
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeVoidPtr(value.next);
-    encoder->EncodeInt64Value(value.adapterLuid);
-    encoder->EncodeUInt32Value(value.minFeatureLevel);
+    encoder->EncodeLUIDValue(value.adapterLuid);
+    encoder->EncodeD3D_FEATURE_LEVELValue(value.minFeatureLevel);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVisibilityMaskKHR& value)

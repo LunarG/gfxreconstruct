@@ -125,7 +125,7 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeXrBool32(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<XrBool32>(buffer, buffer_size); }
     size_t DecodeIUnknown(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
 #endif // ENABLE_OPENXR_SUPPORT
-
+ 
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
     size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)      { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
 
@@ -134,13 +134,15 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeVoid(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<uint8_t>(buffer, buffer_size); }
 
     // Decode for special types that may require conversion.
-    size_t DecodeEnum(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
-    size_t DecodeFlags(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
-    size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
-    size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
-    size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
+    size_t DecodeEnum(const uint8_t* buffer, size_t buffer_size)            { return DecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
+    size_t DecodeFlags(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
+    size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
     size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
-    size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+    size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+    size_t DecodeLARGE_INTEGER(const uint8_t* buffer, size_t buffer_size)   { return DecodeFrom<int64_t>(buffer, buffer_size); }
+    size_t DecodeLUID(const uint8_t* buffer, size_t buffer_size)            { return DecodeFrom<int64_t>(buffer, buffer_size); }
     // clang-format on
 
   private:

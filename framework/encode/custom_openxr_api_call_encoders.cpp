@@ -33,6 +33,7 @@
 #include "encode/openxr_handle_wrapper_util.h"
 #include "encode/openxr_handle_wrappers.h"
 #include "format/api_call_id.h"
+#include "format/platform_types.h"
 #include "generated/generated_openxr_struct_handle_wrappers.h"
 #include "util/defines.h"
 
