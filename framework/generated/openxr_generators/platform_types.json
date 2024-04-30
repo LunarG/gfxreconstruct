@@ -6,10 +6,7 @@
       "HGLRC"         : { "baseType" : "void",     "replaceWith" : "void*" },
       "HINSTANCE"     : { "baseType" : "void",     "replaceWith" : "void*" },
       "HWND"          : { "baseType" : "void",     "replaceWith" : "void*" },
-      "HMONITOR"      : { "baseType" : "void",     "replaceWith" : "void*" },
-      "LARGE_INTEGER" : { "baseType" : "int64_t",  "replaceWith" : "int64_t" },
-      "LPCWSTR"       : { "baseType" : "wchar_t",  "replaceWith" : "const wchar_t*" },
-      "LUID"          : { "baseType" : "int64_t",  "replaceWith" : "int64_t" }
+      "HMONITOR"      : { "baseType" : "void",     "replaceWith" : "void*" }
     },
     "structs" : [
       "ACL",
@@ -63,7 +60,6 @@
   },
   "d3d": {
     "types": {
-      "D3D_FEATURE_LEVEL"  : { "baseType" : "uint32_t", "replaceWith" : "uint32_t" },
       "ID3D11Device"       : { "baseType" : "void",     "replaceWith" : "void" },
       "ID3D11Texture2D"    : { "baseType" : "void",     "replaceWith" : "void" },
       "ID3D12Device"       : { "baseType" : "void",     "replaceWith" : "void" },

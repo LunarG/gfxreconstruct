@@ -24,6 +24,7 @@
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
+from reformat_code import format_cpp_code
 
 
 class OpenXrStructDecodersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -78,23 +79,23 @@ class OpenXrStructDecodersBodyGenerator(
         BaseGenerator.beginFile(self, gen_opts)
 
         write(
-            '#include "generated/generated_openxr_struct_decoders.h"',
-            file=self.outFile
-        )
-        self.newline()
-        write(
-            '#include "decode/custom_openxr_struct_decoders.h"',
-            file=self.outFile
-        )
-        write('#include "decode/decode_allocator.h"', file=self.outFile)
-        self.newline()
-        write('#include <cassert>', file=self.outFile)
-        self.newline()
-        write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
-        write(
-            'size_t DecodeNextStruct(const uint8_t* buffer, size_t buffer_size, OpenXrNextNode** next);',
+            format_cpp_code(
+                '''
+            #include "decode/custom_dx12_struct_decoders.h"
+            #include "decode/custom_openxr_struct_decoders.h"
+            #include "decode/custom_vulkan_struct_decoders.h"
+            #include "decode/decode_allocator.h"
+
+            #include "generated/generated_openxr_struct_decoders.h"
+
+            #include <cassert>
+
+            GFXRECON_BEGIN_NAMESPACE(gfxrecon)
+            GFXRECON_BEGIN_NAMESPACE(decode)
+
+            size_t DecodeNextStruct(const uint8_t* buffer, size_t buffer_size, OpenXrNextNode** next);
+        '''
+            ),
             file=self.outFile
         )
 

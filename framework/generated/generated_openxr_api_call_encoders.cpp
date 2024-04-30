@@ -29,18 +29,23 @@
 
 #ifdef ENABLE_OPENXR_SUPPORT
 
-#include "generated/generated_openxr_api_call_encoders.h"
-
 #include "encode/custom_openxr_encoder_commands.h"
 #include "encode/custom_openxr_struct_handle_wrappers.h"
+#include "encode/openxr_capture_manager.h"
+#include "encode/openxr_handle_wrappers.h"
+#include "encode/openxr_handle_wrapper_util.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
-#include "encode/openxr_capture_manager.h"
-#include "encode/openxr_handle_wrapper_util.h"
-#include "encode/openxr_handle_wrappers.h"
+
 #include "format/api_call_id.h"
+
+#include "generated/generated_openxr_api_call_encoders.h"
 #include "generated/generated_openxr_struct_handle_wrappers.h"
+#include "generated/generated_vulkan_struct_handle_wrappers.h"
+
 #include "util/defines.h"
+
+#include "format/platform_types.h"
 
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
@@ -2831,7 +2836,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(
     if (encoder)
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
-        encoder->EncodeInt64Ptr(performanceCounter);
+        encoder->EncodeLARGE_INTEGERPtr(performanceCounter);
         encoder->EncodeInt64Ptr(time, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
@@ -2876,7 +2881,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
         encoder->EncodeInt64Value(time);
-        encoder->EncodeInt64Ptr(performanceCounter, omit_output_data);
+        encoder->EncodeLARGE_INTEGERPtr(performanceCounter, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }

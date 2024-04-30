@@ -19,6 +19,7 @@
 ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 ** DEALINGS IN THE SOFTWARE.
 */
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 
 #include "custom_dx12_struct_decoders.h"
 
@@ -1157,3 +1158,5 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_SAM
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)

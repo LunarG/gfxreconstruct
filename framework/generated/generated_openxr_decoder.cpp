@@ -40,6 +40,8 @@
 #include "generated/generated_openxr_struct_decoders_forward.h"
 #include "util/defines.h"
 
+#include "format/platform_types.h"
+
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
@@ -1446,12 +1448,12 @@ size_t OpenXrDecoder::Decode_xrConvertWin32PerformanceCounterToTimeKHR(const Api
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    PointerDecoder<int64_t> performanceCounter;
+    PointerDecoder<LARGE_INTEGER> performanceCounter;
     PointerDecoder<XrTime> time;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += performanceCounter.DecodeInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += performanceCounter.DecodeLARGE_INTEGER((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += time.DecodeInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1469,12 +1471,12 @@ size_t OpenXrDecoder::Decode_xrConvertTimeToWin32PerformanceCounterKHR(const Api
 
     format::HandleId instance;
     XrTime time;
-    PointerDecoder<int64_t> performanceCounter;
+    PointerDecoder<LARGE_INTEGER> performanceCounter;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += ValueDecoder::DecodeInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &time);
-    bytes_read += performanceCounter.DecodeInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += performanceCounter.DecodeLARGE_INTEGER((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())

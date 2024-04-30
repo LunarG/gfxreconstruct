@@ -21,6 +21,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+
 #include "graphics/dx12_util.h"
 
 #include "util/image_writer.h"
@@ -32,6 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
+#ifdef WIN32
 void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                           queue,
                     IDXGISwapChain*                               swapchain,
@@ -810,6 +813,7 @@ format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12:
 
     return active_adapter_desc;
 }
+#endif // WIN32
 
 bool IsSoftwareAdapter(const format::DxgiAdapterDesc& adapter_desc)
 {
@@ -830,7 +834,7 @@ bool VerifyAgilitySDKRuntime()
     bool        detected_runtime = false;
     std::string tool_executable_path;
 
-#if defined(D3D12_SUPPORT)
+#if defined(D3D12_SUPPORT) && defined(WIN32)
     std::vector<char> module_name(MAX_PATH);
 
     auto ret = GetModuleFileNameA(nullptr, module_name.data(), MAX_PATH);
@@ -862,6 +866,7 @@ bool VerifyAgilitySDKRuntime()
     return detected_runtime;
 }
 
+#if WIN32
 bool GetAdapterAndIndexbyLUID(LUID                              luid,
                               IDXGIAdapter*&                    adapter_ptr,
                               uint32_t&                         index,
@@ -1094,6 +1099,7 @@ uint64_t GetResourceSizeInBytes(ID3D12Device8* device, const D3D12_RESOURCE_DESC
 
     return size;
 }
+#endif // WIN32
 
 bool IsDepthStencilFormat(const DXGI_FORMAT format)
 {
@@ -1247,6 +1253,7 @@ bool IsTextureWithUnknownLayout(D3D12_RESOURCE_DIMENSION dimension, D3D12_TEXTUR
     return is_texture_with_unknown_layout;
 }
 
+#ifdef WIN32
 void RobustGetCopyableFootprint(ID3D12Device*                       device,
                                 ID3D12Resource*                     resource,
                                 const D3D12_RESOURCE_DESC*          pResourceDesc,
@@ -1299,7 +1306,10 @@ void RobustGetCopyableFootprint(ID3D12Device*                       device,
         *pTotalBytes = total_bytes;
     }
 }
+#endif
 
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)

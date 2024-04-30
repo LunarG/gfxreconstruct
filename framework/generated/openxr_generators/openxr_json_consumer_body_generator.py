@@ -76,6 +76,8 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         self.flagsTypeAlias = dict()
         self.flagEnumBitsType = dict()
 
+        self.externalStructs = ['LARGE_INTEGER', 'LUID']
+
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -88,6 +90,7 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         '''
         )
         write(includes, file=self.outFile)
+        self.newline()
         self.includeOpenXrHeaders(gen_opts)
         namespace = remove_trailing_newlines(
             indent_cpp_code(
@@ -180,13 +183,16 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                 # Default to letting the right function overload to be resolved based on argument types,
                 # including enums, strings ints, floats etc.:
                 # Note there are overloads for scalars and pointers/arrays.
-                if not (value.is_pointer or value.is_array) and self.is_struct(value.base_type):
+                if not (value.is_pointer or value.is_array) and (self.is_struct(value.base_type) or value.base_type in self.externalStructs):
                     to_json = 'FieldToJson(args["{0}"], &{0}, json_options)'
                 else:
-                    to_json = 'FieldToJson(args["{0}"], {0}, json_options)'
+                    if value.base_type in self.externalStructs:
+                        to_json = 'FieldToJson(args["{0}"], *{0}->GetPointer(), json_options)'
+                    else:
+                        to_json = 'FieldToJson(args["{0}"], {0}, json_options)'
 
                 # Special cases:
-                if 'VkBool32' == value.base_type:
+                if 'XrBool32' == value.base_type:
                     to_json = 'Bool32ToJson(args["{0}"], {0}, json_options)'
                 elif self.is_handle(value.base_type):
                     to_json = 'HandleToJson(args["{0}"], {0}, json_options)'

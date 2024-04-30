@@ -24,6 +24,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo, json, write
+from reformat_code import format_cpp_code
 
 
 class OpenXrApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -92,32 +93,29 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             self.__load_capture_overrides(gen_opts.capture_overrides)
 
         write(
-            '#include "generated/generated_openxr_api_call_encoders.h"',
+            format_cpp_code(
+                '''
+            #include "encode/custom_openxr_encoder_commands.h"
+            #include "encode/custom_openxr_struct_handle_wrappers.h"
+            #include "encode/openxr_capture_manager.h"
+            #include "encode/openxr_handle_wrappers.h"
+            #include "encode/openxr_handle_wrapper_util.h"
+            #include "encode/parameter_encoder.h"
+            #include "encode/struct_pointer_encoder.h"
+
+            #include "format/api_call_id.h"
+
+            #include "generated/generated_openxr_api_call_encoders.h"
+            #include "generated/generated_openxr_struct_handle_wrappers.h"
+            #include "generated/generated_vulkan_struct_handle_wrappers.h"
+
+            #include "util/defines.h"
+
+        '''
+            ),
             file=self.outFile
         )
-        self.newline()
-        write(
-            '#include "encode/custom_openxr_encoder_commands.h"',
-            file=self.outFile
-        )
-        write(
-            '#include "encode/custom_openxr_struct_handle_wrappers.h"',
-            file=self.outFile
-        )
-        write('#include "encode/parameter_encoder.h"', file=self.outFile)
-        write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
-        write('#include "encode/openxr_capture_manager.h"', file=self.outFile)
-        write(
-            '#include "encode/openxr_handle_wrapper_util.h"',
-            file=self.outFile
-        )
-        write('#include "encode/openxr_handle_wrappers.h"', file=self.outFile)
-        write('#include "format/api_call_id.h"', file=self.outFile)
-        write(
-            '#include "generated/generated_openxr_struct_handle_wrappers.h"',
-            file=self.outFile
-        )
-        write('#include "util/defines.h"', file=self.outFile)
+
         self.newline()
         self.includeOpenXrHeaders(gen_opts)
         self.newline()

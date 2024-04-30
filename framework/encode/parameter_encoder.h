@@ -83,6 +83,8 @@ class ParameterEncoder
     void EncodeVkDeviceAddressValue(VkDeviceAddress value)                                                            { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
     void EncodeSizeTValue(size_t value)                                                                               { EncodeValue(static_cast<format::SizeTEncodeType>(value)); }
     void EncodeHandleIdValue(format::HandleId value)                                                                  { EncodeValue(static_cast<format::HandleEncodeType>(value)); }
+    void EncodeLARGE_INTEGERValue(LARGE_INTEGER& value)                                                               { EncodeValue(value.QuadPart); }
+    void EncodeLUIDValue(LUID value)                                                                                  { EncodeValue(*reinterpret_cast<int64_t*>(&value)); }
 
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
     void EncodeAddress(const void* value)                                                                             { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
@@ -126,6 +128,8 @@ class ParameterEncoder
     void EncodeVkDeviceSizePtr(const VkDeviceSize* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::DeviceSizeEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeSizeTPtr(const size_t* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::SizeTEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeHandleIdPtr(const format::HandleId* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::HandleEncodeType>(ptr, omit_data, omit_addr); }
+    void EncodeLARGE_INTEGERPtr(const LARGE_INTEGER* ptr, bool omit_data = false, bool omit_addr = false)             { EncodePointer<int64_t>(&(ptr->QuadPart), omit_data, omit_addr); }
+    void EncodeLUIDPtr(const LUID* ptr, bool omit_data = false, bool omit_addr = false)                               { EncodePointer(reinterpret_cast<const int64_t*>(ptr), omit_data, omit_addr); }
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     template<typename T>

@@ -20,6 +20,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#if ENABLE_OPENXR_SUPPORT
+
 #include "decode/openxr_json_consumer_base.h"
 #include "decode/custom_openxr_struct_to_json.h"
 
@@ -70,3 +72,5 @@ bool OpenXrExportJsonConsumerBase::WriteBinaryFile(const std::string& filename, 
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT

@@ -28,6 +28,8 @@
 #ifndef  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_TO_JSON_H
 #define  GFXRECON_GENERATED_DX12_STRUCT_DECODERS_TO_JSON_H
 
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+
 /// @file Functions to convert decoded structs to JSON.
 /// Note these Decoded_StructX versions have the pointer tree linking the
 /// structs set-up during decode, unlike the raw structs, which is why they
@@ -625,5 +627,7 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_LARGE_INTEG
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 
 #endif

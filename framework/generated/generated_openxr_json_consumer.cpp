@@ -32,6 +32,9 @@
 #include "util/defines.h"
 #include "generated/generated_openxr_json_consumer.h"
 #include "decode/custom_openxr_struct_to_json.h"
+
+#include "format/platform_types.h"
+
 #include "openxr/openxr.h"
 #include "openxr/openxr_loader_negotiation.h"
 #include "openxr/openxr_platform.h"
@@ -1122,7 +1125,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertWin32PerformanceCounterToTimeKHR
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    PointerDecoder<int64_t>*                    performanceCounter,
+    PointerDecoder<LARGE_INTEGER>*              performanceCounter,
     PointerDecoder<XrTime>*                     time)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrConvertWin32PerformanceCounterToTimeKHR");
@@ -1130,7 +1133,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertWin32PerformanceCounterToTimeKHR
     FieldToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance, json_options);
-        FieldToJson(args["performanceCounter"], performanceCounter, json_options);
+        FieldToJson(args["performanceCounter"], *performanceCounter->GetPointer(), json_options);
         FieldToJson(args["time"], time, json_options);
     WriteBlockEnd();
 }
@@ -1140,7 +1143,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimeToWin32PerformanceCounterKHR
     XrResult                                    returnValue,
     format::HandleId                            instance,
     XrTime                                      time,
-    PointerDecoder<int64_t>*                    performanceCounter)
+    PointerDecoder<LARGE_INTEGER>*              performanceCounter)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrConvertTimeToWin32PerformanceCounterKHR");
     const JsonOptions& json_options = GetJsonOptions();
@@ -1148,7 +1151,7 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimeToWin32PerformanceCounterKHR
     auto& args = jdata[NameArgs()];
         HandleToJson(args["instance"], instance, json_options);
         FieldToJson(args["time"], time, json_options);
-        FieldToJson(args["performanceCounter"], performanceCounter, json_options);
+        FieldToJson(args["performanceCounter"], *performanceCounter->GetPointer(), json_options);
     WriteBlockEnd();
 }
 
@@ -1466,7 +1469,7 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceActiveEXT(
         HandleToJson(args["session"], session, json_options);
         FieldToJson(args["interactionProfile"], interactionProfile, json_options);
         FieldToJson(args["topLevelPath"], topLevelPath, json_options);
-        FieldToJson(args["isActive"], isActive, json_options);
+        Bool32ToJson(args["isActive"], isActive, json_options);
     WriteBlockEnd();
 }
 
@@ -1485,7 +1488,7 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceStateBoolEXT(
         HandleToJson(args["session"], session, json_options);
         FieldToJson(args["topLevelPath"], topLevelPath, json_options);
         FieldToJson(args["inputSourcePath"], inputSourcePath, json_options);
-        FieldToJson(args["state"], state, json_options);
+        Bool32ToJson(args["state"], state, json_options);
     WriteBlockEnd();
 }
 
@@ -2717,7 +2720,7 @@ void OpenXrExportJsonConsumer::Process_xrSetEnvironmentDepthEstimationVARJO(
     FieldToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session, json_options);
-        FieldToJson(args["enabled"], enabled, json_options);
+        Bool32ToJson(args["enabled"], enabled, json_options);
     WriteBlockEnd();
 }
 
@@ -2732,7 +2735,7 @@ void OpenXrExportJsonConsumer::Process_xrSetMarkerTrackingVARJO(
     FieldToJson(jdata[NameReturn()], returnValue, json_options);
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session, json_options);
-        FieldToJson(args["enabled"], enabled, json_options);
+        Bool32ToJson(args["enabled"], enabled, json_options);
     WriteBlockEnd();
 }
 
@@ -2766,7 +2769,7 @@ void OpenXrExportJsonConsumer::Process_xrSetMarkerTrackingPredictionVARJO(
     auto& args = jdata[NameArgs()];
         HandleToJson(args["session"], session, json_options);
         FieldToJson(args["markerId"], markerId, json_options);
-        FieldToJson(args["enable"], enable, json_options);
+        Bool32ToJson(args["enable"], enable, json_options);
     WriteBlockEnd();
 }
 

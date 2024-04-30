@@ -23,6 +23,8 @@
 #ifndef GFXRECON_DECODE_OPENXR_JSON_CONSUMER_BASE_H
 #define GFXRECON_DECODE_OPENXR_JSON_CONSUMER_BASE_H
 
+#if ENABLE_OPENXR_SUPPORT
+
 #include "util/output_stream.h"
 #include "util/defines.h"
 #include "annotation_handler.h"
@@ -111,5 +113,7 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
+
+#endif // ENABLE_OPENXR_SUPPORT
 
 #endif // GFXRECON_DECODE_OPENXR_JSON_CONSUMER_BASE_H

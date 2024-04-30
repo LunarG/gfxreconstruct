@@ -424,68 +424,12 @@ class BaseGenerator(OutputGenerator):
     def forceCommonXrDefines(self, gen_opts):
         """Write OpenXR defines to enable all entrypoint/struct visibility
         """
-        write(
-            '// Define the platform defines so that we can have entrypoints for each',
-            file=self.outFile
-        )
-        write(
-            '// possible entrypoint in our dispatch table.', file=self.outFile
-        )
-        write('#ifndef XR_USE_PLATFORM_WIN32', file=self.outFile)
-        write('#define XR_USE_PLATFORM_WIN32', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_WAYLAND', file=self.outFile)
-        write('#define XR_USE_PLATFORM_WAYLAND', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_XCB', file=self.outFile)
-        write('#define XR_USE_PLATFORM_XCB', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_XLIB', file=self.outFile)
-        write('#define XR_USE_PLATFORM_XLIB', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_ANDROID', file=self.outFile)
-        write('#define XR_USE_PLATFORM_ANDROID', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_ML', file=self.outFile)
-        write('#define XR_USE_PLATFORM_ML', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_PLATFORM_EGL', file=self.outFile)
-        write('#define XR_USE_PLATFORM_EGL', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_VULKAN', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_OPENGL', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_OPENGL_ES', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_D3D11', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
-        write('#define XR_USE_GRAPHICS_API_D3D12', file=self.outFile)
-        write('#endif', file=self.outFile)
-
-        write('#ifndef XR_USE_TIMESPEC', file=self.outFile)
-        write('#define XR_USE_TIMESPEC', file=self.outFile)
-        write('#endif', file=self.outFile)
 
     def includeOpenXrHeaders(self, gen_opts):
         """Write OpenXR header include statements
         """
+        write('#include "format/platform_types.h"', file=self.outFile)
+        self.newline()
         write('#include "openxr/openxr.h"', file=self.outFile)
         write(
             '#include "openxr/openxr_loader_negotiation.h"', file=self.outFile

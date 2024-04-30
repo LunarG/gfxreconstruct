@@ -170,12 +170,25 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_timespec*
     size_t    bytes_read = 0;
     timespec* value      = wrapper->decoded_value;
 
+#ifdef WIN32
+
+#ifdef _USE_32BIT_TIME_T
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
+#else // !_USE_32BIT_TIME_T
+    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
+#endif
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_nsec));
+
+#else // !WIN32
+
 #if defined(__USE_TIME_BITS64) || __WORDSIZE == 64
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_nsec));
 #else
     bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_nsec));
+#endif
+
 #endif
 
     return bytes_read;

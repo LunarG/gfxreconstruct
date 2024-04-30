@@ -372,6 +372,15 @@ class Dx12BaseGenerator(BaseGenerator):
             is_com_outptr=self.is_com_outptr(struct_name, name, full_type)
         )
 
+    def get_api_prefix(self):
+        return 'Dx12'
+
+    def get_prefix_from_type(self):
+        return 'Dx12'
+
+    def get_wrapper_prefix_from_type(self):
+        return 'object_wrappers'
+
     def genType(self, typeinfo, name, alias):
         """Method override."""
         self.genStruct(None, None, None)
