@@ -132,6 +132,14 @@ jobs:
             type: "debug",
             build_dir: "dbuild"
           }
+        - {
+          name: "macOS Release (macOS-13, x86_64)",
+          os: macos-13,
+          artifact: "gfxreconstruct-dev-macOS-x86_64-release",
+          target: x86_64-apple-darwin,
+          type: "release",
+          build_dir: "build"
+        }
     steps:
     - name: Clone repository
       uses: actions/checkout@v1
