@@ -143,7 +143,8 @@ class DispatchTraceRaysDumpingContext
 
     void CopyImageResource(const ImageInfo* src_image_info, VkImage dst_image);
 
-    void CopyBufferResource(const BufferInfo* src_buffer_info, VkBuffer dst_buffer);
+    void
+    CopyBufferResource(const BufferInfo* src_buffer_info, VkDeviceSize offset, VkDeviceSize range, VkBuffer dst_buffer);
 
     void DestroyMutableResourcesClones();
 
