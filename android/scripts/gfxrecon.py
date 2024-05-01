@@ -185,15 +185,12 @@ def MakeExtrasString(args):
 
     if args.quit_after_measurement_range:
         arg_list.append('--quit-after-measurement-range')
-        arg_list.append('{}'.format(args.quit_after_measurement_range))
 
     if args.flush_measurement_range:
         arg_list.append('--flush-measurement-range')
-        arg_list.append('{}'.format(args.flush_measurement_range))
 
     if args.flush_inside_measurement_range:
         arg_list.append('--flush-inside-measurement-range')
-        arg_list.append('{}'.format(args.flush_inside_measurement_range))
 
     if args.swapchain:
         arg_list.append('--swapchain')
