@@ -864,8 +864,8 @@ inline void InitializePoolObjectState(VkDevice                               par
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
                 descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
                 break;
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                // TODO
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                descriptor_info.inline_uniform_block = std::make_unique<uint8_t[]>(binding_info.count);
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO

@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021, Arm Limited.
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -36,14 +37,19 @@ HeadlessWindow::HeadlessWindow(HeadlessContext* headless_context) : headless_con
 
 HeadlessWindow::~HeadlessWindow() {}
 
-bool HeadlessWindow::Create(
-    const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool HeadlessWindow::Create(const std::string& title,
+                            const int32_t      xpos,
+                            const int32_t      ypos,
+                            const uint32_t     width,
+                            const uint32_t     height,
+                            bool               force_windowed)
 {
     GFXRECON_UNREFERENCED_PARAMETER(title);
     GFXRECON_UNREFERENCED_PARAMETER(xpos);
     GFXRECON_UNREFERENCED_PARAMETER(ypos);
     GFXRECON_UNREFERENCED_PARAMETER(width);
     GFXRECON_UNREFERENCED_PARAMETER(height);
+    GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
 
     return true;
 }
@@ -126,14 +132,14 @@ HeadlessWindowFactory::HeadlessWindowFactory(HeadlessContext* headless_context) 
     assert(headless_context_ != nullptr);
 }
 
-decode::Window*
-HeadlessWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* HeadlessWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(headless_context_);
     decode::Window* window      = new HeadlessWindow(headless_context_);
     auto            application = headless_context_->GetApplication();
     assert(application);
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 

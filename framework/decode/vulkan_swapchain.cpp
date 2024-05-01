@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -24,11 +25,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-const int32_t  kDefaultWindowPositionX = 0;
-const int32_t  kDefaultWindowPositionY = 0;
-const uint32_t kDefaultWindowWidth     = 320;
-const uint32_t kDefaultWindowHeight    = 240;
 
 void VulkanSwapchain::Clean()
 {
@@ -56,7 +52,12 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
                                         VkFlags                             flags,
                                         HandlePointerDecoder<VkSurfaceKHR>* surface,
                                         const encode::VulkanInstanceTable*  instance_table,
-                                        application::Application*           application)
+                                        application::Application*           application,
+                                        const int32_t                       xpos,
+                                        const int32_t                       ypos,
+                                        const uint32_t                      width,
+                                        const uint32_t                      height,
+                                        bool                                force_windowed)
 {
     assert(instance_info != nullptr);
 
@@ -83,11 +84,11 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
         assert(wsi_context);
         auto window_factory = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
         assert(window_factory);
-        auto window =
-            window_factory
-                ? window_factory->Create(
-                      kDefaultWindowPositionX, kDefaultWindowPositionY, kDefaultWindowWidth, kDefaultWindowHeight)
-                : nullptr;
+
+        // By default, the created window will be automatically in full screen mode, and its location will be set to 0,0
+        // if the requested size exceeds or equals the current screen size. If the user specifies "--fw" or "--fwo" this
+        // behavior will change, and replay will instead render in windowed mode.
+        auto window = window_factory ? window_factory->Create(xpos, ypos, width, height, force_windowed) : nullptr;
 
         if (window == nullptr)
         {

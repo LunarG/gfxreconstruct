@@ -40,6 +40,7 @@ typedef void(^GFXReconKeyCallback)(gfxrecon::application::Application*);
 
 @implementation GFXReconWindowDelegate
 - (void)windowWillClose:(NSNotification*)notification {
+    GFXRECON_LOG_DEBUG_ONCE("User closed window");
     [NSApp terminate:self];
 }
 @end
@@ -101,7 +102,7 @@ MetalWindow::MetalWindow(MetalContext* metal_context)
 
 MetalWindow::~MetalWindow() = default;
 
-bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     @autoreleasepool
     {
@@ -142,6 +143,7 @@ bool MetalWindow::Destroy()
     if (window_)
     {
         [static_cast<GFXReconView*>([window_ contentView]) setApp:nil];
+        [window_ setDelegate:nil];
         [window_ close];
         metal_context_->UnregisterWindow(this);
     }
@@ -264,12 +266,12 @@ MetalWindowFactory::MetalWindowFactory(MetalContext* metal_context) : metal_cont
     assert(metal_context_);
 }
 
-decode::Window* MetalWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* MetalWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(metal_context_);
     decode::Window* window = new MetalWindow(metal_context_);
     Application* application = metal_context_->GetApplication();
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 

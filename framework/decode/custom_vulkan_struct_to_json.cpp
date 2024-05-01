@@ -246,10 +246,10 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
                 HandleToJson(jdata["pTexelBufferView"], &meta_struct.pTexelBufferView, options);
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                // Nothing to do here for acceleration structures as the rest of the data is stored
-                // in the pNext chain
-                break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                // Nothing to do here for acceleration-structures and inline-uniform-blocks,
+                // as the rest of the data is stored in the pNext chain
+                break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             case VK_DESCRIPTOR_TYPE_MUTABLE_EXT:
                 GFXRECON_LOG_WARNING("Descriptor type not supported at " __FILE__ ", line: %d.", __LINE__);

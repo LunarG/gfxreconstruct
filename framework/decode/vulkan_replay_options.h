@@ -71,6 +71,7 @@ struct VulkanReplayOptions : public ReplayOptions
     std::string                  replace_dir;
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
+    bool                         wait_before_present{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

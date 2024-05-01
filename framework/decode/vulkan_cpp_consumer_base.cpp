@@ -2332,10 +2332,9 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
                         struct_define_stream << "\t\t\tVkAccelerationStructureKHR descAccelInfo" << cur_count++ << "["
                                              << var.count << "];\n";
                         break;
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                        // Not handled
-                        assert(false);
-                        struct_define_stream << "INLINE UNIFORM BLOCK not handled,";
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                        struct_define_stream << "\t\t\tInlineUniformBlock descInlineUniformInfo" << cur_count++ << "["
+                                             << var.count << "];\n";
                         break;
                     default:
                         assert(false);

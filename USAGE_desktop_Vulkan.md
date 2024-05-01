@@ -525,13 +525,14 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--opcd | --omit-pipeline-cache-data] [--wsi <platform>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
+                        [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--swapchain MODE] [--use-captured-swapchain-indices]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--api <api>] [--no-debug-popup] <file>
-                        [--use-colorspace-fallback]
+                        [--no-debug-popup] [--use-colorspace-fallback]
+                        [--wait-before-present] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -631,12 +632,8 @@ Optional arguments:
                                         to different allocations with different
                                         offsets.  Uses VMA to manage allocations
                                         and suballocations.
-  --api <api>           Use the specified API for replay (Windows only).
-                        Available values are:
-                            vulkan      Replay with the Vulkan API enabled.
-                            d3d12       Replay with the Direct3D API enabled.
-                            all         Replay with both the Vulkan and Direct3D 12 APIs
-                                        enabled. This is the default.
+  --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.
+                        (Same as --force-windowed-origin)
   --no-debug-popup      Disable the 'Abort, Retry, Ignore' message box
                         displayed when abort() is called (Windows debug only).
   --swapchain MODE      Choose a swapchain mode to replay. Available modes are:
@@ -697,6 +694,10 @@ Optional arguments:
   --sgfr <frame-ranges>
               Frame ranges where --sgfs applies. The format is:
                 <frame-start-1>-<frame-end-1>[,<frame-start-1>-<frame-end-1>]*
+  --wait-before-present
+              Force wait on completion of queue operations for all queues
+              before calling Present. This is needed for accurate acquisition
+              of instrumentation data on some platforms.
 ```
 
 ### Key Controls

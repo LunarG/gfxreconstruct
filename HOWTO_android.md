@@ -319,7 +319,7 @@ layers so they don't interfere with the tool.
 
 ```bash
 adb shell settings put global enable_gpu_debug_layers 0
-adb shell settings put global gpu_debug_layers ""
+adb shell "settings put global gpu_debug_layers ''"
 ```
 
 ### 8. Install the replay application

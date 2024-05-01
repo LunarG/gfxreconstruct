@@ -29,6 +29,7 @@
 #include "util/logging.h"
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <limits>
 #include <unordered_map>
@@ -854,7 +855,6 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             const vulkan_state_info::DescriptorInfo* binding = &binding_entry.second;
             bool                                     active  = false;
 
-            write.pNext      = binding->write_pnext;
             write.dstBinding = binding_entry.first;
 
             for (uint32_t i = 0; i < binding->count; ++i)
@@ -1230,6 +1230,10 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
     }
 #endif
 
+    // Write CreateHardwareBufferCmd with or without the AHB payload
+    WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+
+    // If AHardwareBuffer_lockPlanes failed (or is not available) try AHardwareBuffer_lock
     if (result != 0)
     {
         result = AHardwareBuffer_lock(hardware_buffer, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &data);
@@ -1237,15 +1241,17 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
 
     if (result == 0)
     {
-        WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
-
-        if (data != nullptr)
+        if (data == nullptr)
         {
-            WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
+            GFXRECON_LOG_WARNING("AHardwareBuffer_lock returned nullptr for data pointer");
+
+            // Dump zeros for AHB payload.
+            std::vector<uint8_t> zeros(allocation_size, 0);
+            WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
         }
         else
         {
-            GFXRECON_LOG_WARNING("AHardwareBuffer_lock returned nullptr for data pointer");
+            WriteFillMemoryCmd(memory_id, 0, allocation_size, data);
         }
 
         result = AHardwareBuffer_unlock(hardware_buffer, nullptr);
@@ -1257,6 +1263,10 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
     else
     {
         GFXRECON_LOG_ERROR("AHardwareBuffer_lock failed: hardware buffer data will be omitted from the capture file");
+
+        // Dump zeros for AHB payload.
+        std::vector<uint8_t> zeros(allocation_size, 0);
+        WriteFillMemoryCmd(memory_id, 0, zeros.size(), zeros.data());
     }
 #else
     GFXRECON_UNREFERENCED_PARAMETER(memory_id);
@@ -2333,6 +2343,15 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
 
     const VkCopyDescriptorSet* copy = nullptr;
 
+    // scratch-space for a potential pNext-struct
+    constexpr size_t max_num_bytes_p_next_data =
+        std::max(sizeof(VkWriteDescriptorSetAccelerationStructureKHR), sizeof(VkWriteDescriptorSetInlineUniformBlock));
+    std::array<uint8_t, max_num_bytes_p_next_data> p_next_data{};
+
+    write->pBufferInfo      = nullptr;
+    write->pImageInfo       = nullptr;
+    write->pTexelBufferView = nullptr;
+
     switch (write->descriptorType)
     {
         case VK_DESCRIPTOR_TYPE_SAMPLER:
@@ -2340,35 +2359,43 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
         case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
         case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
         case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
-            write->pBufferInfo      = nullptr;
-            write->pImageInfo       = &binding->images[write->dstArrayElement];
-            write->pTexelBufferView = nullptr;
+            write->pImageInfo = &binding->images[write->dstArrayElement];
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
-            write->pBufferInfo      = &binding->buffers[write->dstArrayElement];
-            write->pImageInfo       = nullptr;
-            write->pTexelBufferView = nullptr;
+            write->pBufferInfo = &binding->buffers[write->dstArrayElement];
             break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            write->pBufferInfo      = nullptr;
-            write->pImageInfo       = nullptr;
             write->pTexelBufferView = &binding->texel_buffer_views[write->dstArrayElement];
             break;
-        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-            // TODO
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+            if (binding->inline_uniform_block != nullptr)
+            {
+                auto& p_next    = *reinterpret_cast<VkWriteDescriptorSetInlineUniformBlock*>(p_next_data.data());
+                p_next.sType    = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK;
+                p_next.pNext    = nullptr;
+                p_next.pData    = binding->inline_uniform_block.get();
+                p_next.dataSize = binding->count;
+                write->pNext    = &p_next;
+            }
             break;
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             // TODO
             break;
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
         {
-            write->pBufferInfo      = nullptr;
-            write->pImageInfo       = nullptr;
-            write->pTexelBufferView = nullptr;
+            if (binding->acceleration_structures != nullptr)
+            {
+                auto& p_next = *reinterpret_cast<VkWriteDescriptorSetAccelerationStructureKHR*>(p_next_data.data());
+                p_next.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+                p_next.pNext = nullptr;
+                p_next.accelerationStructureCount = binding->count;
+                p_next.pAccelerationStructures    = binding->acceleration_structures.get();
+                write->pNext                      = &p_next;
+            }
         }
         break;
         default:
@@ -3130,9 +3157,11 @@ bool VulkanStateWriter::CheckDescriptorStatus(const vulkan_state_info::Descripto
                     valid = true;
                 }
                 break;
-            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                // TODO
-                GFXRECON_LOG_WARNING("Descriptor type inline uniform block is not currently supported");
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                if (descriptor->inline_uniform_block != nullptr)
+                {
+                    valid = true;
+                }
                 break;
             case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                 // TODO

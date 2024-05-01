@@ -558,6 +558,12 @@ inline size_t GetAlignedSize(size_t size, size_t align_to)
     return size;
 }
 
+inline bool IsAddressAligned(const void* address, size_t alignment)
+{
+    uintptr_t uint_addr = reinterpret_cast<uintptr_t>(address);
+    return (uint_addr % alignment) == 0;
+}
+
 inline LibraryHandle OpenLibrary(const std::vector<std::string>& name_list)
 {
     for (const auto& name : name_list)

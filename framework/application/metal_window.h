@@ -45,7 +45,8 @@ public:
                 const int32_t      xpos,
                 const int32_t      ypos,
                 const uint32_t     width,
-                const uint32_t     height) override;
+                const uint32_t     height,
+                bool               force_windowed = false) override;
 
     bool Destroy() override;
 
@@ -88,7 +89,7 @@ public:
 
     const char* GetSurfaceExtensionName() const override { return VK_EXT_METAL_SURFACE_EXTENSION_NAME; }
 
-    decode::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    decode::Window* Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed = false) override;
 
     void Destroy(decode::Window* window) override;
 
