@@ -35,6 +35,7 @@
 #include "decode/vulkan_replay_dump_resources_json.h"
 #include "format/format.h"
 #include "util/defines.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cstdint>
 #include <unordered_map>
@@ -299,6 +300,8 @@ class VulkanReplayDumpResourcesBase
     VkCommandBuffer GetDispatchRaysCommandBuffer(VkCommandBuffer original_command_buffer) const;
 
     void Release();
+
+    uint64_t GetBeginCommandBufferIndexOfCommandBuffer(VkCommandBuffer original_command_buffer) const;
 
   private:
     bool UpdateRecordingStatus(VkCommandBuffer original_command_buffer);

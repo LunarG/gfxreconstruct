@@ -1772,7 +1772,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         {
             GFXRECON_LOG_ERROR(
                 "(%s:%u) QueueSubmit failed with %s", __FILE__, __LINE__, util::ToString<VkResult>(res).c_str());
-            goto error;
+            Release();
+            return res;
         }
 
         // Wait
@@ -1780,9 +1781,14 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("QueueWaitIdle failed with %s", util::ToString<VkResult>(res).c_str());
-            goto error;
+            Release();
+            return res;
         }
     }
+
+    dump_json_.BlockStart();
+    auto& qs_block    = dump_json_.InsertSubEntry("QueueSubmit");
+    qs_block["index"] = index;
 
     for (size_t s = 0; s < submit_infos.size(); s++)
     {
@@ -1798,7 +1804,10 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 modified_submit_infos[s].pSignalSemaphores  = 0;
             }
 
-            DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(command_buffer_handles[o]);
+            DrawCallsDumpingContext*         dc_context = FindDrawCallCommandBufferContext(command_buffer_handles[o]);
+            DispatchTraceRaysDumpingContext* dr_context =
+                FindDispatchRaysCommandBufferContext(command_buffer_handles[o]);
+
             if (dc_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
@@ -1808,14 +1817,13 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Dumping draw calls failed (%s).", util::ToString<VkResult>(res).c_str())
-                    goto error;
+                    Release();
+                    return res;
                 }
 
                 submitted = true;
             }
 
-            DispatchTraceRaysDumpingContext* dr_context =
-                FindDispatchRaysCommandBufferContext(command_buffer_handles[o]);
             if (dr_context != nullptr)
             {
                 assert(cmd_buf_begin_map_.find(command_buffer_handles[o]) != cmd_buf_begin_map_.end());
@@ -1825,13 +1833,16 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
                 {
                     GFXRECON_LOG_ERROR("Dumping dispatch/ray tracing failed (%s).",
                                        util::ToString<VkResult>(res).c_str())
-                    goto error;
+                    Release();
+                    return res;
                 }
 
                 submitted = true;
             }
         }
     }
+
+    dump_json_.BlockEnd();
 
     assert(res == VK_SUCCESS);
 
@@ -1859,14 +1870,7 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
         }
     }
 
-error:
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("Something went wrong (%s).", util::ToString<VkResult>(res).c_str())
-        Release();
-    }
-
-    return res;
+    return VK_SUCCESS;
 }
 
 bool VulkanReplayDumpResourcesBase::DumpingBeginCommandBufferIndex(uint64_t index) const
@@ -1974,6 +1978,20 @@ bool VulkanReplayDumpResourcesBase::IsRecording(VkCommandBuffer original_command
     }
 
     return false;
+}
+
+uint64_t
+VulkanReplayDumpResourcesBase::GetBeginCommandBufferIndexOfCommandBuffer(VkCommandBuffer original_command_buffer) const
+{
+    const auto& entry = cmd_buf_begin_map_.find(original_command_buffer);
+    if (entry != cmd_buf_begin_map_.end())
+    {
+        return entry->second;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
