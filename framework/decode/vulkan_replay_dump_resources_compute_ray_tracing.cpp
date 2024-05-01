@@ -286,7 +286,10 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const BufferInfo* src_b
                                                          VkBuffer          dst_buffer)
 {
     assert(src_buffer_info);
+    assert(range);
     assert(dst_buffer != VK_NULL_HANDLE);
+
+    const VkDeviceSize size = (range == VK_WHOLE_SIZE ? src_buffer_info->size - offset : range);
 
     VkBufferMemoryBarrier buf_barrier;
     buf_barrier.sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
@@ -297,7 +300,7 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const BufferInfo* src_b
     buf_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     buf_barrier.buffer              = src_buffer_info->handle;
     buf_barrier.offset              = offset;
-    buf_barrier.size                = range;
+    buf_barrier.size                = size;
 
     assert(device_table != nullptr);
     device_table->CmdPipelineBarrier(DR_command_buffer,
@@ -311,7 +314,7 @@ void DispatchTraceRaysDumpingContext::CopyBufferResource(const BufferInfo* src_b
                                      0,
                                      nullptr);
 
-    VkBufferCopy region = { offset, 0, range };
+    VkBufferCopy region = { offset, 0, size };
     device_table->CmdCopyBuffer(DR_command_buffer, src_buffer_info->handle, dst_buffer, 1, &region);
 }
 
