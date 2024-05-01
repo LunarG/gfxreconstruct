@@ -98,7 +98,14 @@ if (GIT_SHA1)
     endif()
 endif()
 
-configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
+#configure the project_version.h.in file with configure time information
+configure_file("${CMAKE_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
+
+# setup project_version.h.in using project_version_temp.h.in as a source
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/project_version_$<CONFIG>.h" INPUT "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
+
+# Add a compiler definition for the path to project_version.h with the correct config
+add_compile_definitions(PROJECT_VERSION_HEADER_FILE="project_version_$<CONFIG>.h")
 
 option(BUILD_WERROR "Build with warnings as errors" ON)
 
@@ -117,7 +124,7 @@ endmacro()
 
 option(GFXRECON_ENABLE_RELEASE_ASSERTS "Enable release builds to output failed conditions caught by GFXRECON_ASSERT macro." OFF)
 if(${GFXRECON_ENABLE_RELEASE_ASSERTS})
-    add_definitions(-DGFXRECON_ENABLE_RELEASE_ASSERTS)
+    add_compile_definitions(GFXRECON_ENABLE_RELEASE_ASSERTS)
 endif()
 
 option(GFXRECON_TOCPP_SUPPORT "Build ToCpp export tool as part of GFXReconstruct builds." TRUE)
@@ -165,9 +172,9 @@ if(MSVC)
     option(CONVERT_EXPERIMENTAL_D3D12 "Build with convert DX12 enabled" OFF)
 
     if(${D3D12_SUPPORT})
-        add_definitions(-DD3D12_SUPPORT)
+        add_compile_definitions(D3D12_SUPPORT)
         if(${CONVERT_EXPERIMENTAL_D3D12})
-            add_definitions(-DCONVERT_EXPERIMENTAL_D3D12)
+            add_compile_definitions(CONVERT_EXPERIMENTAL_D3D12)
         endif()
 
         # Check Windows SDK version and print warning if there is a mismatch.
@@ -179,26 +186,26 @@ if(MSVC)
                 "set D3D12_SUPPORT=OFF or configure the build with the recommended Windows SDK version. See BUILD.md "
                 "for more information.")
         endif()
-        
+
     else()
         set(BUILD_LAUNCHER_AND_INTERCEPTOR OFF)
     endif()
 
 
     if(${BUILD_LAUNCHER_AND_INTERCEPTOR})
-        add_definitions(-DBUILD_LAUNCHER_AND_INTERCEPTOR)
+        add_compile_definitions(BUILD_LAUNCHER_AND_INTERCEPTOR)
     endif()
 
     # Add option to enable/disable AGS support.
     option(GFXRECON_AGS_SUPPORT "Build with AGS support enabled. Ignored if D3D12_SUPPORT=OFF." ON)
-    
+
     if (${D3D12_SUPPORT})
         if (${GFXRECON_AGS_SUPPORT})
             if (CMAKE_SIZEOF_VOID_P EQUAL 8)
                 find_package(AGS)
                 if (TARGET AGS::AGS)
-                    add_definitions(-DGFXRECON_AGS_SUPPORT)
-                
+                    add_compile_definitions(GFXRECON_AGS_SUPPORT)
+
                     # The value for option GFXRECON_AGS_SUPPORT gets cached so use a non-cached variable
                     # to determine the final result.
                     set(GFXRECON_AGS_SUPPORT_FINAL ON)
@@ -206,7 +213,7 @@ if(MSVC)
             endif() # CMAKE_SIZEOF_VOID_P EQUAL 8
         endif() # GFXRECON_AGS_SUPPORT
     endif() # D3D12_SUPPORT
-	
+
 else(MSVC)
     # Turn off D3D12 support for non MSVC builds.
     set(D3D12_SUPPORT OFF)
