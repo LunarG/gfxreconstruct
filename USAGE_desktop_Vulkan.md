@@ -526,14 +526,13 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--surface-index <N>] [--remove-unsupported] [--validate]
                         [-m <mode> | --memory-translation <mode>]
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
-                        [--use-captured-swapchain-indices]
                         [--swapchain MODE] [--use-captured-swapchain-indices]
                         [--mfr|--measurement-frame-range <start-frame>-<end-frame>]
                         [--measurement-file <file>] [--quit-after-measurement-range]
                         [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
-                        [--no-debug-popup] <file>
-                        [--use-colorspace-fallback]
+                        [--no-debug-popup] [--use-colorspace-fallback]
+                        [--wait-before-present] <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -695,6 +694,10 @@ Optional arguments:
   --sgfr <frame-ranges>
               Frame ranges where --sgfs applies. The format is:
                 <frame-start-1>-<frame-end-1>[,<frame-start-1>-<frame-end-1>]*
+  --wait-before-present
+              Force wait on completion of queue operations for all queues
+              before calling Present. This is needed for accurate acquisition
+              of instrumentation data on some platforms.
 ```
 
 ### Key Controls
