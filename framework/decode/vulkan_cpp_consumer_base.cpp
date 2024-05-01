@@ -18,7 +18,7 @@
 #include "decode/vulkan_cpp_consumer_base.h"
 #include "decode/vulkan_cpp_template_strings.h"
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 #include "util/file_path.h"
 #include "util/platform.h"
 #include <util/hash.h>
@@ -1341,7 +1341,7 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
     std::string              enabled_extensions_names = "NULL";
     if (struct_info->enabledExtensionCount > 0)
     {
-        GfxToCppPlatform cur_platform = consumer.GetPlatform();
+        GfxToCppPlatform cur_platform       = consumer.GetPlatform();
         std::string      cur_extension_name = kTargetPlatforms.at(cur_platform).wsiSurfaceExtName;
 
         // Generate a map of WSI extensions to the new extension for this current platform
