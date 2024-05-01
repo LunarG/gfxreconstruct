@@ -86,11 +86,8 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
 
 void VulkanReplayDumpResourcesJson::Close()
 {
-
     if (file_ != nullptr)
     {
-        BlockEnd();
-
         util::platform::FileWrite("]", 1, 1, file_);
         gfxrecon::util::platform::FileClose(file_);
         file_ = nullptr;
@@ -100,6 +97,7 @@ void VulkanReplayDumpResourcesJson::Close()
 nlohmann::ordered_json& VulkanReplayDumpResourcesJson::BlockStart()
 {
     json_data_.clear();
+    current_entry = nullptr;
     return json_data_;
 }
 
@@ -122,8 +120,13 @@ void VulkanReplayDumpResourcesJson::BlockEnd()
 
 nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(const std::string& entry_name)
 {
-    nlohmann::ordered_json& sub_entry = json_data_[entry_name];
-    return sub_entry;
+    current_entry = &json_data_[entry_name];
+    return *current_entry;
+}
+
+nlohmann::ordered_json& VulkanReplayDumpResourcesJson::GetCurrentSubEntry()
+{
+    return current_entry != nullptr ? *current_entry : json_data_;
 }
 
 void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,

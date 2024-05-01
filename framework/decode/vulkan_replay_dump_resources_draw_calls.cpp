@@ -912,7 +912,8 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilen
 
 void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(uint64_t qs_index, uint64_t bcb_index) const
 {
-    auto& drawcall_json_entries = dump_json.InsertSubEntry("drawCallCommands");
+    auto& current_block         = dump_json.GetCurrentSubEntry();
+    auto& drawcall_json_entries = current_block["drawCallCommands"];
 
     for (size_t cb = 0; cb < command_buffers.size(); ++cb)
     {
