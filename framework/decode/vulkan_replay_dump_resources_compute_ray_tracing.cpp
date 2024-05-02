@@ -77,9 +77,10 @@ void DispatchTraceRaysDumpingContext::Release()
         if (DR_command_buffer != VK_NULL_HANDLE)
         {
             const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
-            if (device_info)
+            if (device_info != nullptr)
             {
                 DestroyMutableResourcesClones();
+                ReleaseIndirectParams();
 
                 VkDevice device = device_info->handle;
 
@@ -96,6 +97,13 @@ void DispatchTraceRaysDumpingContext::Release()
 
         original_command_buffer_info = nullptr;
     }
+
+    dispatch_indices.clear();
+    trace_rays_indices.clear();
+    bound_descriptor_sets_compute.clear();
+    bound_descriptor_sets_ray_tracing.clear();
+    dispatch_params.clear();
+    trace_rays_params.clear();
 }
 
 VkResult DispatchTraceRaysDumpingContext::CloneCommandBuffer(CommandBufferInfo*                 orig_cmd_buf_info,
@@ -701,6 +709,59 @@ void DispatchTraceRaysDumpingContext::DestroyMutableResourcesClones()
                 device_table->DestroyBuffer(
                     device, tr_params.second.mutable_resources_clones_before.buffers[i].buffer, nullptr);
             }
+        }
+    }
+}
+
+void DispatchTraceRaysDumpingContext::ReleaseIndirectParams()
+{
+    const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
+    for (auto& dis_params : dispatch_params)
+    {
+        if (dis_params.second.type != kDispatchIndirect)
+        {
+            continue;
+        }
+
+        if (dis_params.second.dispatch_params_union.dispatch_indirect.new_params_buffer != VK_NULL_HANDLE)
+        {
+            device_table->DestroyBuffer(device_info->handle,
+                                        dis_params.second.dispatch_params_union.dispatch_indirect.new_params_buffer,
+                                        nullptr);
+            dis_params.second.dispatch_params_union.dispatch_indirect.new_params_buffer = VK_NULL_HANDLE;
+        }
+
+        if (dis_params.second.dispatch_params_union.dispatch_indirect.new_params_memory != VK_NULL_HANDLE)
+        {
+            device_table->FreeMemory(device_info->handle,
+                                     dis_params.second.dispatch_params_union.dispatch_indirect.new_params_memory,
+                                     nullptr);
+            dis_params.second.dispatch_params_union.dispatch_indirect.new_params_memory = VK_NULL_HANDLE;
+        }
+    }
+
+    for (auto& tr_params : trace_rays_params)
+    {
+        if (tr_params.second.type != kTraceRaysIndirect)
+        {
+            continue;
+        }
+
+        if (tr_params.second.trace_rays_params_union.trace_rays_indirect.new_params_buffer != VK_NULL_HANDLE)
+        {
+            device_table->DestroyBuffer(device_info->handle,
+                                        tr_params.second.trace_rays_params_union.trace_rays_indirect.new_params_buffer,
+                                        nullptr);
+            tr_params.second.trace_rays_params_union.trace_rays_indirect.new_params_buffer = VK_NULL_HANDLE;
+        }
+
+        if (tr_params.second.trace_rays_params_union.trace_rays_indirect.new_params_buffer_memory != VK_NULL_HANDLE)
+        {
+            device_table->FreeMemory(
+                device_info->handle,
+                tr_params.second.trace_rays_params_union.trace_rays_indirect.new_params_buffer_memory,
+                nullptr);
+            tr_params.second.trace_rays_params_union.trace_rays_indirect.new_params_buffer_memory = VK_NULL_HANDLE;
         }
     }
 }

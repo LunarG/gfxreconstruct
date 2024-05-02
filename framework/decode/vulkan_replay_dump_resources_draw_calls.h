@@ -116,10 +116,6 @@ class DrawCallsDumpingContext
 
     void FinalizeCommandBuffer();
 
-    void SetRenderTargets(const std::vector<ImageInfo*>& color_att_imgs, ImageInfo* depth_att_img, bool new_renderpass);
-
-    void SetRenderArea(const VkRect2D& new_render_area);
-
     uint32_t GetDrawCallActiveCommandBuffers(CommandBufferIterator& first, CommandBufferIterator& last) const;
 
     VkResult
@@ -188,6 +184,10 @@ class DrawCallsDumpingContext
     void Release();
 
   private:
+    void SetRenderTargets(const std::vector<ImageInfo*>& color_att_imgs, ImageInfo* depth_att_img, bool new_renderpass);
+
+    void SetRenderArea(const VkRect2D& new_render_area);
+
     std::vector<std::string> GenerateRenderTargetImageFilename(VkFormat format,
                                                                uint64_t cmd_buf_index,
                                                                uint64_t qs_index,
@@ -222,7 +222,9 @@ class DrawCallsDumpingContext
 
     void DestroyMutableResourceBackups();
 
-    void ReleaseIndirectDrawParams();
+    void ReleaseIndirectParams();
+
+    void ResetFetchedIndirectParams();
 
     VkResult BackUpMutableResources(VkQueue queue);
 

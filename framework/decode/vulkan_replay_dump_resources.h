@@ -301,6 +301,8 @@ class VulkanReplayDumpResourcesBase
 
     void Release();
 
+    void ResetCommandBuffer(VkCommandBuffer original_command_buffer);
+
     uint64_t GetBeginCommandBufferIndexOfCommandBuffer(VkCommandBuffer original_command_buffer) const;
 
   private:

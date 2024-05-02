@@ -602,6 +602,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    const StructPointerDecoder<Decoded_VkCommandBufferAllocateInfo>* pAllocateInfo,
                                    HandlePointerDecoder<VkCommandBuffer>*                           pCommandBuffers);
 
+    void OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffers               func,
+                                    const DeviceInfo*                      device_info,
+                                    CommandPoolInfo*                       command_pool_info,
+                                    uint32_t                               command_buffer_count,
+                                    HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers);
+
     VkResult OverrideAllocateMemory(PFN_vkAllocateMemory                                       func,
                                     VkResult                                                   original_result,
                                     const DeviceInfo*                                          device_info,
@@ -1015,6 +1021,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                         VkResult                  original_result,
                                         CommandBufferInfo*        command_buffer_info,
                                         VkCommandBufferResetFlags flags);
+
+    VkResult OverrideResetCommandPool(PFN_vkResetCommandPool  func,
+                                      VkResult                original_result,
+                                      const DeviceInfo*       device_info,
+                                      CommandPoolInfo*        pool_info,
+                                      VkCommandPoolResetFlags flags);
 
     void     OverrideCmdDebugMarkerInsertEXT(PFN_vkCmdDebugMarkerInsertEXT                             func,
                                              CommandBufferInfo*                                        command_buffer_info,
