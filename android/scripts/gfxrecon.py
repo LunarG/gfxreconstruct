@@ -47,6 +47,7 @@ app_category = 'android.intent.category.LAUNCHER'
 
 # ADB commands
 adb_install = 'adb install -g -t -r'
+adb_sdk_version = 'adb shell getprop ro.build.version.sdk'
 adb_start = 'adb shell am start -n {} -a {} -c {}'.format(app_activity, app_action, app_category)
 adb_stop = 'adb shell am force-stop {}'.format(app_name)
 adb_push = 'adb push'
@@ -229,7 +230,9 @@ def MakeExtrasString(args):
 def InstallApk(install_args):
     install_parser = CreateInstallApkParser()
     args = install_parser.parse_args(install_args)
-    cmd = adb_install + ' ' + args.file
+    sdk = int(subprocess.check_output(shlex.split(adb_sdk_version)).decode())
+    force_queryable = ' --force-queryable' if sdk >= 30 else ''
+    cmd = adb_install + force_queryable + ' ' + args.file
     print('Executing:', cmd)
     subprocess.check_call(shlex.split(cmd, posix='win' not in sys.platform))
 
