@@ -50,7 +50,7 @@ struct DescriptorUpdateTemplateEntries
 };
 
 // Track items that are specific to a given device
-struct DeviceInfo
+struct VkDeviceInfo
 {
     format::HandleId                               parent{ 0 };
     std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
@@ -700,7 +700,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::unordered_map<VkObjectType, uint32_t>                            counters_;
     VulkanCppLoaderGenerator                                              pfn_loader_;
     std::unordered_map<format::HandleId, std::string>                     handle_id_map_;
-    std::unordered_map<format::HandleId, DeviceInfo*>                     device_info_map_;
+    std::unordered_map<format::HandleId, VkDeviceInfo*>                   device_info_map_;
     std::vector<std::string>                                              func_data_;
     std::unordered_map<uint64_t, std::string>                             memory_id_map_;
     std::unordered_map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;
