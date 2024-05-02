@@ -5188,7 +5188,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             }
             else
             {
-                GFXRECON_LOG_WARNING(
+                GFXRECON_LOG_DEBUG(
                     "There's initial pipeline cache data in VkPipelineCacheCreateInfo, but no corresponding "
                     "replay time cache data!");
 
