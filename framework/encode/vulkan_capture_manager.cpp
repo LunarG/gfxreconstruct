@@ -22,7 +22,7 @@
  ** DEALINGS IN THE SOFTWARE.
  */
 
-#include PROJECT_VERSION_HEADER_FILE
+#include "project_version.h"
 
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"

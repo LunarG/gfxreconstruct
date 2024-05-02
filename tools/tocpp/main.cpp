@@ -19,7 +19,7 @@
 #include <filesystem>
 #include <util/date_time.h>
 
-#include PROJECT_VERSION_HEADER_FILE
+#include "project_version.h"
 
 #include "decode/file_processor.h"
 #include "decode/vulkan_cpp_utilities.h"
@@ -206,7 +206,7 @@ static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::Ar
 
 static gfxrecon::decode::GfxToCppPlatform GetCppTargetPlatform(const gfxrecon::util::ArgumentParser& arg_parser)
 {
-    std::string platform;
+    std::string                        platform;
 
     // We can just check for the short argument because the argument parser will assign even
     // the long argument to either one for easier detecting.

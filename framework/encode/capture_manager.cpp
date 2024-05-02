@@ -22,7 +22,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include PROJECT_VERSION_HEADER_FILE
+#include "project_version.h"
 
 #include "encode/capture_manager.h"
 

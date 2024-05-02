@@ -10,7 +10,6 @@ set(GFXRECONSTRUCT_PROJECT_VERSION_PATCH 4)
 
 set(GFXRECON_PROJECT_VERSION_DESIGNATION "-unknown")
 set(GFXRECON_PROJECT_VERSION_SHA1 "unknown-build-source")
-set(GFXRECONSTRUCT_PROJECT_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
 
 include(GetGitRevisionDescription)
 get_git_head_revision(GIT_REFSPEC GIT_SHA1)
@@ -47,14 +46,7 @@ if (GIT_SHA1)
     endif()
 endif()
 
-#configure the project_version.h.in file with configure time information
-configure_file("${GFXRECON_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
-
-# setup project_version.h.in using project_version_temp.h.in as a source
-file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/project_version_$<CONFIG>.h" INPUT "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
-
-# Add a compiler definition for the path to project_version.h with the correct config
-add_definitions(-DPROJECT_VERSION_HEADER_FILE="project_version_$<CONFIG>.h")
+configure_file("${GFXRECON_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
 
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION VK_USE_PLATFORM_ANDROID_KHR)

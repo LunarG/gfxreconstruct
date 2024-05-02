@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include PROJECT_VERSION_HEADER_FILE
+#include "project_version.h"
 #include "winres.h"
 
 VS_VERSION_INFO VERSIONINFO

@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include PROJECT_VERSION_HEADER_FILE
+#include "project_version.h"
 
 #if defined(D3D12_SUPPORT)
 #include "decode/dx_replay_options.h"
