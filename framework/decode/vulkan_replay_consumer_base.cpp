@@ -4069,6 +4069,37 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateCommandBuffers(
     return result;
 }
 
+void VulkanReplayConsumerBase::OverrideFreeCommandBuffers(PFN_vkFreeCommandBuffers               func,
+                                                          const DeviceInfo*                      device_info,
+                                                          CommandPoolInfo*                       command_pool_info,
+                                                          uint32_t                               command_buffer_count,
+                                                          HandlePointerDecoder<VkCommandBuffer>* pCommandBuffers)
+{
+    assert((device_info != nullptr) && (pCommandBuffers != nullptr) &&
+           (pCommandBuffers->GetHandlePointer() != nullptr));
+
+    if (options_.dumping_resources && command_pool_info != nullptr)
+    {
+        const format::HandleId* cmd_buf_handles = pCommandBuffers->GetPointer();
+        for (uint32_t i = 0; i < command_buffer_count; ++i)
+        {
+            auto it = command_pool_info->child_ids.find(cmd_buf_handles[i]);
+            if (it != command_pool_info->child_ids.end())
+            {
+                if (options_.dumping_resources)
+                {
+                    CommandBufferInfo* cb_info = object_info_table_.GetCommandBufferInfo(*it);
+                    assert(cb_info != nullptr);
+                    resource_dumper.ResetCommandBuffer(cb_info->handle);
+                }
+            }
+        }
+    }
+
+    const VkCommandBuffer* in_pCommandBuffers = pCommandBuffers->GetHandlePointer();
+    func(device_info->handle, command_pool_info->handle, command_buffer_count, in_pCommandBuffers);
+}
+
 VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
     PFN_vkAllocateMemory                                       func,
     VkResult                                                   original_result,
@@ -7661,7 +7692,36 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandBuffer(PFN_vkResetCommand
     ClearCommandBufferInfo(command_buffer_info);
 
     VkCommandBuffer command_buffer = command_buffer_info->handle;
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper.ResetCommandBuffer((command_buffer));
+    }
+
     return func(command_buffer, flags);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPool  func,
+                                                            VkResult                original_result,
+                                                            const DeviceInfo*       device_info,
+                                                            CommandPoolInfo*        pool_info,
+                                                            VkCommandPoolResetFlags flags)
+{
+    assert(device_info != nullptr && pool_info != nullptr);
+
+    if (options_.dumping_resources && original_result >= 0 && pool_info != nullptr)
+    {
+        for (auto& cb_id : pool_info->child_ids)
+        {
+            CommandBufferInfo* cb_info = object_info_table_.GetCommandBufferInfo(cb_id);
+            assert(cb_info != nullptr);
+
+            resource_dumper.ResetCommandBuffer(cb_info->handle);
+        }
+    }
+
+    VkResult res = func(device_info->handle, pool_info->handle, flags);
+    return res;
 }
 
 void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(

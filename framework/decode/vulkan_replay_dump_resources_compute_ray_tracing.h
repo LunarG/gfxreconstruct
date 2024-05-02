@@ -157,6 +157,8 @@ class DispatchTraceRaysDumpingContext
 
     void DestroyMutableResourcesClones();
 
+    void ReleaseIndirectParams();
+
     VkResult FetchIndirectParams();
 
     VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const;
