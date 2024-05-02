@@ -7,6 +7,7 @@ target_sources(gfxrecon_format
                    ${GFXRECON_SOURCE_DIR}/framework/format/format_util.h
                    ${GFXRECON_SOURCE_DIR}/framework/format/format_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/format/platform_types.h
+                   ${GFXRECON_SOURCE_DIR}/framework/format/platform_types_d3d_overrides.h
               )
 
 target_include_directories(gfxrecon_format
