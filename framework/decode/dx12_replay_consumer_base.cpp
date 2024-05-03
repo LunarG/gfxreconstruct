@@ -5025,99 +5025,108 @@ void Dx12ReplayConsumerBase::OverrideBeginRenderPass(
     auto dump_command_sets = GetCommandListsForDumpResources(replay_object_info);
     if (!dump_command_sets.empty())
     {
-        GFXRECON_ASSERT(dump_command_sets.size() == 3);
-
-        auto captured_rt_descs = pRenderTargets->GetMetaStructPointer();
-        track_dump_resources_.render_target_heap_ids.resize(NumRenderTargets);
-        track_dump_resources_.replay_render_target_handles.resize(NumRenderTargets);
-        for (uint32_t i = 0; i < NumRenderTargets; ++i)
+        if (dump_command_sets.size() == 3)
         {
-            track_dump_resources_.render_target_heap_ids[i]       = captured_rt_descs[i].cpuDescriptor->heap_id;
-            track_dump_resources_.replay_render_target_handles[i] = *captured_rt_descs[i].cpuDescriptor->decoded_value;
-        }
+            auto captured_rt_descs = pRenderTargets->GetMetaStructPointer();
+            track_dump_resources_.render_target_heap_ids.resize(NumRenderTargets);
+            track_dump_resources_.replay_render_target_handles.resize(NumRenderTargets);
+            for (uint32_t i = 0; i < NumRenderTargets; ++i)
+            {
+                track_dump_resources_.render_target_heap_ids[i] = captured_rt_descs[i].cpuDescriptor->heap_id;
+                track_dump_resources_.replay_render_target_handles[i] =
+                    *captured_rt_descs[i].cpuDescriptor->decoded_value;
+            }
 
-        auto captured_ds_desc = pDepthStencil->GetMetaStructPointer();
-        if (!pDepthStencil->IsNull())
+            auto captured_ds_desc = pDepthStencil->GetMetaStructPointer();
+            if (!pDepthStencil->IsNull())
+            {
+                track_dump_resources_.depth_stencil_heap_id       = captured_ds_desc->cpuDescriptor->heap_id;
+                track_dump_resources_.replay_depth_stencil_handle = *captured_ds_desc->cpuDescriptor->decoded_value;
+            }
+
+            // before
+            ID3D12GraphicsCommandList4* command_list4_before;
+            dump_command_sets[graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall].list->QueryInterface(
+                IID_PPV_ARGS(&command_list4_before));
+
+            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> before_rt_descs;
+            for (uint32_t i = 0; i < NumRenderTargets; ++i)
+            {
+                D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = *captured_rt_descs[i].decoded_value;
+                desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+                before_rt_descs.emplace_back(std::move(desc));
+            }
+
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  before_ds_desc   = {};
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_before_ds_desc = nullptr;
+            if (!pDepthStencil->IsNull())
+            {
+                before_ds_desc                          = *captured_ds_desc->decoded_value;
+                before_ds_desc.DepthEndingAccess.Type   = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+                before_ds_desc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+                p_before_ds_desc                        = &before_ds_desc;
+            }
+            command_list4_before->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
+
+            // drawcall
+            ID3D12GraphicsCommandList4* command_list4_draw_call;
+            dump_command_sets[graphics::TrackDumpResources::SplitCommandType::kDrawCall].list->QueryInterface(
+                IID_PPV_ARGS(&command_list4_draw_call));
+
+            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> draw_call_rt_descs;
+            for (uint32_t i = 0; i < NumRenderTargets; ++i)
+            {
+                D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = *captured_rt_descs[i].decoded_value;
+                desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+                draw_call_rt_descs.emplace_back(std::move(desc));
+            }
+
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  draw_call_ds_desc   = {};
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_draw_call_ds_desc = nullptr;
+            if (!pDepthStencil->IsNull())
+            {
+                draw_call_ds_desc                             = *captured_ds_desc->decoded_value;
+                draw_call_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                draw_call_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                draw_call_ds_desc.DepthEndingAccess.Type      = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+                draw_call_ds_desc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+                p_draw_call_ds_desc                           = &draw_call_ds_desc;
+            }
+            command_list4_draw_call->BeginRenderPass(
+                NumRenderTargets, draw_call_rt_descs.data(), p_draw_call_ds_desc, Flags);
+
+            // after
+            ID3D12GraphicsCommandList4* command_list4_after;
+            dump_command_sets[graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall].list->QueryInterface(
+                IID_PPV_ARGS(&command_list4_after));
+
+            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> after_rt_descs;
+            for (uint32_t i = 0; i < NumRenderTargets; ++i)
+            {
+                D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = *captured_rt_descs[i].decoded_value;
+                desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                after_rt_descs.emplace_back(std::move(desc));
+            }
+
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  after_ds_desc   = {};
+            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_after_ds_desc = nullptr;
+            if (!pDepthStencil->IsNull())
+            {
+                after_ds_desc                             = *captured_ds_desc->decoded_value;
+                after_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                after_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+                p_after_ds_desc                           = &after_ds_desc;
+            }
+            command_list4_after->BeginRenderPass(NumRenderTargets, after_rt_descs.data(), p_after_ds_desc, Flags);
+        }
+        else if (dump_command_sets.size() == 1)
         {
-            track_dump_resources_.depth_stencil_heap_id       = captured_ds_desc->cpuDescriptor->heap_id;
-            track_dump_resources_.replay_depth_stencil_handle = *captured_ds_desc->cpuDescriptor->decoded_value;
+            ID3D12GraphicsCommandList4* command_list4;
+            dump_command_sets[0].list->QueryInterface(IID_PPV_ARGS(&command_list4));
+            command_list4->BeginRenderPass(
+                NumRenderTargets, pRenderTargets->GetPointer(), pDepthStencil->GetPointer(), Flags);
         }
-
-        // before
-        ID3D12GraphicsCommandList4* command_list4_before;
-        dump_command_sets[graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall].list->QueryInterface(
-            IID_PPV_ARGS(&command_list4_before));
-
-        std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> before_rt_descs;
-        for (uint32_t i = 0; i < NumRenderTargets; ++i)
-        {
-            D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = *captured_rt_descs[i].decoded_value;
-            desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-            before_rt_descs.emplace_back(std::move(desc));
-        }
-
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  before_ds_desc   = {};
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_before_ds_desc = nullptr;
-        if (!pDepthStencil->IsNull())
-        {
-            before_ds_desc                          = *captured_ds_desc->decoded_value;
-            before_ds_desc.DepthEndingAccess.Type   = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-            before_ds_desc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-            p_before_ds_desc                        = &before_ds_desc;
-        }
-        command_list4_before->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
-
-        // drawcall
-        ID3D12GraphicsCommandList4* command_list4_draw_call;
-        dump_command_sets[graphics::TrackDumpResources::SplitCommandType::kDrawCall].list->QueryInterface(
-            IID_PPV_ARGS(&command_list4_draw_call));
-
-        std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> draw_call_rt_descs;
-        for (uint32_t i = 0; i < NumRenderTargets; ++i)
-        {
-            D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = *captured_rt_descs[i].decoded_value;
-            desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-            desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-            draw_call_rt_descs.emplace_back(std::move(desc));
-        }
-
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  draw_call_ds_desc   = {};
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_draw_call_ds_desc = nullptr;
-        if (!pDepthStencil->IsNull())
-        {
-            draw_call_ds_desc                             = *captured_ds_desc->decoded_value;
-            draw_call_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-            draw_call_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-            draw_call_ds_desc.DepthEndingAccess.Type      = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-            draw_call_ds_desc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-            p_draw_call_ds_desc                           = &draw_call_ds_desc;
-        }
-        command_list4_draw_call->BeginRenderPass(
-            NumRenderTargets, draw_call_rt_descs.data(), p_draw_call_ds_desc, Flags);
-
-        // after
-        ID3D12GraphicsCommandList4* command_list4_after;
-        dump_command_sets[graphics::TrackDumpResources::SplitCommandType::kAfterDrawCall].list->QueryInterface(
-            IID_PPV_ARGS(&command_list4_after));
-
-        std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> after_rt_descs;
-        for (uint32_t i = 0; i < NumRenderTargets; ++i)
-        {
-            D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = *captured_rt_descs[i].decoded_value;
-            desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-            after_rt_descs.emplace_back(std::move(desc));
-        }
-
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  after_ds_desc   = {};
-        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_after_ds_desc = nullptr;
-        if (!pDepthStencil->IsNull())
-        {
-            after_ds_desc                             = *captured_ds_desc->decoded_value;
-            after_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-            after_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-            p_after_ds_desc                           = &after_ds_desc;
-        }
-        command_list4_after->BeginRenderPass(NumRenderTargets, after_rt_descs.data(), p_after_ds_desc, Flags);
     }
 }
 
@@ -5199,26 +5208,10 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
                 }
                 break;
             }
-            case format::ApiCall_ID3D12GraphicsCommandList_Close:
-            {
-                if (drawcall_info->begin_renderpass_block_index != 0)
-                {
-                    ID3D12GraphicsCommandList4* command_list4_before;
-                    (*command_sets)[graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall]
-                        .list->QueryInterface(IID_PPV_ARGS(&command_list4_before));
-                    command_list4_before->EndRenderPass();
-
-                    ID3D12GraphicsCommandList4* command_list4_draw_call;
-                    (*command_sets)[graphics::TrackDumpResources::SplitCommandType::kDrawCall].list->QueryInterface(
-                        IID_PPV_ARGS(&command_list4_draw_call));
-                    command_list4_draw_call->EndRenderPass();
-                }
-                cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
-                break;
-            }
             // It has to ensure that the splited command list has a pair of BeginQuery and EndQuery.
             case format::ApiCall_ID3D12GraphicsCommandList_BeginQuery:
             case format::ApiCall_ID3D12GraphicsCommandList_EndQuery:
+            case format::ApiCall_ID3D12GraphicsCommandList_Close:
             {
                 cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
                 break;
@@ -5279,6 +5272,22 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
                 if (block_index == drawcall_info->begin_renderpass_block_index)
                 {
                     cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
+                }
+                else
+                {
+                    cmd_sets.emplace_back((*command_sets)[split_type]);
+                }
+                break;
+            }
+            case format::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass:
+            {
+                if (block_index == drawcall_info->end_renderpass_block_index)
+                {
+                    cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
+                }
+                else
+                {
+                    cmd_sets.emplace_back((*command_sets)[split_type]);
                 }
                 break;
             }

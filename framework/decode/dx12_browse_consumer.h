@@ -54,6 +54,7 @@ struct TrackDumpDrawcall
     uint64_t            begin_block_index{ 0 };
     uint64_t            close_block_index{ 0 };
     uint64_t            begin_renderpass_block_index{ 0 };
+    uint64_t            end_renderpass_block_index{ 0 };
     uint64_t            set_render_targets_block_index{ 0 };
     format::HandleId    root_signature_handle_id{ format::kNullHandleId };
     bool is_draw{ false }; // true: DrawInstanced, DrawIndexedInstanced, false: Dispatch, ExecuteIndirect, ExecuteBundle
@@ -92,7 +93,6 @@ struct TrackDumpDrawcall
 struct TrackDumpCommandList
 {
     uint64_t         begin_block_index{ 0 };
-    uint64_t         close_block_index{ 0 };
     uint64_t         current_begin_renderpass_block_index{ 0 };
     uint64_t         current_set_render_targets_block_index{ 0 };
     format::HandleId current_root_signature_handle_id{ format::kNullHandleId };
@@ -116,7 +116,6 @@ struct TrackDumpCommandList
     void Clear()
     {
         begin_block_index                      = 0;
-        close_block_index                      = 0;
         current_begin_renderpass_block_index   = 0;
         current_set_render_targets_block_index = 0;
         current_captured_vertex_buffer_views.clear();
@@ -210,6 +209,25 @@ class Dx12BrowseConsumer : public Dx12Consumer
             {
                 it->second.current_begin_renderpass_block_index   = call_info.index;
                 it->second.current_set_render_targets_block_index = 0;
+            }
+        }
+    }
+
+    virtual void Process_ID3D12GraphicsCommandList4_EndRenderPass(const ApiCallInfo& call_info,
+                                                                  format::HandleId   object_id)
+    {
+        if (target_command_list_ == format::kNullHandleId)
+        {
+            auto it = track_commandlist_infos_.find(object_id);
+            if (it != track_commandlist_infos_.end())
+            {
+                for (auto& drawcall : it->second.track_dump_drawcalls)
+                {
+                    if (drawcall->begin_renderpass_block_index != 0 && drawcall->end_renderpass_block_index == 0)
+                    {
+                        drawcall->end_renderpass_block_index = call_info.index;
+                    }
+                }
             }
         }
     }
@@ -422,7 +440,6 @@ class Dx12BrowseConsumer : public Dx12Consumer
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
-                it->second.close_block_index = call_info.index;
                 for (auto& drawcall : it->second.track_dump_drawcalls)
                 {
                     drawcall->close_block_index = call_info.index;
