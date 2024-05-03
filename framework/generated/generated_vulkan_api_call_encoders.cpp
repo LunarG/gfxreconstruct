@@ -92,8 +92,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyInstance(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -129,8 +129,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -177,8 +177,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -211,8 +211,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -250,8 +250,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -297,8 +297,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -331,8 +331,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -365,8 +365,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -400,8 +400,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDevice(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -444,8 +444,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -482,8 +482,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -521,8 +521,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -561,8 +561,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -595,8 +595,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -632,8 +632,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -677,8 +677,8 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -718,8 +718,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -764,8 +764,8 @@ VKAPI_ATTR void VKAPI_CALL UnmapMemory(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -798,8 +798,8 @@ VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -839,8 +839,8 @@ VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -880,8 +880,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -916,8 +916,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -956,8 +956,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -995,8 +995,8 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1030,8 +1030,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1066,8 +1066,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1107,8 +1107,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1148,8 +1148,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1191,8 +1191,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1241,8 +1241,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1279,8 +1279,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetFences(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1316,8 +1316,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1355,8 +1355,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1396,8 +1396,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1446,8 +1446,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1485,8 +1485,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1535,8 +1535,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1572,8 +1572,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1608,8 +1608,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetEvent(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1644,8 +1644,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1682,8 +1682,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1732,8 +1732,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1775,8 +1775,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1825,8 +1825,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1870,8 +1870,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1909,8 +1909,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -1962,8 +1962,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2001,8 +2001,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2046,8 +2046,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2085,8 +2085,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2122,8 +2122,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2175,8 +2175,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2214,8 +2214,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2267,8 +2267,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2306,8 +2306,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2356,8 +2356,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2395,8 +2395,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2441,8 +2441,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2480,8 +2480,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2519,8 +2519,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2572,8 +2572,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2611,8 +2611,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2664,8 +2664,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2703,8 +2703,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2756,8 +2756,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2795,8 +2795,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2845,8 +2845,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2883,8 +2883,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2922,8 +2922,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -2975,8 +2975,8 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3019,8 +3019,8 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3061,8 +3061,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3114,8 +3114,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3153,8 +3153,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3203,8 +3203,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3241,8 +3241,8 @@ VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3277,8 +3277,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3327,8 +3327,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3365,8 +3365,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3403,8 +3403,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateCommandBuffers(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3456,8 +3456,8 @@ VKAPI_ATTR void VKAPI_CALL FreeCommandBuffers(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3494,8 +3494,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3532,8 +3532,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3567,8 +3567,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3604,8 +3604,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3640,8 +3640,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewport(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3677,8 +3677,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissor(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3712,8 +3712,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3747,8 +3747,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3782,8 +3782,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3816,8 +3816,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3851,8 +3851,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3886,8 +3886,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3921,8 +3921,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -3961,8 +3961,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4002,8 +4002,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4040,8 +4040,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4079,8 +4079,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDraw(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4119,8 +4119,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4159,8 +4159,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4198,8 +4198,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4236,8 +4236,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatch(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4272,8 +4272,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4309,8 +4309,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4350,8 +4350,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4394,8 +4394,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4437,8 +4437,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4478,8 +4478,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4518,8 +4518,8 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4557,8 +4557,8 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4597,8 +4597,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4638,8 +4638,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4678,8 +4678,8 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4719,8 +4719,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4758,8 +4758,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4793,8 +4793,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4836,8 +4836,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4890,8 +4890,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4937,8 +4937,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -4973,8 +4973,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5009,8 +5009,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5046,8 +5046,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5087,8 +5087,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5130,8 +5130,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5168,8 +5168,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5205,8 +5205,8 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5237,8 +5237,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5270,8 +5270,8 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5305,8 +5305,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5346,8 +5346,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5389,8 +5389,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeatures(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5425,8 +5425,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMask(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5463,8 +5463,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBase(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5502,8 +5502,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroups(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5551,8 +5551,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5589,8 +5589,8 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5628,8 +5628,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5666,8 +5666,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5699,8 +5699,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5733,8 +5733,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5768,8 +5768,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5812,8 +5812,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5846,8 +5846,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5881,8 +5881,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5917,8 +5917,8 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5952,8 +5952,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -5990,8 +5990,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversion(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6040,8 +6040,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversion(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6079,8 +6079,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplate(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6132,8 +6132,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplate(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6170,8 +6170,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6205,8 +6205,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFenceProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6240,8 +6240,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphoreProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6275,8 +6275,8 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupport(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6317,8 +6317,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCount(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6360,8 +6360,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCount(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6400,8 +6400,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6450,8 +6450,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6488,8 +6488,8 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6522,8 +6522,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6557,8 +6557,8 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPool(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6593,8 +6593,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValue(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6637,8 +6637,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphores(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6677,8 +6677,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphore(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6716,8 +6716,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddress(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6755,8 +6755,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddress(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6794,8 +6794,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddress(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6834,8 +6834,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolProperties(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6879,8 +6879,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlot(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6929,8 +6929,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlot(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -6969,8 +6969,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateData(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7011,8 +7011,8 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateData(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7048,8 +7048,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7086,8 +7086,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7122,8 +7122,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7160,8 +7160,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7198,8 +7198,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7235,8 +7235,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7276,8 +7276,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7312,8 +7312,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7348,8 +7348,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7384,8 +7384,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7420,8 +7420,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7456,8 +7456,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7492,8 +7492,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRendering(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7527,8 +7527,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRendering(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7559,8 +7559,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCullMode(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7592,8 +7592,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFrontFace(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7625,8 +7625,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveTopology(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7659,8 +7659,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCount(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7694,8 +7694,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCount(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7733,8 +7733,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7771,8 +7771,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthTestEnable(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7804,8 +7804,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthWriteEnable(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7837,8 +7837,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOp(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7870,8 +7870,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnable(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7903,8 +7903,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnable(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7940,8 +7940,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilOp(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -7977,8 +7977,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRasterizerDiscardEnable(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8010,8 +8010,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBiasEnable(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8043,8 +8043,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveRestartEnable(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8077,8 +8077,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirements(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8112,8 +8112,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirements(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8151,8 +8151,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirements(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8190,8 +8190,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8229,8 +8229,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8274,8 +8274,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8319,8 +8319,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8365,8 +8365,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8411,8 +8411,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8464,8 +8464,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8503,8 +8503,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8556,8 +8556,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8631,8 +8631,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8674,8 +8674,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8719,8 +8719,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8764,8 +8764,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8811,8 +8811,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8860,8 +8860,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlanePropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8910,8 +8910,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -8961,8 +8961,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9013,8 +9013,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9065,8 +9065,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9111,8 +9111,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9166,8 +9166,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9221,8 +9221,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9272,8 +9272,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXlibPresentationSupportKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9312,8 +9312,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9363,8 +9363,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceXcbPresentationSupportKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9403,8 +9403,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9453,8 +9453,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWaylandPresentationSupportKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9492,8 +9492,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9543,8 +9543,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9592,8 +9592,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceWin32PresentationSupportKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9629,8 +9629,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoCapabilitiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9674,8 +9674,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoFormatPropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9720,8 +9720,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateVideoSessionKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9770,8 +9770,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9809,8 +9809,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetVideoSessionMemoryRequirementsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9855,8 +9855,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindVideoSessionMemoryKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9898,8 +9898,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateVideoSessionParametersKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9951,8 +9951,8 @@ VKAPI_ATTR VkResult VKAPI_CALL UpdateVideoSessionParametersKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -9989,8 +9989,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyVideoSessionParametersKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10026,8 +10026,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginVideoCodingKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10062,8 +10062,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndVideoCodingKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10095,8 +10095,8 @@ VKAPI_ATTR void VKAPI_CALL CmdControlVideoCodingKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10128,8 +10128,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDecodeVideoKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10164,8 +10164,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderingKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10199,8 +10199,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderingKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10231,8 +10231,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFeatures2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10264,8 +10264,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10298,8 +10298,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceFormatProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10333,8 +10333,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceImageFormatProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10377,8 +10377,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10411,8 +10411,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMemoryProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10446,8 +10446,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceSparseImageFormatProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10484,8 +10484,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10520,8 +10520,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10558,8 +10558,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10597,8 +10597,8 @@ VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10632,8 +10632,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10681,8 +10681,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalBufferPropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10716,8 +10716,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10764,8 +10764,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10809,8 +10809,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10857,8 +10857,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10902,8 +10902,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalSemaphorePropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10936,8 +10936,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -10976,8 +10976,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11022,8 +11022,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11062,8 +11062,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11112,8 +11112,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11154,8 +11154,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11207,8 +11207,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11246,8 +11246,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11296,8 +11296,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11334,8 +11334,8 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11368,8 +11368,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11401,8 +11401,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11438,8 +11438,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceExternalFencePropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11472,8 +11472,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11512,8 +11512,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11558,8 +11558,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11598,8 +11598,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11647,8 +11647,8 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceQueueFamilyPerformanceQuer
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11693,8 +11693,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11727,8 +11727,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireProfilingLockKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11762,8 +11762,8 @@ VKAPI_ATTR void VKAPI_CALL ReleaseProfilingLockKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11795,8 +11795,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11843,8 +11843,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormats2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11891,8 +11891,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11940,8 +11940,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceDisplayPlaneProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -11990,8 +11990,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModeProperties2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12040,8 +12040,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilities2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12087,8 +12087,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12125,8 +12125,8 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12164,8 +12164,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12204,8 +12204,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12254,8 +12254,8 @@ VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12292,8 +12292,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12333,8 +12333,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12374,8 +12374,8 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutSupportKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12416,8 +12416,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12459,8 +12459,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12498,8 +12498,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreCounterValueKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12542,8 +12542,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitSemaphoresKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12582,8 +12582,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SignalSemaphoreKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12622,8 +12622,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceFragmentShadingRatesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12666,8 +12666,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12700,8 +12700,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRenderingAttachmentLocationsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12733,8 +12733,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRenderingInputAttachmentIndicesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12768,8 +12768,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForPresentKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12806,8 +12806,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12845,8 +12845,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBufferOpaqueCaptureAddressKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12884,8 +12884,8 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetDeviceMemoryOpaqueCaptureAddressKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12924,8 +12924,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDeferredOperationKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -12973,8 +12973,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDeferredOperationKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13010,8 +13010,8 @@ VKAPI_ATTR uint32_t VKAPI_CALL GetDeferredOperationMaxConcurrencyKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13046,8 +13046,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeferredOperationResultKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13082,8 +13082,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DeferredOperationJoinKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13120,8 +13120,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutablePropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13169,8 +13169,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableStatisticsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13218,8 +13218,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineExecutableInternalRepresentationsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13266,8 +13266,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13312,8 +13312,8 @@ VKAPI_ATTR VkResult VKAPI_CALL UnmapMemory2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13352,8 +13352,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceVideoEncodeQualityLevelPropertie
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13398,8 +13398,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetEncodedVideoSessionParametersKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13446,8 +13446,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEncodeVideoKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13483,8 +13483,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13521,8 +13521,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13557,8 +13557,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13595,8 +13595,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13633,8 +13633,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13670,8 +13670,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13714,8 +13714,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarker2AMD(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13751,8 +13751,8 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointData2NV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13785,8 +13785,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13821,8 +13821,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13857,8 +13857,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13893,8 +13893,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13929,8 +13929,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -13965,8 +13965,8 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14001,8 +14001,8 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirect2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14035,8 +14035,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceBufferMemoryRequirementsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14070,8 +14070,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceImageMemoryRequirementsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14109,8 +14109,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceImageSparseMemoryRequirementsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14150,8 +14150,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14187,8 +14187,8 @@ VKAPI_ATTR void VKAPI_CALL GetRenderingAreaGranularityKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14222,8 +14222,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceImageSubresourceLayoutKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14261,8 +14261,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14297,8 +14297,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14341,8 +14341,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14376,8 +14376,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14422,8 +14422,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14467,8 +14467,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14503,8 +14503,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14539,8 +14539,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14575,8 +14575,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14611,8 +14611,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDescriptorBufferOffsets2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14647,8 +14647,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorBufferEmbeddedSamplers2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14684,8 +14684,8 @@ VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14720,8 +14720,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14770,8 +14770,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugReportCallbackEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14813,8 +14813,8 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14852,8 +14852,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectTagEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14891,8 +14891,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DebugMarkerSetObjectNameEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14930,8 +14930,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerBeginEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14962,8 +14962,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerEndEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -14994,8 +14994,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDebugMarkerInsertEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15031,8 +15031,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindTransformFeedbackBuffersEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15071,8 +15071,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginTransformFeedbackEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15110,8 +15110,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndTransformFeedbackEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15149,8 +15149,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQueryIndexedEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15187,8 +15187,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQueryIndexedEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15227,8 +15227,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectByteCountEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15265,8 +15265,8 @@ VKAPI_ATTR uint32_t VKAPI_CALL GetImageViewHandleNVX(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15305,8 +15305,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageViewAddressNVX(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15353,8 +15353,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15396,8 +15396,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15438,8 +15438,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15486,8 +15486,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateStreamDescriptorSurfaceGGP(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15541,8 +15541,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceExternalImageFormatPropertiesNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15591,8 +15591,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15637,8 +15637,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15686,8 +15686,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginConditionalRenderingEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15721,8 +15721,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndConditionalRenderingEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15755,8 +15755,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15790,8 +15790,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15827,8 +15827,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15866,8 +15866,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRandROutputDisplayEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15916,8 +15916,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15960,8 +15960,8 @@ VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -15999,8 +15999,8 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16051,8 +16051,8 @@ VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16103,8 +16103,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16148,8 +16148,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16193,8 +16193,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16239,8 +16239,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16274,8 +16274,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16307,8 +16307,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16342,8 +16342,8 @@ VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16379,8 +16379,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16430,8 +16430,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16479,8 +16479,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectNameEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16520,8 +16520,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetDebugUtilsObjectTagEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16561,8 +16561,8 @@ VKAPI_ATTR void VKAPI_CALL QueueBeginDebugUtilsLabelEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16593,8 +16593,8 @@ VKAPI_ATTR void VKAPI_CALL QueueEndDebugUtilsLabelEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16625,8 +16625,8 @@ VKAPI_ATTR void VKAPI_CALL QueueInsertDebugUtilsLabelEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16658,8 +16658,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginDebugUtilsLabelEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16690,8 +16690,8 @@ VKAPI_ATTR void VKAPI_CALL CmdEndDebugUtilsLabelEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16722,8 +16722,8 @@ VKAPI_ATTR void VKAPI_CALL CmdInsertDebugUtilsLabelEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16757,8 +16757,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDebugUtilsMessengerEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16807,8 +16807,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyDebugUtilsMessengerEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16846,8 +16846,8 @@ VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16882,8 +16882,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAndroidHardwareBufferPropertiesANDROID(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16926,8 +16926,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryAndroidHardwareBufferANDROID(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -16972,8 +16972,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17006,8 +17006,8 @@ VKAPI_ATTR void VKAPI_CALL GetPhysicalDeviceMultisamplePropertiesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17041,8 +17041,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetImageDrmFormatModifierPropertiesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17086,8 +17086,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17136,8 +17136,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17175,8 +17175,8 @@ VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17215,8 +17215,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17260,8 +17260,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindShadingRateImageNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17296,8 +17296,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportShadingRatePaletteNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17333,8 +17333,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoarseSampleOrderNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17370,8 +17370,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17423,8 +17423,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17461,8 +17461,8 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureMemoryRequirementsNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17499,8 +17499,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindAccelerationStructureMemoryNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17546,8 +17546,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructureNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17591,8 +17591,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17639,8 +17639,8 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17689,8 +17689,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17739,8 +17739,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingShaderGroupHandlesNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17787,8 +17787,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetAccelerationStructureHandleNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17835,8 +17835,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17873,8 +17873,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CompileDeferredNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17912,8 +17912,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17959,8 +17959,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -17996,8 +17996,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCalibrateableTimeDomainsEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18042,8 +18042,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetCalibratedTimestampsEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18088,8 +18088,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18125,8 +18125,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18166,8 +18166,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18206,8 +18206,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorEnableNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18243,8 +18243,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetExclusiveScissorNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18278,8 +18278,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCheckpointNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18312,8 +18312,8 @@ VKAPI_ATTR void VKAPI_CALL GetQueueCheckpointDataNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18346,8 +18346,8 @@ VKAPI_ATTR VkResult VKAPI_CALL InitializePerformanceApiINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18381,8 +18381,8 @@ VKAPI_ATTR void VKAPI_CALL UninitializePerformanceApiINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18413,8 +18413,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceMarkerINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18449,8 +18449,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceStreamMarkerINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18485,8 +18485,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CmdSetPerformanceOverrideINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18522,8 +18522,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquirePerformanceConfigurationINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18570,8 +18570,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleasePerformanceConfigurationINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18609,8 +18609,8 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSetPerformanceConfigurationINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18646,8 +18646,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPerformanceParameterINTEL(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18690,8 +18690,8 @@ VKAPI_ATTR void VKAPI_CALL SetLocalDimmingAMD(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18726,8 +18726,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImagePipeSurfaceFUCHSIA(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18777,8 +18777,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMetalSurfaceEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18826,8 +18826,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetBufferDeviceAddressEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18866,8 +18866,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceToolPropertiesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18910,8 +18910,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18954,8 +18954,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSupportedFramebufferMixedSamples
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -18999,8 +18999,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModes2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19046,8 +19046,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireFullScreenExclusiveModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19082,8 +19082,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseFullScreenExclusiveModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19119,8 +19119,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModes2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19167,8 +19167,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateHeadlessSurfaceEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19217,8 +19217,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19253,8 +19253,8 @@ VKAPI_ATTR void VKAPI_CALL ResetQueryPoolEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19288,8 +19288,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCullModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19321,8 +19321,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFrontFaceEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19354,8 +19354,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveTopologyEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19388,8 +19388,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWithCountEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19423,8 +19423,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissorWithCountEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19462,8 +19462,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19500,8 +19500,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthTestEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19533,8 +19533,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthWriteEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19566,8 +19566,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthCompareOpEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19599,8 +19599,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBoundsTestEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19632,8 +19632,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilTestEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19669,8 +19669,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilOpEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19706,8 +19706,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToImageEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19745,8 +19745,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyImageToMemoryEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19784,8 +19784,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyImageToImageEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19824,8 +19824,8 @@ VKAPI_ATTR VkResult VKAPI_CALL TransitionImageLayoutEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19866,8 +19866,8 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19901,8 +19901,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ReleaseSwapchainImagesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19941,8 +19941,8 @@ VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -19978,8 +19978,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20015,8 +20015,8 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20054,8 +20054,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipelineShaderGroupNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20091,8 +20091,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20144,8 +20144,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20181,8 +20181,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias2EXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20215,8 +20215,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireDrmDisplayEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20254,8 +20254,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDrmDisplayEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20305,8 +20305,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePrivateDataSlotEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20355,8 +20355,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyPrivateDataSlotEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20395,8 +20395,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetPrivateDataEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20437,8 +20437,8 @@ VKAPI_ATTR void VKAPI_CALL GetPrivateDataEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20474,8 +20474,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetFragmentShadingRateEnumNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20509,8 +20509,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDeviceFaultInfoEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20552,8 +20552,8 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireWinrtDisplayNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20589,8 +20589,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetWinrtDisplayNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20639,8 +20639,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDirectFBSurfaceEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20689,8 +20689,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceDirectFBPresentationSupportEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20729,8 +20729,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetVertexInputEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20766,8 +20766,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryZirconHandleFUCHSIA(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20814,8 +20814,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryZirconHandlePropertiesFUCHSIA(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20858,8 +20858,8 @@ VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreZirconHandleFUCHSIA(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20898,8 +20898,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreZirconHandleFUCHSIA(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20945,8 +20945,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindInvocationMaskHUAWEI(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -20980,8 +20980,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryRemoteAddressNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21026,8 +21026,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPatchControlPointsEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21059,8 +21059,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRasterizerDiscardEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21092,8 +21092,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBiasEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21125,8 +21125,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLogicOpEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21158,8 +21158,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPrimitiveRestartEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21193,8 +21193,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateScreenSurfaceQNX(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21243,8 +21243,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GetPhysicalDeviceScreenPresentationSupportQNX(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21281,8 +21281,8 @@ VKAPI_ATTR void                                    VKAPI_CALL CmdSetColorWriteEn
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21319,8 +21319,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMultiEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21361,8 +21361,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMultiIndexedEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21401,8 +21401,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMicromapEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21454,8 +21454,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyMicromapEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21492,8 +21492,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildMicromapsEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21531,8 +21531,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BuildMicromapsEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21573,8 +21573,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyMicromapEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21614,8 +21614,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyMicromapToMemoryEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21655,8 +21655,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToMicromapEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21700,8 +21700,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WriteMicromapsPropertiesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21747,8 +21747,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyMicromapEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21783,8 +21783,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyMicromapToMemoryEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21819,8 +21819,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToMicromapEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21859,8 +21859,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteMicromapsPropertiesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21897,8 +21897,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceMicromapCompatibilityEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21933,8 +21933,8 @@ VKAPI_ATTR void VKAPI_CALL GetMicromapBuildSizesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -21973,8 +21973,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawClusterHUAWEI(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22009,8 +22009,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawClusterIndirectHUAWEI(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22044,8 +22044,8 @@ VKAPI_ATTR void VKAPI_CALL SetDeviceMemoryPriorityEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22079,8 +22079,8 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetLayoutHostMappingInfoVALVE(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22117,8 +22117,8 @@ VKAPI_ATTR void VKAPI_CALL GetDescriptorSetHostMappingVALVE(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22152,8 +22152,8 @@ VKAPI_ATTR void VKAPI_CALL GetPipelineIndirectMemoryRequirementsNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22190,8 +22190,8 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdatePipelineIndirectBufferNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22224,8 +22224,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetPipelineIndirectDeviceAddressNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22263,8 +22263,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthClampEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22296,8 +22296,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetPolygonModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22329,8 +22329,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRasterizationSamplesEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22363,8 +22363,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetSampleMaskEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22397,8 +22397,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetAlphaToCoverageEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22430,8 +22430,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetAlphaToOneEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22463,8 +22463,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLogicOpEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22498,8 +22498,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetColorBlendEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22535,8 +22535,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetColorBlendEquationEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22572,8 +22572,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetColorWriteMaskEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22607,8 +22607,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetTessellationDomainOriginEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22640,8 +22640,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRasterizationStreamEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22673,8 +22673,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetConservativeRasterizationModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22706,8 +22706,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetExtraPrimitiveOverestimationSizeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22739,8 +22739,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthClipEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22772,8 +22772,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22807,8 +22807,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetColorBlendAdvancedEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22842,8 +22842,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetProvokingVertexModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22875,8 +22875,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineRasterizationModeEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22908,8 +22908,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineStippleEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22941,8 +22941,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthClipNegativeOneToOneEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -22974,8 +22974,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingEnableNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23009,8 +23009,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewportSwizzleNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23044,8 +23044,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoverageToColorEnableNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23077,8 +23077,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoverageToColorLocationNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23110,8 +23110,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoverageModulationModeNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23143,8 +23143,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoverageModulationTableEnableNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23177,8 +23177,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoverageModulationTableNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23211,8 +23211,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetShadingRateImageEnableNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23244,8 +23244,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRepresentativeFragmentTestEnableNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23277,8 +23277,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetCoverageReductionModeNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23311,8 +23311,8 @@ VKAPI_ATTR void VKAPI_CALL GetShaderModuleIdentifierEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23346,8 +23346,8 @@ VKAPI_ATTR void VKAPI_CALL GetShaderModuleCreateInfoIdentifierEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23385,8 +23385,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceOpticalFlowImageFormatsNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23431,8 +23431,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateOpticalFlowSessionNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23481,8 +23481,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyOpticalFlowSessionNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23521,8 +23521,8 @@ VKAPI_ATTR VkResult VKAPI_CALL BindOpticalFlowSessionImageNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23561,8 +23561,8 @@ VKAPI_ATTR void VKAPI_CALL CmdOpticalFlowExecuteNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23598,8 +23598,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShadersEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23652,8 +23652,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23691,8 +23691,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetShaderBinaryDataEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23737,8 +23737,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBindShadersEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23774,8 +23774,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFramebufferTilePropertiesQCOM(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23819,8 +23819,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetDynamicRenderingTilePropertiesQCOM(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23866,8 +23866,8 @@ VKAPI_ATTR VkResult VKAPI_CALL SetLatencySleepModeNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23904,8 +23904,8 @@ VKAPI_ATTR VkResult VKAPI_CALL LatencySleepNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23945,8 +23945,8 @@ VKAPI_ATTR void VKAPI_CALL SetLatencyMarkerNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -23980,8 +23980,8 @@ VKAPI_ATTR void VKAPI_CALL GetLatencyTimingsNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24014,8 +24014,8 @@ VKAPI_ATTR void VKAPI_CALL QueueNotifyOutOfBandNV(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24047,8 +24047,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetAttachmentFeedbackLoopEnableEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24082,8 +24082,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24127,8 +24127,8 @@ VKAPI_ATTR void VKAPI_CALL DestroyAccelerationStructureKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24166,8 +24166,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24205,8 +24205,8 @@ VKAPI_ATTR void VKAPI_CALL CmdBuildAccelerationStructuresIndirectKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24246,8 +24246,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureToMemoryKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24287,8 +24287,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyMemoryToAccelerationStructureKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24332,8 +24332,8 @@ VKAPI_ATTR VkResult VKAPI_CALL WriteAccelerationStructuresPropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24379,8 +24379,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24415,8 +24415,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyAccelerationStructureToMemoryKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24451,8 +24451,8 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyMemoryToAccelerationStructureKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24487,8 +24487,8 @@ VKAPI_ATTR VkDeviceAddress VKAPI_CALL GetAccelerationStructureDeviceAddressKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24530,8 +24530,8 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteAccelerationStructuresPropertiesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24568,8 +24568,8 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceAccelerationStructureCompatibilityKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24605,8 +24605,8 @@ VKAPI_ATTR void VKAPI_CALL GetAccelerationStructureBuildSizesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24650,8 +24650,8 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24693,8 +24693,8 @@ VKAPI_ATTR VkResult VKAPI_CALL GetRayTracingCaptureReplayShaderGroupHandlesKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24743,8 +24743,8 @@ VKAPI_ATTR void VKAPI_CALL CmdTraceRaysIndirectKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24782,8 +24782,8 @@ VKAPI_ATTR VkDeviceSize VKAPI_CALL GetRayTracingShaderGroupStackSizeKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24820,8 +24820,8 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRayTracingPipelineStackSizeKHR(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24855,8 +24855,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24893,8 +24893,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
@@ -24934,8 +24934,8 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawMeshTasksIndirectCountEXT(
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();

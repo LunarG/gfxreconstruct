@@ -30,6 +30,8 @@ add_library(gfxrecon_encode STATIC "")
 
 target_sources(gfxrecon_encode
                PRIVATE
+                    ${CMAKE_CURRENT_LIST_DIR}/api_capture_manager.h
+                    ${CMAKE_CURRENT_LIST_DIR}/api_capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/capture_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/capture_settings.h

@@ -46,8 +46,8 @@ AMD_AGS_API AGSReturnCode agsInitialize(int                     agsVersion,
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -87,8 +87,8 @@ AMD_AGS_API AGSReturnCode agsDeInitialize(AGSContext* context)
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -129,8 +129,8 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_CreateDevice(AGSContext*      
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -214,8 +214,8 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_DestroyDevice(AGSContext*   co
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -260,8 +260,8 @@ AMD_AGS_API AGSDriverVersionResult agsCheckDriverVersion(const char*  radeonSoft
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -303,8 +303,8 @@ AMD_AGS_API int agsGetVersionNumber()
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -345,8 +345,8 @@ AMD_AGS_API AGSReturnCode agsSetDisplayMode(AGSContext*               context,
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -388,8 +388,8 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_PushMarker(AGSContext*        
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -431,8 +431,8 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_PopMarker(AGSContext* context,
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
@@ -476,8 +476,8 @@ AMD_AGS_API AGSReturnCode agsDriverExtensionsDX12_SetMarker(AGSContext*         
     if (call_scope == 1)
     {
         auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
         if (force_command_serialization)
         {
             exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
