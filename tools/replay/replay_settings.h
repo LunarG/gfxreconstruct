@@ -32,7 +32,7 @@ const char kOptions[] =
     "screenshot-all,--onhb|--omit-null-hardware-buffers,--qamr|--quit-after-measurement-range,--fmr|--flush-"
     "measurement-range,--flush-inside-measurement-range,--vssb|--virtual-swapchain-skip-blit,--use-captured-swapchain-"
     "indices,--dcp,--discard-cached-psos,--use-colorspace-fallback,--use-cached-psos,--dx12-override-object-names,--"
-    "offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw"
+    "offscreen-swapchain-frame-boundary,--wait-before-present,--dump-resources-before-draw,"
     "--dump-resources-dump-depth-attachment,--dump-"
     "resources-dump-vertex-index-buffers,--dump-resources-json-output-per-command,--dump-resources-dump-immutable-"
     "resources,--dump-resources-dump-all-image-subresources";
@@ -268,16 +268,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tForce wait on completion of queue operations for all queues");
     GFXRECON_WRITE_CONSOLE("          \t\tbefore calling Present. This is needed for accurate acquisition");
     GFXRECON_WRITE_CONSOLE("          \t\tof instrumentation data on some platforms.");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources <vulkan-begincommandbuffercall-index>,<vulkan-drawcall-index>,<vulkan-queuesubmitcall-index>");
-    GFXRECON_WRITE_CONSOLE("          \t\tOutput gpu resources after the specified draw call in the specific command buffer, during");
-    GFXRECON_WRITE_CONSOLE("          \t\tthe specific queuesubmit call. Can use index of vulkan api call following the draw call");
-    GFXRECON_WRITE_CONSOLE("          \t\tto dump resources after the draw call. Option can be repeated to initiate multiple dumps.");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources BeginCommandBuffer=<n>,CmdDraw=<m>,RenderPass=<n>,NextSubpass=<o>,CmdDispatch=<p>,CmdTraceRays=<q>,QueueSubmit=<r>");
-    GFXRECON_WRITE_CONSOLE("          \t\tDump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources BeginCommandBuffer=<n>,Draw=<m>,RenderPass=<n>,NextSubpass=<o>,Dispatch=<p>,CmdTraceRays=<q>,QueueSubmit=<r>");
-    GFXRECON_WRITE_CONSOLE("          \t\tDump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources <filename>");
-    GFXRECON_WRITE_CONSOLE("          \t\tExtract --dump-resources args from the specified file.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources <args>");
     GFXRECON_WRITE_CONSOLE("          \t\tArgs is BeginCommandBuffer=<n>,Draw=<m>,RenderPass=<o>,");
     GFXRECON_WRITE_CONSOLE("          \t\tNextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>");
