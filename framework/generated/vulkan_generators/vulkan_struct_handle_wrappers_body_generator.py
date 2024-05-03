@@ -91,6 +91,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         )
         self.newline()
         write('#include "vulkan/vk_layer.h"', file=self.outFile)
+        write('#include "util/logging.h"', file=self.outFile)
+        write('#include "generated/generated_vulkan_enum_to_string.cpp"', file=self.outFile)
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
@@ -168,22 +170,13 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         write('        {', file=self.outFile)
         write('        default:', file=self.outFile)
         write('        {', file=self.outFile)
-        write(
-            '            // This structure does not contain handles, but may point to a structure that does.',
-            file=self.outFile
-        )
-        write(
-            '            VkBaseInStructure* copy = CopyPNextStruct(base, unwrap_memory);',
-            file=self.outFile
-        )
-        write('            if (copy != nullptr)', file=self.outFile)
-        write('            {', file=self.outFile)
-        write(
-            '                copy->pNext = reinterpret_cast<const VkBaseInStructure*>(UnwrapPNextStructHandles(base->pNext, unwrap_memory));',
-            file=self.outFile
-        )
-        write('            }', file=self.outFile)
-        write('            return copy;', file=self.outFile)
+        write('            GFXRECON_LOG_ERROR("Unrecognized sType: %s", util::ToString(base->sType).c_str());', file=self.outFile)
+        write('            return value;', file=self.outFile)
+        write('        }', file=self.outFile)
+        write('        case VK_STRUCTURE_TYPE_LOADER_INSTANCE_CREATE_INFO:', file=self.outFile)
+        write('        case VK_STRUCTURE_TYPE_LOADER_DEVICE_CREATE_INFO:', file=self.outFile)
+        write('        {', file=self.outFile)
+        write('            return value;', file=self.outFile)
         write('        }', file=self.outFile)
         for base_type in self.pnext_structs_with_handles:
             write(
@@ -277,7 +270,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             if 'pNext' in member.name:
                 body += '        if (value->pNext != nullptr)\n'
                 body += '        {\n'
-                body += '            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);\n'
+                body += '            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));\n'
                 body += '        }\n'
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.

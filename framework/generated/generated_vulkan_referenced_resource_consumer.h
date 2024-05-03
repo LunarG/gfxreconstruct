@@ -386,6 +386,16 @@ class VulkanReferencedResourceConsumer : public VulkanReferencedResourceConsumer
         uint32_t                                    maxDrawCount,
         uint32_t                                    stride) override;
 
+    virtual void Process_vkCmdSetRenderingAttachmentLocationsKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfoKHR>* pLocationInfo) override;
+
+    virtual void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            commandBuffer,
+        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo) override;
+
     virtual void Process_vkCmdEncodeVideoKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
