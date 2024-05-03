@@ -963,59 +963,72 @@ class BaseGenerator(OutputGenerator):
         """Determines if the specified struct type can reference pNext extension structs that contain handles."""
         found_handles = False
         found_handle_ptrs = False
-        valid_extension_structs = self.registry.validextensionstructs.get(
-            typename
+        type_info = self.registry.lookupElementInfo(
+            typename, self.registry.typedict
         )
-        if valid_extension_structs:
-            # Need to search the XML tree for pNext structures that have not been processed yet.
-            for struct_name in valid_extension_structs:
-                # Check for cached results from a previous check for this struct
-                if struct_name in self.extension_structs_with_handles:
-                    if self.extension_structs_with_handles[struct_name]:
-                        found_handles = True
-                    if self.extension_structs_with_handle_ptrs[struct_name]:
+
+        valid_extension_structs = self.registry.validextensionstructs.get(typename)
+        if valid_extension_structs is None:
+            valid_extension_structs = list()
+
+        parent_structs = type_info.elem.get('structextends')
+        if parent_structs and typename != 'VkPhysicalDeviceFeatures2':
+            for parent_struct in parent_structs.split(','):
+                extension_structs = self.registry.validextensionstructs.get(parent_struct)
+                if extension_structs is not None:
+                    for struct_name in extension_structs:
+                        if struct_name not in valid_extension_structs:
+                            valid_extension_structs.append(struct_name)
+
+        # Need to search the XML tree for pNext structures that have not been processed yet.
+        for struct_name in valid_extension_structs:
+            # Check for cached results from a previous check for this struct
+            if struct_name in self.extension_structs_with_handles:
+                if self.extension_structs_with_handles[struct_name]:
+                    found_handles = True
+                if self.extension_structs_with_handle_ptrs[struct_name]:
+                    found_handle_ptrs = True
+            else:
+                # If a pre-existing result was not found, check the XML registry for the struct
+                has_handles = False
+                hasHandlePtrs = False
+                type_info = self.registry.lookupElementInfo(
+                    struct_name, self.registry.typedict
+                )
+                if type_info:
+                    member_infos = [
+                        member for member in
+                        type_info.elem.findall('.//member/type')
+                    ]
+                    if member_infos:
+                        for member_info in member_infos:
+                            found = self.registry.tree.find(
+                                "types/type/[name='" + member_info.text
+                                + "'][@category='handle']"
+                            )
+                            if found:
+                                has_handles = True
+                                self.extension_structs_with_handles[
+                                    struct_name] = True
+                                if member_info.tail and (
+                                    '*' in member_info.tail
+                                ):
+                                    self.extension_structs_with_handle_ptrs[
+                                        struct_name] = True
+                                    hasHandlePtrs = True
+                                else:
+                                    self.extension_structs_with_handle_ptrs[
+                                        struct_name] = False
+
+                if has_handles:
+                    found_handles = True
+                    if hasHandlePtrs:
                         found_handle_ptrs = True
                 else:
-                    # If a pre-existing result was not found, check the XML registry for the struct
-                    has_handles = False
-                    hasHandlePtrs = False
-                    type_info = self.registry.lookupElementInfo(
-                        struct_name, self.registry.typedict
-                    )
-                    if type_info:
-                        member_infos = [
-                            member for member in
-                            type_info.elem.findall('.//member/type')
-                        ]
-                        if member_infos:
-                            for member_info in member_infos:
-                                found = self.registry.tree.find(
-                                    "types/type/[name='" + member_info.text
-                                    + "'][@category='handle']"
-                                )
-                                if found:
-                                    has_handles = True
-                                    self.extension_structs_with_handles[
-                                        struct_name] = True
-                                    if member_info.tail and (
-                                        '*' in member_info.tail
-                                    ):
-                                        self.extension_structs_with_handle_ptrs[
-                                            struct_name] = True
-                                        hasHandlePtrs = True
-                                    else:
-                                        self.extension_structs_with_handle_ptrs[
-                                            struct_name] = False
-
-                    if has_handles:
-                        found_handles = True
-                        if hasHandlePtrs:
-                            found_handle_ptrs = True
-                    else:
-                        self.extension_structs_with_handles[struct_name
+                    self.extension_structs_with_handles[struct_name
+                                                        ] = False
+                    self.extension_structs_with_handle_ptrs[struct_name
                                                             ] = False
-                        self.extension_structs_with_handle_ptrs[struct_name
-                                                                ] = False
 
         return found_handles, found_handle_ptrs
 
