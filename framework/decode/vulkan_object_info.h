@@ -290,6 +290,9 @@ struct SemaphoreInfo : public VulkanObjectInfo<VkSemaphore>
     // Fences can be reset, semaphores can't, so replay needs to know when a semaphore will not be submitted for a wait
     // operation to prevent validation errors around queue forward progress.
     bool forward_progress{ true };
+    // If a semaphore is signaled with vkAcquireNextImage and also VkSubmitInfo, then the semaphore needs to be shadow
+    // signaled with vkAcquireNextImage and regularly signaled with VkSubmitInfo
+    bool signaled{ false };
 };
 
 struct FenceInfo : public VulkanObjectInfo<VkFence>
