@@ -65,10 +65,6 @@ class ParameterEncoder
     void EncodeUInt64Value(uint64_t value)                                                                            { EncodeValue(value); }
     void EncodeFloatValue(float value)                                                                                { EncodeValue(value); }
     void EncodeDoubleValue(double value)                                                                              { EncodeValue(value); }
-    void EncodeVkBool32Value(VkBool32 value)                                                                          { EncodeValue(value); }
-    void EncodeVkSampleMaskValue(VkSampleMask value)                                                                  { EncodeValue(static_cast<format::SampleMaskEncodeType>(value)); }
-    void EncodeVkDeviceSizeValue(VkDeviceSize value)                                                                  { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
-    void EncodeVkDeviceAddressValue(VkDeviceAddress value)                                                            { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
     void EncodeSizeTValue(size_t value)                                                                               { EncodeValue(static_cast<format::SizeTEncodeType>(value)); }
     void EncodeHandleIdValue(format::HandleId value)                                                                  { EncodeValue(static_cast<format::HandleEncodeType>(value)); }
 
@@ -103,9 +99,6 @@ class ParameterEncoder
     void EncodeInt64Ptr(const int64_t* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeUInt64Ptr(const uint64_t* ptr, bool omit_data = false, bool omit_addr = false)                         { EncodePointer(ptr, omit_data, omit_addr); }
     void EncodeFloatPtr(const float* ptr, bool omit_data = false, bool omit_addr = false)                             { EncodePointer(ptr, omit_data, omit_addr); }
-    void EncodeVkBool32Ptr(const VkBool32* ptr, bool omit_data = false, bool omit_addr = false)                       { EncodePointer(ptr, omit_data, omit_addr); }
-    void EncodeVkSampleMaskPtr(const VkSampleMask* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::SampleMaskEncodeType>(ptr, omit_data, omit_addr); }
-    void EncodeVkDeviceSizePtr(const VkDeviceSize* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::DeviceSizeEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeSizeTPtr(const size_t* ptr, bool omit_data = false, bool omit_addr = false)                            { EncodePointerConverted<format::SizeTEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeHandleIdPtr(const format::HandleId* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::HandleEncodeType>(ptr, omit_data, omit_addr); }
 
@@ -131,13 +124,8 @@ class ParameterEncoder
     void EncodeInt64Array(const int64_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)             { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeUInt64Array(const uint64_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)           { EncodeArray(arr, len, omit_data, omit_addr); }
     void EncodeFloatArray(const float* arr, size_t len, bool omit_data = false, bool omit_addr = false)               { EncodeArray(arr, len, omit_data, omit_addr); }
-    void EncodeVkBool32Array(const VkBool32* arr, size_t len, bool omit_data = false, bool omit_addr = false)         { EncodeArray(arr, len, omit_data, omit_addr); }
-    void EncodeVkSampleMaskArray(const VkSampleMask* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::SampleMaskEncodeType>(arr, len, omit_data, omit_addr); }
-    void EncodeVkDeviceSizeArray(const VkDeviceSize* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::DeviceSizeEncodeType>(arr, len, omit_data, omit_addr); }
-    void EncodeVkDeviceAddressArray(const VkDeviceAddress* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::DeviceAddressEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeSizeTArray(const size_t* arr, size_t len, bool omit_data = false, bool omit_addr = false)              { EncodeArrayConverted<format::SizeTEncodeType>(arr, len, omit_data, omit_addr); }
     void EncodeHandleIdArray(const format::HandleId* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeArrayConverted<format::HandleEncodeType>(arr, len, omit_data, omit_addr); }
-    void EncodeVkFormatArray(const VkFormat* arr, size_t len, bool omit_data = false, bool omit_addr = false)         { EncodeArrayConverted<format::FormatEncodeType>(arr, len, omit_data, omit_addr); }
 
     // Array of bytes.
     void EncodeUInt8Array(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }

@@ -776,9 +776,6 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
-    def is_atom(self, base_type):
-        return False
-
     def has_basetype(self, base_type):
         if base_type in self.base_types and self.base_types[base_type] is not None:
             return True
@@ -1476,6 +1473,10 @@ class BaseGenerator(OutputGenerator):
                 is_string = True
             elif type_name == 'FunctionPtr':
                 is_funcp = True
+            elif self.has_basetype(type_name):
+                type_base_type = self.get_basetype(type_name)
+                if type_base_type in self.encode_types:
+                    type_name = self.encode_types[type_base_type]
 
             method_call += type_name
 
