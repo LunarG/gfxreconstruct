@@ -88,12 +88,12 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/handle_unwrap_memory.h
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_buffer.h
                     ${CMAKE_CURRENT_LIST_DIR}/parameter_encoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/scoped_destroy_lock.h
+                    ${CMAKE_CURRENT_LIST_DIR}/scoped_destroy_lock.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/struct_pointer_encoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_capture_manager.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrappers.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_scoped_destroy_lock.h
-                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_scoped_destroy_lock.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_handle_wrapper_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_info.h

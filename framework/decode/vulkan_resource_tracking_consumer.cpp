@@ -85,7 +85,7 @@ void VulkanResourceTrackingConsumer::InitializeLoader()
 
 void VulkanResourceTrackingConsumer::AddInstanceTable(VkInstance instance)
 {
-    encode::DispatchKey dispatch_key = encode::GetVulkanDispatchKey(instance);
+    encode::VulkanDispatchKey dispatch_key = encode::GetVulkanDispatchKey(instance);
 
     get_device_proc_addrs_[dispatch_key] =
         reinterpret_cast<PFN_vkGetDeviceProcAddr>(get_instance_proc_addr_(instance, "vkGetDeviceProcAddr"));

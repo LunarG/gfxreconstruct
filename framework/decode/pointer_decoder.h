@@ -130,13 +130,13 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeVoid(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<uint8_t>(buffer, buffer_size); }
 
     // Decode for special types that may require conversion.
-    size_t DecodeEnum(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
-    size_t DecodeFlags(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
-    size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
-    size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size)     { return DecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
-    size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
+    size_t DecodeEnum(const uint8_t* buffer, size_t buffer_size)            { return DecodeFrom<format::EnumEncodeType>(buffer, buffer_size); }
+    size_t DecodeFlags(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::FlagsEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkSampleMask(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::SampleMaskEncodeType>(buffer, buffer_size); }
+    size_t DecodeHandleId(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::HandleEncodeType>(buffer, buffer_size); }
+    size_t DecodeVkDeviceSize(const uint8_t* buffer, size_t buffer_size)    { return DecodeFrom<format::DeviceSizeEncodeType>(buffer, buffer_size); }
     size_t DecodeVkDeviceAddress(const uint8_t* buffer, size_t buffer_size) { return DecodeFrom<format::DeviceAddressEncodeType>(buffer, buffer_size); }
-    size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
+    size_t DecodeSizeT(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<format::SizeTEncodeType>(buffer, buffer_size); }
     // clang-format on
 
   private:

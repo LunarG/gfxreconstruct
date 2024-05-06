@@ -94,6 +94,7 @@ class ValueDecoder
     static size_t DecodeFlags64Value(const uint8_t* buffer, size_t buffer_size, T* value)                           { return DecodeValueFrom<format::Flags64EncodeType>(buffer, buffer_size, value); }
 
     // Arrays
+    static size_t DecodeCharArray(const uint8_t* buffer, size_t buffer_size, char* arr, size_t len)                 { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeInt32Array(const uint8_t* buffer, size_t buffer_size, int32_t* arr, size_t len)             { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeUInt32Array(const uint8_t* buffer, size_t buffer_size, uint32_t* arr, size_t len)           { return DecodeArray(buffer, buffer_size, arr, len); }
     static size_t DecodeInt64Array(const uint8_t* buffer, size_t buffer_size, int64_t* arr, size_t len)             { return DecodeArray(buffer, buffer_size, arr, len); }
