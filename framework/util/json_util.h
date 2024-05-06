@@ -32,6 +32,10 @@
 #include "util/to_string.h"
 #include "format/format.h"
 
+#ifndef WIN32
+#include "format/platform_types.h"
+#endif
+
 #include "nlohmann/json.hpp"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -61,14 +65,15 @@ struct JsonOptions
     bool        hex_handles   = false;
 };
 
-void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, int data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, long data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, long long data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned short data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned int data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const int16_t& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const int32_t& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const int64_t& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const uint16_t& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const uint32_t& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t& data, const JsonOptions& options = JsonOptions());
+#ifdef WIN32
+void FieldToJson(nlohmann::ordered_json& jdata, const DWORD& data, const JsonOptions& options = JsonOptions());
+#endif
 void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data, const JsonOptions& options = JsonOptions());
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers

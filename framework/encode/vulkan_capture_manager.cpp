@@ -1467,14 +1467,14 @@ void VulkanCaptureManager::DeferredOperationPostProcess(VkDevice               d
 
         if (encoder)
         {
-            encoder->EncodeHandleValue<vulkan_wrappers::DeviceWrapper>(device);
-            encoder->EncodeHandleValue<vulkan_wrappers::DeferredOperationKHRWrapper>(deferredOperation);
-            encoder->EncodeHandleValue<vulkan_wrappers::PipelineCacheWrapper>(
+            encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+            encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeferredOperationKHRWrapper>(deferredOperation);
+            encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineCacheWrapper>(
                 deferred_operation_wrapper->pipelineCache);
             encoder->EncodeUInt32Value(create_info_count);
             EncodeStructArray(encoder, deferred_operation_wrapper->create_infos.data(), create_info_count);
             EncodeStructPtr(encoder, deferred_operation_wrapper->p_allocator);
-            encoder->EncodeHandleArray<vulkan_wrappers::PipelineWrapper>(
+            encoder->EncodeVulkanHandleArray<vulkan_wrappers::PipelineWrapper>(
                 deferred_operation_wrapper->pPipelines, create_info_count, false);
             encoder->EncodeEnumValue(VK_OPERATION_DEFERRED_KHR);
             EndGroupCreateApiCallCapture<VkDevice,

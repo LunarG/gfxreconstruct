@@ -134,97 +134,97 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::VideoSessionKHRWrapper* wrapper) { return RemoveEntry(wrapper, videoSessionKHR_map_); }
     bool RemoveWrapper(const vulkan_wrappers::VideoSessionParametersKHRWrapper* wrapper) { return RemoveEntry(wrapper, videoSessionParametersKHR_map_); }
 
-    const vulkan_wrappers::AccelerationStructureKHRWrapper* GetAccelerationStructureKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(id, accelerationStructureKHR_map_); }
-    const vulkan_wrappers::AccelerationStructureNVWrapper* GetAccelerationStructureNVWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(id, accelerationStructureNV_map_); }
-    const vulkan_wrappers::BufferWrapper* GetBufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::BufferWrapper>(id, buffer_map_); }
-    const vulkan_wrappers::BufferViewWrapper* GetBufferViewWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::BufferViewWrapper>(id, bufferView_map_); }
-    const vulkan_wrappers::CommandBufferWrapper* GetCommandBufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, commandBuffer_map_); }
-    const vulkan_wrappers::CommandPoolWrapper* GetCommandPoolWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandPoolWrapper>(id, commandPool_map_); }
-    const vulkan_wrappers::DebugReportCallbackEXTWrapper* GetDebugReportCallbackEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(id, debugReportCallbackEXT_map_); }
-    const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* GetDebugUtilsMessengerEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(id, debugUtilsMessengerEXT_map_); }
-    const vulkan_wrappers::DeferredOperationKHRWrapper* GetDeferredOperationKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(id, deferredOperationKHR_map_); }
-    const vulkan_wrappers::DescriptorPoolWrapper* GetDescriptorPoolWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorPoolWrapper>(id, descriptorPool_map_); }
-    const vulkan_wrappers::DescriptorSetWrapper* GetDescriptorSetWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(id, descriptorSet_map_); }
-    const vulkan_wrappers::DescriptorSetLayoutWrapper* GetDescriptorSetLayoutWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(id, descriptorSetLayout_map_); }
-    const vulkan_wrappers::DescriptorUpdateTemplateWrapper* GetDescriptorUpdateTemplateWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(id, descriptorUpdateTemplate_map_); }
-    const vulkan_wrappers::DeviceWrapper* GetDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, device_map_); }
-    const vulkan_wrappers::DeviceMemoryWrapper* GetDeviceMemoryWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(id, deviceMemory_map_); }
-    const vulkan_wrappers::DisplayKHRWrapper* GetDisplayKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DisplayKHRWrapper>(id, displayKHR_map_); }
-    const vulkan_wrappers::DisplayModeKHRWrapper* GetDisplayModeKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(id, displayModeKHR_map_); }
-    const vulkan_wrappers::EventWrapper* GetEventWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::EventWrapper>(id, event_map_); }
-    const vulkan_wrappers::FenceWrapper* GetFenceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::FenceWrapper>(id, fence_map_); }
-    const vulkan_wrappers::FramebufferWrapper* GetFramebufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::FramebufferWrapper>(id, framebuffer_map_); }
-    const vulkan_wrappers::ImageWrapper* GetImageWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, image_map_); }
-    const vulkan_wrappers::ImageViewWrapper* GetImageViewWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ImageViewWrapper>(id, imageView_map_); }
-    const vulkan_wrappers::IndirectCommandsLayoutNVWrapper* GetIndirectCommandsLayoutNVWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(id, indirectCommandsLayoutNV_map_); }
-    const vulkan_wrappers::InstanceWrapper* GetInstanceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::InstanceWrapper>(id, instance_map_); }
-    const vulkan_wrappers::MicromapEXTWrapper* GetMicromapEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::MicromapEXTWrapper>(id, micromapEXT_map_); }
-    const vulkan_wrappers::OpticalFlowSessionNVWrapper* GetOpticalFlowSessionNVWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::OpticalFlowSessionNVWrapper>(id, opticalFlowSessionNV_map_); }
-    const vulkan_wrappers::PerformanceConfigurationINTELWrapper* GetPerformanceConfigurationINTELWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
-    const vulkan_wrappers::PhysicalDeviceWrapper* GetPhysicalDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, physicalDevice_map_); }
-    const vulkan_wrappers::PipelineWrapper* GetPipelineWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineWrapper>(id, pipeline_map_); }
-    const vulkan_wrappers::PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(id, pipelineCache_map_); }
-    const vulkan_wrappers::PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(id, pipelineLayout_map_); }
-    const vulkan_wrappers::PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
-    const vulkan_wrappers::QueryPoolWrapper* GetQueryPoolWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::QueryPoolWrapper>(id, queryPool_map_); }
-    const vulkan_wrappers::QueueWrapper* GetQueueWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::QueueWrapper>(id, queue_map_); }
-    const vulkan_wrappers::RenderPassWrapper* GetRenderPassWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::RenderPassWrapper>(id, renderPass_map_); }
-    const vulkan_wrappers::SamplerWrapper* GetSamplerWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SamplerWrapper>(id, sampler_map_); }
-    const vulkan_wrappers::SamplerYcbcrConversionWrapper* GetSamplerYcbcrConversionWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SamplerYcbcrConversionWrapper>(id, samplerYcbcrConversion_map_); }
-    const vulkan_wrappers::SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SemaphoreWrapper>(id, semaphore_map_); }
-    const vulkan_wrappers::ShaderEXTWrapper* GetShaderEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ShaderEXTWrapper>(id, shaderEXT_map_); }
-    const vulkan_wrappers::ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(id, shaderModule_map_); }
-    const vulkan_wrappers::SurfaceKHRWrapper* GetSurfaceKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, surfaceKHR_map_); }
-    const vulkan_wrappers::SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, swapchainKHR_map_); }
-    const vulkan_wrappers::ValidationCacheEXTWrapper* GetValidationCacheEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(id, validationCacheEXT_map_); }
-    const vulkan_wrappers::VideoSessionKHRWrapper* GetVideoSessionKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(id, videoSessionKHR_map_); }
-    const vulkan_wrappers::VideoSessionParametersKHRWrapper* GetVideoSessionParametersKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(id, videoSessionParametersKHR_map_); }
+    const vulkan_wrappers::AccelerationStructureKHRWrapper* GetVulkanAccelerationStructureKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(id, accelerationStructureKHR_map_); }
+    const vulkan_wrappers::AccelerationStructureNVWrapper* GetVulkanAccelerationStructureNVWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(id, accelerationStructureNV_map_); }
+    const vulkan_wrappers::BufferWrapper* GetVulkanBufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::BufferWrapper>(id, buffer_map_); }
+    const vulkan_wrappers::BufferViewWrapper* GetVulkanBufferViewWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::BufferViewWrapper>(id, bufferView_map_); }
+    const vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, commandBuffer_map_); }
+    const vulkan_wrappers::CommandPoolWrapper* GetVulkanCommandPoolWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandPoolWrapper>(id, commandPool_map_); }
+    const vulkan_wrappers::DebugReportCallbackEXTWrapper* GetVulkanDebugReportCallbackEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(id, debugReportCallbackEXT_map_); }
+    const vulkan_wrappers::DebugUtilsMessengerEXTWrapper* GetVulkanDebugUtilsMessengerEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(id, debugUtilsMessengerEXT_map_); }
+    const vulkan_wrappers::DeferredOperationKHRWrapper* GetVulkanDeferredOperationKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(id, deferredOperationKHR_map_); }
+    const vulkan_wrappers::DescriptorPoolWrapper* GetVulkanDescriptorPoolWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorPoolWrapper>(id, descriptorPool_map_); }
+    const vulkan_wrappers::DescriptorSetWrapper* GetVulkanDescriptorSetWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(id, descriptorSet_map_); }
+    const vulkan_wrappers::DescriptorSetLayoutWrapper* GetVulkanDescriptorSetLayoutWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(id, descriptorSetLayout_map_); }
+    const vulkan_wrappers::DescriptorUpdateTemplateWrapper* GetVulkanDescriptorUpdateTemplateWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(id, descriptorUpdateTemplate_map_); }
+    const vulkan_wrappers::DeviceWrapper* GetVulkanDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, device_map_); }
+    const vulkan_wrappers::DeviceMemoryWrapper* GetVulkanDeviceMemoryWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(id, deviceMemory_map_); }
+    const vulkan_wrappers::DisplayKHRWrapper* GetVulkanDisplayKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DisplayKHRWrapper>(id, displayKHR_map_); }
+    const vulkan_wrappers::DisplayModeKHRWrapper* GetVulkanDisplayModeKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(id, displayModeKHR_map_); }
+    const vulkan_wrappers::EventWrapper* GetVulkanEventWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::EventWrapper>(id, event_map_); }
+    const vulkan_wrappers::FenceWrapper* GetVulkanFenceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::FenceWrapper>(id, fence_map_); }
+    const vulkan_wrappers::FramebufferWrapper* GetVulkanFramebufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::FramebufferWrapper>(id, framebuffer_map_); }
+    const vulkan_wrappers::ImageWrapper* GetVulkanImageWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, image_map_); }
+    const vulkan_wrappers::ImageViewWrapper* GetVulkanImageViewWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ImageViewWrapper>(id, imageView_map_); }
+    const vulkan_wrappers::IndirectCommandsLayoutNVWrapper* GetVulkanIndirectCommandsLayoutNVWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(id, indirectCommandsLayoutNV_map_); }
+    const vulkan_wrappers::InstanceWrapper* GetVulkanInstanceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::InstanceWrapper>(id, instance_map_); }
+    const vulkan_wrappers::MicromapEXTWrapper* GetVulkanMicromapEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::MicromapEXTWrapper>(id, micromapEXT_map_); }
+    const vulkan_wrappers::OpticalFlowSessionNVWrapper* GetVulkanOpticalFlowSessionNVWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::OpticalFlowSessionNVWrapper>(id, opticalFlowSessionNV_map_); }
+    const vulkan_wrappers::PerformanceConfigurationINTELWrapper* GetVulkanPerformanceConfigurationINTELWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
+    const vulkan_wrappers::PhysicalDeviceWrapper* GetVulkanPhysicalDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, physicalDevice_map_); }
+    const vulkan_wrappers::PipelineWrapper* GetVulkanPipelineWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineWrapper>(id, pipeline_map_); }
+    const vulkan_wrappers::PipelineCacheWrapper* GetVulkanPipelineCacheWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(id, pipelineCache_map_); }
+    const vulkan_wrappers::PipelineLayoutWrapper* GetVulkanPipelineLayoutWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(id, pipelineLayout_map_); }
+    const vulkan_wrappers::PrivateDataSlotWrapper* GetVulkanPrivateDataSlotWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
+    const vulkan_wrappers::QueryPoolWrapper* GetVulkanQueryPoolWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::QueryPoolWrapper>(id, queryPool_map_); }
+    const vulkan_wrappers::QueueWrapper* GetVulkanQueueWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::QueueWrapper>(id, queue_map_); }
+    const vulkan_wrappers::RenderPassWrapper* GetVulkanRenderPassWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::RenderPassWrapper>(id, renderPass_map_); }
+    const vulkan_wrappers::SamplerWrapper* GetVulkanSamplerWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SamplerWrapper>(id, sampler_map_); }
+    const vulkan_wrappers::SamplerYcbcrConversionWrapper* GetVulkanSamplerYcbcrConversionWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SamplerYcbcrConversionWrapper>(id, samplerYcbcrConversion_map_); }
+    const vulkan_wrappers::SemaphoreWrapper* GetVulkanSemaphoreWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SemaphoreWrapper>(id, semaphore_map_); }
+    const vulkan_wrappers::ShaderEXTWrapper* GetVulkanShaderEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ShaderEXTWrapper>(id, shaderEXT_map_); }
+    const vulkan_wrappers::ShaderModuleWrapper* GetVulkanShaderModuleWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(id, shaderModule_map_); }
+    const vulkan_wrappers::SurfaceKHRWrapper* GetVulkanSurfaceKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, surfaceKHR_map_); }
+    const vulkan_wrappers::SwapchainKHRWrapper* GetVulkanSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, swapchainKHR_map_); }
+    const vulkan_wrappers::ValidationCacheEXTWrapper* GetVulkanValidationCacheEXTWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(id, validationCacheEXT_map_); }
+    const vulkan_wrappers::VideoSessionKHRWrapper* GetVulkanVideoSessionKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(id, videoSessionKHR_map_); }
+    const vulkan_wrappers::VideoSessionParametersKHRWrapper* GetVulkanVideoSessionParametersKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(id, videoSessionParametersKHR_map_); }
 
-    vulkan_wrappers::AccelerationStructureKHRWrapper* GetAccelerationStructureKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(id, accelerationStructureKHR_map_); }
-    vulkan_wrappers::AccelerationStructureNVWrapper* GetAccelerationStructureNVWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(id, accelerationStructureNV_map_); }
-    vulkan_wrappers::BufferWrapper* GetBufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::BufferWrapper>(id, buffer_map_); }
-    vulkan_wrappers::BufferViewWrapper* GetBufferViewWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::BufferViewWrapper>(id, bufferView_map_); }
-    vulkan_wrappers::CommandBufferWrapper* GetCommandBufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, commandBuffer_map_); }
-    vulkan_wrappers::CommandPoolWrapper* GetCommandPoolWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandPoolWrapper>(id, commandPool_map_); }
-    vulkan_wrappers::DebugReportCallbackEXTWrapper* GetDebugReportCallbackEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(id, debugReportCallbackEXT_map_); }
-    vulkan_wrappers::DebugUtilsMessengerEXTWrapper* GetDebugUtilsMessengerEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(id, debugUtilsMessengerEXT_map_); }
-    vulkan_wrappers::DeferredOperationKHRWrapper* GetDeferredOperationKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(id, deferredOperationKHR_map_); }
-    vulkan_wrappers::DescriptorPoolWrapper* GetDescriptorPoolWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorPoolWrapper>(id, descriptorPool_map_); }
-    vulkan_wrappers::DescriptorSetWrapper* GetDescriptorSetWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(id, descriptorSet_map_); }
-    vulkan_wrappers::DescriptorSetLayoutWrapper* GetDescriptorSetLayoutWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(id, descriptorSetLayout_map_); }
-    vulkan_wrappers::DescriptorUpdateTemplateWrapper* GetDescriptorUpdateTemplateWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(id, descriptorUpdateTemplate_map_); }
-    vulkan_wrappers::DeviceWrapper* GetDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, device_map_); }
-    vulkan_wrappers::DeviceMemoryWrapper* GetDeviceMemoryWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(id, deviceMemory_map_); }
-    vulkan_wrappers::DisplayKHRWrapper* GetDisplayKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DisplayKHRWrapper>(id, displayKHR_map_); }
-    vulkan_wrappers::DisplayModeKHRWrapper* GetDisplayModeKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(id, displayModeKHR_map_); }
-    vulkan_wrappers::EventWrapper* GetEventWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::EventWrapper>(id, event_map_); }
-    vulkan_wrappers::FenceWrapper* GetFenceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::FenceWrapper>(id, fence_map_); }
-    vulkan_wrappers::FramebufferWrapper* GetFramebufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::FramebufferWrapper>(id, framebuffer_map_); }
-    vulkan_wrappers::ImageWrapper* GetImageWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, image_map_); }
-    vulkan_wrappers::ImageViewWrapper* GetImageViewWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ImageViewWrapper>(id, imageView_map_); }
-    vulkan_wrappers::IndirectCommandsLayoutNVWrapper* GetIndirectCommandsLayoutNVWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(id, indirectCommandsLayoutNV_map_); }
-    vulkan_wrappers::InstanceWrapper* GetInstanceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::InstanceWrapper>(id, instance_map_); }
-    vulkan_wrappers::MicromapEXTWrapper* GetMicromapEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::MicromapEXTWrapper>(id, micromapEXT_map_); }
-    vulkan_wrappers::OpticalFlowSessionNVWrapper* GetOpticalFlowSessionNVWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::OpticalFlowSessionNVWrapper>(id, opticalFlowSessionNV_map_); }
-    vulkan_wrappers::PerformanceConfigurationINTELWrapper* GetPerformanceConfigurationINTELWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
-    vulkan_wrappers::PhysicalDeviceWrapper* GetPhysicalDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, physicalDevice_map_); }
-    vulkan_wrappers::PipelineWrapper* GetPipelineWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineWrapper>(id, pipeline_map_); }
-    vulkan_wrappers::PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(id, pipelineCache_map_); }
-    vulkan_wrappers::PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(id, pipelineLayout_map_); }
-    vulkan_wrappers::PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
-    vulkan_wrappers::QueryPoolWrapper* GetQueryPoolWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::QueryPoolWrapper>(id, queryPool_map_); }
-    vulkan_wrappers::QueueWrapper* GetQueueWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::QueueWrapper>(id, queue_map_); }
-    vulkan_wrappers::RenderPassWrapper* GetRenderPassWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::RenderPassWrapper>(id, renderPass_map_); }
-    vulkan_wrappers::SamplerWrapper* GetSamplerWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SamplerWrapper>(id, sampler_map_); }
-    vulkan_wrappers::SamplerYcbcrConversionWrapper* GetSamplerYcbcrConversionWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SamplerYcbcrConversionWrapper>(id, samplerYcbcrConversion_map_); }
-    vulkan_wrappers::SemaphoreWrapper* GetSemaphoreWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SemaphoreWrapper>(id, semaphore_map_); }
-    vulkan_wrappers::ShaderEXTWrapper* GetShaderEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ShaderEXTWrapper>(id, shaderEXT_map_); }
-    vulkan_wrappers::ShaderModuleWrapper* GetShaderModuleWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(id, shaderModule_map_); }
-    vulkan_wrappers::SurfaceKHRWrapper* GetSurfaceKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, surfaceKHR_map_); }
-    vulkan_wrappers::SwapchainKHRWrapper* GetSwapchainKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, swapchainKHR_map_); }
-    vulkan_wrappers::ValidationCacheEXTWrapper* GetValidationCacheEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(id, validationCacheEXT_map_); }
-    vulkan_wrappers::VideoSessionKHRWrapper* GetVideoSessionKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(id, videoSessionKHR_map_); }
-    vulkan_wrappers::VideoSessionParametersKHRWrapper* GetVideoSessionParametersKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(id, videoSessionParametersKHR_map_); }
+    vulkan_wrappers::AccelerationStructureKHRWrapper* GetVulkanAccelerationStructureKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(id, accelerationStructureKHR_map_); }
+    vulkan_wrappers::AccelerationStructureNVWrapper* GetVulkanAccelerationStructureNVWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(id, accelerationStructureNV_map_); }
+    vulkan_wrappers::BufferWrapper* GetVulkanBufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::BufferWrapper>(id, buffer_map_); }
+    vulkan_wrappers::BufferViewWrapper* GetVulkanBufferViewWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::BufferViewWrapper>(id, bufferView_map_); }
+    vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, commandBuffer_map_); }
+    vulkan_wrappers::CommandPoolWrapper* GetVulkanCommandPoolWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandPoolWrapper>(id, commandPool_map_); }
+    vulkan_wrappers::DebugReportCallbackEXTWrapper* GetVulkanDebugReportCallbackEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DebugReportCallbackEXTWrapper>(id, debugReportCallbackEXT_map_); }
+    vulkan_wrappers::DebugUtilsMessengerEXTWrapper* GetVulkanDebugUtilsMessengerEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(id, debugUtilsMessengerEXT_map_); }
+    vulkan_wrappers::DeferredOperationKHRWrapper* GetVulkanDeferredOperationKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeferredOperationKHRWrapper>(id, deferredOperationKHR_map_); }
+    vulkan_wrappers::DescriptorPoolWrapper* GetVulkanDescriptorPoolWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorPoolWrapper>(id, descriptorPool_map_); }
+    vulkan_wrappers::DescriptorSetWrapper* GetVulkanDescriptorSetWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(id, descriptorSet_map_); }
+    vulkan_wrappers::DescriptorSetLayoutWrapper* GetVulkanDescriptorSetLayoutWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorSetLayoutWrapper>(id, descriptorSetLayout_map_); }
+    vulkan_wrappers::DescriptorUpdateTemplateWrapper* GetVulkanDescriptorUpdateTemplateWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(id, descriptorUpdateTemplate_map_); }
+    vulkan_wrappers::DeviceWrapper* GetVulkanDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, device_map_); }
+    vulkan_wrappers::DeviceMemoryWrapper* GetVulkanDeviceMemoryWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(id, deviceMemory_map_); }
+    vulkan_wrappers::DisplayKHRWrapper* GetVulkanDisplayKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DisplayKHRWrapper>(id, displayKHR_map_); }
+    vulkan_wrappers::DisplayModeKHRWrapper* GetVulkanDisplayModeKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DisplayModeKHRWrapper>(id, displayModeKHR_map_); }
+    vulkan_wrappers::EventWrapper* GetVulkanEventWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::EventWrapper>(id, event_map_); }
+    vulkan_wrappers::FenceWrapper* GetVulkanFenceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::FenceWrapper>(id, fence_map_); }
+    vulkan_wrappers::FramebufferWrapper* GetVulkanFramebufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::FramebufferWrapper>(id, framebuffer_map_); }
+    vulkan_wrappers::ImageWrapper* GetVulkanImageWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, image_map_); }
+    vulkan_wrappers::ImageViewWrapper* GetVulkanImageViewWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ImageViewWrapper>(id, imageView_map_); }
+    vulkan_wrappers::IndirectCommandsLayoutNVWrapper* GetVulkanIndirectCommandsLayoutNVWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(id, indirectCommandsLayoutNV_map_); }
+    vulkan_wrappers::InstanceWrapper* GetVulkanInstanceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::InstanceWrapper>(id, instance_map_); }
+    vulkan_wrappers::MicromapEXTWrapper* GetVulkanMicromapEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::MicromapEXTWrapper>(id, micromapEXT_map_); }
+    vulkan_wrappers::OpticalFlowSessionNVWrapper* GetVulkanOpticalFlowSessionNVWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::OpticalFlowSessionNVWrapper>(id, opticalFlowSessionNV_map_); }
+    vulkan_wrappers::PerformanceConfigurationINTELWrapper* GetVulkanPerformanceConfigurationINTELWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
+    vulkan_wrappers::PhysicalDeviceWrapper* GetVulkanPhysicalDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, physicalDevice_map_); }
+    vulkan_wrappers::PipelineWrapper* GetVulkanPipelineWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineWrapper>(id, pipeline_map_); }
+    vulkan_wrappers::PipelineCacheWrapper* GetVulkanPipelineCacheWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(id, pipelineCache_map_); }
+    vulkan_wrappers::PipelineLayoutWrapper* GetVulkanPipelineLayoutWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(id, pipelineLayout_map_); }
+    vulkan_wrappers::PrivateDataSlotWrapper* GetVulkanPrivateDataSlotWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
+    vulkan_wrappers::QueryPoolWrapper* GetVulkanQueryPoolWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::QueryPoolWrapper>(id, queryPool_map_); }
+    vulkan_wrappers::QueueWrapper* GetVulkanQueueWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::QueueWrapper>(id, queue_map_); }
+    vulkan_wrappers::RenderPassWrapper* GetVulkanRenderPassWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::RenderPassWrapper>(id, renderPass_map_); }
+    vulkan_wrappers::SamplerWrapper* GetVulkanSamplerWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SamplerWrapper>(id, sampler_map_); }
+    vulkan_wrappers::SamplerYcbcrConversionWrapper* GetVulkanSamplerYcbcrConversionWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SamplerYcbcrConversionWrapper>(id, samplerYcbcrConversion_map_); }
+    vulkan_wrappers::SemaphoreWrapper* GetVulkanSemaphoreWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SemaphoreWrapper>(id, semaphore_map_); }
+    vulkan_wrappers::ShaderEXTWrapper* GetVulkanShaderEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ShaderEXTWrapper>(id, shaderEXT_map_); }
+    vulkan_wrappers::ShaderModuleWrapper* GetVulkanShaderModuleWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ShaderModuleWrapper>(id, shaderModule_map_); }
+    vulkan_wrappers::SurfaceKHRWrapper* GetVulkanSurfaceKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, surfaceKHR_map_); }
+    vulkan_wrappers::SwapchainKHRWrapper* GetVulkanSwapchainKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, swapchainKHR_map_); }
+    vulkan_wrappers::ValidationCacheEXTWrapper* GetVulkanValidationCacheEXTWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ValidationCacheEXTWrapper>(id, validationCacheEXT_map_); }
+    vulkan_wrappers::VideoSessionKHRWrapper* GetVulkanVideoSessionKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::VideoSessionKHRWrapper>(id, videoSessionKHR_map_); }
+    vulkan_wrappers::VideoSessionParametersKHRWrapper* GetVulkanVideoSessionParametersKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::VideoSessionParametersKHRWrapper>(id, videoSessionParametersKHR_map_); }
 
     void VisitWrappers(std::function<void(vulkan_wrappers::AccelerationStructureKHRWrapper*)> visitor) const { for (auto entry : accelerationStructureKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::AccelerationStructureNVWrapper*)> visitor) const { for (auto entry : accelerationStructureNV_map_) { visitor(entry.second); } }

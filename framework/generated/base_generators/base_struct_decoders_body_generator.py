@@ -92,7 +92,7 @@ class BaseStructDecodersBodyGenerator():
             is_string = True
         elif type_name == 'FunctionPtr':
             is_funcp = True
-        elif type_name == 'Handle':
+        elif self.is_handle(value.base_type):
             is_handle = True
         elif type_name == 'Enum':
             is_enum = True
@@ -140,6 +140,11 @@ class BaseStructDecodersBodyGenerator():
                 elif is_class and value.pointer_count == 1:
                     body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
                         buffer_args, value.name
+                    )
+                elif self.has_basetype(value.base_type):
+                    base_type = self.get_basetype(value.base_type)
+                    body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
+                        value.name, self.encode_types[base_type], buffer_args
                     )
                 else:
                     body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
@@ -209,6 +214,20 @@ class BaseStructDecodersBodyGenerator():
                 body += '    bytes_read += ValueDecoder::DecodeEnumValue({}, &(value->{}));\n'.format(
                     buffer_args, value.name
                 )
+            elif self.has_basetype(type_name):
+                base_type = self.get_basetype(type_name)
+                body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(
+                    self.encode_types[base_type], buffer_args, value.name
+                )
+            elif 'Flags' in type_name:
+                if 'Flags64' in type_name:
+                    body += '    bytes_read += ValueDecoder::DecodeFlags64Value({}, &(value->{}));\n'.format(
+                        buffer_args, value.name
+                    )
+                else:
+                    body += '    bytes_read += ValueDecoder::DecodeFlagsValue({}, &(value->{}));\n'.format(
+                        buffer_args, value.name
+                    )
             else:
                 body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(
                     type_name, buffer_args, value.name
