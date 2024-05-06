@@ -40,7 +40,7 @@ unset(_LZ4_x86)
 list(APPEND _LZ4_SEARCH_PATH _LZ4_SEARCH_NORMAL)
 
 set(LZ4_NAMES lz4 lz4_static liblz4 liblz4_static)
-if(LZ4_USE_STATIC_LIBRARY)
+if(BUILD_STATIC)
     set(LZ4_NAMES liblz4.a ${LZ4_NAMES})
 endif()
 set(LZ4_NAMES_DEBUG lz4d lz4_staticd liblz4d liblz4_staticd)
