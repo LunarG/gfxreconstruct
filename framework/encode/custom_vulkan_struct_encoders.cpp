@@ -82,12 +82,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatistic
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressKHR& value)
 {
-    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeUInt64Value(value.deviceAddress);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR& value)
 {
-    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeUInt64Value(value.deviceAddress);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value)

@@ -1079,7 +1079,7 @@ void VulkanStateWriter::WriteSwapchainKhrState(const VulkanStateTable& state_tab
             const VkResult result = VK_SUCCESS;
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            encoder_.EncodeVkBool32Value(wrapper->local_dimming_enable_AMD);
+            encoder_.EncodeUInt32Value(wrapper->local_dimming_enable_AMD);
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkSetLocalDimmingAMD, &parameter_stream_);
             parameter_stream_.Clear();
@@ -1576,7 +1576,7 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
                 encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
                 encoder_.EncodeHandleIdValue(wrapper->handle_id);
                 encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-                encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+                encoder_.EncodeUInt64Value(wrapper->bind_offset);
                 encoder_.EncodeEnumValue(VK_SUCCESS);
 
                 WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
@@ -1664,7 +1664,7 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                 encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
                 encoder_.EncodeHandleIdValue(wrapper->handle_id);
                 encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-                encoder_.EncodeVkDeviceSizeValue(wrapper->bind_offset);
+                encoder_.EncodeUInt64Value(wrapper->bind_offset);
                 encoder_.EncodeEnumValue(VK_SUCCESS);
 
                 WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
@@ -1888,8 +1888,8 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
             // Map the replay memory.
             encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
             encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            encoder_.EncodeVkDeviceSizeValue(wrapper->mapped_offset);
-            encoder_.EncodeVkDeviceSizeValue(wrapper->mapped_size);
+            encoder_.EncodeUInt64Value(wrapper->mapped_offset);
+            encoder_.EncodeUInt64Value(wrapper->mapped_size);
             encoder_.EncodeFlagsValue(wrapper->mapped_flags);
             encoder_.EncodeVoidPtrPtr(&wrapper->mapped_data);
             encoder_.EncodeEnumValue(result);
@@ -2042,7 +2042,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceSupport(format::HandleId ph
     encoder_.EncodeHandleIdValue(physical_device_id);
     encoder_.EncodeUInt32Value(queue_family_index);
     encoder_.EncodeHandleIdValue(surface_id);
-    encoder_.EncodeVkBool32Ptr(&supported);
+    encoder_.EncodeUInt32Ptr(&supported);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceSupportKHR, &parameter_stream_);

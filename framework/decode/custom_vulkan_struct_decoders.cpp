@@ -82,8 +82,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceO
     size_t                    bytes_read = 0;
     VkDeviceOrHostAddressKHR* value      = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue(
-        (buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
     wrapper->hostAddress = value->deviceAddress;
 
     return bytes_read;
@@ -96,8 +96,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkDeviceO
     size_t                         bytes_read = 0;
     VkDeviceOrHostAddressConstKHR* value      = wrapper->decoded_value;
 
-    bytes_read += ValueDecoder::DecodeVkDeviceSizeValue(
-        (buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
+    bytes_read +=
+        ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->deviceAddress));
     wrapper->hostAddress = value->deviceAddress;
 
     return bytes_read;
