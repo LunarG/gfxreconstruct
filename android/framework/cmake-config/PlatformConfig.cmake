@@ -46,7 +46,14 @@ if (GIT_SHA1)
     endif()
 endif()
 
-configure_file("${GFXRECON_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version.h")
+# Adds all the configure time information into project_version_temp.h.in
+configure_file("${GFXRECON_SOURCE_DIR}/project_version.h.in" "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
+
+# Generate a "project_version_$<CONFIG>.h" for the current config - necessary to determine the current build configuration
+file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/project_version_$<CONFIG>.h" INPUT "${CMAKE_BINARY_DIR}/project_version_temp.h.in")
+
+# Since project_version_$<CONFIG>.h differs per build, set a compiler definition that files can use to include it
+add_definitions(-DPROJECT_VERSION_HEADER_FILE="project_version_$<CONFIG>.h")
 
 add_library(platform_specific INTERFACE)
 target_compile_definitions(platform_specific INTERFACE _FILE_OFFSET_BITS=64 PAGE_GUARD_ENABLE_UCONTEXT_WRITE_DETECTION VK_USE_PLATFORM_ANDROID_KHR)

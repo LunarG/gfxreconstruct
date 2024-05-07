@@ -25,6 +25,7 @@
 #include "util/image_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "decode/decoder_util.h"
 
 #include <condition_variable>
 #include <limits>
@@ -75,7 +76,7 @@ inline void WriteImageFile(const std::string&     filename,
 }
 
 void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
-                                   VkDevice                                device,
+                                   const DeviceInfo*                       device_info,
                                    const encode::VulkanDeviceTable*        device_table,
                                    const VkPhysicalDeviceMemoryProperties& memory_properties,
                                    VulkanResourceAllocator*                allocator,
@@ -104,7 +105,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
     }
 
     VkResult result = VK_SUCCESS;
-
+    auto     device = device_info->handle;
     // TODO: Improved queue selection; ensure queue supports transfer operations.
 
     // Get a command pool for the device.
@@ -137,7 +138,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
         VkQueue queue         = VK_NULL_HANDLE;
 
         // Get a queue.
-        device_table->GetDeviceQueue(device, kDefaultQueueFamilyIndex, kDefaultQueueIndex, &queue);
+        queue = GetDeviceQueue(device_table, device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
 
         // Get a buffer size.
         VkDeviceSize buffer_size     = copy_resource.buffer_size;

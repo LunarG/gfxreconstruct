@@ -2116,7 +2116,7 @@ void VulkanReplayConsumerBase::WriteScreenshots(const Decoded_VkPresentInfoKHR* 
                         : (options_.screenshot_height ? options_.screenshot_height : swapchain_info->height);
 
                 screenshot_handler_->WriteImage(filename_prefix,
-                                                device_info->handle,
+                                                device_info,
                                                 GetDeviceTable(device_info->handle),
                                                 memory_properties,
                                                 device_info->allocator.get(),
@@ -2193,7 +2193,7 @@ bool VulkanReplayConsumerBase::CheckCommandBufferInfoForFrameBoundary(const Comm
                             : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
 
                     screenshot_handler_->WriteImage(filename_prefix,
-                                                    device_info->handle,
+                                                    device_info,
                                                     GetDeviceTable(device_info->handle),
                                                     memory_properties,
                                                     device_info->allocator.get(),
@@ -2249,7 +2249,7 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const DeviceInfo*
                     : (options_.screenshot_height ? options_.screenshot_height : image_info->extent.height);
 
             screenshot_handler_->WriteImage(filename_prefix,
-                                            device_info->handle,
+                                            device_info,
                                             GetDeviceTable(device_info->handle),
                                             memory_properties,
                                             device_info->allocator.get(),
@@ -5188,7 +5188,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
             }
             else
             {
-                GFXRECON_LOG_WARNING(
+                GFXRECON_LOG_DEBUG(
                     "There's initial pipeline cache data in VkPipelineCacheCreateInfo, but no corresponding "
                     "replay time cache data!");
 

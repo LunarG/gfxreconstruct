@@ -101,6 +101,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     marker.frame_number = frame_number;
     output_stream_->Write(&marker, sizeof(marker));
 
+    // For the Begin Marker meta command
+    ++blocks_written_;
+
     // Instance, device, and queue creation.
     StandardCreateWrite<vulkan_wrappers::InstanceWrapper>(state_table);
     WritePhysicalDeviceState(state_table);
@@ -179,6 +182,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
+
+    // For the EndMarker meta command
+    ++blocks_written_;
 
     return blocks_written_;
     // clang-format on
@@ -1887,7 +1893,6 @@ void VulkanStateWriter::WriteMappedMemoryState(const VulkanStateTable& state_tab
 
             WriteFunctionCall(format::ApiCallId::ApiCall_vkMapMemory, &parameter_stream_);
             parameter_stream_.Clear();
-            ++blocks_written_;
         }
     });
 }

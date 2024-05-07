@@ -23,6 +23,7 @@
 #include "decode/vulkan_virtual_swapchain.h"
 
 #include "decode/vulkan_resource_allocator.h"
+#include "decode/decoder_util.h"
 
 #include <array>
 
@@ -234,7 +235,8 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                           transfer_queue_family_index,
                           swapchain_info->capture_id);
     }
-    device_table_->GetDeviceQueue(device, copy_queue_family_index, 0, &initial_copy_queue);
+
+    initial_copy_queue = GetDeviceQueue(device_table_, device_info, copy_queue_family_index, 0);
     if (initial_copy_queue == VK_NULL_HANDLE)
     {
         GFXRECON_LOG_ERROR("Virtual swapchain failed getting device queue %d to create initial virtual swapchain "
