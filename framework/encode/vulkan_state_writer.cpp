@@ -156,6 +156,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WriteAccelerationStructureKHRState(state_table);
     WriteTlasToBlasDependenciesMetadata(state_table);
     StandardCreateWrite<vulkan_wrappers::AccelerationStructureNVWrapper>(state_table);
+    StandardCreateWrite<vulkan_wrappers::ShaderEXTWrapper>(state_table);
 
     // Descriptor creation.
     StandardCreateWrite<vulkan_wrappers::DescriptorPoolWrapper>(state_table);
