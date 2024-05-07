@@ -7512,6 +7512,24 @@ void VulkanReplayConsumerBase::GetImportedSemaphores(
     }
 }
 
+void VulkanReplayConsumerBase::SignalShadowSemaphore(SemaphoreInfo*                     semaphore_info,
+                                                     std::vector<const SemaphoreInfo*>* shadow_semaphores)
+{
+    if (semaphore_info->shadow_signaled == true)
+    {
+        // If found, unsignal the semaphore to represent it being used.
+        shadow_semaphores->push_back(semaphore_info);
+        semaphore_info->shadow_signaled = false;
+        shadow_semaphores_.erase(semaphore_info->handle);
+    }
+    else if (semaphore_info->signaled)
+    {
+        // If the semaphore was signaled with VkSubmitInfo we need to wait on it
+        // and mark that it has been waited on
+        semaphore_info->signaled = false;
+    }
+}
+
 void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                                                    std::vector<const SemaphoreInfo*>*       shadow_semaphores)
 {
@@ -7525,21 +7543,9 @@ void VulkanReplayConsumerBase::GetShadowSemaphores(const HandlePointerDecoder<Vk
         for (uint32_t i = 0; i < count; ++i)
         {
             SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_ids[i]);
-            if ((semaphore_info != nullptr))
+            if (semaphore_info != nullptr)
             {
-                if (semaphore_info->shadow_signaled == true)
-                {
-                    // If found, unsignal the semaphore to represent it being used.
-                    shadow_semaphores->push_back(semaphore_info);
-                    semaphore_info->shadow_signaled = false;
-                    shadow_semaphores_.erase(semaphore_info->handle);
-                }
-                else if (semaphore_info->signaled)
-                {
-                    // If the semaphore was signaled with VkSubmitInfo we need to wait on it
-                    // and mark that it has been waited on
-                    semaphore_info->signaled = false;
-                }
+                SignalShadowSemaphore(semaphore_info, shadow_semaphores);
             }
         }
     }
@@ -7561,19 +7567,7 @@ void VulkanReplayConsumerBase::GetShadowSemaphores(
             SemaphoreInfo* semaphore_info = object_info_table_.GetSemaphoreInfo(semaphore_infos[i].semaphore);
             if (semaphore_info != nullptr)
             {
-                if (semaphore_info->shadow_signaled == true)
-                {
-                    // If found, unsignal the semaphore to represent it being used.
-                    shadow_semaphores->push_back(semaphore_info);
-                    semaphore_info->shadow_signaled = false;
-                    shadow_semaphores_.erase(semaphore_info->handle);
-                }
-                else if (semaphore_info->signaled)
-                {
-                    // If the semaphore was signaled with VkSubmitInfo we need to wait on it
-                    // and mark that it has been waited on
-                    semaphore_info->signaled = false;
-                }
+                SignalShadowSemaphore(semaphore_info, shadow_semaphores);
             }
         }
     }

@@ -1115,6 +1115,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void GetImportedSemaphores(const StructPointerDecoder<Decoded_VkSemaphoreSubmitInfo>* semaphore_info_data,
                                std::vector<const SemaphoreInfo*>*                         imported_semaphores);
 
+    void SignalShadowSemaphore(SemaphoreInfo* semaphore_info, std::vector<const SemaphoreInfo*>* shadow_semaphores);
+
     void GetShadowSemaphores(const HandlePointerDecoder<VkSemaphore>& semaphore_data,
                              std::vector<const SemaphoreInfo*>*       shadow_semaphores);
 
