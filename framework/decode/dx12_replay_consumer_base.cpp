@@ -5174,14 +5174,6 @@ Dx12ReplayConsumerBase::GetCommandListsForDumpResources(DxObjectInfo* command_li
             }
         }
 
-        if (track_dump_resources_.target.begin_block_index == block_index)
-        {
-            const UINT64 initial_fence_value = 1;
-            device->CreateFence(initial_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
-            track_dump_resources_.fence_event        = CreateEventA(nullptr, TRUE, FALSE, nullptr);
-            track_dump_resources_.fence_signal_value = initial_fence_value;
-        }
-
         graphics::TrackDumpResources::SplitCommandType split_type =
             graphics::TrackDumpResources::SplitCommandType::kBeforeDrawCall;
 
@@ -5515,6 +5507,11 @@ void Dx12ReplayConsumerBase::InitializeDumpResources(ID3D12Device* device)
 
     auto hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
                                              IID_PPV_ARGS(&track_dump_resources_.copy_cmd_allocator));
+
+    const UINT64 initial_fence_value = 1;
+    device->CreateFence(initial_fence_value, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&track_dump_resources_.fence));
+    track_dump_resources_.fence_event        = CreateEventA(nullptr, TRUE, FALSE, nullptr);
+    track_dump_resources_.fence_signal_value = initial_fence_value;
 }
 
 void Dx12ReplayConsumerBase::CopyDrawcallResources(DxObjectInfo*                        queue_object_info,
