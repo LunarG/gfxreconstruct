@@ -1786,8 +1786,6 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
     }
 
     dump_json_.BlockStart();
-    auto& qs_block    = dump_json_.InsertSubEntry("QueueSubmit");
-    qs_block["index"] = index;
 
     for (size_t s = 0; s < submit_infos.size(); s++)
     {
