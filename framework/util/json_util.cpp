@@ -103,47 +103,50 @@ void HandleToJson(nlohmann::ordered_json& jdata,
 // library hidden in the assignments so we can give the inlining of that code a
 // natural place to stop right here.
 
-void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t data, const util::JsonOptions& options)
+void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t& data, const util::JsonOptions& options)
 {
     jdata = static_cast<bool>(data);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const int16_t& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const short& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const int32_t& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const int& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const int64_t& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const uint16_t& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const long long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const uint32_t& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-#ifdef WIN32
-void FieldToJson(nlohmann::ordered_json& jdata, const DWORD& data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data, const JsonOptions& options)
 {
     jdata = data;
 }
-#endif
+
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long long& data, const JsonOptions& options)
+{
+    jdata = data;
+}
 
 void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data, const JsonOptions& options)
 {
@@ -283,7 +286,6 @@ void HresultToJson(nlohmann::ordered_json& jdata, const HRESULT hresult, const u
 }
 
 #if defined(D3D12_SUPPORT)
-
 void FieldToJson(nlohmann::ordered_json&                                  jdata,
                  const format::InitDx12AccelerationStructureGeometryDesc& data,
                  const util::JsonOptions&                                 options)
@@ -301,6 +303,7 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
     FieldToJson(jdata["triangles_vertex_count"], data.triangles_vertex_count, options);
     FieldToJson(jdata["triangles_vertex_stride"], data.triangles_vertex_stride, options);
 }
+#endif // defined(D3D12_SUPPORT)
 
 void FieldToJson(nlohmann::ordered_json& jdata, const format::DxgiAdapterDesc& data, const util::JsonOptions& options)
 {
@@ -347,9 +350,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const util::filepath::FileInfo& 
         jdata["ProductName"], strings::ViewOfCharArray(data.ProductName, filepath::kMaxFilePropertySize), options);
 }
 
-#endif // D3D12_SUPPORT
-
-#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
+#endif
 
 static std::string GenerateFilename(const std::string_view filename, const uint64_t instance_counter)
 {

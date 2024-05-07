@@ -102,8 +102,23 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
 
 template <>
 void FieldToJson(nlohmann::ordered_json&                   jdata,
+                 const PointerDecoder<uint32_t, uint32_t>& data,
+                 const util::JsonOptions&                  options);
+
+template <>
+void FieldToJson(nlohmann::ordered_json&                 jdata,
+                 const PointerDecoder<int32_t, int32_t>& data,
+                 const util::JsonOptions&                options);
+
+template <>
+void FieldToJson(nlohmann::ordered_json&                   jdata,
                  const PointerDecoder<uint64_t, uint64_t>& data,
                  const util::JsonOptions&                  options);
+
+template <>
+void FieldToJson(nlohmann::ordered_json&                 jdata,
+                 const PointerDecoder<int64_t, int64_t>& data,
+                 const util::JsonOptions&                options);
 
 template <typename DecodedType>
 void FieldToJson(nlohmann::ordered_json&                  jdata,
@@ -275,6 +290,12 @@ inline void
 FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<uint64_t, void*>* data, const util::JsonOptions& options)
 {
     FieldToJsonAsHex<uint64_t, void*>(jdata, data, options);
+}
+
+inline void
+FieldToJsonAsHex(nlohmann::ordered_json& jdata, PointerDecoder<int64_t, void*>* data, const util::JsonOptions& options)
+{
+    FieldToJsonAsHex<int64_t, void*>(jdata, data, options);
 }
 
 /// Convert arrays of and pointers to bools. Since VkBool32 is just a typedef of

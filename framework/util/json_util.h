@@ -65,15 +65,16 @@ struct JsonOptions
     bool        hex_handles   = false;
 };
 
-void FieldToJson(nlohmann::ordered_json& jdata, const int16_t& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const int32_t& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const int64_t& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const uint16_t& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const uint32_t& data, const JsonOptions& options = JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const uint64_t& data, const JsonOptions& options = JsonOptions());
-#ifdef WIN32
-void FieldToJson(nlohmann::ordered_json& jdata, const DWORD& data, const JsonOptions& options = JsonOptions());
-#endif
+void FieldToJson(nlohmann::ordered_json& jdata, const short& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const int& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const long& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const long long& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data, const JsonOptions& options = JsonOptions());
+void FieldToJson(nlohmann::ordered_json&   jdata,
+                 const unsigned long long& data,
+                 const JsonOptions&        options = JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const std::nullptr_t data, const JsonOptions& options = JsonOptions());
 /// Convert floats to JSON, logging information loss when floats with no JSON
 /// number type representation are adjusted. The JSON library turns these numbers
@@ -97,7 +98,7 @@ void HandleToJson(nlohmann::ordered_json& jdata, const format::HandleId handle, 
 /// VkBool32 to true or false. It should be fine for the signed Windows type
 /// BOOL too.
 void Bool32ToJson(nlohmann::ordered_json&  jdata,
-                  const uint32_t           data,
+                  const uint32_t&          data,
                   const util::JsonOptions& options = util::JsonOptions());
 
 /// @brief Convert an integer type to JSON but encoded in hex as a JSON string
@@ -167,7 +168,7 @@ void HandleToJson(nlohmann::ordered_json&  jdata,
                   size_t                   num_elements,
                   const util::JsonOptions& options = util::JsonOptions());
 
-#if 1 // #if defined(D3D12_SUPPORT)
+#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 /// @brief Turn a D3D12 or DXGI HRESULT into a string with the same character
 /// sequence as the identifier of the C macro defining it in a header like
 /// winerror.h.
