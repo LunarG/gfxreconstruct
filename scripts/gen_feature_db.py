@@ -68,10 +68,6 @@ def is_windows():
     '''
     return 'windows' == platform.system().lower()
 
-# Print usage instructions
-def usage():
-    print(f"Usage: {script_name} <root traces directory>")
-
 #Return a list of all sTypes inside a block
 def gather_stypes(block):
     sTypes = set()
@@ -184,8 +180,7 @@ def process_trace(in_stream, trace_path):
 if __name__ == "__main__":
 
     #Early exit if we're missing our arguments
-    if len(sys.argv) < 2:
-        usage()
+    if len(sys.argv) < 3:
         print("usage: %s path-to-vk.xml path-to-captures-root/" % sys.argv[0])
         exit(-1)
     vk_xml_path = sys.argv[1]
