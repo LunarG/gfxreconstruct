@@ -1799,13 +1799,28 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
     auto& current_block = dump_json.GetCurrentSubEntry();
 
     // Handle Dispatch commands
-    auto& dispatch_json_entries = (!dispatch_params.empty()) ? current_block["dispatchCommands"] : dump_json.GetData();
+    auto& dispatch_json_entries = (!dispatch_params.empty() && !output_json_per_command)
+                                      ? current_block["dispatchCommands"]
+                                      : dump_json.GetData();
 
     uint32_t command_count = 0;
     for (const auto& disp_params : dispatch_params)
     {
-        const uint64_t cmd_index      = disp_params.first;
-        auto&          dispatch_entry = dispatch_json_entries[command_count++];
+        const uint64_t cmd_index = disp_params.first;
+
+        if (output_json_per_command)
+        {
+            std::stringstream filename;
+            filename << "Dispatch_" << cmd_index << "_qs_" << qs_index << "_bcb_" << bcb_index << ".json";
+            std::filesystem::path filedirname(dump_resource_path);
+            std::filesystem::path filebasename(filename.str());
+            std::string           full_filename = (filedirname / filebasename).string();
+
+            dump_json.Open(full_filename);
+            dump_json.BlockStart();
+        }
+
+        auto& dispatch_entry = !output_json_per_command ? dispatch_json_entries[command_count++] : dump_json.GetData();
 
         dispatch_entry["dispatchIndex"]           = cmd_index;
         dispatch_entry["beginCommandBufferIndex"] = bcb_index;
@@ -2123,15 +2138,36 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                 }
             }
         }
+
+        if (output_json_per_command)
+        {
+            dump_json.BlockEnd();
+            dump_json.Close();
+        }
     }
 
     // Handle TraceRays commands
-    auto& tr_json_entries = (!trace_rays_params.empty()) ? current_block["traceRaysCommands"] : dump_json.GetData();
+    auto& tr_json_entries = (!trace_rays_params.empty() && !output_json_per_command)
+                                ? current_block["traceRaysCommands"]
+                                : dump_json.GetData();
     command_count         = 0;
     for (const auto& tr_params : trace_rays_params)
     {
         const uint64_t cmd_index = tr_params.first;
-        auto&          tr_entry  = tr_json_entries[command_count++];
+
+        if (output_json_per_command)
+        {
+            std::stringstream filename;
+            filename << "TraceRays_" << cmd_index << "_qs_" << qs_index << "_bcb_" << bcb_index << ".json";
+            std::filesystem::path filedirname(dump_resource_path);
+            std::filesystem::path filebasename(filename.str());
+            std::string           full_filename = (filedirname / filebasename).string();
+
+            dump_json.Open(full_filename);
+            dump_json.BlockStart();
+        }
+
+        auto& tr_entry = !output_json_per_command ? tr_json_entries[command_count++] : dump_json.GetData();
 
         tr_entry["traceRaysIndex"]          = cmd_index;
         tr_entry["beginCommandBufferIndex"] = bcb_index;
@@ -2432,6 +2468,12 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                     }
                 }
             }
+        }
+
+        if (output_json_per_command)
+        {
+            dump_json.BlockEnd();
+            dump_json.Close();
         }
     }
 }
