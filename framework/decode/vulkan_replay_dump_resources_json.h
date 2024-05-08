@@ -37,7 +37,10 @@ class VulkanReplayDumpResourcesJson
 
     ~VulkanReplayDumpResourcesJson(){};
 
-    bool Open(const std::string& infile, const std::string& outdir, float scale);
+    bool Open(const std::string& infile, const std::string& outdir);
+
+    bool Open(const std::string& filename);
+
     void Close();
 
     nlohmann::ordered_json& BlockStart();
@@ -64,16 +67,17 @@ class VulkanReplayDumpResourcesJson
                          uint32_t                array_layer = 0,
                          const VkExtent3D*       extent      = nullptr);
 
-    void InsertBufferInfo(nlohmann::ordered_json& json_entry,
-                          const BufferInfo*       buffer_info,
-                          const std::string&      filename,
-                          size_t                  size = 0);
+    void
+    InsertBufferInfo(nlohmann::ordered_json& json_entry, const BufferInfo* buffer_info, const std::string& filename);
 
   private:
-    FILE*                   file_{ nullptr };
+    bool InitializeFile(const std::string& filename);
+
+    FILE*                   file_;
     nlohmann::ordered_json  header_;
     nlohmann::ordered_json  json_data_;
-    nlohmann::ordered_json* current_entry{ nullptr };
+    nlohmann::ordered_json* current_entry;
+    bool                    first_block_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

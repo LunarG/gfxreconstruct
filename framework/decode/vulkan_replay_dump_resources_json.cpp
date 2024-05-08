@@ -29,7 +29,8 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayOptions& options)
+VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayOptions& options) :
+    file_(nullptr), current_entry(nullptr), first_block_(true)
 {
     header_["vulkanVersion"] = std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
                                std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
@@ -48,7 +49,31 @@ VulkanReplayDumpResourcesJson::VulkanReplayDumpResourcesJson(const VulkanReplayO
     dr_options["dumpResourcesDumpAllImageSubresources"] = options.dump_resources_dump_all_image_subresources;
 };
 
-bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::string& outdir, float scale)
+bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
+{
+    int ret = gfxrecon::util::platform::FileOpen(&file_, filename.c_str(), "w");
+    if (ret || file_ == nullptr)
+    {
+#if defined(WIN32)
+        GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s", outfile.c_str());
+#else
+        GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s (%s)", filename.c_str(), strerror(ret));
+#endif
+        return false;
+    }
+
+    util::platform::FileWrite("[\n", 2, 1, file_);
+
+    BlockStart();
+    json_data_["header"] = header_;
+    BlockEnd();
+
+    BlockStart();
+
+    return true;
+}
+
+bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::string& outdir)
 {
     std::filesystem::path path_outfile(outdir);
     std::filesystem::path path_infile(infile);
@@ -62,24 +87,20 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
     }
     outfile = outfile + "_rd.json";
 
-    int ret = gfxrecon::util::platform::FileOpen(&file_, outfile.c_str(), "w");
-    if (ret || file_ == nullptr)
+    if (!InitializeFile(outfile))
     {
-#if defined(WIN32)
-        GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s", outfile.c_str());
-#else
-        GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s (%s)", outfile.c_str(), strerror(ret));
-#endif
         return false;
     }
 
-    util::platform::FileWrite("[\n", 2, 1, file_);
+    return true;
+}
 
-    BlockStart();
-    json_data_["header"] = header_;
-    BlockEnd();
-
-    BlockStart();
+bool VulkanReplayDumpResourcesJson::Open(const std::string& filename)
+{
+    if (!InitializeFile(filename))
+    {
+        return false;
+    }
 
     return true;
 }
@@ -105,14 +126,12 @@ void VulkanReplayDumpResourcesJson::BlockEnd()
 {
     assert(file_ != nullptr);
 
-    static bool first_ = true;
-
-    if (!first_)
+    if (!first_block_)
     {
         util::platform::FileWrite(",\n", 2, 1, file_);
     }
 
-    first_ = false;
+    first_block_ = false;
 
     const std::string block = json_data_.dump(util::kJsonIndentWidth);
     util::platform::FileWrite(block.c_str(), block.size(), 1, file_);
@@ -159,13 +178,11 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
 
 void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& json_entry,
                                                      const BufferInfo*       buffer_info,
-                                                     const std::string&      filename,
-                                                     size_t                  size)
+                                                     const std::string&      filename)
 {
     assert(buffer_info != nullptr);
 
     json_entry["bufferId"] = buffer_info->capture_id;
-    json_entry["size"]     = size ? size : buffer_info->size;
     json_entry["file"]     = filename;
 }
 

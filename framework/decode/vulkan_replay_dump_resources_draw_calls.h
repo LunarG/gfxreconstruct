@@ -121,11 +121,12 @@ class DrawCallsDumpingContext
     VkResult
     DumpDrawCalls(VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
-    VkResult DumpRenderTargetAttachments(uint64_t cmd_buf_index, uint64_t qs_index, uint64_t bcb_index) const;
+    VkResult DumpRenderTargetAttachments(
+        uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index) const;
 
-    VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const;
+    VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index, uint64_t rp);
 
-    VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index);
+    VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint32_t rp);
 
     void InsertNewDrawParameters(
         uint64_t index, uint32_t vertex_count, uint32_t instance_count, uint32_t first_vertex, uint32_t first_instance);
@@ -195,26 +196,26 @@ class DrawCallsDumpingContext
                                                                uint64_t dc_index,
                                                                int      attachment_index) const;
 
-    std::vector<std::string>
-    GenerateImageDescriptorFilename(uint64_t qs_index, uint64_t bcb_index, const ImageInfo* img_info) const;
+    std::vector<std::string> GenerateImageDescriptorFilename(uint64_t         qs_index,
+                                                             uint64_t         bcb_index,
+                                                             uint64_t         rp,
+                                                             const ImageInfo* img_info) const;
 
-    std::string
-    GenerateBufferDescriptorFilename(uint64_t qs_index, uint64_t bcb_index, format::HandleId buffer_id) const;
+    std::string GenerateBufferDescriptorFilename(uint64_t         qs_index,
+                                                 uint64_t         bcb_index,
+                                                 uint64_t         rp,
+                                                 format::HandleId buffer_id) const;
 
     std::string GenerateInlineUniformBufferDescriptorFilename(uint64_t qs_index,
                                                               uint64_t bcb_index,
                                                               uint32_t set,
                                                               uint32_t binding) const;
 
-    std::string GenerateVertexBufferFilename(uint64_t qs_index,
-                                             uint64_t bcb_index,
-                                             uint64_t bind_vertex_buffer_index,
-                                             uint32_t binding) const;
+    std::string GenerateVertexBufferFilename(
+        uint64_t qs_index, uint64_t bcb_index, uint64_t rp, uint64_t bind_vertex_buffer_index, uint32_t binding) const;
 
-    std::string GenerateIndexBufferFilename(uint64_t    qs_index,
-                                            uint64_t    bcb_index,
-                                            uint64_t    bind_index_buffer_index,
-                                            VkIndexType type) const;
+    std::string GenerateIndexBufferFilename(
+        uint64_t qs_index, uint64_t bcb_index, uint64_t rp, uint64_t bind_index_buffer_index, VkIndexType type) const;
 
     using RenderPassSubpassPair = std::pair<uint64_t, uint64_t>;
     RenderPassSubpassPair GetRenderPassIndex(uint64_t dc_index) const;
@@ -230,9 +231,10 @@ class DrawCallsDumpingContext
 
     VkResult RevertMutableResources(VkQueue queue);
 
-    VkResult FetchDrawIndirectParams();
+    VkResult FetchDrawIndirectParams(uint32_t rp);
 
-    void GenerateOutputJsonDrawCallInfo(uint64_t qs_index, uint64_t bcb_index) const;
+    void GenerateOutputJsonDrawCallInfo(
+        uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_buf_index, uint64_t rp, uint64_t sp) const;
 
     VkResult RevertRenderTargetImageLayouts(VkQueue queue, uint64_t dc_index);
 
@@ -347,13 +349,6 @@ class DrawCallsDumpingContext
         VertexInputState vertex_input_state;
     };
 
-    // One entry for each vkCmdBindVertexBuffers
-    using BoundVertexBuffersMaps = std::unordered_map<uint64_t, BoundVertexBuffersInfo>;
-    BoundVertexBuffersMaps bound_vertex_buffers;
-
-    // A pointer to the last bound vertex buffers.
-    BoundVertexBuffersMaps::iterator currently_bound_vertex_buffers;
-
     // Keep track of bound index buffer
     struct BoundIndexBuffer
     {
@@ -380,13 +375,6 @@ class DrawCallsDumpingContext
         // This is the size actually used as an index buffer from all referencing draw calls
         VkDeviceSize actual_size;
     };
-
-    // One entry for each vkCmdBindIndexBuffer
-    using BoundIndexBuffersMap = std::unordered_map<uint64_t, BoundIndexBuffer>;
-    BoundIndexBuffersMap bound_index_buffers;
-
-    // A pointer to the last bound index buffer.
-    BoundIndexBuffersMap::iterator currently_bound_index_buffer;
 
     enum DrawCallTypes
     {
@@ -707,6 +695,31 @@ class DrawCallsDumpingContext
         std::vector<VkBuffer>          buffers;
         std::vector<VkDeviceMemory>    buffer_memories;
     } mutable_resource_backups;
+
+    struct RenderPassContext
+    {
+        // Draw call indices in this render pass
+        std::vector<uint64_t> dc_indices;
+
+        // One entry for each vkCmdBindVertexBuffers
+        using BoundVertexBuffersMaps = std::unordered_map<uint64_t, BoundVertexBuffersInfo>;
+        BoundVertexBuffersMaps bound_vertex_buffers;
+
+        // A pointer to the last bound vertex buffers.
+        BoundVertexBuffersMaps::iterator currently_bound_vertex_buffers;
+
+        // One entry for each vkCmdBindIndexBuffer
+        using BoundIndexBuffersMap = std::unordered_map<uint64_t, BoundIndexBuffer>;
+        BoundIndexBuffersMap bound_index_buffers;
+
+        // A pointer to the last bound index buffer.
+        BoundIndexBuffersMap::iterator currently_bound_index_buffer;
+
+        bool buffers_dumped{ false };
+        bool descriptors_dumped{ false };
+    };
+
+    std::vector<RenderPassContext> render_pass_contexts;
 
     VkCommandBuffer aux_command_buffer;
     VkFence         aux_fence;
