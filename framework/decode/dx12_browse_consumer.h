@@ -39,6 +39,14 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // ExecuteIndirect isn't available to check if it's Draw, so it doesn't work for 2.
 const int TEST_AVAILABLE_ARGS = 0;
 
+struct ExecuteIndirectInfo
+{
+    format::HandleId argument_id{ format::kNullHandleId };
+    uint64_t         argument_offset{ 0 };
+    format::HandleId count_id{ format::kNullHandleId };
+    uint64_t         count_offset{ 0 };
+};
+
 struct TrackDumpDrawcall
 {
     DumpResourcesTarget dump_resources_target{};
@@ -61,10 +69,7 @@ struct TrackDumpDrawcall
     std::map<UINT, D3D12_GPU_DESCRIPTOR_HANDLE> captured_descriptor_gpu_handles;
 
     // ExecuteIndirect
-    format::HandleId exe_indirect_argument_id{ format::kNullHandleId };
-    uint64_t         exe_indirect_argument_offset{ 0 };
-    format::HandleId exe_indirect_count_id{ format::kNullHandleId };
-    uint64_t         exe_indirect_count_offset{ 0 };
+    ExecuteIndirectInfo execute_indirect_info{};
 
     // Bundle
     format::HandleId bundle_commandlist_id{ format::kNullHandleId };
@@ -601,23 +606,23 @@ class Dx12BrowseConsumer : public Dx12Consumer
             auto it = track_commandlist_infos_.find(object_id);
             if (it != track_commandlist_infos_.end())
             {
-                TrackDumpDrawcall track_drawcall               = {};
-                track_drawcall.command_list_id                 = object_id;
-                track_drawcall.drawcall_block_index            = call_info.index;
-                track_drawcall.is_draw                         = is_draw;
-                track_drawcall.begin_block_index               = it->second.begin_block_index;
-                track_drawcall.begin_renderpass_block_index    = it->second.current_begin_renderpass_block_index;
-                track_drawcall.set_render_targets_block_index  = it->second.current_set_render_targets_block_index;
-                track_drawcall.root_signature_handle_id        = it->second.current_root_signature_handle_id;
-                track_drawcall.captured_vertex_buffer_views    = it->second.current_captured_vertex_buffer_views;
-                track_drawcall.captured_index_buffer_view      = it->second.current_captured_index_buffer_view;
-                track_drawcall.descriptor_heap_ids             = it->second.current_descriptor_heap_ids;
-                track_drawcall.captured_descriptor_gpu_handles = it->second.current_captured_descriptor_gpu_handles;
-                track_drawcall.exe_indirect_argument_id        = exe_indirect_argument_id;
-                track_drawcall.exe_indirect_argument_offset    = exe_indirect_argument_offset;
-                track_drawcall.exe_indirect_count_id           = exe_indirect_count_id;
-                track_drawcall.exe_indirect_count_offset       = exe_indirect_count_offset;
-                track_drawcall.bundle_commandlist_id           = bundle_commandlist_id;
+                TrackDumpDrawcall track_drawcall                 = {};
+                track_drawcall.command_list_id                   = object_id;
+                track_drawcall.drawcall_block_index              = call_info.index;
+                track_drawcall.is_draw                           = is_draw;
+                track_drawcall.begin_block_index                 = it->second.begin_block_index;
+                track_drawcall.begin_renderpass_block_index      = it->second.current_begin_renderpass_block_index;
+                track_drawcall.set_render_targets_block_index    = it->second.current_set_render_targets_block_index;
+                track_drawcall.root_signature_handle_id          = it->second.current_root_signature_handle_id;
+                track_drawcall.captured_vertex_buffer_views      = it->second.current_captured_vertex_buffer_views;
+                track_drawcall.captured_index_buffer_view        = it->second.current_captured_index_buffer_view;
+                track_drawcall.descriptor_heap_ids               = it->second.current_descriptor_heap_ids;
+                track_drawcall.captured_descriptor_gpu_handles   = it->second.current_captured_descriptor_gpu_handles;
+                track_drawcall.execute_indirect_info.argument_id = exe_indirect_argument_id;
+                track_drawcall.execute_indirect_info.argument_offset = exe_indirect_argument_offset;
+                track_drawcall.execute_indirect_info.count_id        = exe_indirect_count_id;
+                track_drawcall.execute_indirect_info.count_offset    = exe_indirect_count_offset;
+                track_drawcall.bundle_commandlist_id                 = bundle_commandlist_id;
 
                 it->second.track_dump_drawcalls.emplace_back(
                     std::make_shared<TrackDumpDrawcall>(std::move(track_drawcall)));
