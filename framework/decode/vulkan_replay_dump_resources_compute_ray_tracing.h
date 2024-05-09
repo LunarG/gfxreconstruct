@@ -358,25 +358,19 @@ class DispatchTraceRaysDumpingContext
     {
         union TraceRaysParamsUnion
         {
-            struct TraceRaysParams
-            {
-                uint32_t width;
-                uint32_t height;
-                uint32_t depth;
-            };
-
-            TraceRaysParams trace_rays;
+            VkTraceRaysIndirectCommandKHR trace_rays;
 
             struct TraceRaysIndirect
             {
                 VkDeviceAddress indirect_device_address;
-                VkBuffer        buffer_on_device_address;
-                VkDeviceMemory  buffer_on_device_address_memory;
-                VkBuffer        new_params_buffer;
 
+                VkBuffer       buffer_on_device_address;
+                VkDeviceMemory buffer_on_device_address_memory;
+
+                VkBuffer       new_params_buffer;
                 VkDeviceMemory new_params_buffer_memory;
 
-                TraceRaysParams trace_rays_params;
+                VkTraceRaysIndirectCommandKHR trace_rays_params;
             };
 
             TraceRaysIndirect trace_rays_indirect;
@@ -448,7 +442,7 @@ class DispatchTraceRaysDumpingContext
     std::unordered_map<uint64_t, TraceRaysParameters> trace_rays_params;
 
     const encode::VulkanDeviceTable*        device_table;
-    VkDevice parent_device;
+    VkDevice                                parent_device;
     const encode::VulkanInstanceTable*      instance_table;
     VulkanObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
