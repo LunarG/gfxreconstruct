@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdk 33
 
+    namespace 'com.lunarg.gfxreconstruct.tocpp'
     defaultConfig {
         applicationId  "com.lunarg.gfxreconstruct.tocpp"
-        minSdkVersion    28
-        targetSdkVersion 28
+        minSdk    26
+        targetSdk 33
         versionCode 1
         versionName "0.0.1"
 
