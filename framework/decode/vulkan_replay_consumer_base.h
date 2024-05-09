@@ -1028,6 +1028,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                       CommandPoolInfo*        pool_info,
                                       VkCommandPoolResetFlags flags);
 
+    void OverrideDestroyCommandPool(PFN_vkDestroyCommandPool                             func,
+                                    const DeviceInfo*                                    device_info,
+                                    CommandPoolInfo*                                     pool_info,
+                                    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
     void     OverrideCmdDebugMarkerInsertEXT(PFN_vkCmdDebugMarkerInsertEXT                             func,
                                              CommandBufferInfo*                                        command_buffer_info,
                                              StructPointerDecoder<Decoded_VkDebugMarkerMarkerInfoEXT>* marker_info_decoder);

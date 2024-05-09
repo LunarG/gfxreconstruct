@@ -30,6 +30,7 @@
     "vkAllocateDescriptorSets": "OverrideAllocateDescriptorSets",
     "vkAllocateCommandBuffers": "OverrideAllocateCommandBuffers",
     "vkFreeCommandBuffers": "OverrideFreeCommandBuffers",
+    "vkDestroyCommandPool": "OverrideDestroyCommandPool",
     "vkAllocateMemory": "OverrideAllocateMemory",
     "vkMapMemory": "OverrideMapMemory",
     "vkUnmapMemory": "OverrideUnmapMemory",
