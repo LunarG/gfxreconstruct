@@ -7695,7 +7695,7 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
 {
     assert(device_info != nullptr && pool_info != nullptr);
 
-    if (options_.dumping_resources && original_result >= 0 && pool_info != nullptr)
+    if (options_.dumping_resources && original_result >= 0)
     {
         for (auto& cb_id : pool_info->child_ids)
         {
@@ -7708,6 +7708,29 @@ VkResult VulkanReplayConsumerBase::OverrideResetCommandPool(PFN_vkResetCommandPo
 
     VkResult res = func(device_info->handle, pool_info->handle, flags);
     return res;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
+    PFN_vkDestroyCommandPool                             func,
+    const DeviceInfo*                                    device_info,
+    CommandPoolInfo*                                     pool_info,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    assert(device_info != nullptr && pool_info != nullptr);
+
+    if (options_.dumping_resources)
+    {
+        for (auto& cb_id : pool_info->child_ids)
+        {
+            CommandBufferInfo* cb_info = object_info_table_.GetCommandBufferInfo(cb_id);
+            assert(cb_info != nullptr);
+
+            resource_dumper.ResetCommandBuffer(cb_info->handle);
+        }
+    }
+
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    func(device_info->handle, pool_info->handle, in_pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(

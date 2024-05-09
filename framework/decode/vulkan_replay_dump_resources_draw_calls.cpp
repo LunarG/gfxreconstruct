@@ -135,19 +135,12 @@ void DrawCallsDumpingContext::Release()
     draw_call_params.clear();
     dc_indices.clear();
     RP_indices.clear();
+    render_pass_contexts.clear();
 
     current_renderpass = 0;
     current_subpass    = 0;
     n_subpasses        = 0;
     current_cb_index   = 0;
-
-    for (auto& rpc : render_pass_contexts)
-    {
-        rpc.currently_bound_vertex_buffers = rpc.bound_vertex_buffers.end();
-        rpc.currently_bound_index_buffer   = rpc.bound_index_buffers.end();
-        rpc.buffers_dumped                 = false;
-        rpc.descriptors_dumped             = false;
-    }
 }
 
 void DrawCallsDumpingContext::InsertNewDrawParameters(
