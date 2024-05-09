@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 #include "vulkan_replay_dump_resources_json.h"
 #include "util/platform.h"
 #include "vulkan/vulkan_core.h"
