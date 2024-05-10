@@ -520,7 +520,7 @@ struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
     VkFramebufferCreateFlags             framebuffer_flags{ 0 };
     std::unordered_map<uint32_t, size_t> array_counts;
-    std::vector<format::HandleId> attachment_image_view_ids;
+    std::vector<format::HandleId>        attachment_image_view_ids;
 };
 
 struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>
@@ -602,7 +602,7 @@ struct DescriptorTypeBufferInfo
 
 struct DescriptorSetBindingInfo
 {
-    VkDescriptorType                      desc_type;
+    VkDescriptorType                      desc_type{ VK_DESCRIPTOR_TYPE_MAX_ENUM };
     std::vector<DescriptorTypeImageInfo>  image_info;
     std::vector<DescriptorTypeBufferInfo> buffer_info;
     std::vector<const BufferViewInfo*>    texel_buffer_view_info;

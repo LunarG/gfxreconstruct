@@ -24,12 +24,12 @@
 #include "decode/vulkan_replay_dump_resources_compute_ray_tracing.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
 #include "util/image_writer.h"
 #include "util/buffer_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
-#include "util/to_string.h"
 
 #include <cassert>
 #include <cstddef>
@@ -1989,7 +1989,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                         true, qs_index, bcb_index, cmd_index, desc_set, binding, array_index, stage, true);
 
                     auto& buffer_json_entry         = before_command_output_buffer_entries[output_buffer_index++];
-                    buffer_json_entry["type"]       = util::ToString<VkDescriptorType>(buffer.stage);
+                    buffer_json_entry["type"]       = util::ToString<VkDescriptorType>(buffer.desc_type);
                     buffer_json_entry["set"]        = desc_set;
                     buffer_json_entry["binding"]    = binding;
                     buffer_json_entry["arrayIndex"] = array_index;

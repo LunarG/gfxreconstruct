@@ -25,10 +25,10 @@
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_replay_dump_resources_json.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "vulkan_replay_dump_resources.h"
 #include "util/logging.h"
-#include "util/to_string.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -1597,7 +1597,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
             }
             else
             {
-                depth_attachment = nullptr;
+                depth_attachment        = nullptr;
+                depth_attachment_layout = VK_IMAGE_LAYOUT_GENERAL;
             }
 
             dc_context->BeginRendering(color_attachments,
