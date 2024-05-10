@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "encode/vulkan_handle_wrapper_util.h"
+#include "decode/decoder_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -32,7 +33,12 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
                                                  VkFlags                             flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>* surface,
                                                  const encode::VulkanInstanceTable*  instance_table,
-                                                 application::Application*           application)
+                                                 application::Application*           application,
+                                                 const int32_t                       xpos,
+                                                 const int32_t                       ypos,
+                                                 const uint32_t                      width,
+                                                 const uint32_t                      height,
+                                                 bool                                force_windowed)
 {
     GFXRECON_ASSERT(surface);
 
@@ -87,6 +93,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
 
     const format::HandleId* id               = swapchain->GetPointer();
     VkSwapchainKHR*         replay_swapchain = swapchain->GetHandlePointer();
+    VkDevice                device           = device_info->handle;
 
     // Give swapchain a fake handle. It's handle id.
     *replay_swapchain = UINT64_TO_VK_HANDLE(VkSwapchainKHR, *id);
@@ -95,8 +102,7 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
-    VkDevice device = device_info->handle;
-    device_table_->GetDeviceQueue(device, default_queue_family_index_, 0, &default_queue_);
+    default_queue_ = GetDeviceQueue(device_table_, device_info, default_queue_family_index_, 0);
 
     // If this option is set, a command buffer submission with a `VkFrameBoundaryEXT` must be called each time
     // `vkQueuePresentKHR` should have been called by the offscreen swapchain. So a maximum of work must be done at

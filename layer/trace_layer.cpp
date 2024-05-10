@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 
 #include "layer/trace_layer.h"
 

@@ -18,7 +18,7 @@
 #include "decode/vulkan_cpp_consumer_base.h"
 #include "decode/vulkan_cpp_template_strings.h"
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 #include "util/file_path.h"
 #include "util/platform.h"
 #include <util/hash.h>
@@ -1007,7 +1007,7 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(VkResult                  
     fprintf(file, "\t{\n");
 
     // Check to see if we need to worry about opaque memory here.
-    DeviceInfo* dev_info = nullptr;
+    VkDeviceInfo* dev_info = nullptr;
     if (device_info_map_.find(device) != device_info_map_.end())
     {
         dev_info                       = device_info_map_[device];
@@ -1097,7 +1097,7 @@ void VulkanCppConsumerBase::Generate_vkCreateBuffer(VkResult                    
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 
-    DeviceInfo*      dev_info      = nullptr;
+    VkDeviceInfo*    dev_info      = nullptr;
     format::HandleId buffer_handle = *pBuffer->GetPointer();
     if (device_info_map_.find(device) != device_info_map_.end())
     {
@@ -1341,7 +1341,7 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
     std::string              enabled_extensions_names = "NULL";
     if (struct_info->enabledExtensionCount > 0)
     {
-        GfxToCppPlatform cur_platform = consumer.GetPlatform();
+        GfxToCppPlatform cur_platform       = consumer.GetPlatform();
         std::string      cur_extension_name = kTargetPlatforms.at(cur_platform).wsiSurfaceExtName;
 
         // Generate a map of WSI extensions to the new extension for this current platform
@@ -1417,7 +1417,7 @@ void VulkanCppConsumerBase::Generate_vkCreateDevice(VkResult                    
 {
     FILE* file = GetFrameFile();
 
-    DeviceInfo* new_dev_info                 = new DeviceInfo();
+    VkDeviceInfo* new_dev_info               = new VkDeviceInfo();
     new_dev_info->parent                     = physicalDevice;
     device_info_map_[*pDevice->GetPointer()] = new_dev_info;
 
@@ -1468,7 +1468,7 @@ void VulkanCppConsumerBase::Generate_vkDestroyDevice(format::HandleId           
 
     if (device_info_map_.find(device) != device_info_map_.end())
     {
-        DeviceInfo* dev_info = device_info_map_[device];
+        VkDeviceInfo* dev_info = device_info_map_[device];
         delete dev_info;
         device_info_map_.erase(device);
     }
@@ -2332,10 +2332,9 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
                         struct_define_stream << "\t\t\tVkAccelerationStructureKHR descAccelInfo" << cur_count++ << "["
                                              << var.count << "];\n";
                         break;
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                        // Not handled
-                        assert(false);
-                        struct_define_stream << "INLINE UNIFORM BLOCK not handled,";
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                        struct_define_stream << "\t\t\tInlineUniformBlock descInlineUniformInfo" << cur_count++ << "["
+                                             << var.count << "];\n";
                         break;
                     default:
                         assert(false);
@@ -3305,7 +3304,7 @@ void VulkanCppConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId devi
 {
     if (device_info_map_.find(device_id) != device_info_map_.end())
     {
-        DeviceInfo* dev_info = device_info_map_[device_id];
+        VkDeviceInfo* dev_info = device_info_map_[device_id];
         // Store the opaque address to use at object creation.
         dev_info->opaque_addresses[object_id] = address;
     }

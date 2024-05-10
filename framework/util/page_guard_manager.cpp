@@ -238,7 +238,7 @@ PageGuardManager::PageGuardManager(bool                 enable_copy_on_map,
     enable_separate_read_(enable_separate_read), unblock_sigsegv_(unblock_SIGSEGV),
     enable_signal_handler_watcher_(enable_signal_handler_watcher),
     signal_handler_watcher_max_restores_(signal_handler_watcher_max_restores),
-    enable_read_write_same_page_(expect_read_write_same_page), protection_mode_(protection_mode)
+    enable_read_write_same_page_(expect_read_write_same_page), protection_mode_(protection_mode), uffd_is_init_(false)
 {
     if (kUserFaultFdMode == protection_mode_ && !USERFAULTFD_SUPPORTED)
     {
@@ -743,13 +743,6 @@ void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
     assert(memory_info != nullptr);
     assert(memory_info->is_modified);
 
-    uint32_t n_threads_to_wait = 0;
-
-    if (protection_mode_ == kUserFaultFdMode)
-    {
-        n_threads_to_wait = UffdBlockFaultingThreads(memory_info);
-    }
-
     bool   active_range = false;
     size_t start_index  = 0;
 
@@ -780,14 +773,14 @@ void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
             {
                 memory_info->status_tracker.SetActiveReadBlock(i, false);
 
-                assert(memory_info->shadow_memory != nullptr);
-
-                void* page_address =
-                    static_cast<uint8_t*>(memory_info->aligned_address) + (i << system_page_pot_shift_);
-                size_t segment_size = GetMemorySegmentSize(memory_info, i);
-
                 if (protection_mode_ == kMProtectMode)
                 {
+                    assert(memory_info->shadow_memory != nullptr);
+
+                    void* page_address =
+                        static_cast<uint8_t*>(memory_info->aligned_address) + (i << system_page_pot_shift_);
+                    size_t segment_size = GetMemorySegmentSize(memory_info, i);
+
                     SetMemoryProtection(page_address, segment_size, kGuardReadWriteProtect);
                 }
             }
@@ -805,12 +798,6 @@ void PageGuardManager::ProcessEntry(uint64_t                  memory_id,
     if (active_range)
     {
         ProcessActiveRange(memory_id, memory_info, start_index, memory_info->total_pages, handle_modified);
-    }
-
-    // Unblock threads
-    if (protection_mode_ == kUserFaultFdMode)
-    {
-        UffdUnblockFaultingThreads(memory_info, n_threads_to_wait);
     }
 }
 
@@ -848,6 +835,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
         else if (kUserFaultFdMode == protection_mode_)
         {
             assert(memory_info->aligned_address == memory_info->shadow_memory);
+            // uffd requires page aligned addresses and sizes.
             UffdUnregisterMemory(guard_address, page_count << system_page_pot_shift_);
         }
 
@@ -876,7 +864,7 @@ void PageGuardManager::ProcessActiveRange(uint64_t                  memory_id,
         }
         else if (kUserFaultFdMode == protection_mode_)
         {
-            UffdResetRegion(guard_address, page_count << system_page_pot_shift_);
+            UffdResetRegion(guard_address, page_range);
         }
     }
     else
@@ -1236,6 +1224,12 @@ void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
 
     auto entry = memory_info_.find(memory_id);
 
+    uint32_t n_threads_to_wait = 0;
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        n_threads_to_wait = UffdBlockFaultingThreads();
+    }
+
     if (entry != memory_info_.end())
     {
         auto memory_info = &entry->second;
@@ -1252,11 +1246,23 @@ void PageGuardManager::ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemo
             ProcessEntry(entry->first, memory_info, handle_modified);
         }
     }
+
+    // Unblock threads
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        UffdUnblockFaultingThreads(n_threads_to_wait);
+    }
 }
 
 void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified)
 {
     std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    uint32_t n_threads_to_wait = 0;
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        n_threads_to_wait = UffdBlockFaultingThreads();
+    }
 
     for (auto entry = memory_info_.begin(); entry != memory_info_.end(); ++entry)
     {
@@ -1273,6 +1279,12 @@ void PageGuardManager::ProcessMemoryEntries(const ModifiedMemoryFunc& handle_mod
         {
             ProcessEntry(entry->first, memory_info, handle_modified);
         }
+    }
+
+    // Unblock threads
+    if (protection_mode_ == kUserFaultFdMode)
+    {
+        UffdUnblockFaultingThreads(n_threads_to_wait);
     }
 }
 

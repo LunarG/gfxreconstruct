@@ -1,4 +1,5 @@
 /*
+** Copyright (c) 2024 LunarG, Inc.
 ** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -36,7 +37,12 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class Dx12DetectionConsumer : public Dx12Consumer
 {
   public:
-    Dx12DetectionConsumer() : dx12_consumer_usage_(false) {}
+    static const uint64_t kDefaultBlockLimit = 1000;
+    static const uint64_t kNoBlockLimit      = 0;
+
+    Dx12DetectionConsumer(uint64_t block_limit = kDefaultBlockLimit) :
+        block_limit_(block_limit), dx12_consumer_usage_(false)
+    {}
     bool         WasD3D12APIDetected() { return dx12_consumer_usage_; }
     virtual void Process_D3D12CreateDevice(const gfxrecon::decode::ApiCallInfo&           call_info,
                                            HRESULT                                        return_value,
@@ -50,12 +56,12 @@ class Dx12DetectionConsumer : public Dx12Consumer
 
     virtual bool IsComplete(uint64_t block_index) override
     {
-        return (block_index > kMaxDX12BlockLimit) || WasD3D12APIDetected();
+        return ((block_limit_ != kNoBlockLimit) && (block_index > block_limit_)) || WasD3D12APIDetected();
     }
 
   private:
-    static int const kMaxDX12BlockLimit = 1000;
-    bool dx12_consumer_usage_;
+    const uint64_t block_limit_;
+    bool           dx12_consumer_usage_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
