@@ -1,3 +1,14 @@
+# EXPERIMENTAL BRANCH!!!
+
+** WARNING!! **
+
+This is an experimental branch working to add OpenXR support to GFXReconstruct.
+The OpenXR capture API layer is not yet implemented and is still in progress.
+
+Use this branch at your own risk!
+
+** WARNING!! **
+
 # Project Components
 
 The GFXReconstruct project provides tools for the capture and replay of graphics 
