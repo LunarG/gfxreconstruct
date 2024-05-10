@@ -274,9 +274,9 @@ class DrawCallsDumpingContext
 
     struct RenderPassAttachmentLayouts
     {
-        bool                       is_dynamic;
+        bool                       is_dynamic{ false };
         std::vector<VkImageLayout> color_attachment_layouts;
-        VkImageLayout              depth_attachment_layout;
+        VkImageLayout              depth_attachment_layout{ VK_IMAGE_LAYOUT_GENERAL };
     };
 
     std::unordered_map<uint32_t, RenderPassAttachmentLayouts> dynamic_rendering_attachment_layouts;
@@ -352,7 +352,9 @@ class DrawCallsDumpingContext
     // Keep track of bound index buffer
     struct BoundIndexBuffer
     {
-        BoundIndexBuffer() : buffer_info(nullptr), offset(0), index_type(VK_INDEX_TYPE_MAX_ENUM) {}
+        BoundIndexBuffer() :
+            buffer_info(nullptr), offset(0), index_type(VK_INDEX_TYPE_MAX_ENUM), size(0), actual_size(0)
+        {}
 
         BoundIndexBuffer(const BufferInfo* buffer_info,
                          VkDeviceSize      offset,

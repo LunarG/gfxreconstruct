@@ -24,6 +24,7 @@
 #include "decode/vulkan_replay_dump_resources_draw_calls.h"
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "format/format.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
 #include "nlohmann/json.hpp"
 #include "util/image_writer.h"
@@ -31,7 +32,6 @@
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "util/logging.h"
 #include "util/platform.h"
-#include "util/to_string.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -1662,7 +1662,7 @@ std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilenam
 
     assert(f == total_files);
 
-    return std::move(filenames);
+    return filenames;
 }
 
 std::string DrawCallsDumpingContext::GenerateBufferDescriptorFilename(uint64_t         qs_index,

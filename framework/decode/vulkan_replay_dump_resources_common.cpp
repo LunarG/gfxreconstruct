@@ -22,12 +22,14 @@
 
 #include "decode/vulkan_replay_dump_resources_common.h"
 #include "util/logging.h"
-#include "util/to_string.h"
 #include "util/image_writer.h"
 #include "util/buffer_writer.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "graphics/vulkan_resources_util.h"
 #include "vulkan/vulkan_core.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
+
+#include <algorithm>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)

@@ -21,6 +21,7 @@
 */
 
 #include PROJECT_VERSION_HEADER_FILE
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "vulkan_replay_dump_resources_json.h"
 #include "util/platform.h"
 #include "vulkan/vulkan_core.h"
@@ -55,9 +56,9 @@ bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
     if (ret || file_ == nullptr)
     {
 #if defined(WIN32)
-        GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s", outfile.c_str());
+        GFXRECON_LOG_FATAL("Could not open dump resources output json file %s", filename.c_str());
 #else
-        GFXRECON_LOG_FATAL("Could not open dump resources outfile file %s (%s)", filename.c_str(), strerror(ret));
+        GFXRECON_LOG_FATAL("Could not open dump resources outout json file %s (%s)", filename.c_str(), strerror(ret));
 #endif
         return false;
     }
