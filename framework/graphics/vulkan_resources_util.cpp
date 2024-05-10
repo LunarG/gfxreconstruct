@@ -1677,8 +1677,8 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
         return VK_SUCCESS;
     }
 
-    scaled_extent.width *= scale;
-    scaled_extent.height *= scale;
+    scaled_extent.width  = std::max(scaled_extent.width * scale, 1.0f);
+    scaled_extent.height = std::max(scaled_extent.height * scale, 1.0f);
 
     // Create a scaled image and then blit to scaled image
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };

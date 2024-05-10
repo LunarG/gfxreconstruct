@@ -527,8 +527,8 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                 VkExtent3D scaled_extent;
                 if (scaling_supported)
                 {
-                    scaled_extent.width  = image_info->extent.width * scale;
-                    scaled_extent.height = image_info->extent.height * scale;
+                    scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
+                    scaled_extent.height = std::max(image_info->extent.height * scale, 1.0f);
                     scaled_extent.depth  = image_info->extent.depth;
                 }
                 else
