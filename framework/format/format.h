@@ -65,8 +65,9 @@ const size_t   kAdapterDescriptionSize    = 128;
 
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
-const char* const kAnnotationLabelOperation     = "operation";
-const char* const kAnnotationLabelReplayOptions = "replayopts";
+const char* const kAnnotationLabelOperation       = "operation";
+const char* const kAnnotationLabelReplayOptions   = "replayopts";
+const char* const kAnnotationLabelRemovedResource = "removed-resource";
 
 const char* const kOperationAnnotationGfxreconstructVersion = "gfxrecon-version";
 const char* const kOperationAnnotationVulkanVersion         = "vulkan-version";
