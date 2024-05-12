@@ -4928,24 +4928,25 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
         struct RenderPassInfo::SubpassReferences sp_ref;
 
         // Copy input attachment refs
-        sp_ref.input_att_refs.reserve(create_info->pSubpasses[i].inputAttachmentCount);
         for (uint32_t s = 0; s < create_info->pSubpasses[i].inputAttachmentCount; ++s)
         {
-            sp_ref.input_att_refs.push_back(create_info->pSubpasses[i].pInputAttachments[s]);
+            if (create_info->pSubpasses[i].pInputAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
+            {
+                sp_ref.input_att_refs.push_back(create_info->pSubpasses[i].pInputAttachments[s]);
+            }
         }
 
-        // Copy color attachment refs
-        sp_ref.color_att_refs.reserve(create_info->pSubpasses[i].colorAttachmentCount);
         for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
         {
-            sp_ref.color_att_refs.push_back(create_info->pSubpasses[i].pColorAttachments[s]);
-        }
+            // Copy color attachment refs
+            if (create_info->pSubpasses[i].pColorAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
+            {
+                sp_ref.color_att_refs.push_back(create_info->pSubpasses[i].pColorAttachments[s]);
+            }
 
-        // Copy resolve attachment refs
-        if (create_info->pSubpasses[i].pResolveAttachments)
-        {
-            sp_ref.resolve_att_refs.reserve(create_info->pSubpasses[i].colorAttachmentCount);
-            for (uint32_t s = 0; s < create_info->pSubpasses[i].colorAttachmentCount; ++s)
+            // Copy resolve attachment refs
+            if (create_info->pSubpasses[i].pResolveAttachments &&
+                create_info->pSubpasses[i].pResolveAttachments[s].attachment != VK_ATTACHMENT_UNUSED)
             {
                 sp_ref.resolve_att_refs.push_back(create_info->pSubpasses[i].pResolveAttachments[s]);
             }
@@ -4959,7 +4960,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateRenderPass(
         }
 
         // Copy depth attachment ref
-        if (create_info->pSubpasses[i].pDepthStencilAttachment)
+        if (create_info->pSubpasses[i].pDepthStencilAttachment &&
+            create_info->pSubpasses[i].pDepthStencilAttachment->attachment != VK_ATTACHMENT_UNUSED)
         {
             sp_ref.has_depth     = true;
             sp_ref.depth_att_ref = *create_info->pSubpasses[i].pDepthStencilAttachment;
