@@ -1302,8 +1302,8 @@ extern "C"
 
 #ifdef ENABLE_OPENXR_SUPPORT
 
-#if !defined(XR_USE_PLATFORM_ANDROID)
-typedef void* jobject;
+#if defined(XR_USE_PLATFORM_ANDROID)
+#include "jni.h"
 #endif // XR_USE_PLATFORM_ANDROID
 
 #include "platform_types_d3d_overrides.h"

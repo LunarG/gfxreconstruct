@@ -98,28 +98,6 @@ class OpenXrDispatchTableGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        self.newline()
-
-        write('typedef const void* OpenXrDispatchKey;', file=self.outFile)
-        self.newline()
-
-        write(
-            '// Retrieve a dispatch key from a dispatchable handle',
-            file=self.outFile
-        )
-        write(
-            'static OpenXrDispatchKey GetOpenXrDispatchKey(const void* handle)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write(
-            '    const OpenXrDispatchKey* dispatch_key = reinterpret_cast<const OpenXrDispatchKey*>(handle);',
-            file=self.outFile
-        )
-        write('    return (*dispatch_key);', file=self.outFile)
-        write('}', file=self.outFile)
-
-        self.newline()
         self.generate_no_op_funcs()
         self.newline()
 
