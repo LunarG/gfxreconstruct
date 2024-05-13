@@ -91,13 +91,34 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
                                             uint32_t                 size,
                                             PointerDecoder<uint8_t>* pValues) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
-                                                              format::HandleId                 device,
-                                                              format::HandleId                 descriptorSet,
-                                                              format::HandleId                 descriptorUpdateTemplate,
-                                                              DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo&               call_info,
+                                                      format::HandleId                 device,
+                                                      format::HandleId                 descriptorSet,
+                                                      format::HandleId                 descriptorUpdateTemplate,
+                                                      DescriptorUpdateTemplateDecoder* pData) override
+    {
+        Process_vkUpdateDescriptorSetWithTemplate(
+            call_info, device, descriptorSet, descriptorUpdateTemplate, pData, true);
+    }
+
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                   format::HandleId                 device,
+                                                   format::HandleId                 descriptorSet,
+                                                   format::HandleId                 descriptorUpdateTemplate,
+                                                   DescriptorUpdateTemplateDecoder* pData) override
+    {
+        Process_vkUpdateDescriptorSetWithTemplate(
+            call_info, device, descriptorSet, descriptorUpdateTemplate, pData, false);
+    }
 
   protected:
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                   format::HandleId                 device,
+                                                   format::HandleId                 descriptorSet,
+                                                   format::HandleId                 descriptorUpdateTemplate,
+                                                   DescriptorUpdateTemplateDecoder* pData,
+                                                   bool                             use_KHR_suffix);
+
     const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
 
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }
