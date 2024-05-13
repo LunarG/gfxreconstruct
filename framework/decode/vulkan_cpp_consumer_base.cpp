@@ -2158,11 +2158,13 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
     std::vector<std::string>    buffer_desc_info_variables;
     std::vector<std::string>    texel_desc_info_variables;
     std::vector<std::string>    accel_desc_info_variables;
+    std::vector<std::string>    inline_uniform_block_info_variables;
 
-    uint32_t image_info_count        = static_cast<uint32_t>(decoder->GetImageInfoCount());
-    uint32_t buffer_info_count       = static_cast<uint32_t>(decoder->GetBufferInfoCount());
-    uint32_t texel_buffer_view_count = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
-    uint32_t accel_struct_count      = static_cast<uint32_t>(decoder->GetAccelerationStructureKHRCount());
+    uint32_t image_info_count           = static_cast<uint32_t>(decoder->GetImageInfoCount());
+    uint32_t buffer_info_count          = static_cast<uint32_t>(decoder->GetBufferInfoCount());
+    uint32_t texel_buffer_view_count    = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
+    uint32_t accel_struct_count         = static_cast<uint32_t>(decoder->GetAccelerationStructureKHRCount());
+    uint32_t inline_uniform_block_count = static_cast<uint32_t>(decoder->GetInlineUniformBlockCount());
 
     assert(descriptor_update_template_entry_map_.find(descriptor_update_template) !=
            descriptor_update_template_entry_map_.end());
@@ -2303,8 +2305,14 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
             }
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             {
-                // TODO: VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK
+                // TODO: needs testing, unsure when/how we'll use this
                 assert(false);
+
+                VariableOffset offset = {
+                    inline_uniform_block_info_variables[0], entry.descriptorType, entry.descriptorCount, entry.offset
+                };
+                inline_uniform_block_info_variables.erase(inline_uniform_block_info_variables.begin());
+                variables.push_back(std::move(offset));
                 break;
             }
             default:

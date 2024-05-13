@@ -393,6 +393,14 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
                          acceleration_structure_count,
                          options);
         }
+
+        const size_t inline_uniform_block_num_bytes = pData->GetInlineUniformBlockCount();
+        if (inline_uniform_block_num_bytes > 0)
+        {
+            jdata["inlineUniformBlock"] =
+                std::vector<uint8_t>(pData->GetInlineUniformBlockPointer(),
+                                     pData->GetInlineUniformBlockPointer() + inline_uniform_block_num_bytes);
+        }
     }
     else
     {

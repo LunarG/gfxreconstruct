@@ -48,7 +48,7 @@ class DescriptorUpdateTemplateDecoder : public PointerDecoderBase
     size_t GetBufferInfoCount() const { return buffer_info_count_; }
     size_t GetTexelBufferViewCount() const { return texel_buffer_view_count_; }
     size_t GetAccelerationStructureKHRCount() const { return acceleration_structure_khr_count_; }
-    size_t GetInlineUniformBlockCount() const { return acceleration_structure_khr_count_; }
+    size_t GetInlineUniformBlockCount() const { return inline_uniform_block_count_; }
 
     Decoded_VkDescriptorImageInfo*  GetImageInfoMetaStructPointer() { return decoded_image_info_; }
     Decoded_VkDescriptorBufferInfo* GetBufferInfoMetaStructPointer() { return decoded_buffer_info_; }

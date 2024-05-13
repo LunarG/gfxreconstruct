@@ -47,7 +47,7 @@ DescriptorUpdateTemplateDecoder::~DescriptorUpdateTemplateDecoder() {}
 
 size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buffer_size)
 {
-    // account for the encoded array's metadata
+    // account for an encoded array's metadata (inline-uniform-block encoded using ParameterEncoder::EncodeUInt8Array)
     constexpr size_t array_meta_size = sizeof(format::PointerAttributes) + sizeof(size_t) + sizeof(void*);
 
     size_t bytes_read = DecodeAttributes(buffer, buffer_size);
