@@ -185,8 +185,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_timespec*
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_nsec));
 #else
-    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_sec));
-    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->tv_nsec));
+    bytes_read += ValueDecoder::DecodeInt32Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<int32_t*>(&(value->tv_sec)));
+    bytes_read += ValueDecoder::DecodeUInt32Value(
+        (buffer + bytes_read), (buffer_size - bytes_read), reinterpret_cast<uint32_t*>(&(value->tv_nsec)));
 #endif
 
 #endif

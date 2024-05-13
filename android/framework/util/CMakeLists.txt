@@ -71,6 +71,9 @@ target_include_directories(gfxrecon_util
                                ${GFXRECON_SOURCE_DIR}/external/nlohmann/include
                                ${GFXRECON_SOURCE_DIR}/framework)
 
+# Force on OpenXR support for Android
+set(OPENXR_SUPPORT_ENABLED TRUE)
+
 if (OPENXR_SUPPORT_ENABLED)
     target_include_directories(gfxrecon_util PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
     target_compile_definitions(gfxrecon_util PUBLIC ENABLE_OPENXR_SUPPORT=1)
