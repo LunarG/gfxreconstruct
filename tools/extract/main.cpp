@@ -20,7 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 
 #include "decode/file_processor.h"
 #include "format/format.h"
@@ -28,7 +28,6 @@
 #include "generated/generated_vulkan_decoder.h"
 #include "util/argument_parser.h"
 #include "util/file_path.h"
-#include "util/hash.h"
 #include "util/logging.h"
 
 #include "vulkan/vulkan.h"

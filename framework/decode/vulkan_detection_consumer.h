@@ -1,4 +1,5 @@
 /*
+** Copyright (c) 2024 LunarG, Inc.
 ** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -32,12 +33,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-constexpr int kMaxVulkanBlockLimit = 1000;
-
 class VulkanDetectionConsumer : public VulkanConsumer
 {
   public:
-    VulkanDetectionConsumer() : vulkan_consumer_usage_(false) {}
+    static const uint64_t kDefaultBlockLimit = 1000;
+    static const uint64_t kNoBlockLimit      = 0;
+
+    VulkanDetectionConsumer(uint64_t block_limit = kDefaultBlockLimit) :
+        block_limit_(block_limit), vulkan_consumer_usage_(false)
+    {}
     bool         WasVulkanAPIDetected() { return vulkan_consumer_usage_; }
     virtual void Process_vkCreateDevice(const ApiCallInfo&         call_info,
                                         VkResult                   returnValue,
@@ -50,12 +54,12 @@ class VulkanDetectionConsumer : public VulkanConsumer
     }
     virtual bool IsComplete(uint64_t block_index) override
     {
-        return (block_index > kMaxVulkanBlockLimit) || WasVulkanAPIDetected();
+        return ((block_limit_ != kNoBlockLimit) && (block_index > block_limit_)) || WasVulkanAPIDetected();
     }
 
   private:
-    static int const kMaxVulkanBlockLimit = 1000;
-    bool             vulkan_consumer_usage_;
+    const uint64_t block_limit_;
+    bool           vulkan_consumer_usage_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

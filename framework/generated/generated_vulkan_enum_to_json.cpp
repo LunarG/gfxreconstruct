@@ -4515,8 +4515,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkFormat& value, const Jso
         case VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG:
             jdata = "VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG";
             break;
-        case VK_FORMAT_R16G16_S10_5_NV:
-            jdata = "VK_FORMAT_R16G16_S10_5_NV";
+        case VK_FORMAT_R16G16_SFIXED5_NV:
+            jdata = "VK_FORMAT_R16G16_SFIXED5_NV";
             break;
         case VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR:
             jdata = "VK_FORMAT_A1B5G5R5_UNORM_PACK16_KHR";
@@ -5595,6 +5595,51 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkInternalAllocationType& 
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkLatencyMarkerNV& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_LATENCY_MARKER_SIMULATION_START_NV:
+            jdata = "VK_LATENCY_MARKER_SIMULATION_START_NV";
+            break;
+        case VK_LATENCY_MARKER_SIMULATION_END_NV:
+            jdata = "VK_LATENCY_MARKER_SIMULATION_END_NV";
+            break;
+        case VK_LATENCY_MARKER_RENDERSUBMIT_START_NV:
+            jdata = "VK_LATENCY_MARKER_RENDERSUBMIT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_RENDERSUBMIT_END_NV:
+            jdata = "VK_LATENCY_MARKER_RENDERSUBMIT_END_NV";
+            break;
+        case VK_LATENCY_MARKER_PRESENT_START_NV:
+            jdata = "VK_LATENCY_MARKER_PRESENT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_PRESENT_END_NV:
+            jdata = "VK_LATENCY_MARKER_PRESENT_END_NV";
+            break;
+        case VK_LATENCY_MARKER_INPUT_SAMPLE_NV:
+            jdata = "VK_LATENCY_MARKER_INPUT_SAMPLE_NV";
+            break;
+        case VK_LATENCY_MARKER_TRIGGER_FLASH_NV:
+            jdata = "VK_LATENCY_MARKER_TRIGGER_FLASH_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_RENDERSUBMIT_END_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_START_NV";
+            break;
+        case VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV:
+            jdata = "VK_LATENCY_MARKER_OUT_OF_BAND_PRESENT_END_NV";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkLayerSettingTypeEXT& value, const JsonOptions& options)
 {
     switch (value) {
@@ -6201,6 +6246,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkOpticalFlowUsageFlagBits
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const VkOutOfBandQueueTypeNV& value, const JsonOptions& options)
+{
+    switch (value) {
+        case VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV:
+            jdata = "VK_OUT_OF_BAND_QUEUE_TYPE_RENDER_NV";
+            break;
+        case VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV:
+            jdata = "VK_OUT_OF_BAND_QUEUE_TYPE_PRESENT_NV";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const VkPeerMemoryFeatureFlagBits& value, const JsonOptions& options)
 {
     switch (value) {
@@ -6604,6 +6664,9 @@ void FieldToJson(VkPipelineCreateFlagBits2KHR_t, nlohmann::ordered_json& jdata, 
             break;
         case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR:
             jdata = "VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR";
+            break;
+        case VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT:
+            jdata = "VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT";
             break;
         case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR:
             jdata = "VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR";
@@ -10894,8 +10957,14 @@ void FieldToJson(nlohmann::ordered_json& jdata, const VkStructureType& value, co
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV";
             break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV";
+            break;
         case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV:
             jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV";
+            break;
+        case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV:
+            jdata = "VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -14320,6 +14389,8 @@ void FieldToJson(VkPipelineCreateFlags2KHR_t, nlohmann::ordered_json& jdata, con
                 return std::string("VK_PIPELINE_CREATE_2_ALLOW_DERIVATIVES_BIT_KHR");
             case VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR:
                 return std::string("VK_PIPELINE_CREATE_2_DERIVATIVE_BIT_KHR");
+            case VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT:
+                return std::string("VK_PIPELINE_CREATE_2_ENABLE_LEGACY_DITHERING_BIT_EXT");
             case VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR:
                 return std::string("VK_PIPELINE_CREATE_2_VIEW_INDEX_FROM_DEVICE_INDEX_BIT_KHR");
             case VK_PIPELINE_CREATE_2_DISPATCH_BASE_BIT_KHR:

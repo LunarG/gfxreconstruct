@@ -344,9 +344,17 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     VkImageLayout current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
 };
 
+typedef struct PipelineCacheData
+{
+    std::vector<uint8_t> capture_cache_data;
+    std::vector<uint8_t> replay_cache_data;
+} PipelineCacheData;
+
 struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+    // hash id of capture time pipeline cache data to capture and replay time pipeline cache data map;
+    std::unordered_map<uint32_t, std::vector<PipelineCacheData>> pipeline_cache_data;
 };
 
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
@@ -431,8 +439,8 @@ struct ImageViewInfo : public VulkanObjectInfo<VkImageView>
 
 struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
+    VkFramebufferCreateFlags             framebuffer_flags{ 0 };
     std::unordered_map<uint32_t, size_t> array_counts;
-
     std::vector<format::HandleId> attachment_image_view_ids;
 };
 

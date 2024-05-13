@@ -189,14 +189,27 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                pPipelines) override;
 
+    template <typename T>
+    void AllowCompileDuringPipelineCreation(uint32_t create_info_count, const T* create_infos)
+    {
+        for (uint32_t i = 0; i < create_info_count; ++i)
+        {
+            if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
+            {
+                T* create_infos_to_modify = const_cast<T*>(create_infos);
+                create_infos_to_modify[i].flags &= (~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT);
+            }
+        }
+    };
+
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     VulkanObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
 
-    const encode::InstanceTable* GetInstanceTable(const void* handle) const;
+    const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
-    const encode::DeviceTable* GetDeviceTable(const void* handle) const;
+    const encode::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
@@ -1138,6 +1151,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
     bool CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info);
+    bool CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const PNextNode* pnext);
 
   private:
     struct HardwareBufferInfo
@@ -1171,8 +1185,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     PFN_vkCreateInstance                                             create_instance_proc_;
     std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr> get_device_proc_addrs_;
     std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>      create_device_procs_;
-    std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
-    std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
+    std::unordered_map<encode::DispatchKey, encode::VulkanInstanceTable> instance_tables_;
+    std::unordered_map<encode::DispatchKey, encode::VulkanDeviceTable>   device_tables_;
     std::function<void(const char*)>                                 fatal_error_handler_;
     std::shared_ptr<application::Application>                        application_;
     VulkanObjectInfoTable                                            object_info_table_;
@@ -1210,6 +1224,26 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_set<uint32_t>      removed_swapchain_indices_;
     std::vector<uint32_t>             capture_image_indices_;
     std::vector<SwapchainKHRInfo*>    swapchain_infos_;
+
+  protected:
+    // Used by pipeline cache handling, there are the following two cases for the flag to be set:
+    //
+    //    1. Replay with command line option --opcd or --omit-pipeline-cache-data and some
+    //       pipeline cache data was really omitted.
+    //
+    //    2. Replay without command line option --opcd or --omit-pipeline-cache-data and there is
+    //       at least one vkCreatePipelineCache call with valid initial pipeline cache data and
+    //       the initial cache data has no corresponding replay time cache data.
+    bool omitted_pipeline_cache_data_;
+
+    // Temporary data used by pipeline cache data handling
+    // The following capture time data used for calling VisitPipelineCacheInfo as input parameters
+    // , replay time data used as output result.
+    uint32_t             capture_pipeline_cache_data_hash_ = 0;
+    uint32_t             capture_pipeline_cache_data_size_ = 0;
+    void*                capture_pipeline_cache_data_;
+    bool                 matched_replay_cache_data_exist_ = false;
+    std::vector<uint8_t> matched_replay_cache_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -192,9 +192,12 @@ class AgsDecoder : public ApiDecoder
   private:
     size_t Decode_agsInitialize(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
     size_t Decode_agsDeInitialize(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-    size_t Decode_agsDriverExtensionsDX12_CreateDevice(const ApiCallInfo& call_info,
-                                                       const uint8_t*     parameter_buffer,
-                                                       size_t             buffer_size);
+    size_t Decode_agsDriverExtensionsDX12_CreateDevice_620(const ApiCallInfo& call_info,
+                                                           const uint8_t*     parameter_buffer,
+                                                           size_t             buffer_size);
+    size_t Decode_agsDriverExtensionsDX12_CreateDevice_601(const ApiCallInfo& call_info,
+                                                           const uint8_t*     parameter_buffer,
+                                                           size_t             buffer_size);
     size_t Decode_agsDriverExtensionsDX12_DestroyDevice(const ApiCallInfo& call_info,
                                                         const uint8_t*     parameter_buffer,
                                                         size_t             buffer_size);

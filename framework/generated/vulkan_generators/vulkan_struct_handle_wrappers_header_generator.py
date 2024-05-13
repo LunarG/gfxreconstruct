@@ -115,11 +115,11 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         self.newline()
         self.generate_create_wrapper_funcs()
         write(
-            'template <typename ParentWrapper, typename CoParentWrapper, typename T>',
+            'template <typename VulkanParentWrapper, typename VulkanCoParentWrapper, typename T>',
             file=self.outFile
         )
         write(
-            'void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)',
+            'void CreateWrappedStructArrayHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -128,7 +128,7 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
         write('        {', file=self.outFile)
         write(
-            '            CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value[i], get_id);',
+            '            CreateWrappedStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value[i], get_id);',
             file=self.outFile
         )
         write('        }', file=self.outFile)
@@ -265,42 +265,43 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
     def generate_create_wrapper_funcs(self):
         """Generates functions that wrap struct handle members."""
         for struct in self.output_structs:
-            body = 'template <typename ParentWrapper, typename CoParentWrapper>\n'
-            body += 'void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, {}* value, PFN_GetHandleId get_id)\n'.format(
+            body = 'template <typename VulkanParentWrapper, typename VulkanCoParentWrapper>\n'
+            body += 'void CreateWrappedStructHandles(typename VulkanParentWrapper::HandleType parent, typename VulkanCoParentWrapper::HandleType co_parent, {}* value, PFN_GetHandleId get_id)\n'.format(
                 struct
             )
             body += '{\n'
             body += '    if (value != nullptr)\n'
             body += '    {\n'
 
+            wrapper_prefix = self.get_handle_wrapper_prefix()
+
             members = self.structs_with_handles[struct]
             for member in members:
                 if self.is_struct(member.base_type):
                     if member.is_array:
-                        body += '        CreateWrappedStructArrayHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedStructArrayHandles<VulkanParentWrapper, VulkanCoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
                             member.base_type, member.name, member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, value->{}, get_id);\n'.format(
                             member.name
                         )
                     else:
-                        body += '        CreateWrappedStructHandles<ParentWrapper, CoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                        body += '        CreateWrappedStructHandles<VulkanParentWrapper, VulkanCoParentWrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
                             member.name
                         )
                 else:
                     if member.is_array:
-                        body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
-                            member.base_type[2:], member.name,
-                            member.array_length
+                        body += '        CreateWrappedVulkanHandles<VulkanParentWrapper, VulkanCoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.base_type[2:], member.name, member.array_length
                         )
                     elif member.is_pointer:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
-                            member.base_type[2:], member.name
+                        body += '        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.base_type[2:], member.name
                         )
                     else:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
-                            member.base_type[2:], member.name
+                        body += '        CreateWrappedVulkanHandle<VulkanParentWrapper, VulkanCoParentWrapper, {}::{}Wrapper>(parent, co_parent, &value->{}, get_id);\n'.format(
+                            wrapper_prefix, member.base_type[2:], member.name
                         )
 
             body += '    }\n'

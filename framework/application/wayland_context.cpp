@@ -37,6 +37,7 @@ struct wl_keyboard_listener WaylandContext::keyboard_listener_;
 struct wl_seat_listener     WaylandContext::seat_listener_;
 struct wl_registry_listener WaylandContext::registry_listener_;
 struct wl_output_listener   WaylandContext::output_listener_;
+struct xdg_wm_base_listener WaylandContext::xdg_wm_base_listener_;
 
 WaylandContext::WaylandContext(Application* application) : WsiContext(application)
 {
@@ -64,6 +65,8 @@ WaylandContext::WaylandContext(Application* application) : WsiContext(applicatio
     output_listener_.mode     = HandleOutputMode;
     output_listener_.done     = HandleOutputDone;
     output_listener_.scale    = HandleOutputScale;
+
+    xdg_wm_base_listener_.ping = HandleXdgWmBasePing;
 
     success  = wayland_loader_.Initialize();
     auto& wl = wayland_loader_.GetFunctionTable();
@@ -99,7 +102,7 @@ WaylandContext::WaylandContext(Application* application) : WsiContext(applicatio
             GFXRECON_LOG_ERROR("Failed to bind Wayland compositor");
             success = false;
         }
-        else if (shell_ == nullptr)
+        else if (shell_ == nullptr && xdg_wm_base_ == nullptr)
         {
             GFXRECON_LOG_ERROR("Failed to bind Wayland shell");
             success = false;
@@ -133,6 +136,11 @@ WaylandContext::~WaylandContext()
     if (shell_)
     {
         wl.shell_destroy(shell_);
+    }
+
+    if (xdg_wm_base_)
+    {
+        wl.xdg->xdg_wm_base_destroy(xdg_wm_base_);
     }
 
     if (compositor_)
@@ -199,22 +207,28 @@ void WaylandContext::HandleRegistryGlobal(
 {
     auto  wayland_context = reinterpret_cast<WaylandContext*>(data);
     auto& wl              = wayland_context->GetWaylandFunctionTable();
-    if (util::platform::StringCompare(interface, "wl_compositor") == 0)
+    if (util::platform::StringCompare(interface, wl.compositor_interface->name) == 0)
     {
         // wl_compositor needs to support wl_surface::set_buffer_scale request
         wayland_context->compositor_ = reinterpret_cast<wl_compositor*>(
             wl.registry_bind(registry, id, wl.compositor_interface, WL_SURFACE_SET_BUFFER_SCALE_SINCE_VERSION));
     }
-    else if (util::platform::StringCompare(interface, "wl_shell") == 0)
+    else if (util::platform::StringCompare(interface, wl.shell_interface->name) == 0)
     {
         wayland_context->shell_ = reinterpret_cast<wl_shell*>(wl.registry_bind(registry, id, wl.shell_interface, 1));
     }
-    else if (util::platform::StringCompare(interface, "wl_seat") == 0)
+    else if (util::platform::StringCompare(interface, wl.xdg->xdg_wm_base_interface.name) == 0)
+    {
+        wayland_context->xdg_wm_base_ =
+            reinterpret_cast<xdg_wm_base*>(wl.registry_bind(registry, id, &wl.xdg->xdg_wm_base_interface, 1));
+        wl.xdg->xdg_wm_base_add_listener(wayland_context->xdg_wm_base_, &xdg_wm_base_listener_, wayland_context);
+    }
+    else if (util::platform::StringCompare(interface, wl.seat_interface->name) == 0)
     {
         wayland_context->seat_ = reinterpret_cast<wl_seat*>(wl.registry_bind(registry, id, wl.seat_interface, 1));
         wl.seat_add_listener(wayland_context->seat_, &seat_listener_, wayland_context);
     }
-    else if (util::platform::StringCompare(interface, "wl_output") == 0)
+    else if (util::platform::StringCompare(interface, wl.output_interface->name) == 0)
     {
         // wl_output needs to support wl_output::scale event
         auto output = reinterpret_cast<wl_output*>(
@@ -396,6 +410,12 @@ void WaylandContext::HandleOutputScale(void* data, struct wl_output* wl_output, 
     auto  wayland_context = reinterpret_cast<WaylandContext*>(data);
     auto& output_info     = wayland_context->output_info_map_[wl_output];
     output_info.scale     = factor;
+}
+
+void WaylandContext::HandleXdgWmBasePing(void* data, struct xdg_wm_base* xdg_wm_base, uint32_t serial)
+{
+    auto& wl = reinterpret_cast<WaylandContext*>(data)->GetWaylandFunctionTable();
+    wl.xdg->xdg_wm_base_pong(xdg_wm_base, serial);
 }
 
 GFXRECON_END_NAMESPACE(application)

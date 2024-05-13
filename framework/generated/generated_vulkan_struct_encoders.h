@@ -1263,6 +1263,16 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDevicePipelineLibra
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySleepModeInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySleepInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSetLatencyMarkerInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencyTimingsFrameReportNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkGetLatencyMarkerInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySubmissionPresentIdNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkSwapchainLatencyCreateInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkOutOfBandQueueTypeInfoNV& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkLatencySurfaceCapabilitiesNV& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM& value);
 
@@ -1287,7 +1297,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceLayeredDriver
 
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRawAccessChainsFeaturesNV& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingValidationFeaturesNV& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryTrianglesDataKHR& value);

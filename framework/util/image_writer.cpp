@@ -66,6 +66,9 @@ GFXRECON_BEGIN_NAMESPACE(imagewriter)
 const uint16_t kBmpBitCount = 32; // Expecting 32-bit BGRA bitmap data.
 const uint32_t kImageBpp    = 4;  // Expecting 4 bytes per pixel for 32-bit BGRA bitmap data.
 
+const uint16_t kBmpBitCountNoAlpha = 24; // Expecting 24-bit BGR bitmap data.
+const uint32_t kImageBppNoAlpha    = 3;  // Expecting 3 bytes per pixel for 32-bit BGRA bitmap data; alpha removed.
+
 bool WriteBmpImage(
     const std::string& filename, uint32_t width, uint32_t height, uint64_t data_size, const void* data, uint32_t pitch)
 {
@@ -132,13 +135,87 @@ bool WriteBmpImage(
     return success;
 }
 
+bool WriteBmpImageNoAlpha(
+    const std::string& filename, uint32_t width, uint32_t height, uint64_t data_size, const void* data, uint32_t pitch)
+{
+    bool     success   = false;
+    uint32_t row_pitch = width * kImageBpp;
+
+    if (pitch != 0)
+    {
+        row_pitch = pitch;
+    }
+
+    // BMP image data requires row to be a multiple of 4 bytes
+    // Round-up row size to next multiple of 4, if it isn't already
+    const uint32_t rowSizeNoAlpha = util::platform::GetAlignedSize(width * kImageBppNoAlpha, 4);
+    uint32_t       bmp_image_size = height * rowSizeNoAlpha;
+    if (bmp_image_size <= data_size)
+    {
+        FILE*   file   = nullptr;
+        int32_t result = util::platform::FileOpen(&file, filename.c_str(), "wb");
+
+        if ((result == 0) && (file != nullptr))
+        {
+            BmpFileHeader file_header;
+            BmpInfoHeader info_header;
+
+            file_header.type      = ('M' << 8) | 'B';
+            file_header.reserved1 = 0;
+            file_header.reserved2 = 0;
+            file_header.off_bits  = sizeof(file_header) + sizeof(info_header);
+            file_header.size      = bmp_image_size + file_header.off_bits;
+
+            info_header.size             = sizeof(info_header);
+            info_header.width            = width;
+            info_header.height           = height;
+            info_header.planes           = 1;
+            info_header.bit_count        = kBmpBitCountNoAlpha;
+            info_header.compression      = 0;
+            info_header.size_image       = 0;
+            info_header.x_pels_per_meter = 0;
+            info_header.y_pels_per_meter = 0;
+            info_header.clr_used         = 0;
+            info_header.clr_important    = 0;
+
+            util::platform::FileWrite(&file_header, sizeof(file_header), 1, file);
+            util::platform::FileWrite(&info_header, sizeof(info_header), 1, file);
+
+            // Y needs to be inverted when writing the bitmap data.
+            auto height_1 = height - 1;
+            auto bytes    = reinterpret_cast<const uint8_t*>(data);
+
+            // Row data without alpha
+            std::vector<uint8_t> rowBytes(rowSizeNoAlpha, 0);
+            for (uint32_t i = 0; i < height; ++i)
+            {
+                const uint32_t bytesOffset = (height_1 - i) * row_pitch;
+                for (uint32_t j = 0; j < width; j++)
+                {
+                    memcpy(&rowBytes[j * kImageBppNoAlpha], &bytes[bytesOffset + (j * kImageBpp)], kImageBppNoAlpha);
+                }
+                util::platform::FileWrite(rowBytes.data(), 1, rowSizeNoAlpha, file);
+            }
+
+            if (!ferror(file))
+            {
+                success = true;
+            }
+
+            util::platform::FileClose(file);
+        }
+    }
+
+    return success;
+}
+
 bool WritePngImage(
     const std::string& filename, uint32_t width, uint32_t height, uint64_t data_size, const void* data, uint32_t pitch)
 {
     bool success = false;
 
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
-    uint32_t row_pitch = pitch == 0 ? width * kImageBpp : pitch;
+    uint32_t row_pitch               = pitch == 0 ? width * kImageBpp : pitch;
     stbi_write_png_compression_level = 4;
     if (1 == stbi_write_png(filename.c_str(), width, height, kImageBpp, data, row_pitch))
     {
@@ -146,6 +223,37 @@ bool WritePngImage(
     }
 #endif
 
+    return success;
+}
+
+bool WritePngImageNoAlpha(
+    const std::string& filename, uint32_t width, uint32_t height, uint64_t data_size, const void* data, uint32_t pitch)
+{
+    bool success = false;
+
+#ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
+    uint32_t row_pitch               = pitch == 0 ? width * kImageBpp : pitch;
+    stbi_write_png_compression_level = 4;
+
+    const uint32_t       row_pitch_no_alpha = (row_pitch * kImageBppNoAlpha) / kImageBpp;
+    std::vector<uint8_t> dataNoAlpha(height * kImageBppNoAlpha * row_pitch_no_alpha);
+    auto                 dataWithAlpha = reinterpret_cast<const uint8_t*>(data);
+    for (uint32_t i = 0; i < height; i++)
+    {
+        const uint32_t offset_with_alpha = i * row_pitch;
+        const uint32_t offset_no_alpha   = i * row_pitch_no_alpha;
+        for (uint32_t j = 0; j < width; j++)
+        {
+            memcpy(&dataNoAlpha[offset_no_alpha + (j * kImageBppNoAlpha)],
+                   &dataWithAlpha[offset_with_alpha + (j * kImageBpp)],
+                   kImageBppNoAlpha);
+        }
+    }
+    if (1 == stbi_write_png(filename.c_str(), width, height, kImageBppNoAlpha, dataNoAlpha.data(), row_pitch_no_alpha))
+    {
+        success = true;
+    }
+#endif
     return success;
 }
 

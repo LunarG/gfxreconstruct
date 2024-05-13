@@ -48,7 +48,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 
-const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
+const std::unordered_map<std::string, PFN_vkVoidFunction> vulkan_func_table = {
     { "vkCreateInstance",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CreateInstance) },
     { "vkDestroyInstance",                                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyInstance) },
     { "vkEnumeratePhysicalDevices",                                                                          reinterpret_cast<PFN_vkVoidFunction>(encode::EnumeratePhysicalDevices) },
@@ -655,6 +655,11 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> func_table = {
     { "vkCmdBindShadersEXT",                                                                                 reinterpret_cast<PFN_vkVoidFunction>(encode::CmdBindShadersEXT) },
     { "vkGetFramebufferTilePropertiesQCOM",                                                                  reinterpret_cast<PFN_vkVoidFunction>(encode::GetFramebufferTilePropertiesQCOM) },
     { "vkGetDynamicRenderingTilePropertiesQCOM",                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::GetDynamicRenderingTilePropertiesQCOM) },
+    { "vkSetLatencySleepModeNV",                                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::SetLatencySleepModeNV) },
+    { "vkLatencySleepNV",                                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::LatencySleepNV) },
+    { "vkSetLatencyMarkerNV",                                                                                reinterpret_cast<PFN_vkVoidFunction>(encode::SetLatencyMarkerNV) },
+    { "vkGetLatencyTimingsNV",                                                                               reinterpret_cast<PFN_vkVoidFunction>(encode::GetLatencyTimingsNV) },
+    { "vkQueueNotifyOutOfBandNV",                                                                            reinterpret_cast<PFN_vkVoidFunction>(encode::QueueNotifyOutOfBandNV) },
     { "vkCmdSetAttachmentFeedbackLoopEnableEXT",                                                             reinterpret_cast<PFN_vkVoidFunction>(encode::CmdSetAttachmentFeedbackLoopEnableEXT) },
     { "vkCreateAccelerationStructureKHR",                                                                    reinterpret_cast<PFN_vkVoidFunction>(encode::CreateAccelerationStructureKHR) },
     { "vkDestroyAccelerationStructureKHR",                                                                   reinterpret_cast<PFN_vkVoidFunction>(encode::DestroyAccelerationStructureKHR) },

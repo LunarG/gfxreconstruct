@@ -56,7 +56,10 @@ void AgsDecoder::DecodeFunctionCall(format::ApiCallId  call_id,
             Decode_agsDeInitialize(call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_0_1:
-            Decode_agsDriverExtensionsDX12_CreateDevice(call_info, parameter_buffer, buffer_size);
+            Decode_agsDriverExtensionsDX12_CreateDevice_601(call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_CreateDevice_6_2_0:
+            Decode_agsDriverExtensionsDX12_CreateDevice_620(call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_Ags_agsDriverExtensionsDX12_DestroyDevice_6_0_1:
             Decode_agsDriverExtensionsDX12_DestroyDevice(call_info, parameter_buffer, buffer_size);
@@ -141,9 +144,9 @@ AgsDecoder::Decode_agsDeInitialize(const ApiCallInfo& call_info, const uint8_t* 
     return bytes_read;
 }
 
-size_t AgsDecoder::Decode_agsDriverExtensionsDX12_CreateDevice(const ApiCallInfo& call_info,
-                                                               const uint8_t*     parameter_buffer,
-                                                               size_t             buffer_size)
+size_t AgsDecoder::Decode_agsDriverExtensionsDX12_CreateDevice_620(const ApiCallInfo& call_info,
+                                                                   const uint8_t*     parameter_buffer,
+                                                                   size_t             buffer_size)
 {
     size_t bytes_read = 0;
 
@@ -172,6 +175,15 @@ size_t AgsDecoder::Decode_agsDriverExtensionsDX12_CreateDevice(const ApiCallInfo
     }
 
     return bytes_read;
+}
+
+size_t AgsDecoder::Decode_agsDriverExtensionsDX12_CreateDevice_601(const ApiCallInfo& call_info,
+                                                                   const uint8_t*     parameter_buffer,
+                                                                   size_t             buffer_size)
+{
+    GFXRECON_LOG_WARNING("The current capture was made with AGS 6.0.1 but will be replayed with AGS 6.2.0. If replay "
+                         "encounters error, a new capture may be needed.");
+    return Decode_agsDriverExtensionsDX12_CreateDevice_620(call_info, parameter_buffer, buffer_size);
 }
 
 size_t AgsDecoder::Decode_agsDriverExtensionsDX12_DestroyDevice(const ApiCallInfo& call_info,

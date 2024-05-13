@@ -94,6 +94,8 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     bool ContainsOptFillMem() const { return opt_fillmem_; }
 
+    uint32_t GetDXGITestPresentCount() const { return dxgi_present_test_; }
+
   protected:
     auto GetCurrentBlockIndex() { return block_index_; }
     auto GetCurrentApiCallId() { return current_api_call_id_; }
@@ -101,6 +103,7 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
     bool dxr_workload_{ false };
     bool ei_workload_{ false };
     bool opt_fillmem_{ false };
+    uint32_t dxgi_present_test_{ 0 };
 
   private:
     format::ApiCallId current_api_call_id_{ format::ApiCall_Unknown };

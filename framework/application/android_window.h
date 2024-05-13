@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018,2020 Valve Corporation
 ** Copyright (c) 2018,2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -41,7 +42,12 @@ class AndroidWindow : public decode::Window
 
     virtual ~AndroidWindow() override {}
 
-    virtual bool Create(const std::string&, const int32_t, const int32_t, const uint32_t, const uint32_t) override
+    virtual bool Create(const std::string&,
+                        const int32_t,
+                        const int32_t,
+                        const uint32_t,
+                        const uint32_t,
+                        bool force_windowed = false) override
     {
         return true;
     }
@@ -65,12 +71,13 @@ class AndroidWindow : public decode::Window
 
     virtual std::string GetWsiExtension() const override;
 
-    virtual VkResult CreateSurface(const encode::InstanceTable* table,
-                                   VkInstance                   instance,
-                                   VkFlags                      flags,
-                                   VkSurfaceKHR*                pSurface) override;
+    virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
+                                   VkInstance                         instance,
+                                   VkFlags                            flags,
+                                   VkSurfaceKHR*                      pSurface) override;
 
-    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+    virtual void
+    DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
     AndroidContext* android_context_;
@@ -89,14 +96,17 @@ class AndroidWindowFactory : public decode::WindowFactory
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_ANDROID_SURFACE_EXTENSION_NAME; }
 
-    virtual decode::Window*
-    Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual decode::Window* Create(const int32_t  x,
+                                   const int32_t  y,
+                                   const uint32_t width,
+                                   const uint32_t height,
+                                   bool           force_windowed = false) override;
 
     void Destroy(decode::Window* window) override;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                          VkPhysicalDevice             physical_device,
-                                                          uint32_t                     queue_family_index) override;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                          VkPhysicalDevice                   physical_device,
+                                                          uint32_t queue_family_index) override;
 
   private:
     AndroidContext* android_context_;

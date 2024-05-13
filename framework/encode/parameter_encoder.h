@@ -78,7 +78,7 @@ class ParameterEncoder
     void EncodeFunctionPtr(T value)                                                                                   { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
 
     template<typename Wrapper>
-    void EncodeHandleValue(typename Wrapper::HandleType value)                                                        { EncodeHandleIdValue(GetWrappedId<Wrapper>(value)); }
+    void EncodeVulkanHandleValue(typename Wrapper::HandleType value)                                                  { EncodeHandleIdValue(GetVulkanWrappedId<Wrapper>(value)); }
     template<typename T>
     void EncodeEnumValue(T value)                                                                                     { EncodeValue(static_cast<format::EnumEncodeType>(value)); }
     template<typename T>
@@ -113,7 +113,7 @@ class ParameterEncoder
     void EncodeVoidPtrPtr(const T* const* ptr, bool omit_data = false, bool omit_addr = false)                        { EncodePointerConverted<format::AddressEncodeType>(ptr, omit_data, omit_addr); }
 
     template<typename Wrapper>
-    void EncodeHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }
+    void EncodeVulkanHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedVulkanHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                  { EncodePointerConverted<format::EnumEncodeType>(ptr, omit_data, omit_addr); }
     template<typename T>
@@ -142,7 +142,7 @@ class ParameterEncoder
     void EncodeVoidArray(const void* arr, size_t len, bool omit_data = false, bool omit_addr = false)                 { EncodeArray(reinterpret_cast<const uint8_t*>(arr), len, omit_data, omit_addr); }
 
     template<typename Wrapper>
-    void EncodeHandleArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedHandleArray<Wrapper>(arr, len, omit_data, omit_addr); }
+    void EncodeVulkanHandleArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedVulkanHandleArray<Wrapper>(arr, len, omit_data, omit_addr); }
     template<typename T>
     void EncodeEnumArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                    { EncodeArrayConverted<format::EnumEncodeType>(arr, len, omit_data, omit_addr); }
     template<typename T>
@@ -393,8 +393,9 @@ class ParameterEncoder
     }
 
     template <typename Wrapper>
-    void
-    EncodeWrappedHandlePointer(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)
+    void EncodeWrappedVulkanHandlePointer(const typename Wrapper::HandleType* ptr,
+                                          bool                                omit_data = false,
+                                          bool                                omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsSingle | GetPointerAttributeMask(ptr, omit_data, omit_addr);
@@ -410,7 +411,7 @@ class ParameterEncoder
 
             if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
             {
-                EncodeHandleValue<Wrapper>(*ptr);
+                EncodeVulkanHandleValue<Wrapper>(*ptr);
             }
         }
     }
@@ -482,10 +483,10 @@ class ParameterEncoder
     }
 
     template <typename Wrapper>
-    void EncodeWrappedHandleArray(const typename Wrapper::HandleType* arr,
-                                  size_t                              len,
-                                  bool                                omit_data = false,
-                                  bool                                omit_addr = false)
+    void EncodeWrappedVulkanHandleArray(const typename Wrapper::HandleType* arr,
+                                        size_t                              len,
+                                        bool                                omit_data = false,
+                                        bool                                omit_addr = false)
     {
         uint32_t pointer_attrib =
             format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr, omit_data, omit_addr);
@@ -506,7 +507,7 @@ class ParameterEncoder
             {
                 for (size_t i = 0; i < len; ++i)
                 {
-                    EncodeHandleValue<Wrapper>(arr[i]);
+                    EncodeVulkanHandleValue<Wrapper>(arr[i]);
                 }
             }
         }

@@ -1,26 +1,26 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2023 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
-**
-** Permission is hereby granted, free of charge, to any person obtaining a
-** copy of this software and associated documentation files (the "Software"),
-** to deal in the Software without restriction, including without limitation
-** the rights to use, copy, modify, merge, publish, distribute, sublicense,
-** and/or sell copies of the Software, and to permit persons to whom the
-** Software is furnished to do so, subject to the following conditions:
-**
-** The above copyright notice and this permission notice shall be included in
-** all copies or substantial portions of the Software.
-**
-** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-** DEALINGS IN THE SOFTWARE.
-*/
+ ** Copyright (c) 2018-2021 Valve Corporation
+ ** Copyright (c) 2018-2023 LunarG, Inc.
+ ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+ **
+ ** Permission is hereby granted, free of charge, to any person obtaining a
+ ** copy of this software and associated documentation files (the "Software"),
+ ** to deal in the Software without restriction, including without limitation
+ ** the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ ** and/or sell copies of the Software, and to permit persons to whom the
+ ** Software is furnished to do so, subject to the following conditions:
+ **
+ ** The above copyright notice and this permission notice shall be included in
+ ** all copies or substantial portions of the Software.
+ **
+ ** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ ** IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ ** FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ ** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ ** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ ** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ ** DEALINGS IN THE SOFTWARE.
+ */
 
 #ifndef GFXRECON_ENCODE_VULKAN_CAPTURE_MANAGER_H
 #define GFXRECON_ENCODE_VULKAN_CAPTURE_MANAGER_H
@@ -77,7 +77,7 @@ class VulkanCaptureManager : public CaptureManager
     // the appropriate resource cleanup.
     static void CheckVkCreateInstanceStatus(VkResult result);
 
-    static const LayerTable* GetLayerTable() { return &layer_table_; }
+    static const VulkanLayerTable* GetVulkanLayerTable() { return &vulkan_layer_table_; }
 
     void InitVkInstance(VkInstance* instance, PFN_vkGetInstanceProcAddr gpa);
 
@@ -220,7 +220,7 @@ class VulkanCaptureManager : public CaptureManager
         if ((call_id == format::ApiCallId::ApiCall_vkBeginCommandBuffer) ||
             (call_id == format::ApiCallId::ApiCall_vkResetCommandBuffer))
         {
-            auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(command_buffer);
+            auto cmd_buffer_wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
             GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
             cmd_buffer_wrapper->is_frame_boundary = false;
         }
@@ -933,9 +933,15 @@ class VulkanCaptureManager : public CaptureManager
         // Check whether this queue submission contains a command buffer that should be treated as a frame boundary.
         for (uint32_t i = 0; i < submitCount; ++i)
         {
+            if (CheckPNextChainForFrameBoundary(reinterpret_cast<const VkBaseInStructure*>(pSubmits + i)))
+            {
+                break;
+            }
+
             for (uint32_t j = 0; j < pSubmits[i].commandBufferCount; ++j)
             {
-                auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(pSubmits[i].pCommandBuffers[j]);
+                auto cmd_buffer_wrapper =
+                    GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(pSubmits[i].pCommandBuffers[j]);
                 if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
                 {
                     break;
@@ -967,10 +973,15 @@ class VulkanCaptureManager : public CaptureManager
         // Check whether this queue submission contains a command buffer that should be treated as a frame boundary.
         for (uint32_t i = 0; i < submitCount; ++i)
         {
+            if (CheckPNextChainForFrameBoundary(reinterpret_cast<const VkBaseInStructure*>(pSubmits + i)))
+            {
+                break;
+            }
+
             for (uint32_t j = 0; j < pSubmits[i].commandBufferInfoCount; ++j)
             {
-                auto cmd_buffer_wrapper =
-                    GetWrapper<CommandBufferWrapper>(pSubmits[i].pCommandBufferInfos[j].commandBuffer);
+                auto cmd_buffer_wrapper = GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(
+                    pSubmits[i].pCommandBufferInfos[j].commandBuffer);
                 if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
                 {
                     break;
@@ -1067,7 +1078,8 @@ class VulkanCaptureManager : public CaptureManager
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, flags, QueryInfo::kInvalidIndex);
+            state_tracker_->TrackQueryActivation(
+                commandBuffer, queryPool, query, flags, vulkan_state_info::QueryInfo::kInvalidIndex);
         }
     }
 
@@ -1089,7 +1101,8 @@ class VulkanCaptureManager : public CaptureManager
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, 0, QueryInfo::kInvalidIndex);
+            state_tracker_->TrackQueryActivation(
+                commandBuffer, queryPool, query, 0, vulkan_state_info::QueryInfo::kInvalidIndex);
         }
     }
 
@@ -1101,7 +1114,8 @@ class VulkanCaptureManager : public CaptureManager
         if ((GetCaptureMode() & kModeTrack) == kModeTrack)
         {
             assert(state_tracker_ != nullptr);
-            state_tracker_->TrackQueryActivation(commandBuffer, queryPool, query, 0, QueryInfo::kInvalidIndex);
+            state_tracker_->TrackQueryActivation(
+                commandBuffer, queryPool, query, 0, vulkan_state_info::QueryInfo::kInvalidIndex);
         }
     }
 
@@ -1252,9 +1266,15 @@ class VulkanCaptureManager : public CaptureManager
 
     virtual ~VulkanCaptureManager() override {}
 
-    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
+    virtual void CreateStateTracker() override
+    {
+        state_tracker_ = std::make_unique<VulkanStateTracker>();
+    }
 
-    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
+    virtual void DestroyStateTracker() override
+    {
+        state_tracker_ = nullptr;
+    }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
 
@@ -1297,27 +1317,30 @@ class VulkanCaptureManager : public CaptureManager
     void
     ProcessEnumeratePhysicalDevices(VkResult result, VkInstance instance, uint32_t count, VkPhysicalDevice* devices);
 
-    VkMemoryPropertyFlags GetMemoryProperties(DeviceWrapper* device_wrapper, uint32_t memory_type_index);
+    VkMemoryPropertyFlags GetMemoryProperties(vulkan_wrappers::DeviceWrapper* device_wrapper,
+                                              uint32_t                        memory_type_index);
 
     const VkImportAndroidHardwareBufferInfoANDROID*
     FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info);
 
-    bool ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer);
+    void ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer);
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
     bool CheckBindAlignment(VkDeviceSize memoryOffset);
 
-    bool CheckCommandBufferWrapperForFrameBoundary(const CommandBufferWrapper* command_buffer_wrapper);
+    bool CheckCommandBufferWrapperForFrameBoundary(const vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper);
+
+    bool CheckPNextChainForFrameBoundary(const VkBaseInStructure* current);
 
   private:
     void QueueSubmitWriteFillMemoryCmd();
 
-    static VulkanCaptureManager*        instance_;
-    static LayerTable                   layer_table_;
-    std::set<DeviceMemoryWrapper*>      mapped_memory_; // Track mapped memory for unassisted tracking mode.
-    std::unique_ptr<VulkanStateTracker> state_tracker_;
-    HardwareBufferMap                   hardware_buffers_;
-    std::mutex                          deferred_operation_mutex;
+    static VulkanCaptureManager*                    instance_;
+    static VulkanLayerTable                         vulkan_layer_table_;
+    std::set<vulkan_wrappers::DeviceMemoryWrapper*> mapped_memory_; // Track mapped memory for unassisted tracking mode.
+    std::unique_ptr<VulkanStateTracker>             state_tracker_;
+    HardwareBufferMap                               hardware_buffers_;
+    std::mutex                                      deferred_operation_mutex;
 };
 
 GFXRECON_END_NAMESPACE(encode)

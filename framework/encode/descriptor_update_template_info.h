@@ -46,8 +46,10 @@ struct UpdateTemplateInfo
 {
     // The counts are the sum of the total descriptorCount for each update template entry type. When written to the
     // capture file, the update template data will be written as tightly packed arrays of VkDescriptorImageInfo,
-    // VkDescriptorBufferInfo, VkBufferView, and VkAccelerationStructureKHR types.  There will be one array per
-    // descriptor update entry, so the counts are pre-computed for the file encoding process to know the total number of
+    // VkDescriptorBufferInfo, VkBufferView, VkAccelerationStructureKHR or byte-arrays
+    // in case of VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK.
+    // There will be one array per descriptor update entry,
+    // so the counts are pre-computed for the file encoding process to know the total number of
     // items to encode prior to processing the individual UpdateTemplateEntry structures.
     size_t                               max_size{ 0 };
     size_t                               image_info_count{ 0 };
@@ -58,6 +60,7 @@ struct UpdateTemplateInfo
     std::vector<UpdateTemplateEntryInfo> buffer_info;
     std::vector<UpdateTemplateEntryInfo> texel_buffer_view;
     std::vector<UpdateTemplateEntryInfo> acceleration_structure_khr;
+    std::vector<UpdateTemplateEntryInfo> inline_uniform_block;
 };
 
 GFXRECON_END_NAMESPACE(encode)

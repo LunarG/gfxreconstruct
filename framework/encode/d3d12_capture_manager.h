@@ -733,6 +733,10 @@ class D3D12CaptureManager : public CaptureManager
     bool AddFillMemoryResourceValueCommand(
         const std::map<uint64_t, Dx12ResourceValueAnnotator::Dx12FillCommandResourceValue>& resource_values);
 
+    void SetAgsVersion(int ags_version) { ags_version_ = ags_version; }
+
+    int GetAgsVersion() { return ags_version_; }
+
   protected:
     D3D12CaptureManager();
 
@@ -785,12 +789,13 @@ class D3D12CaptureManager : public CaptureManager
     bool                          RvAnnotationActive();
 
     void                              PrePresent(IDXGISwapChain_Wrapper* wrapper);
-    void                              PostPresent(IDXGISwapChain_Wrapper* wrapper);
+    void                              PostPresent(IDXGISwapChain_Wrapper* wrapper, UINT flags);
     static D3D12CaptureManager*       instance_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
     AgsDispatchTable   ags_dispatch_table_;   ///< ags dispatch table for functions retrieved from the AGS DLL.
+    int                ags_version_{};        ///< ags version.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
     bool debug_layer_enabled_;                ///< Track if debug layer has been enabled.
