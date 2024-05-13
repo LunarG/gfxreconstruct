@@ -46,16 +46,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-
-typedef const void* OpenXrDispatchKey;
-
-// Retrieve a dispatch key from a dispatchable handle
-static OpenXrDispatchKey GetOpenXrDispatchKey(const void* handle)
-{
-    const OpenXrDispatchKey* dispatch_key = reinterpret_cast<const OpenXrDispatchKey*>(handle);
-    return (*dispatch_key);
-}
-
 GFXRECON_BEGIN_NAMESPACE(noop)
 // clang-format off
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetInstanceProcAddr(XrInstance, const char*, PFN_xrVoidFunction*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetInstanceProcAddr was called, resulting in no-op behavior."); return XR_SUCCESS; }
