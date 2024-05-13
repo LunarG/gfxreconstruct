@@ -52,10 +52,6 @@ struct HandleWrapper
 {
     typedef T HandleType;
 
-    // Dispatch table key for dispatchable handles. Must be the first struct member to be compatible with the
-    // loader defined handles.
-    void* dispatch_key{ nullptr };
-
     // Standard state info required for all handles.
     HandleType        handle{ XR_NULL_HANDLE };           // Original handle value provided by the driver.
     format::HandleId  handle_id{ format::kNullHandleId }; // Globally unique ID assigned to the handle by the layer.
@@ -213,10 +209,6 @@ template <typename T>
 struct AtomWrapper
 {
     typedef T HandleType;
-
-    // Dispatch table key for dispatchable handles. Must be the first struct member to be compatible with the
-    // loader defined handles.
-    void* dispatch_key{ nullptr };
 
     // Standard state info required for all handles.
     HandleType        handle{ 0ULL };                     // Original handle value provided by the driver.

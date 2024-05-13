@@ -687,19 +687,23 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const ch
         *function = nullptr;
         result    = XR_ERROR_HANDLE_INVALID;
 
-        auto table = encode::openxr_wrappers::GetInstanceTable(instance);
-        // table will be null for invalid or null handles
-        if (table != nullptr)
+        if (instance != XR_NULL_HANDLE)
         {
-            result = table->GetInstanceProcAddr(instance, name, function);
-            // Only capture functions that are supported in the implementation, otherwise just pass on the information
-            if ((result == XR_SUCCESS) && (function != nullptr))
+            auto table = encode::openxr_wrappers::GetInstanceTable(instance);
+            // table will be null for invalid or null handles
+            if (table != nullptr)
             {
-                const auto entry = openxr_func_table.find(name);
-                if (entry != openxr_func_table.cend())
+                result = table->GetInstanceProcAddr(instance, name, function);
+                // Only capture functions that are supported in the implementation, otherwise just pass on the
+                // information
+                if ((result == XR_SUCCESS) && (function != nullptr))
                 {
-                    *function = entry->second;
-                    result    = XR_SUCCESS;
+                    const auto entry = openxr_func_table.find(name);
+                    if (entry != openxr_func_table.cend())
+                    {
+                        *function = entry->second;
+                        result    = XR_SUCCESS;
+                    }
                 }
             }
         }
