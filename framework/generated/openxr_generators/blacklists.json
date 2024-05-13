@@ -13,6 +13,7 @@
     "xrTriangleMeshGetIndexBufferFB"
   ],
   "functions-encoder": [
+    "xrEndFrame"
   ],
   "functions-decoder": [
   ],

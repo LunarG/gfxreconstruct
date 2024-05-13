@@ -195,10 +195,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrBeginFrame(
     XrSession                                   session,
     const XrFrameBeginInfo*                     frameBeginInfo);
 
-XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(
-    XrSession                                   session,
-    const XrFrameEndInfo*                       frameEndInfo);
-
 XRAPI_ATTR XrResult XRAPI_CALL xrLocateViews(
     XrSession                                   session,
     const XrViewLocateInfo*                     viewLocateInfo,

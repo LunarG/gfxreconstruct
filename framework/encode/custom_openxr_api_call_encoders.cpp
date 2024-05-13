@@ -43,6 +43,47 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, session, frameEndInfo);
+
+    auto                  handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const XrFrameEndInfo* frameEndInfo_unwrapped =
+        openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
+
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->EndFrame(session, frameEndInfo_unwrapped);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEndFrame);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
+        EncodeStructPtr(encoder, frameEndInfo);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, result, session, frameEndInfo);
+
+    // End the frame
+    manager->EndFrame();
+
+    return result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrCreateTriangleMeshFB(XrSession                         session,
                                                       const XrTriangleMeshCreateInfoFB* createInfo,
                                                       XrTriangleMeshFB*                 outTriangleMesh)
