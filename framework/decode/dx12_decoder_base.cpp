@@ -329,6 +329,14 @@ void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
+void Dx12DecoderBase::SetCurrentApiCallId(format::ApiCallId api_call_id)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->SetCurrentApiCallId(api_call_id);
+    }
+}
+
 size_t Dx12DecoderBase::Decode_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                                 const uint8_t*   parameter_buffer,
                                                                 size_t           buffer_size)

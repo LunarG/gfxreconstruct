@@ -84,6 +84,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
 #if defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
 #endif
@@ -332,10 +333,12 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
     GFXRECON_WRITE_CONSOLE("          \t\t0 means no batching at all");
     GFXRECON_WRITE_CONSOLE("          \t\t100 means use all available system and GPU memory");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources drawcall-<index>");
-    GFXRECON_WRITE_CONSOLE("          \t\tOutput binaray resources for a DX12 specific drawcall.");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources <submit-index,command-index,drawcall-index>");
+    GFXRECON_WRITE_CONSOLE("          \t\tOutput binaray resources for a specific drawcall.");
     GFXRECON_WRITE_CONSOLE("          \t\tInclude vertex, index, const buffer, shader resource, render target,");
     GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil. And for before and after drawcall.");
+    GFXRECON_WRITE_CONSOLE("          \t\tArguments becomes three indices, submit index, command index,");
+    GFXRECON_WRITE_CONSOLE("          \t\tdrawcall index. The command index is based on its in ExecuteCommandLists.");
 #endif
 
 #if defined(_DEBUG)

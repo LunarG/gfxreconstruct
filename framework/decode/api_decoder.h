@@ -192,6 +192,8 @@ class ApiDecoder
 
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
 
+    virtual void SetCurrentApiCallId(format::ApiCallId api_call_id){};
+
     virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
                                                         const std::vector<format::HandleId>& blases){};
 };

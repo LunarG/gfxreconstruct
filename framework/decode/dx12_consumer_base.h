@@ -29,6 +29,7 @@
 #include "decode/api_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "format/api_call_id.h"
 
 #include <d3d12.h>
 #include <dxgi1_5.h>
@@ -85,6 +86,8 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 
+    void SetCurrentApiCallId(format::ApiCallId api_call_id) { current_api_call_id_ = api_call_id; }
+
     bool ContainsDxrWorkload() const { return dxr_workload_; }
 
     bool ContainsEiWorkload() const { return ei_workload_; }
@@ -95,11 +98,15 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
   protected:
     auto GetCurrentBlockIndex() { return block_index_; }
+    auto GetCurrentApiCallId() { return current_api_call_id_; }
 
     bool dxr_workload_{ false };
     bool ei_workload_{ false };
     bool opt_fillmem_{ false };
     uint32_t dxgi_present_test_{ 0 };
+
+  private:
+    format::ApiCallId current_api_call_id_{ format::ApiCall_Unknown };
 };
 
 GFXRECON_END_NAMESPACE(decode)

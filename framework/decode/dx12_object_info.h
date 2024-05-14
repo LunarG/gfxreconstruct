@@ -149,10 +149,10 @@ struct ArgumentBufferExtraInfo
 
 struct ResourceValueInfo
 {
-    uint64_t              offset{ 0 };
-    ResourceValueType     type{ ResourceValueType::kUnknown };
-    uint64_t              size{ 0 };
-    D3D12StateObjectInfo* state_object{ nullptr }; ///< Used to map values in shader records.
+    uint64_t                offset{ 0 };
+    ResourceValueType       type{ ResourceValueType::kUnknown };
+    uint64_t                size{ 0 };
+    D3D12StateObjectInfo*   state_object{ nullptr }; ///< Used to map values in shader records.
     ArgumentBufferExtraInfo arg_buffer_extra_info;
 
     ResourceValueInfo(uint64_t                in_offset,
@@ -254,6 +254,49 @@ struct D3D12DeviceInfo : DxObjectExtraInfo
     bool is_uma{ false };
 };
 
+struct ConstantBufferInfo
+{
+    D3D12_CONSTANT_BUFFER_VIEW_DESC captured_view{};
+    D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
+};
+
+struct ShaderResourceInfo
+{
+    format::HandleId                resource_id{ format::kNullHandleId };
+    D3D12_SHADER_RESOURCE_VIEW_DESC view{};
+    bool                            is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE     replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>           subresource_indices;
+};
+
+struct UnorderedAccessInfo
+{
+    format::HandleId                 resource_id{ format::kNullHandleId };
+    format::HandleId                 counter_resource_id{ format::kNullHandleId };
+    D3D12_UNORDERED_ACCESS_VIEW_DESC view{};
+    bool                             is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE      replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>            subresource_indices;
+};
+
+struct RenderTargetInfo
+{
+    format::HandleId              resource_id{ format::kNullHandleId };
+    D3D12_RENDER_TARGET_VIEW_DESC view{};
+    bool                          is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>         subresource_indices;
+};
+
+struct DepthStencilInfo
+{
+    format::HandleId              resource_id{ format::kNullHandleId };
+    D3D12_DEPTH_STENCIL_VIEW_DESC view{};
+    bool                          is_view_null{ false };
+    D3D12_CPU_DESCRIPTOR_HANDLE   replay_handle{ kNullCpuAddress };
+    std::vector<uint32_t>         subresource_indices;
+};
+
 struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
 {
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12DescriptorHeapInfo;
@@ -267,6 +310,13 @@ struct D3D12DescriptorHeapInfo : DxObjectExtraInfo
     uint64_t                              capture_gpu_addr_begin{ kNullGpuAddress };
     size_t                                replay_cpu_addr_begin{ kNullCpuAddress };
     uint64_t                              replay_gpu_addr_begin{ kNullGpuAddress };
+
+    // Descriptor info maps. Key is descriptor's uint32_t heap index.
+    std::map<uint32_t, ConstantBufferInfo>  constant_buffer_infos;
+    std::map<uint32_t, ShaderResourceInfo>  shader_resource_infos;
+    std::map<uint32_t, UnorderedAccessInfo> unordered_access_infos;
+    std::map<uint32_t, RenderTargetInfo>    render_target_infos;
+    std::map<uint32_t, DepthStencilInfo>    depth_stencil_infos;
 };
 
 struct D3D12FenceInfo : DxObjectExtraInfo
@@ -304,6 +354,10 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
     std::map<uint64_t, graphics::Dx12ShaderIdentifier> mapped_shader_ids;
 
     D3D12_RESOURCE_DESC1 desc = {};
+    format::HandleId     swap_chain_id{ format::kNullHandleId };
+
+    size_t                                         subresource_count{ 0 };
+    std::vector<graphics::dx12::ResourceStateInfo> resource_state_infos;
 };
 
 struct D3D12CommandSignatureInfo : DxObjectExtraInfo
@@ -316,11 +370,20 @@ struct D3D12CommandSignatureInfo : DxObjectExtraInfo
     UINT                        byte_stride{ 0 };
 };
 
+struct ResourceStatesOrder
+{
+    D3D12_RESOURCE_TRANSITION_BARRIER transition;
+    D3D12_RESOURCE_BARRIER_FLAGS      barrier_flags;
+    uint64_t                          block_index{ 0 };
+};
+
 struct D3D12CommandListInfo : DxObjectExtraInfo
 {
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D12CommandListInfo;
     static constexpr char             kObjectType[] = "ID3D12CommandListInfo";
     D3D12CommandListInfo() : DxObjectExtraInfo(kType) {}
+
+    D3D12_COMMAND_LIST_TYPE create_list_type{ D3D12_COMMAND_LIST_TYPE_NONE };
 
     bool requires_sync_after_execute{ false };
 
@@ -328,6 +391,8 @@ struct D3D12CommandListInfo : DxObjectExtraInfo
     std::vector<ResourceCopyInfo> resource_copies;
     ResourceValueInfoMap          resource_value_info_map;
     DxObjectInfo*                 active_state_object{ nullptr };
+
+    std::map<format::HandleId, std::vector<ResourceStatesOrder>> pending_resource_states; // HandleId is Resource.
 };
 
 struct D3D12RootSignatureInfo : DxObjectExtraInfo
