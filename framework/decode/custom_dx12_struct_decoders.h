@@ -96,6 +96,8 @@ struct Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC
     Decoded_D3D12_TEX1D_ARRAY_UAV*    Texture1DArray{ nullptr };
     Decoded_D3D12_TEX2D_UAV*          Texture2D{ nullptr };
     Decoded_D3D12_TEX2D_ARRAY_UAV*    Texture2DArray{ nullptr };
+    Decoded_D3D12_TEX2DMS_UAV*        Texture2DMS{ nullptr };
+    Decoded_D3D12_TEX2DMS_ARRAY_UAV*  Texture2DMSArray{ nullptr };
     Decoded_D3D12_TEX3D_UAV*          Texture3D{ nullptr };
 };
 
