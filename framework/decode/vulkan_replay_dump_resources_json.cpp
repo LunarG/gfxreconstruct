@@ -114,6 +114,7 @@ void VulkanReplayDumpResourcesJson::Close()
         gfxrecon::util::platform::FileClose(file_);
         file_ = nullptr;
     }
+    first_block_ = true;
 }
 
 nlohmann::ordered_json& VulkanReplayDumpResourcesJson::BlockStart()
