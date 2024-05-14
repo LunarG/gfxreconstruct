@@ -215,8 +215,8 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
 bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_replay_options)
 {
-    bool parse_error  = false;
-    bool d3d12enabled = false;
+    bool        parse_error  = false;
+    bool        d3d12enabled = false;
     std::string parse_error_message;
 
 #if defined(D3D12_SUPPORT)
@@ -300,7 +300,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         catch (...)
         {
             parse_error_message = "Error reading file " + vulkan_replay_options.dump_resources + ". Bad json format?";
-            parse_error = true;
+            parse_error         = true;
         }
     }
     else
@@ -318,9 +318,8 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 // Windows text files have CR/LF line endings that sometimes
                 // end up at the end of the input line. Get rid of them, and
                 // while we are at it, get rid of other whitespace.
-                const char *whitespace = "\n\t\v\r\f";
-                for (auto pws = whitespace; *pws; pws++)
-                    std::replace(line.begin(), line.end(), *pws, ' ');
+                const char* whitespace = "\n\t\v\r\f";
+                for (auto pws = whitespace; *pws; pws++) std::replace(line.begin(), line.end(), *pws, ' ');
 
                 // Remove leading and trailing spaces
                 line.erase(0, line.find_first_not_of(" "));
@@ -379,8 +378,8 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 // Extract number after '='
                 num = strtol(drargs[i].c_str() + epos + 1, &endptr, 10);
                 parse_error |= ((errno != 0) || (*endptr != ',' && *endptr != 0));
-                parse_error_message = "Parameter value for " + drargs[i].substr(apos,epos-apos) + "is not a valid number";
-
+                parse_error_message =
+                    "Parameter value for " + drargs[i].substr(apos, epos - apos) + "is not a valid number";
 
                 if (drargs[i].compare(apos, epos - apos, "BeginCommandBuffer") == 0)
                     BeginCommandBuffer = num;
@@ -400,8 +399,8 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                     QueueSubmit = num;
                 else
                 {
-                    parse_error = true;
-                    parse_error_message = "Bad --dump-resource parameter: " + drargs[i].substr(apos,epos-apos);
+                    parse_error         = true;
+                    parse_error_message = "Bad --dump-resource parameter: " + drargs[i].substr(apos, epos - apos);
                 }
 
                 apos = cpos + 1;
@@ -444,7 +443,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 vulkan_replay_options.QueueSubmit_Indices.insert(QueueSubmit);
             }
         }
-
     }
 
     if (parse_error)
