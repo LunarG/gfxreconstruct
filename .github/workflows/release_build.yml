@@ -41,11 +41,14 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
+    - uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: 3.16.3
     - name: Run build script
       run: |
         python3 scripts/build.py --skip-check-code-style --skip-tests --parallel 0
@@ -79,7 +82,8 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+    - uses: lukka/get-cmake@latest
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --skip-tests --parallel 0
@@ -111,7 +115,7 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - name: Update submodules
       run: |
         git submodule update --init
@@ -144,7 +148,7 @@ jobs:
     needs: [ linux, windows, android ]
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
     - name: Get tag body
       id: get_tag_body
       run: |
