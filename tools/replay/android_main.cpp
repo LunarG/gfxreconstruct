@@ -34,7 +34,6 @@
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
-#include "json/json.h"
 #include "parse_dump_resources_cli.h"
 
 #include <android_native_app_glue.h>
