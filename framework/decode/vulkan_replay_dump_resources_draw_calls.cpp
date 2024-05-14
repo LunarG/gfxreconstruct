@@ -38,6 +38,7 @@
 #include <limits>
 #include <memory>
 #include <string>
+#include <sys/types.h>
 #include <tuple>
 #include <unordered_map>
 #include <unordered_set>
@@ -80,10 +81,8 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
     render_pass_contexts.resize(n_render_passes);
     for (auto& rpc : render_pass_contexts)
     {
-        rpc.currently_bound_vertex_buffers = rpc.bound_vertex_buffers.end();
-        rpc.currently_bound_index_buffer   = rpc.bound_index_buffers.end();
-        rpc.buffers_dumped                 = false;
-        rpc.descriptors_dumped             = false;
+        rpc.buffers_dumped     = false;
+        rpc.descriptors_dumped = false;
     }
 }
 
@@ -632,31 +631,24 @@ void DrawCallsDumpingContext::CopyVertexInputStateInfo(uint64_t dc_index)
         return;
     }
 
-    assert(current_renderpass <= render_pass_contexts.size());
-    auto& rpc = render_pass_contexts[current_renderpass];
-
-    assert(rpc.currently_bound_vertex_buffers != rpc.bound_vertex_buffers.end());
-    auto& currently_bound_vertex_buffers = rpc.currently_bound_vertex_buffers;
-
     // If VK_DYNAMIC_STATE_VERTEX_INPUT_EXT is enabled then get all vertex input state from
     // vkCmdSetVertexInputEXT
     if (gr_pipeline_info == nullptr || gr_pipeline_info->dynamic_vertex_input)
     {
-        currently_bound_vertex_buffers->second.vertex_input_state = dynamic_vertex_input_state;
+        dc_params.vertex_input_state = dynamic_vertex_input_state;
     }
     else
     {
         if (gr_pipeline_info)
         {
             // Copy vertex input binding state
-            currently_bound_vertex_buffers->second.vertex_input_state.input_binding_map =
-                gr_pipeline_info->vertex_input_binding_map;
+            dc_params.vertex_input_state.input_binding_map = gr_pipeline_info->vertex_input_binding_map;
 
             // If VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT is enabled, ignore strides from
             // pipeline and get them from vkCmdBindVertexBuffers2EXT instead
             if (gr_pipeline_info->dynamic_vertex_binding_stride)
             {
-                for (auto& vb_binding : currently_bound_vertex_buffers->second.vertex_input_state.input_binding_map)
+                for (auto& vb_binding : dc_params.vertex_input_state.input_binding_map)
                 {
                     const uint32_t binding = vb_binding.first;
                     if (dynamic_vertex_input_state.input_binding_map.find(binding) !=
@@ -668,20 +660,16 @@ void DrawCallsDumpingContext::CopyVertexInputStateInfo(uint64_t dc_index)
             }
 
             // Copy vertex attributes info
-            currently_bound_vertex_buffers->second.vertex_input_state.input_attribute_map =
-                gr_pipeline_info->vertex_input_attribute_map;
+            dc_params.vertex_input_state.input_attribute_map = gr_pipeline_info->vertex_input_attribute_map;
         }
     }
 
-    currently_bound_vertex_buffers->second.referencing_draw_calls.push_back(dc_index);
-    dc_params.referenced_bind_vertex_buffers = currently_bound_vertex_buffers->first;
+    // Keep a copy of the bound vertex buffers information
+    dc_params.referenced_vertex_buffers = bound_vertex_buffers;
 
     if (IsDrawCallIndexed(dc_params.type))
     {
-        assert(rpc.currently_bound_index_buffer != rpc.bound_index_buffers.end());
-        auto& currently_bound_index_buffer = rpc.currently_bound_index_buffer;
-        currently_bound_index_buffer->second.referencing_draw_calls.push_back(dc_index);
-        dc_params.referenced_bind_index_buffer = currently_bound_index_buffer->first;
+        dc_params.referenced_index_buffer = bound_index_buffer;
     }
 }
 
@@ -861,16 +849,11 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         // Dump vertex/index buffers
         if (dump_vertex_index_buffers)
         {
-            // Dump vertex and index buffers once for every render pass
-            if (previous_rp != rp)
+            res = DumpVertexIndexBuffers(qs_index, bcb_index, dc_index);
+            if (res != VK_SUCCESS)
             {
-                res = DumpVertexIndexBuffers(qs_index, bcb_index, rp);
-                if (res != VK_SUCCESS)
-                {
-                    GFXRECON_LOG_ERROR("Dumping vertex/index buffers failed (%s)",
-                                       util::ToString<VkResult>(res).c_str())
-                    return res;
-                }
+                GFXRECON_LOG_ERROR("Dumping vertex/index buffers failed (%s)", util::ToString<VkResult>(res).c_str())
+                return res;
             }
         }
 
@@ -909,17 +892,6 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         if (previous_rp != rp)
         {
             previous_rp = rp;
-        }
-    }
-
-    // Dump vertex and index buffers from last render pass
-    if (dump_vertex_index_buffers)
-    {
-        VkResult res = DumpVertexIndexBuffers(qs_index, bcb_index, rp);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("Dumping vertex/index buffers failed (%s)", util::ToString<VkResult>(res).c_str())
-            return res;
         }
     }
 
@@ -1191,49 +1163,39 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
     // Emit in json output the references to vertex and index buffers dumped files
     if (dump_vertex_index_buffers)
     {
+        const uint64_t            dc_index = dc_param_entry->first;
         const DrawCallParameters& dc_param = dc_param_entry->second;
-
-        assert(rp <= render_pass_contexts.size());
-        const auto& rpc = render_pass_contexts[rp];
 
         if (IsDrawCallIndexed(dc_param.type))
         {
-            assert(dc_param.referenced_bind_index_buffer != DrawCallParameters::INVALID_BLOCK_INDEX);
-
-            const auto bound_index_buffer_entry = rpc.bound_index_buffers.find(dc_param.referenced_bind_index_buffer);
-            assert(bound_index_buffer_entry != rpc.bound_index_buffers.end());
-            if (bound_index_buffer_entry != rpc.bound_index_buffers.end())
+            if (dc_param.referenced_index_buffer.buffer_info != nullptr)
             {
-                const std::string index_buffer_filename =
-                    GenerateIndexBufferFilename(qs_index,
-                                                bcb_index,
-                                                rp,
-                                                dc_param.referenced_bind_index_buffer,
-                                                bound_index_buffer_entry->second.index_type);
+                const std::string index_buffer_filename = GenerateIndexBufferFilename(
+                    qs_index, bcb_index, dc_index, dc_param.referenced_index_buffer.index_type);
 
                 auto& json_entry = draw_call_entry["indexBuffer"];
 
                 dump_json.InsertBufferInfo(
-                    json_entry, bound_index_buffer_entry->second.buffer_info, index_buffer_filename);
+                    json_entry, dc_param.referenced_index_buffer.buffer_info, index_buffer_filename);
             }
         }
 
-        const auto& dc_vbo = rpc.bound_vertex_buffers.find(dc_param.referenced_bind_vertex_buffers);
-        if (dc_vbo != rpc.bound_vertex_buffers.end())
+        if (!dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty())
         {
             auto& json_entry = draw_call_entry["vertexBuffers"];
 
             uint32_t i = 0;
-            for (const auto& vb_binding : dc_vbo->second.vertex_input_state.input_binding_map)
+            for (const auto& vb_binding : dc_param.vertex_input_state.input_binding_map)
             {
-                const auto& vb_binding_buffer = dc_vbo->second.bound_vertex_buffer_per_binding.find(vb_binding.first);
-                assert(vb_binding_buffer != dc_vbo->second.bound_vertex_buffer_per_binding.end());
+                const auto& vb_binding_buffer =
+                    dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(vb_binding.first);
+                assert(vb_binding_buffer != dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
 
                 if (vb_binding_buffer->second.buffer_info != nullptr &&
-                    vb_binding.second.inputRate != VK_VERTEX_INPUT_RATE_INSTANCE)
+                    vb_binding.second.inputRate != VK_VERTEX_INPUT_RATE_VERTEX)
                 {
-                    const std::string vb_filename = GenerateVertexBufferFilename(
-                        qs_index, bcb_index, rp, dc_param.referenced_bind_vertex_buffers, vb_binding.first);
+                    const std::string vb_filename =
+                        GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, vb_binding.first);
 
                     dump_json.InsertBufferInfo(json_entry[i], vb_binding_buffer->second.buffer_info, vb_filename);
                 }
@@ -1868,34 +1830,36 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
     return VK_SUCCESS;
 }
 
-std::string DrawCallsDumpingContext::GenerateIndexBufferFilename(
-    uint64_t qs_index, uint64_t bcb_index, uint64_t rp, uint64_t bind_index_buffer_index, VkIndexType type) const
+std::string DrawCallsDumpingContext::GenerateIndexBufferFilename(uint64_t    qs_index,
+                                                                 uint64_t    bcb_index,
+                                                                 uint64_t    dc_index,
+                                                                 VkIndexType type) const
 {
     std::stringstream filename;
     std::string       index_type_name = IndexTypeToStr(type);
     filename << "IndexBuffer_"
-             << "qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp << "_bib_" << bind_index_buffer_index
-             << index_type_name << ".bin";
+             << "qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << dc_index << index_type_name << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
     return (filedirname / filebasename).string();
 }
 
-std::string DrawCallsDumpingContext::GenerateVertexBufferFilename(
-    uint64_t qs_index, uint64_t bcb_index, uint64_t rp, uint64_t bind_vertex_buffer_index, uint32_t binding) const
+std::string DrawCallsDumpingContext::GenerateVertexBufferFilename(uint64_t qs_index,
+                                                                  uint64_t bcb_index,
+                                                                  uint64_t dc_index,
+                                                                  uint32_t binding) const
 {
     std::stringstream filename;
     filename << "VertexBuffers_"
-             << "qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp << "_bvb_" << bind_vertex_buffer_index
-             << "_binding_" << binding << ".bin";
+             << "qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << dc_index << "_binding_" << binding << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
     return (filedirname / filebasename).string();
 }
 
-VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint32_t rp)
+VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
 {
     assert(original_command_buffer_info);
     assert(original_command_buffer_info->parent_id != format::kNullHandleId);
@@ -1911,177 +1875,157 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint32_t rp)
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    assert(rp <= render_pass_contexts.size());
-    for (auto dc_index : render_pass_contexts[rp].dc_indices)
-    {
-        auto dc_param_entry = draw_call_params.find(dc_index);
-        assert(dc_param_entry != draw_call_params.end());
+    auto dc_param_entry = draw_call_params.find(dc_index);
+    assert(dc_param_entry != draw_call_params.end());
 
-        DrawCallParameters& dc_params = dc_param_entry->second;
-        if (!IsDrawCallIndirect(dc_params.type))
+    DrawCallParameters& dc_params = dc_param_entry->second;
+    if (!IsDrawCallIndirect(dc_params.type))
+    {
+        return VK_SUCCESS;
+    }
+
+    if (IsDrawCallIndirectCount(dc_params.type))
+    {
+        DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
+            dc_params.dc_params_union.draw_indirect_count;
+
+        if (!ic_params.max_draw_count)
         {
-            continue;
+            return VK_SUCCESS;
         }
 
-        if (IsDrawCallIndirectCount(dc_params.type))
+        // Fetch draw count buffer
+        std::vector<uint8_t> data;
+        VkResult             res = resource_util.ReadFromBufferResource(
+            ic_params.new_count_buffer, sizeof(uint32_t), 0, ic_params.count_buffer_info->queue_family_index, data);
+        if (res != VK_SUCCESS)
         {
-            DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
-                dc_params.dc_params_union.draw_indirect_count;
+            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
 
-            if (!ic_params.max_draw_count)
+        assert(data.size() == sizeof(uint32_t));
+        assert(ic_params.actual_draw_count == std::numeric_limits<uint32_t>::max());
+        util::platform::MemoryCopy(&ic_params.actual_draw_count, sizeof(uint32_t), data.data(), data.size());
+        assert(ic_params.actual_draw_count != std::numeric_limits<uint32_t>::max());
+
+        if (!ic_params.actual_draw_count)
+        {
+            return VK_SUCCESS;
+        }
+
+        const uint32_t actual_draw_count = ic_params.actual_draw_count;
+
+        VkDeviceSize params_actual_size;
+        if (IsDrawCallIndexed(dc_params.type))
+        {
+            assert(ic_params.draw_indexed_params == nullptr);
+            ic_params.draw_indexed_params =
+                new DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams[actual_draw_count];
+            if (ic_params.draw_indexed_params == nullptr)
             {
-                continue;
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
 
-            // Fetch draw count buffer
-            std::vector<uint8_t> data;
-            VkResult             res = resource_util.ReadFromBufferResource(
-                ic_params.new_count_buffer, sizeof(uint32_t), 0, ic_params.count_buffer_info->queue_family_index, data);
-            if (res != VK_SUCCESS)
+            // Now we know the exact draw count. We can fetch the exact draw params instead of the whole buffer
+            params_actual_size = sizeof(DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams) * actual_draw_count;
+        }
+        else
+        {
+            assert(ic_params.draw_params == nullptr);
+            ic_params.draw_params = new DrawCallParameters::DrawCallParamsUnion::DrawParams[actual_draw_count];
+            if (ic_params.draw_params == nullptr)
             {
-                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
-                return res;
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
 
-            assert(data.size() == sizeof(uint32_t));
-            assert(ic_params.actual_draw_count == std::numeric_limits<uint32_t>::max());
-            util::platform::MemoryCopy(&ic_params.actual_draw_count, sizeof(uint32_t), data.data(), data.size());
-            assert(ic_params.actual_draw_count != std::numeric_limits<uint32_t>::max());
+            // Now we know the exact draw count. We can fetch the exact draw params instead of the whole buffer
+            params_actual_size = sizeof(DrawCallParameters::DrawCallParamsUnion::DrawParams) * actual_draw_count;
+        }
 
-            if (!ic_params.actual_draw_count)
+        // Fetch param buffers
+        res = resource_util.ReadFromBufferResource(
+            ic_params.new_params_buffer, params_actual_size, 0, ic_params.params_buffer_info->queue_family_index, data);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
+
+        assert(data.size() == params_actual_size);
+        if (IsDrawCallIndexed(dc_params.type))
+        {
+            util::platform::MemoryCopy(
+                ic_params.draw_indexed_params, params_actual_size, data.data(), params_actual_size);
+        }
+        else
+        {
+            util::platform::MemoryCopy(ic_params.draw_params, params_actual_size, data.data(), params_actual_size);
+        }
+    }
+    else
+    {
+        DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& i_params = dc_params.dc_params_union.draw_indirect;
+
+        if (!i_params.draw_count)
+        {
+            return VK_SUCCESS;
+        }
+
+        if (IsDrawCallIndexed(dc_params.type))
+        {
+            assert(i_params.draw_indexed_params == nullptr);
+            i_params.draw_indexed_params =
+                new DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams[i_params.draw_count];
+            if (i_params.draw_indexed_params == nullptr)
             {
-                continue;
-            }
-
-            const uint32_t actual_draw_count = ic_params.actual_draw_count;
-
-            VkDeviceSize params_actual_size;
-            if (IsDrawCallIndexed(dc_params.type))
-            {
-                assert(ic_params.draw_indexed_params == nullptr);
-                ic_params.draw_indexed_params =
-                    new DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams[actual_draw_count];
-                if (ic_params.draw_indexed_params == nullptr)
-                {
-                    return VK_ERROR_OUT_OF_HOST_MEMORY;
-                }
-
-                // Now we know the exact draw count. We can fetch the exact draw params instead of the whole buffer
-                params_actual_size =
-                    sizeof(DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams) * actual_draw_count;
-            }
-            else
-            {
-                assert(ic_params.draw_params == nullptr);
-                ic_params.draw_params = new DrawCallParameters::DrawCallParamsUnion::DrawParams[actual_draw_count];
-                if (ic_params.draw_params == nullptr)
-                {
-                    return VK_ERROR_OUT_OF_HOST_MEMORY;
-                }
-
-                // Now we know the exact draw count. We can fetch the exact draw params instead of the whole buffer
-                params_actual_size = sizeof(DrawCallParameters::DrawCallParamsUnion::DrawParams) * actual_draw_count;
-            }
-
-            // Fetch param buffers
-            res = resource_util.ReadFromBufferResource(ic_params.new_params_buffer,
-                                                       params_actual_size,
-                                                       0,
-                                                       ic_params.params_buffer_info->queue_family_index,
-                                                       data);
-            if (res != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
-                return res;
-            }
-
-            assert(data.size() == params_actual_size);
-            if (IsDrawCallIndexed(dc_params.type))
-            {
-                util::platform::MemoryCopy(
-                    ic_params.draw_indexed_params, params_actual_size, data.data(), params_actual_size);
-            }
-            else
-            {
-                util::platform::MemoryCopy(ic_params.draw_params, params_actual_size, data.data(), params_actual_size);
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
         }
         else
         {
-            DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& i_params =
-                dc_params.dc_params_union.draw_indirect;
+            assert(i_params.draw_params == nullptr);
+            i_params.draw_params = new DrawCallParameters::DrawCallParamsUnion::DrawParams[i_params.draw_count];
+            if (i_params.draw_params == nullptr)
+            {
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+            }
+        }
 
-            if (!i_params.draw_count)
-            {
-                continue;
-            }
+        std::vector<uint8_t> params_data;
+        VkResult             res = resource_util.ReadFromBufferResource(i_params.new_params_buffer,
+                                                            i_params.new_params_buffer_size,
+                                                            0,
+                                                            i_params.params_buffer_info->queue_family_index,
+                                                            params_data);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
 
-            if (IsDrawCallIndexed(dc_params.type))
-            {
-                assert(i_params.draw_indexed_params == nullptr);
-                i_params.draw_indexed_params =
-                    new DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams[i_params.draw_count];
-                if (i_params.draw_indexed_params == nullptr)
-                {
-                    return VK_ERROR_OUT_OF_HOST_MEMORY;
-                }
-            }
-            else
-            {
-                assert(i_params.draw_params == nullptr);
-                i_params.draw_params = new DrawCallParameters::DrawCallParamsUnion::DrawParams[i_params.draw_count];
-                if (i_params.draw_params == nullptr)
-                {
-                    return VK_ERROR_OUT_OF_HOST_MEMORY;
-                }
-            }
+        assert(params_data.size() == i_params.new_params_buffer_size);
 
-            std::vector<uint8_t> params_data;
-            VkResult             res = resource_util.ReadFromBufferResource(i_params.new_params_buffer,
-                                                                i_params.new_params_buffer_size,
-                                                                0,
-                                                                i_params.params_buffer_info->queue_family_index,
-                                                                params_data);
-            if (res != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
-                return res;
-            }
-
-            assert(params_data.size() == i_params.new_params_buffer_size);
-
-            if (IsDrawCallIndexed(dc_params.type))
-            {
-                util::platform::MemoryCopy(i_params.draw_indexed_params,
-                                           i_params.new_params_buffer_size,
-                                           params_data.data(),
-                                           params_data.size());
-            }
-            else if (dc_params.type == DrawCallTypes::kDrawIndexedIndirect)
-            {
-                util::platform::MemoryCopy(
-                    i_params.draw_params, i_params.new_params_buffer_size, params_data.data(), params_data.size());
-            }
+        if (IsDrawCallIndexed(dc_params.type))
+        {
+            util::platform::MemoryCopy(
+                i_params.draw_indexed_params, i_params.new_params_buffer_size, params_data.data(), params_data.size());
+        }
+        else if (dc_params.type == DrawCallTypes::kDrawIndexedIndirect)
+        {
+            util::platform::MemoryCopy(
+                i_params.draw_params, i_params.new_params_buffer_size, params_data.data(), params_data.size());
         }
     }
 
     return VK_SUCCESS;
 }
 
-VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint32_t rp)
+VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index)
 {
-    assert(draw_call_params.size() == dc_indices.size());
-    assert(rp <= render_pass_contexts.size());
-
-    auto& rpc = render_pass_contexts[rp];
-    if (rpc.buffers_dumped)
-    {
-        return VK_SUCCESS;
-    }
-
     // Fetch draw params for all Indirect and IndirectCount draw calls from the buffers
     // into the DrawCallParameters
-    VkResult res = FetchDrawIndirectParams(rp);
+    VkResult res = FetchDrawIndirectParams(dc_index);
     if (res != VK_SUCCESS)
     {
         GFXRECON_LOG_ERROR("Fetching indirect draw parameters failed (%s).", util::ToString<VkResult>(res).c_str())
@@ -2102,46 +2046,155 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                                                 *instance_table,
                                                 *phys_dev_info->replay_device_info->memory_properties);
 
-    // Dump index buffers first. In the process parse the index buffers and note the greatest
-    // index used in each buffer. This will help determine the vertex buffer sizes used in
-    // indexed draw calls
-    std::unordered_map<uint64_t, uint32_t> max_vertex_index_per_index_buffer;
-    for (auto& idx_buf : rpc.bound_index_buffers)
+    auto dc_params_entry = draw_call_params.find(dc_index);
+    assert(dc_params_entry != draw_call_params.end());
+    DrawCallParameters& dc_params = dc_params_entry->second;
+
+    uint32_t greatest_vertex_index = 0;
+
+    // Dunp index buffer
+    if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)
     {
-        const uint64_t bind_index_buffer_block_index = idx_buf.first;
-
-        if (idx_buf.second.referencing_draw_calls.empty())
-        {
-            continue;
-        }
-
-        // Buffer can be null
-        if (idx_buf.second.buffer_info == nullptr)
-        {
-            continue;
-        }
-
-        // In order to deduce the index buffer's size find the greatest index count
-        // used by all draw calls that reference this index buffer
-        uint32_t max_abs_count   = 0;
-        uint32_t max_index_count = 0;
-
         // Store all (indexCount, firstIndex) pairs used by all associated with this index buffer.
         // Latter we will parse the index buffer using all these pairs in order to detect the
         // greatest index.
-        std::vector<std::pair<uint32_t, uint32_t>> index_count_first_index_pairs(
-            idx_buf.second.referencing_draw_calls.size());
-        uint32_t pair = 0;
+        std::vector<std::pair<uint32_t, uint32_t>> index_count_first_index_pairs;
 
-        for (const auto ref_dc_index : idx_buf.second.referencing_draw_calls)
+        uint32_t index_count     = 0;
+        uint32_t abs_index_count = 0;
+
+        if (IsDrawCallIndirect(dc_params.type))
         {
-            const auto& dc_params_entry = draw_call_params.find(ref_dc_index);
-            assert(dc_params_entry != draw_call_params.end());
+            if (IsDrawCallIndirectCount(dc_params.type))
+            {
+                const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
+                    dc_params.dc_params_union.draw_indirect_count;
 
-            const DrawCallParameters& dc_params = dc_params_entry->second;
-            assert(IsDrawCallIndexed(dc_params.type));
-            assert(dc_params.referenced_bind_index_buffer != DrawCallParameters::INVALID_BLOCK_INDEX);
+                if (ic_params.max_draw_count)
+                {
+                    assert(ic_params.draw_indexed_params != nullptr);
+                    for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
+                    {
+                        const uint32_t indirect_index_count = ic_params.draw_indexed_params[d].index_count;
+                        const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].first_index;
 
+                        index_count_first_index_pairs.emplace_back(
+                            std::make_pair(indirect_index_count, indirect_first_index));
+
+                        if (index_count < indirect_index_count)
+                        {
+                            index_count = indirect_index_count;
+                        }
+
+                        if (abs_index_count < indirect_index_count + indirect_first_index)
+                        {
+                            abs_index_count = indirect_index_count + indirect_first_index;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& i_params =
+                    dc_params.dc_params_union.draw_indirect;
+
+                if (i_params.draw_count)
+                {
+                    assert(i_params.draw_indexed_params != nullptr);
+                    for (uint32_t d = 0; d < i_params.draw_count; ++d)
+                    {
+                        const uint32_t indirect_index_count = i_params.draw_indexed_params[d].index_count;
+                        const uint32_t indirect_first_index = i_params.draw_indexed_params[d].first_index;
+
+                        index_count_first_index_pairs.emplace_back(
+                            std::make_pair(indirect_index_count, indirect_first_index));
+
+                        if (index_count < indirect_index_count)
+                        {
+                            index_count = indirect_index_count;
+                        }
+
+                        if (abs_index_count < index_count + indirect_first_index)
+                        {
+                            abs_index_count = index_count + indirect_first_index;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            index_count                = dc_params.dc_params_union.draw_indexed.index_count;
+            const uint32_t first_index = dc_params.dc_params_union.draw_indexed.first_index;
+
+            index_count_first_index_pairs.emplace_back(std::make_pair(index_count, first_index));
+            abs_index_count = index_count + first_index;
+        }
+
+        if (index_count)
+        {
+            const VkIndexType index_type = dc_params.referenced_index_buffer.index_type;
+            const uint32_t    index_size = VkIndexTypeToBytes(index_type);
+            const uint32_t    offset     = dc_params.referenced_index_buffer.offset;
+
+            // Check if the exact size has been provided by vkCmdBindIndexBuffer2
+            uint32_t total_size = (dc_params.referenced_index_buffer.size != 0)
+                                      ? (dc_params.referenced_index_buffer.size)
+                                      : (abs_index_count * index_size);
+
+            // There is something wrong with the calculations if this is true
+            assert(total_size <= dc_params.referenced_index_buffer.buffer_info->size - offset);
+            if (total_size > dc_params.referenced_index_buffer.buffer_info->size - offset)
+            {
+                total_size = dc_params.referenced_index_buffer.buffer_info->size - offset;
+            }
+
+            dc_params.referenced_index_buffer.actual_size = total_size;
+
+            std::vector<uint8_t> index_data;
+            res =
+                resource_util.ReadFromBufferResource(dc_params.referenced_index_buffer.buffer_info->handle,
+                                                     total_size,
+                                                     offset,
+                                                     dc_params.referenced_index_buffer.buffer_info->queue_family_index,
+                                                     index_data);
+            if (res != VK_SUCCESS)
+            {
+                GFXRECON_LOG_ERROR("Reading index buffer resource %" PRIu64 " failed (%s).",
+                                   dc_params.referenced_index_buffer.buffer_info->capture_id,
+                                   util::ToString<VkResult>(res).c_str())
+                return res;
+            }
+
+            std::string filename = GenerateIndexBufferFilename(qs_index, bcb_index, dc_index, index_type);
+            util::bufferwriter::WriteBuffer(filename, index_data.data(), index_data.size());
+
+            for (const auto& pairs : index_count_first_index_pairs)
+            {
+                const uint32_t gvi = FindGreatestVertexIndex(index_data, pairs.first, pairs.second, index_type);
+                if (greatest_vertex_index < gvi)
+                {
+                    greatest_vertex_index = gvi;
+                }
+            }
+        }
+    }
+
+    // Dump vertex buffer
+    if (!dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty())
+    {
+        // In order to deduce the vertex buffer's size find the greatest vertex count
+        // used by all draw calls that reference this vertex buffer
+        uint32_t vertex_count = 0;
+        uint32_t first_vertex = 0;
+
+        if (IsDrawCallIndexed(dc_params.type))
+        {
+            // For indexed draw calls the greatest vertex index will be used as the max vertex count
+            vertex_count = greatest_vertex_index;
+        }
+        else
+        {
             if (IsDrawCallIndirect(dc_params.type))
             {
                 if (IsDrawCallIndirectCount(dc_params.type))
@@ -2149,27 +2202,20 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
                         dc_params.dc_params_union.draw_indirect_count;
 
-                    if (!ic_params.max_draw_count)
+                    if (ic_params.max_draw_count)
                     {
-                        continue;
-                    }
-
-                    assert(ic_params.draw_indexed_params != nullptr);
-                    for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
-                    {
-                        const uint32_t index_count = ic_params.draw_indexed_params[d].index_count;
-                        const uint32_t first_index = ic_params.draw_indexed_params[d].first_index;
-
-                        index_count_first_index_pairs[pair++] = std::make_pair(index_count, first_index);
-
-                        if (max_index_count < index_count)
+                        assert(ic_params.draw_params != nullptr);
+                        for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
                         {
-                            max_index_count = index_count;
-                        }
+                            if (vertex_count < ic_params.draw_params[d].vertex_count)
+                            {
+                                vertex_count = ic_params.draw_params[d].vertex_count;
+                            }
 
-                        if (max_abs_count < index_count + first_index)
-                        {
-                            max_abs_count = index_count + first_index;
+                            if (first_vertex < ic_params.draw_params[d].first_vertex)
+                            {
+                                first_vertex = ic_params.draw_params[d].first_vertex;
+                            }
                         }
                     }
                 }
@@ -2178,306 +2224,138 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& i_params =
                         dc_params.dc_params_union.draw_indirect;
 
-                    if (!i_params.draw_count)
+                    if (i_params.draw_count)
                     {
-                        continue;
-                    }
-
-                    assert(i_params.draw_indexed_params != nullptr);
-                    for (uint32_t d = 0; d < i_params.draw_count; ++d)
-                    {
-                        const uint32_t index_count = i_params.draw_indexed_params[d].index_count;
-                        const uint32_t first_index = i_params.draw_indexed_params[d].first_index;
-
-                        index_count_first_index_pairs[pair++] = std::make_pair(index_count, first_index);
-
-                        if (max_index_count < index_count)
-                        {
-                            max_index_count = index_count;
-                        }
-
-                        if (max_abs_count < index_count + first_index)
-                        {
-                            max_abs_count = index_count + first_index;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                const uint32_t index_count = dc_params.dc_params_union.draw_indexed.index_count;
-                const uint32_t first_index = dc_params.dc_params_union.draw_indexed.first_index;
-
-                index_count_first_index_pairs[pair++] = std::make_pair(index_count, first_index);
-
-                if (max_index_count < index_count)
-                {
-                    max_index_count = index_count;
-                }
-
-                if (max_abs_count < index_count + first_index)
-                {
-                    max_abs_count = index_count + first_index;
-                }
-            }
-        }
-
-        if (!max_index_count)
-        {
-            continue;
-        }
-
-        const VkIndexType index_type = idx_buf.second.index_type;
-        const uint32_t    index_size = VkIndexTypeToBytes(index_type);
-        const uint32_t    offset     = idx_buf.second.offset;
-
-        // Check if the exact size has been provided by vkCmdBindIndexBuffer2
-        uint32_t total_size = (idx_buf.second.size != 0) ? (idx_buf.second.size) : (max_abs_count * index_size);
-
-        assert(total_size <= idx_buf.second.buffer_info->size - offset);
-        // There is something wrong with the calculations if this is true
-        if (total_size > idx_buf.second.buffer_info->size - offset)
-        {
-            total_size = idx_buf.second.buffer_info->size - offset;
-        }
-
-        idx_buf.second.actual_size = total_size;
-
-        std::vector<uint8_t> index_data;
-        res = resource_util.ReadFromBufferResource(idx_buf.second.buffer_info->handle,
-                                                   total_size,
-                                                   offset,
-                                                   idx_buf.second.buffer_info->queue_family_index,
-                                                   index_data);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
-            return res;
-        }
-
-        std::string filename =
-            GenerateIndexBufferFilename(qs_index, bcb_index, rp, bind_index_buffer_block_index, index_type);
-        util::bufferwriter::WriteBuffer(filename, index_data.data(), index_data.size());
-
-        // Parse indices and find the greatest vertex index. We should need this later
-        // when we calculate the size of the vertex buffers
-        uint32_t greatest_vertex_index = 0;
-        for (const auto& pairs : index_count_first_index_pairs)
-        {
-            const uint32_t gvi = FindGreatestVertexIndex(index_data, pairs.first, pairs.second, index_type);
-            if (greatest_vertex_index < gvi)
-            {
-                greatest_vertex_index = gvi;
-            }
-        }
-        max_vertex_index_per_index_buffer.emplace(bind_index_buffer_block_index, greatest_vertex_index);
-    }
-
-    // Dump vertex buffer
-    for (auto& vbs : rpc.bound_vertex_buffers)
-    {
-        const uint64_t bind_vertex_buffers_index = vbs.first;
-
-        if (vbs.second.referencing_draw_calls.empty())
-        {
-            continue;
-        }
-
-        // In order to deduce the vertex buffer's size find the greatest vertex count
-        // used by all draw calls that reference this vertex buffer
-        uint32_t max_vertex_count = 0;
-        uint32_t max_first_vertex = 0;
-        for (const auto ref_dc_index : vbs.second.referencing_draw_calls)
-        {
-            const auto& dc_params_entry = draw_call_params.find(ref_dc_index);
-            assert(dc_params_entry != draw_call_params.end());
-
-            const DrawCallParameters& dc_params = dc_params_entry->second;
-            assert(dc_params.referenced_bind_vertex_buffers != DrawCallParameters::INVALID_BLOCK_INDEX);
-
-            if (IsDrawCallIndexed(dc_params.type))
-            {
-                // For indexed draw calls the greatest vertex index will be used as the max vertex count
-                assert(dc_params.referenced_bind_index_buffer != DrawCallParameters::INVALID_BLOCK_INDEX);
-                const auto max_vertex_index_entry =
-                    max_vertex_index_per_index_buffer.find(dc_params.referenced_bind_index_buffer);
-                assert(max_vertex_index_entry != max_vertex_index_per_index_buffer.end());
-
-                if (max_vertex_count < max_vertex_index_entry->second)
-                {
-                    max_vertex_count = max_vertex_index_entry->second;
-                }
-            }
-            else
-            {
-                if (IsDrawCallIndirect(dc_params.type))
-                {
-                    if (IsDrawCallIndirectCount(dc_params.type))
-                    {
-                        const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
-                            dc_params.dc_params_union.draw_indirect_count;
-
-                        if (!ic_params.max_draw_count)
-                        {
-                            continue;
-                        }
-
-                        assert(ic_params.draw_params != nullptr);
-                        for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
-                        {
-                            if (max_vertex_count < ic_params.draw_params[d].vertex_count)
-                            {
-                                max_vertex_count = ic_params.draw_params[d].vertex_count;
-                            }
-
-                            if (max_first_vertex < ic_params.draw_params[d].first_vertex)
-                            {
-                                max_first_vertex = ic_params.draw_params[d].first_vertex;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& i_params =
-                            dc_params.dc_params_union.draw_indirect;
-
-                        if (!i_params.draw_count)
-                        {
-                            continue;
-                        }
-
                         assert(i_params.draw_params != nullptr);
                         for (uint32_t d = 0; d < i_params.draw_count; ++d)
                         {
-                            if (max_vertex_count < i_params.draw_params[d].vertex_count)
+                            if (vertex_count < i_params.draw_params[d].vertex_count)
                             {
-                                max_vertex_count = i_params.draw_params[d].vertex_count;
+                                vertex_count = i_params.draw_params[d].vertex_count;
                             }
 
-                            if (max_first_vertex < i_params.draw_params[d].first_vertex)
+                            if (first_vertex < i_params.draw_params[d].first_vertex)
                             {
-                                max_first_vertex = i_params.draw_params[d].first_vertex;
+                                first_vertex = i_params.draw_params[d].first_vertex;
                             }
                         }
                     }
                 }
-                else
-                {
-                    if (max_vertex_count < dc_params.dc_params_union.draw.vertex_count)
-                    {
-                        max_vertex_count = dc_params.dc_params_union.draw.vertex_count;
-                    }
-
-                    if (max_first_vertex < dc_params.dc_params_union.draw.first_vertex)
-                    {
-                        max_first_vertex = dc_params.dc_params_union.draw.first_vertex;
-                    }
-                }
-            }
-        }
-
-        if (!max_vertex_count)
-        {
-            continue;
-        }
-
-        for (auto& vb_binding : vbs.second.bound_vertex_buffer_per_binding)
-        {
-            const uint32_t binding = vb_binding.first;
-
-            const auto& vb_binding_entry = vbs.second.vertex_input_state.input_binding_map.find(binding);
-            assert(vb_binding_entry != vbs.second.vertex_input_state.input_binding_map.end());
-            if (vb_binding_entry == vbs.second.vertex_input_state.input_binding_map.end())
-            {
-                continue;
-            }
-
-            // Buffers can be NULL
-            if (vb_binding.second.buffer_info == nullptr)
-            {
-                continue;
-            }
-
-            // Ignore instance data for now
-            if (vb_binding_entry->second.inputRate == VK_VERTEX_INPUT_RATE_INSTANCE)
-            {
-                continue;
-            }
-
-            const uint32_t offset = vb_binding.second.offset;
-            uint32_t       total_size;
-            if (vb_binding.second.size)
-            {
-                // Exact size was provided by vkCmdBindVertexBuffers2
-                total_size = vb_binding.second.size;
             }
             else
             {
-                const uint32_t binding_stride = vb_binding_entry->second.stride;
-                if (binding_stride)
+                vertex_count = dc_params.dc_params_union.draw.vertex_count;
+                first_vertex = dc_params.dc_params_union.draw.first_vertex;
+            }
+        }
+
+        if (vertex_count)
+        {
+            for (auto& vis : dc_params.vertex_input_state.input_binding_map)
+            {
+                const uint32_t binding = vis.first;
+
+                // GFXRECON_WRITE_CONSOLE("binding: %u", binding);
+                // for (const auto& ddd : dc_params.vertex_input_state.input_binding_map)
+                // {
+                //     GFXRECON_WRITE_CONSOLE("  b: %u", ddd.first);
+                //     GFXRECON_WRITE_CONSOLE("  stride: %u", ddd.second.stride);
+                //     GFXRECON_WRITE_CONSOLE("  inputRate: %u", ddd.second.inputRate);
+                // }
+
+                // Ignore instance data
+                if (vis.second.inputRate == VK_VERTEX_INPUT_RATE_INSTANCE)
                 {
-                    total_size = (max_vertex_count + max_first_vertex) * binding_stride;
+                    continue;
+                }
+
+                auto vb_entry = dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(binding);
+                assert(vb_entry != dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
+
+                // For some reason there was no buffer bound for this binding
+                if (vb_entry == dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end())
+                {
+                    continue;
+                }
+
+                // Buffers can be NULL
+                if (vb_entry->second.buffer_info == nullptr)
+                {
+                    continue;
+                }
+
+                const uint32_t offset     = vb_entry->second.offset;
+                uint32_t       total_size = 0;
+                if (vb_entry->second.size)
+                {
+                    // Exact size was provided by vkCmdBindVertexBuffers2
+                    total_size = vb_entry->second.size;
                 }
                 else
                 {
-                    // According to the spec providing a VkVertexInputBindingDescription.stride equal to zero is valid.
-                    // In these cases we will assume that information for only 1 vertex will be consumed (since we can't
-                    // tell where the next one is located). So calculate the total size of all attributes that are using
-                    // that binding and use that as the size of the vertex information for 1 vertex.
-                    total_size          = 0;
-                    uint32_t min_offset = std::numeric_limits<uint32_t>::max();
-                    for (const auto& ppl_attr : vbs.second.vertex_input_state.input_attribute_map)
+                    const uint32_t binding_stride = vis.second.stride;
+                    if (binding_stride)
                     {
-                        if (ppl_attr.second.binding != binding)
+                        total_size = (vertex_count + first_vertex) * binding_stride;
+                    }
+                    else
+                    {
+                        // According to the spec providing a VkVertexInputBindingDescription.stride equal to zero is
+                        // valid. In these cases we will assume that information for only 1 vertex will be consumed
+                        // (since we can't tell where the next one is located). So calculate the total size of all
+                        // attributes that are using that binding and use that as the size of the vertex information for
+                        // 1 vertex.
+                        uint32_t min_offset = std::numeric_limits<uint32_t>::max();
+                        for (const auto& ppl_attr : dc_params.vertex_input_state.input_attribute_map)
+                        {
+                            if (ppl_attr.second.binding != binding)
+                            {
+                                continue;
+                            }
+
+                            total_size += vkuFormatElementSize(ppl_attr.second.format);
+                            if (min_offset > ppl_attr.second.offset)
+                            {
+                                min_offset = ppl_attr.second.offset;
+                            }
+                        }
+
+                        if (!total_size)
                         {
                             continue;
                         }
 
-                        total_size += vkuFormatElementSize(ppl_attr.second.format);
-
-                        if (min_offset > ppl_attr.second.offset)
-                        {
-                            min_offset = ppl_attr.second.offset;
-                        }
+                        total_size += min_offset;
                     }
-
-                    if (!total_size)
-                    {
-                        continue;
-                    }
-
-                    total_size += min_offset;
                 }
+
+                assert(total_size <= vb_entry->second.buffer_info->size - offset);
+                // There is something wrong with the calculations if this is true
+                if (total_size > vb_entry->second.buffer_info->size - offset)
+                {
+                    total_size = vb_entry->second.buffer_info->size - offset;
+                }
+
+                vb_entry->second.actual_size = total_size;
+
+                std::vector<uint8_t> vb_data;
+                res = resource_util.ReadFromBufferResource(vb_entry->second.buffer_info->handle,
+                                                           total_size,
+                                                           offset,
+                                                           vb_entry->second.buffer_info->queue_family_index,
+                                                           vb_data);
+                if (res != VK_SUCCESS)
+                {
+                    GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).",
+                                       util::ToString<VkResult>(res).c_str())
+                    return res;
+                }
+
+                std::string filename = GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, binding);
+                util::bufferwriter::WriteBuffer(filename, vb_data.data(), vb_data.size());
             }
-
-            assert(total_size <= vb_binding.second.buffer_info->size - offset);
-            // There is something wrong with the calculations if this is true
-            if (total_size > vb_binding.second.buffer_info->size - offset)
-            {
-                total_size = vb_binding.second.buffer_info->size - offset;
-            }
-
-            vb_binding.second.actual_size = total_size;
-
-            std::vector<uint8_t> vb_data;
-            res = resource_util.ReadFromBufferResource(vb_binding.second.buffer_info->handle,
-                                                       total_size,
-                                                       offset,
-                                                       vb_binding.second.buffer_info->queue_family_index,
-                                                       vb_data);
-            if (res != VK_SUCCESS)
-            {
-                GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).", util::ToString<VkResult>(res).c_str())
-                return res;
-            }
-
-            std::string filename =
-                GenerateVertexBufferFilename(qs_index, bcb_index, rp, bind_vertex_buffers_index, binding);
-            util::bufferwriter::WriteBuffer(filename, vb_data.data(), vb_data.size());
         }
     }
-
-    rpc.buffers_dumped = true;
 
     return VK_SUCCESS;
 }
@@ -3034,63 +2912,52 @@ void DrawCallsDumpingContext::BindVertexBuffers(uint64_t                        
         return;
     }
 
-    auto& rpc       = render_pass_contexts[current_renderpass];
-    auto  new_entry = rpc.bound_vertex_buffers.emplace(
-        std::piecewise_construct, std::forward_as_tuple(index), std::forward_as_tuple());
-    assert(new_entry.second);
-
-    rpc.currently_bound_vertex_buffers = new_entry.first;
-
     for (size_t i = 0; i < buffer_infos.size(); ++i)
     {
         const uint32_t binding = static_cast<uint32_t>(firstBinding + i);
-        rpc.currently_bound_vertex_buffers->second.bound_vertex_buffer_per_binding.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(binding),
-            std::forward_as_tuple(buffer_infos[i], pOffsets[i]));
+        bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].buffer_info = buffer_infos[i];
+        bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].offset      = pOffsets[i];
+        bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].size        = 0;
+        bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].stride      = 0;
     }
 }
 
 void DrawCallsDumpingContext::BindVertexBuffers2(uint64_t                              index,
                                                  uint32_t                              first_binding,
                                                  const std::vector<const BufferInfo*>& buffer_infos,
-                                                 const VkDeviceSize*                   offsets,
-                                                 const VkDeviceSize*                   sizes,
-                                                 const VkDeviceSize*                   strides)
+                                                 const VkDeviceSize*                   pOffsets,
+                                                 const VkDeviceSize*                   pSizes,
+                                                 const VkDeviceSize*                   pStrides)
 {
     if (!buffer_infos.size())
     {
         return;
     }
 
-    auto& rpc       = render_pass_contexts[current_renderpass];
-    auto  new_entry = rpc.bound_vertex_buffers.emplace(
-        std::piecewise_construct, std::forward_as_tuple(index), std::forward_as_tuple());
-    assert(new_entry.second);
-
-    rpc.currently_bound_vertex_buffers = new_entry.first;
-
     for (size_t i = 0; i < buffer_infos.size(); ++i)
     {
         VkDeviceSize buffer_size = 0;
-        if (sizes[i] && buffer_infos[i] != nullptr)
+        if (pSizes != nullptr && buffer_infos[i] != nullptr)
         {
-            if (sizes[i] == VK_WHOLE_SIZE)
+            if (pSizes[i] == VK_WHOLE_SIZE)
             {
-                assert(buffer_infos[i]->size > offsets[i]);
-                buffer_size = buffer_infos[i]->size - offsets[i];
+                assert(buffer_infos[i]->size > pOffsets[i]);
+                buffer_size = buffer_infos[i]->size - pOffsets[i];
             }
             else
             {
-                buffer_size = sizes[i];
+                buffer_size = pSizes[i];
             }
         }
 
         const uint32_t binding = static_cast<uint32_t>(first_binding + i);
-        rpc.currently_bound_vertex_buffers->second.bound_vertex_buffer_per_binding.emplace(
-            std::piecewise_construct,
-            std::forward_as_tuple(binding),
-            std::forward_as_tuple(buffer_infos[i], offsets[i], buffer_size, strides[i]));
+        bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].buffer_info = buffer_infos[i];
+        bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].offset      = pOffsets[i];
+        bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].stride      = pStrides[i];
+        if (pSizes != nullptr)
+        {
+            bound_vertex_buffers.bound_vertex_buffer_per_binding[binding].size = buffer_size;
+        }
     }
 }
 
@@ -3135,14 +3002,10 @@ void DrawCallsDumpingContext::BindIndexBuffer(
         }
     }
 
-    auto& rpc = render_pass_contexts[current_renderpass];
-    auto  new_entry =
-        rpc.bound_index_buffers.emplace(std::piecewise_construct,
-                                        std::forward_as_tuple(index),
-                                        std::forward_as_tuple(buffer_info, offset, index_type, index_buffer_size));
-    assert(new_entry.second);
-
-    rpc.currently_bound_index_buffer = new_entry.first;
+    bound_index_buffer.buffer_info = buffer_info;
+    bound_index_buffer.offset      = offset;
+    bound_index_buffer.index_type  = index_type;
+    bound_index_buffer.size        = index_buffer_size;
 }
 
 void DrawCallsDumpingContext::SetRenderTargets(const std::vector<ImageInfo*>& color_att_imgs,
