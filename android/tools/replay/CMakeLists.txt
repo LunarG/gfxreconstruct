@@ -41,7 +41,6 @@ target_link_libraries(
         gfxrecon_graphics
         gfxrecon_format
         gfxrecon_util
-        ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libjsoncpp.a
         platform_specific
         native_app_glue
         android

@@ -23,12 +23,12 @@
 */
 
 #include "replay_settings.h"
+#include "util/json_util.h"
 #include "util/logging.h"
-#include "json/json.h"
 
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <utility>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(parse_dump_resources)
@@ -241,15 +241,14 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         // dump-resource arg value is a json file. Read and parse the json file.
         try
         {
-            std::ifstream dr_json_file(vulkan_replay_options.dump_resources, std::ifstream::binary);
-            Json::Value   jargs;
+            std::ifstream          dr_json_file(vulkan_replay_options.dump_resources, std::ifstream::binary);
+            nlohmann::ordered_json jargs;
             dr_json_file >> jargs;
 
             // Transfer jargs to vectors in vulkan_replay_options
             for (int idx0 = 0; idx0 < jargs["BeginCommandBuffer"].size(); idx0++)
             {
-                vulkan_replay_options.BeginCommandBuffer_Indices.push_back(
-                    jargs["BeginCommandBuffer"][idx0].asUInt64());
+                vulkan_replay_options.BeginCommandBuffer_Indices.push_back(jargs["BeginCommandBuffer"][idx0]);
             }
 
             for (int idx0 = 0; idx0 < jargs["Draw"].size(); idx0++)
@@ -257,7 +256,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 vulkan_replay_options.Draw_Indices.push_back(std::vector<uint64_t>());
                 for (int idx1 = 0; idx1 < jargs["Draw"][idx0].size(); idx1++)
                 {
-                    vulkan_replay_options.Draw_Indices[idx0].push_back(jargs["Draw"][idx0][idx1].asUInt64());
+                    vulkan_replay_options.Draw_Indices[idx0].push_back(jargs["Draw"][idx0][idx1]);
                 }
             }
 
@@ -270,7 +269,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                     for (int idx2 = 0; idx2 < jargs["RenderPass"][idx0][idx1].size(); idx2++)
                     {
                         vulkan_replay_options.RenderPass_Indices[idx0][idx1].push_back(
-                            jargs["RenderPass"][idx0][idx1][idx2].asUInt64());
+                            jargs["RenderPass"][idx0][idx1][idx2]);
                     }
                 }
             }
@@ -280,7 +279,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 vulkan_replay_options.TraceRays_Indices.push_back(std::vector<uint64_t>());
                 for (int idx1 = 0; idx1 < jargs["TraceRays"][idx0].size(); idx1++)
                 {
-                    vulkan_replay_options.TraceRays_Indices[idx0].push_back(jargs["TraceRays"][idx0][idx1].asUInt64());
+                    vulkan_replay_options.TraceRays_Indices[idx0].push_back(jargs["TraceRays"][idx0][idx1]);
                 }
             }
 
@@ -289,13 +288,13 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 vulkan_replay_options.Dispatch_Indices.push_back(std::vector<uint64_t>());
                 for (int idx1 = 0; idx1 < jargs["Dispatch"][idx0].size(); idx1++)
                 {
-                    vulkan_replay_options.Dispatch_Indices[idx0].push_back(jargs["Dispatch"][idx0][idx1].asUInt64());
+                    vulkan_replay_options.Dispatch_Indices[idx0].push_back(jargs["Dispatch"][idx0][idx1]);
                 }
             }
 
             for (int idx0 = 0; idx0 < jargs["QueueSubmit"].size(); idx0++)
             {
-                vulkan_replay_options.QueueSubmit_Indices.insert(jargs["QueueSubmit"][idx0].asUInt64());
+                vulkan_replay_options.QueueSubmit_Indices.insert(static_cast<uint64_t>(jargs["QueueSubmit"][idx0]));
             }
         }
         catch (...)
