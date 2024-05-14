@@ -439,24 +439,29 @@ void Dx12ResourceValueMapper::PostProcessExecuteIndirect(DxObjectInfo* command_l
         state_object_extra_info = GetExtraInfo<D3D12StateObjectInfo>(command_list_extra_info->active_state_object);
     }
 
-    if ((count_buffer_object_info != nullptr) && (count_buffer_object_info->object != nullptr))
+    if (max_command_count > 0)
     {
-        auto& resource_value_infos = command_list_extra_info->resource_value_info_map[count_buffer_object_info];
-        resource_value_infos.insert(
-            { count_buffer_offset,
-              ResourceValueType::kExecuteIndirectCountBuffer,
-              sizeof(uint32_t),
-              state_object_extra_info,
-              { command_signature_extra_info, argument_buffer_object_info, argument_buffer_offset } });
-    }
-    else
-    {
-        // Add resource value offsets to resource_value_infos based on the command signature's arguments.
-        GetExecuteIndirectResourceValues(command_list_extra_info->resource_value_info_map[argument_buffer_object_info],
-                                         command_signature_extra_info->resource_value_infos,
-                                         max_command_count,
-                                         argument_buffer_offset,
-                                         command_signature_extra_info->byte_stride);
+        if ((count_buffer_object_info != nullptr) && (count_buffer_object_info->object != nullptr))
+        {
+            auto& resource_value_infos = command_list_extra_info->resource_value_info_map[count_buffer_object_info];
+            resource_value_infos.insert(
+                { count_buffer_offset,
+                  ResourceValueType::kExecuteIndirectCountBuffer,
+                  sizeof(uint32_t),
+                  state_object_extra_info,
+                  { command_signature_extra_info, argument_buffer_object_info, argument_buffer_offset } });
+        }
+        else
+        {
+            // Add resource value offsets to resource_value_infos based on the command signature's arguments.
+            GetExecuteIndirectResourceValues(
+                command_list_extra_info->resource_value_info_map[argument_buffer_object_info],
+                command_signature_extra_info->resource_value_infos,
+                max_command_count,
+                argument_buffer_offset,
+                command_signature_extra_info->byte_stride,
+                state_object_extra_info);
+        }
     }
 }
 
@@ -1276,7 +1281,8 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                 value_info.arg_buffer_extra_info.command_signature_info->resource_value_infos,
                 command_count,
                 value_info.arg_buffer_extra_info.argument_buffer_offset,
-                value_info.arg_buffer_extra_info.command_signature_info->byte_stride);
+                value_info.arg_buffer_extra_info.command_signature_info->byte_stride,
+                value_info.state_object);
         }
         return false;
     }
@@ -1516,7 +1522,8 @@ void Dx12ResourceValueMapper::GetExecuteIndirectResourceValues(
     std::set<ResourceValueInfo>& command_signature_resource_value_info_map,
     uint32_t                     command_count,
     uint64_t                     command_offset,
-    uint8_t                      stride)
+    uint8_t                      stride,
+    D3D12StateObjectInfo*        state_object)
 {
     for (uint32_t i = 0; i < command_count; ++i)
     {
@@ -1525,7 +1532,7 @@ void Dx12ResourceValueMapper::GetExecuteIndirectResourceValues(
             dst_resource_value_info_map.insert({ resource_value_info.offset + command_offset,
                                                  resource_value_info.type,
                                                  resource_value_info.size,
-                                                 resource_value_info.state_object,
+                                                 state_object,
                                                  resource_value_info.arg_buffer_extra_info });
         }
         command_offset += stride;
