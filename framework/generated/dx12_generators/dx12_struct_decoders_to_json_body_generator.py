@@ -332,12 +332,12 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         }
                         case D3D12_UAV_DIMENSION_TEXTURE2DMS:
                         {
-                            FieldToJson(jdata["Texture2DMS"], "Field missing from Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC.", options);
+                            FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
                             break;
                         }
                         case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
                         {
-                            FieldToJson(jdata["Texture2DMSArray"], "Field missing from Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC.", options);
+                            FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
                             break;
                         }
                         case D3D12_UAV_DIMENSION_TEXTURE3D:
