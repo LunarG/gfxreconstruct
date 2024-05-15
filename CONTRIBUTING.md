@@ -190,7 +190,9 @@ to differentiate the work from other people working in the repo.
 
 1. Don’t hand-edit C++ headers or implementation files in `framework/generated`.
    To change those files, edit the Python generator scripts and run the
-   generator.
+   generator as noted in [Rebase on Dev](#rebase-on-dev)
+
+
 2. Don't perform unnecessary work in your change (like performing additional
    cleanup beyond your change).
 3. Do not alter existing capture file block structs or IDs.
@@ -366,17 +368,30 @@ git submodule update
 ```
 
 If this results in a submodule update and pulls in a new version of the
-Vulkan Headers at `external/Vulkan-Headers` and your in-flight branch has
-touched Python files related to code generation, you may need to run the
-Python 3 code generator.
+Vulkan Headers at `external/Vulkan-Headers` or your branch has
+touched Python files related to Vulkan code generation, you may need to run the
+Python 3 code generator to regenerate some Vulkan component sources.
 
-To do that, `cd` to `framework/generated` and run:
+To regenerate generated source for Vulkan, `cd` to `framework/generated` and run:
 
 ```bash
 python3 generate_vulkan.py 
 ```
 
-**NOTE** The minimum supported Python version is 3.8.
+If you are attempting to update support for the DirectX headers or your
+branch has touched Python files related to DirectX code generation,
+you may need to run the Python 3 code generator to regenerate some Vulkan
+component sources.
+
+To regenerate generated source for DirectX 12, `cd` to `framework/generated` and run:
+
+```bash
+python3 generate_dx12.py 
+```
+**NOTE** The minimum supported Python version is 3.10.
+
+**NOTE** On some systems, e.g. Windows, the Python 3 executable may be named
+just `python`.
 
 <br/>
 
