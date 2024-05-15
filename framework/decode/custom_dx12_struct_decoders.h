@@ -151,6 +151,7 @@ struct Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC
     D3D12_VERSIONED_ROOT_SIGNATURE_DESC* decoded_value{ nullptr };
     Decoded_D3D12_ROOT_SIGNATURE_DESC*   Desc_1_0{ nullptr };
     Decoded_D3D12_ROOT_SIGNATURE_DESC1*  Desc_1_1{ nullptr };
+    Decoded_D3D12_ROOT_SIGNATURE_DESC2*  Desc_1_2{ nullptr };
 };
 
 struct Decoded_D3D12_INDIRECT_ARGUMENT_DESC

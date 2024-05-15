@@ -461,6 +461,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VER
             wrapper->Desc_1_1->decoded_value = &(value->Desc_1_1);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc_1_1);
             break;
+        case D3D_ROOT_SIGNATURE_VERSION_1_2:
+            wrapper->Desc_1_2                = DecodeAllocator::Allocate<Decoded_D3D12_ROOT_SIGNATURE_DESC2>();
+            wrapper->Desc_1_2->decoded_value = &(value->Desc_1_2);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc_1_2);
+            break;
     }
 
     return bytes_read;
