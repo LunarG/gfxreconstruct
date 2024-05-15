@@ -241,8 +241,8 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + 'auto api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();\n'
         else:
             body += indent + 'auto force_command_serialization = manager->GetForceCommandSerialization();\n'
-            body += indent + 'std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
-            body += indent + 'std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
+            body += indent + 'std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
+            body += indent + 'std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
             body += indent + 'if (force_command_serialization)\n'
             body += indent + '{\n'
             body += indent + '    exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();\n'

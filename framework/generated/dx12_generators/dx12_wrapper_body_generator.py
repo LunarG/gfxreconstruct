@@ -485,8 +485,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
         indent = self.increment_indent(indent)
 
         expr += indent + 'auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();\n'
-        expr += indent + 'std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
-        expr += indent + 'std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
+        expr += indent + 'std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
+        expr += indent + 'std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
         expr += indent + 'if (force_command_serialization)\n'
         expr += indent + '{\n'
         expr += indent + '    exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'
@@ -690,8 +690,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += indent + 'auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'
             else:
                 expr += indent + 'auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();\n'
-                expr += indent + 'std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
-                expr += indent + 'std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
+                expr += indent + 'std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
+                expr += indent + 'std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
                 expr += indent + 'if (force_command_serialization)\n'
                 expr += indent + '{\n'
                 expr += indent + '    exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'

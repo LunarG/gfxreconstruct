@@ -2,6 +2,8 @@ add_library(gfxrecon_encode STATIC "")
 
 target_sources(gfxrecon_encode
                PRIVATE
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/api_capture_manager.h
+                   ${GFXRECON_SOURCE_DIR}/framework/encode/api_capture_manager.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.h
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_manager.cpp               
                    ${GFXRECON_SOURCE_DIR}/framework/encode/capture_settings.h
