@@ -650,10 +650,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     }
                     case D3D12_DRED_VERSION_1_3:
                     {
-                        // This field was missing in the custom struct at time of writing.
-                        // See issue and revise this codegen by uncommenting line below when the issue
-                        // is fixed <https://github.com/LunarG/gfxreconstruct/issues/1351>
-                        // FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
+                        FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
                         FieldToJson(jdata[format::kNameWarning], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
                         break;
                     }
