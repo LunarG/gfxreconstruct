@@ -4827,6 +4827,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
         size_t buffer_info_count            = 0;
         size_t texel_buffer_view_count      = 0;
         size_t acceleration_structure_count = 0;
+        size_t inline_uniform_block_count   = 0;
 
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
@@ -4853,6 +4854,10 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
             {
                 acceleration_structure_count += entry->descriptorCount;
             }
+            else if (type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
+            {
+                inline_uniform_block_count += entry->descriptorCount;
+            }
             else
             {
                 assert(false);
@@ -4864,6 +4869,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
         size_t buffer_info_offset       = image_info_count * sizeof(VkDescriptorImageInfo);
         size_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
         size_t accel_struct_offset      = texel_buffer_view_offset + (texel_buffer_view_count * sizeof(VkBufferView));
+        size_t inline_uniform_block_offset =
+            accel_struct_offset + (acceleration_structure_count * sizeof(VkAccelerationStructureKHR));
 
         // Track descriptor image type.
         std::vector<VkDescriptorType> image_types;
@@ -4902,6 +4909,13 @@ VkResult VulkanReplayConsumerBase::OverrideCreateDescriptorUpdateTemplate(
                 entry->stride = sizeof(VkAccelerationStructureKHR);
                 entry->offset = accel_struct_offset;
                 accel_struct_offset += entry->descriptorCount * sizeof(VkAccelerationStructureKHR);
+            }
+            else if (type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
+            {
+                constexpr size_t byte_stride = 1;
+                entry->stride                = byte_stride;
+                entry->offset                = inline_uniform_block_offset;
+                inline_uniform_block_offset += entry->descriptorCount * byte_stride;
             }
             else
             {

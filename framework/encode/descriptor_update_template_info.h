@@ -56,6 +56,7 @@ struct UpdateTemplateInfo
     size_t                               buffer_info_count{ 0 };
     size_t                               texel_buffer_view_count{ 0 };
     size_t                               acceleration_structure_khr_count{ 0 };
+    size_t                               inline_uniform_block_count{ 0 };
     std::vector<UpdateTemplateEntryInfo> image_info;
     std::vector<UpdateTemplateEntryInfo> buffer_info;
     std::vector<UpdateTemplateEntryInfo> texel_buffer_view;

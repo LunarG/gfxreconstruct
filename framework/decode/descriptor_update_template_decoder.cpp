@@ -40,13 +40,16 @@ DescriptorUpdateTemplateDecoder::DescriptorUpdateTemplateDecoder() :
     decoded_texel_buffer_view_handle_ids_(nullptr), image_info_count_(0), buffer_info_count_(0),
     texel_buffer_view_count_(0), image_info_(nullptr), buffer_info_(nullptr), texel_buffer_views_(nullptr),
     decoded_acceleration_structure_khr_handle_ids_(nullptr), acceleration_structure_khr_count_(0),
-    acceleration_structures_khr_(nullptr)
+    acceleration_structures_khr_(nullptr), inline_uniform_block_count_(0), inline_uniform_block_(nullptr)
 {}
 
 DescriptorUpdateTemplateDecoder::~DescriptorUpdateTemplateDecoder() {}
 
 size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buffer_size)
 {
+    // account for an encoded array's metadata (inline-uniform-block encoded using ParameterEncoder::EncodeUInt8Array)
+    constexpr size_t array_meta_size = sizeof(format::PointerAttributes) + sizeof(size_t) + sizeof(void*);
+
     size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
     // The update template should identify as a struct pointer.
@@ -131,6 +134,16 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                         required_read_memory_size  = sizeof(format::HandleId) * cur_type.count;
                         required_alloc_memory_size = sizeof(VkAccelerationStructureKHR) * cur_type.count;
                         break;
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        cur_type.offset    = total_size;
+                        uint32_t num_bytes = cur_type.count + array_meta_size;
+
+                        // We will read/write raw bytes in the allocated memory block, they should be the same
+                        required_read_memory_size  = num_bytes;
+                        required_alloc_memory_size = num_bytes;
+                        break;
+                    }
                     default:
                         invalid_optional_desc = true;
                         // If descriptor_type is not recognized, it is possible the capture file was created with a
@@ -152,12 +165,11 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                 // Update the total size of what we need to allocate
                 total_size += required_alloc_memory_size;
 
-                // Upate the bytes to read to include this block of data so we can get to the next
-                // block.
+                // Update the bytes to read to include this block of data so we can get to the next block.
                 bytes_to_read += optional_read_len + required_read_memory_size;
 
                 // Save the new optional info to the end of the vector so it stays in order
-                optional_info.push_back(std::move(cur_type));
+                optional_info.push_back(cur_type);
             }
         }
 
@@ -200,54 +212,63 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                                                             texel_buffer_view_count_);
         }
 
-        // If we discovered valid optional descriptor types after the standard ones, handle them appropriately
-        if (optional_info.size() > 0)
+        // If we discovered valid optional descriptor types after the standard ones, handle them appropriately.
+        // They have to be in order because if the above code hits an invalid one, it and anything after
+        // the invalid block will not be appended to the vector.
+        for (auto& cur_type : optional_info)
         {
-            // They have to be in order because if the above code hits an invalid one, it and anything after
-            // the invalid block will not be appended to the vector.
-            for (auto& cur_type : optional_info)
+            // Read the descriptor count and type again and verify it matches what was pre-read.
+            // This is just to make sure the previous read actual read the data properly.
+            size_t current_count = 0;
+            bytes_read +=
+                ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &current_count);
+            VkDescriptorType current_descriptor_type;
+            bytes_read += ValueDecoder::DecodeEnumValue(
+                (buffer + bytes_read), (buffer_size - bytes_read), &current_descriptor_type);
+            assert(current_count == cur_type.count);
+            assert(current_descriptor_type == cur_type.type);
+
+            switch (cur_type.type)
             {
-                // Read the descriptor count and type again and verify it matches what was pre-read.
-                // This is just to make sure the previous read actual read the data properly.
-                size_t current_count = 0;
-                bytes_read +=
-                    ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &current_count);
-                VkDescriptorType current_descriptor_type;
-                bytes_read += ValueDecoder::DecodeEnumValue(
-                    (buffer + bytes_read), (buffer_size - bytes_read), &current_descriptor_type);
-                assert(current_count == cur_type.count);
-                assert(current_descriptor_type == cur_type.type);
-
-                switch (cur_type.type)
+                case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 {
-                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                    {
-                        // Just double check that we haven't already created an acceleration struct section
-                        assert(acceleration_structure_khr_count_ == 0);
+                    // Just double check that we haven't already created an acceleration struct section
+                    assert(acceleration_structure_khr_count_ == 0);
 
-                        acceleration_structure_khr_count_ = cur_type.count;
-                        acceleration_structures_khr_ =
-                            reinterpret_cast<VkAccelerationStructureKHR*>(template_memory_ + cur_type.offset);
-                        decoded_acceleration_structure_khr_handle_ids_ =
-                            DecodeAllocator::Allocate<format::HandleId>(acceleration_structure_khr_count_);
+                    acceleration_structure_khr_count_ = cur_type.count;
+                    acceleration_structures_khr_ =
+                        reinterpret_cast<VkAccelerationStructureKHR*>(template_memory_ + cur_type.offset);
+                    decoded_acceleration_structure_khr_handle_ids_ =
+                        DecodeAllocator::Allocate<format::HandleId>(acceleration_structure_khr_count_);
 
-                        bytes_read += ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
-                                                                        (buffer_size - bytes_read),
-                                                                        decoded_acceleration_structure_khr_handle_ids_,
-                                                                        acceleration_structure_khr_count_);
-                        break;
-                    }
-                    default:
-                        // This should only trigger if someone added a type to the above while loop and not down here.
-                        assert(false);
-                        break;
+                    bytes_read += ValueDecoder::DecodeHandleIdArray((buffer + bytes_read),
+                                                                    (buffer_size - bytes_read),
+                                                                    decoded_acceleration_structure_khr_handle_ids_,
+                                                                    acceleration_structure_khr_count_);
+                    break;
                 }
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                {
+                    // double check that we haven't already created an inline-uniform-block section
+                    assert(inline_uniform_block_count_ == 0);
+                    inline_uniform_block_count_ = cur_type.count;
+                    inline_uniform_block_       = template_memory_ + cur_type.offset;
+
+                    bytes_read += array_meta_size;
+                    bytes_read += ValueDecoder::DecodeUInt8Array((buffer + bytes_read),
+                                                                 (buffer_size - bytes_read),
+                                                                 inline_uniform_block_,
+                                                                 inline_uniform_block_count_);
+                    break;
+                }
+                default:
+                    // This should only trigger if someone added a type to the above while loop and not down here.
+                    assert(false);
+                    break;
             }
         }
-
-        assert(bytes_read <= buffer_size);
     }
-
+    assert(bytes_read <= buffer_size);
     return bytes_read;
 }
 

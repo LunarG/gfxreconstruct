@@ -190,6 +190,18 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
                 }
             }
         }
+
+        // Process raw byte-arrays for VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK
+        if (info->inline_uniform_block_count > 0)
+        {
+            encoder->EncodeSizeTValue(info->inline_uniform_block_count);
+            encoder->EncodeEnumValue(VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK);
+
+            for (const auto& entry_info : info->inline_uniform_block)
+            {
+                encoder->EncodeUInt8Array(bytes + entry_info.offset, entry_info.count);
+            }
+        }
     }
     else
     {
