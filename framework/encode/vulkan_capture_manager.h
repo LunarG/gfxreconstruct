@@ -334,6 +334,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                             uint32_t*                 pQueueFamilyPropertyCount,
                                                             VkQueueFamilyProperties2* pQueueFamilyProperties);
 
+    void OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer                           command_buffer,
+                                                 const VkCopyAccelerationStructureInfoKHR* pInfo);
+
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
@@ -1269,7 +1272,8 @@ class VulkanCaptureManager : public ApiCaptureManager
     virtual void CreateStateTracker() override
     {
         state_tracker_ = std::make_unique<VulkanStateTracker>();
-        state_tracker_->SetExperimentalRaytracingFastforwarding(GetExperimentalRaytracingFastforwardingSetting());
+        state_tracker_->SetExperimentalRaytracingFastforwarding(
+            common_manager_->GetExperimentalRaytracingFastforwardingSetting());
     }
 
     virtual void DestroyStateTracker() override

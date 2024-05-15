@@ -2715,7 +2715,7 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                 device_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex] = true;
             }
 
-            const encode::DeviceTable* device_table = GetDeviceTable(*replay_device);
+            const encode::VulkanDeviceTable* device_table = GetDeviceTable(*replay_device);
             if (!allocator->SupportsOpaqueDeviceAddresses())
             {
                 VulkanAccelerationStructureBuilder::Functions as_builder_functions = {

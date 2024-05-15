@@ -286,23 +286,23 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
 {
     bool success = true;
 
-    base_filename_                   = base_filename;
-    file_options_                    = trace_settings.capture_file_options;
-    timestamp_filename_              = trace_settings.time_stamp_file;
-    memory_tracking_mode_            = trace_settings.memory_tracking_mode;
-    force_file_flush_                = trace_settings.force_flush;
-    debug_layer_                     = trace_settings.debug_layer;
-    debug_device_lost_               = trace_settings.debug_device_lost;
-    screenshots_enabled_             = !trace_settings.screenshot_ranges.empty();
-    screenshot_format_               = trace_settings.screenshot_format;
-    screenshot_indices_              = CalcScreenshotIndices(trace_settings.screenshot_ranges);
-    screenshot_prefix_               = PrepScreenshotPrefix(trace_settings.screenshot_dir);
-    disable_dxr_                     = trace_settings.disable_dxr;
-    accel_struct_padding_            = trace_settings.accel_struct_padding;
-    iunknown_wrapping_               = trace_settings.iunknown_wrapping;
-    force_command_serialization_     = trace_settings.force_command_serialization;
-    queue_zero_only_                 = trace_settings.queue_zero_only;
-    allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
+    base_filename_                          = base_filename;
+    file_options_                           = trace_settings.capture_file_options;
+    timestamp_filename_                     = trace_settings.time_stamp_file;
+    memory_tracking_mode_                   = trace_settings.memory_tracking_mode;
+    force_file_flush_                       = trace_settings.force_flush;
+    debug_layer_                            = trace_settings.debug_layer;
+    debug_device_lost_                      = trace_settings.debug_device_lost;
+    screenshots_enabled_                    = !trace_settings.screenshot_ranges.empty();
+    screenshot_format_                      = trace_settings.screenshot_format;
+    screenshot_indices_                     = CalcScreenshotIndices(trace_settings.screenshot_ranges);
+    screenshot_prefix_                      = PrepScreenshotPrefix(trace_settings.screenshot_dir);
+    disable_dxr_                            = trace_settings.disable_dxr;
+    accel_struct_padding_                   = trace_settings.accel_struct_padding;
+    iunknown_wrapping_                      = trace_settings.iunknown_wrapping;
+    force_command_serialization_            = trace_settings.force_command_serialization;
+    queue_zero_only_                        = trace_settings.queue_zero_only;
+    allow_pipeline_compile_required_        = trace_settings.allow_pipeline_compile_required;
     experimental_raytracing_fastforwarding_ = trace_settings.experimental_raytracing_fastforwarding;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;

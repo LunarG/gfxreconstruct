@@ -370,7 +370,8 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
     wrapper->bind_pnext     = nullptr;
     wrapper->bind_pnext_memory.Reset();
 
-    DeviceMemoryWrapper* memory_wrapper                                   = GetWrapper<DeviceMemoryWrapper>(memory);
+    vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     memory_wrapper->bound_buffers[memory_wrapper->address + memoryOffset] = wrapper;
 
     if (bind_info_pnext != nullptr)
@@ -393,9 +394,9 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
     }
 
     vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-        GetVulkanWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
     std::vector<vulkan_wrappers::AccelerationStructureKHRWrapper*> wrappers(info_count);
-    std::vector<VkAccelerationStructureInstanceKHR> instance_buffer_data;
+    std::vector<VkAccelerationStructureInstanceKHR>                instance_buffer_data;
     for (uint32_t i = 0; i < info_count; ++i)
     {
         if (infos[i].dstAccelerationStructure == VK_NULL_HANDLE)
@@ -407,7 +408,8 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
             continue;
         }
 
-        wrappers[i] = GetVulkanWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(infos[i].dstAccelerationStructure);
+        wrappers[i] = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+            infos[i].dstAccelerationStructure);
 
         if (experimental_raytracing_fastforwarding)
         {
@@ -426,17 +428,18 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
             // If there is no information stored - make storage
             if (!(*dst_command_ptr))
             {
-                *(dst_command_ptr) =
-                    std::make_unique<vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData>();
+                *(dst_command_ptr) = std::make_unique<
+                    vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureKHRBuildCommandData>();
             }
 
             // Extract command information for 1 AccelerationStructure
             (*dst_command_ptr)->device        = wrappers[i]->device_id;
             (*dst_command_ptr)->geometry_info = infos[i];
             (*dst_command_ptr)->geometry_info_memory.Reset();
-            auto unwrapped = MakeUnwrapStructs(
+            auto unwrapped = vulkan_trackers::MakeUnwrapStructs(
                 infos[i].pGeometries, infos[i].geometryCount, &(*dst_command_ptr)->geometry_info_memory);
-            unwrapped->pNext = TrackStruct(unwrapped->pNext, &(*dst_command_ptr)->geometry_info_memory);
+            unwrapped->pNext =
+                vulkan_trackers::TrackStruct(unwrapped->pNext, &(*dst_command_ptr)->geometry_info_memory);
             (*dst_command_ptr)->geometry_info.pGeometries = unwrapped;
 
             (*dst_command_ptr)->build_range_infos.reserve(infos[i].geometryCount);
@@ -481,7 +484,7 @@ void VulkanStateTracker::TrackAccelerationStructureBuildCommand(
 
                 void* mapped;
                 auto  device_handle = instance_buffer_wrapper->second->bind_device->handle;
-                auto  device_table  = GetDeviceTable(device_handle);
+                auto  device_table  = vulkan_wrappers::GetDeviceTable(device_handle);
                 auto  data_offset   = instance_buffer_wrapper->second->bind_offset + offset;
 
                 device_table->MapMemory(
@@ -848,7 +851,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         {
                             dst_view_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
-                            dst_info[i]     = src_info[i];
+                            dst_info[i] = src_info[i];
                         }
                         break;
                     }
@@ -1132,7 +1135,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {
-                    auto buffer_info  = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
+                    auto buffer_info = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
                     dst_buffer_ids[i] =
                         vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer_info->buffer);
                     memcpy(&dst_info[i], buffer_info, sizeof(dst_info[i]));
@@ -1318,9 +1321,9 @@ void VulkanStateTracker::TrackQueryActivation(
 
     auto& query_pool_info =
         wrapper->recorded_queries[vulkan_wrappers::GetWrapper<vulkan_wrappers::QueryPoolWrapper>(query_pool)];
-    auto& query_info      = query_pool_info[query];
-    query_info.active     = true;
-    query_info.flags      = flags;
+    auto& query_info              = query_pool_info[query];
+    query_info.active             = true;
+    query_info.flags              = flags;
     query_info.query_type_index   = index;
     query_info.queue_family_index = command_pool_wrapper->queue_family_index;
 }
@@ -1778,15 +1781,16 @@ void VulkanStateTracker::TrackAccelerationStructureCopyCommand(VkCommandBuffer  
     {
         return;
     }
-    auto wrapper = GetWrapper<AccelerationStructureKHRWrapper>(info->dst);
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(info->dst);
     if (!wrapper->latest_copy_command)
     {
         wrapper->latest_copy_command =
-            std::make_unique<AccelerationStructureKHRWrapper::AccelerationStructureCopyCommandData>();
+            std::make_unique<vulkan_wrappers::AccelerationStructureKHRWrapper::AccelerationStructureCopyCommandData>();
     }
-    wrapper->latest_copy_command->device     = wrapper->device_id;
-    wrapper->latest_copy_command->info       = *info;
-    wrapper->latest_copy_command->info.pNext = TrackStruct(info->pNext, &wrapper->latest_copy_command->p_next_memory);
+    wrapper->latest_copy_command->device = wrapper->device_id;
+    wrapper->latest_copy_command->info   = *info;
+    wrapper->latest_copy_command->info.pNext =
+        vulkan_trackers::TrackStruct(info->pNext, &wrapper->latest_copy_command->p_next_memory);
 }
 
 GFXRECON_END_NAMESPACE(encode)

@@ -988,12 +988,12 @@ void VulkanCaptureManager::OverrideCmdBuildAccelerationStructuresKHR(
 void VulkanCaptureManager::OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer command_buffer,
                                                                    const VkCopyAccelerationStructureInfoKHR* pInfo)
 {
-    if ((GetCaptureMode() & kModeTrack) == kModeTrack)
+    if ((GetCaptureMode() & CommonCaptureManager::kModeTrack) == CommonCaptureManager::kModeTrack)
     {
         state_tracker_->TrackAccelerationStructureCopyCommand(command_buffer, pInfo);
     }
 
-    const DeviceTable* device_table = GetDeviceTable(command_buffer);
+    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(command_buffer);
     device_table->CmdCopyAccelerationStructureKHR(command_buffer, pInfo);
 }
 
@@ -2709,7 +2709,7 @@ void VulkanCaptureManager::PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBu
         // Look for the label that identifies this command buffer as a VR frame boundary.
         if (util::platform::StringContains(pLabelInfo->pLabelName, graphics::kVulkanVrFrameDelimiterString))
         {
-            auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(commandBuffer);
+            auto cmd_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
             GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
             cmd_buffer_wrapper->is_frame_boundary = true;
         }

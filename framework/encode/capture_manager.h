@@ -256,6 +256,7 @@ class CommonCaptureManager
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
+    bool GetExperimentalRaytracingFastforwardingSetting() const { return experimental_raytracing_fastforwarding_; }
 
     util::Compressor*      GetCompressor() { return compressor_.get(); }
     std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
