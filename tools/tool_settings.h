@@ -124,7 +124,6 @@ const char kWaitBeforePresent[]                   = "--wait-before-present";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
-const char kDumpResourcesArgument[]       = "--dump-resources";
 #endif
 
 const char kDumpResourcesArgument[]               = "--dump-resources";
@@ -1124,7 +1123,7 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
                     replay_options.dump_resources_target.drawcall_index = std::stoi(values[2]);
                     replay_options.enable_dump_resources                = true;
                 }
-                catch ()
+                catch (std::exception&)
                 {
                     GFXRECON_LOG_ERROR("The parameter to --dump-resources is invalid. Ignoring it.");
                 }

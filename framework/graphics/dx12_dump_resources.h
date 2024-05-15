@@ -43,7 +43,7 @@ const gfxrecon::util::JsonFormat kDefaultDumpResourcesFileFormat = gfxrecon::uti
 
 struct Dx12DumpResourcesConfig
 {
-    std::string                           captured_file_name{};
+    std::string                           capture_file_name{};
     gfxrecon::decode::DumpResourcesTarget dump_resources_target{};
 };
 

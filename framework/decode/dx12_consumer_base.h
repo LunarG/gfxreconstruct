@@ -100,9 +100,9 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
     auto GetCurrentBlockIndex() { return block_index_; }
     auto GetCurrentApiCallId() { return current_api_call_id_; }
 
-    bool dxr_workload_{ false };
-    bool ei_workload_{ false };
-    bool opt_fillmem_{ false };
+    bool     dxr_workload_{ false };
+    bool     ei_workload_{ false };
+    bool     opt_fillmem_{ false };
     uint32_t dxgi_present_test_{ 0 };
 
   private:

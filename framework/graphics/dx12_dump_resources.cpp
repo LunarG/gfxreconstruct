@@ -238,7 +238,7 @@ HRESULT Dx12DumpResources::Init(const Dx12DumpResourcesConfig& config)
     HRESULT result       = S_OK;
     json_options_.format = kDefaultDumpResourcesFileFormat;
 
-    json_filename_    = config.captured_file_name;
+    json_filename_    = config.capture_file_name;
     auto ext_pos      = json_filename_.find_last_of(".");
     auto path_sep_pos = json_filename_.find_last_of(util::filepath::kPathSepStr);
     if (ext_pos != std::string::npos && (path_sep_pos == std::string::npos || ext_pos > path_sep_pos))
@@ -255,7 +255,7 @@ HRESULT Dx12DumpResources::Init(const Dx12DumpResourcesConfig& config)
 
     util::platform::FileOpen(&json_file_handle_, json_filename_.c_str(), "w");
 
-    header_["source-path"] = config.captured_file_name;
+    header_["source-path"] = config.capture_file_name;
 
     StartFile();
 

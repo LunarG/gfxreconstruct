@@ -41,7 +41,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-constexpr uint32_t kDefaultWaitTimeout     = INFINITE;
+constexpr uint32_t kDefaultWaitTimeout = INFINITE;
 
 constexpr uint64_t kInternalEventId = static_cast<uint64_t>(~0);
 
@@ -739,7 +739,7 @@ void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info, UIN
     {
         dxgi_present_test_++;
     }
-    else if(screenshot_handler_ != nullptr )
+    else if (screenshot_handler_ != nullptr)
     {
         if (screenshot_handler_->IsScreenshotFrame())
         {
@@ -5540,7 +5540,7 @@ bool MatchDescriptorCPUGPUHandle(size_t                                      rep
 void Dx12ReplayConsumerBase::InitializeDumpResources(ID3D12Device* device)
 {
     gfxrecon::graphics::Dx12DumpResourcesConfig config;
-    config.captured_file_name    = options_.filename;
+    config.capture_file_name     = options_.capture_filename;
     config.dump_resources_target = track_dump_resources_.target.dump_resources_target;
 
     dump_resources_ = gfxrecon::graphics::Dx12DumpResources::Create(config);

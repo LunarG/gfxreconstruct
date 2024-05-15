@@ -708,11 +708,6 @@ Optional arguments:
               Force wait on completion of queue operations for all queues
               before calling Present. This is needed for accurate acquisition
               of instrumentation data on some platforms.
-  --dump-resources <vulkan-begincommandbuffercall-index>,<vulkan-drawcall-index>,<vulkan-queuesubmitcall-index>
-              Dump gpu resources after the specified draw call in the specific
-              command buffer, during the specific queuesubmit call.
-              This option can be repeated to initiate multiple dumps of
-              gpu resources.
   --dump-resources BeginCommandBuffer=<n>,Draw=<n>,BeginRenderPass=<n>,NextSubPass=<n>,EndRenderPass=<n>,Dispatch=<n>,TraceRays=<n>,QueueSubmit=<n>
               Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
               each is a block index from the capture file.  The additional parameters are used to identify during which occurence

@@ -211,7 +211,7 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
-                        [--dump-resources <drawcall-index>] <file>
+                        [--dump-resources <submit-index,command-index,drawcall-index> <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.

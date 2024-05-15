@@ -7656,8 +7656,6 @@ VkResult VulkanReplayConsumerBase::OverrideBeginCommandBuffer(
     VkResult res = VK_SUCCESS;
     if (options_.dumping_resources && resource_dumper.DumpingBeginCommandBufferIndex(index))
     {
-        GFXRECON_WRITE_CONSOLE("Reached BeginCommandBuffer %" PRIu64, index);
-
         const DeviceInfo* device = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
 
         res = resource_dumper.CloneCommandBuffer(
