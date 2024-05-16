@@ -42,7 +42,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -1298,7 +1298,7 @@ void Encode_IDXGIDevice1_GetMaximumFrameLatency(
 
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -2260,7 +2260,7 @@ void Encode_IDXGIOutput1_DuplicateOutput(
 
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -2812,7 +2812,7 @@ void Encode_IDXGIOutput3_CheckOverlaySupport(
 
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3090,7 +3090,7 @@ void Encode_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNotification(
 
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3211,7 +3211,7 @@ void Encode_IDXGIDevice4_ReclaimResources1(
 
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3389,7 +3389,7 @@ void Encode_IDXGIFactory7_UnregisterAdaptersChangedEvent(
 
 
 /*
-** This part is generated from dxgicommon.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgicommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3407,13 +3407,13 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_SAMPLE_DESC& value)
 
 
 /*
-** This part is generated from dxgiformat.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgiformat.h in Windows SDK: 10.0.20348.0
 **
 */
 
 
 /*
-** This part is generated from dxgitype.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgitype.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -3477,7 +3477,7 @@ void EncodeStruct(ParameterEncoder* encoder, const DXGI_JPEG_QUANTIZATION_TABLE&
 
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.22000.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -9839,7 +9839,7 @@ void Encode_ID3D12DSRDeviceFactory_CreateDSRDevice(
 
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.22000.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -9917,7 +9917,7 @@ void Encode_ID3DDestructionNotifier_UnregisterDestructionCallback(
 
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.22000.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -11154,7 +11154,7 @@ void Encode_ID3D12InfoQueue1_UnregisterMessageCallback(
 
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.22000.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -11205,7 +11205,7 @@ void Encode_IUnknown_Release(
 
 
 /*
-** This part is generated from guiddef.h in Windows SDK: 10.0.22000.0
+** This part is generated from guiddef.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -11219,7 +11219,7 @@ void EncodeStruct(ParameterEncoder* encoder, const GUID& value)
 
 
 /*
-** This part is generated from windef.h in Windows SDK: 10.0.22000.0
+** This part is generated from windef.h in Windows SDK: 10.0.20348.0
 **
 */
 
@@ -11239,7 +11239,7 @@ void EncodeStruct(ParameterEncoder* encoder, const tagPOINT& value)
 
 
 /*
-** This part is generated from minwinbase.h in Windows SDK: 10.0.22000.0
+** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0
 **
 */
 
