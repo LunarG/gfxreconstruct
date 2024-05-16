@@ -680,28 +680,28 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const ch
         *function = reinterpret_cast<PFN_vkVoidFunction>(encode::xrCreateApiLayerInstance);
         result    = XR_SUCCESS;
     }
-
-    // Everything past this point requires an instance, so if it's not valid by now,
-    // return an error
-    else if (instance == XR_NULL_HANDLE || xr_instance_infos.find(instance) == xr_instance_infos.end())
-    {
-        *function = nullptr;
-        result    = XR_ERROR_HANDLE_INVALID;
-    }
     else
     {
-        const OpenXrInstanceInfo& info = xr_instance_infos[instance];
+        // Everything past this point requires an instance, so if it's not valid by now,
+        // return an error
+        *function = nullptr;
+        result    = XR_ERROR_HANDLE_INVALID;
 
         auto table = encode::openxr_wrappers::GetInstanceTable(instance);
-        if ((table != nullptr) && (table->GetInstanceProcAddr != nullptr))
+        // table will be null for invalid or null handles
+        if (table != nullptr)
         {
             result = table->GetInstanceProcAddr(instance, name, function);
-        }
-
-        // If we reach the end and don't support it, return the next layer/loader function
-        if (result == XR_ERROR_FUNCTION_UNSUPPORTED)
-        {
-            result = info.next_gipa(instance, name, function);
+            // Only capture functions that are supported in the implementation, otherwise just pass on the information
+            if ((result == XR_SUCCESS) && (function != nullptr))
+            {
+                const auto entry = openxr_func_table.find(name);
+                if (entry != openxr_func_table.cend())
+                {
+                    *function = entry->second;
+                    result    = XR_SUCCESS;
+                }
+            }
         }
     }
     return result;
