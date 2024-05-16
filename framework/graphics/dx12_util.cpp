@@ -119,13 +119,12 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                         "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
                                     // Intentional fall-through
                                 case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImageNoAlpha(
-                                            filename + ".bmp",
-                                            static_cast<unsigned int>(fb_desc.Width),
-                                            static_cast<unsigned int>(fb_desc.Height),
-                                            datasize,
-                                            std::data(captured_image.data),
-                                            static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch)))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write BMP file %s",
@@ -133,13 +132,13 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                     }
                                     break;
                                 case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImageNoAlpha(
-                                            filename + ".png",
-                                            static_cast<unsigned int>(fb_desc.Width),
-                                            static_cast<unsigned int>(fb_desc.Height),
-                                            datasize,
-                                            std::data(captured_image.data),
-                                            static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WritePngImage(filename + ".png",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch),
+                                                                          util::imagewriter::kFormat_RGBA))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write PNG file %s",
