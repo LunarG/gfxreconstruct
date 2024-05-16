@@ -44,8 +44,6 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void Process_DriverInfo(const char* info_record) {}
 
-    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) {}
-
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
     virtual void ProcessInitDx12AccelerationStructureCommand(

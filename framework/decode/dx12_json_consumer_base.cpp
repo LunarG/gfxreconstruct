@@ -179,13 +179,6 @@ void Dx12JsonConsumerBase::ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoC
     writer_->WriteBlockEnd();
 }
 
-void Dx12JsonConsumerBase::Process_ExeFileInfo(const util::filepath::FileInfo& info_record)
-{
-    const util::JsonOptions& json_options = writer_->GetOptions();
-    auto&                    jdata        = writer_->WriteMetaCommandStart("Dx12RuntimeInfoCommandHeader");
-    FieldToJson(jdata["info_record"], info_record, json_options);
-}
-
 void Dx12JsonConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
                                                                     HRESULT          original_result,
                                                                     D3D12_FEATURE    feature,
