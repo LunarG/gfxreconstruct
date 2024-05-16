@@ -63,6 +63,19 @@ XrExtensionProperties* TrackStruct(const XrExtensionProperties* value, HandleUnw
     return unwrapped_struct;
 }
 
+XrApplicationInfo* TrackStruct(const XrApplicationInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrApplicationInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrInstanceCreateInfo* TrackStruct(const XrInstanceCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -123,6 +136,32 @@ XrSystemGetInfo* TrackStruct(const XrSystemGetInfo* value, HandleUnwrapMemory* u
     return unwrapped_struct;
 }
 
+XrSystemGraphicsProperties* TrackStruct(const XrSystemGraphicsProperties* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSystemGraphicsProperties* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSystemTrackingProperties* TrackStruct(const XrSystemTrackingProperties* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSystemTrackingProperties* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSystemProperties* TrackStruct(const XrSystemProperties* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -149,6 +188,19 @@ XrSessionCreateInfo* TrackStruct(const XrSessionCreateInfo* value, HandleUnwrapM
     return unwrapped_struct;
 }
 
+XrVector3f* TrackStruct(const XrVector3f* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrVector3f* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSpaceVelocity* TrackStruct(const XrSpaceVelocity* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -162,6 +214,32 @@ XrSpaceVelocity* TrackStruct(const XrSpaceVelocity* value, HandleUnwrapMemory* u
     return unwrapped_struct;
 }
 
+XrQuaternionf* TrackStruct(const XrQuaternionf* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrQuaternionf* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrPosef* TrackStruct(const XrPosef* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrPosef* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrReferenceSpaceCreateInfo* TrackStruct(const XrReferenceSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -170,6 +248,19 @@ XrReferenceSpaceCreateInfo* TrackStruct(const XrReferenceSpaceCreateInfo* value,
     }
 
     XrReferenceSpaceCreateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrExtent2Df* TrackStruct(const XrExtent2Df* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrExtent2Df* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -400,6 +491,19 @@ XrViewState* TrackStruct(const XrViewState* value, HandleUnwrapMemory* unwrap_me
     return unwrapped_struct;
 }
 
+XrFovf* TrackStruct(const XrFovf* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFovf* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrView* TrackStruct(const XrView* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -439,6 +543,19 @@ XrActionCreateInfo* TrackStruct(const XrActionCreateInfo* value, HandleUnwrapMem
     {
         unwrapped_struct->subactionPaths = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->subactionPaths, unwrapped_struct->countSubactionPaths, unwrap_memory);
     }
+
+    return unwrapped_struct;
+}
+
+XrActionSuggestedBinding* TrackStruct(const XrActionSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrActionSuggestedBinding* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
 
     return unwrapped_struct;
 }
@@ -529,6 +646,19 @@ XrActionStateFloat* TrackStruct(const XrActionStateFloat* value, HandleUnwrapMem
     return unwrapped_struct;
 }
 
+XrVector2f* TrackStruct(const XrVector2f* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrVector2f* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrActionStateVector2f* TrackStruct(const XrActionStateVector2f* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -550,6 +680,19 @@ XrActionStatePose* TrackStruct(const XrActionStatePose* value, HandleUnwrapMemor
     }
 
     XrActionStatePose* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrActiveActionSet* TrackStruct(const XrActiveActionSet* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrActiveActionSet* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -619,6 +762,58 @@ XrHapticBaseHeader* TrackStruct(const XrHapticBaseHeader* value, HandleUnwrapMem
     }
 
     XrHapticBaseHeader* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrOffset2Di* TrackStruct(const XrOffset2Di* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrOffset2Di* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrExtent2Di* TrackStruct(const XrExtent2Di* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrExtent2Di* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrRect2Di* TrackStruct(const XrRect2Di* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrRect2Di* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSwapchainSubImage* TrackStruct(const XrSwapchainSubImage* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSwapchainSubImage* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -753,6 +948,123 @@ XrHapticVibration* TrackStruct(const XrHapticVibration* value, HandleUnwrapMemor
     }
 
     XrHapticVibration* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrOffset2Df* TrackStruct(const XrOffset2Df* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrOffset2Df* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrRect2Df* TrackStruct(const XrRect2Df* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrRect2Df* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrVector4f* TrackStruct(const XrVector4f* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrVector4f* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrColor4f* TrackStruct(const XrColor4f* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrColor4f* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrApiLayerNextInfo* TrackStruct(const XrApiLayerNextInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrApiLayerNextInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrApiLayerCreateInfo* TrackStruct(const XrApiLayerCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrApiLayerCreateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrNegotiateLoaderInfo* TrackStruct(const XrNegotiateLoaderInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrNegotiateLoaderInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrNegotiateRuntimeRequest* TrackStruct(const XrNegotiateRuntimeRequest* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrNegotiateRuntimeRequest* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrNegotiateApiLayerRequest* TrackStruct(const XrNegotiateApiLayerRequest* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrNegotiateApiLayerRequest* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -1523,6 +1835,32 @@ XrHandJointsLocateInfoEXT* TrackStruct(const XrHandJointsLocateInfoEXT* value, H
     return unwrapped_struct;
 }
 
+XrHandJointLocationEXT* TrackStruct(const XrHandJointLocationEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrHandJointLocationEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrHandJointVelocityEXT* TrackStruct(const XrHandJointVelocityEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrHandJointVelocityEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrHandJointLocationsEXT* TrackStruct(const XrHandJointLocationsEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -1592,6 +1930,53 @@ XrHandMeshUpdateInfoMSFT* TrackStruct(const XrHandMeshUpdateInfoMSFT* value, Han
 
     XrHandMeshUpdateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    return unwrapped_struct;
+}
+
+XrHandMeshIndexBufferMSFT* TrackStruct(const XrHandMeshIndexBufferMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrHandMeshIndexBufferMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->indices)
+    {
+        unwrapped_struct->indices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->indices, unwrapped_struct->indexCapacityInput, unwrap_memory);
+    }
+
+    return unwrapped_struct;
+}
+
+XrHandMeshVertexMSFT* TrackStruct(const XrHandMeshVertexMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrHandMeshVertexMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrHandMeshVertexBufferMSFT* TrackStruct(const XrHandMeshVertexBufferMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrHandMeshVertexBufferMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->vertices)
+    {
+        unwrapped_struct->vertices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->vertices, unwrapped_struct->vertexCapacityInput, unwrap_memory);
+    }
 
     return unwrapped_struct;
 }
@@ -1880,6 +2265,19 @@ XrCompositionLayerSecureContentFB* TrackStruct(const XrCompositionLayerSecureCon
     return unwrapped_struct;
 }
 
+XrBodyJointLocationFB* TrackStruct(const XrBodyJointLocationFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrBodyJointLocationFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSystemBodyTrackingPropertiesFB* TrackStruct(const XrSystemBodyTrackingPropertiesFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -1901,6 +2299,19 @@ XrBodyTrackerCreateInfoFB* TrackStruct(const XrBodyTrackerCreateInfoFB* value, H
     }
 
     XrBodyTrackerCreateInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrBodySkeletonJointFB* TrackStruct(const XrBodySkeletonJointFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrBodySkeletonJointFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -1992,6 +2403,19 @@ XrHandJointsMotionRangeInfoEXT* TrackStruct(const XrHandJointsMotionRangeInfoEXT
     return unwrapped_struct;
 }
 
+XrUuidMSFT* TrackStruct(const XrUuidMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrUuidMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSceneObserverCreateInfoMSFT* TrackStruct(const XrSceneObserverCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -2014,6 +2438,70 @@ XrSceneCreateInfoMSFT* TrackStruct(const XrSceneCreateInfoMSFT* value, HandleUnw
 
     XrSceneCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    return unwrapped_struct;
+}
+
+XrSceneSphereBoundMSFT* TrackStruct(const XrSceneSphereBoundMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneSphereBoundMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSceneOrientedBoxBoundMSFT* TrackStruct(const XrSceneOrientedBoxBoundMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneOrientedBoxBoundMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSceneFrustumBoundMSFT* TrackStruct(const XrSceneFrustumBoundMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneFrustumBoundMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSceneBoundsMSFT* TrackStruct(const XrSceneBoundsMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneBoundsMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->spheres)
+    {
+        unwrapped_struct->spheres = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->spheres, unwrapped_struct->sphereCount, unwrap_memory);
+    }
+    if (unwrapped_struct->boxes)
+    {
+        unwrapped_struct->boxes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->boxes, unwrapped_struct->boxCount, unwrap_memory);
+    }
+    if (unwrapped_struct->frustums)
+    {
+        unwrapped_struct->frustums = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->frustums, unwrapped_struct->frustumCount, unwrap_memory);
+    }
 
     return unwrapped_struct;
 }
@@ -2043,6 +2531,19 @@ XrVisualMeshComputeLodInfoMSFT* TrackStruct(const XrVisualMeshComputeLodInfoMSFT
     }
 
     XrVisualMeshComputeLodInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSceneComponentMSFT* TrackStruct(const XrSceneComponentMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneComponentMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -2078,6 +2579,19 @@ XrSceneComponentsGetInfoMSFT* TrackStruct(const XrSceneComponentsGetInfoMSFT* va
     return unwrapped_struct;
 }
 
+XrSceneComponentLocationMSFT* TrackStruct(const XrSceneComponentLocationMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneComponentLocationMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSceneComponentLocationsMSFT* TrackStruct(const XrSceneComponentLocationsMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -2108,6 +2622,19 @@ XrSceneComponentsLocateInfoMSFT* TrackStruct(const XrSceneComponentsLocateInfoMS
     {
         unwrapped_struct->componentIds = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->componentIds, unwrapped_struct->componentIdCount, unwrap_memory);
     }
+
+    return unwrapped_struct;
+}
+
+XrSceneObjectMSFT* TrackStruct(const XrSceneObjectMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneObjectMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
 
     return unwrapped_struct;
 }
@@ -2159,6 +2686,19 @@ XrSceneObjectTypesFilterInfoMSFT* TrackStruct(const XrSceneObjectTypesFilterInfo
     return unwrapped_struct;
 }
 
+XrScenePlaneMSFT* TrackStruct(const XrScenePlaneMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrScenePlaneMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrScenePlanesMSFT* TrackStruct(const XrScenePlanesMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -2189,6 +2729,19 @@ XrScenePlaneAlignmentFilterInfoMSFT* TrackStruct(const XrScenePlaneAlignmentFilt
     {
         unwrapped_struct->alignments = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->alignments, unwrapped_struct->alignmentCount, unwrap_memory);
     }
+
+    return unwrapped_struct;
+}
+
+XrSceneMeshMSFT* TrackStruct(const XrSceneMeshMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneMeshMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
 
     return unwrapped_struct;
 }
@@ -2296,6 +2849,23 @@ XrSerializedSceneFragmentDataGetInfoMSFT* TrackStruct(const XrSerializedSceneFra
 
     XrSerializedSceneFragmentDataGetInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    return unwrapped_struct;
+}
+
+XrDeserializeSceneFragmentMSFT* TrackStruct(const XrDeserializeSceneFragmentMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrDeserializeSceneFragmentMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->buffer)
+    {
+        unwrapped_struct->buffer = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->buffer, unwrapped_struct->bufferSize, unwrap_memory);
+    }
 
     return unwrapped_struct;
 }
@@ -2408,6 +2978,19 @@ XrSystemColorSpacePropertiesFB* TrackStruct(const XrSystemColorSpacePropertiesFB
     return unwrapped_struct;
 }
 
+XrVector4sFB* TrackStruct(const XrVector4sFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrVector4sFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrHandTrackingMeshFB* TrackStruct(const XrHandTrackingMeshFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -2483,6 +3066,19 @@ XrHandTrackingAimStateFB* TrackStruct(const XrHandTrackingAimStateFB* value, Han
     return unwrapped_struct;
 }
 
+XrHandCapsuleFB* TrackStruct(const XrHandCapsuleFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrHandCapsuleFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrHandTrackingCapsulesStateFB* TrackStruct(const XrHandTrackingCapsulesStateFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -2543,6 +3139,19 @@ XrSpaceComponentStatusFB* TrackStruct(const XrSpaceComponentStatusFB* value, Han
     }
 
     XrSpaceComponentStatusFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrUuidEXT* TrackStruct(const XrUuidEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrUuidEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -2634,6 +3243,19 @@ XrSystemKeyboardTrackingPropertiesFB* TrackStruct(const XrSystemKeyboardTracking
     }
 
     XrSystemKeyboardTrackingPropertiesFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrKeyboardTrackingDescriptionFB* TrackStruct(const XrKeyboardTrackingDescriptionFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrKeyboardTrackingDescriptionFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -3245,6 +3867,19 @@ XrLocalizationEnableEventsInfoML* TrackStruct(const XrLocalizationEnableEventsIn
     return unwrapped_struct;
 }
 
+XrSpatialAnchorPersistenceNameMSFT* TrackStruct(const XrSpatialAnchorPersistenceNameMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpatialAnchorPersistenceNameMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSpatialAnchorPersistenceInfoMSFT* TrackStruct(const XrSpatialAnchorPersistenceInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -3266,6 +3901,19 @@ XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* TrackStruct(const XrSpatialAnc
     }
 
     XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSceneMarkerMSFT* TrackStruct(const XrSceneMarkerMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneMarkerMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -3301,6 +3949,19 @@ XrSceneMarkerTypeFilterMSFT* TrackStruct(const XrSceneMarkerTypeFilterMSFT* valu
     {
         unwrapped_struct->markerTypes = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->markerTypes, unwrapped_struct->markerTypeCount, unwrap_memory);
     }
+
+    return unwrapped_struct;
+}
+
+XrSceneMarkerQRCodeMSFT* TrackStruct(const XrSceneMarkerQRCodeMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSceneMarkerQRCodeMSFT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
 
     return unwrapped_struct;
 }
@@ -3399,6 +4060,19 @@ XrSpaceComponentFilterInfoFB* TrackStruct(const XrSpaceComponentFilterInfoFB* va
     }
 
     XrSpaceComponentFilterInfoFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSpaceQueryResultFB* TrackStruct(const XrSpaceQueryResultFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpaceQueryResultFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -3628,6 +4302,45 @@ XrHapticAmplitudeEnvelopeVibrationFB* TrackStruct(const XrHapticAmplitudeEnvelop
     return unwrapped_struct;
 }
 
+XrExtent3DfFB* TrackStruct(const XrExtent3DfFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrExtent3DfFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrOffset3DfFB* TrackStruct(const XrOffset3DfFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrOffset3DfFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrRect3DfFB* TrackStruct(const XrRect3DfFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrRect3DfFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSemanticLabelsFB* TrackStruct(const XrSemanticLabelsFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -3830,6 +4543,19 @@ XrFaceExpressionInfoFB* TrackStruct(const XrFaceExpressionInfoFB* value, HandleU
     return unwrapped_struct;
 }
 
+XrFaceExpressionStatusFB* TrackStruct(const XrFaceExpressionStatusFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFaceExpressionStatusFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrFaceExpressionWeightsFB* TrackStruct(const XrFaceExpressionWeightsFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -3847,6 +4573,19 @@ XrFaceExpressionWeightsFB* TrackStruct(const XrFaceExpressionWeightsFB* value, H
     {
         unwrapped_struct->confidences = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->confidences, unwrapped_struct->confidenceCount, unwrap_memory);
     }
+
+    return unwrapped_struct;
+}
+
+XrEyeGazeFB* TrackStruct(const XrEyeGazeFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEyeGazeFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
 
     return unwrapped_struct;
 }
@@ -4201,6 +4940,32 @@ XrEventDataVirtualKeyboardHiddenMETA* TrackStruct(const XrEventDataVirtualKeyboa
     return unwrapped_struct;
 }
 
+XrExternalCameraIntrinsicsOCULUS* TrackStruct(const XrExternalCameraIntrinsicsOCULUS* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrExternalCameraIntrinsicsOCULUS* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrExternalCameraExtrinsicsOCULUS* TrackStruct(const XrExternalCameraExtrinsicsOCULUS* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrExternalCameraExtrinsicsOCULUS* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrExternalCameraOCULUS* TrackStruct(const XrExternalCameraOCULUS* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -4331,6 +5096,23 @@ XrRecommendedLayerResolutionGetInfoMETA* TrackStruct(const XrRecommendedLayerRes
 
     XrRecommendedLayerResolutionGetInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
+
+    return unwrapped_struct;
+}
+
+XrPassthroughColorLutDataMETA* TrackStruct(const XrPassthroughColorLutDataMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrPassthroughColorLutDataMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->buffer)
+    {
+        unwrapped_struct->buffer = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->buffer, unwrapped_struct->bufferSize, unwrap_memory);
+    }
 
     return unwrapped_struct;
 }
@@ -4575,6 +5357,19 @@ XrFoveationApplyInfoHTC* TrackStruct(const XrFoveationApplyInfoHTC* value, Handl
     return unwrapped_struct;
 }
 
+XrFoveationConfigurationHTC* TrackStruct(const XrFoveationConfigurationHTC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFoveationConfigurationHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrFoveationDynamicModeInfoHTC* TrackStruct(const XrFoveationDynamicModeInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -4618,6 +5413,19 @@ XrSystemAnchorPropertiesHTC* TrackStruct(const XrSystemAnchorPropertiesHTC* valu
     return unwrapped_struct;
 }
 
+XrSpatialAnchorNameHTC* TrackStruct(const XrSpatialAnchorNameHTC* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpatialAnchorNameHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrSpatialAnchorCreateInfoHTC* TrackStruct(const XrSpatialAnchorCreateInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -4626,6 +5434,19 @@ XrSpatialAnchorCreateInfoHTC* TrackStruct(const XrSpatialAnchorCreateInfoHTC* va
     }
 
     XrSpatialAnchorCreateInfoHTC* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrActiveActionSetPriorityEXT* TrackStruct(const XrActiveActionSetPriorityEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrActiveActionSetPriorityEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -4656,6 +5477,19 @@ XrSystemForceFeedbackCurlPropertiesMNDX* TrackStruct(const XrSystemForceFeedback
     }
 
     XrSystemForceFeedbackCurlPropertiesMNDX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrForceFeedbackCurlApplyLocationMNDX* TrackStruct(const XrForceFeedbackCurlApplyLocationMNDX* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrForceFeedbackCurlApplyLocationMNDX* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -4729,6 +5563,19 @@ XrPlaneDetectorCreateInfoEXT* TrackStruct(const XrPlaneDetectorCreateInfoEXT* va
     }
 
     XrPlaneDetectorCreateInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrExtent3DfEXT* TrackStruct(const XrExtent3DfEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrExtent3DfEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;

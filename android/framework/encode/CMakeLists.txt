@@ -52,6 +52,7 @@ target_sources(gfxrecon_encode
                    ${GFXRECON_SOURCE_DIR}/framework/encode/vulkan_state_writer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_base_header_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.h

@@ -35,7 +35,6 @@
 #include "format/platform_types.h"
 #include "util/to_string.h"
 
-
 #include "format/platform_types.h"
 
 #include "openxr/openxr.h"

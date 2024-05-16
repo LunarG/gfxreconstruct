@@ -37,7 +37,6 @@
 
 #include <nlohmann/json.hpp>
 
-
 #include "format/platform_types.h"
 
 #include "openxr/openxr.h"
