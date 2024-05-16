@@ -38,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value)
 {
     encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
+    EncodeNextStruct(encoder, value.next);
     encoder->EncodeUInt64Value(value.displayTime);
     encoder->EncodeEnumValue(value.environmentBlendMode);
     encoder->EncodeUInt32Value(value.layerCount);
@@ -48,7 +48,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value)
 void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
+    EncodeNextStruct(encoder, value.next);
     encoder->EncodeUInt32Value(value.bindingModificationCount);
     EncodeStructArray2D(encoder, value.bindingModifications, value.bindingModificationCount, 1);
 }
@@ -56,7 +56,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& va
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value)
 {
     encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
+    EncodeNextStruct(encoder, value.next);
     encoder->EncodeEnumValue(value.viewConfigurationType);
     encoder->EncodeEnumValue(value.environmentBlendMode);
     encoder->EncodeUInt32Value(value.layerCount);
@@ -66,7 +66,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationL
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
+    EncodeNextStruct(encoder, value.next);
     encoder->EncodeUInt64Value(value.systemId);
     encoder->EncodeFlags64Value(value.createFlags);
     encoder->EncodeFunctionPtr(value.pfnGetInstanceProcAddr);
@@ -77,7 +77,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanDeviceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.type);
-    encoder->EncodeVoidPtr(value.next);
+    EncodeNextStruct(encoder, value.next);
     encoder->EncodeUInt64Value(value.systemId);
     encoder->EncodeFlags64Value(value.createFlags);
     encoder->EncodeFunctionPtr(value.pfnGetInstanceProcAddr);
