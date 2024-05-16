@@ -521,43 +521,6 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SessionWrapper
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_sessions.push_back(wrapper);
     }
-
-    CreateWrappedDispatchHandle<InstanceWrapper, SessionWrapper>(XR_NULL_HANDLE, handle, get_id);
-}
-
-template <>
-inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughFBWrapper>(
-    XrSession parent,
-    NoParentWrapper::HandleType, // Does not have a co-parent
-    XrPassthroughFB* handle,
-    PFN_GetHandleId  get_id)
-{
-    assert(parent != XR_NULL_HANDLE);
-    assert(handle != nullptr);
-
-    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
-
-    // Filter duplicate object retrieval.
-    PassthroughFBWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_passthroughs)
-    {
-        if (entry->handle == (*handle))
-        {
-            wrapper = entry;
-            break;
-        }
-    }
-
-    if (wrapper == nullptr)
-    {
-        CreateWrappedDispatchHandle<SessionWrapper, PassthroughFBWrapper>(parent, handle, get_id);
-
-        wrapper                  = GetWrapper<PassthroughFBWrapper>(*handle);
-        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
-        parent_wrapper->child_passthroughs.push_back(wrapper);
-    }
-
-    CreateWrappedDispatchHandle<SessionWrapper, PassthroughFBWrapper>(XR_NULL_HANDLE, handle, get_id);
 }
 
 template <>
@@ -574,7 +537,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, ActionSetWrapp
 
     // Filter duplicate object retrieval.
     ActionSetWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_action_sets)
+    for (auto entry : parent_wrapper->child_actionsets)
     {
         if (entry->handle == (*handle))
         {
@@ -589,10 +552,41 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, ActionSetWrapp
 
         wrapper                  = GetWrapper<ActionSetWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
-        parent_wrapper->child_action_sets.push_back(wrapper);
+        parent_wrapper->child_actionsets.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugUtilsMessengerEXTWrapper>(
+    XrInstance parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrDebugUtilsMessengerEXT* handle,
+    PFN_GetHandleId           get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<InstanceWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    DebugUtilsMessengerEXTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_debugutilsmessengers)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
     }
 
-    CreateWrappedDispatchHandle<InstanceWrapper, ActionSetWrapper>(XR_NULL_HANDLE, handle, get_id);
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<InstanceWrapper, DebugUtilsMessengerEXTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<DebugUtilsMessengerEXTWrapper>(*handle);
+        wrapper->layer_table_ref = &parent_wrapper->layer_table;
+        parent_wrapper->child_debugutilsmessengers.push_back(wrapper);
+    }
 }
 
 template <>
@@ -606,7 +600,7 @@ CreateWrappedAtom<InstanceWrapper, SystemIdWrapper>(XrInstance parent, XrSystemI
 
     // Filter duplicate object retrieval.
     SystemIdWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_system_ids)
+    for (auto entry : parent_wrapper->child_systemids)
     {
         if (entry->handle == (*handle))
         {
@@ -620,10 +614,8 @@ CreateWrappedAtom<InstanceWrapper, SystemIdWrapper>(XrInstance parent, XrSystemI
         CreateWrappedAtom<SystemIdWrapper>(handle, get_id);
 
         wrapper = GetAtomWrapper<SystemIdWrapper>(*handle);
-        parent_wrapper->child_system_ids.push_back(wrapper);
+        parent_wrapper->child_systemids.push_back(wrapper);
     }
-
-    CreateWrappedAtom<SystemIdWrapper>(handle, get_id);
 }
 
 template <>
@@ -652,8 +644,765 @@ inline void CreateWrappedAtom<InstanceWrapper, PathWrapper>(XrInstance parent, X
         wrapper = GetAtomWrapper<PathWrapper>(*handle);
         parent_wrapper->child_paths.push_back(wrapper);
     }
+}
 
-    CreateWrappedAtom<PathWrapper>(handle, get_id);
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSpace*        handle,
+    PFN_GetHandleId get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SpaceWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_spaces)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, SpaceWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SpaceWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_spaces.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SwapchainWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSwapchain*    handle,
+    PFN_GetHandleId get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SwapchainWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_swapchains)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, SwapchainWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SwapchainWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_swapchains.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrPassthroughFB* handle,
+    PFN_GetHandleId  get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    PassthroughFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_passthroughfbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, PassthroughFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<PassthroughFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_passthroughfbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialAnchorMSFTWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSpatialAnchorMSFT* handle,
+    PFN_GetHandleId      get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SpatialAnchorMSFTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_spatialanchormsfts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, SpatialAnchorMSFTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SpatialAnchorMSFTWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_spatialanchormsfts.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialGraphNodeBindingMSFTWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSpatialGraphNodeBindingMSFT* handle,
+    PFN_GetHandleId                get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SpatialGraphNodeBindingMSFTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_spatialgraphnodebindingmsfts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, SpatialGraphNodeBindingMSFTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SpatialGraphNodeBindingMSFTWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_spatialgraphnodebindingmsfts.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, HandTrackerEXTWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrHandTrackerEXT* handle,
+    PFN_GetHandleId   get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    HandTrackerEXTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_handtrackerexts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, HandTrackerEXTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<HandTrackerEXTWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_handtrackerexts.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, BodyTrackerFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrBodyTrackerFB* handle,
+    PFN_GetHandleId  get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    BodyTrackerFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_bodytrackerfbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, BodyTrackerFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<BodyTrackerFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_bodytrackerfbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SceneObserverMSFTWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSceneObserverMSFT* handle,
+    PFN_GetHandleId      get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SceneObserverMSFTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_sceneobservermsfts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, SceneObserverMSFTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SceneObserverMSFTWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_sceneobservermsfts.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FacialTrackerHTCWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrFacialTrackerHTC* handle,
+    PFN_GetHandleId     get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    FacialTrackerHTCWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_facialtrackerhtcs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, FacialTrackerHTCWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<FacialTrackerHTCWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_facialtrackerhtcs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FoveationProfileFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrFoveationProfileFB* handle,
+    PFN_GetHandleId       get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    FoveationProfileFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_foveationprofilefbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, FoveationProfileFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<FoveationProfileFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_foveationprofilefbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, TriangleMeshFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrTriangleMeshFB* handle,
+    PFN_GetHandleId   get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    TriangleMeshFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_trianglemeshfbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, TriangleMeshFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<TriangleMeshFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_trianglemeshfbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughHTCWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrPassthroughHTC* handle,
+    PFN_GetHandleId   get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    PassthroughHTCWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_passthroughhtcs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, PassthroughHTCWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<PassthroughHTCWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_passthroughhtcs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughLayerFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrPassthroughLayerFB* handle,
+    PFN_GetHandleId       get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    PassthroughLayerFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_passthroughlayerfbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, PassthroughLayerFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<PassthroughLayerFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_passthroughlayerfbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, GeometryInstanceFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrGeometryInstanceFB* handle,
+    PFN_GetHandleId       get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    GeometryInstanceFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_geometryinstancefbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, GeometryInstanceFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<GeometryInstanceFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_geometryinstancefbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, MarkerDetectorMLWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrMarkerDetectorML* handle,
+    PFN_GetHandleId     get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    MarkerDetectorMLWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_markerdetectormls)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, MarkerDetectorMLWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<MarkerDetectorMLWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_markerdetectormls.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, ExportedLocalizationMapMLWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrExportedLocalizationMapML* handle,
+    PFN_GetHandleId              get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    ExportedLocalizationMapMLWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_exportedlocalizationmapmls)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, ExportedLocalizationMapMLWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<ExportedLocalizationMapMLWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_exportedlocalizationmapmls.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialAnchorStoreConnectionMSFTWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSpatialAnchorStoreConnectionMSFT* handle,
+    PFN_GetHandleId                     get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SpatialAnchorStoreConnectionMSFTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_spatialanchorstoreconnmsfts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, SpatialAnchorStoreConnectionMSFTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SpatialAnchorStoreConnectionMSFTWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_spatialanchorstoreconnmsfts.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceUserFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSpaceUserFB*  handle,
+    PFN_GetHandleId get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SpaceUserFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_spaceuserfbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, SpaceUserFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SpaceUserFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_spaceuserfbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FaceTrackerFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrFaceTrackerFB* handle,
+    PFN_GetHandleId  get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    FaceTrackerFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_facetrackerfbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, FaceTrackerFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<FaceTrackerFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_facetrackerfbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, EyeTrackerFBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrEyeTrackerFB* handle,
+    PFN_GetHandleId get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    EyeTrackerFBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_eyetrackerfbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, EyeTrackerFBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<EyeTrackerFBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_eyetrackerfbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, VirtualKeyboardMETAWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrVirtualKeyboardMETA* handle,
+    PFN_GetHandleId        get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    VirtualKeyboardMETAWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_virtualkeyboardmetas)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, VirtualKeyboardMETAWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<VirtualKeyboardMETAWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_virtualkeyboardmetas.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FaceTracker2FBWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrFaceTracker2FB* handle,
+    PFN_GetHandleId   get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    FaceTracker2FBWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_facetracker2fbs)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, FaceTracker2FBWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<FaceTracker2FBWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_facetracker2fbs.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PlaneDetectorEXTWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrPlaneDetectorEXT* handle,
+    PFN_GetHandleId     get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    PlaneDetectorEXTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_planedetectorexts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, PlaneDetectorEXTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<PlaneDetectorEXTWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_planedetectorexts.push_back(wrapper);
+    }
 }
 
 template <>
@@ -668,7 +1417,7 @@ inline void CreateWrappedAtom<SessionWrapper, AsyncRequestIdFBWrapper>(XrSession
 
     // Filter duplicate object retrieval.
     AsyncRequestIdFBWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_async_req_ids)
+    for (auto entry : parent_wrapper->child_asyncreqidfbs)
     {
         if (entry->handle == (*handle))
         {
@@ -682,10 +1431,8 @@ inline void CreateWrappedAtom<SessionWrapper, AsyncRequestIdFBWrapper>(XrSession
         CreateWrappedAtom<AsyncRequestIdFBWrapper>(handle, get_id);
 
         wrapper = GetAtomWrapper<AsyncRequestIdFBWrapper>(*handle);
-        parent_wrapper->child_async_req_ids.push_back(wrapper);
+        parent_wrapper->child_asyncreqidfbs.push_back(wrapper);
     }
-
-    CreateWrappedAtom<AsyncRequestIdFBWrapper>(handle, get_id);
 }
 
 template <>
@@ -700,7 +1447,7 @@ inline void CreateWrappedAtom<SessionWrapper, RenderModelKeyFBWrapper>(XrSession
 
     // Filter duplicate object retrieval.
     RenderModelKeyFBWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_render_model_keys)
+    for (auto entry : parent_wrapper->child_rendermodelkeyfbs)
     {
         if (entry->handle == (*handle))
         {
@@ -714,10 +1461,8 @@ inline void CreateWrappedAtom<SessionWrapper, RenderModelKeyFBWrapper>(XrSession
         CreateWrappedAtom<RenderModelKeyFBWrapper>(handle, get_id);
 
         wrapper = GetAtomWrapper<RenderModelKeyFBWrapper>(*handle);
-        parent_wrapper->child_render_model_keys.push_back(wrapper);
+        parent_wrapper->child_rendermodelkeyfbs.push_back(wrapper);
     }
-
-    CreateWrappedAtom<RenderModelKeyFBWrapper>(handle, get_id);
 }
 
 template <>
@@ -748,8 +1493,6 @@ inline void CreateWrappedAtom<MarkerDetectorMLWrapper, MarkerMLWrapper>(XrMarker
         wrapper = GetAtomWrapper<MarkerMLWrapper>(*handle);
         parent_wrapper->child_markers.push_back(wrapper);
     }
-
-    CreateWrappedAtom<MarkerMLWrapper>(handle, get_id);
 }
 
 template <>
@@ -764,7 +1507,7 @@ inline void CreateWrappedAtom<SessionWrapper, ControllerModelKeyMSFTWrapper>(XrS
 
     // Filter duplicate object retrieval.
     ControllerModelKeyMSFTWrapper* wrapper = nullptr;
-    for (auto entry : parent_wrapper->child_controller_model_keys)
+    for (auto entry : parent_wrapper->child_controllermodelkeymsfts)
     {
         if (entry->handle == (*handle))
         {
@@ -778,10 +1521,107 @@ inline void CreateWrappedAtom<SessionWrapper, ControllerModelKeyMSFTWrapper>(XrS
         CreateWrappedAtom<ControllerModelKeyMSFTWrapper>(handle, get_id);
 
         wrapper = GetAtomWrapper<ControllerModelKeyMSFTWrapper>(*handle);
-        parent_wrapper->child_controller_model_keys.push_back(wrapper);
+        parent_wrapper->child_controllermodelkeymsfts.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<ActionSetWrapper, NoParentWrapper, ActionWrapper>(
+    XrActionSet parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrAction*       handle,
+    PFN_GetHandleId get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<ActionSetWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    ActionWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_actions)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
     }
 
-    CreateWrappedAtom<ControllerModelKeyMSFTWrapper>(handle, get_id);
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<ActionSetWrapper, ActionWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<ActionWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_actions.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<SceneObserverMSFTWrapper, NoParentWrapper, SceneMSFTWrapper>(
+    XrSceneObserverMSFT parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrSceneMSFT*    handle,
+    PFN_GetHandleId get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SceneObserverMSFTWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    SceneMSFTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_scenemsfts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SceneObserverMSFTWrapper, SceneMSFTWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<SceneMSFTWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_scenemsfts.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<PassthroughFBWrapper, NoParentWrapper, PassthroughColorLutMETAWrapper>(
+    XrPassthroughFB parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrPassthroughColorLutMETA* handle,
+    PFN_GetHandleId            get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<PassthroughFBWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    PassthroughColorLutMETAWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_passthroughcolorlutmetas)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<PassthroughFBWrapper, PassthroughColorLutMETAWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<PassthroughColorLutMETAWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        parent_wrapper->child_passthroughcolorlutmetas.push_back(wrapper);
+    }
 }
 
 template <typename Wrapper>
@@ -803,16 +1643,30 @@ inline void DestroyWrappedHandle<InstanceWrapper>(XrInstance handle)
         // Destroy child wrappers.
         auto wrapper = GetWrapper<InstanceWrapper>(handle);
 
-        for (auto session_wrapper : wrapper->child_sessions)
+        for (auto child : wrapper->child_sessions)
         {
-            RemoveWrapper<SessionWrapper>(session_wrapper);
-            delete session_wrapper;
+            RemoveWrapper<SessionWrapper>(child);
+            delete child;
         }
-
-        for (auto action_set_wrapper : wrapper->child_action_sets)
+        for (auto child : wrapper->child_actionsets)
         {
-            RemoveWrapper<ActionSetWrapper>(action_set_wrapper);
-            delete action_set_wrapper;
+            RemoveWrapper<ActionSetWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_systemids)
+        {
+            RemoveWrapper<SystemIdWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_paths)
+        {
+            RemoveWrapper<PathWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_debugutilsmessengers)
+        {
+            RemoveWrapper<DebugUtilsMessengerEXTWrapper>(child);
+            delete child;
         }
 
         RemoveWrapper<InstanceWrapper>(wrapper);
@@ -828,10 +1682,135 @@ inline void DestroyWrappedHandle<SessionWrapper>(XrSession handle)
         // Destroy child wrappers.
         auto wrapper = GetWrapper<SessionWrapper>(handle);
 
-        for (auto passthrough_wrapper : wrapper->child_passthroughs)
+        for (auto child : wrapper->child_spaces)
         {
-            RemoveWrapper<PassthroughFBWrapper>(passthrough_wrapper);
-            delete passthrough_wrapper;
+            RemoveWrapper<SpaceWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_swapchains)
+        {
+            RemoveWrapper<SwapchainWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_asyncreqidfbs)
+        {
+            RemoveWrapper<AsyncRequestIdFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_rendermodelkeyfbs)
+        {
+            RemoveWrapper<RenderModelKeyFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_controllermodelkeymsfts)
+        {
+            RemoveWrapper<ControllerModelKeyMSFTWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_spatialanchormsfts)
+        {
+            RemoveWrapper<SpatialAnchorMSFTWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_spatialgraphnodebindingmsfts)
+        {
+            RemoveWrapper<SpatialGraphNodeBindingMSFTWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_handtrackerexts)
+        {
+            RemoveWrapper<HandTrackerEXTWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_bodytrackerfbs)
+        {
+            RemoveWrapper<BodyTrackerFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_sceneobservermsfts)
+        {
+            RemoveWrapper<SceneObserverMSFTWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_facialtrackerhtcs)
+        {
+            RemoveWrapper<FacialTrackerHTCWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_foveationprofilefbs)
+        {
+            RemoveWrapper<FoveationProfileFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_trianglemeshfbs)
+        {
+            RemoveWrapper<TriangleMeshFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_passthroughfbs)
+        {
+            RemoveWrapper<PassthroughFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_passthroughlayerfbs)
+        {
+            RemoveWrapper<PassthroughLayerFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_geometryinstancefbs)
+        {
+            RemoveWrapper<GeometryInstanceFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_markerdetectormls)
+        {
+            RemoveWrapper<MarkerDetectorMLWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_exportedlocalizationmapmls)
+        {
+            RemoveWrapper<ExportedLocalizationMapMLWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_spatialanchorstoreconnmsfts)
+        {
+            RemoveWrapper<SpatialAnchorStoreConnectionMSFTWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_spaceuserfbs)
+        {
+            RemoveWrapper<SpaceUserFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_facetrackerfbs)
+        {
+            RemoveWrapper<FaceTrackerFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_eyetrackerfbs)
+        {
+            RemoveWrapper<EyeTrackerFBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_virtualkeyboardmetas)
+        {
+            RemoveWrapper<VirtualKeyboardMETAWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_facetracker2fbs)
+        {
+            RemoveWrapper<FaceTracker2FBWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_passthroughhtcs)
+        {
+            RemoveWrapper<PassthroughHTCWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_planedetectorexts)
+        {
+            RemoveWrapper<PlaneDetectorEXTWrapper>(child);
+            delete child;
         }
 
         RemoveWrapper<SessionWrapper>(wrapper);
@@ -847,13 +1826,51 @@ inline void DestroyWrappedHandle<MarkerDetectorMLWrapper>(XrMarkerDetectorML han
         // Destroy child wrappers.
         auto wrapper = GetWrapper<MarkerDetectorMLWrapper>(handle);
 
-        for (auto passthrough_wrapper : wrapper->child_markers)
+        for (auto child : wrapper->child_markers)
         {
-            RemoveWrapper<MarkerMLWrapper>(passthrough_wrapper);
-            delete passthrough_wrapper;
+            RemoveWrapper<MarkerMLWrapper>(child);
+            delete child;
         }
 
         RemoveWrapper<MarkerDetectorMLWrapper>(wrapper);
+        delete wrapper;
+    }
+}
+
+template <>
+inline void DestroyWrappedHandle<SceneObserverMSFTWrapper>(XrSceneObserverMSFT handle)
+{
+    if (handle != XR_NULL_HANDLE)
+    {
+        // Destroy child wrappers.
+        auto wrapper = GetWrapper<SceneObserverMSFTWrapper>(handle);
+
+        for (auto child : wrapper->child_scenemsfts)
+        {
+            RemoveWrapper<SceneMSFTWrapper>(child);
+            delete child;
+        }
+
+        RemoveWrapper<SceneObserverMSFTWrapper>(wrapper);
+        delete wrapper;
+    }
+}
+
+template <>
+inline void DestroyWrappedHandle<PassthroughFBWrapper>(XrPassthroughFB handle)
+{
+    if (handle != XR_NULL_HANDLE)
+    {
+        // Destroy child wrappers.
+        auto wrapper = GetWrapper<PassthroughFBWrapper>(handle);
+
+        for (auto child : wrapper->child_passthroughcolorlutmetas)
+        {
+            RemoveWrapper<PassthroughColorLutMETAWrapper>(child);
+            delete child;
+        }
+
+        RemoveWrapper<PassthroughFBWrapper>(wrapper);
         delete wrapper;
     }
 }

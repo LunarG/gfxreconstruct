@@ -99,11 +99,6 @@ struct GeometryInstanceFBWrapper : public HandleWrapper<XrGeometryInstanceFB>
     OpenXrInstanceTable* layer_table_ref{ nullptr };
 };
 
-struct PassthroughFBWrapper : public HandleWrapper<XrPassthroughFB>
-{
-    OpenXrInstanceTable* layer_table_ref{ nullptr };
-};
-
 struct PassthroughLayerFBWrapper : public HandleWrapper<XrPassthroughLayerFB>
 {
     OpenXrInstanceTable* layer_table_ref{ nullptr };
@@ -136,11 +131,6 @@ struct ExportedLocalizationMapMLWrapper : public HandleWrapper<XrExportedLocaliz
 };
 
 struct SceneMSFTWrapper : public HandleWrapper<XrSceneMSFT>
-{
-    OpenXrInstanceTable* layer_table_ref{ nullptr };
-};
-
-struct SceneObserverMSFTWrapper : public HandleWrapper<XrSceneObserverMSFT>
 {
     OpenXrInstanceTable* layer_table_ref{ nullptr };
 };
@@ -201,7 +191,8 @@ struct ActionWrapper : public HandleWrapper<XrAction>
 
 struct ActionSetWrapper : public HandleWrapper<XrActionSet>
 {
-    OpenXrInstanceTable* layer_table_ref{ nullptr };
+    OpenXrInstanceTable*        layer_table_ref{ nullptr };
+    std::vector<ActionWrapper*> child_actions;
 };
 
 struct SpaceWrapper : public HandleWrapper<XrSpace>
@@ -247,29 +238,64 @@ struct ControllerModelKeyMSFTWrapper : public AtomWrapper<XrControllerModelKeyMS
 // Container Wrappers
 //
 
-struct MarkerDetectorMLWrapper : public AtomWrapper<XrMarkerDetectorML>
+struct MarkerDetectorMLWrapper : public HandleWrapper<XrMarkerDetectorML>
 {
     OpenXrInstanceTable*          layer_table_ref{ nullptr };
     std::vector<MarkerMLWrapper*> child_markers;
 };
 
-struct SessionWrapper : public AtomWrapper<XrSession>
+struct SceneObserverMSFTWrapper : public HandleWrapper<XrSceneObserverMSFT>
 {
-    OpenXrInstanceTable*                        layer_table_ref{ nullptr };
-    std::vector<PassthroughFBWrapper*>          child_passthroughs;
-    std::vector<AsyncRequestIdFBWrapper*>       child_async_req_ids;
-    std::vector<RenderModelKeyFBWrapper*>       child_render_model_keys;
-    std::vector<ControllerModelKeyMSFTWrapper*> child_controller_model_keys;
+    OpenXrInstanceTable*           layer_table_ref{ nullptr };
+    std::vector<SceneMSFTWrapper*> child_scenemsfts;
 };
 
-struct InstanceWrapper : public AtomWrapper<XrInstance>
+struct PassthroughFBWrapper : public HandleWrapper<XrPassthroughFB>
 {
-    OpenXrInstanceTable            layer_table;
-    XrVersion                      api_version{ XR_MAKE_VERSION(1, 0, 0) };
-    std::vector<SessionWrapper*>   child_sessions;
-    std::vector<ActionSetWrapper*> child_action_sets;
-    std::vector<SystemIdWrapper*>  child_system_ids;
-    std::vector<PathWrapper*>      child_paths;
+    OpenXrInstanceTable*                         layer_table_ref{ nullptr };
+    std::vector<PassthroughColorLutMETAWrapper*> child_passthroughcolorlutmetas;
+};
+
+struct SessionWrapper : public HandleWrapper<XrSession>
+{
+    OpenXrInstanceTable*                                  layer_table_ref{ nullptr };
+    std::vector<SpaceWrapper*>                            child_spaces;
+    std::vector<SwapchainWrapper*>                        child_swapchains;
+    std::vector<AsyncRequestIdFBWrapper*>                 child_asyncreqidfbs;
+    std::vector<RenderModelKeyFBWrapper*>                 child_rendermodelkeyfbs;
+    std::vector<ControllerModelKeyMSFTWrapper*>           child_controllermodelkeymsfts;
+    std::vector<SpatialAnchorMSFTWrapper*>                child_spatialanchormsfts;
+    std::vector<SpatialGraphNodeBindingMSFTWrapper*>      child_spatialgraphnodebindingmsfts;
+    std::vector<HandTrackerEXTWrapper*>                   child_handtrackerexts;
+    std::vector<BodyTrackerFBWrapper*>                    child_bodytrackerfbs;
+    std::vector<SceneObserverMSFTWrapper*>                child_sceneobservermsfts;
+    std::vector<FacialTrackerHTCWrapper*>                 child_facialtrackerhtcs;
+    std::vector<FoveationProfileFBWrapper*>               child_foveationprofilefbs;
+    std::vector<TriangleMeshFBWrapper*>                   child_trianglemeshfbs;
+    std::vector<PassthroughFBWrapper*>                    child_passthroughfbs;
+    std::vector<PassthroughLayerFBWrapper*>               child_passthroughlayerfbs;
+    std::vector<GeometryInstanceFBWrapper*>               child_geometryinstancefbs;
+    std::vector<MarkerDetectorMLWrapper*>                 child_markerdetectormls;
+    std::vector<ExportedLocalizationMapMLWrapper*>        child_exportedlocalizationmapmls;
+    std::vector<SpatialAnchorStoreConnectionMSFTWrapper*> child_spatialanchorstoreconnmsfts;
+    std::vector<SpaceUserFBWrapper*>                      child_spaceuserfbs;
+    std::vector<FaceTrackerFBWrapper*>                    child_facetrackerfbs;
+    std::vector<EyeTrackerFBWrapper*>                     child_eyetrackerfbs;
+    std::vector<VirtualKeyboardMETAWrapper*>              child_virtualkeyboardmetas;
+    std::vector<FaceTracker2FBWrapper*>                   child_facetracker2fbs;
+    std::vector<PassthroughHTCWrapper*>                   child_passthroughhtcs;
+    std::vector<PlaneDetectorEXTWrapper*>                 child_planedetectorexts;
+};
+
+struct InstanceWrapper : public HandleWrapper<XrInstance>
+{
+    OpenXrInstanceTable                         layer_table;
+    XrVersion                                   api_version{ XR_MAKE_VERSION(1, 0, 0) };
+    std::vector<SessionWrapper*>                child_sessions;
+    std::vector<ActionSetWrapper*>              child_actionsets;
+    std::vector<SystemIdWrapper*>               child_systemids;
+    std::vector<PathWrapper*>                   child_paths;
+    std::vector<DebugUtilsMessengerEXTWrapper*> child_debugutilsmessengers;
 };
 
 GFXRECON_END_NAMESPACE(openxr_wrappers)
