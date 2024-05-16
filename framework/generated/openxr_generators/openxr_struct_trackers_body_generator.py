@@ -71,9 +71,6 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # Map of typename to XrStructureType for each struct that is not an alias and has a XrStructureType associated
-        self.struct_type_enums = dict()
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -152,13 +149,6 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
 
         if typename in ['XrBaseInStructure', 'XrBaseOutStructure']:
             return
-
-        struct_type_enum = self.make_structure_type_enum(typeinfo, typename)
-        if struct_type_enum is None:
-            return
-
-        if struct_type_enum in self.enumEnumerants['XrStructureType']:
-            self.struct_type_enums[typename] = struct_type_enum
 
         write(
             '{0}* TrackStruct(const {0}* value, HandleUnwrapMemory* unwrap_memory)'

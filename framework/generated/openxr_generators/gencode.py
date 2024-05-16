@@ -60,6 +60,7 @@ from openxr_decoder_body_generator import OpenXrDecoderBodyGenerator, OpenXrDeco
 from openxr_decoder_header_generator import OpenXrDecoderHeaderGenerator, OpenXrDecoderHeaderGeneratorOptions
 
 # Struct Encoders
+from openxr_base_header_struct_encoders_header_generator import OpenXrBaseHeaderStructEncodersHeaderGenerator, OpenXrBaseHeaderStructEncodersHeaderGeneratorOptions
 from openxr_struct_encoders_body_generator import OpenXrStructEncodersBodyGenerator, OpenXrStructEncodersBodyGeneratorOptions
 from openxr_struct_encoders_header_generator import OpenXrStructEncodersHeaderGenerator, OpenXrStructEncodersHeaderGeneratorOptions
 from openxr_struct_next_encoders_generator import OpenXrStructNextEncodersGenerator, OpenXrStructNextEncodersGeneratorOptions
@@ -308,6 +309,20 @@ def make_gen_opts(args):
 
     #
     # Struct encoder/wrapper/tracker generators
+    gen_opts['generated_openxr_base_header_struct_encoders.h'] = [
+        OpenXrBaseHeaderStructEncodersHeaderGenerator,
+        OpenXrBaseHeaderStructEncodersHeaderGeneratorOptions(
+            filename='generated_openxr_base_header_struct_encoders.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=True,
+            protect_feature=True,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
     gen_opts['generated_openxr_struct_encoders.h'] = [
         OpenXrStructEncodersHeaderGenerator,
         OpenXrStructEncodersHeaderGeneratorOptions(

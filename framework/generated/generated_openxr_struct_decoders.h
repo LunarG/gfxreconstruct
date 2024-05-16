@@ -44,7 +44,6 @@
 #include "generated/generated_openxr_struct_decoders_forward.h"
 #include "util/defines.h"
 
-
 #include "format/platform_types.h"
 
 #include "openxr/openxr.h"

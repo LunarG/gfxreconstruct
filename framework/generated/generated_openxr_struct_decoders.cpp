@@ -2943,6 +2943,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     size_t bytes_read = 0;
     XrInteractionProfileDpadBindingEXT* value = wrapper->decoded_value;
 
+    StructPointerDecoder<Decoded_XrHapticVibration>* onHaptic_xrhapticvibration;
+    StructPointerDecoder<Decoded_XrHapticVibration>* offHaptic_xrhapticvibration;
+
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
@@ -2955,12 +2958,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->centerRegion));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->wedgeAngle));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->isSticky));
-    wrapper->onHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
-    bytes_read += wrapper->onHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->onHaptic = wrapper->onHaptic->GetPointer();
-    wrapper->offHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
-    bytes_read += wrapper->offHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->offHaptic = wrapper->offHaptic->GetPointer();
+    switch (wrapper->onHaptic->GetPointer()->type)
+    {
+        default:
+            wrapper->onHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
+            bytes_read += wrapper->onHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case XR_TYPE_HAPTIC_VIBRATION:
+            onHaptic_xrhapticvibration = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticVibration>>();
+            bytes_read += onHaptic_xrhapticvibration->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->onHaptic = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrHapticBaseHeader>*>(onHaptic_xrhapticvibration));
+            break;
+    }
+    switch (wrapper->offHaptic->GetPointer()->type)
+    {
+        default:
+            wrapper->offHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
+            bytes_read += wrapper->offHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case XR_TYPE_HAPTIC_VIBRATION:
+            offHaptic_xrhapticvibration = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticVibration>>();
+            bytes_read += offHaptic_xrhapticvibration->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->offHaptic = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrHapticBaseHeader>*>(offHaptic_xrhapticvibration));
+            break;
+    }
 
     return bytes_read;
 }
@@ -2972,6 +2993,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     size_t bytes_read = 0;
     XrInteractionProfileAnalogThresholdVALVE* value = wrapper->decoded_value;
 
+    StructPointerDecoder<Decoded_XrHapticVibration>* onHaptic_xrhapticvibration;
+    StructPointerDecoder<Decoded_XrHapticVibration>* offHaptic_xrhapticvibration;
+
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
@@ -2981,12 +3005,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     value->binding = 0;
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->onThreshold));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offThreshold));
-    wrapper->onHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
-    bytes_read += wrapper->onHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->onHaptic = wrapper->onHaptic->GetPointer();
-    wrapper->offHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
-    bytes_read += wrapper->offHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->offHaptic = wrapper->offHaptic->GetPointer();
+    switch (wrapper->onHaptic->GetPointer()->type)
+    {
+        default:
+            wrapper->onHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
+            bytes_read += wrapper->onHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case XR_TYPE_HAPTIC_VIBRATION:
+            onHaptic_xrhapticvibration = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticVibration>>();
+            bytes_read += onHaptic_xrhapticvibration->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->onHaptic = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrHapticBaseHeader>*>(onHaptic_xrhapticvibration));
+            break;
+    }
+    switch (wrapper->offHaptic->GetPointer()->type)
+    {
+        default:
+            wrapper->offHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
+            bytes_read += wrapper->offHaptic->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case XR_TYPE_HAPTIC_VIBRATION:
+            offHaptic_xrhapticvibration = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticVibration>>();
+            bytes_read += offHaptic_xrhapticvibration->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->offHaptic = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrHapticBaseHeader>*>(offHaptic_xrhapticvibration));
+            break;
+    }
 
     return bytes_read;
 }
@@ -4969,18 +5011,51 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpaceQu
     size_t bytes_read = 0;
     XrSpaceQueryInfoFB* value = wrapper->decoded_value;
 
+    StructPointerDecoder<Decoded_XrSpaceUuidFilterInfoFB>* filter_xrspaceuuidfilterinfofb;
+    StructPointerDecoder<Decoded_XrSpaceComponentFilterInfoFB>* filter_xrspacecomponentfilterinfofb;
+    StructPointerDecoder<Decoded_XrSpaceUuidFilterInfoFB>* excludeFilter_xrspaceuuidfilterinfofb;
+    StructPointerDecoder<Decoded_XrSpaceComponentFilterInfoFB>* excludeFilter_xrspacecomponentfilterinfofb;
+
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->queryAction));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->maxResultCount));
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->timeout));
-    wrapper->filter = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>>();
-    bytes_read += wrapper->filter->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->filter = wrapper->filter->GetPointer();
-    wrapper->excludeFilter = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>>();
-    bytes_read += wrapper->excludeFilter->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->excludeFilter = wrapper->excludeFilter->GetPointer();
+    switch (wrapper->filter->GetPointer()->type)
+    {
+        default:
+            wrapper->filter = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>>();
+            bytes_read += wrapper->filter->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+            filter_xrspaceuuidfilterinfofb = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceUuidFilterInfoFB>>();
+            bytes_read += filter_xrspaceuuidfilterinfofb->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->filter = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>*>(filter_xrspaceuuidfilterinfofb));
+            break;
+        case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+            filter_xrspacecomponentfilterinfofb = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceComponentFilterInfoFB>>();
+            bytes_read += filter_xrspacecomponentfilterinfofb->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->filter = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>*>(filter_xrspacecomponentfilterinfofb));
+            break;
+    }
+    switch (wrapper->excludeFilter->GetPointer()->type)
+    {
+        default:
+            wrapper->excludeFilter = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>>();
+            bytes_read += wrapper->excludeFilter->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+            excludeFilter_xrspaceuuidfilterinfofb = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceUuidFilterInfoFB>>();
+            bytes_read += excludeFilter_xrspaceuuidfilterinfofb->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->excludeFilter = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>*>(excludeFilter_xrspaceuuidfilterinfofb));
+            break;
+        case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+            excludeFilter_xrspacecomponentfilterinfofb = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSpaceComponentFilterInfoFB>>();
+            bytes_read += excludeFilter_xrspacecomponentfilterinfofb->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->excludeFilter = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrSpaceFilterInfoBaseHeaderFB>*>(excludeFilter_xrspacecomponentfilterinfofb));
+            break;
+    }
 
     return bytes_read;
 }
@@ -6342,12 +6417,53 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrRecomme
     size_t bytes_read = 0;
     XrRecommendedLayerResolutionGetInfoMETA* value = wrapper->decoded_value;
 
+    StructPointerDecoder<Decoded_XrCompositionLayerProjection>* layer_xrcompositionlayerprojection;
+    StructPointerDecoder<Decoded_XrCompositionLayerQuad>* layer_xrcompositionlayerquad;
+    StructPointerDecoder<Decoded_XrCompositionLayerCubeKHR>* layer_xrcompositionlayercubekhr;
+    StructPointerDecoder<Decoded_XrCompositionLayerCylinderKHR>* layer_xrcompositionlayercylinderkhr;
+    StructPointerDecoder<Decoded_XrCompositionLayerEquirectKHR>* layer_xrcompositionlayerequirectkhr;
+    StructPointerDecoder<Decoded_XrCompositionLayerEquirect2KHR>* layer_xrcompositionlayerequirect2khr;
+
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    wrapper->layer = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>>();
-    bytes_read += wrapper->layer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    value->layer = wrapper->layer->GetPointer();
+    switch (wrapper->layer->GetPointer()->type)
+    {
+        default:
+            wrapper->layer = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>>();
+            bytes_read += wrapper->layer->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+            layer_xrcompositionlayerprojection = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerProjection>>();
+            bytes_read += layer_xrcompositionlayerprojection->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->layer = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>*>(layer_xrcompositionlayerprojection));
+            break;
+        case XR_TYPE_COMPOSITION_LAYER_QUAD:
+            layer_xrcompositionlayerquad = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerQuad>>();
+            bytes_read += layer_xrcompositionlayerquad->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->layer = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>*>(layer_xrcompositionlayerquad));
+            break;
+        case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+            layer_xrcompositionlayercubekhr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerCubeKHR>>();
+            bytes_read += layer_xrcompositionlayercubekhr->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->layer = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>*>(layer_xrcompositionlayercubekhr));
+            break;
+        case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+            layer_xrcompositionlayercylinderkhr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerCylinderKHR>>();
+            bytes_read += layer_xrcompositionlayercylinderkhr->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->layer = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>*>(layer_xrcompositionlayercylinderkhr));
+            break;
+        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+            layer_xrcompositionlayerequirectkhr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerEquirectKHR>>();
+            bytes_read += layer_xrcompositionlayerequirectkhr->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->layer = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>*>(layer_xrcompositionlayerequirectkhr));
+            break;
+        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+            layer_xrcompositionlayerequirect2khr = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerEquirect2KHR>>();
+            bytes_read += layer_xrcompositionlayerequirect2khr->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+            wrapper->layer = std::move(reinterpret_cast<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader>*>(layer_xrcompositionlayerequirect2khr));
+            break;
+    }
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->predictedDisplayTime));
 
     return bytes_read;

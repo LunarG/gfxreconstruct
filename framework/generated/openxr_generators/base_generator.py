@@ -330,6 +330,9 @@ class BaseGenerator(OutputGenerator):
         self.enumAliases = dict()  # Map of enum names to aliases
         self.enumEnumerants = dict()  # Map of enum names to enumerants
 
+        # Map of typename to XrStructureType for each struct that is not an alias and has a XrStructureType associated
+        self.struct_type_enums = dict()
+
         # Type processing options
         self.process_cmds = process_cmds  # Populate the feature_cmd_params map
         self.process_structs = process_structs  # Populate the feature_struct_members map
@@ -337,6 +340,8 @@ class BaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
+            self.base_header_structs = dict(
+            )  # Map of base header struct names to lists of child struct names
             self.feature_struct_members = dict(
             )  # Map of struct names to lists of per-member ValueInfo
             self.feature_struct_aliases = dict(
@@ -424,10 +429,6 @@ class BaseGenerator(OutputGenerator):
 
         write('#ifdef ENABLE_OPENXR_SUPPORT', file=self.outFile)
         self.newline()
-
-    def forceCommonXrDefines(self, gen_opts):
-        """Write OpenXR defines to enable all entrypoint/struct visibility
-        """
 
     def includeOpenXrHeaders(self, gen_opts):
         """Write OpenXR header include statements
@@ -531,6 +532,12 @@ class BaseGenerator(OutputGenerator):
         tags - they are a declaration of a struct or union member.
         """
         OutputGenerator.genStruct(self, typeinfo, typename, alias)
+
+        struct_type_enum = self.make_structure_type_enum(typeinfo, typename)
+        if struct_type_enum is not None and struct_type_enum in self.enumEnumerants[
+            'XrStructureType']:
+            self.struct_type_enums[typename] = struct_type_enum
+
         # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
         # would produce multiple definition errors for functions with struct parameters.
         if self.process_structs:
@@ -538,6 +545,17 @@ class BaseGenerator(OutputGenerator):
                 self.feature_struct_members[typename] = self.make_value_info(
                     typeinfo.elem.findall('.//member')
                 )
+
+                # If this struct has a parent name, keep track of all
+                # the parents and their children
+                parent_name = typeinfo.elem.get('parentstruct')
+                if parent_name:
+                    # If it doesn't already appear in the list of parents,
+                    # add an entry for it.
+                    if parent_name not in self.base_header_structs.keys():
+                        self.base_header_structs[parent_name] = []
+
+                    self.base_header_structs[parent_name].append(typename)
             else:
                 self.feature_struct_aliases[typename] = alias
 
@@ -1383,7 +1401,13 @@ class BaseGenerator(OutputGenerator):
         if self.is_struct(type_name):
             args = ['encoder'] + args
             is_struct = True
-            method_call = 'EncodeStruct'
+            method_call = 'Encode'
+            if type_name in self.base_header_structs.keys() and value.is_array:
+                # If this is a situation with a BaseHeader base for the data and it's an
+                # array, we need to determine the type of the first element of that array
+                # and then treat the entire array as if it is of that type.
+                method_call += 'BaseHeader'
+            method_call += 'Struct'
         else:
             method_call = 'encoder->Encode'
             if type_name in ['String', 'WString']:
@@ -1415,6 +1439,7 @@ class BaseGenerator(OutputGenerator):
                     value.array_length.count(',') + 1
                 )
                 args.append(self.make_array_length_expression(value, prefix))
+
             else:
                 method_call += 'Array'
                 args.append(self.make_array_length_expression(value, prefix))
