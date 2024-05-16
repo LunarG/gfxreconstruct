@@ -38,7 +38,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_CreateDXGIFactory(
@@ -1146,7 +1146,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
 }
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_IDXGIDisplayControl_IsStereoEnabled(
@@ -1985,7 +1985,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput1_DuplicateOutput(
 }
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_CreateDXGIFactory2(
@@ -2494,7 +2494,7 @@ void Dx12JsonConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
 }
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
@@ -2761,7 +2761,7 @@ void Dx12JsonConsumer::Process_IDXGIAdapter3_UnregisterVideoMemoryBudgetChangeNo
 }
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_IDXGIOutput5_DuplicateOutput1(
@@ -2859,7 +2859,7 @@ void Dx12JsonConsumer::Process_IDXGIDevice4_ReclaimResources1(
 }
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.22000.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_DXGIDeclareAdapterRemovalSupport(
@@ -2995,7 +2995,7 @@ void Dx12JsonConsumer::Process_IDXGIFactory7_UnregisterAdaptersChangedEvent(
 }
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.22000.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_D3D12SerializeRootSignature(
@@ -8035,7 +8035,7 @@ void Dx12JsonConsumer::Process_ID3D12DSRDeviceFactory_CreateDSRDevice(
 }
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.22000.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_ID3D10Blob_GetBufferPointer(
@@ -8105,7 +8105,7 @@ void Dx12JsonConsumer::Process_ID3DDestructionNotifier_UnregisterDestructionCall
 }
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.22000.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_ID3D12Debug_EnableDebugLayer(
@@ -9370,7 +9370,7 @@ void Dx12JsonConsumer::Process_ID3D12InfoQueue1_UnregisterMessageCallback(
 }
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.22000.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
 **
 */
 void Dx12JsonConsumer::Process_IUnknown_QueryInterface(
