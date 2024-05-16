@@ -38,34 +38,6 @@ OpenXrStateTracker::OpenXrStateTracker() {}
 
 OpenXrStateTracker::~OpenXrStateTracker() {}
 
-void OpenXrStateTracker::DestroyState(openxr_wrappers::InstanceWrapper* wrapper)
-{
-    assert(wrapper != nullptr);
-    wrapper->create_parameters = nullptr;
-
-    std::unique_lock<std::mutex> lock(state_table_mutex_);
-    for (const auto session_entry : wrapper->child_sessions)
-    {
-        state_table_.RemoveWrapper(session_entry);
-    }
-    for (const auto action_set_etnry : wrapper->child_action_sets)
-    {
-        state_table_.RemoveWrapper(action_set_etnry);
-    }
-}
-
-void OpenXrStateTracker::DestroyState(openxr_wrappers::SessionWrapper* wrapper)
-{
-    assert(wrapper != nullptr);
-    wrapper->create_parameters = nullptr;
-
-    std::unique_lock<std::mutex> lock(state_table_mutex_);
-    for (const auto passthrough_etnry : wrapper->child_passthroughs)
-    {
-        state_table_.RemoveWrapper(passthrough_etnry);
-    }
-}
-
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
