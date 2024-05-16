@@ -451,21 +451,24 @@ class Dx12ReplayConsumerBodyGenerator(
 
         if is_object and not is_override and ('ID3D12GraphicsCommandList' in class_name):
             code += (
-                "    auto dump_command_sets = GetCommandListsForDumpResources(replay_object);\n"
-                "    for (auto& command_set : dump_command_sets)\n"
-                "    {\n"
+                "    if(options_.enable_dump_resources)\n"
+                "    {{\n"
+                "        GFXRECON_ASSERT(dump_resources_);\n"
+                "        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_{}_{});\n"
+                "        for (auto& command_set : dump_command_sets)\n"
+                "        {{\n".format(class_name, method_name)
             )
             if class_name != 'ID3D12GraphicsCommandList':
                 code += (
-                    "        {0}* command_list{1};\n"
-                    "        command_set.list->QueryInterface(IID_PPV_ARGS(&command_list{1}));\n".format(class_name, class_name[-1])
+                    "            {0}* command_list{1};\n"
+                    "            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list{1}));\n".format(class_name, class_name[-1])
                 )
                 indent_length = len(code)
-                code += "        command_list{}".format(class_name[-1])
+                code += "            command_list{}".format(class_name[-1])
                 
             else:
                 indent_length = len(code)
-                code += "        command_set.list"
+                code += "            command_set.list"
             code += "->{}(".format(method_name)
 
             first = True
@@ -478,6 +481,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
             code += (
                 ");\n"
+                "        }\n"
                 "    }\n"
             )
            

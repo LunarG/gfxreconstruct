@@ -26,7 +26,7 @@
 #include <memory>
 
 #include "generated/generated_dx12_decoder.h"
-#include "graphics/dx12_dump_resources.h"
+#include "decode/dx12_dump_resources.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -37,7 +37,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 // 1: enable. The target could be Draw or Dispatch.
 // 2: enable, and the target is Draw, not Dispatch.
 // ExecuteIndirect isn't available to check if it's Draw, so it doesn't work for 2.
-const int TEST_AVAILABLE_ARGS = 0;
+constexpr int TEST_AVAILABLE_ARGS = 0;
 
 struct ExecuteIndirectInfo
 {

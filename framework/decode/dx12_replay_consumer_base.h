@@ -30,6 +30,7 @@
 #include "decode/dx12_object_info.h"
 #include "decode/dx12_object_mapping_util.h"
 #include "decode/dx12_resource_value_mapper.h"
+#include "decode/dx12_dump_resources.h"
 #include "decode/window.h"
 #include "format/format.h"
 #include "generated/generated_dx12_consumer.h"
@@ -39,7 +40,6 @@
 #include "decode/screenshot_handler_base.h"
 #include "graphics/fps_info.h"
 #include "graphics/dx12_util.h"
-#include "graphics/dx12_dump_resources.h"
 #include "application/application.h"
 
 #include <functional>
@@ -224,7 +224,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void RemoveObject(DxObjectInfo* info);
 
-    void SetDumpTarget(TrackDumpDrawcall& track_dump_target) { track_dump_resources_.target = track_dump_target; }
+    void SetDumpTarget(TrackDumpDrawcall& track_dump_target);
 
     IDXGIAdapter* GetAdapter();
 
@@ -879,7 +879,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
 
-    std::vector<graphics::CommandSet> GetCommandListsForDumpResources(DxObjectInfo* command_list_object_info);
+    DxReplayOptions                    options_;
+    std::unique_ptr<Dx12DumpResources> dump_resources_{ nullptr };
 
   private:
     struct MappedMemoryEntry
@@ -1000,66 +1001,9 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
-    void InitializeDumpResources(ID3D12Device* device);
-
-    void CopyDrawcallResources(DxObjectInfo*                        queue_object_info,
-                               const std::vector<format::HandleId>& front_command_list_ids,
-                               const std::string&                   write_type);
-
-    void CopyDrawcallResourceByGPUVA(DxObjectInfo*                                       queue_object_info,
-                                     const std::vector<format::HandleId>&                front_command_list_ids,
-                                     D3D12_GPU_VIRTUAL_ADDRESS                           capture_source_gpu_va,
-                                     uint64_t                                            source_size,
-                                     const std::vector<std::pair<std::string, int32_t>>& json_path,
-                                     const std::string&                                  file_name,
-                                     const std::string&                                  write_type);
-
-    void CopyDrawcallResource(DxObjectInfo*                                       queue_object_info,
-                              const std::vector<format::HandleId>&                front_command_list_ids,
-                              format::HandleId                                    source_resource_id,
-                              uint64_t                                            source_offset,
-                              uint64_t                                            source_size,
-                              const std::vector<uint32_t>&                        subresource_indices,
-                              const std::vector<std::pair<std::string, int32_t>>& json_path,
-                              const std::string&                                  file_name,
-                              const std::string&                                  write_type);
-
-    void CopyDrawcallResource(DxObjectInfo*                        queue_object_info,
-                              const std::vector<format::HandleId>& front_command_list_ids,
-                              format::HandleId                     source_resource_id,
-                              uint64_t                             source_offset,
-                              uint64_t                             source_size,
-                              graphics::CopyResourceDataPtr        copy_resource_data);
-
-    bool CopyResourceAsyncQueue(const std::vector<format::HandleId>& front_command_list_ids,
-                                graphics::CopyResourceDataPtr        copy_resource_data,
-                                ID3D12CommandQueue*                  queue,
-                                ID3D12Fence*                         fence,
-                                UINT64                               fence_signal_value,
-                                UINT64                               fence_wait_value);
-
-    void CopyResourceAsyncRead(graphics::dx12::ID3D12FenceComPtr fence,
-                               UINT64                            fence_wait_value,
-                               UINT64                            fence_signal_value,
-                               HANDLE                            fence_event,
-                               graphics::CopyResourceDataPtr     copy_resource_data);
-
-    void CopyResourceAsync(DxObjectInfo*                        queue_object_info,
-                           const std::vector<format::HandleId>& front_command_list_ids,
-                           graphics::CopyResourceDataPtr        copy_resource_data);
-
-    QueueSyncEventInfo CreateCopyResourceAsyncReadQueueSyncEvent(graphics::dx12::ID3D12FenceComPtr fence,
-                                                                 UINT64                            fence_wait_value,
-                                                                 UINT64                            fence_signal_value,
-                                                                 HANDLE                            fence_event,
-                                                                 graphics::CopyResourceDataPtr     copy_resource_data);
-
-    void FinishDumpResources(DxObjectInfo* queue_object_info);
-
     std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
     Dx12ObjectInfoTable                                   object_info_table_;
     std::shared_ptr<application::Application>             application_;
-    DxReplayOptions                                       options_;
     std::unordered_set<Window*>                           active_windows_;
     std::unordered_map<uint64_t, HWND>                    window_handles_;
     std::unordered_map<uint64_t, MappedMemoryEntry>       mapped_memory_;
@@ -1089,9 +1033,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
     uint64_t                                              frame_end_marker_count_;
-
-    graphics::TrackDumpResources                 track_dump_resources_;
-    std::unique_ptr<graphics::Dx12DumpResources> dump_resources_{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(decode)
