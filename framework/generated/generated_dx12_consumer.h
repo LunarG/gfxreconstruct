@@ -43,7 +43,7 @@ class Dx12Consumer : public Dx12ConsumerBase
     Dx12Consumer(){}
     virtual ~Dx12Consumer() override {}
 /*
-** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_CreateDXGIFactory(
@@ -429,7 +429,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         PointerDecoder<UINT>* pMaxLatency){}
 
 /*
-** This part is generated from dxgi1_2.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_2.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_IDXGIDisplayControl_IsStereoEnabled(
@@ -729,7 +729,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         HandlePointerDecoder<IDXGIOutputDuplication*>* ppOutputDuplication){}
 
 /*
-** This part is generated from dxgi1_3.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_3.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_CreateDXGIFactory2(
@@ -910,7 +910,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         PointerDecoder<UINT>* pFlags){}
 
 /*
-** This part is generated from dxgi1_4.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_4.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_IDXGISwapChain3_GetCurrentBackBufferIndex(
@@ -1008,7 +1008,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         DWORD dwCookie){}
 
 /*
-** This part is generated from dxgi1_5.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_5.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_IDXGIOutput5_DuplicateOutput1(
@@ -1047,7 +1047,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         PointerDecoder<DXGI_RECLAIM_RESOURCE_RESULTS>* pResults){}
 
 /*
-** This part is generated from dxgi1_6.h in Windows SDK: 10.0.20348.0
+** This part is generated from dxgi1_6.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_DXGIDeclareAdapterRemovalSupport(
@@ -1095,7 +1095,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         DWORD dwCookie){}
 
 /*
-** This part is generated from d3d12.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_D3D12SerializeRootSignature(
@@ -2916,7 +2916,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         HandlePointerDecoder<void*>* ppvDSRDevice){}
 
 /*
-** This part is generated from d3dcommon.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3dcommon.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_ID3D10Blob_GetBufferPointer(
@@ -2944,7 +2944,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         UINT callbackID){}
 
 /*
-** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.20348.0
+** This part is generated from d3d12sdklayers.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_ID3D12Debug_EnableDebugLayer(
@@ -3391,7 +3391,7 @@ class Dx12Consumer : public Dx12ConsumerBase
         DWORD CallbackCookie){}
 
 /*
-** This part is generated from Unknwnbase.h in Windows SDK: 10.0.20348.0
+** This part is generated from Unknwnbase.h in Windows SDK: 10.0.22000.0
 **
 */
     virtual void Process_IUnknown_QueryInterface(

@@ -2944,7 +2944,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D12_VERSIONED_RO
             }
             case D3D_ROOT_SIGNATURE_VERSION_1_2:
             {
-                /// @todo Uncomment this once the union member is added to the decoded struct: FieldToJson(jdata["Desc_1_2"], meta_struct.Desc_1_2, options);
+                FieldToJson(jdata["Desc_1_2"], meta_struct.Desc_1_2, options);
                 GFXRECON_LOG_ERROR("Unknown D3D_ROOT_SIGNATURE_VERSION_1_2 in D3D12_VERSIONED_ROOT_SIGNATURE_DESC.");
                 break;
             }
