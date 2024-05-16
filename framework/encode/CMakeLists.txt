@@ -137,6 +137,7 @@ target_sources(gfxrecon_encode
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_command_list_util.cpp>
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_api_call_encoders.cpp
+                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_base_header_struct_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_wrappers.h

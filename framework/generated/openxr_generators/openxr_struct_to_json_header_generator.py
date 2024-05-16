@@ -81,8 +81,6 @@ class OpenXrStructToJsonHeaderGenerator(BaseGenerator):
         )
         write(includes, file=self.outFile)
         self.newline()
-        self.forceCommonXrDefines(genOpts)
-        self.newline()
         self.includeOpenXrHeaders(genOpts)
         self.newline()
         write("", file=self.outFile)

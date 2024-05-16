@@ -37,7 +37,6 @@
 #include "util/defines.h"
 #include "util/logging.h"
 
-
 #include "format/platform_types.h"
 
 #include "openxr/openxr.h"
