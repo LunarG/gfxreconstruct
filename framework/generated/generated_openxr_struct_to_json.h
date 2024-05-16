@@ -34,7 +34,6 @@
 
 #include "decode/custom_openxr_struct_to_json.h"
 
-
 #include "format/platform_types.h"
 
 #include "openxr/openxr.h"

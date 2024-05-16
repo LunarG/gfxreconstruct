@@ -47,6 +47,7 @@ XR_HEADERS_DIR = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'OpenXR-SDK')
 
 # File names to provide to the OpenXR XML Registry generator script.
 generate_targets = [
+    'generated_openxr_base_header_struct_encoders.h',
     'generated_openxr_dispatch_table.h',
     'generated_openxr_layer_func_table.h',
     'generated_openxr_api_call_encoders.h',

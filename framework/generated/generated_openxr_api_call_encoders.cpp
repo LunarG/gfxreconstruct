@@ -39,6 +39,7 @@
 
 #include "format/api_call_id.h"
 
+#include "generated/generated_openxr_base_header_struct_encoders.h"
 #include "generated/generated_openxr_api_call_encoders.h"
 #include "generated/generated_openxr_struct_handle_wrappers.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
@@ -1073,7 +1074,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainImages(
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SwapchainWrapper>(swapchain);
         encoder->EncodeUInt32Value(imageCapacityInput);
         encoder->EncodeUInt32Ptr(imageCountOutput, omit_output_data);
-        EncodeStructArray(encoder, images, imageCapacityInput, omit_output_data);
+        EncodeBaseHeaderStructArray(encoder, images, imageCapacityInput, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }
@@ -2939,7 +2940,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
 
     return result;
 }
-
 
 XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(
     XrInstance                                  instance,
