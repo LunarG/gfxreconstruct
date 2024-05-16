@@ -96,8 +96,6 @@ class OpenXrStructDecodersHeaderGenerator(
         )
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
-        self.forceCommonXrDefines(gen_opts)
-        self.newline()
         self.includeOpenXrHeaders(gen_opts)
         self.newline()
         write('#include <memory>', file=self.outFile)

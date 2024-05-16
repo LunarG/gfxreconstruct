@@ -25,8 +25,10 @@ import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-class OpenXrStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
-    """Options for generating C++ function and forward type declarations for OpenXR struct decoding."""
+class OpenXrBaseHeaderStructEncodersHeaderGeneratorOptions(
+    BaseGeneratorOptions
+):
+    """Options for generating C++ function declarations for OpenXR API struct encoding."""
 
     def __init__(
         self,
@@ -52,10 +54,10 @@ class OpenXrStructDecodersForwardGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class OpenXrStructDecodersForwardGenerator(BaseGenerator):
-    """OpenXrStructDecodersForwardGenerator - subclass of BaseGenerator.
-    Generates C++ type and function declarations for decoding OpenXR API structures.
-    Generate C++ function and forward type declarations for OpenXR struct decoding.
+class OpenXrBaseHeaderStructEncodersHeaderGenerator(BaseGenerator):
+    """OpenXrBaseHeaderStructEncodersHeaderGenerator - subclass of BaseGenerator.
+    Generates C++ type and function declarations for encoding OpenXR API structures.
+    Generate C++ function declarations for OpenXr struct encoding.
     """
 
     def __init__(
@@ -65,7 +67,7 @@ class OpenXrStructDecodersForwardGenerator(BaseGenerator):
             self,
             process_cmds=False,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -75,19 +77,51 @@ class OpenXrStructDecodersForwardGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
 
+        write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
         self.newline()
         self.includeOpenXrHeaders(gen_opts)
         self.newline()
-        write('#include <cstdint>', file=self.outFile)
-        self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
-        write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+        body = '\n'
+        body += 'template <typename T>\n'
+        body += 'void EncodeBaseHeaderStructArray(ParameterEncoder* encoder, const T* value, size_t len, bool omit_data = false, bool omit_addr = false)\n'
+        body += '{\n'
+        body += '    if (value == nullptr)\n'
+        body += '    {\n'
+        body += '        return EncodeStructArray(encoder, value, len, omit_data, omit_addr);\n'
+        body += '    }\n'
+        body += '    switch (value->type)\n'
+        body += '    {\n'
+        body += '        default:\n'
+        body += '        {\n'
+        body += '            GFXRECON_LOG_WARNING("EncodeBaseHeaderStructArray: unrecognized Base Header child structure type %d", value->type);\n'
+        body += '            break;\n'
+        body += '        }\n'
+        for child_list in self.base_header_structs:
+            for child in self.base_header_structs[child_list]:
+                struct_type_name = self.struct_type_enums[child]
+                body += f'        case {struct_type_name}:\n'
+                body += '        {\n'
+                body += f'            const {child}* child_value = reinterpret_cast<const {child}*>(value);\n'
+                body += f'            EncodeStructArray<{child}>(\n'
+                body += '                encoder,\n'
+                body += '                child_value,\n'
+                body += '                len,\n'
+                body += '                omit_data,\n'
+                body += '                omit_addr);\n'
+                body += '            break;\n'
+                body += '        }\n'
+        body += '    }\n'
+        body += '}\n'
+        write(body, file=self.outFile)
+
         self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
@@ -101,14 +135,4 @@ class OpenXrStructDecodersForwardGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            write('struct Decoded_{};'.format(struct), file=self.outFile)
-
-        self.newline()
-
-        for struct in self.get_filtered_struct_names():
-            write(
-                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
-                .format(struct),
-                file=self.outFile
-            )
+        return

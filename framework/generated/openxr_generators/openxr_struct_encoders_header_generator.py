@@ -79,12 +79,8 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
             '#include "encode/custom_openxr_struct_encoders.h"',
             file=self.outFile
         )
-
         write('#include "encode/parameter_encoder.h"', file=self.outFile)
-        write('#include "format/platform_types.h"', file=self.outFile)
         write('#include "util/defines.h"', file=self.outFile)
-        self.newline()
-        self.forceCommonXrDefines(gen_opts)
         self.newline()
         self.includeOpenXrHeaders(gen_opts)
         self.newline()

@@ -86,8 +86,6 @@ class OpenXrEnumToStringHeaderGenerator(BaseGenerator):
         )
         write(includes, file=self.outFile)
         self.newline()
-        self.forceCommonXrDefines(genOpts)
-        self.newline()
         self.includeOpenXrHeaders(genOpts)
         self.newline()
         namespace = inspect.cleandoc(
