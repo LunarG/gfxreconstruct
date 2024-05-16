@@ -92,6 +92,9 @@ jobs:
             cc: "cl", cxx: "cl"
           }
     steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
     - name: Clone repository
       uses: actions/checkout@v1
     - name: Run with VsDevCmd
