@@ -5408,10 +5408,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Close(
             call_info,
             replay_object);
         auto replay_result = reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->Close();
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->Close();
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_Close);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->Close();
+            }
         }
         CheckReplayResult("ID3D12GraphicsCommandList_Close", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Close>::Dispatch(
@@ -5468,10 +5472,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearState(
             pPipelineState);
         auto in_pPipelineState = MapObject<ID3D12PipelineState>(pPipelineState);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->ClearState(in_pPipelineState);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ClearState(in_pPipelineState);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ClearState);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ClearState(in_pPipelineState);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearState>::Dispatch(
             this,
@@ -5504,13 +5512,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawInstanced(
                                                                                            InstanceCount,
                                                                                            StartVertexLocation,
                                                                                            StartInstanceLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->DrawInstanced(VertexCountPerInstance,
-                                            InstanceCount,
-                                            StartVertexLocation,
-                                            StartInstanceLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_DrawInstanced);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->DrawInstanced(VertexCountPerInstance,
+                                                InstanceCount,
+                                                StartVertexLocation,
+                                                StartInstanceLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced>::Dispatch(
             this,
@@ -5549,14 +5561,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DrawIndexedInstanced(
                                                                                                   StartIndexLocation,
                                                                                                   BaseVertexLocation,
                                                                                                   StartInstanceLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->DrawIndexedInstanced(IndexCountPerInstance,
-                                                   InstanceCount,
-                                                   StartIndexLocation,
-                                                   BaseVertexLocation,
-                                                   StartInstanceLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->DrawIndexedInstanced(IndexCountPerInstance,
+                                                       InstanceCount,
+                                                       StartIndexLocation,
+                                                       BaseVertexLocation,
+                                                       StartInstanceLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced>::Dispatch(
             this,
@@ -5590,12 +5606,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_Dispatch(
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->Dispatch(ThreadGroupCountX,
                                                                                       ThreadGroupCountY,
                                                                                       ThreadGroupCountZ);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->Dispatch(ThreadGroupCountX,
-                                       ThreadGroupCountY,
-                                       ThreadGroupCountZ);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_Dispatch);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->Dispatch(ThreadGroupCountX,
+                                           ThreadGroupCountY,
+                                           ThreadGroupCountZ);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch>::Dispatch(
             this,
@@ -5753,15 +5773,19 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_CopyTiles(
                                                                                        in_pBuffer,
                                                                                        BufferStartOffsetInBytes,
                                                                                        Flags);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->CopyTiles(in_pTiledResource,
-                                        pTileRegionStartCoordinate->GetPointer(),
-                                        pTileRegionSize->GetPointer(),
-                                        in_pBuffer,
-                                        BufferStartOffsetInBytes,
-                                        Flags);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_CopyTiles);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->CopyTiles(in_pTiledResource,
+                                            pTileRegionStartCoordinate->GetPointer(),
+                                            pTileRegionSize->GetPointer(),
+                                            in_pBuffer,
+                                            BufferStartOffsetInBytes,
+                                            Flags);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_CopyTiles>::Dispatch(
             this,
@@ -5804,14 +5828,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveSubresource(
                                                                                                 in_pSrcResource,
                                                                                                 SrcSubresource,
                                                                                                 Format);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ResolveSubresource(in_pDstResource,
-                                                 DstSubresource,
-                                                 in_pSrcResource,
-                                                 SrcSubresource,
-                                                 Format);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ResolveSubresource(in_pDstResource,
+                                                     DstSubresource,
+                                                     in_pSrcResource,
+                                                     SrcSubresource,
+                                                     Format);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource>::Dispatch(
             this,
@@ -5839,10 +5867,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_IASetPrimitiveTopolog
             replay_object,
             PrimitiveTopology);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->IASetPrimitiveTopology(PrimitiveTopology);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->IASetPrimitiveTopology(PrimitiveTopology);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->IASetPrimitiveTopology(PrimitiveTopology);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology>::Dispatch(
             this,
@@ -5869,11 +5901,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetViewports(
             pViewports);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->RSSetViewports(NumViewports,
                                                                                             pViewports->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->RSSetViewports(NumViewports,
-                                             pViewports->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_RSSetViewports);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->RSSetViewports(NumViewports,
+                                                 pViewports->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetViewports>::Dispatch(
             this,
@@ -5901,11 +5937,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_RSSetScissorRects(
             pRects);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->RSSetScissorRects(NumRects,
                                                                                                pRects->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->RSSetScissorRects(NumRects,
-                                                pRects->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->RSSetScissorRects(NumRects,
+                                                    pRects->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects>::Dispatch(
             this,
@@ -5930,10 +5970,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetBlendFactor(
             replay_object,
             BlendFactor);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->OMSetBlendFactor(BlendFactor->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->OMSetBlendFactor(BlendFactor->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->OMSetBlendFactor(BlendFactor->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor>::Dispatch(
             this,
@@ -5957,10 +6001,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetStencilRef(
             replay_object,
             StencilRef);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->OMSetStencilRef(StencilRef);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->OMSetStencilRef(StencilRef);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->OMSetStencilRef(StencilRef);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef>::Dispatch(
             this,
@@ -5985,10 +6033,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPipelineState(
             pPipelineState);
         auto in_pPipelineState = MapObject<ID3D12PipelineState>(pPipelineState);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetPipelineState(in_pPipelineState);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetPipelineState(in_pPipelineState);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetPipelineState);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetPipelineState(in_pPipelineState);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPipelineState>::Dispatch(
             this,
@@ -6016,11 +6068,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResourceBarrier(
         MapStructArrayObjects(pBarriers->GetMetaStructPointer(), pBarriers->GetLength(), GetObjectInfoTable(), GetGpuVaTable());
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->ResourceBarrier(NumBarriers,
                                                                                              pBarriers->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ResourceBarrier(NumBarriers,
-                                              pBarriers->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ResourceBarrier(NumBarriers,
+                                                  pBarriers->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier>::Dispatch(
             this,
@@ -6073,11 +6129,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetDescriptorHeaps(
         auto in_ppDescriptorHeaps = MapObjects<ID3D12DescriptorHeap>(ppDescriptorHeaps, NumDescriptorHeaps);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetDescriptorHeaps(NumDescriptorHeaps,
                                                                                                 in_ppDescriptorHeaps);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetDescriptorHeaps(NumDescriptorHeaps,
-                                                 in_ppDescriptorHeaps);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetDescriptorHeaps(NumDescriptorHeaps,
+                                                     in_ppDescriptorHeaps);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps>::Dispatch(
             this,
@@ -6103,10 +6163,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootSignatu
             pRootSignature);
         auto in_pRootSignature = MapObject<ID3D12RootSignature>(pRootSignature);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetComputeRootSignature(in_pRootSignature);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetComputeRootSignature(in_pRootSignature);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetComputeRootSignature(in_pRootSignature);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature>::Dispatch(
             this,
@@ -6131,10 +6195,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootSignat
             pRootSignature);
         auto in_pRootSignature = MapObject<ID3D12RootSignature>(pRootSignature);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetGraphicsRootSignature(in_pRootSignature);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetGraphicsRootSignature(in_pRootSignature);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetGraphicsRootSignature(in_pRootSignature);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature>::Dispatch(
             this,
@@ -6162,11 +6230,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootDescrip
         MapGpuDescriptorHandle(*BaseDescriptor.decoded_value);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetComputeRootDescriptorTable(RootParameterIndex,
                                                                                                            *BaseDescriptor.decoded_value);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetComputeRootDescriptorTable(RootParameterIndex,
-                                                            *BaseDescriptor.decoded_value);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetComputeRootDescriptorTable(RootParameterIndex,
+                                                                *BaseDescriptor.decoded_value);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable>::Dispatch(
             this,
@@ -6195,11 +6267,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootDescri
         MapGpuDescriptorHandle(*BaseDescriptor.decoded_value);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetGraphicsRootDescriptorTable(RootParameterIndex,
                                                                                                             *BaseDescriptor.decoded_value);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetGraphicsRootDescriptorTable(RootParameterIndex,
-                                                             *BaseDescriptor.decoded_value);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetGraphicsRootDescriptorTable(RootParameterIndex,
+                                                                 *BaseDescriptor.decoded_value);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable>::Dispatch(
             this,
@@ -6230,12 +6306,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCo
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetComputeRoot32BitConstant(RootParameterIndex,
                                                                                                          SrcData,
                                                                                                          DestOffsetIn32BitValues);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetComputeRoot32BitConstant(RootParameterIndex,
-                                                          SrcData,
-                                                          DestOffsetIn32BitValues);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetComputeRoot32BitConstant(RootParameterIndex,
+                                                              SrcData,
+                                                              DestOffsetIn32BitValues);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant>::Dispatch(
             this,
@@ -6267,12 +6347,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitC
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetGraphicsRoot32BitConstant(RootParameterIndex,
                                                                                                           SrcData,
                                                                                                           DestOffsetIn32BitValues);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetGraphicsRoot32BitConstant(RootParameterIndex,
-                                                           SrcData,
-                                                           DestOffsetIn32BitValues);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetGraphicsRoot32BitConstant(RootParameterIndex,
+                                                               SrcData,
+                                                               DestOffsetIn32BitValues);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant>::Dispatch(
             this,
@@ -6307,13 +6391,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRoot32BitCo
                                                                                                           Num32BitValuesToSet,
                                                                                                           pSrcData->GetPointer(),
                                                                                                           DestOffsetIn32BitValues);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetComputeRoot32BitConstants(RootParameterIndex,
-                                                           Num32BitValuesToSet,
-                                                           pSrcData->GetPointer(),
-                                                           DestOffsetIn32BitValues);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetComputeRoot32BitConstants(RootParameterIndex,
+                                                               Num32BitValuesToSet,
+                                                               pSrcData->GetPointer(),
+                                                               DestOffsetIn32BitValues);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants>::Dispatch(
             this,
@@ -6349,13 +6437,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRoot32BitC
                                                                                                            Num32BitValuesToSet,
                                                                                                            pSrcData->GetPointer(),
                                                                                                            DestOffsetIn32BitValues);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetGraphicsRoot32BitConstants(RootParameterIndex,
-                                                            Num32BitValuesToSet,
-                                                            pSrcData->GetPointer(),
-                                                            DestOffsetIn32BitValues);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetGraphicsRoot32BitConstants(RootParameterIndex,
+                                                                Num32BitValuesToSet,
+                                                                pSrcData->GetPointer(),
+                                                                DestOffsetIn32BitValues);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants>::Dispatch(
             this,
@@ -6386,11 +6478,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootConstan
         MapGpuVirtualAddress(BufferLocation);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetComputeRootConstantBufferView(RootParameterIndex,
                                                                                                               BufferLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetComputeRootConstantBufferView(RootParameterIndex,
-                                                               BufferLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetComputeRootConstantBufferView(RootParameterIndex,
+                                                                   BufferLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView>::Dispatch(
             this,
@@ -6419,11 +6515,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootConsta
         MapGpuVirtualAddress(BufferLocation);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetGraphicsRootConstantBufferView(RootParameterIndex,
                                                                                                                BufferLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetGraphicsRootConstantBufferView(RootParameterIndex,
-                                                                BufferLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetGraphicsRootConstantBufferView(RootParameterIndex,
+                                                                    BufferLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView>::Dispatch(
             this,
@@ -6452,11 +6552,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootShaderR
         MapGpuVirtualAddress(BufferLocation);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetComputeRootShaderResourceView(RootParameterIndex,
                                                                                                               BufferLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetComputeRootShaderResourceView(RootParameterIndex,
-                                                               BufferLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetComputeRootShaderResourceView(RootParameterIndex,
+                                                                   BufferLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView>::Dispatch(
             this,
@@ -6485,11 +6589,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootShader
         MapGpuVirtualAddress(BufferLocation);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetGraphicsRootShaderResourceView(RootParameterIndex,
                                                                                                                BufferLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetGraphicsRootShaderResourceView(RootParameterIndex,
-                                                                BufferLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetGraphicsRootShaderResourceView(RootParameterIndex,
+                                                                    BufferLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView>::Dispatch(
             this,
@@ -6518,11 +6626,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetComputeRootUnorder
         MapGpuVirtualAddress(BufferLocation);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetComputeRootUnorderedAccessView(RootParameterIndex,
                                                                                                                BufferLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetComputeRootUnorderedAccessView(RootParameterIndex,
-                                                                BufferLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetComputeRootUnorderedAccessView(RootParameterIndex,
+                                                                    BufferLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView>::Dispatch(
             this,
@@ -6551,11 +6663,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetGraphicsRootUnorde
         MapGpuVirtualAddress(BufferLocation);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetGraphicsRootUnorderedAccessView(RootParameterIndex,
                                                                                                                 BufferLocation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetGraphicsRootUnorderedAccessView(RootParameterIndex,
-                                                                 BufferLocation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetGraphicsRootUnorderedAccessView(RootParameterIndex,
+                                                                     BufferLocation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView>::Dispatch(
             this,
@@ -6643,12 +6759,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SOSetTargets(
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SOSetTargets(StartSlot,
                                                                                           NumViews,
                                                                                           pViews->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SOSetTargets(StartSlot,
-                                           NumViews,
-                                           pViews->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SOSetTargets);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SOSetTargets(StartSlot,
+                                               NumViews,
+                                               pViews->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SOSetTargets>::Dispatch(
             this,
@@ -6685,13 +6805,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_OMSetRenderTargets(
                                                                                                 pRenderTargetDescriptors->GetPointer(),
                                                                                                 RTsSingleHandleToDescriptorRange,
                                                                                                 pDepthStencilDescriptor->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->OMSetRenderTargets(NumRenderTargetDescriptors,
-                                                 pRenderTargetDescriptors->GetPointer(),
-                                                 RTsSingleHandleToDescriptorRange,
-                                                 pDepthStencilDescriptor->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->OMSetRenderTargets(NumRenderTargetDescriptors,
+                                                     pRenderTargetDescriptors->GetPointer(),
+                                                     RTsSingleHandleToDescriptorRange,
+                                                     pDepthStencilDescriptor->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets>::Dispatch(
             this,
@@ -6734,15 +6858,19 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearDepthStencilView
                                                                                                    Stencil,
                                                                                                    NumRects,
                                                                                                    pRects->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ClearDepthStencilView(*DepthStencilView.decoded_value,
-                                                    ClearFlags,
-                                                    Depth,
-                                                    Stencil,
-                                                    NumRects,
-                                                    pRects->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ClearDepthStencilView(*DepthStencilView.decoded_value,
+                                                        ClearFlags,
+                                                        Depth,
+                                                        Stencil,
+                                                        NumRects,
+                                                        pRects->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView>::Dispatch(
             this,
@@ -6781,13 +6909,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearRenderTargetView
                                                                                                    ColorRGBA->GetPointer(),
                                                                                                    NumRects,
                                                                                                    pRects->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ClearRenderTargetView(*RenderTargetView.decoded_value,
-                                                    ColorRGBA->GetPointer(),
-                                                    NumRects,
-                                                    pRects->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ClearRenderTargetView(*RenderTargetView.decoded_value,
+                                                        ColorRGBA->GetPointer(),
+                                                        NumRects,
+                                                        pRects->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView>::Dispatch(
             this,
@@ -6832,15 +6964,19 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
                                                                                                           Values->GetPointer(),
                                                                                                           NumRects,
                                                                                                           pRects->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ClearUnorderedAccessViewUint(*ViewGPUHandleInCurrentHeap.decoded_value,
-                                                           *ViewCPUHandle.decoded_value,
-                                                           in_pResource,
-                                                           Values->GetPointer(),
-                                                           NumRects,
-                                                           pRects->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ClearUnorderedAccessViewUint(*ViewGPUHandleInCurrentHeap.decoded_value,
+                                                               *ViewCPUHandle.decoded_value,
+                                                               in_pResource,
+                                                               Values->GetPointer(),
+                                                               NumRects,
+                                                               pRects->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint>::Dispatch(
             this,
@@ -6887,15 +7023,19 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ClearUnorderedAccessV
                                                                                                            Values->GetPointer(),
                                                                                                            NumRects,
                                                                                                            pRects->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ClearUnorderedAccessViewFloat(*ViewGPUHandleInCurrentHeap.decoded_value,
-                                                            *ViewCPUHandle.decoded_value,
-                                                            in_pResource,
-                                                            Values->GetPointer(),
-                                                            NumRects,
-                                                            pRects->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ClearUnorderedAccessViewFloat(*ViewGPUHandleInCurrentHeap.decoded_value,
+                                                                *ViewCPUHandle.decoded_value,
+                                                                in_pResource,
+                                                                Values->GetPointer(),
+                                                                NumRects,
+                                                                pRects->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat>::Dispatch(
             this,
@@ -6928,11 +7068,15 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_DiscardResource(
         auto in_pResource = MapObject<ID3D12Resource>(pResource);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->DiscardResource(in_pResource,
                                                                                              pRegion->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->DiscardResource(in_pResource,
-                                              pRegion->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_DiscardResource);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->DiscardResource(in_pResource,
+                                                  pRegion->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DiscardResource>::Dispatch(
             this,
@@ -6964,12 +7108,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginQuery(
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->BeginQuery(in_pQueryHeap,
                                                                                         Type,
                                                                                         Index);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->BeginQuery(in_pQueryHeap,
-                                         Type,
-                                         Index);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_BeginQuery);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->BeginQuery(in_pQueryHeap,
+                                             Type,
+                                             Index);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery>::Dispatch(
             this,
@@ -7002,12 +7150,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndQuery(
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->EndQuery(in_pQueryHeap,
                                                                                       Type,
                                                                                       Index);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->EndQuery(in_pQueryHeap,
-                                       Type,
-                                       Index);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_EndQuery);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->EndQuery(in_pQueryHeap,
+                                           Type,
+                                           Index);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery>::Dispatch(
             this,
@@ -7050,15 +7202,19 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_ResolveQueryData(
                                                                                               NumQueries,
                                                                                               in_pDestinationBuffer,
                                                                                               AlignedDestinationBufferOffset);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->ResolveQueryData(in_pQueryHeap,
-                                               Type,
-                                               StartIndex,
-                                               NumQueries,
-                                               in_pDestinationBuffer,
-                                               AlignedDestinationBufferOffset);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->ResolveQueryData(in_pQueryHeap,
+                                                   Type,
+                                                   StartIndex,
+                                                   NumQueries,
+                                                   in_pDestinationBuffer,
+                                                   AlignedDestinationBufferOffset);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData>::Dispatch(
             this,
@@ -7094,12 +7250,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetPredication(
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetPredication(in_pBuffer,
                                                                                             AlignedBufferOffset,
                                                                                             Operation);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetPredication(in_pBuffer,
-                                             AlignedBufferOffset,
-                                             Operation);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetPredication);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetPredication(in_pBuffer,
+                                                 AlignedBufferOffset,
+                                                 Operation);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetPredication>::Dispatch(
             this,
@@ -7131,12 +7291,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_SetMarker(
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->SetMarker(Metadata,
                                                                                        pData->GetPointer(),
                                                                                        Size);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->SetMarker(Metadata,
-                                        pData->GetPointer(),
-                                        Size);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_SetMarker);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->SetMarker(Metadata,
+                                            pData->GetPointer(),
+                                            Size);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_SetMarker>::Dispatch(
             this,
@@ -7168,12 +7332,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_BeginEvent(
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->BeginEvent(Metadata,
                                                                                         pData->GetPointer(),
                                                                                         Size);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->BeginEvent(Metadata,
-                                         pData->GetPointer(),
-                                         Size);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_BeginEvent);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->BeginEvent(Metadata,
+                                             pData->GetPointer(),
+                                             Size);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginEvent>::Dispatch(
             this,
@@ -7197,10 +7365,14 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList_EndEvent(
             call_info,
             replay_object);
         reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object->object)->EndEvent();
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            command_set.list->EndEvent();
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList_EndEvent);
+            for (auto& command_set : dump_command_sets)
+            {
+                command_set.list->EndEvent();
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndEvent>::Dispatch(
             this,
@@ -7290,18 +7462,22 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
                                                                                                    Dependencies,
                                                                                                    in_ppDependentResources,
                                                                                                    pDependentSubresourceRanges->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList1* command_list1;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
-            command_list1->AtomicCopyBufferUINT(in_pDstBuffer,
-                                                DstOffset,
-                                                in_pSrcBuffer,
-                                                SrcOffset,
-                                                Dependencies,
-                                                in_ppDependentResources,
-                                                pDependentSubresourceRanges->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList1* command_list1;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
+                command_list1->AtomicCopyBufferUINT(in_pDstBuffer,
+                                                    DstOffset,
+                                                    in_pSrcBuffer,
+                                                    SrcOffset,
+                                                    Dependencies,
+                                                    in_ppDependentResources,
+                                                    pDependentSubresourceRanges->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT>::Dispatch(
             this,
@@ -7352,18 +7528,22 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT
                                                                                                      Dependencies,
                                                                                                      in_ppDependentResources,
                                                                                                      pDependentSubresourceRanges->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList1* command_list1;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
-            command_list1->AtomicCopyBufferUINT64(in_pDstBuffer,
-                                                  DstOffset,
-                                                  in_pSrcBuffer,
-                                                  SrcOffset,
-                                                  Dependencies,
-                                                  in_ppDependentResources,
-                                                  pDependentSubresourceRanges->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList1* command_list1;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
+                command_list1->AtomicCopyBufferUINT64(in_pDstBuffer,
+                                                      DstOffset,
+                                                      in_pSrcBuffer,
+                                                      SrcOffset,
+                                                      Dependencies,
+                                                      in_ppDependentResources,
+                                                      pDependentSubresourceRanges->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64>::Dispatch(
             this,
@@ -7396,13 +7576,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_OMSetDepthBounds(
             Max);
         reinterpret_cast<ID3D12GraphicsCommandList1*>(replay_object->object)->OMSetDepthBounds(Min,
                                                                                                Max);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList1* command_list1;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
-            command_list1->OMSetDepthBounds(Min,
-                                            Max);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList1* command_list1;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
+                command_list1->OMSetDepthBounds(Min,
+                                                Max);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds>::Dispatch(
             this,
@@ -7433,14 +7617,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetSamplePositions(
         reinterpret_cast<ID3D12GraphicsCommandList1*>(replay_object->object)->SetSamplePositions(NumSamplesPerPixel,
                                                                                                  NumPixels,
                                                                                                  pSamplePositions->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList1* command_list1;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
-            command_list1->SetSamplePositions(NumSamplesPerPixel,
-                                              NumPixels,
-                                              pSamplePositions->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList1* command_list1;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
+                command_list1->SetSamplePositions(NumSamplesPerPixel,
+                                                  NumPixels,
+                                                  pSamplePositions->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions>::Dispatch(
             this,
@@ -7492,20 +7680,24 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_ResolveSubresourceRe
                                                                                                        pSrcRect->GetPointer(),
                                                                                                        Format,
                                                                                                        ResolveMode);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList1* command_list1;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
-            command_list1->ResolveSubresourceRegion(in_pDstResource,
-                                                    DstSubresource,
-                                                    DstX,
-                                                    DstY,
-                                                    in_pSrcResource,
-                                                    SrcSubresource,
-                                                    pSrcRect->GetPointer(),
-                                                    Format,
-                                                    ResolveMode);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList1* command_list1;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
+                command_list1->ResolveSubresourceRegion(in_pDstResource,
+                                                        DstSubresource,
+                                                        DstX,
+                                                        DstY,
+                                                        in_pSrcResource,
+                                                        SrcSubresource,
+                                                        pSrcRect->GetPointer(),
+                                                        Format,
+                                                        ResolveMode);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion>::Dispatch(
             this,
@@ -7537,12 +7729,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList1_SetViewInstanceMask(
             replay_object,
             Mask);
         reinterpret_cast<ID3D12GraphicsCommandList1*>(replay_object->object)->SetViewInstanceMask(Mask);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList1* command_list1;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
-            command_list1->SetViewInstanceMask(Mask);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList1* command_list1;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list1));
+                command_list1->SetViewInstanceMask(Mask);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask>::Dispatch(
             this,
@@ -7573,14 +7769,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList2_WriteBufferImmediate
         reinterpret_cast<ID3D12GraphicsCommandList2*>(replay_object->object)->WriteBufferImmediate(Count,
                                                                                                    pParams->GetPointer(),
                                                                                                    pModes->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList2* command_list2;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list2));
-            command_list2->WriteBufferImmediate(Count,
-                                                pParams->GetPointer(),
-                                                pModes->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList2* command_list2;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list2));
+                command_list2->WriteBufferImmediate(Count,
+                                                    pParams->GetPointer(),
+                                                    pModes->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate>::Dispatch(
             this,
@@ -11464,12 +11664,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList3_SetProtectedResource
             pProtectedResourceSession);
         auto in_pProtectedResourceSession = MapObject<ID3D12ProtectedResourceSession>(pProtectedResourceSession);
         reinterpret_cast<ID3D12GraphicsCommandList3*>(replay_object->object)->SetProtectedResourceSession(in_pProtectedResourceSession);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList3* command_list3;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list3));
-            command_list3->SetProtectedResourceSession(in_pProtectedResourceSession);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList3* command_list3;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list3));
+                command_list3->SetProtectedResourceSession(in_pProtectedResourceSession);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession>::Dispatch(
             this,
@@ -11555,12 +11759,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EndRenderPass(
             call_info,
             replay_object);
         reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->EndRenderPass();
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList4* command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->EndRenderPass();
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList4* command_list4;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+                command_list4->EndRenderPass();
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass>::Dispatch(
             this,
@@ -11590,14 +11798,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_InitializeMetaComman
         reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->InitializeMetaCommand(in_pMetaCommand,
                                                                                                     pInitializationParametersData->GetPointer(),
                                                                                                     InitializationParametersDataSizeInBytes);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList4* command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->InitializeMetaCommand(in_pMetaCommand,
-                                                 pInitializationParametersData->GetPointer(),
-                                                 InitializationParametersDataSizeInBytes);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList4* command_list4;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+                command_list4->InitializeMetaCommand(in_pMetaCommand,
+                                                     pInitializationParametersData->GetPointer(),
+                                                     InitializationParametersDataSizeInBytes);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand>::Dispatch(
             this,
@@ -11630,14 +11842,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_ExecuteMetaCommand(
         reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->ExecuteMetaCommand(in_pMetaCommand,
                                                                                                  pExecutionParametersData->GetPointer(),
                                                                                                  ExecutionParametersDataSizeInBytes);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList4* command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->ExecuteMetaCommand(in_pMetaCommand,
-                                              pExecutionParametersData->GetPointer(),
-                                              ExecutionParametersDataSizeInBytes);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList4* command_list4;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+                command_list4->ExecuteMetaCommand(in_pMetaCommand,
+                                                  pExecutionParametersData->GetPointer(),
+                                                  ExecutionParametersDataSizeInBytes);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand>::Dispatch(
             this,
@@ -11707,14 +11923,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_EmitRaytracingAccele
         reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->EmitRaytracingAccelerationStructurePostbuildInfo(pDesc->GetPointer(),
                                                                                                                                NumSourceAccelerationStructures,
                                                                                                                                pSourceAccelerationStructureData->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList4* command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->EmitRaytracingAccelerationStructurePostbuildInfo(pDesc->GetPointer(),
-                                                                            NumSourceAccelerationStructures,
-                                                                            pSourceAccelerationStructureData->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList4* command_list4;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+                command_list4->EmitRaytracingAccelerationStructurePostbuildInfo(pDesc->GetPointer(),
+                                                                                NumSourceAccelerationStructures,
+                                                                                pSourceAccelerationStructureData->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo>::Dispatch(
             this,
@@ -11748,14 +11968,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList4_CopyRaytracingAccele
         reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object->object)->CopyRaytracingAccelerationStructure(DestAccelerationStructureData,
                                                                                                                   SourceAccelerationStructureData,
                                                                                                                   Mode);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList4* command_list4;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
-            command_list4->CopyRaytracingAccelerationStructure(DestAccelerationStructureData,
-                                                               SourceAccelerationStructureData,
-                                                               Mode);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList4* command_list4;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+                command_list4->CopyRaytracingAccelerationStructure(DestAccelerationStructureData,
+                                                                   SourceAccelerationStructureData,
+                                                                   Mode);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure>::Dispatch(
             this,
@@ -12866,13 +13090,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRate(
             combiners);
         reinterpret_cast<ID3D12GraphicsCommandList5*>(replay_object->object)->RSSetShadingRate(baseShadingRate,
                                                                                                combiners->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList5* command_list5;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list5));
-            command_list5->RSSetShadingRate(baseShadingRate,
-                                            combiners->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList5* command_list5;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list5));
+                command_list5->RSSetShadingRate(baseShadingRate,
+                                                combiners->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate>::Dispatch(
             this,
@@ -12898,12 +13126,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList5_RSSetShadingRateImag
             shadingRateImage);
         auto in_shadingRateImage = MapObject<ID3D12Resource>(shadingRateImage);
         reinterpret_cast<ID3D12GraphicsCommandList5*>(replay_object->object)->RSSetShadingRateImage(in_shadingRateImage);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList5* command_list5;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list5));
-            command_list5->RSSetShadingRateImage(in_shadingRateImage);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList5* command_list5;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list5));
+                command_list5->RSSetShadingRateImage(in_shadingRateImage);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage>::Dispatch(
             this,
@@ -12933,14 +13165,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList6_DispatchMesh(
         reinterpret_cast<ID3D12GraphicsCommandList6*>(replay_object->object)->DispatchMesh(ThreadGroupCountX,
                                                                                            ThreadGroupCountY,
                                                                                            ThreadGroupCountZ);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList6* command_list6;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list6));
-            command_list6->DispatchMesh(ThreadGroupCountX,
-                                        ThreadGroupCountY,
-                                        ThreadGroupCountZ);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList6* command_list6;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list6));
+                command_list6->DispatchMesh(ThreadGroupCountX,
+                                            ThreadGroupCountY,
+                                            ThreadGroupCountZ);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh>::Dispatch(
             this,
@@ -12970,13 +13206,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList7_Barrier(
         MapStructArrayObjects(pBarrierGroups->GetMetaStructPointer(), pBarrierGroups->GetLength(), GetObjectInfoTable(), GetGpuVaTable());
         reinterpret_cast<ID3D12GraphicsCommandList7*>(replay_object->object)->Barrier(NumBarrierGroups,
                                                                                       pBarrierGroups->GetPointer());
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList7* command_list7;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list7));
-            command_list7->Barrier(NumBarrierGroups,
-                                   pBarrierGroups->GetPointer());
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList7_Barrier);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList7* command_list7;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list7));
+                command_list7->Barrier(NumBarrierGroups,
+                                       pBarrierGroups->GetPointer());
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList7_Barrier>::Dispatch(
             this,
@@ -13004,13 +13244,17 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList8_OMSetFrontAndBackSte
             BackStencilRef);
         reinterpret_cast<ID3D12GraphicsCommandList8*>(replay_object->object)->OMSetFrontAndBackStencilRef(FrontStencilRef,
                                                                                                           BackStencilRef);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList8* command_list8;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list8));
-            command_list8->OMSetFrontAndBackStencilRef(FrontStencilRef,
-                                                       BackStencilRef);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList8* command_list8;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list8));
+                command_list8->OMSetFrontAndBackStencilRef(FrontStencilRef,
+                                                           BackStencilRef);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef>::Dispatch(
             this,
@@ -13041,14 +13285,18 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList9_RSSetDepthBias(
         reinterpret_cast<ID3D12GraphicsCommandList9*>(replay_object->object)->RSSetDepthBias(DepthBias,
                                                                                              DepthBiasClamp,
                                                                                              SlopeScaledDepthBias);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList9* command_list9;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list9));
-            command_list9->RSSetDepthBias(DepthBias,
-                                          DepthBiasClamp,
-                                          SlopeScaledDepthBias);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList9* command_list9;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list9));
+                command_list9->RSSetDepthBias(DepthBias,
+                                              DepthBiasClamp,
+                                              SlopeScaledDepthBias);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias>::Dispatch(
             this,
@@ -13074,12 +13322,16 @@ void Dx12ReplayConsumer::Process_ID3D12GraphicsCommandList9_IASetIndexBufferStri
             replay_object,
             IBStripCutValue);
         reinterpret_cast<ID3D12GraphicsCommandList9*>(replay_object->object)->IASetIndexBufferStripCutValue(IBStripCutValue);
-        auto dump_command_sets = GetCommandListsForDumpResources(replay_object);
-        for (auto& command_set : dump_command_sets)
+        if(options_.enable_dump_resources)
         {
-            ID3D12GraphicsCommandList9* command_list9;
-            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list9));
-            command_list9->IASetIndexBufferStripCutValue(IBStripCutValue);
+            GFXRECON_ASSERT(dump_resources_);
+            auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue);
+            for (auto& command_set : dump_command_sets)
+            {
+                ID3D12GraphicsCommandList9* command_list9;
+                command_set.list->QueryInterface(IID_PPV_ARGS(&command_list9));
+                command_list9->IASetIndexBufferStripCutValue(IBStripCutValue);
+            }
         }
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue>::Dispatch(
             this,
