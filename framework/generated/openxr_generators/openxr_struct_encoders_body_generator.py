@@ -156,7 +156,7 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
 
         for value in values:
             # pNext fields require special treatment and are not processed by typename
-            if 'pNext' in value.name:
+            if 'next' == value.name and value.base_type == 'void':
                 body += '    EncodeNextStruct(encoder, {});\n'.format(
                     prefix + value.name
                 )
