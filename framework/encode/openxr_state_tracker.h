@@ -236,10 +236,6 @@ class OpenXrStateTracker
         wrapper->create_parameters = nullptr;
     }
 
-    void DestroyState(openxr_wrappers::InstanceWrapper* wrapper);
-
-    void DestroyState(openxr_wrappers::SessionWrapper* wrapper);
-
     std::mutex       state_table_mutex_;
     OpenXrStateTable state_table_;
 };
