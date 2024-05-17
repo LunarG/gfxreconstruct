@@ -668,13 +668,6 @@ bool WriteBmpImage(const std::string& filename,
 {
     GFXRECON_LOG_INFO("%s(): Writing file \"%s\"", __func__, filename.c_str())
 
-    GFXRECON_WRITE_CONSOLE("width: %u", width)
-    GFXRECON_WRITE_CONSOLE("height: %u", height)
-    GFXRECON_WRITE_CONSOLE("data_size: %" PRIu64, data_size)
-    GFXRECON_WRITE_CONSOLE("data_pitch: %u", data_pitch)
-    GFXRECON_WRITE_CONSOLE("format: %u", format)
-    GFXRECON_WRITE_CONSOLE("write_alpha: %u", write_alpha)
-
     bool    success = false;
     FILE*   file    = nullptr;
     int32_t result  = util::platform::FileOpen(&file, filename.c_str(), "wb");
@@ -691,14 +684,10 @@ bool WriteBmpImage(const std::string& filename,
             }
         }
 
-        GFXRECON_WRITE_CONSOLE("data_pitch: %u", data_pitch)
-
         // BMP image data requires row to be a multiple of 4 bytes
         // Round-up row size to next multiple of 4, if it isn't already
         const uint32_t bmp_pitch =
             util::platform::GetAlignedSize(width * (write_alpha ? kImageBpp : kImageBppNoAlpha), 4);
-
-        GFXRECON_WRITE_CONSOLE("bmp_pitch: %u", bmp_pitch)
 
         BmpFileHeader file_header;
         BmpInfoHeader info_header;
