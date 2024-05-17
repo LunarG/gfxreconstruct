@@ -672,6 +672,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     bool success = false;
 
     format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
+
     if (meta_data_type == format::MetaDataType::kFillMemoryCommand)
     {
         format::FillMemoryCommandHeader header;
@@ -860,7 +861,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                decoder->DispatchExeFileInfo(header.thread_id, header);
+                if (decoder->SupportsMetaDataId(meta_data_id)) {
+                    decoder->DispatchExeFileInfo(header.thread_id, header);
+                }
             }
         }
     }
