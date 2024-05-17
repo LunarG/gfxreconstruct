@@ -92,6 +92,9 @@ jobs:
             cc: "cl", cxx: "cl"
           }
     steps:
+    - name: Run build script
+      run: |
+        python scripts\build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --parallel 0
     - name: Require Python 3.10
       uses: actions/setup-python@v5
       with:
@@ -103,9 +106,13 @@ jobs:
       uses: actions/checkout@v1
     - name: Run with VsDevCmd
       uses: ilammy/msvc-dev-cmd@v1
-    - name: Run build script and verify generated code
+    - name: Install SDK 20348
+      uses: GuillaumeFalourd/setup-windows10-sdk-action@v2
+      with:
+        sdk-version: 20348
+    - name: Check generated code
       run: |
-        python scripts\build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --parallel 0
+        git fetch origin ${{ github.base_ref }} # Fetch target branch to FETCH_HEAD for generated code check
         python3 framework/generated/generate_dx12.py # check generated code isn't out of date
         git diff --exit-code
     - name: Prepare artifacts
