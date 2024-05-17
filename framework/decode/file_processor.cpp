@@ -861,7 +861,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             for (auto decoder : decoders_)
             {
-                if (decoder->SupportsMetaDataId(meta_data_id)) {
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
                     decoder->DispatchExeFileInfo(header.thread_id, header);
                 }
             }
