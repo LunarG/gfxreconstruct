@@ -116,6 +116,8 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha }}
     - name: Check generated code
       run: |
+        git submodule init
+        git submodule update
         python3 framework/generated/generate_dx12.py # check generated code isn't out of date
         git diff --exit-code
     - name: Clone repository
