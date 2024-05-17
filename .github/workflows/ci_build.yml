@@ -33,7 +33,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Install build dependencies
       run: |
         sudo apt-get update
@@ -108,20 +110,14 @@ jobs:
     - name: Set WindowsSDKVersion
       run:
         echo ("WindowsSDKVersion=10.0.20348.0\") >> $env:GITHUB_ENV
-    - run: echo "${{ env.WindowsSDKVersion }}"
-    - run: echo $env:WindowsSDKVersion
-    - name: Checkout PR branch instead of merge branch for generated code check
+    - name: Clone repository from merge of PR branch and dev branch
       uses: actions/checkout@v4
       with:
-        ref: ${{ github.event.pull_request.head.sha }}
+        submodules: 'recursive'
     - name: Check generated code
       run: |
-        git submodule init
-        git submodule update
         python3 framework/generated/generate_dx12.py # check generated code isn't out of date
         git diff --exit-code
-    - name: Clone repository
-      uses: actions/checkout@v1
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --skip-tests --config ${{ matrix.config.type }} --parallel 0
@@ -162,7 +158,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Cache dependencies
       id: cache-deps
       uses: actions/cache@v3
@@ -208,7 +206,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Update submodules
       run: |
         git submodule update --init
