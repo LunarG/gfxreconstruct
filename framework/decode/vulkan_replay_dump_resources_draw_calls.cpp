@@ -1222,7 +1222,8 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             }
         }
 
-        if (!dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty())
+        if (!dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty() &&
+            !dc_param.vertex_input_state.input_binding_map.empty())
         {
             auto& json_entry = draw_call_entry["vertexBuffers"];
 
