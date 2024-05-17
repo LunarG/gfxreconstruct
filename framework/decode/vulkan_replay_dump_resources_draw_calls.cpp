@@ -875,7 +875,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         {
             if (previous_rp != rp)
             {
-                VkResult res = DumpImmutableResources(qs_index, bcb_index, rp);
+                VkResult res = DumpImmutableResources(qs_index, bcb_index, previous_rp);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())
