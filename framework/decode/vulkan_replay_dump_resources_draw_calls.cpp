@@ -642,25 +642,25 @@ void DrawCallsDumpingContext::CopyVertexInputStateInfo(uint64_t dc_index)
         if (gr_pipeline_info)
         {
             // Copy vertex input binding state
-            dc_params.vertex_input_state.input_binding_map = gr_pipeline_info->vertex_input_binding_map;
+            dc_params.vertex_input_state.vertex_input_binding_map = gr_pipeline_info->vertex_input_binding_map;
 
             // If VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT is enabled, ignore strides from
             // pipeline and get them from vkCmdBindVertexBuffers2EXT instead
             if (gr_pipeline_info->dynamic_vertex_binding_stride)
             {
-                for (auto& vb_binding : dc_params.vertex_input_state.input_binding_map)
+                for (auto& vb_binding : dc_params.vertex_input_state.vertex_input_binding_map)
                 {
                     const uint32_t binding = vb_binding.first;
-                    if (dynamic_vertex_input_state.input_binding_map.find(binding) !=
-                        dynamic_vertex_input_state.input_binding_map.end())
+                    if (dynamic_vertex_input_state.vertex_input_binding_map.find(binding) !=
+                        dynamic_vertex_input_state.vertex_input_binding_map.end())
                     {
-                        vb_binding.second.stride = dynamic_vertex_input_state.input_binding_map[binding].stride;
+                        vb_binding.second.stride = dynamic_vertex_input_state.vertex_input_binding_map[binding].stride;
                     }
                 }
             }
 
             // Copy vertex attributes info
-            dc_params.vertex_input_state.input_attribute_map = gr_pipeline_info->vertex_input_attribute_map;
+            dc_params.vertex_input_state.vertex_input_attribute_map = gr_pipeline_info->vertex_input_attribute_map;
         }
     }
 
@@ -1181,12 +1181,12 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
         }
 
         if (!dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty() &&
-            !dc_param.vertex_input_state.input_binding_map.empty())
+            !dc_param.vertex_input_state.vertex_input_binding_map.empty())
         {
             auto& json_entry = draw_call_entry["vertexBuffers"];
 
             uint32_t i = 0;
-            for (const auto& vb_binding : dc_param.vertex_input_state.input_binding_map)
+            for (const auto& vb_binding : dc_param.vertex_input_state.vertex_input_binding_map)
             {
                 const auto& vb_binding_buffer =
                     dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(vb_binding.first);
@@ -2252,17 +2252,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
         if (vertex_count)
         {
-            for (auto& vis : dc_params.vertex_input_state.input_binding_map)
+            for (auto& vis : dc_params.vertex_input_state.vertex_input_binding_map)
             {
                 const uint32_t binding = vis.first;
-
-                // GFXRECON_WRITE_CONSOLE("binding: %u", binding);
-                // for (const auto& ddd : dc_params.vertex_input_state.input_binding_map)
-                // {
-                //     GFXRECON_WRITE_CONSOLE("  b: %u", ddd.first);
-                //     GFXRECON_WRITE_CONSOLE("  stride: %u", ddd.second.stride);
-                //     GFXRECON_WRITE_CONSOLE("  inputRate: %u", ddd.second.inputRate);
-                // }
 
                 // Ignore instance data
                 if (vis.second.inputRate == VK_VERTEX_INPUT_RATE_INSTANCE)
@@ -2307,7 +2299,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         // attributes that are using that binding and use that as the size of the vertex information for
                         // 1 vertex.
                         uint32_t min_offset = std::numeric_limits<uint32_t>::max();
-                        for (const auto& ppl_attr : dc_params.vertex_input_state.input_attribute_map)
+                        for (const auto& ppl_attr : dc_params.vertex_input_state.vertex_input_attribute_map)
                         {
                             if (ppl_attr.second.binding != binding)
                             {
@@ -2969,19 +2961,19 @@ void DrawCallsDumpingContext::SetVertexInput(uint32_t                           
 {
     for (uint32_t i = 0; i < vertexBindingDescriptionCount; ++i)
     {
-        dynamic_vertex_input_state.input_binding_map[pVertexBindingDescriptions[i].binding].inputRate =
+        dynamic_vertex_input_state.vertex_input_binding_map[pVertexBindingDescriptions[i].binding].inputRate =
             pVertexBindingDescriptions[i].inputRate;
-        dynamic_vertex_input_state.input_binding_map[pVertexBindingDescriptions[i].binding].stride =
+        dynamic_vertex_input_state.vertex_input_binding_map[pVertexBindingDescriptions[i].binding].stride =
             pVertexBindingDescriptions[i].stride;
     }
 
     for (uint32_t i = 0; i < vertexAttributeDescriptionCount; ++i)
     {
-        dynamic_vertex_input_state.input_attribute_map[pVertexAttributeDescriptions[i].location].binding =
+        dynamic_vertex_input_state.vertex_input_attribute_map[pVertexAttributeDescriptions[i].location].binding =
             pVertexAttributeDescriptions[i].binding;
-        dynamic_vertex_input_state.input_attribute_map[pVertexAttributeDescriptions[i].location].format =
+        dynamic_vertex_input_state.vertex_input_attribute_map[pVertexAttributeDescriptions[i].location].format =
             pVertexAttributeDescriptions[i].format;
-        dynamic_vertex_input_state.input_attribute_map[pVertexAttributeDescriptions[i].location].offset =
+        dynamic_vertex_input_state.vertex_input_attribute_map[pVertexAttributeDescriptions[i].location].offset =
             pVertexAttributeDescriptions[i].offset;
     }
 }
