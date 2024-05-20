@@ -447,6 +447,259 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataHeadset
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataEyeCalibrationChangedML* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUserCalibrationEnableEventsInfoML* data, const util::JsonOptions& options = util::JsonOptions());
 
+template <typename T>
+void BaseHeaderFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())
+{
+    // First read in the type to know how to handle this
+    XrStructureType struct_type;
+    FieldToJson(jdata["type"], struct_type, options);
+
+    switch (struct_type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("BaseHeaderFieldToJson: unrecognized Base Header child structure type %d", struct_type);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrCompositionLayerProjection*>(data), options);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_QUAD:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrCompositionLayerQuad*>(data), options);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrCompositionLayerCubeKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrCompositionLayerCylinderKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrCompositionLayerEquirectKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrCompositionLayerEquirect2KHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrCompositionLayerPassthroughHTC*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataEventsLost*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataInstanceLossPending*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSessionStateChanged*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataReferenceSpaceChangePending*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataInteractionProfileChanged*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataVisibilityMaskChangedKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataPerfSettingsEXT*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataMainSessionVisibilityChangedEXTX*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataDisplayRefreshRateChangedFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataViveTrackerConnectedHTCX*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpatialAnchorCreateCompleteFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpaceSetStatusCompleteFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataMarkerTrackingUpdateVARJO*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataLocalizationChangedML*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpaceQueryResultsAvailableFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpaceQueryCompleteFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpaceSaveCompleteFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpaceEraseCompleteFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpaceShareCompleteFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataSpaceListSaveCompleteFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataHeadsetFitChangedML*>(data), options);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrEventDataEyeCalibrationChangedML*>(data), options);
+            break;
+        }
+        case XR_TYPE_HAPTIC_VIBRATION:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrHapticVibration*>(data), options);
+            break;
+        }
+        case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrHapticAmplitudeEnvelopeVibrationFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrHapticPcmVibrationFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainImageOpenGLKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainImageOpenGLESKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainImageVulkanKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainImageD3D11KHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainImageD3D12KHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrLoaderInitInfoAndroidKHR*>(data), options);
+            break;
+        }
+        case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrInteractionProfileDpadBindingEXT*>(data), options);
+            break;
+        }
+        case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrInteractionProfileAnalogThresholdVALVE*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainStateFoveationFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainStateSamplerOpenGLESFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSwapchainStateSamplerVulkanFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_SPACE_QUERY_INFO_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSpaceQueryInfoFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSpaceUuidFilterInfoFB*>(data), options);
+            break;
+        }
+        case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+        {
+            FieldToJson(jdata, reinterpret_cast<const Decoded_XrSpaceComponentFilterInfoFB*>(data), options);
+            break;
+        }
+    }
+}
+
+
 /// Works out the type of the struct at the end of a next pointer and dispatches
 /// recursively to the FieldToJson for that.
 void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, const util::JsonOptions& options = util::JsonOptions());

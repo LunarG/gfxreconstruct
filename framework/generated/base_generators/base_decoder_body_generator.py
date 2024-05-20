@@ -35,6 +35,9 @@ class BaseDecoderBodyGenerator():
         for cmd in self.get_filtered_cmd_names():
             self.cmd_names.append(cmd)
 
+            if self.is_manually_generated_cmd_name(cmd):
+                continue
+
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
