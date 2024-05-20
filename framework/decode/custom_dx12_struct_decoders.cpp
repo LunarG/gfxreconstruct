@@ -582,6 +582,11 @@ DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_
             wrapper->Dred_1_2->decoded_value = &(value->Dred_1_2);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Dred_1_2);
             break;
+        case D3D12_DRED_VERSION_1_3:
+            wrapper->Dred_1_3                = DecodeAllocator::Allocate<Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3>();
+            wrapper->Dred_1_3->decoded_value = &(value->Dred_1_3);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Dred_1_3);
+            break;
     }
 
     return bytes_read;

@@ -385,6 +385,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVE
         case D3D12_DRED_VERSION_1_2:
             EncodeStruct(encoder, value.Dred_1_2);
             break;
+        case D3D12_DRED_VERSION_1_3:
+            EncodeStruct(encoder, value.Dred_1_3);
+            break;
         default:
             break;
     }
