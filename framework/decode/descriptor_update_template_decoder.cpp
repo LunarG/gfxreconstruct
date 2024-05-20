@@ -47,9 +47,6 @@ DescriptorUpdateTemplateDecoder::~DescriptorUpdateTemplateDecoder() {}
 
 size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buffer_size)
 {
-    // account for an encoded array's metadata (inline-uniform-block encoded using ParameterEncoder::EncodeUInt8Array)
-    constexpr size_t array_meta_size = sizeof(format::PointerAttributes) + sizeof(size_t) + sizeof(void*);
-
     size_t bytes_read = DecodeAttributes(buffer, buffer_size);
 
     // The update template should identify as a struct pointer.
@@ -137,7 +134,7 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                     {
                         cur_type.offset    = total_size;
-                        uint32_t num_bytes = cur_type.count + array_meta_size;
+                        uint32_t num_bytes = cur_type.count;
 
                         // We will read/write raw bytes in the allocated memory block, they should be the same
                         required_read_memory_size  = num_bytes;
@@ -254,7 +251,6 @@ size_t DescriptorUpdateTemplateDecoder::Decode(const uint8_t* buffer, size_t buf
                     inline_uniform_block_count_ = cur_type.count;
                     inline_uniform_block_       = template_memory_ + cur_type.offset;
 
-                    bytes_read += array_meta_size;
                     bytes_read += ValueDecoder::DecodeUInt8Array((buffer + bytes_read),
                                                                  (buffer_size - bytes_read),
                                                                  inline_uniform_block_,
