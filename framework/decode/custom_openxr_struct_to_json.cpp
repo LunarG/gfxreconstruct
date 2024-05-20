@@ -77,7 +77,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameEndInfo* da
         FieldToJson(jdata["displayTime"], decoded_value.displayTime, options);
         FieldToJson(jdata["environmentBlendMode"], decoded_value.environmentBlendMode, options);
         FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
-        FieldToJson(jdata["layers"], meta_struct.layers, options);
+        BaseHeaderFieldToJson(jdata["layers"], meta_struct.layers, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
@@ -95,7 +95,7 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
         FieldToJson(jdata["viewConfigurationType"], decoded_value.viewConfigurationType, options);
         FieldToJson(jdata["environmentBlendMode"], decoded_value.environmentBlendMode, options);
         FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
-        FieldToJson(jdata["layers"], meta_struct.layers, options);
+        BaseHeaderFieldToJson(jdata["layers"], meta_struct.layers, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
