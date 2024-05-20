@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include PROJECT_VERSION_HEADER_FILE
 #include "graphics/dx12_dump_resources.h"
 // TODO: It should change the file name of "vulkan"
 #include "generated/generated_vulkan_struct_to_json.h"
@@ -28,6 +29,11 @@
 #include "util/image_writer.h"
 #include "util/json_util.h"
 #include "graphics/dx12_util.h"
+
+extern "C"
+{
+    extern const UINT D3D12SDKVersion;
+}
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -94,7 +100,7 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json&   jdata,
         return;
     }
 
-    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
 
     util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
     std::string json_path = suffix + "_file_name";
@@ -142,7 +148,7 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {
@@ -174,7 +180,7 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {
@@ -245,23 +251,26 @@ HRESULT Dx12DumpResources::Init(const Dx12DumpResourcesConfig& config)
     {
         json_filename_ = json_filename_.substr(0, ext_pos);
     }
-    json_filename_ += "_resources_submit_" + std::to_string(config.dump_resources_target.submit_index) + "_command_" +
-                      std::to_string(config.dump_resources_target.command_index) + "_drawcall_" +
-                      std::to_string(config.dump_resources_target.drawcall_index) + "." +
-                      util::get_json_format(json_options_.format);
-
-    json_options_.data_sub_dir = util::filepath::GetFilenameStem(json_filename_);
+    json_options_.data_sub_dir = json_filename_;
     json_options_.root_dir     = util::filepath::GetBasedir(json_filename_);
+    json_filename_ += "_rd." + util::get_json_format(json_options_.format);
 
     util::platform::FileOpen(&json_file_handle_, json_filename_.c_str(), "w");
 
-    header_["source-path"] = config.capture_file_name;
+    header_["D3D12SDKVersion"] = std::to_string(D3D12SDKVersion);
+    header_["gfxreconversion"] = GFXRECON_PROJECT_VERSION_STRING;
+    header_["captureFile"] = config.capture_file_name;
+
+    auto& dr_options = header_["dumpResourcesOptions"];
+    dr_options["submit"]   = std::to_string(config.dump_resources_target.submit_index);
+    dr_options["command"]  = std::to_string(config.dump_resources_target.command_index);
+    dr_options["drawcall"] = std::to_string(config.dump_resources_target.drawcall_index);
 
     StartFile();
 
     // Emit the header object as the first line of the file:
     WriteBlockStart();
-    json_data_["source-path"] = header_;
+    json_data_["header"] = header_;
     WriteBlockEnd();
 
     return result;
