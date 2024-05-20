@@ -1193,12 +1193,12 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                 assert(vb_binding_buffer != dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
 
                 if (vb_binding_buffer->second.buffer_info != nullptr &&
-                    vb_binding.second.inputRate != VK_VERTEX_INPUT_RATE_VERTEX)
+                    vb_binding.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX)
                 {
                     const std::string vb_filename =
                         GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, vb_binding.first);
 
-                    dump_json.InsertBufferInfo(json_entry[i], vb_binding_buffer->second.buffer_info, vb_filename);
+                    dump_json.InsertBufferInfo(json_entry[i++], vb_binding_buffer->second.buffer_info, vb_filename);
                 }
             }
         }
