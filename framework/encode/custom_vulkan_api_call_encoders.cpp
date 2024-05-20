@@ -414,7 +414,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                 
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
-                VulkanCaptureManager::Get()->WriteAnnotation(format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateGraphicsPipelines and not record the call. Force to return VK_PIPELINE_COMPILE_REQUIRED.");
@@ -504,7 +505,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(VkDevice                  
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
-                VulkanCaptureManager::Get()->WriteAnnotation(format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateComputePipelines and not record the call. Force to return VK_PIPELINE_COMPILE_REQUIRED.");
@@ -594,7 +596,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesNV(VkDevice             
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
-                VulkanCaptureManager::Get()->WriteAnnotation(format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateRayTracingPipelinesNV and not record the call. Force to return "
@@ -687,7 +690,8 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
         {
             if (pCreateInfos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
             {
-                VulkanCaptureManager::Get()->WriteAnnotation(format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
+                VulkanCaptureManager::Get()->WriteAnnotation(
+                    format::AnnotationType::kText, format::kAnnotationPipelineCreationAttempt, "");
                 GFXRECON_LOG_WARNING(
                     "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT isn't suppported. Skip dispatch "
                     "CreateRayTracingPipelinesKHR and not record the call. Force to return "
