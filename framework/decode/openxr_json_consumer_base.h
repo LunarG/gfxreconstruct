@@ -106,6 +106,13 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
     std::string GenerateFilename(const std::string& filename);
     bool        WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
 
+    void Process_xrEnumerateSwapchainImages(const ApiCallInfo&        call_info,
+                                            XrResult                  returnValue,
+                                            format::HandleId          swapchain,
+                                            uint32_t                  imageCapacityInput,
+                                            PointerDecoder<uint32_t>* imageCountOutput,
+                                            StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images);
+
     uint32_t submit_index_{ 0 }; // index of submissions across the trace
 
     JsonWriter* writer_{ nullptr };

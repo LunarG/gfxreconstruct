@@ -958,6 +958,12 @@ class BaseGenerator(OutputGenerator):
             if not self.is_cmd_black_listed(key)
         ]
 
+    def is_manually_generated_cmd_name(self, command):
+        """Determines if a command is in the list of manually generated command names."""
+        if self.MANUALLY_GENERATED_COMMANDS is not None and command in self.MANUALLY_GENERATED_COMMANDS:
+           return True
+        return False
+
     def clean_type_define(self, full_type):
         """Default to identity function, base classes may override."""
         return full_type
