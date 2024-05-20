@@ -562,6 +562,10 @@ void Dx12ResourceValueMapper::PostProcessCreateRootSignature(PointerDecoder<uint
                 GetRootSignatureResourceValueInfos(&versioned_root_sig->Desc_1_1,
                                                    root_sig_extra_info->resource_value_infos);
                 break;
+            case D3D_ROOT_SIGNATURE_VERSION_1_2:
+                GetRootSignatureResourceValueInfos(&versioned_root_sig->Desc_1_2,
+                                                   root_sig_extra_info->resource_value_infos);
+                break;
             default:
                 GFXRECON_LOG_ERROR("Ignoring unrecognized root signature version (%d) for root signature (id=%" PRIu64
                                    ").",
