@@ -70,6 +70,7 @@ const int8_t   kNoneIndex                 = -1;
 const char* const kAnnotationLabelOperation       = "operation";
 const char* const kAnnotationLabelReplayOptions   = "replayopts";
 const char* const kAnnotationLabelRemovedResource = "removed-resource";
+const char* const kAnnotationPipelineCreationAttempt     = "pipelinecreationattempt";
 
 const char* const kOperationAnnotationGfxreconstructVersion = "gfxrecon-version";
 const char* const kOperationAnnotationVulkanVersion         = "vulkan-version";
