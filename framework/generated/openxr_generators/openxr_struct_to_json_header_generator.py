@@ -94,6 +94,33 @@ class OpenXrStructToJsonHeaderGenerator(BaseGenerator):
 
     # Method override
     def endFile(self):
+        body = '\n'
+        body += 'template <typename T>\n'
+        body += 'void BaseHeaderFieldToJson(nlohmann::ordered_json& jdata, const T* data, const util::JsonOptions& options = util::JsonOptions())\n'
+        body += '{\n'
+        body += '    // First read in the type to know how to handle this\n'
+        body += '    XrStructureType struct_type;\n'
+        body += '    FieldToJson(jdata["type"], struct_type, options);\n'
+        body += '\n'
+        body += '    switch (struct_type)\n'
+        body += '    {\n'
+        body += '        default:\n'
+        body += '        {\n'
+        body += '            GFXRECON_LOG_WARNING("BaseHeaderFieldToJson: unrecognized Base Header child structure type %d", struct_type);\n'
+        body += '            break;\n'
+        body += '        }\n'
+        for child_list in self.base_header_structs:
+            for child in self.base_header_structs[child_list]:
+                struct_type_name = self.struct_type_enums[child]
+                body += f'        case {struct_type_name}:\n'
+                body += '        {\n'
+                body += f'            FieldToJson(jdata, reinterpret_cast<const Decoded_{child}*>(data), options);\n'
+                body += '            break;\n'
+                body += '        }\n'
+        body += '    }\n'
+        body += '}\n'
+        write(body, file=self.outFile)
+
         body = remove_trailing_newlines(
             indent_cpp_code(
                 '''

@@ -559,30 +559,6 @@ size_t OpenXrDecoder::Decode_xrDestroySwapchain(const ApiCallInfo& call_info, co
     return bytes_read;
 }
 
-size_t OpenXrDecoder::Decode_xrEnumerateSwapchainImages(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    format::HandleId swapchain;
-    uint32_t imageCapacityInput;
-    PointerDecoder<uint32_t> imageCountOutput;
-    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader> images;
-    XrResult return_value;
-
-    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageCapacityInput);
-    bytes_read += imageCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += images.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_xrEnumerateSwapchainImages(call_info, return_value, swapchain, imageCapacityInput, &imageCountOutput, &images);
-    }
-
-    return bytes_read;
-}
-
 size_t OpenXrDecoder::Decode_xrAcquireSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;

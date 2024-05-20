@@ -82,6 +82,93 @@ void OpenXrDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
+size_t OpenXrDecoderBase::Decode_xrEnumerateSwapchainImages(const ApiCallInfo& call_info,
+                                                            const uint8_t*     parameter_buffer,
+                                                            size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId                                          swapchain;
+    uint32_t                                                  imageCapacityInput;
+    PointerDecoder<uint32_t>                                  imageCountOutput;
+    StructPointerDecoder<Decoded_XrSwapchainImageOpenGLKHR>   opengl_images;
+    StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>   vulkan_images;
+    StructPointerDecoder<Decoded_XrSwapchainImageD3D11KHR>    d3d11_images;
+    StructPointerDecoder<Decoded_XrSwapchainImageD3D12KHR>    d3d12_images;
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>  base_images;
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* image_ptr;
+    XrResult                                                  return_value;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += ValueDecoder::DecodeUInt32Value(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageCapacityInput);
+    bytes_read += imageCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    bool     is_null    = false;
+    bool     is_struct  = false;
+    bool     has_length = false;
+    size_t   length{};
+    uint32_t structure_type = 0;
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                  (buffer_size - bytes_read),
+                                                  is_null,
+                                                  is_struct,
+                                                  has_length,
+                                                  length,
+                                                  structure_type))
+    {
+        XrStructureType xr_type = static_cast<XrStructureType>(structure_type);
+        switch (xr_type)
+        {
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+            {
+                assert(!is_null && is_struct && has_length);
+                bytes_read += opengl_images.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                image_ptr = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&opengl_images);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+            {
+                assert(!is_null && is_struct && has_length);
+                bytes_read += vulkan_images.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                image_ptr = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&vulkan_images);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+            {
+                assert(!is_null && is_struct && has_length);
+                bytes_read += d3d11_images.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                image_ptr = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&d3d11_images);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+            {
+                assert(!is_null && is_struct && has_length);
+                bytes_read += d3d12_images.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                image_ptr = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&d3d12_images);
+                break;
+            }
+            default:
+            {
+                bytes_read += base_images.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                image_ptr = &base_images;
+                break;
+            }
+        }
+    }
+    bytes_read +=
+        ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrEnumerateSwapchainImages(
+            call_info, return_value, swapchain, imageCapacityInput, &imageCountOutput, image_ptr);
+    }
+
+    return bytes_read;
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

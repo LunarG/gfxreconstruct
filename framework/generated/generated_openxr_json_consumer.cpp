@@ -422,25 +422,6 @@ void OpenXrExportJsonConsumer::Process_xrDestroySwapchain(
     WriteBlockEnd();
 }
 
-void OpenXrExportJsonConsumer::Process_xrEnumerateSwapchainImages(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            swapchain,
-    uint32_t                                    imageCapacityInput,
-    PointerDecoder<uint32_t>*                   imageCountOutput,
-    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrEnumerateSwapchainImages");
-    const JsonOptions& json_options = GetJsonOptions();
-    FieldToJson(jdata[NameReturn()], returnValue, json_options);
-    auto& args = jdata[NameArgs()];
-        HandleToJson(args["swapchain"], swapchain, json_options);
-        FieldToJson(args["imageCapacityInput"], imageCapacityInput, json_options);
-        FieldToJson(args["imageCountOutput"], imageCountOutput, json_options);
-        FieldToJson(args["images"], images, json_options);
-    WriteBlockEnd();
-}
-
 void OpenXrExportJsonConsumer::Process_xrAcquireSwapchainImage(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,

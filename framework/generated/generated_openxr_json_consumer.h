@@ -208,14 +208,6 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         XrResult                                    returnValue,
         format::HandleId                            swapchain) override;
 
-    virtual void Process_xrEnumerateSwapchainImages(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            swapchain,
-        uint32_t                                    imageCapacityInput,
-        PointerDecoder<uint32_t>*                   imageCountOutput,
-        StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images) override;
-
     virtual void Process_xrAcquireSwapchainImage(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

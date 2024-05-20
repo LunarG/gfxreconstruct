@@ -65,7 +65,7 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         BaseGenerator.__init__(
             self,
             process_cmds=True,
-            process_structs=False,
+            process_structs=True,
             feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
@@ -77,6 +77,9 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         self.flagEnumBitsType = dict()
 
         self.externalStructs = ['LARGE_INTEGER', 'LUID']
+
+        # Names of any OpenXR commands whose decoders are manually generated
+        self.MANUALLY_GENERATED_COMMANDS = ['xrEnumerateSwapchainImages']
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -128,6 +131,9 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         first = True
 
         for cmd in self.get_filtered_cmd_names():
+            if self.is_manually_generated_cmd_name(cmd):
+                continue
+
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
@@ -188,6 +194,11 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                 else:
                     if value.base_type in self.externalStructs:
                         to_json = 'FieldToJson(args["{0}"], *{0}->GetPointer(), json_options)'
+                    elif value.base_type in self.base_header_structs.keys() and value.is_array:
+                        # If this is a situation with a BaseHeader base for the data and it's an
+                        # array, we need to determine the type of the first element of that array
+                        # and then treat the entire array as if it is of that type.
+                        to_json = 'BaseHeaderFieldToJson(args["{0}"], {0}, json_options)'
                     else:
                         to_json = 'FieldToJson(args["{0}"], {0}, json_options)'
 
