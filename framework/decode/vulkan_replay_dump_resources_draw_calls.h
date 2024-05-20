@@ -303,10 +303,10 @@ class DrawCallsDumpingContext
     struct VertexInputState
     {
         // One entry per binding
-        PipelineInfo::VertexInputBindingMap input_binding_map;
+        PipelineInfo::VertexInputBindingMap vertex_input_binding_map;
 
         // One entry per location
-        PipelineInfo::VertexInputAttributeMap input_attribute_map;
+        PipelineInfo::VertexInputAttributeMap vertex_input_attribute_map;
     };
 
     // Keep track of CmdSetVertexInputEXT
