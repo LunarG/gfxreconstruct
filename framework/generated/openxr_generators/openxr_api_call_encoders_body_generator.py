@@ -218,29 +218,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         has_outputs = self.has_outputs(return_type, values)
         arg_list = self.make_arg_list(values)
 
-        capture_manager = 'manager'
-        if name == "xrCreateApiLayerInstance":
-            capture_manager = 'OpenXrCaptureManager::Get()'
         body = ''
-        if name != "xrCreateApiLayerInstance":
-            body += indent + 'OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();\n'
-            body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
-        if name == "xrCreateApiLayerInstance":
-            body += indent + 'auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();\n'
-        else:
-            body += indent + 'auto force_command_serialization = manager->GetForceCommandSerialization();\n'
-            body += indent + 'std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;\n'
-            body += indent + 'std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;\n'
-            body += indent + 'if (force_command_serialization)\n'
-            body += indent + '{\n'
-            body += indent + '    exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();\n'
-            body += indent + '}\n'
-            body += indent + 'else\n'
-            body += indent + '{\n'
-            body += indent + '    shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();\n'
-            body += indent + '}\n'
-
-        body += '\n'
 
         if has_outputs or (return_type and return_type != 'void'):
             encode_after = True
@@ -250,16 +228,41 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + 'bool omit_output_data = false;\n'
             body += '\n'
 
-        body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch({}, {});\n'.format(
+        top_indent = indent
+
+        if name == "xrCreateApiLayerInstance":
+            capture_manager = 'OpenXrCaptureManager::Get()'
+            body += indent + 'auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();\n'
+        else :
+            capture_manager = 'manager'
+            body += indent + 'OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();\n'
+            body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
+            if not is_override:
+                # Declare for handles that need unwrapping.
+                unwrapped_arg_list, unwrap_list = self.make_handle_unwrapping(name, values)
+                if unwrap_list:
+                    body += indent + f'HandleUnwrapMemory* handle_unwrap_memory = nullptr;\n'
+                    body += '\n'.join([indent + '{type} {wrap_name} = nullptr;\n'.format(**unwrap) for unwrap in unwrap_list ])
+
+                top_indent = indent + ' ' * self.INDENT_SIZE
+                body += indent + '{\n'
+
+                lock_call = 'auto call_lock = manager->AcquireCallLock();\n'
+                body += top_indent + lock_call
+
+        body += '\n'
+
+
+        body += top_indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch({}, {});\n'.format(
             name, capture_manager, arg_list
         )
 
         if not encode_after:
+            body += '\n'
             body += self.make_parameter_encoding(
-                name, values, return_type, indent, omit_output_param
+                name, values, return_type, top_indent, omit_output_param
             )
 
-        body += '\n'
 
         if is_override:
             # Capture overrides simply call the override function without handle unwrap/wrap
@@ -280,16 +283,14 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 body += indent + '    omit_output_data = true;\n'
                 body += indent + '}\n'
         else:
-            # Check for handles that need unwrapping.
-            unwrap_expr, unwrapped_arg_list, need_unwrap_memory = self.make_handle_unwrapping(
-                name, values, indent
-            )
-            if unwrap_expr:
-                if need_unwrap_memory:
-                    body += indent + f'auto handle_unwrap_memory = {capture_manager}->GetHandleUnwrapMemory();\n'
-                body += unwrap_expr
-                body += '\n'
+            # Unwrap handles that need unwrapping
+            if unwrap_list:
+                body += '\n' +top_indent + f'handle_unwrap_memory = {capture_manager}->GetHandleUnwrapMemory();\n'
+                body += '\n'.join([top_indent + '{wrap_name} = {call};\n'.format(**unwrap) for unwrap in unwrap_list ])
 
+            body += indent + '}\n\n'
+
+            # Still holding a lock across a call here...
             if self.lock_for_destroy_handle_is_needed(name):
                 body += indent + 'ScopedDestroyLock exclusive_scoped_lock;\n'
 
@@ -306,6 +307,9 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 )
             else:
                 body += indent + '{};\n'.format(call_expr)
+
+            # Need to relock, since lock was released before dispatch
+            body += '\n' + indent + lock_call
 
             # Wrap newly created handles.
             wrap_expr = self.make_handle_wrapping(values, indent)
@@ -647,9 +651,9 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         )
         return expr
 
-    def make_handle_unwrapping(self, name, values, indent):
+    def make_handle_unwrapping(self, name, values):
         args = []
-        expr = ''
+        unwraps = []
         need_unwrap_memory = False
         for value in values:
             arg_name = value.name
@@ -657,26 +661,19 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 if self.is_input_pointer(value):
                     if (value.base_type in self.structs_with_handles
                         ) or (value.base_type in self.GENERIC_HANDLE_STRUCTS):
-                        need_unwrap_memory = True
                         arg_name += '_unwrapped'
                         wrapper_prefix = self.get_wrapper_prefix_from_type(
                             value.base_type
                         ) + '::'
+                        unwrap = { 'type': value.full_type, 'name': value.name, 'wrap_name':arg_name, 'prefix': wrapper_prefix}
                         if value.is_array:
-                            expr += indent + '{} {name}_unwrapped = {}UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
-                                value.full_type,
-                                wrapper_prefix,
-                                value.array_length,
-                                name=value.name
-                            )
+                            unwrap['length'] = value.array_length
+                            unwrap['call']= '{prefix}UnwrapStructArrayHandles({name}, {length}, handle_unwrap_memory)'.format(**unwrap)
                         else:
-                            expr += indent + '{} {name}_unwrapped = {}UnwrapStructPtrHandles({name}, handle_unwrap_memory);\n'.format(
-                                value.full_type,
-                                wrapper_prefix,
-                                name=value.name
-                            )
+                            unwrap['call'] = '{prefix}UnwrapStructPtrHandles({name}, handle_unwrap_memory)'.format(**unwrap)
+                        unwraps.append(unwrap)
             args.append(arg_name)
-        return expr, ', '.join(args), need_unwrap_memory
+        return ', '.join(args), unwraps
 
     def lock_for_destroy_handle_is_needed(self, name):
         if name.startswith('xrDestroy'):

@@ -60,22 +60,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyInstance(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyInstance>::Dispatch(manager, instance);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyInstance>::Dispatch(manager, instance);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->DestroyInstance(instance);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyInstance);
     if (encoder)
@@ -96,25 +90,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetInstanceProperties(
     XrInstance                                  instance,
     XrInstanceProperties*                       instanceProperties)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetInstanceProperties>::Dispatch(manager, instance, instanceProperties);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetInstanceProperties>::Dispatch(manager, instance, instanceProperties);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetInstanceProperties(instance, instanceProperties);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -138,25 +126,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPollEvent(
     XrInstance                                  instance,
     XrEventDataBuffer*                          eventData)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPollEvent>::Dispatch(manager, instance, eventData);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPollEvent>::Dispatch(manager, instance, eventData);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->PollEvent(instance, eventData);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -181,25 +163,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrResultToString(
     XrResult                                    value,
     char                                        buffer[XR_MAX_RESULT_STRING_SIZE])
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrResultToString>::Dispatch(manager, instance, value, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrResultToString>::Dispatch(manager, instance, value, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->ResultToString(instance, value, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -225,25 +201,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStructureTypeToString(
     XrStructureType                             value,
     char                                        buffer[XR_MAX_STRUCTURE_NAME_SIZE])
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStructureTypeToString>::Dispatch(manager, instance, value, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStructureTypeToString>::Dispatch(manager, instance, value, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->StructureTypeToString(instance, value, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -269,25 +239,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSystem(
     const XrSystemGetInfo*                      getInfo,
     XrSystemId*                                 systemId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSystem>::Dispatch(manager, instance, getInfo, systemId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSystem>::Dispatch(manager, instance, getInfo, systemId);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetSystem(instance, getInfo, systemId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -313,25 +277,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSystemProperties(
     XrSystemId                                  systemId,
     XrSystemProperties*                         properties)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSystemProperties>::Dispatch(manager, instance, systemId, properties);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSystemProperties>::Dispatch(manager, instance, systemId, properties);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetSystemProperties(instance, systemId, properties);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -360,25 +318,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentBlendModes(
     uint32_t*                                   environmentBlendModeCountOutput,
     XrEnvironmentBlendMode*                     environmentBlendModes)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes>::Dispatch(manager, instance, systemId, viewConfigurationType, environmentBlendModeCapacityInput, environmentBlendModeCountOutput, environmentBlendModes);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes>::Dispatch(manager, instance, systemId, viewConfigurationType, environmentBlendModeCapacityInput, environmentBlendModeCountOutput, environmentBlendModes);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumerateEnvironmentBlendModes(instance, systemId, viewConfigurationType, environmentBlendModeCapacityInput, environmentBlendModeCountOutput, environmentBlendModes);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -407,25 +359,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSession(
     const XrSessionCreateInfo*                  createInfo,
     XrSession*                                  session)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSession>::Dispatch(manager, instance, createInfo, session);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSession>::Dispatch(manager, instance, createInfo, session);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateSession(instance, createInfo, session);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -456,22 +402,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySession(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySession>::Dispatch(manager, session);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySession>::Dispatch(manager, session);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(session)->DestroySession(session);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySession);
     if (encoder)
@@ -494,25 +434,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReferenceSpaces(
     uint32_t*                                   spaceCountOutput,
     XrReferenceSpaceType*                       spaces)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces>::Dispatch(manager, session, spaceCapacityInput, spaceCountOutput, spaces);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces>::Dispatch(manager, session, spaceCapacityInput, spaceCountOutput, spaces);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateReferenceSpaces(session, spaceCapacityInput, spaceCountOutput, spaces);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -539,25 +473,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateReferenceSpace(
     const XrReferenceSpaceCreateInfo*           createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateReferenceSpace>::Dispatch(manager, session, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateReferenceSpace>::Dispatch(manager, session, createInfo, space);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateReferenceSpace(session, createInfo, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -588,25 +516,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetReferenceSpaceBoundsRect(
     XrReferenceSpaceType                        referenceSpaceType,
     XrExtent2Df*                                bounds)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetReferenceSpaceBoundsRect>::Dispatch(manager, session, referenceSpaceType, bounds);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetReferenceSpaceBoundsRect>::Dispatch(manager, session, referenceSpaceType, bounds);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetReferenceSpaceBoundsRect(session, referenceSpaceType, bounds);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -632,28 +554,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSpace(
     const XrActionSpaceCreateInfo*              createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateActionSpace>::Dispatch(manager, session, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionSpaceCreateInfo* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrActionSpaceCreateInfo* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateActionSpace>::Dispatch(manager, session, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateActionSpace(session, createInfo_unwrapped, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -685,25 +603,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpace(
     XrTime                                      time,
     XrSpaceLocation*                            location)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSpace>::Dispatch(manager, space, baseSpace, time, location);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSpace>::Dispatch(manager, space, baseSpace, time, location);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(space)->LocateSpace(space, baseSpace, time, location);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -730,22 +642,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpace(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpace>::Dispatch(manager, space);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpace>::Dispatch(manager, space);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(space)->DestroySpace(space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySpace);
     if (encoder)
@@ -769,25 +675,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurations(
     uint32_t*                                   viewConfigurationTypeCountOutput,
     XrViewConfigurationType*                    viewConfigurationTypes)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateViewConfigurations>::Dispatch(manager, instance, systemId, viewConfigurationTypeCapacityInput, viewConfigurationTypeCountOutput, viewConfigurationTypes);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateViewConfigurations>::Dispatch(manager, instance, systemId, viewConfigurationTypeCapacityInput, viewConfigurationTypeCountOutput, viewConfigurationTypes);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumerateViewConfigurations(instance, systemId, viewConfigurationTypeCapacityInput, viewConfigurationTypeCountOutput, viewConfigurationTypes);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -816,25 +716,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetViewConfigurationProperties(
     XrViewConfigurationType                     viewConfigurationType,
     XrViewConfigurationProperties*              configurationProperties)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetViewConfigurationProperties>::Dispatch(manager, instance, systemId, viewConfigurationType, configurationProperties);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetViewConfigurationProperties>::Dispatch(manager, instance, systemId, viewConfigurationType, configurationProperties);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetViewConfigurationProperties(instance, systemId, viewConfigurationType, configurationProperties);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -864,25 +758,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViewConfigurationViews(
     uint32_t*                                   viewCountOutput,
     XrViewConfigurationView*                    views)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateViewConfigurationViews>::Dispatch(manager, instance, systemId, viewConfigurationType, viewCapacityInput, viewCountOutput, views);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateViewConfigurationViews>::Dispatch(manager, instance, systemId, viewConfigurationType, viewCapacityInput, viewCountOutput, views);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumerateViewConfigurationViews(instance, systemId, viewConfigurationType, viewCapacityInput, viewCountOutput, views);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -912,25 +800,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainFormats(
     uint32_t*                                   formatCountOutput,
     int64_t*                                    formats)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSwapchainFormats>::Dispatch(manager, session, formatCapacityInput, formatCountOutput, formats);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSwapchainFormats>::Dispatch(manager, session, formatCapacityInput, formatCountOutput, formats);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateSwapchainFormats(session, formatCapacityInput, formatCountOutput, formats);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -957,25 +839,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchain(
     const XrSwapchainCreateInfo*                createInfo,
     XrSwapchain*                                swapchain)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchain>::Dispatch(manager, session, createInfo, swapchain);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchain>::Dispatch(manager, session, createInfo, swapchain);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSwapchain(session, createInfo, swapchain);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -1006,22 +882,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySwapchain(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySwapchain>::Dispatch(manager, swapchain);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySwapchain>::Dispatch(manager, swapchain);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->DestroySwapchain(swapchain);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySwapchain);
     if (encoder)
@@ -1044,25 +914,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainImages(
     uint32_t*                                   imageCountOutput,
     XrSwapchainImageBaseHeader*                 images)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSwapchainImages>::Dispatch(manager, swapchain, imageCapacityInput, imageCountOutput, images);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSwapchainImages>::Dispatch(manager, swapchain, imageCapacityInput, imageCountOutput, images);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->EnumerateSwapchainImages(swapchain, imageCapacityInput, imageCountOutput, images);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1089,25 +953,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrAcquireSwapchainImage(
     const XrSwapchainImageAcquireInfo*          acquireInfo,
     uint32_t*                                   index)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>::Dispatch(manager, swapchain, acquireInfo, index);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>::Dispatch(manager, swapchain, acquireInfo, index);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->AcquireSwapchainImage(swapchain, acquireInfo, index);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1134,21 +992,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrWaitSwapchainImage(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitSwapchainImage>::Dispatch(manager, swapchain, waitInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitSwapchainImage>::Dispatch(manager, swapchain, waitInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->WaitSwapchainImage(swapchain, waitInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrWaitSwapchainImage);
     if (encoder)
@@ -1170,21 +1022,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrReleaseSwapchainImage(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrReleaseSwapchainImage>::Dispatch(manager, swapchain, releaseInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrReleaseSwapchainImage>::Dispatch(manager, swapchain, releaseInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->ReleaseSwapchainImage(swapchain, releaseInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrReleaseSwapchainImage);
     if (encoder)
@@ -1206,21 +1052,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrBeginSession(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginSession>::Dispatch(manager, session, beginInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginSession>::Dispatch(manager, session, beginInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->BeginSession(session, beginInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrBeginSession);
     if (encoder)
@@ -1241,21 +1081,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEndSession(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndSession>::Dispatch(manager, session);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndSession>::Dispatch(manager, session);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EndSession(session);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEndSession);
     if (encoder)
@@ -1275,21 +1109,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestExitSession(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestExitSession>::Dispatch(manager, session);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestExitSession>::Dispatch(manager, session);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestExitSession(session);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrRequestExitSession);
     if (encoder)
@@ -1309,25 +1137,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrWaitFrame(
     const XrFrameWaitInfo*                      frameWaitInfo,
     XrFrameState*                               frameState)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitFrame>::Dispatch(manager, session, frameWaitInfo, frameState);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrWaitFrame>::Dispatch(manager, session, frameWaitInfo, frameState);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->WaitFrame(session, frameWaitInfo, frameState);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1354,21 +1176,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrBeginFrame(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginFrame>::Dispatch(manager, session, frameBeginInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginFrame>::Dispatch(manager, session, frameBeginInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->BeginFrame(session, frameBeginInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrBeginFrame);
     if (encoder)
@@ -1392,28 +1208,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateViews(
     uint32_t*                                   viewCountOutput,
     XrView*                                     views)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateViews>::Dispatch(manager, session, viewLocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrViewLocateInfo* viewLocateInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrViewLocateInfo* viewLocateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(viewLocateInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateViews>::Dispatch(manager, session, viewLocateInfo, viewState, viewCapacityInput, viewCountOutput, views);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        viewLocateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(viewLocateInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->LocateViews(session, viewLocateInfo_unwrapped, viewState, viewCapacityInput, viewCountOutput, views);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1442,25 +1254,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStringToPath(
     const char*                                 pathString,
     XrPath*                                     path)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStringToPath>::Dispatch(manager, instance, pathString, path);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStringToPath>::Dispatch(manager, instance, pathString, path);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->StringToPath(instance, pathString, path);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1488,25 +1294,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPathToString(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPathToString>::Dispatch(manager, instance, path, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPathToString>::Dispatch(manager, instance, path, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->PathToString(instance, path, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1534,25 +1334,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateActionSet(
     const XrActionSetCreateInfo*                createInfo,
     XrActionSet*                                actionSet)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateActionSet>::Dispatch(manager, instance, createInfo, actionSet);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateActionSet>::Dispatch(manager, instance, createInfo, actionSet);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateActionSet(instance, createInfo, actionSet);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -1583,22 +1377,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyActionSet(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyActionSet>::Dispatch(manager, actionSet);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyActionSet>::Dispatch(manager, actionSet);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(actionSet)->DestroyActionSet(actionSet);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyActionSet);
     if (encoder)
@@ -1620,25 +1408,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateAction(
     const XrActionCreateInfo*                   createInfo,
     XrAction*                                   action)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateAction>::Dispatch(manager, actionSet, createInfo, action);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateAction>::Dispatch(manager, actionSet, createInfo, action);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(actionSet)->CreateAction(actionSet, createInfo, action);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -1669,22 +1451,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyAction(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyAction>::Dispatch(manager, action);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyAction>::Dispatch(manager, action);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(action)->DestroyAction(action);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyAction);
     if (encoder)
@@ -1707,24 +1483,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSuggestInteractionProfileBindings(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrInteractionProfileSuggestedBinding* suggestedBindings_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSuggestInteractionProfileBindings>::Dispatch(manager, instance, suggestedBindings);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSuggestInteractionProfileBindings>::Dispatch(manager, instance, suggestedBindings);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrInteractionProfileSuggestedBinding* suggestedBindings_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(suggestedBindings, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        suggestedBindings_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(suggestedBindings, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->SuggestInteractionProfileBindings(instance, suggestedBindings_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSuggestInteractionProfileBindings);
     if (encoder)
@@ -1746,24 +1518,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrAttachSessionActionSets(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSessionActionSetsAttachInfo* attachInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAttachSessionActionSets>::Dispatch(manager, session, attachInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAttachSessionActionSets>::Dispatch(manager, session, attachInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSessionActionSetsAttachInfo* attachInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(attachInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        attachInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(attachInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->AttachSessionActionSets(session, attachInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrAttachSessionActionSets);
     if (encoder)
@@ -1784,25 +1552,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetCurrentInteractionProfile(
     XrPath                                      topLevelUserPath,
     XrInteractionProfileState*                  interactionProfile)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetCurrentInteractionProfile>::Dispatch(manager, session, topLevelUserPath, interactionProfile);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetCurrentInteractionProfile>::Dispatch(manager, session, topLevelUserPath, interactionProfile);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetCurrentInteractionProfile(session, topLevelUserPath, interactionProfile);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1828,28 +1590,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateBoolean(
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateBoolean*                       state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStateBoolean>::Dispatch(manager, session, getInfo, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionStateGetInfo* getInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrActionStateGetInfo* getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStateBoolean>::Dispatch(manager, session, getInfo, state);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetActionStateBoolean(session, getInfo_unwrapped, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1875,28 +1633,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateFloat(
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateFloat*                         state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStateFloat>::Dispatch(manager, session, getInfo, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionStateGetInfo* getInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrActionStateGetInfo* getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStateFloat>::Dispatch(manager, session, getInfo, state);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetActionStateFloat(session, getInfo_unwrapped, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1922,28 +1676,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStateVector2f(
     const XrActionStateGetInfo*                 getInfo,
     XrActionStateVector2f*                      state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStateVector2f>::Dispatch(manager, session, getInfo, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionStateGetInfo* getInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrActionStateGetInfo* getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStateVector2f>::Dispatch(manager, session, getInfo, state);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetActionStateVector2f(session, getInfo_unwrapped, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -1969,28 +1719,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetActionStatePose(
     const XrActionStateGetInfo*                 getInfo,
     XrActionStatePose*                          state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStatePose>::Dispatch(manager, session, getInfo, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionStateGetInfo* getInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrActionStateGetInfo* getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetActionStatePose>::Dispatch(manager, session, getInfo, state);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetActionStatePose(session, getInfo_unwrapped, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2017,24 +1763,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSyncActions(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionsSyncInfo* syncInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSyncActions>::Dispatch(manager, session, syncInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSyncActions>::Dispatch(manager, session, syncInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrActionsSyncInfo* syncInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(syncInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        syncInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(syncInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SyncActions(session, syncInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSyncActions);
     if (encoder)
@@ -2057,28 +1799,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateBoundSourcesForAction(
     uint32_t*                                   sourceCountOutput,
     XrPath*                                     sources)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateBoundSourcesForAction>::Dispatch(manager, session, enumerateInfo, sourceCapacityInput, sourceCountOutput, sources);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrBoundSourcesForActionEnumerateInfo* enumerateInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrBoundSourcesForActionEnumerateInfo* enumerateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(enumerateInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateBoundSourcesForAction>::Dispatch(manager, session, enumerateInfo, sourceCapacityInput, sourceCountOutput, sources);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        enumerateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(enumerateInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateBoundSourcesForAction(session, enumerateInfo_unwrapped, sourceCapacityInput, sourceCountOutput, sources);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2108,25 +1846,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetInputSourceLocalizedName(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetInputSourceLocalizedName>::Dispatch(manager, session, getInfo, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetInputSourceLocalizedName>::Dispatch(manager, session, getInfo, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetInputSourceLocalizedName(session, getInfo, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2156,24 +1888,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrApplyHapticFeedback(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrHapticActionInfo* hapticActionInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyHapticFeedback>::Dispatch(manager, session, hapticActionInfo, hapticFeedback);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyHapticFeedback>::Dispatch(manager, session, hapticActionInfo, hapticFeedback);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrHapticActionInfo* hapticActionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(hapticActionInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        hapticActionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(hapticActionInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->ApplyHapticFeedback(session, hapticActionInfo_unwrapped, hapticFeedback);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrApplyHapticFeedback);
     if (encoder)
@@ -2196,24 +1924,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStopHapticFeedback(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrHapticActionInfo* hapticActionInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStopHapticFeedback>::Dispatch(manager, session, hapticActionInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStopHapticFeedback>::Dispatch(manager, session, hapticActionInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrHapticActionInfo* hapticActionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(hapticActionInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        hapticActionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(hapticActionInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->StopHapticFeedback(session, hapticActionInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrStopHapticFeedback);
     if (encoder)
@@ -2234,12 +1958,11 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
     const XrApiLayerCreateInfo*                 layerInfo,
     XrInstance*                                 instance)
 {
-    auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(OpenXrCaptureManager::Get(), info, layerInfo, instance);
+    auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
 
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateApiLayerInstance>::Dispatch(OpenXrCaptureManager::Get(), info, layerInfo, instance);
     XrResult result = OpenXrCaptureManager::OverrideCreateApiLayerInstance(info, layerInfo, instance);
     if (result < 0)
     {
@@ -2268,21 +1991,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetAndroidApplicationThreadKHR>::Dispatch(manager, session, threadType, threadId);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetAndroidApplicationThreadKHR>::Dispatch(manager, session, threadType, threadId);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetAndroidApplicationThreadKHR(session, threadType, threadId);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetAndroidApplicationThreadKHR);
     if (encoder)
@@ -2305,25 +2022,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchainAndroidSurfaceKHR(
     XrSwapchain*                                swapchain,
     jobject*                                    surface)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR>::Dispatch(manager, session, info, swapchain, surface);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR>::Dispatch(manager, session, info, swapchain, surface);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSwapchainAndroidSurfaceKHR(session, info, swapchain, surface);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -2355,25 +2066,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLGraphicsRequirementsKHR(
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLKHR*            graphicsRequirements)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetOpenGLGraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetOpenGLGraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetOpenGLGraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2399,25 +2104,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLESGraphicsRequirementsKHR(
     XrSystemId                                  systemId,
     XrGraphicsRequirementsOpenGLESKHR*          graphicsRequirements)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetOpenGLESGraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetOpenGLESGraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetOpenGLESGraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2445,25 +2144,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanInstanceExtensionsKHR(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanInstanceExtensionsKHR>::Dispatch(manager, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanInstanceExtensionsKHR>::Dispatch(manager, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanInstanceExtensionsKHR(instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2493,25 +2186,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanDeviceExtensionsKHR(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanDeviceExtensionsKHR>::Dispatch(manager, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanDeviceExtensionsKHR>::Dispatch(manager, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanDeviceExtensionsKHR(instance, systemId, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2540,25 +2227,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(
     VkInstance                                  vkInstance,
     VkPhysicalDevice*                           vkPhysicalDevice)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::Dispatch(manager, instance, systemId, vkInstance, vkPhysicalDevice);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::Dispatch(manager, instance, systemId, vkInstance, vkPhysicalDevice);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsDeviceKHR(instance, systemId, vkInstance, vkPhysicalDevice);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -2590,25 +2271,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirementsKHR(
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2634,25 +2309,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D11GraphicsRequirementsKHR(
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D11KHR*             graphicsRequirements)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetD3D11GraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetD3D11GraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetD3D11GraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2678,25 +2347,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D12GraphicsRequirementsKHR(
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D12KHR*             graphicsRequirements)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetD3D12GraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetD3D12GraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetD3D12GraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2724,25 +2387,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVisibilityMaskKHR(
     XrVisibilityMaskTypeKHR                     visibilityMaskType,
     XrVisibilityMaskKHR*                        visibilityMask)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVisibilityMaskKHR>::Dispatch(manager, session, viewConfigurationType, viewIndex, visibilityMaskType, visibilityMask);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVisibilityMaskKHR>::Dispatch(manager, session, viewConfigurationType, viewIndex, visibilityMaskType, visibilityMask);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetVisibilityMaskKHR(session, viewConfigurationType, viewIndex, visibilityMaskType, visibilityMask);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2770,25 +2427,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(
     const LARGE_INTEGER*                        performanceCounter,
     XrTime*                                     time)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertWin32PerformanceCounterToTimeKHR>::Dispatch(manager, instance, performanceCounter, time);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertWin32PerformanceCounterToTimeKHR>::Dispatch(manager, instance, performanceCounter, time);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->ConvertWin32PerformanceCounterToTimeKHR(instance, performanceCounter, time);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2814,25 +2465,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(
     XrTime                                      time,
     LARGE_INTEGER*                              performanceCounter)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertTimeToWin32PerformanceCounterKHR>::Dispatch(manager, instance, time, performanceCounter);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertTimeToWin32PerformanceCounterKHR>::Dispatch(manager, instance, time, performanceCounter);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->ConvertTimeToWin32PerformanceCounterKHR(instance, time, performanceCounter);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2858,25 +2503,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimespecTimeToTimeKHR(
     const struct timespec*                      timespecTime,
     XrTime*                                     time)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertTimespecTimeToTimeKHR>::Dispatch(manager, instance, timespecTime, time);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertTimespecTimeToTimeKHR>::Dispatch(manager, instance, timespecTime, time);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->ConvertTimespecTimeToTimeKHR(instance, timespecTime, time);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2902,25 +2541,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     XrTime                                      time,
     struct timespec*                            timespecTime)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertTimeToTimespecTimeKHR>::Dispatch(manager, instance, time, timespecTime);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrConvertTimeToTimespecTimeKHR>::Dispatch(manager, instance, time, timespecTime);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->ConvertTimeToTimespecTimeKHR(instance, time, timespecTime);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -2947,25 +2580,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(
     VkInstance*                                 vulkanInstance,
     VkResult*                                   vulkanResult)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(manager, instance, createInfo, vulkanInstance, vulkanResult);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(manager, instance, createInfo, vulkanInstance, vulkanResult);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateVulkanInstanceKHR(instance, createInfo, vulkanInstance, vulkanResult);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -2998,28 +2625,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(
     VkDevice*                                   vulkanDevice,
     VkResult*                                   vulkanResult)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(manager, instance, createInfo, vulkanDevice, vulkanResult);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVulkanDeviceCreateInfoKHR* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrVulkanDeviceCreateInfoKHR* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(manager, instance, createInfo, vulkanDevice, vulkanResult);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateVulkanDeviceKHR(instance, createInfo_unwrapped, vulkanDevice, vulkanResult);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -3051,28 +2674,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(
     const XrVulkanGraphicsDeviceGetInfoKHR*     getInfo,
     VkPhysicalDevice*                           vulkanPhysicalDevice)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::Dispatch(manager, instance, getInfo, vulkanPhysicalDevice);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVulkanGraphicsDeviceGetInfoKHR* getInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrVulkanGraphicsDeviceGetInfoKHR* getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::Dispatch(manager, instance, getInfo, vulkanPhysicalDevice);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsDevice2KHR(instance, getInfo_unwrapped, vulkanPhysicalDevice);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -3103,25 +2722,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsRequirements2KHR(instance, systemId, graphicsRequirements);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -3149,21 +2762,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPerfSettingsSetPerformanceLevelEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPerfSettingsSetPerformanceLevelEXT>::Dispatch(manager, session, domain, level);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPerfSettingsSetPerformanceLevelEXT>::Dispatch(manager, session, domain, level);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->PerfSettingsSetPerformanceLevelEXT(session, domain, level);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPerfSettingsSetPerformanceLevelEXT);
     if (encoder)
@@ -3187,25 +2794,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrThermalGetTemperatureTrendEXT(
     float*                                      tempHeadroom,
     float*                                      tempSlope)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrThermalGetTemperatureTrendEXT>::Dispatch(manager, session, domain, notificationLevel, tempHeadroom, tempSlope);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrThermalGetTemperatureTrendEXT>::Dispatch(manager, session, domain, notificationLevel, tempHeadroom, tempSlope);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->ThermalGetTemperatureTrendEXT(session, domain, notificationLevel, tempHeadroom, tempSlope);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -3234,21 +2835,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetDebugUtilsObjectNameEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDebugUtilsObjectNameEXT>::Dispatch(manager, instance, nameInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDebugUtilsObjectNameEXT>::Dispatch(manager, instance, nameInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->SetDebugUtilsObjectNameEXT(instance, nameInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetDebugUtilsObjectNameEXT);
     if (encoder)
@@ -3269,25 +2864,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateDebugUtilsMessengerEXT(
     const XrDebugUtilsMessengerCreateInfoEXT*   createInfo,
     XrDebugUtilsMessengerEXT*                   messenger)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::Dispatch(manager, instance, createInfo, messenger);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>::Dispatch(manager, instance, createInfo, messenger);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateDebugUtilsMessengerEXT(instance, createInfo, messenger);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -3318,22 +2907,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyDebugUtilsMessengerEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyDebugUtilsMessengerEXT>::Dispatch(manager, messenger);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyDebugUtilsMessengerEXT>::Dispatch(manager, messenger);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(messenger)->DestroyDebugUtilsMessengerEXT(messenger);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyDebugUtilsMessengerEXT);
     if (encoder)
@@ -3358,21 +2941,15 @@ XRAPI_ATTR XrResult                                    XRAPI_CALL xrSubmitDebugU
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSubmitDebugUtilsMessageEXT>::Dispatch(manager, instance, messageSeverity, messageTypes, callbackData);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSubmitDebugUtilsMessageEXT>::Dispatch(manager, instance, messageSeverity, messageTypes, callbackData);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, callbackData);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSubmitDebugUtilsMessageEXT);
     if (encoder)
@@ -3396,21 +2973,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSessionBeginDebugUtilsLabelRegionEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionBeginDebugUtilsLabelRegionEXT>::Dispatch(manager, session, labelInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionBeginDebugUtilsLabelRegionEXT>::Dispatch(manager, session, labelInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SessionBeginDebugUtilsLabelRegionEXT(session, labelInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSessionBeginDebugUtilsLabelRegionEXT);
     if (encoder)
@@ -3431,21 +3002,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSessionEndDebugUtilsLabelRegionEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionEndDebugUtilsLabelRegionEXT>::Dispatch(manager, session);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionEndDebugUtilsLabelRegionEXT>::Dispatch(manager, session);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SessionEndDebugUtilsLabelRegionEXT(session);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSessionEndDebugUtilsLabelRegionEXT);
     if (encoder)
@@ -3466,21 +3031,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSessionInsertDebugUtilsLabelEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionInsertDebugUtilsLabelEXT>::Dispatch(manager, session, labelInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSessionInsertDebugUtilsLabelEXT>::Dispatch(manager, session, labelInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SessionInsertDebugUtilsLabelEXT(session, labelInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSessionInsertDebugUtilsLabelEXT);
     if (encoder)
@@ -3501,28 +3060,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorMSFT(
     const XrSpatialAnchorCreateInfoMSFT*        createInfo,
     XrSpatialAnchorMSFT*                        anchor)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorMSFT>::Dispatch(manager, session, createInfo, anchor);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialAnchorCreateInfoMSFT* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpatialAnchorCreateInfoMSFT* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorMSFT>::Dispatch(manager, session, createInfo, anchor);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorMSFT(session, createInfo_unwrapped, anchor);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -3553,28 +3108,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorSpaceMSFT(
     const XrSpatialAnchorSpaceCreateInfoMSFT*   createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorSpaceMSFT>::Dispatch(manager, session, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialAnchorSpaceCreateInfoMSFT* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpatialAnchorSpaceCreateInfoMSFT* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorSpaceMSFT>::Dispatch(manager, session, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorSpaceMSFT(session, createInfo_unwrapped, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -3605,22 +3156,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialAnchorMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpatialAnchorMSFT>::Dispatch(manager, anchor);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpatialAnchorMSFT>::Dispatch(manager, anchor);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(anchor)->DestroySpatialAnchorMSFT(anchor);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySpatialAnchorMSFT);
     if (encoder)
@@ -3645,21 +3190,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceActiveEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceActiveEXT>::Dispatch(manager, session, interactionProfile, topLevelPath, isActive);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceActiveEXT>::Dispatch(manager, session, interactionProfile, topLevelPath, isActive);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetInputDeviceActiveEXT(session, interactionProfile, topLevelPath, isActive);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetInputDeviceActiveEXT);
     if (encoder)
@@ -3685,21 +3224,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateBoolEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceStateBoolEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, state);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceStateBoolEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetInputDeviceStateBoolEXT(session, topLevelPath, inputSourcePath, state);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetInputDeviceStateBoolEXT);
     if (encoder)
@@ -3725,21 +3258,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateFloatEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceStateFloatEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, state);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceStateFloatEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetInputDeviceStateFloatEXT(session, topLevelPath, inputSourcePath, state);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetInputDeviceStateFloatEXT);
     if (encoder)
@@ -3765,21 +3292,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceStateVector2fEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceStateVector2fEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, state);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceStateVector2fEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetInputDeviceStateVector2fEXT(session, topLevelPath, inputSourcePath, state);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetInputDeviceStateVector2fEXT);
     if (encoder)
@@ -3806,21 +3327,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceLocationEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceLocationEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, space, pose);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetInputDeviceLocationEXT>::Dispatch(manager, session, topLevelPath, inputSourcePath, space, pose);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetInputDeviceLocationEXT(session, topLevelPath, inputSourcePath, space, pose);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetInputDeviceLocationEXT);
     if (encoder)
@@ -3844,25 +3359,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialGraphNodeSpaceMSFT(
     const XrSpatialGraphNodeSpaceCreateInfoMSFT* createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialGraphNodeSpaceMSFT>::Dispatch(manager, session, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialGraphNodeSpaceMSFT>::Dispatch(manager, session, createInfo, space);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialGraphNodeSpaceMSFT(session, createInfo, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -3893,28 +3402,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTryCreateSpatialGraphStaticNodeBindingMSFT(
     const XrSpatialGraphStaticNodeBindingCreateInfoMSFT* createInfo,
     XrSpatialGraphNodeBindingMSFT*              nodeBinding)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTryCreateSpatialGraphStaticNodeBindingMSFT>::Dispatch(manager, session, createInfo, nodeBinding);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialGraphStaticNodeBindingCreateInfoMSFT* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpatialGraphStaticNodeBindingCreateInfoMSFT* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTryCreateSpatialGraphStaticNodeBindingMSFT>::Dispatch(manager, session, createInfo, nodeBinding);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->TryCreateSpatialGraphStaticNodeBindingMSFT(session, createInfo_unwrapped, nodeBinding);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -3945,22 +3450,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialGraphNodeBindingMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpatialGraphNodeBindingMSFT>::Dispatch(manager, nodeBinding);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpatialGraphNodeBindingMSFT>::Dispatch(manager, nodeBinding);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(nodeBinding)->DestroySpatialGraphNodeBindingMSFT(nodeBinding);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySpatialGraphNodeBindingMSFT);
     if (encoder)
@@ -3982,25 +3481,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialGraphNodeBindingPropertiesMSFT(
     const XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* getInfo,
     XrSpatialGraphNodeBindingPropertiesMSFT*    properties)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpatialGraphNodeBindingPropertiesMSFT>::Dispatch(manager, nodeBinding, getInfo, properties);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpatialGraphNodeBindingPropertiesMSFT>::Dispatch(manager, nodeBinding, getInfo, properties);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(nodeBinding)->GetSpatialGraphNodeBindingPropertiesMSFT(nodeBinding, getInfo, properties);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4026,25 +3519,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandTrackerEXT(
     const XrHandTrackerCreateInfoEXT*           createInfo,
     XrHandTrackerEXT*                           handTracker)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandTrackerEXT>::Dispatch(manager, session, createInfo, handTracker);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandTrackerEXT>::Dispatch(manager, session, createInfo, handTracker);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateHandTrackerEXT(session, createInfo, handTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -4075,22 +3562,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyHandTrackerEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyHandTrackerEXT>::Dispatch(manager, handTracker);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyHandTrackerEXT>::Dispatch(manager, handTracker);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->DestroyHandTrackerEXT(handTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyHandTrackerEXT);
     if (encoder)
@@ -4112,28 +3593,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateHandJointsEXT(
     const XrHandJointsLocateInfoEXT*            locateInfo,
     XrHandJointLocationsEXT*                    locations)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::Dispatch(manager, handTracker, locateInfo, locations);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrHandJointsLocateInfoEXT* locateInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrHandJointsLocateInfoEXT* locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::Dispatch(manager, handTracker, locateInfo, locations);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->LocateHandJointsEXT(handTracker, locateInfo_unwrapped, locations);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4159,25 +3636,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateHandMeshSpaceMSFT(
     const XrHandMeshSpaceCreateInfoMSFT*        createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandMeshSpaceMSFT>::Dispatch(manager, handTracker, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateHandMeshSpaceMSFT>::Dispatch(manager, handTracker, createInfo, space);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->CreateHandMeshSpaceMSFT(handTracker, createInfo, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -4208,25 +3679,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrUpdateHandMeshMSFT(
     const XrHandMeshUpdateInfoMSFT*             updateInfo,
     XrHandMeshMSFT*                             handMesh)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdateHandMeshMSFT>::Dispatch(manager, handTracker, updateInfo, handMesh);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdateHandMeshMSFT>::Dispatch(manager, handTracker, updateInfo, handMesh);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->UpdateHandMeshMSFT(handTracker, updateInfo, handMesh);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4252,25 +3717,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelKeyMSFT(
     XrPath                                      topLevelUserPath,
     XrControllerModelKeyStateMSFT*              controllerModelKeyState)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetControllerModelKeyMSFT>::Dispatch(manager, session, topLevelUserPath, controllerModelKeyState);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetControllerModelKeyMSFT>::Dispatch(manager, session, topLevelUserPath, controllerModelKeyState);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetControllerModelKeyMSFT(session, topLevelUserPath, controllerModelKeyState);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4298,25 +3757,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLoadControllerModelMSFT(
     uint32_t*                                   bufferCountOutput,
     uint8_t*                                    buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLoadControllerModelMSFT>::Dispatch(manager, session, modelKey, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLoadControllerModelMSFT>::Dispatch(manager, session, modelKey, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->LoadControllerModelMSFT(session, modelKey, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4344,25 +3797,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelPropertiesMSFT(
     XrControllerModelKeyMSFT                    modelKey,
     XrControllerModelPropertiesMSFT*            properties)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetControllerModelPropertiesMSFT>::Dispatch(manager, session, modelKey, properties);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetControllerModelPropertiesMSFT>::Dispatch(manager, session, modelKey, properties);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetControllerModelPropertiesMSFT(session, modelKey, properties);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4388,25 +3835,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelStateMSFT(
     XrControllerModelKeyMSFT                    modelKey,
     XrControllerModelStateMSFT*                 state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetControllerModelStateMSFT>::Dispatch(manager, session, modelKey, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetControllerModelStateMSFT>::Dispatch(manager, session, modelKey, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetControllerModelStateMSFT(session, modelKey, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4432,25 +3873,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPerceptionAnchorMSFT(
     IUnknown*                                   perceptionAnchor,
     XrSpatialAnchorMSFT*                        anchor)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPerceptionAnchorMSFT>::Dispatch(manager, session, perceptionAnchor, anchor);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPerceptionAnchorMSFT>::Dispatch(manager, session, perceptionAnchor, anchor);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorFromPerceptionAnchorMSFT(session, perceptionAnchor, anchor);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -4481,25 +3916,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(
     XrSpatialAnchorMSFT                         anchor,
     IUnknown**                                  perceptionAnchor)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT>::Dispatch(manager, session, anchor, perceptionAnchor);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT>::Dispatch(manager, session, anchor, perceptionAnchor);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->TryGetPerceptionAnchorFromSpatialAnchorMSFT(session, anchor, perceptionAnchor);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4528,25 +3957,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateReprojectionModesMSFT(
     uint32_t*                                   modeCountOutput,
     XrReprojectionModeMSFT*                     modes)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateReprojectionModesMSFT>::Dispatch(manager, instance, systemId, viewConfigurationType, modeCapacityInput, modeCountOutput, modes);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateReprojectionModesMSFT>::Dispatch(manager, instance, systemId, viewConfigurationType, modeCapacityInput, modeCountOutput, modes);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumerateReprojectionModesMSFT(instance, systemId, viewConfigurationType, modeCapacityInput, modeCountOutput, modes);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4576,21 +3999,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrUpdateSwapchainFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdateSwapchainFB>::Dispatch(manager, swapchain, state);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdateSwapchainFB>::Dispatch(manager, swapchain, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->UpdateSwapchainFB(swapchain, state);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrUpdateSwapchainFB);
     if (encoder)
@@ -4610,25 +4027,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSwapchainStateFB(
     XrSwapchain                                 swapchain,
     XrSwapchainStateBaseHeaderFB*               state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSwapchainStateFB>::Dispatch(manager, swapchain, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSwapchainStateFB>::Dispatch(manager, swapchain, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->GetSwapchainStateFB(swapchain, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4653,25 +4064,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateBodyTrackerFB(
     const XrBodyTrackerCreateInfoFB*            createInfo,
     XrBodyTrackerFB*                            bodyTracker)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateBodyTrackerFB>::Dispatch(manager, session, createInfo, bodyTracker);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateBodyTrackerFB>::Dispatch(manager, session, createInfo, bodyTracker);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateBodyTrackerFB(session, createInfo, bodyTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -4702,22 +4107,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyBodyTrackerFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyBodyTrackerFB>::Dispatch(manager, bodyTracker);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyBodyTrackerFB>::Dispatch(manager, bodyTracker);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(bodyTracker)->DestroyBodyTrackerFB(bodyTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyBodyTrackerFB);
     if (encoder)
@@ -4739,28 +4138,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateBodyJointsFB(
     const XrBodyJointsLocateInfoFB*             locateInfo,
     XrBodyJointLocationsFB*                     locations)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>::Dispatch(manager, bodyTracker, locateInfo, locations);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrBodyJointsLocateInfoFB* locateInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrBodyJointsLocateInfoFB* locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>::Dispatch(manager, bodyTracker, locateInfo, locations);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(bodyTracker)->LocateBodyJointsFB(bodyTracker, locateInfo_unwrapped, locations);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4785,25 +4180,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetBodySkeletonFB(
     XrBodyTrackerFB                             bodyTracker,
     XrBodySkeletonFB*                           skeleton)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetBodySkeletonFB>::Dispatch(manager, bodyTracker, skeleton);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetBodySkeletonFB>::Dispatch(manager, bodyTracker, skeleton);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(bodyTracker)->GetBodySkeletonFB(bodyTracker, skeleton);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4830,25 +4219,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSceneComputeFeaturesMSFT(
     uint32_t*                                   featureCountOutput,
     XrSceneComputeFeatureMSFT*                  features)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSceneComputeFeaturesMSFT>::Dispatch(manager, instance, systemId, featureCapacityInput, featureCountOutput, features);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSceneComputeFeaturesMSFT>::Dispatch(manager, instance, systemId, featureCapacityInput, featureCountOutput, features);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumerateSceneComputeFeaturesMSFT(instance, systemId, featureCapacityInput, featureCountOutput, features);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -4876,25 +4259,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneObserverMSFT(
     const XrSceneObserverCreateInfoMSFT*        createInfo,
     XrSceneObserverMSFT*                        sceneObserver)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneObserverMSFT>::Dispatch(manager, session, createInfo, sceneObserver);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneObserverMSFT>::Dispatch(manager, session, createInfo, sceneObserver);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSceneObserverMSFT(session, createInfo, sceneObserver);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -4925,22 +4302,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySceneObserverMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySceneObserverMSFT>::Dispatch(manager, sceneObserver);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySceneObserverMSFT>::Dispatch(manager, sceneObserver);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->DestroySceneObserverMSFT(sceneObserver);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySceneObserverMSFT);
     if (encoder)
@@ -4962,25 +4333,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSceneMSFT(
     const XrSceneCreateInfoMSFT*                createInfo,
     XrSceneMSFT*                                scene)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneMSFT>::Dispatch(manager, sceneObserver, createInfo, scene);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSceneMSFT>::Dispatch(manager, sceneObserver, createInfo, scene);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->CreateSceneMSFT(sceneObserver, createInfo, scene);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -5011,22 +4376,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySceneMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySceneMSFT>::Dispatch(manager, scene);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySceneMSFT>::Dispatch(manager, scene);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(scene)->DestroySceneMSFT(scene);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySceneMSFT);
     if (encoder)
@@ -5049,24 +4408,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrComputeNewSceneMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrNewSceneComputeInfoMSFT* computeInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrComputeNewSceneMSFT>::Dispatch(manager, sceneObserver, computeInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrComputeNewSceneMSFT>::Dispatch(manager, sceneObserver, computeInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrNewSceneComputeInfoMSFT* computeInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(computeInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        computeInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(computeInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->ComputeNewSceneMSFT(sceneObserver, computeInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrComputeNewSceneMSFT);
     if (encoder)
@@ -5086,25 +4441,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComputeStateMSFT(
     XrSceneObserverMSFT                         sceneObserver,
     XrSceneComputeStateMSFT*                    state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneComputeStateMSFT>::Dispatch(manager, sceneObserver, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneComputeStateMSFT>::Dispatch(manager, sceneObserver, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->GetSceneComputeStateMSFT(sceneObserver, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5129,25 +4478,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneComponentsMSFT(
     const XrSceneComponentsGetInfoMSFT*         getInfo,
     XrSceneComponentsMSFT*                      components)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT>::Dispatch(manager, scene, getInfo, components);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT>::Dispatch(manager, scene, getInfo, components);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneComponentsMSFT(scene, getInfo, components);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5173,28 +4516,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSceneComponentsMSFT(
     const XrSceneComponentsLocateInfoMSFT*      locateInfo,
     XrSceneComponentLocationsMSFT*              locations)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSceneComponentsMSFT>::Dispatch(manager, scene, locateInfo, locations);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSceneComponentsLocateInfoMSFT* locateInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSceneComponentsLocateInfoMSFT* locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSceneComponentsMSFT>::Dispatch(manager, scene, locateInfo, locations);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(scene)->LocateSceneComponentsMSFT(scene, locateInfo_unwrapped, locations);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5220,25 +4559,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMeshBuffersMSFT(
     const XrSceneMeshBuffersGetInfoMSFT*        getInfo,
     XrSceneMeshBuffersMSFT*                     buffers)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMeshBuffersMSFT>::Dispatch(manager, scene, getInfo, buffers);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMeshBuffersMSFT>::Dispatch(manager, scene, getInfo, buffers);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneMeshBuffersMSFT(scene, getInfo, buffers);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5265,21 +4598,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDeserializeSceneMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDeserializeSceneMSFT>::Dispatch(manager, sceneObserver, deserializeInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDeserializeSceneMSFT>::Dispatch(manager, sceneObserver, deserializeInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(sceneObserver)->DeserializeSceneMSFT(sceneObserver, deserializeInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrDeserializeSceneMSFT);
     if (encoder)
@@ -5302,25 +4629,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSerializedSceneFragmentDataMSFT(
     uint32_t*                                   readOutput,
     uint8_t*                                    buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>::Dispatch(manager, scene, getInfo, countInput, readOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>::Dispatch(manager, scene, getInfo, countInput, readOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSerializedSceneFragmentDataMSFT(scene, getInfo, countInput, readOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5349,25 +4670,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateDisplayRefreshRatesFB(
     uint32_t*                                   displayRefreshRateCountOutput,
     float*                                      displayRefreshRates)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB>::Dispatch(manager, session, displayRefreshRateCapacityInput, displayRefreshRateCountOutput, displayRefreshRates);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB>::Dispatch(manager, session, displayRefreshRateCapacityInput, displayRefreshRateCountOutput, displayRefreshRates);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateDisplayRefreshRatesFB(session, displayRefreshRateCapacityInput, displayRefreshRateCountOutput, displayRefreshRates);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5393,25 +4708,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetDisplayRefreshRateFB(
     XrSession                                   session,
     float*                                      displayRefreshRate)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetDisplayRefreshRateFB>::Dispatch(manager, session, displayRefreshRate);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetDisplayRefreshRateFB>::Dispatch(manager, session, displayRefreshRate);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetDisplayRefreshRateFB(session, displayRefreshRate);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5437,21 +4746,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestDisplayRefreshRateFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestDisplayRefreshRateFB>::Dispatch(manager, session, displayRefreshRate);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestDisplayRefreshRateFB>::Dispatch(manager, session, displayRefreshRate);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestDisplayRefreshRateFB(session, displayRefreshRate);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrRequestDisplayRefreshRateFB);
     if (encoder)
@@ -5473,25 +4776,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViveTrackerPathsHTCX(
     uint32_t*                                   pathCountOutput,
     XrViveTrackerPathsHTCX*                     paths)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateViveTrackerPathsHTCX>::Dispatch(manager, instance, pathCapacityInput, pathCountOutput, paths);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateViveTrackerPathsHTCX>::Dispatch(manager, instance, pathCapacityInput, pathCountOutput, paths);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumerateViveTrackerPathsHTCX(instance, pathCapacityInput, pathCountOutput, paths);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5518,25 +4815,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFacialTrackerHTC(
     const XrFacialTrackerCreateInfoHTC*         createInfo,
     XrFacialTrackerHTC*                         facialTracker)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFacialTrackerHTC>::Dispatch(manager, session, createInfo, facialTracker);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFacialTrackerHTC>::Dispatch(manager, session, createInfo, facialTracker);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFacialTrackerHTC(session, createInfo, facialTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -5567,22 +4858,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFacialTrackerHTC(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFacialTrackerHTC>::Dispatch(manager, facialTracker);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFacialTrackerHTC>::Dispatch(manager, facialTracker);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(facialTracker)->DestroyFacialTrackerHTC(facialTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyFacialTrackerHTC);
     if (encoder)
@@ -5603,25 +4888,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFacialExpressionsHTC(
     XrFacialTrackerHTC                          facialTracker,
     XrFacialExpressionsHTC*                     facialExpressions)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFacialExpressionsHTC>::Dispatch(manager, facialTracker, facialExpressions);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFacialExpressionsHTC>::Dispatch(manager, facialTracker, facialExpressions);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(facialTracker)->GetFacialExpressionsHTC(facialTracker, facialExpressions);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5647,25 +4926,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateColorSpacesFB(
     uint32_t*                                   colorSpaceCountOutput,
     XrColorSpaceFB*                             colorSpaces)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateColorSpacesFB>::Dispatch(manager, session, colorSpaceCapacityInput, colorSpaceCountOutput, colorSpaces);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateColorSpacesFB>::Dispatch(manager, session, colorSpaceCapacityInput, colorSpaceCountOutput, colorSpaces);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateColorSpacesFB(session, colorSpaceCapacityInput, colorSpaceCountOutput, colorSpaces);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5693,21 +4966,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetColorSpaceFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetColorSpaceFB>::Dispatch(manager, session, colorSpace);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetColorSpaceFB>::Dispatch(manager, session, colorSpace);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetColorSpaceFB(session, colorSpace);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetColorSpaceFB);
     if (encoder)
@@ -5727,25 +4994,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetHandMeshFB(
     XrHandTrackerEXT                            handTracker,
     XrHandTrackingMeshFB*                       mesh)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetHandMeshFB>::Dispatch(manager, handTracker, mesh);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetHandMeshFB>::Dispatch(manager, handTracker, mesh);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->GetHandMeshFB(handTracker, mesh);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5770,28 +5031,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFB(
     const XrSpatialAnchorCreateInfoFB*          info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFB>::Dispatch(manager, session, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialAnchorCreateInfoFB* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpatialAnchorCreateInfoFB* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFB>::Dispatch(manager, session, info, requestId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorFB(session, info_unwrapped, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5816,25 +5073,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUuidFB(
     XrSpace                                     space,
     XrUuidEXT*                                  uuid)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceUuidFB>::Dispatch(manager, space, uuid);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceUuidFB>::Dispatch(manager, space, uuid);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(space)->GetSpaceUuidFB(space, uuid);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5860,25 +5111,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSpaceSupportedComponentsFB(
     uint32_t*                                   componentTypeCountOutput,
     XrSpaceComponentTypeFB*                     componentTypes)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSpaceSupportedComponentsFB>::Dispatch(manager, space, componentTypeCapacityInput, componentTypeCountOutput, componentTypes);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateSpaceSupportedComponentsFB>::Dispatch(manager, space, componentTypeCapacityInput, componentTypeCountOutput, componentTypes);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(space)->EnumerateSpaceSupportedComponentsFB(space, componentTypeCapacityInput, componentTypeCountOutput, componentTypes);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5905,25 +5150,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetSpaceComponentStatusFB(
     const XrSpaceComponentStatusSetInfoFB*      info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetSpaceComponentStatusFB>::Dispatch(manager, space, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetSpaceComponentStatusFB>::Dispatch(manager, space, info, requestId);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(space)->SetSpaceComponentStatusFB(space, info, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5949,25 +5188,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceComponentStatusFB(
     XrSpaceComponentTypeFB                      componentType,
     XrSpaceComponentStatusFB*                   status)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceComponentStatusFB>::Dispatch(manager, space, componentType, status);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceComponentStatusFB>::Dispatch(manager, space, componentType, status);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(space)->GetSpaceComponentStatusFB(space, componentType, status);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -5993,25 +5226,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFoveationProfileFB(
     const XrFoveationProfileCreateInfoFB*       createInfo,
     XrFoveationProfileFB*                       profile)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFoveationProfileFB>::Dispatch(manager, session, createInfo, profile);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFoveationProfileFB>::Dispatch(manager, session, createInfo, profile);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFoveationProfileFB(session, createInfo, profile);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -6042,22 +5269,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFoveationProfileFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFoveationProfileFB>::Dispatch(manager, profile);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFoveationProfileFB>::Dispatch(manager, profile);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(profile)->DestroyFoveationProfileFB(profile);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyFoveationProfileFB);
     if (encoder)
@@ -6079,25 +5300,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQuerySystemTrackedKeyboardFB(
     const XrKeyboardTrackingQueryFB*            queryInfo,
     XrKeyboardTrackingDescriptionFB*            keyboard)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQuerySystemTrackedKeyboardFB>::Dispatch(manager, session, queryInfo, keyboard);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQuerySystemTrackedKeyboardFB>::Dispatch(manager, session, queryInfo, keyboard);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->QuerySystemTrackedKeyboardFB(session, queryInfo, keyboard);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -6123,25 +5338,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateKeyboardSpaceFB(
     const XrKeyboardSpaceCreateInfoFB*          createInfo,
     XrSpace*                                    keyboardSpace)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateKeyboardSpaceFB>::Dispatch(manager, session, createInfo, keyboardSpace);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateKeyboardSpaceFB>::Dispatch(manager, session, createInfo, keyboardSpace);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateKeyboardSpaceFB(session, createInfo, keyboardSpace);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -6172,21 +5381,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshBeginUpdateFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshBeginUpdateFB>::Dispatch(manager, mesh);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshBeginUpdateFB>::Dispatch(manager, mesh);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshBeginUpdateFB(mesh);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrTriangleMeshBeginUpdateFB);
     if (encoder)
@@ -6208,21 +5411,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshEndUpdateFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshEndUpdateFB>::Dispatch(manager, mesh, vertexCount, triangleCount);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshEndUpdateFB>::Dispatch(manager, mesh, vertexCount, triangleCount);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshEndUpdateFB(mesh, vertexCount, triangleCount);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrTriangleMeshEndUpdateFB);
     if (encoder)
@@ -6243,25 +5440,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshBeginVertexBufferUpdateFB(
     XrTriangleMeshFB                            mesh,
     uint32_t*                                   outVertexCount)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshBeginVertexBufferUpdateFB>::Dispatch(manager, mesh, outVertexCount);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshBeginVertexBufferUpdateFB>::Dispatch(manager, mesh, outVertexCount);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshBeginVertexBufferUpdateFB(mesh, outVertexCount);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -6286,21 +5477,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshEndVertexBufferUpdateFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshEndVertexBufferUpdateFB>::Dispatch(manager, mesh);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrTriangleMeshEndVertexBufferUpdateFB>::Dispatch(manager, mesh);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(mesh)->TriangleMeshEndVertexBufferUpdateFB(mesh);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrTriangleMeshEndVertexBufferUpdateFB);
     if (encoder)
@@ -6320,25 +5505,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughFB(
     const XrPassthroughCreateInfoFB*            createInfo,
     XrPassthroughFB*                            outPassthrough)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughFB>::Dispatch(manager, session, createInfo, outPassthrough);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughFB>::Dispatch(manager, session, createInfo, outPassthrough);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePassthroughFB(session, createInfo, outPassthrough);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -6369,22 +5548,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughFB>::Dispatch(manager, passthrough);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughFB>::Dispatch(manager, passthrough);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(passthrough)->DestroyPassthroughFB(passthrough);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyPassthroughFB);
     if (encoder)
@@ -6406,21 +5579,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughStartFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughStartFB>::Dispatch(manager, passthrough);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughStartFB>::Dispatch(manager, passthrough);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(passthrough)->PassthroughStartFB(passthrough);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPassthroughStartFB);
     if (encoder)
@@ -6440,21 +5607,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughPauseFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughPauseFB>::Dispatch(manager, passthrough);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughPauseFB>::Dispatch(manager, passthrough);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(passthrough)->PassthroughPauseFB(passthrough);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPassthroughPauseFB);
     if (encoder)
@@ -6474,28 +5635,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughLayerFB(
     const XrPassthroughLayerCreateInfoFB*       createInfo,
     XrPassthroughLayerFB*                       outLayer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughLayerFB>::Dispatch(manager, session, createInfo, outLayer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPassthroughLayerCreateInfoFB* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrPassthroughLayerCreateInfoFB* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughLayerFB>::Dispatch(manager, session, createInfo, outLayer);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePassthroughLayerFB(session, createInfo_unwrapped, outLayer);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -6526,22 +5683,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughLayerFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughLayerFB>::Dispatch(manager, layer);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughLayerFB>::Dispatch(manager, layer);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(layer)->DestroyPassthroughLayerFB(layer);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyPassthroughLayerFB);
     if (encoder)
@@ -6563,21 +5714,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerPauseFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerPauseFB>::Dispatch(manager, layer);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerPauseFB>::Dispatch(manager, layer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(layer)->PassthroughLayerPauseFB(layer);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPassthroughLayerPauseFB);
     if (encoder)
@@ -6597,21 +5742,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerResumeFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerResumeFB>::Dispatch(manager, layer);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerResumeFB>::Dispatch(manager, layer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(layer)->PassthroughLayerResumeFB(layer);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPassthroughLayerResumeFB);
     if (encoder)
@@ -6632,24 +5771,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetStyleFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPassthroughStyleFB* style_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerSetStyleFB>::Dispatch(manager, layer, style);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerSetStyleFB>::Dispatch(manager, layer, style);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrPassthroughStyleFB* style_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(style, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        style_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(style, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(layer)->PassthroughLayerSetStyleFB(layer, style_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPassthroughLayerSetStyleFB);
     if (encoder)
@@ -6670,28 +5805,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateGeometryInstanceFB(
     const XrGeometryInstanceCreateInfoFB*       createInfo,
     XrGeometryInstanceFB*                       outGeometryInstance)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateGeometryInstanceFB>::Dispatch(manager, session, createInfo, outGeometryInstance);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrGeometryInstanceCreateInfoFB* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrGeometryInstanceCreateInfoFB* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateGeometryInstanceFB>::Dispatch(manager, session, createInfo, outGeometryInstance);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateGeometryInstanceFB(session, createInfo_unwrapped, outGeometryInstance);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -6722,22 +5853,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyGeometryInstanceFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyGeometryInstanceFB>::Dispatch(manager, instance);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyGeometryInstanceFB>::Dispatch(manager, instance);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->DestroyGeometryInstanceFB(instance);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyGeometryInstanceFB);
     if (encoder)
@@ -6760,24 +5885,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGeometryInstanceSetTransformFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrGeometryInstanceTransformFB* transformation_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGeometryInstanceSetTransformFB>::Dispatch(manager, instance, transformation);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGeometryInstanceSetTransformFB>::Dispatch(manager, instance, transformation);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrGeometryInstanceTransformFB* transformation_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(transformation, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        transformation_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(transformation, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GeometryInstanceSetTransformFB(instance, transformation_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGeometryInstanceSetTransformFB);
     if (encoder)
@@ -6799,25 +5920,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateRenderModelPathsFB(
     uint32_t*                                   pathCountOutput,
     XrRenderModelPathInfoFB*                    paths)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateRenderModelPathsFB>::Dispatch(manager, session, pathCapacityInput, pathCountOutput, paths);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateRenderModelPathsFB>::Dispatch(manager, session, pathCapacityInput, pathCountOutput, paths);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateRenderModelPathsFB(session, pathCapacityInput, pathCountOutput, paths);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -6844,25 +5959,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetRenderModelPropertiesFB(
     XrPath                                      path,
     XrRenderModelPropertiesFB*                  properties)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetRenderModelPropertiesFB>::Dispatch(manager, session, path, properties);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetRenderModelPropertiesFB>::Dispatch(manager, session, path, properties);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetRenderModelPropertiesFB(session, path, properties);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -6888,25 +5997,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLoadRenderModelFB(
     const XrRenderModelLoadInfoFB*              info,
     XrRenderModelBufferFB*                      buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLoadRenderModelFB>::Dispatch(manager, session, info, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLoadRenderModelFB>::Dispatch(manager, session, info, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->LoadRenderModelFB(session, info, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -6933,21 +6036,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetEnvironmentDepthEstimationVARJO(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetEnvironmentDepthEstimationVARJO>::Dispatch(manager, session, enabled);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetEnvironmentDepthEstimationVARJO>::Dispatch(manager, session, enabled);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetEnvironmentDepthEstimationVARJO(session, enabled);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetEnvironmentDepthEstimationVARJO);
     if (encoder)
@@ -6969,21 +6066,15 @@ XRAPI_ATTR XrResult  XRAPI_CALL xrSetMarkerTrackingVARJO(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetMarkerTrackingVARJO>::Dispatch(manager, session, enabled);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetMarkerTrackingVARJO>::Dispatch(manager, session, enabled);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetMarkerTrackingVARJO(session, enabled);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetMarkerTrackingVARJO);
     if (encoder)
@@ -7006,21 +6097,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetMarkerTrackingTimeoutVARJO(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetMarkerTrackingTimeoutVARJO>::Dispatch(manager, session, markerId, timeout);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetMarkerTrackingTimeoutVARJO>::Dispatch(manager, session, markerId, timeout);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetMarkerTrackingTimeoutVARJO(session, markerId, timeout);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetMarkerTrackingTimeoutVARJO);
     if (encoder)
@@ -7044,21 +6129,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetMarkerTrackingPredictionVARJO(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetMarkerTrackingPredictionVARJO>::Dispatch(manager, session, markerId, enable);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetMarkerTrackingPredictionVARJO>::Dispatch(manager, session, markerId, enable);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetMarkerTrackingPredictionVARJO(session, markerId, enable);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetMarkerTrackingPredictionVARJO);
     if (encoder)
@@ -7080,25 +6159,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerSizeVARJO(
     uint64_t                                    markerId,
     XrExtent2Df*                                size)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerSizeVARJO>::Dispatch(manager, session, markerId, size);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerSizeVARJO>::Dispatch(manager, session, markerId, size);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetMarkerSizeVARJO(session, markerId, size);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7124,25 +6197,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceVARJO(
     const XrMarkerSpaceCreateInfoVARJO*         createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceVARJO>::Dispatch(manager, session, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceVARJO>::Dispatch(manager, session, createInfo, space);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateMarkerSpaceVARJO(session, createInfo, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -7174,21 +6241,15 @@ XRAPI_ATTR XrResult  XRAPI_CALL xrSetViewOffsetVARJO(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetViewOffsetVARJO>::Dispatch(manager, session, offset);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetViewOffsetVARJO>::Dispatch(manager, session, offset);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetViewOffsetVARJO(session, offset);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetViewOffsetVARJO);
     if (encoder)
@@ -7209,25 +6270,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceFromCoordinateFrameUIDML(
     const XrCoordinateSpaceCreateInfoML *       createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceFromCoordinateFrameUIDML>::Dispatch(manager, session, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceFromCoordinateFrameUIDML>::Dispatch(manager, session, createInfo, space);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpaceFromCoordinateFrameUIDML(session, createInfo, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -7258,25 +6313,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerDetectorML(
     const XrMarkerDetectorCreateInfoML*         createInfo,
     XrMarkerDetectorML*                         markerDetector)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerDetectorML>::Dispatch(manager, session, createInfo, markerDetector);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerDetectorML>::Dispatch(manager, session, createInfo, markerDetector);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateMarkerDetectorML(session, createInfo, markerDetector);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -7307,22 +6356,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyMarkerDetectorML(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyMarkerDetectorML>::Dispatch(manager, markerDetector);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyMarkerDetectorML>::Dispatch(manager, markerDetector);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->DestroyMarkerDetectorML(markerDetector);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyMarkerDetectorML);
     if (encoder)
@@ -7343,25 +6386,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSnapshotMarkerDetectorML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerDetectorSnapshotInfoML*             snapshotInfo)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSnapshotMarkerDetectorML>::Dispatch(manager, markerDetector, snapshotInfo);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSnapshotMarkerDetectorML>::Dispatch(manager, markerDetector, snapshotInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->SnapshotMarkerDetectorML(markerDetector, snapshotInfo);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7385,25 +6422,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerDetectorStateML(
     XrMarkerDetectorML                          markerDetector,
     XrMarkerDetectorStateML*                    state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerDetectorStateML>::Dispatch(manager, markerDetector, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerDetectorStateML>::Dispatch(manager, markerDetector, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->GetMarkerDetectorStateML(markerDetector, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7429,25 +6460,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkersML(
     uint32_t*                                   markerCountOutput,
     XrMarkerML*                                 markers)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkersML>::Dispatch(manager, markerDetector, markerCapacityInput, markerCountOutput, markers);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkersML>::Dispatch(manager, markerDetector, markerCapacityInput, markerCountOutput, markers);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->GetMarkersML(markerDetector, markerCapacityInput, markerCountOutput, markers);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7474,25 +6499,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerReprojectionErrorML(
     XrMarkerML                                  marker,
     float*                                      reprojectionErrorMeters)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerReprojectionErrorML>::Dispatch(manager, markerDetector, marker, reprojectionErrorMeters);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerReprojectionErrorML>::Dispatch(manager, markerDetector, marker, reprojectionErrorMeters);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->GetMarkerReprojectionErrorML(markerDetector, marker, reprojectionErrorMeters);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7518,25 +6537,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerLengthML(
     XrMarkerML                                  marker,
     float*                                      meters)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerLengthML>::Dispatch(manager, markerDetector, marker, meters);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerLengthML>::Dispatch(manager, markerDetector, marker, meters);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->GetMarkerLengthML(markerDetector, marker, meters);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7562,25 +6575,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerNumberML(
     XrMarkerML                                  marker,
     uint64_t*                                   number)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerNumberML>::Dispatch(manager, markerDetector, marker, number);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerNumberML>::Dispatch(manager, markerDetector, marker, number);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->GetMarkerNumberML(markerDetector, marker, number);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7608,25 +6615,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkerStringML(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerStringML>::Dispatch(manager, markerDetector, marker, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMarkerStringML>::Dispatch(manager, markerDetector, marker, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->GetMarkerStringML(markerDetector, marker, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7654,28 +6655,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceML(
     const XrMarkerSpaceCreateInfoML*            createInfo,
     XrSpace*                                    space)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceML>::Dispatch(manager, session, createInfo, space);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrMarkerSpaceCreateInfoML* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrMarkerSpaceCreateInfoML* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateMarkerSpaceML>::Dispatch(manager, session, createInfo, space);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateMarkerSpaceML(session, createInfo_unwrapped, space);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -7707,21 +6704,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnableLocalizationEventsML(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableLocalizationEventsML>::Dispatch(manager, session, info);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableLocalizationEventsML>::Dispatch(manager, session, info);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnableLocalizationEventsML(session, info);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnableLocalizationEventsML);
     if (encoder)
@@ -7744,25 +6735,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQueryLocalizationMapsML(
     uint32_t *                                  mapCountOutput,
     XrLocalizationMapML*                        maps)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQueryLocalizationMapsML>::Dispatch(manager, session, queryInfo, mapCapacityInput, mapCountOutput, maps);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQueryLocalizationMapsML>::Dispatch(manager, session, queryInfo, mapCapacityInput, mapCountOutput, maps);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->QueryLocalizationMapsML(session, queryInfo, mapCapacityInput, mapCountOutput, maps);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7791,21 +6776,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestMapLocalizationML(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestMapLocalizationML>::Dispatch(manager, session, requestInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestMapLocalizationML>::Dispatch(manager, session, requestInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestMapLocalizationML(session, requestInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrRequestMapLocalizationML);
     if (encoder)
@@ -7826,25 +6805,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrImportLocalizationMapML(
     const XrLocalizationMapImportInfoML*        importInfo,
     XrUuidEXT*                                  mapUuid)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrImportLocalizationMapML>::Dispatch(manager, session, importInfo, mapUuid);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrImportLocalizationMapML>::Dispatch(manager, session, importInfo, mapUuid);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->ImportLocalizationMapML(session, importInfo, mapUuid);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -7870,25 +6843,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateExportedLocalizationMapML(
     const XrUuidEXT*                            mapUuid,
     XrExportedLocalizationMapML*                map)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateExportedLocalizationMapML>::Dispatch(manager, session, mapUuid, map);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateExportedLocalizationMapML>::Dispatch(manager, session, mapUuid, map);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateExportedLocalizationMapML(session, mapUuid, map);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -7919,22 +6886,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyExportedLocalizationMapML(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyExportedLocalizationMapML>::Dispatch(manager, map);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyExportedLocalizationMapML>::Dispatch(manager, map);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(map)->DestroyExportedLocalizationMapML(map);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyExportedLocalizationMapML);
     if (encoder)
@@ -7957,25 +6918,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetExportedLocalizationMapDataML(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetExportedLocalizationMapDataML>::Dispatch(manager, map, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetExportedLocalizationMapDataML>::Dispatch(manager, map, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(map)->GetExportedLocalizationMapDataML(map, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8001,25 +6956,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorStoreConnectionMSFT(
     XrSession                                   session,
     XrSpatialAnchorStoreConnectionMSFT*         spatialAnchorStore)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorStoreConnectionMSFT>::Dispatch(manager, session, spatialAnchorStore);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorStoreConnectionMSFT>::Dispatch(manager, session, spatialAnchorStore);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorStoreConnectionMSFT(session, spatialAnchorStore);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -8049,22 +6998,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpatialAnchorStoreConnectionMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpatialAnchorStoreConnectionMSFT>::Dispatch(manager, spatialAnchorStore);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpatialAnchorStoreConnectionMSFT>::Dispatch(manager, spatialAnchorStore);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(spatialAnchorStore)->DestroySpatialAnchorStoreConnectionMSFT(spatialAnchorStore);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySpatialAnchorStoreConnectionMSFT);
     if (encoder)
@@ -8087,24 +7030,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPersistSpatialAnchorMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialAnchorPersistenceInfoMSFT* spatialAnchorPersistenceInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPersistSpatialAnchorMSFT>::Dispatch(manager, spatialAnchorStore, spatialAnchorPersistenceInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPersistSpatialAnchorMSFT>::Dispatch(manager, spatialAnchorStore, spatialAnchorPersistenceInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpatialAnchorPersistenceInfoMSFT* spatialAnchorPersistenceInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(spatialAnchorPersistenceInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        spatialAnchorPersistenceInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(spatialAnchorPersistenceInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(spatialAnchorStore)->PersistSpatialAnchorMSFT(spatialAnchorStore, spatialAnchorPersistenceInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPersistSpatialAnchorMSFT);
     if (encoder)
@@ -8126,25 +7065,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePersistedSpatialAnchorNamesMSFT(
     uint32_t*                                   spatialAnchorNameCountOutput,
     XrSpatialAnchorPersistenceNameMSFT*         spatialAnchorNames)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumeratePersistedSpatialAnchorNamesMSFT>::Dispatch(manager, spatialAnchorStore, spatialAnchorNameCapacityInput, spatialAnchorNameCountOutput, spatialAnchorNames);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumeratePersistedSpatialAnchorNamesMSFT>::Dispatch(manager, spatialAnchorStore, spatialAnchorNameCapacityInput, spatialAnchorNameCountOutput, spatialAnchorNames);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(spatialAnchorStore)->EnumeratePersistedSpatialAnchorNamesMSFT(spatialAnchorStore, spatialAnchorNameCapacityInput, spatialAnchorNameCountOutput, spatialAnchorNames);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8171,28 +7104,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFromPersistedNameMSFT(
     const XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* spatialAnchorCreateInfo,
     XrSpatialAnchorMSFT*                        spatialAnchor)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPersistedNameMSFT>::Dispatch(manager, session, spatialAnchorCreateInfo, spatialAnchor);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* spatialAnchorCreateInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* spatialAnchorCreateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(spatialAnchorCreateInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPersistedNameMSFT>::Dispatch(manager, session, spatialAnchorCreateInfo, spatialAnchor);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        spatialAnchorCreateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(spatialAnchorCreateInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorFromPersistedNameMSFT(session, spatialAnchorCreateInfo_unwrapped, spatialAnchor);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -8224,21 +7153,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrUnpersistSpatialAnchorMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUnpersistSpatialAnchorMSFT>::Dispatch(manager, spatialAnchorStore, spatialAnchorPersistenceName);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUnpersistSpatialAnchorMSFT>::Dispatch(manager, spatialAnchorStore, spatialAnchorPersistenceName);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(spatialAnchorStore)->UnpersistSpatialAnchorMSFT(spatialAnchorStore, spatialAnchorPersistenceName);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrUnpersistSpatialAnchorMSFT);
     if (encoder)
@@ -8259,21 +7182,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrClearSpatialAnchorStoreMSFT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrClearSpatialAnchorStoreMSFT>::Dispatch(manager, spatialAnchorStore);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrClearSpatialAnchorStoreMSFT>::Dispatch(manager, spatialAnchorStore);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(spatialAnchorStore)->ClearSpatialAnchorStoreMSFT(spatialAnchorStore);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrClearSpatialAnchorStoreMSFT);
     if (encoder)
@@ -8295,25 +7212,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerRawDataMSFT(
     uint32_t*                                   bufferCountOutput,
     uint8_t*                                    buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMarkerRawDataMSFT>::Dispatch(manager, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMarkerRawDataMSFT>::Dispatch(manager, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneMarkerRawDataMSFT(scene, markerId, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8343,25 +7254,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMarkerDecodedStringMSFT(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMarkerDecodedStringMSFT>::Dispatch(manager, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSceneMarkerDecodedStringMSFT>::Dispatch(manager, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(scene)->GetSceneMarkerDecodedStringMSFT(scene, markerId, bufferCapacityInput, bufferCountOutput, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8389,25 +7294,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQuerySpacesFB(
     const XrSpaceQueryInfoBaseHeaderFB*         info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQuerySpacesFB>::Dispatch(manager, session, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQuerySpacesFB>::Dispatch(manager, session, info, requestId);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->QuerySpacesFB(session, info, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8433,25 +7332,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRetrieveSpaceQueryResultsFB(
     XrAsyncRequestIdFB                          requestId,
     XrSpaceQueryResultsFB*                      results)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRetrieveSpaceQueryResultsFB>::Dispatch(manager, session, requestId, results);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRetrieveSpaceQueryResultsFB>::Dispatch(manager, session, requestId, results);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->RetrieveSpaceQueryResultsFB(session, requestId, results);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -8482,28 +7375,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceFB(
     const XrSpaceSaveInfoFB*                    info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSaveSpaceFB>::Dispatch(manager, session, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpaceSaveInfoFB* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpaceSaveInfoFB* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSaveSpaceFB>::Dispatch(manager, session, info, requestId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SaveSpaceFB(session, info_unwrapped, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8529,28 +7418,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEraseSpaceFB(
     const XrSpaceEraseInfoFB*                   info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEraseSpaceFB>::Dispatch(manager, session, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpaceEraseInfoFB* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpaceEraseInfoFB* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEraseSpaceFB>::Dispatch(manager, session, info, requestId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EraseSpaceFB(session, info_unwrapped, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8575,25 +7460,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioOutputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS])
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetAudioOutputDeviceGuidOculus>::Dispatch(manager, instance, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetAudioOutputDeviceGuidOculus>::Dispatch(manager, instance, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetAudioOutputDeviceGuidOculus(instance, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8617,25 +7496,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetAudioInputDeviceGuidOculus(
     XrInstance                                  instance,
     wchar_t                                     buffer[XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS])
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetAudioInputDeviceGuidOculus>::Dispatch(manager, instance, buffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetAudioInputDeviceGuidOculus>::Dispatch(manager, instance, buffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetAudioInputDeviceGuidOculus(instance, buffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8660,28 +7533,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrShareSpacesFB(
     const XrSpaceShareInfoFB*                   info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrShareSpacesFB>::Dispatch(manager, session, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpaceShareInfoFB* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpaceShareInfoFB* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrShareSpacesFB>::Dispatch(manager, session, info, requestId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->ShareSpacesFB(session, info_unwrapped, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8707,25 +7576,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox2DFB(
     XrSpace                                     space,
     XrRect2Df*                                  boundingBox2DOutput)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox2DFB>::Dispatch(manager, session, space, boundingBox2DOutput);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox2DFB>::Dispatch(manager, session, space, boundingBox2DOutput);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetSpaceBoundingBox2DFB(session, space, boundingBox2DOutput);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8751,25 +7614,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox3DFB(
     XrSpace                                     space,
     XrRect3DfFB*                                boundingBox3DOutput)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox3DFB>::Dispatch(manager, session, space, boundingBox3DOutput);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox3DFB>::Dispatch(manager, session, space, boundingBox3DOutput);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetSpaceBoundingBox3DFB(session, space, boundingBox3DOutput);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8795,25 +7652,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceSemanticLabelsFB(
     XrSpace                                     space,
     XrSemanticLabelsFB*                         semanticLabelsOutput)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceSemanticLabelsFB>::Dispatch(manager, session, space, semanticLabelsOutput);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceSemanticLabelsFB>::Dispatch(manager, session, space, semanticLabelsOutput);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetSpaceSemanticLabelsFB(session, space, semanticLabelsOutput);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8839,25 +7690,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundary2DFB(
     XrSpace                                     space,
     XrBoundary2DFB*                             boundary2DOutput)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceBoundary2DFB>::Dispatch(manager, session, space, boundary2DOutput);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceBoundary2DFB>::Dispatch(manager, session, space, boundary2DOutput);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetSpaceBoundary2DFB(session, space, boundary2DOutput);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8883,25 +7728,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceRoomLayoutFB(
     XrSpace                                     space,
     XrRoomLayoutFB*                             roomLayoutOutput)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceRoomLayoutFB>::Dispatch(manager, session, space, roomLayoutOutput);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceRoomLayoutFB>::Dispatch(manager, session, space, roomLayoutOutput);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetSpaceRoomLayoutFB(session, space, roomLayoutOutput);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -8928,21 +7767,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetDigitalLensControlALMALENCE(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDigitalLensControlALMALENCE>::Dispatch(manager, session, digitalLensControl);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetDigitalLensControlALMALENCE>::Dispatch(manager, session, digitalLensControl);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetDigitalLensControlALMALENCE(session, digitalLensControl);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetDigitalLensControlALMALENCE);
     if (encoder)
@@ -8963,25 +7796,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestSceneCaptureFB(
     const XrSceneCaptureRequestInfoFB*          info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestSceneCaptureFB>::Dispatch(manager, session, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrRequestSceneCaptureFB>::Dispatch(manager, session, info, requestId);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestSceneCaptureFB(session, info, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9007,25 +7834,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceContainerFB(
     XrSpace                                     space,
     XrSpaceContainerFB*                         spaceContainerOutput)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceContainerFB>::Dispatch(manager, session, space, spaceContainerOutput);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceContainerFB>::Dispatch(manager, session, space, spaceContainerOutput);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetSpaceContainerFB(session, space, spaceContainerOutput);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9050,25 +7871,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFoveationEyeTrackedStateMETA(
     XrSession                                   session,
     XrFoveationEyeTrackedStateMETA*             foveationState)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFoveationEyeTrackedStateMETA>::Dispatch(manager, session, foveationState);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFoveationEyeTrackedStateMETA>::Dispatch(manager, session, foveationState);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetFoveationEyeTrackedStateMETA(session, foveationState);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9093,25 +7908,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTrackerFB(
     const XrFaceTrackerCreateInfoFB*            createInfo,
     XrFaceTrackerFB*                            faceTracker)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTrackerFB>::Dispatch(manager, session, createInfo, faceTracker);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTrackerFB>::Dispatch(manager, session, createInfo, faceTracker);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFaceTrackerFB(session, createInfo, faceTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -9142,22 +7951,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTrackerFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFaceTrackerFB>::Dispatch(manager, faceTracker);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFaceTrackerFB>::Dispatch(manager, faceTracker);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->DestroyFaceTrackerFB(faceTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyFaceTrackerFB);
     if (encoder)
@@ -9179,25 +7982,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeightsFB(
     const XrFaceExpressionInfoFB*               expressionInfo,
     XrFaceExpressionWeightsFB*                  expressionWeights)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeightsFB>::Dispatch(manager, faceTracker, expressionInfo, expressionWeights);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeightsFB>::Dispatch(manager, faceTracker, expressionInfo, expressionWeights);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->GetFaceExpressionWeightsFB(faceTracker, expressionInfo, expressionWeights);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9223,25 +8020,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateEyeTrackerFB(
     const XrEyeTrackerCreateInfoFB*             createInfo,
     XrEyeTrackerFB*                             eyeTracker)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEyeTrackerFB>::Dispatch(manager, session, createInfo, eyeTracker);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEyeTrackerFB>::Dispatch(manager, session, createInfo, eyeTracker);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateEyeTrackerFB(session, createInfo, eyeTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -9272,22 +8063,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEyeTrackerFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyEyeTrackerFB>::Dispatch(manager, eyeTracker);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyEyeTrackerFB>::Dispatch(manager, eyeTracker);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(eyeTracker)->DestroyEyeTrackerFB(eyeTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyEyeTrackerFB);
     if (encoder)
@@ -9309,28 +8094,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetEyeGazesFB(
     const XrEyeGazesInfoFB*                     gazeInfo,
     XrEyeGazesFB*                               eyeGazes)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetEyeGazesFB>::Dispatch(manager, eyeTracker, gazeInfo, eyeGazes);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrEyeGazesInfoFB* gazeInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrEyeGazesInfoFB* gazeInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(gazeInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetEyeGazesFB>::Dispatch(manager, eyeTracker, gazeInfo, eyeGazes);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        gazeInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(gazeInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(eyeTracker)->GetEyeGazesFB(eyeTracker, gazeInfo_unwrapped, eyeGazes);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9357,21 +8138,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetKeyboardHandsIntensityFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerSetKeyboardHandsIntensityFB>::Dispatch(manager, layer, intensity);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPassthroughLayerSetKeyboardHandsIntensityFB>::Dispatch(manager, layer, intensity);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(layer)->PassthroughLayerSetKeyboardHandsIntensityFB(layer, intensity);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPassthroughLayerSetKeyboardHandsIntensityFB);
     if (encoder)
@@ -9392,28 +8167,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetDeviceSampleRateFB(
     const XrHapticActionInfo*                   hapticActionInfo,
     XrDevicePcmSampleRateGetInfoFB*             deviceSampleRate)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetDeviceSampleRateFB>::Dispatch(manager, session, hapticActionInfo, deviceSampleRate);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrHapticActionInfo* hapticActionInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrHapticActionInfo* hapticActionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(hapticActionInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetDeviceSampleRateFB>::Dispatch(manager, session, hapticActionInfo, deviceSampleRate);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        hapticActionInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(hapticActionInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetDeviceSampleRateFB(session, hapticActionInfo_unwrapped, deviceSampleRate);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9438,25 +8209,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPassthroughPreferencesMETA(
     XrSession                                   session,
     XrPassthroughPreferencesMETA*               preferences)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPassthroughPreferencesMETA>::Dispatch(manager, session, preferences);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPassthroughPreferencesMETA>::Dispatch(manager, session, preferences);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetPassthroughPreferencesMETA(session, preferences);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9481,25 +8246,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardMETA(
     const XrVirtualKeyboardCreateInfoMETA*      createInfo,
     XrVirtualKeyboardMETA*                      keyboard)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardMETA>::Dispatch(manager, session, createInfo, keyboard);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardMETA>::Dispatch(manager, session, createInfo, keyboard);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateVirtualKeyboardMETA(session, createInfo, keyboard);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -9530,22 +8289,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyVirtualKeyboardMETA(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyVirtualKeyboardMETA>::Dispatch(manager, keyboard);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyVirtualKeyboardMETA>::Dispatch(manager, keyboard);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->DestroyVirtualKeyboardMETA(keyboard);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyVirtualKeyboardMETA);
     if (encoder)
@@ -9568,28 +8321,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVirtualKeyboardSpaceMETA(
     const XrVirtualKeyboardSpaceCreateInfoMETA* createInfo,
     XrSpace*                                    keyboardSpace)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardSpaceMETA>::Dispatch(manager, session, keyboard, createInfo, keyboardSpace);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVirtualKeyboardSpaceCreateInfoMETA* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrVirtualKeyboardSpaceCreateInfoMETA* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardSpaceMETA>::Dispatch(manager, session, keyboard, createInfo, keyboardSpace);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateVirtualKeyboardSpaceMETA(session, keyboard, createInfo_unwrapped, keyboardSpace);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -9622,24 +8371,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSuggestVirtualKeyboardLocationMETA(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVirtualKeyboardLocationInfoMETA* locationInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSuggestVirtualKeyboardLocationMETA>::Dispatch(manager, keyboard, locationInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSuggestVirtualKeyboardLocationMETA>::Dispatch(manager, keyboard, locationInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrVirtualKeyboardLocationInfoMETA* locationInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locationInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        locationInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locationInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->SuggestVirtualKeyboardLocationMETA(keyboard, locationInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSuggestVirtualKeyboardLocationMETA);
     if (encoder)
@@ -9659,25 +8404,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardScaleMETA(
     XrVirtualKeyboardMETA                       keyboard,
     float*                                      scale)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardScaleMETA>::Dispatch(manager, keyboard, scale);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardScaleMETA>::Dispatch(manager, keyboard, scale);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->GetVirtualKeyboardScaleMETA(keyboard, scale);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9703,21 +8442,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetVirtualKeyboardModelVisibilityMETA(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetVirtualKeyboardModelVisibilityMETA>::Dispatch(manager, keyboard, modelVisibility);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetVirtualKeyboardModelVisibilityMETA>::Dispatch(manager, keyboard, modelVisibility);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->SetVirtualKeyboardModelVisibilityMETA(keyboard, modelVisibility);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetVirtualKeyboardModelVisibilityMETA);
     if (encoder)
@@ -9737,25 +8470,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardModelAnimationStatesMETA(
     XrVirtualKeyboardMETA                       keyboard,
     XrVirtualKeyboardModelAnimationStatesMETA*  animationStates)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardModelAnimationStatesMETA>::Dispatch(manager, keyboard, animationStates);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardModelAnimationStatesMETA>::Dispatch(manager, keyboard, animationStates);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->GetVirtualKeyboardModelAnimationStatesMETA(keyboard, animationStates);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9781,25 +8508,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardDirtyTexturesMETA(
     uint32_t*                                   textureIdCountOutput,
     uint64_t*                                   textureIds)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardDirtyTexturesMETA>::Dispatch(manager, keyboard, textureIdCapacityInput, textureIdCountOutput, textureIds);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardDirtyTexturesMETA>::Dispatch(manager, keyboard, textureIdCapacityInput, textureIdCountOutput, textureIds);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->GetVirtualKeyboardDirtyTexturesMETA(keyboard, textureIdCapacityInput, textureIdCountOutput, textureIds);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9826,25 +8547,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVirtualKeyboardTextureDataMETA(
     uint64_t                                    textureId,
     XrVirtualKeyboardTextureDataMETA*           textureData)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardTextureDataMETA>::Dispatch(manager, keyboard, textureId, textureData);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVirtualKeyboardTextureDataMETA>::Dispatch(manager, keyboard, textureId, textureData);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->GetVirtualKeyboardTextureDataMETA(keyboard, textureId, textureData);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9870,28 +8585,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSendVirtualKeyboardInputMETA(
     const XrVirtualKeyboardInputInfoMETA*       info,
     XrPosef*                                    interactorRootPose)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSendVirtualKeyboardInputMETA>::Dispatch(manager, keyboard, info, interactorRootPose);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrVirtualKeyboardInputInfoMETA* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrVirtualKeyboardInputInfoMETA* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSendVirtualKeyboardInputMETA>::Dispatch(manager, keyboard, info, interactorRootPose);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->SendVirtualKeyboardInputMETA(keyboard, info_unwrapped, interactorRootPose);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -9918,21 +8629,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrChangeVirtualKeyboardTextContextMETA(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrChangeVirtualKeyboardTextContextMETA>::Dispatch(manager, keyboard, changeInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrChangeVirtualKeyboardTextContextMETA>::Dispatch(manager, keyboard, changeInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(keyboard)->ChangeVirtualKeyboardTextContextMETA(keyboard, changeInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrChangeVirtualKeyboardTextContextMETA);
     if (encoder)
@@ -9954,25 +8659,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateExternalCamerasOCULUS(
     uint32_t*                                   cameraCountOutput,
     XrExternalCameraOCULUS*                     cameras)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateExternalCamerasOCULUS>::Dispatch(manager, session, cameraCapacityInput, cameraCountOutput, cameras);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateExternalCamerasOCULUS>::Dispatch(manager, session, cameraCapacityInput, cameraCountOutput, cameras);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateExternalCamerasOCULUS(session, cameraCapacityInput, cameraCountOutput, cameras);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10000,25 +8699,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePerformanceMetricsCounterPathsMETA(
     uint32_t*                                   counterPathCountOutput,
     XrPath*                                     counterPaths)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumeratePerformanceMetricsCounterPathsMETA>::Dispatch(manager, instance, counterPathCapacityInput, counterPathCountOutput, counterPaths);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumeratePerformanceMetricsCounterPathsMETA>::Dispatch(manager, instance, counterPathCapacityInput, counterPathCountOutput, counterPaths);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumeratePerformanceMetricsCounterPathsMETA(instance, counterPathCapacityInput, counterPathCountOutput, counterPaths);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10046,21 +8739,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetPerformanceMetricsStateMETA(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetPerformanceMetricsStateMETA>::Dispatch(manager, session, state);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetPerformanceMetricsStateMETA>::Dispatch(manager, session, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetPerformanceMetricsStateMETA(session, state);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetPerformanceMetricsStateMETA);
     if (encoder)
@@ -10080,25 +8767,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPerformanceMetricsStateMETA(
     XrSession                                   session,
     XrPerformanceMetricsStateMETA*              state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPerformanceMetricsStateMETA>::Dispatch(manager, session, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPerformanceMetricsStateMETA>::Dispatch(manager, session, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetPerformanceMetricsStateMETA(session, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10123,25 +8804,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQueryPerformanceMetricsCounterMETA(
     XrPath                                      counterPath,
     XrPerformanceMetricsCounterMETA*            counter)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQueryPerformanceMetricsCounterMETA>::Dispatch(manager, session, counterPath, counter);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrQueryPerformanceMetricsCounterMETA>::Dispatch(manager, session, counterPath, counter);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->QueryPerformanceMetricsCounterMETA(session, counterPath, counter);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10167,28 +8842,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceListFB(
     const XrSpaceListSaveInfoFB*                info,
     XrAsyncRequestIdFB*                         requestId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSaveSpaceListFB>::Dispatch(manager, session, info, requestId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpaceListSaveInfoFB* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpaceListSaveInfoFB* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSaveSpaceListFB>::Dispatch(manager, session, info, requestId);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SaveSpaceListFB(session, info_unwrapped, requestId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10214,25 +8885,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceUserFB(
     const XrSpaceUserCreateInfoFB*              info,
     XrSpaceUserFB*                              user)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceUserFB>::Dispatch(manager, session, info, user);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpaceUserFB>::Dispatch(manager, session, info, user);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpaceUserFB(session, info, user);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -10262,25 +8927,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUserIdFB(
     XrSpaceUserFB                               user,
     XrSpaceUserIdFB*                            userId)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceUserIdFB>::Dispatch(manager, user, userId);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceUserIdFB>::Dispatch(manager, user, userId);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(user)->GetSpaceUserIdFB(user, userId);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10305,22 +8964,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpaceUserFB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpaceUserFB>::Dispatch(manager, user);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroySpaceUserFB>::Dispatch(manager, user);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(user)->DestroySpaceUserFB(user);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroySpaceUserFB);
     if (encoder)
@@ -10342,28 +8995,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetRecommendedLayerResolutionMETA(
     const XrRecommendedLayerResolutionGetInfoMETA* info,
     XrRecommendedLayerResolutionMETA*           resolution)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetRecommendedLayerResolutionMETA>::Dispatch(manager, session, info, resolution);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrRecommendedLayerResolutionGetInfoMETA* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrRecommendedLayerResolutionGetInfoMETA* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetRecommendedLayerResolutionMETA>::Dispatch(manager, session, info, resolution);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetRecommendedLayerResolutionMETA(session, info_unwrapped, resolution);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10389,25 +9038,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughColorLutMETA(
     const XrPassthroughColorLutCreateInfoMETA*  createInfo,
     XrPassthroughColorLutMETA*                  colorLut)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughColorLutMETA>::Dispatch(manager, passthrough, createInfo, colorLut);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughColorLutMETA>::Dispatch(manager, passthrough, createInfo, colorLut);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(passthrough)->CreatePassthroughColorLutMETA(passthrough, createInfo, colorLut);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -10438,22 +9081,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughColorLutMETA(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughColorLutMETA>::Dispatch(manager, colorLut);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughColorLutMETA>::Dispatch(manager, colorLut);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(colorLut)->DestroyPassthroughColorLutMETA(colorLut);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyPassthroughColorLutMETA);
     if (encoder)
@@ -10476,21 +9113,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrUpdatePassthroughColorLutMETA(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdatePassthroughColorLutMETA>::Dispatch(manager, colorLut, updateInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrUpdatePassthroughColorLutMETA>::Dispatch(manager, colorLut, updateInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(colorLut)->UpdatePassthroughColorLutMETA(colorLut, updateInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrUpdatePassthroughColorLutMETA);
     if (encoder)
@@ -10511,25 +9142,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceTriangleMeshMETA(
     const XrSpaceTriangleMeshGetInfoMETA*       getInfo,
     XrSpaceTriangleMeshMETA*                    triangleMeshOutput)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA>::Dispatch(manager, space, getInfo, triangleMeshOutput);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA>::Dispatch(manager, space, getInfo, triangleMeshOutput);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(space)->GetSpaceTriangleMeshMETA(space, getInfo, triangleMeshOutput);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10555,25 +9180,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTracker2FB(
     const XrFaceTrackerCreateInfo2FB*           createInfo,
     XrFaceTracker2FB*                           faceTracker)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTracker2FB>::Dispatch(manager, session, createInfo, faceTracker);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateFaceTracker2FB>::Dispatch(manager, session, createInfo, faceTracker);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateFaceTracker2FB(session, createInfo, faceTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -10604,22 +9223,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTracker2FB(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFaceTracker2FB>::Dispatch(manager, faceTracker);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyFaceTracker2FB>::Dispatch(manager, faceTracker);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->DestroyFaceTracker2FB(faceTracker);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyFaceTracker2FB);
     if (encoder)
@@ -10641,25 +9254,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(
     const XrFaceExpressionInfo2FB*              expressionInfo,
     XrFaceExpressionWeights2FB*                 expressionWeights)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB>::Dispatch(manager, faceTracker, expressionInfo, expressionWeights);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB>::Dispatch(manager, faceTracker, expressionInfo, expressionWeights);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(faceTracker)->GetFaceExpressionWeights2FB(faceTracker, expressionInfo, expressionWeights);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10687,21 +9294,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetTrackingOptimizationSettingsHintQCOM(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetTrackingOptimizationSettingsHintQCOM>::Dispatch(manager, session, domain, hint);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetTrackingOptimizationSettingsHintQCOM>::Dispatch(manager, session, domain, hint);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SetTrackingOptimizationSettingsHintQCOM(session, domain, hint);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetTrackingOptimizationSettingsHintQCOM);
     if (encoder)
@@ -10723,25 +9324,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughHTC(
     const XrPassthroughCreateInfoHTC*           createInfo,
     XrPassthroughHTC*                           passthrough)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughHTC>::Dispatch(manager, session, createInfo, passthrough);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePassthroughHTC>::Dispatch(manager, session, createInfo, passthrough);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePassthroughHTC(session, createInfo, passthrough);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -10772,22 +9367,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughHTC(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughHTC>::Dispatch(manager, passthrough);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPassthroughHTC>::Dispatch(manager, passthrough);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(passthrough)->DestroyPassthroughHTC(passthrough);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyPassthroughHTC);
     if (encoder)
@@ -10810,24 +9399,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrApplyFoveationHTC(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFoveationApplyInfoHTC* applyInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyFoveationHTC>::Dispatch(manager, session, applyInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyFoveationHTC>::Dispatch(manager, session, applyInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrFoveationApplyInfoHTC* applyInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(applyInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        applyInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(applyInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->ApplyFoveationHTC(session, applyInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrApplyFoveationHTC);
     if (encoder)
@@ -10848,28 +9433,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorHTC(
     const XrSpatialAnchorCreateInfoHTC*         createInfo,
     XrSpace*                                    anchor)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorHTC>::Dispatch(manager, session, createInfo, anchor);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpatialAnchorCreateInfoHTC* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrSpatialAnchorCreateInfoHTC* createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSpatialAnchorHTC>::Dispatch(manager, session, createInfo, anchor);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorHTC(session, createInfo_unwrapped, anchor);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -10899,25 +9480,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSpatialAnchorNameHTC(
     XrSpace                                     anchor,
     XrSpatialAnchorNameHTC*                     name)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpatialAnchorNameHTC>::Dispatch(manager, anchor, name);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetSpatialAnchorNameHTC>::Dispatch(manager, anchor, name);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(anchor)->GetSpatialAnchorNameHTC(anchor, name);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -10943,21 +9518,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrApplyForceFeedbackCurlMNDX(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyForceFeedbackCurlMNDX>::Dispatch(manager, handTracker, locations);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrApplyForceFeedbackCurlMNDX>::Dispatch(manager, handTracker, locations);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(handTracker)->ApplyForceFeedbackCurlMNDX(handTracker, locations);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrApplyForceFeedbackCurlMNDX);
     if (encoder)
@@ -10978,25 +9547,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreatePlaneDetectorEXT(
     const XrPlaneDetectorCreateInfoEXT*         createInfo,
     XrPlaneDetectorEXT*                         planeDetector)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePlaneDetectorEXT>::Dispatch(manager, session, createInfo, planeDetector);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreatePlaneDetectorEXT>::Dispatch(manager, session, createInfo, planeDetector);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreatePlaneDetectorEXT(session, createInfo, planeDetector);
+
+    auto call_lock = manager->AcquireCallLock();
 
     if (result >= 0)
     {
@@ -11027,22 +9590,16 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPlaneDetectorEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPlaneDetectorEXT>::Dispatch(manager, planeDetector);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyPlaneDetectorEXT>::Dispatch(manager, planeDetector);
+    }
 
     ScopedDestroyLock exclusive_scoped_lock;
     XrResult result = openxr_wrappers::GetInstanceTable(planeDetector)->DestroyPlaneDetectorEXT(planeDetector);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyPlaneDetectorEXT);
     if (encoder)
@@ -11065,24 +9622,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrBeginPlaneDetectionEXT(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPlaneDetectorBeginInfoEXT* beginInfo_unwrapped = nullptr;
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginPlaneDetectionEXT>::Dispatch(manager, planeDetector, beginInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrBeginPlaneDetectionEXT>::Dispatch(manager, planeDetector, beginInfo);
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrPlaneDetectorBeginInfoEXT* beginInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(beginInfo, handle_unwrap_memory);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        beginInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(beginInfo, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(planeDetector)->BeginPlaneDetectionEXT(planeDetector, beginInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrBeginPlaneDetectionEXT);
     if (encoder)
@@ -11102,25 +9655,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionStateEXT(
     XrPlaneDetectorEXT                          planeDetector,
     XrPlaneDetectionStateEXT*                   state)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPlaneDetectionStateEXT>::Dispatch(manager, planeDetector, state);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPlaneDetectionStateEXT>::Dispatch(manager, planeDetector, state);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(planeDetector)->GetPlaneDetectionStateEXT(planeDetector, state);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -11145,28 +9692,24 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionsEXT(
     const XrPlaneDetectorGetInfoEXT*            info,
     XrPlaneDetectorLocationsEXT*                locations)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPlaneDetectionsEXT>::Dispatch(manager, planeDetector, info, locations);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrPlaneDetectorGetInfoEXT* info_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
 
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrPlaneDetectorGetInfoEXT* info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPlaneDetectionsEXT>::Dispatch(manager, planeDetector, info, locations);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(planeDetector)->GetPlaneDetectionsEXT(planeDetector, info_unwrapped, locations);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -11193,25 +9736,19 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlanePolygonBufferEXT(
     uint32_t                                    polygonBufferIndex,
     XrPlaneDetectorPolygonBufferEXT*            polygonBuffer)
 {
-    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
-
     bool omit_output_data = false;
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT>::Dispatch(manager, planeDetector, planeId, polygonBufferIndex, polygonBuffer);
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT>::Dispatch(manager, planeDetector, planeId, polygonBufferIndex, polygonBuffer);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(planeDetector)->GetPlanePolygonBufferEXT(planeDetector, planeId, polygonBufferIndex, polygonBuffer);
+
+    auto call_lock = manager->AcquireCallLock();
     if (result < 0)
     {
         omit_output_data = true;
@@ -11239,21 +9776,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnableUserCalibrationEventsML(
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
     {
-        exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
-    }
+        auto call_lock = manager->AcquireCallLock();
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableUserCalibrationEventsML>::Dispatch(manager, instance, enableInfo);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnableUserCalibrationEventsML>::Dispatch(manager, instance, enableInfo);
+    }
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnableUserCalibrationEventsML(instance, enableInfo);
+
+    auto call_lock = manager->AcquireCallLock();
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnableUserCalibrationEventsML);
     if (encoder)

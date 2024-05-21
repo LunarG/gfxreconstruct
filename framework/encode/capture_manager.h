@@ -40,6 +40,7 @@
 #include <atomic>
 #include <cassert>
 #include <mutex>
+#include <optional>
 #include <shared_mutex>
 #include <string>
 #include <unordered_map>
@@ -59,9 +60,28 @@ class CommonCaptureManager
 
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
 
-    static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }
+    using ApiSharedLockT    = std::shared_lock<ApiCallMutexT>;
+    using ApiExclusiveLockT = std::unique_lock<ApiCallMutexT>;
+    static auto AcquireSharedApiCallLock() { return std::move(ApiSharedLockT(api_call_mutex_)); }
+    static auto AcquireExclusiveApiCallLock() { return std::move(ApiExclusiveLockT(api_call_mutex_)); }
 
-    static auto AcquireExclusiveApiCallLock() { return std::move(std::unique_lock<ApiCallMutexT>(api_call_mutex_)); }
+    class ApiCallLock
+    {
+      public:
+        enum class Type
+        {
+            kExclusive,
+            kShared
+        };
+
+        ApiCallLock(Type type, ApiCallMutexT& mutex);
+
+      private:
+        std::optional<ApiExclusiveLockT> exclusive;
+        std::optional<ApiSharedLockT>    shared;
+    };
+    // This method returns the composite with the apropos Lock initialized
+    ApiCallLock AcquireCallLock() const;
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
