@@ -48,8 +48,8 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInf
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
