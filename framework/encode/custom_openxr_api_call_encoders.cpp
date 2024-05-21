@@ -48,8 +48,29 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInf
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
     auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+
+    const XrFrameEndInfo* frameEndInfo_unwrapped;
+    {
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, session, frameEndInfo);
+
+        auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        frameEndInfo_unwrapped    = openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
+    }
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->EndFrame(session, frameEndInfo_unwrapped);
+
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
     if (force_command_serialization)
     {
         exclusive_api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
@@ -58,14 +79,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInf
     {
         shared_api_call_lock = OpenXrCaptureManager::AcquireSharedApiCallLock();
     }
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, session, frameEndInfo);
-
-    auto                  handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrFrameEndInfo* frameEndInfo_unwrapped =
-        openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
-
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->EndFrame(session, frameEndInfo_unwrapped);
 
     auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEndFrame);
     if (encoder)
