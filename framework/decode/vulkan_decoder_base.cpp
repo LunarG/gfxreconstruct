@@ -83,6 +83,14 @@ void VulkanDecoderBase::DispatchFillMemoryCommand(
     }
 }
 
+void VulkanDecoderBase::DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_ExeFileInfo(info.info_record);
+    }
+}
+
 void VulkanDecoderBase::DispatchFillMemoryResourceValueCommand(
     const format::FillMemoryResourceValueCommandHeader& command_header, const uint8_t* data)
 {
