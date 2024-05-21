@@ -73,11 +73,18 @@ class OpenXrExportJsonConsumerHeaderGenerator(OpenXrConsumerHeaderGenerator):
             self, err_file=err_file, warn_file=warn_file, diag_file=diag_file
         )
 
+        # Names of any OpenXR commands whose decoders are manually generated
+        self.MANUALLY_GENERATED_COMMANDS = ['xrEnumerateSwapchainImages']
+
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
         first = True
 
         for cmd in self.get_filtered_cmd_names():
+
+            if self.is_manually_generated_cmd_name(cmd):
+                continue
+
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
             values = info[2]

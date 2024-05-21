@@ -1760,6 +1760,7 @@ typedef struct XrGraphicsBindingEGLMNDX
     EGLContext                  context;
 } XrGraphicsBindingEGLMNDX;
 #endif // !XR_USE_PLATFORM_EGL
+
 #endif // ENABLE_OPENXR_SUPPORT
 
 #endif // GFXRECON_PLATFORM_TYPES_H

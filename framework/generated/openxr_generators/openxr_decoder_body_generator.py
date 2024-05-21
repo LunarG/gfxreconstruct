@@ -73,8 +73,11 @@ class OpenXrDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
             diag_file=diag_file
         )
 
-        # Names of all OpenXr commands processed by the generator.
+        # Names of all OpenXR commands processed by the generator.
         self.cmd_names = []
+
+        # Names of any OpenXR commands whose decoders are manually generated
+        self.MANUALLY_GENERATED_COMMANDS = ['xrEnumerateSwapchainImages']
 
     def beginFile(self, gen_opts):
         """Method override."""

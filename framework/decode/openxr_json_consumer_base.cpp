@@ -70,6 +70,68 @@ bool OpenXrExportJsonConsumerBase::WriteBinaryFile(const std::string& filename, 
     return writer_->WriteBinaryFile(filename, data_size, data);
 }
 
+void OpenXrExportJsonConsumerBase::Process_xrEnumerateSwapchainImages(
+    const ApiCallInfo&                                        call_info,
+    XrResult                                                  returnValue,
+    format::HandleId                                          swapchain,
+    uint32_t                                                  imageCapacityInput,
+    PointerDecoder<uint32_t>*                                 imageCountOutput,
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
+{
+    nlohmann::ordered_json& jdata        = WriteApiCallStart(call_info, "xrEnumerateSwapchainImages");
+    const JsonOptions&      json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    auto& args = jdata[NameArgs()];
+    HandleToJson(args["swapchain"], swapchain, json_options);
+    FieldToJson(args["imageCapacityInput"], imageCapacityInput, json_options);
+    FieldToJson(args["imageCountOutput"], imageCountOutput, json_options);
+    if (images != nullptr && images->GetPointer() != nullptr && images->GetLength() >= 1)
+    {
+        XrSwapchainImageBaseHeader* header = images->GetPointer();
+        switch (header->type)
+        {
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+            {
+                FieldToJson(args["images"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageOpenGLKHR>*>(images),
+                            json_options);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+            {
+                FieldToJson(args["images"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>*>(images),
+                            json_options);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+            {
+                FieldToJson(args["images"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageD3D11KHR>*>(images),
+                            json_options);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+            {
+                FieldToJson(args["images"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageD3D12KHR>*>(images),
+                            json_options);
+                break;
+            }
+            default:
+            {
+                FieldToJson(args["images"], images, json_options);
+                break;
+            }
+        }
+    }
+    else
+    {
+        FieldToJson(args["images"], images, json_options);
+    }
+    WriteBlockEnd();
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

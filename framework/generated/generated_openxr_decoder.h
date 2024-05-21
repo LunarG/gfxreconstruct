@@ -101,8 +101,6 @@ class OpenXrDecoder : public OpenXrDecoderBase
 
     size_t Decode_xrDestroySwapchain(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_xrEnumerateSwapchainImages(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-
     size_t Decode_xrAcquireSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrWaitSwapchainImage(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
