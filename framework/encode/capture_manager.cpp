@@ -517,6 +517,18 @@ ParameterEncoder* CommonCaptureManager::InitMethodCallCapture(format::ApiCallId 
     return thread_data->parameter_encoder_.get();
 }
 
+CommonCaptureManager::ApiCallLock CommonCaptureManager::AcquireCallLock() const
+{
+    if (force_command_serialization_)
+    {
+        return ApiCallLock(ApiCallLock::Type::kExclusive, api_call_mutex_);
+    }
+    else
+    {
+        return ApiCallLock(ApiCallLock::Type::kShared, api_call_mutex_);
+    }
+}
+
 void CommonCaptureManager::EndApiCallCapture()
 {
     if ((capture_mode_ & kModeWrite) == kModeWrite)
@@ -1339,6 +1351,18 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     operation_annotation += "\": \n    {";
     operation_annotation += buffer;
     operation_annotation += "\n    }";
+}
+
+CommonCaptureManager::ApiCallLock::ApiCallLock(Type type, ApiCallMutexT& mutex)
+{
+    if (type == Type::kExclusive)
+    {
+        exclusive.emplace(mutex);
+    }
+    else
+    {
+        shared.emplace(mutex);
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)
