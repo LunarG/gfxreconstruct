@@ -72,6 +72,8 @@ class ApiCaptureManager
     typedef uint32_t CaptureMode;
 
     // Forwarded Common Methods
+    auto AcquireCallLock() { return common_manager_->AcquireCallLock(); }
+
     HandleUnwrapMemory* GetHandleUnwrapMemory() { return common_manager_->GetHandleUnwrapMemory(); }
     ParameterEncoder*   BeginTrackedApiCallCapture(format::ApiCallId call_id)
     {
