@@ -25,6 +25,7 @@
 #include "generated/generated_vulkan_enum_to_string.h"
 
 #include <cinttypes>
+#include <cstdint>
 #include <math.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -1662,8 +1663,8 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
             GFXRECON_LOG_ERROR_ONCE("Scaled image is too large. Image dimensions (%u x %u) exceeds "
                                     "implementation's limits (%u x %u) for the specific image configuration "
                                     "(%s with VK_IMAGE_TILING_OPTIMAL). Scaling will be disabled for these images.",
-                                    extent.width * scale,
-                                    extent.height * scale,
+                                    static_cast<uint32_t>(extent.width * scale),
+                                    static_cast<uint32_t>(extent.height * scale),
                                     img_format_props.maxExtent.width,
                                     img_format_props.maxExtent.height,
                                     util::ToString<VkFormat>(format).c_str());
