@@ -276,7 +276,7 @@ int main(int argc, const char** argv)
 
             if ((!detected_d3d12) && (!detected_vulkan))
             {
-                //Detect with no block limit
+                // Detect with no block limit
                 gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan, true);
             }
 

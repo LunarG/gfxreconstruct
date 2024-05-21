@@ -37,7 +37,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-bool DetectAPIs(const std::string& input_filename, bool& dx12_detected, bool& vulkan_detected, bool no_block_limit = false);
+bool DetectAPIs(const std::string& input_filename,
+                bool&              dx12_detected,
+                bool&              vulkan_detected,
+                bool               no_block_limit = false);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
