@@ -587,7 +587,7 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
                     }
                 }
 
-                floats = reinterpret_cast<const float*>(reinterpret_cast<const uint8_t*>(floats) + data_pitch);
+                floats      = reinterpret_cast<const float*>(reinterpret_cast<const uint8_t*>(floats) + data_pitch);
                 temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
             }
         }
@@ -792,7 +792,7 @@ bool WritePngImage(const std::string& filename,
     }
     else
     {
-        GFXRECON_LOG_ERROR("%s() Failed to open file (%s)", __func__, strerror(errno));
+        GFXRECON_LOG_ERROR("%s() Failed writing file", __func__);
     }
 #endif
 
