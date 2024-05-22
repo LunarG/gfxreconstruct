@@ -781,4 +781,55 @@ extern "C"
         assert(physicalDevice == VK_NULL_HANDLE);
         return gfxrecon::vulkan_entry::EnumerateDeviceLayerProperties(physicalDevice, pPropertyCount, pProperties);
     }
+
+#ifdef ENABLE_OPENXR_SUPPORT
+    XRAPI_ATTR XrResult XRAPI_CALL xrNegotiateLoaderApiLayerInterface(const XrNegotiateLoaderInfo* loaderInfo,
+                                                                      const char*                  layerName,
+                                                                      XrNegotiateApiLayerRequest*  apiLayerRequest)
+    {
+        // Wrong layer name or something wrong with incoming structs
+        if (layerName == nullptr || (strcmp(layerName, GFXRECON_PROJECT_OPENXR_LAYER_NAME) != 0) ||
+            loaderInfo == nullptr || apiLayerRequest == nullptr ||
+            loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO ||
+            apiLayerRequest->structType != XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST)
+        {
+            return XR_ERROR_VALIDATION_FAILURE;
+        }
+
+        const uint32_t layer_cur_interface_version = 1;
+        const uint8_t  loader_min_major_version    = XR_VERSION_MAJOR(loaderInfo->minApiVersion);
+        const uint8_t  loader_min_minor_version    = XR_VERSION_MINOR(loaderInfo->minApiVersion);
+        const uint8_t  loader_max_major_version    = XR_VERSION_MAJOR(loaderInfo->maxApiVersion);
+        const uint8_t  loader_max_minor_version    = XR_VERSION_MINOR(loaderInfo->maxApiVersion);
+        const uint8_t  layer_cur_major_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
+        const uint8_t  layer_cur_minor_version     = XR_VERSION_MAJOR(XR_CURRENT_API_VERSION);
+
+        // Layer can't accept interface (we only support interface version 1 right now) or API version
+        if ((layer_cur_interface_version < loaderInfo->minInterfaceVersion ||
+             layer_cur_interface_version > loaderInfo->maxInterfaceVersion) ||
+            (layer_cur_major_version < loader_min_major_version ||
+             layer_cur_major_version > loader_max_major_version) ||
+            (layer_cur_minor_version < loader_min_minor_version || layer_cur_major_version > loader_max_minor_version))
+        {
+            return XR_ERROR_API_VERSION_UNSUPPORTED;
+        }
+
+        apiLayerRequest->layerInterfaceVersion  = layer_cur_interface_version;
+        apiLayerRequest->layerApiVersion        = XR_CURRENT_API_VERSION;
+        apiLayerRequest->getInstanceProcAddr    = gfxrecon::openxr_entry::GetInstanceProcAddr;
+        apiLayerRequest->createApiLayerInstance = gfxrecon::encode::xrCreateApiLayerInstance;
+        return XR_SUCCESS;
+    }
+#else
+
+    // This is a stub to satisfy Windows exports (in the .def file) when ENABLE_OPENXR_SUPPORT is false
+    VKAPI_ATTR uint32_t VKAPI_CALL xrNegotiateLoaderApiLayerInterface(const void* loaderInfo,
+                                                                      const char* layerName,
+                                                                      void*       apiLayerRequest)
+    {
+        return -1; // XR_ERROR_VALIDATION_FAILURE
+    }
+
+#endif
+
 } // extern "C"
