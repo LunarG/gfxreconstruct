@@ -1813,10 +1813,19 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     }
     else
     {
-        // Unrecognized metadata type.
-        GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
+        if ((meta_data_type == format::MetaDataType::kReserved23) ||
+            (meta_data_type == format::MetaDataType::kReserved25))
+        {
+            // Only log a warning once if the capture file contains blocks that are a "reserved" meta data type.
+            GFXRECON_LOG_WARNING_ONCE("This capture file contains meta-data block(s) with reserved type(s) that are "
+                                      "not supported. Unsupported meta-data block types will be skipped.");
+        }
+        else
+        {
+            // Unrecognized metadata type.
+            GFXRECON_LOG_WARNING("Skipping unrecognized meta-data block with type %" PRIu16, meta_data_type);
+        }
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, block_header.size);
-
         success = SkipBytes(static_cast<size_t>(block_header.size) - sizeof(meta_data_id));
     }
 
