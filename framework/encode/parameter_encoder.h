@@ -292,6 +292,11 @@ class ParameterEncoder
     }
 #endif
 
+    void EncodeRawBytes(const void* bytes, size_t num_bytes)
+    {
+        output_stream_->Write(bytes, num_bytes);
+    }
+
   private:
     uint32_t GetPointerAttributeMask(const void* ptr, bool omit_data, bool omit_addr)
     {

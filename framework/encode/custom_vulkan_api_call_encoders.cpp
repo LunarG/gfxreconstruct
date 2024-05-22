@@ -199,7 +199,7 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
 
             for (const auto& entry_info : info->inline_uniform_block)
             {
-                encoder->EncodeUInt8Array(bytes + entry_info.offset, entry_info.count);
+                encoder->EncodeRawBytes(bytes + entry_info.offset, entry_info.count);
             }
         }
     }
