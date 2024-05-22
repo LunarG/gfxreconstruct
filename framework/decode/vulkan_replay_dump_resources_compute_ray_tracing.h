@@ -49,7 +49,8 @@ class DispatchTraceRaysDumpingContext
                                     const std::vector<uint64_t>&   trace_rays_indices,
                                     VulkanObjectInfoTable&         object_info_table,
                                     const VulkanReplayOptions&     options,
-                                    VulkanReplayDumpResourcesJson& dump_json);
+                                    VulkanReplayDumpResourcesJson& dump_json,
+                                    std::string                    capture_filename);
 
     ~DispatchTraceRaysDumpingContext();
 
@@ -448,6 +449,7 @@ class DispatchTraceRaysDumpingContext
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
     size_t                                  current_dispatch_index;
     size_t                                  current_trace_rays_index;
+    std::string                             capture_filename;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

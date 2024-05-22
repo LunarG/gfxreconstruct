@@ -50,6 +50,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), dump_json_(options)
 {
+    capture_filename = std::filesystem::path(options.capture_filename).stem().string();
+
     if (!options.Draw_Indices.size() && !options.Dispatch_Indices.size() && !options.TraceRays_Indices.size())
     {
         return;
@@ -71,7 +73,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
             draw_call_contexts.emplace(
                 bcb_index,
                 DrawCallsDumpingContext(
-                    options.Draw_Indices[i], options.RenderPass_Indices[i], object_info_table, options, dump_json_));
+                    options.Draw_Indices[i], options.RenderPass_Indices[i], object_info_table, options, dump_json_, capture_filename));
         }
 
         if ((i < options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size()) ||
@@ -87,7 +89,8 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                                   : std::vector<uint64_t>(),
                                               object_info_table_,
                                               options,
-                                              dump_json_));
+                                              dump_json_,
+                                              capture_filename));
         }
     }
 }

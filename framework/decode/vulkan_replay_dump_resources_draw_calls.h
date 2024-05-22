@@ -48,7 +48,8 @@ class DrawCallsDumpingContext
                             const std::vector<std::vector<uint64_t>>& rp_indices,
                             VulkanObjectInfoTable&                    object_info_table,
                             const VulkanReplayOptions&                options,
-                            VulkanReplayDumpResourcesJson&            dump_json);
+                            VulkanReplayDumpResourcesJson&            dump_json,
+                            std::string                               capture_filename);
 
     ~DrawCallsDumpingContext();
 
@@ -710,6 +711,7 @@ class DrawCallsDumpingContext
     const encode::VulkanInstanceTable*      instance_table;
     VulkanObjectInfoTable&                  object_info_table;
     const VkPhysicalDeviceMemoryProperties* replay_device_phys_mem_props;
+    std::string                             capture_filename;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
