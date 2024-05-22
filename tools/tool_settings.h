@@ -1105,29 +1105,17 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
     if (!dump_resources.empty())
     {
-        // If this option does not split into three comma separated values, consider it a Vulkan option.
-        // It should have already been processed by GetVulkanReplayOptions.
+        // If the option parameter does not split into three comma separated values, consider
+        // it a Vulkan option and ignore it. It it does split into three comma separated values,
+        // the arg is for dx12 and should have already been validated in the Vulkan option parsing.
+        // In that case, we simply extract and save the values here.
         std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, ',');
-        if (!values.empty())
+        if (values.size() == 3)
         {
-            if (values.size() != 3)
-            {
-                GFXRECON_LOG_ERROR("The parameter to --dump-resources is invalid. Ignoring it.");
-            }
-            else
-            {
-                try
-                {
-                    replay_options.dump_resources_target.submit_index   = std::stoi(values[0]);
-                    replay_options.dump_resources_target.command_index  = std::stoi(values[1]);
-                    replay_options.dump_resources_target.drawcall_index = std::stoi(values[2]);
-                    replay_options.enable_dump_resources                = true;
-                }
-                catch (std::exception&)
-                {
-                    GFXRECON_LOG_ERROR("The parameter to --dump-resources is invalid. Ignoring it.");
-                }
-            }
+            replay_options.dump_resources_target.submit_index   = std::stoi(values[0]);
+            replay_options.dump_resources_target.command_index  = std::stoi(values[1]);
+            replay_options.dump_resources_target.drawcall_index = std::stoi(values[2]);
+            replay_options.enable_dump_resources                = true;
         }
     }
 
