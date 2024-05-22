@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -755,8 +755,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         info->descriptor_info      = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
         info->descriptor_increment = increment;
 
-        size_t offset    = 0;
-        auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+        size_t                      offset    = 0;
+        auto                        cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         D3D12_GPU_DESCRIPTOR_HANDLE gpu_start{ 0 };
 
         // D3D12 validation layer states GetGPUDescriptorHandleForHeapStart() should only be used for heaps
@@ -2881,6 +2881,19 @@ void D3D12CaptureManager::WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeIn
                                    sizeof(runtime_info));
 
         WriteToFile(&dx12_runtime_info_header, sizeof(dx12_runtime_info_header));
+    }
+}
+
+void D3D12CaptureManager::UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain)
+{
+    if (width == 0 || height == 0)
+    {
+        DXGI_SWAP_CHAIN_DESC1 swapchain_desc;
+        if (swapchain != NULL)
+        {
+            swapchain->GetDesc1(&swapchain_desc);
+            WriteResizeWindowCmd(0, swapchain_desc.Width, swapchain_desc.Height);
+        }
     }
 }
 

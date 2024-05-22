@@ -5329,6 +5329,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
             ppSwapChain);
 
+        manager->UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+
         if (SUCCEEDED(result))
         {
             WrapObject(IID_IDXGISwapChain1, reinterpret_cast<void**>(ppSwapChain), nullptr);
@@ -5412,6 +5414,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
             pDesc,
             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
             ppSwapChain);
+
+        manager->UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
 
         if (SUCCEEDED(result))
         {

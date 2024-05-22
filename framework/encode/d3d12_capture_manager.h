@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -738,6 +738,8 @@ class D3D12CaptureManager : public ApiCaptureManager
     void SetAgsVersion(int ags_version) { ags_version_ = ags_version; }
 
     int GetAgsVersion() { return ags_version_; }
+
+    void UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain);
 
   protected:
     D3D12CaptureManager();

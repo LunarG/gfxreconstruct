@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -126,6 +126,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                            UINT                                     src_row_pitch,
                                                            UINT src_depth_pitch) override;
 
+    virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
+    {
+        if (options_.windowed_width == 0 && options_.windowed_height == 0)
+        {
+            options_.windowed_width  = width;
+            options_.windowed_height = height;
+        }
+    }
+
     template <typename T>
     T* MapObject(const format::HandleId id)
     {
@@ -147,7 +156,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     IDXGIAdapter* GetAdapter();
 
-  protected:    
+  protected:
     void MapGpuDescriptorHandle(D3D12_GPU_DESCRIPTOR_HANDLE& handle);
 
     void MapGpuDescriptorHandle(uint8_t* dst_handle_ptr, const uint8_t* src_handle_ptr);
@@ -740,7 +749,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void ReplaceWindowedResolution(uint32_t& width, uint32_t& height)
     {
-        if (options_.force_windowed)
+        if (options_.force_windowed == true || width == 0 || height == 0)
         {
             width  = options_.windowed_width;
             height = options_.windowed_height;
