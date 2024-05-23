@@ -41,7 +41,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Install dependencies
       run: |
         sudo apt-get update
@@ -79,7 +81,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Run build script
       run: |
         python scripts\build.py --skip-check-code-style --skip-tests --parallel 0
@@ -111,7 +115,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Update submodules
       run: |
         git submodule update --init
@@ -144,7 +150,9 @@ jobs:
     needs: [ linux, windows, android ]
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Get tag body
       id: get_tag_body
       run: |
