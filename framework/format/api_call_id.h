@@ -50,11 +50,14 @@ constexpr uint16_t GetApiCallFamily(uint32_t call_id)
 
 enum ApiFamilyId : uint16_t
 {
-    ApiFamily_None   = 0,
-    ApiFamily_Vulkan = 1,
-    ApiFamily_Dxgi   = 2,
-    ApiFamily_D3D12  = 3,
-    ApiFamily_AGS    = 4,
+    ApiFamily_None      = 0,
+    ApiFamily_Vulkan    = 1,
+    ApiFamily_Dxgi      = 2,
+    ApiFamily_D3D12     = 3,
+    ApiFamily_AGS       = 4,
+    ApiFamily_D3D11     = 5,
+    ApiFamily_D3D11On12 = 6,
+    ApiFamily_OpenXR    = 7
 };
 
 enum ApiCallId : uint32_t
