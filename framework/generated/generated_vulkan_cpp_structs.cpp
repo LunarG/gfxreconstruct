@@ -2033,7 +2033,7 @@ std::string GenerateStruct_StdVideoH265VpsFlags(std::ostream &out, const StdVide
 
 std::string GenerateStruct_VkAllocationCallbacks(std::ostream &out, const VkAllocationCallbacks* structInfo, Decoded_VkAllocationCallbacks* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
-    out << "\t\t" << "// TODO: Support pUserData (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pUserData (non-struct output) argument." << std::endl;
     struct_body << "\t\t\t" << structInfo->pfnAllocation << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pfnReallocation << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pfnFree << "," << std::endl;
@@ -7802,6 +7802,14 @@ std::string GenerateStruct_VkPipelineCreationFeedback(std::ostream &out, const V
 std::string GenerateStruct_VkPipelineCreationFeedbackCreateInfo(std::ostream &out, const VkPipelineCreationFeedbackCreateInfo* structInfo, Decoded_VkPipelineCreationFeedbackCreateInfo* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string ppipeline_creation_feedback_name = "NULL";
+    if (structInfo->pPipelineCreationFeedback != NULL) {
+        ppipeline_creation_feedback_name = GenerateStruct_VkPipelineCreationFeedback(out,
+                                                                                     structInfo->pPipelineCreationFeedback,
+                                                                                     metaInfo->pPipelineCreationFeedback->GetMetaStructPointer(),
+                                                                                     consumer);
+        ppipeline_creation_feedback_name.insert(0, "&");
+    }
     std::string ppipeline_stage_creation_feedbacks_array = "NULL";
     if (structInfo->pPipelineStageCreationFeedbacks != NULL) {
         ppipeline_stage_creation_feedbacks_array = "pPipelineStageCreationFeedbacks_" + std::to_string(consumer.GetNextId());
@@ -7820,7 +7828,7 @@ std::string GenerateStruct_VkPipelineCreationFeedbackCreateInfo(std::ostream &ou
     }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pPipelineCreationFeedback (output?) argument." << std::endl;
+    struct_body << "\t\t\t" << ppipeline_creation_feedback_name << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pipelineStageCreationFeedbackCount << "," << std::endl;
     struct_body << "\t\t\t" << ppipeline_stage_creation_feedbacks_array << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "pipelineCreationFeedbackCreateInfo");
@@ -11556,7 +11564,7 @@ std::string GenerateStruct_VkCheckpointData2NV(std::ostream &out, const VkCheckp
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkPipelineStageFlags2(" << structInfo->stage << ")" << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pCheckpointMarker (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pCheckpointMarker (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "checkpointData2NV");
     out << "\t\t" << "VkCheckpointData2NV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -12304,7 +12312,7 @@ std::string GenerateStruct_VkBindMemoryStatusKHR(std::ostream &out, const VkBind
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pResult (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pResult (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "bindMemoryStatusKHR");
     out << "\t\t" << "VkBindMemoryStatusKHR " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -12562,7 +12570,7 @@ std::string GenerateStruct_VkDebugReportCallbackCreateInfoEXT(std::ostream &out,
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkDebugReportFlagsEXT(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pfnCallback << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pUserData (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pUserData (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "debugReportCallbackCreateInfoEXT");
     out << "\t\t" << "VkDebugReportCallbackCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -13030,7 +13038,7 @@ std::string GenerateStruct_VkViSurfaceCreateInfoNN(std::ostream &out, const VkVi
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkViSurfaceCreateFlagsNN(" << structInfo->flags << ")" << "," << std::endl;
-    out << "\t\t" << "// TODO: Support window (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support window (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "viSurfaceCreateInfoNN");
     out << "\t\t" << "VkViSurfaceCreateInfoNN " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -15178,7 +15186,7 @@ std::string GenerateStruct_VkCheckpointDataNV(std::ostream &out, const VkCheckpo
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkPipelineStageFlagBits(" << structInfo->stage << ")" << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pCheckpointMarker (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pCheckpointMarker (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "checkpointDataNV");
     out << "\t\t" << "VkCheckpointDataNV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -15220,7 +15228,7 @@ std::string GenerateStruct_VkInitializePerformanceApiInfoINTEL(std::ostream &out
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pUserData (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pUserData (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "initializePerformanceApiInfoINTEL");
     out << "\t\t" << "VkInitializePerformanceApiInfoINTEL " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -16047,7 +16055,7 @@ std::string GenerateStruct_VkImageToMemoryCopyEXT(std::ostream &out, const VkIma
                                                                   consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pHostPointer (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pHostPointer (non-struct output) argument." << std::endl;
     struct_body << "\t\t\t" << structInfo->memoryRowLength << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->memoryImageHeight << "," << std::endl;
     struct_body << "\t\t\t" << image_subresource_info_var << "," << std::endl;
@@ -16162,7 +16170,7 @@ std::string GenerateStruct_VkMemoryMapPlacedInfoEXT(std::ostream &out, const VkM
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pPlacedAddress (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pPlacedAddress (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "memoryMapPlacedInfoEXT");
     out << "\t\t" << "VkMemoryMapPlacedInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -16887,7 +16895,7 @@ std::string GenerateStruct_VkDeviceDeviceMemoryReportCreateInfoEXT(std::ostream 
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << "VkDeviceMemoryReportFlagsEXT(" << structInfo->flags << ")" << "," << std::endl;
     struct_body << "\t\t\t" << structInfo->pfnUserCallback << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pUserData (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pUserData (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "deviceDeviceMemoryReportCreateInfoEXT");
     out << "\t\t" << "VkDeviceDeviceMemoryReportCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -17080,7 +17088,7 @@ std::string GenerateStruct_VkQueryLowLatencySupportNV(std::ostream &out, const V
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pQueriedLowLatencyData (output?) argument." << std::endl;
+    out << "\t\t" << "// TODO: Support pQueriedLowLatencyData (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "queryLowLatencySupportNV");
     out << "\t\t" << "VkQueryLowLatencySupportNV " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -17486,12 +17494,28 @@ std::string GenerateStruct_VkDeviceFaultCountsEXT(std::ostream &out, const VkDev
 std::string GenerateStruct_VkDeviceFaultInfoEXT(std::ostream &out, const VkDeviceFaultInfoEXT* structInfo, Decoded_VkDeviceFaultInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string paddress_infos_name = "NULL";
+    if (structInfo->pAddressInfos != NULL) {
+        paddress_infos_name = GenerateStruct_VkDeviceFaultAddressInfoEXT(out,
+                                                                         structInfo->pAddressInfos,
+                                                                         metaInfo->pAddressInfos->GetMetaStructPointer(),
+                                                                         consumer);
+        paddress_infos_name.insert(0, "&");
+    }
+    std::string pvendor_infos_name = "NULL";
+    if (structInfo->pVendorInfos != NULL) {
+        pvendor_infos_name = GenerateStruct_VkDeviceFaultVendorInfoEXT(out,
+                                                                       structInfo->pVendorInfos,
+                                                                       metaInfo->pVendorInfos->GetMetaStructPointer(),
+                                                                       consumer);
+        pvendor_infos_name.insert(0, "&");
+    }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     struct_body << "\t\t\t" << VulkanCppConsumerBase::ToEscape(structInfo->description) << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pAddressInfos (output?) argument." << std::endl;
-    out << "\t\t" << "// TODO: Support pVendorInfos (output?) argument." << std::endl;
-    out << "\t\t" << "// TODO: Support pVendorBinaryData (output?) argument." << std::endl;
+    struct_body << "\t\t\t" << paddress_infos_name << "," << std::endl;
+    struct_body << "\t\t\t" << pvendor_infos_name << "," << std::endl;
+    out << "\t\t" << "// TODO: Support pVendorBinaryData (non-struct output) argument." << std::endl;
     std::string variable_name = consumer.AddStruct(struct_body, "deviceFaultInfoEXT");
     out << "\t\t" << "VkDeviceFaultInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -19353,9 +19377,17 @@ std::string GenerateStruct_VkRenderPassCreationControlEXT(std::ostream &out, con
 std::string GenerateStruct_VkRenderPassCreationFeedbackCreateInfoEXT(std::ostream &out, const VkRenderPassCreationFeedbackCreateInfoEXT* structInfo, Decoded_VkRenderPassCreationFeedbackCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string prender_pass_feedback_name = "NULL";
+    if (structInfo->pRenderPassFeedback != NULL) {
+        prender_pass_feedback_name = GenerateStruct_VkRenderPassCreationFeedbackInfoEXT(out,
+                                                                                        structInfo->pRenderPassFeedback,
+                                                                                        metaInfo->pRenderPassFeedback->GetMetaStructPointer(),
+                                                                                        consumer);
+        prender_pass_feedback_name.insert(0, "&");
+    }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pRenderPassFeedback (output?) argument." << std::endl;
+    struct_body << "\t\t\t" << prender_pass_feedback_name << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "renderPassCreationFeedbackCreateInfoEXT");
     out << "\t\t" << "VkRenderPassCreationFeedbackCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
@@ -19378,9 +19410,17 @@ std::string GenerateStruct_VkRenderPassCreationFeedbackInfoEXT(std::ostream &out
 std::string GenerateStruct_VkRenderPassSubpassFeedbackCreateInfoEXT(std::ostream &out, const VkRenderPassSubpassFeedbackCreateInfoEXT* structInfo, Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
+    std::string psubpass_feedback_name = "NULL";
+    if (structInfo->pSubpassFeedback != NULL) {
+        psubpass_feedback_name = GenerateStruct_VkRenderPassSubpassFeedbackInfoEXT(out,
+                                                                                   structInfo->pSubpassFeedback,
+                                                                                   metaInfo->pSubpassFeedback->GetMetaStructPointer(),
+                                                                                   consumer);
+        psubpass_feedback_name.insert(0, "&");
+    }
     struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    out << "\t\t" << "// TODO: Support pSubpassFeedback (output?) argument." << std::endl;
+    struct_body << "\t\t\t" << psubpass_feedback_name << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "renderPassSubpassFeedbackCreateInfoEXT");
     out << "\t\t" << "VkRenderPassSubpassFeedbackCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
