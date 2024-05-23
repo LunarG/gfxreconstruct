@@ -295,7 +295,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-depth-attachment");
     GFXRECON_WRITE_CONSOLE("          \t\tConfigures whether to dump the depth attachment of draw calls.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is false.");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-color-attachment-index");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-color-attachment-index <index>");
     GFXRECON_WRITE_CONSOLE("          \t\tConfigures which color attachment to dump when dumping draw calls.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is all attachments.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-vertex-index-buffers");

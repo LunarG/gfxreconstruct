@@ -258,7 +258,7 @@ HRESULT Dx12DumpResources::Init(const Dx12DumpResourcesConfig& config)
     util::platform::FileOpen(&json_file_handle_, json_filename_.c_str(), "w");
 
     header_["D3D12SDKVersion"] = std::to_string(D3D12SDKVersion);
-    header_["gfxreconversion"] = GFXRECON_PROJECT_VERSION_STRING;
+    header_["gfxreconVersion"] = GFXRECON_PROJECT_VERSION_STRING;
     header_["captureFile"] = config.capture_file_name;
 
     auto& dr_options = header_["dumpResourcesOptions"];

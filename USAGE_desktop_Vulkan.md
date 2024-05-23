@@ -538,7 +538,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--dump-resources-scale <scale>] [--dump-resources-dir <dir>]
                         [--dump-resources-image-format <format>]
                         [--dump-resources-dump-depth-attachment]
-                        [--dump-resources-dump-color-attachment-index]
+                        [--dump-resources-dump-color-attachment-index <index>]
                         [--dump-resources-dump-vertex-index-buffers]
                         [--dump-resources-json-output-per-command]
                         [--dump-resources-dump-immutable-resources]
@@ -739,7 +739,7 @@ Optional arguments:
               Image file format to use when dumping image resources. Available formats are: bmp, png
   --dump-resources-dump-depth-attachment
               Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
-  --dump-resources-dump-color-attachment-index
+  --dump-resources-dump-color-attachment-index <index>
               Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
               based integer. Default is to dump all color attachment
   --dump-resources-dump-vertex-index-buffers
