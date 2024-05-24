@@ -23,6 +23,7 @@
 #include "vulkan_resources_util.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "generated/generated_vulkan_enum_to_string.h"
+#include "util/logging.h"
 
 #include <cinttypes>
 #include <cstdint>
@@ -1628,24 +1629,23 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     // Check if the new image can be the target image of a vkCmdBlit command
     if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) != VK_FORMAT_FEATURE_BLIT_DST_BIT)
     {
-        GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
-                                "VK_FORMAT_FEATURE_BLIT_DST_BIT. Scaling will be disabled for these images.",
-                                util::ToString<VkFormat>(format).c_str());
-
+        GFXRECON_LOG_WARNING("Image with format %s and optimal tilling does not support "
+                             "VK_FORMAT_FEATURE_BLIT_DST_BIT. Scaling will be disabled for these images.",
+                             util::ToString<VkFormat>(format).c_str());
         scaling_supported = false;
     }
 
-    if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) != VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
+    if (scaling_supported &&
+        (format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) != VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
     {
-        GFXRECON_LOG_ERROR_ONCE("Image with format %s and optimal tilling does not support "
-                                "VK_FORMAT_FEATURE_TRANSFER_SRC_BIT. Scaling will be disabled for these images.",
-                                util::ToString<VkFormat>(format).c_str());
-
+        GFXRECON_LOG_WARNING("Image with format %s and optimal tilling does not support "
+                             "VK_FORMAT_FEATURE_TRANSFER_SRC_BIT. Scaling will be disabled for these images.",
+                             util::ToString<VkFormat>(format).c_str());
         scaling_supported = false;
     }
 
     // In case of scalling an image up, check if the image resolution is supported by the implementation
-    if (scale > 1.0f)
+    if (scaling_supported && scale > 1.0f)
     {
         VkImageFormatProperties img_format_props;
         instance_table_.GetPhysicalDeviceImageFormatProperties(physical_device_,
