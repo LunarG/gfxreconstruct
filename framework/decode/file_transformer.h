@@ -67,7 +67,7 @@ class FileTransformer
 
     virtual ~FileTransformer();
 
-    bool Initialize(const std::string& input_filename, const std::string& output_filename);
+    bool Initialize(const std::string& input_filename, const std::string& output_filename, const std::string& tool);
 
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool Process();
@@ -146,6 +146,9 @@ class FileTransformer
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
   private:
+    std::string                         input_filename_;
+    std::string                         output_filename_;
+    std::string                         tool_;
     FILE*                               input_file_;
     FILE*                               output_file_;
     format::FileHeader                  file_header_;

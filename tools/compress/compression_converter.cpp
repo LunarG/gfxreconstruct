@@ -50,7 +50,7 @@ bool CompressionConverter::Initialize(const std::string&      input_filename,
         // WriteFileHeader, which depends on a valid target compression type.
         target_compression_type_ = target_compression_type;
         decompressing_           = (target_compression_type == format::CompressionType::kNone);
-        success                  = FileTransformer::Initialize(input_filename, output_filename);
+        success                  = FileTransformer::Initialize(input_filename, output_filename, "compress");
     }
 
     return success;
