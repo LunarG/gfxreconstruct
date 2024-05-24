@@ -125,7 +125,7 @@ class DrawCallsDumpingContext
     VkResult DumpRenderTargetAttachments(
         uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index) const;
 
-    VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index, uint64_t rp);
+    VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
 
     VkResult DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index);
 
@@ -692,16 +692,17 @@ class DrawCallsDumpingContext
         std::vector<VkDeviceMemory>    buffer_memories;
     } mutable_resource_backups;
 
-    struct RenderPassContext
+    // Gather here all descriptors referenced by draw calls that have been dumped
+    // in order to avoid dumping descriptors referenced from multiple shader stages,
+    // multiple times
+    struct RenderPassDumpedDescriptors
     {
-        // Draw call indices in this render pass
-        std::vector<uint64_t> dc_indices;
-
-        bool buffers_dumped{ false };
-        bool descriptors_dumped{ false };
+        std::unordered_set<const ImageInfo*>            image_descriptors;
+        std::unordered_set<const BufferInfo*>           buffer_descriptors;
+        std::unordered_set<const std::vector<uint8_t>*> inline_uniform_blocks;
     };
 
-    std::vector<RenderPassContext> render_pass_contexts;
+    std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors;
 
     VkCommandBuffer aux_command_buffer;
     VkFence         aux_fence;
