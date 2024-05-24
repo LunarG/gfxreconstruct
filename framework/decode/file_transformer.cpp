@@ -49,8 +49,14 @@ FileTransformer::~FileTransformer()
     }
 }
 
-bool FileTransformer::Initialize(const std::string& input_filename, const std::string& output_filename)
+bool FileTransformer::Initialize(const std::string& input_filename,
+                                 const std::string& output_filename,
+                                 const std::string& tool)
 {
+    input_filename_  = input_filename;
+    output_filename_ = output_filename;
+    tool_            = tool;
+
     bool success = false;
 
     int32_t result = util::platform::FileOpen(&input_file_, input_filename.c_str(), "rb");
@@ -101,6 +107,30 @@ bool FileTransformer::Initialize(const std::string& input_filename, const std::s
 bool FileTransformer::Process()
 {
     bool success = true;
+
+    const char*  label        = format::kAnnotationLabelTransformer;
+    const size_t label_length = util::platform::StringLength(label);
+
+    std::string data = "";
+    data += "{\n";
+    data += "  \"input\": " + input_filename_ + ",\n";
+    data += "  \"output\": " + output_filename_ + ",\n";
+    data += "  \"tool\": " + tool_ + "\n";
+    data += "}";
+    const size_t data_length = data.size();
+
+    format::AnnotationHeader annotation;
+    annotation.block_header.size = format::GetAnnotationBlockBaseSize() + label_length + data_length;
+    annotation.block_header.type = format::BlockType::kAnnotation;
+    annotation.annotation_type   = format::kJson;
+    annotation.label_length      = label_length;
+    annotation.data_length       = data_length;
+    if (!WriteBytes(&annotation, sizeof(annotation)) || !WriteBytes(label, label_length) ||
+        !WriteBytes(data.c_str(), data_length))
+    {
+        HandleBlockWriteError(kErrorWritingBlockHeader, "Failed to write transformer annotation");
+        return false;
+    }
 
     block_index_ = 0;
     while (success)

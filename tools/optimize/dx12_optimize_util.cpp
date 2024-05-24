@@ -73,7 +73,7 @@ void CreateResourceValueTrackingConsumer(
 
     // Use default replay options, except gpu index.
     decode::DxReplayOptions dx_replay_options;
-    dx_replay_options.override_gpu_index  = options.override_gpu_index;
+    dx_replay_options.override_gpu_index = options.override_gpu_index;
 
     // Create the replay consumer.
     dx12_replay_consumer = std::make_unique<decode::Dx12ResourceValueTrackingConsumer>(
@@ -389,7 +389,7 @@ bool ApplyDx12OptimizationInfo(const std::string&                     input_file
         GFXRECON_WRITE_CONSOLE("Writing optimized file.");
 
         gfxrecon::Dx12FileOptimizer file_optimizer;
-        if (file_optimizer.Initialize(input_filename, output_filename))
+        if (file_optimizer.Initialize(input_filename, output_filename, "optimize"))
         {
             file_optimizer.SetUnreferencedBlocks(info.unreferenced_blocks);
             file_optimizer.SetFillCommandResourceValues(&info.fill_command_resource_values,
