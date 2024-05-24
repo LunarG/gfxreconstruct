@@ -161,9 +161,17 @@ class DispatchTraceRaysDumpingContext
 
     VkResult FetchIndirectParams();
 
-    VkResult DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index) const;
+    VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t cmd_index, bool is_dispatch);
 
-    void GenerateOutputJson(uint64_t qs_index, uint64_t bcb_index) const;
+    void GenerateOutputJsonDispatchInfo(uint64_t qs_index,
+                                        uint64_t bcb_index,
+                                        uint64_t disp_index,
+                                        uint64_t cmd_index) const;
+
+    void GenerateOutputJsonTraceRaysIndex(uint64_t qs_index,
+                                          uint64_t bcb_index,
+                                          uint64_t tr_index,
+                                          uint64_t cmd_index) const;
 
     const CommandBufferInfo*       original_command_buffer_info;
     VkCommandBuffer                DR_command_buffer;
@@ -434,6 +442,19 @@ class DispatchTraceRaysDumpingContext
     void SnapshotBoundDescriptors(DispatchParameters& disp_params);
 
     void SnapshotBoundDescriptors(TraceRaysParameters& tr_params);
+
+    // Gather here all descriptors referenced by commands that have already been dumped
+    // in order to avoid dumping descriptors referenced from multiple shader stages,
+    // multiple times
+    struct DumpedDescriptors
+    {
+        std::unordered_set<const ImageInfo*>            image_descriptors;
+        std::unordered_set<const BufferInfo*>           buffer_descriptors;
+        std::unordered_set<const std::vector<uint8_t>*> inline_uniform_blocks;
+    };
+
+    DumpedDescriptors dispatch_dumped_descriptors;
+    DumpedDescriptors trace_rays_dumped_descriptors;
 
     // One entry for each dispatch command
     std::unordered_map<uint64_t, DispatchParameters> dispatch_params;

@@ -78,12 +78,7 @@ DrawCallsDumpingContext::DrawCallsDumpingContext(const std::vector<uint64_t>&   
     command_buffers.resize(n_cmd_buffs, VK_NULL_HANDLE);
 
     const size_t n_render_passes = rp_indices.size();
-    render_pass_contexts.resize(n_render_passes);
-    for (auto& rpc : render_pass_contexts)
-    {
-        rpc.buffers_dumped     = false;
-        rpc.descriptors_dumped = false;
-    }
+    render_pass_dumped_descriptors.resize(n_render_passes);
 }
 
 DrawCallsDumpingContext::~DrawCallsDumpingContext()
@@ -134,7 +129,7 @@ void DrawCallsDumpingContext::Release()
     draw_call_params.clear();
     dc_indices.clear();
     RP_indices.clear();
-    render_pass_contexts.clear();
+    render_pass_dumped_descriptors.clear();
 
     current_renderpass = 0;
     current_subpass    = 0;
@@ -151,9 +146,6 @@ void DrawCallsDumpingContext::InsertNewDrawParameters(
         std::forward_as_tuple(
             DrawCallsDumpingContext::kDraw, vertex_count, instance_count, first_vertex, first_instance));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
@@ -172,9 +164,6 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedParameters(uint64_t index,
                                                                     vertexOffset,
                                                                     first_instance));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
@@ -185,9 +174,6 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectParameters(
         std::forward_as_tuple(index),
         std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
@@ -198,9 +184,6 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectParameters(
         std::forward_as_tuple(index),
         std::forward_as_tuple(DrawCallsDumpingContext::kDrawIndexedIndirect, buffer_info, offset, draw_count, stride));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t          index,
@@ -221,9 +204,6 @@ void DrawCallsDumpingContext::InsertNewIndirectCountParameters(uint64_t         
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64_t          index,
@@ -244,9 +224,6 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountParameters(uint64
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndirectCountKHRParameters(uint64_t          index,
@@ -267,9 +244,6 @@ void DrawCallsDumpingContext::InsertNewDrawIndirectCountKHRParameters(uint64_t  
                                                                     max_draw_count,
                                                                     stride));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountKHRParameters(uint64_t          index,
@@ -291,9 +265,6 @@ void DrawCallsDumpingContext::InsertNewDrawIndexedIndirectCountKHRParameters(uin
                                                        max_draw_count,
                                                        stride));
     assert(new_entry.second);
-
-    assert(current_renderpass <= render_pass_contexts.size());
-    render_pass_contexts[current_renderpass].dc_indices.push_back(index);
 }
 
 VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
@@ -777,9 +748,6 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 {
     const size_t n_drawcalls = command_buffers.size();
 
-    uint64_t rp          = 0;
-    uint64_t previous_rp = 0;
-
     // Dump render targets
     for (size_t cb = 0; cb < n_drawcalls; ++cb)
     {
@@ -844,7 +812,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         const size_t                dc_index = dc_indices[CmdBufToDCVectorIndex(cb)];
         const RenderPassSubpassPair RP_index = GetRenderPassIndex(dc_index);
         const uint64_t              sp       = RP_index.second;
-        rp                                   = RP_index.first;
+        const uint64_t              rp       = RP_index.first;
 
         // Dump vertex/index buffers
         if (dump_vertex_index_buffers)
@@ -868,14 +836,11 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         // Dump immutable resources
         if (dump_immutable_resources)
         {
-            if (previous_rp != rp)
+            VkResult res = DumpImmutableDescriptors(qs_index, bcb_index, dc_index, rp);
+            if (res != VK_SUCCESS)
             {
-                VkResult res = DumpImmutableResources(qs_index, bcb_index, previous_rp);
-                if (res != VK_SUCCESS)
-                {
-                    GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())
-                    return res;
-                }
+                GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())
+                return res;
             }
         }
 
@@ -888,30 +853,15 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
                                util::ToString<VkResult>(res).c_str())
             return res;
         }
-
-        if (previous_rp != rp)
-        {
-            previous_rp = rp;
-        }
     }
 
-    // Dump descriptors from last render pass
-    if (dump_immutable_resources)
-    {
-        VkResult res = DumpImmutableResources(qs_index, bcb_index, rp);
-        if (res != VK_SUCCESS)
-        {
-            GFXRECON_LOG_ERROR("Dumping immutable resources failed (%s)", util::ToString<VkResult>(res).c_str())
-            return res;
-        }
-    }
-
+    // Clean up some state in case this command buffer is submitted again
     ResetFetchedIndirectParams();
-
-    for (auto& rpc : render_pass_contexts)
+    for (auto& rpc : render_pass_dumped_descriptors)
     {
-        rpc.buffers_dumped     = false;
-        rpc.descriptors_dumped = false;
+        rpc.image_descriptors.clear();
+        rpc.buffer_descriptors.clear();
+        rpc.inline_uniform_blocks.clear();
     }
 
     GFXRECON_LOG_INFO("Done.")
@@ -1198,7 +1148,10 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                     const std::string vb_filename =
                         GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, vb_binding.first);
 
-                    dump_json.InsertBufferInfo(json_entry[i++], vb_binding_buffer->second.buffer_info, vb_filename);
+                    json_entry[i]["bufferId"]            = vb_binding_buffer->second.buffer_info->capture_id;
+                    json_entry[i]["vertexBufferBinding"] = vb_binding.first;
+                    json_entry[i]["file"]                = vb_filename;
+                    ++i;
                 }
             }
         }
@@ -1656,14 +1609,11 @@ std::string DrawCallsDumpingContext::GenerateInlineUniformBufferDescriptorFilena
     return (filedirname / filebasename).string();
 }
 
-VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint64_t bcb_index, uint64_t rp)
+VkResult
+DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp)
 {
-    assert(rp < render_pass_contexts.size());
-
-    if (render_pass_contexts[rp].descriptors_dumped)
-    {
-        return VK_SUCCESS;
-    }
+    assert(rp < render_pass_dumped_descriptors.size());
+    assert(draw_call_params.find(dc_index) != draw_call_params.end());
 
     // Create a list of all descriptors referenced by all draw calls
     std::unordered_set<const ImageInfo*> image_descriptors;
@@ -1683,82 +1633,94 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
     };
     std::unordered_map<const std::vector<uint8_t>*, inline_uniform_block_info> inline_uniform_blocks;
 
-    for (auto dc_index : render_pass_contexts[rp].dc_indices)
+    auto                      dc_param_entry = draw_call_params.find(dc_index);
+    const DrawCallParameters& dc_params      = dc_param_entry->second;
+    for (const auto& shader_stage : dc_params.referenced_descriptors)
     {
-        auto dc_param_entry = draw_call_params.find(dc_index);
-        assert(dc_param_entry != draw_call_params.end());
-
-        const DrawCallParameters& dc_params = dc_param_entry->second;
-        for (const auto& shader_stage : dc_params.referenced_descriptors)
+        for (const auto& desc_set : shader_stage.second)
         {
-            for (const auto& desc_set : shader_stage.second)
+            const uint32_t desc_set_index = desc_set.first;
+            for (const auto& desc_binding : desc_set.second)
             {
-                const uint32_t desc_set_index = desc_set.first;
-                for (const auto& desc_binding : desc_set.second)
+                const uint32_t desc_binding_index = desc_binding.first;
+                switch (desc_binding.second.desc_type)
                 {
-                    const uint32_t desc_binding_index = desc_binding.first;
-                    switch (desc_binding.second.desc_type)
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+                    case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                     {
-                        case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
-                        case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
-                        case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+                        for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
                         {
-                            for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
+                            if (desc_binding.second.image_info[img].image_view_info != nullptr)
                             {
-                                if (desc_binding.second.image_info[img].image_view_info != nullptr)
-                                {
-                                    const ImageInfo* img_info = object_info_table.GetImageInfo(
-                                        desc_binding.second.image_info[img].image_view_info->image_id);
-                                    assert(img_info);
+                                const ImageInfo* img_info = object_info_table.GetImageInfo(
+                                    desc_binding.second.image_info[img].image_view_info->image_id);
+                                assert(img_info);
 
+                                if (render_pass_dumped_descriptors[rp].image_descriptors.find(img_info) ==
+                                    render_pass_dumped_descriptors[rp].image_descriptors.end())
+                                {
                                     image_descriptors.insert(img_info);
+                                    render_pass_dumped_descriptors[rp].image_descriptors.insert(img_info);
                                 }
                             }
                         }
-                        break;
+                    }
+                    break;
 
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
-                        case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-                        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        for (size_t buf = 0; buf < desc_binding.second.buffer_info.size(); ++buf)
                         {
-                            for (size_t buf = 0; buf < desc_binding.second.buffer_info.size(); ++buf)
+                            const BufferInfo* buffer_info = desc_binding.second.buffer_info[buf].buffer_info;
+                            if (buffer_info != nullptr)
                             {
-                                if (desc_binding.second.buffer_info[buf].buffer_info != nullptr)
+                                if (render_pass_dumped_descriptors[rp].buffer_descriptors.find(buffer_info) ==
+                                    render_pass_dumped_descriptors[rp].buffer_descriptors.end())
                                 {
-                                    buffer_descriptors.emplace(
-                                        std::piecewise_construct,
-                                        std::forward_as_tuple(desc_binding.second.buffer_info[buf].buffer_info),
-                                        std::forward_as_tuple(
-                                            buffer_descriptor_info{ desc_binding.second.buffer_info[buf].offset,
-                                                                    desc_binding.second.buffer_info[buf].range }));
+                                    buffer_descriptors.emplace(std::piecewise_construct,
+                                                               std::forward_as_tuple(buffer_info),
+                                                               std::forward_as_tuple(buffer_descriptor_info{
+                                                                   desc_binding.second.buffer_info[buf].offset,
+                                                                   desc_binding.second.buffer_info[buf].range }));
+                                    render_pass_dumped_descriptors[rp].buffer_descriptors.insert(buffer_info);
                                 }
                             }
                         }
-                        break;
+                    }
+                    break;
 
-                        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                    {
+                        if (render_pass_dumped_descriptors[rp].inline_uniform_blocks.find(
+                                &desc_binding.second.inline_uniform_block) ==
+                            render_pass_dumped_descriptors[rp].inline_uniform_blocks.end())
                         {
                             inline_uniform_blocks[&(desc_binding.second.inline_uniform_block)] = {
                                 desc_set_index, desc_binding_index, &(desc_binding.second.inline_uniform_block)
                             };
+                            render_pass_dumped_descriptors[rp].inline_uniform_blocks.insert(
+                                &desc_binding.second.inline_uniform_block);
                         }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+                    case VK_DESCRIPTOR_TYPE_SAMPLER:
                         break;
 
-                        case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-                        case VK_DESCRIPTOR_TYPE_SAMPLER:
-                            break;
-
-                        default:
-                            GFXRECON_LOG_WARNING_ONCE(
-                                "%s(): Descriptor type (%s) not handled",
-                                __func__,
-                                util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
-                            break;
-                    }
+                    default:
+                        GFXRECON_LOG_WARNING_ONCE(
+                            "%s(): Descriptor type (%s) not handled",
+                            __func__,
+                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type).c_str());
+                        break;
                 }
             }
         }
@@ -1825,8 +1787,6 @@ VkResult DrawCallsDumpingContext::DumpImmutableResources(uint64_t qs_index, uint
             GenerateInlineUniformBufferDescriptorFilename(qs_index, bcb_index, iub.second.set, iub.second.binding);
         util::bufferwriter::WriteBuffer(filename, iub.second.data->data(), iub.second.data->size());
     }
-
-    render_pass_contexts[rp].descriptors_dumped = true;
 
     return VK_SUCCESS;
 }
