@@ -101,6 +101,8 @@ class DispatchTraceRaysDumpingContext
                                               const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
                                               VkDeviceAddress                        indirectDeviceAddress);
 
+    void InsertNewTraceRaysIndirect2Parameters(uint64_t index, VkDeviceAddress indirectDeviceAddress);
+
     VkResult CloneDispatchMutableResources(uint64_t index, bool cloning_before_cmd);
 
     VkResult CloneTraceRaysMutableResources(uint64_t index, bool cloning_before_cmd);
@@ -346,7 +348,8 @@ class DispatchTraceRaysDumpingContext
     enum TraceRaysTypes
     {
         kTraceRays,
-        kTraceRaysIndirect
+        kTraceRaysIndirect,
+        kTraceRaysIndirect2
     };
 
     static const char* TraceRaysTypeToStr(TraceRaysTypes type)
@@ -356,7 +359,9 @@ class DispatchTraceRaysDumpingContext
             case kTraceRays:
                 return "vkCmdTraceRays";
             case kTraceRaysIndirect:
-                return "vkCmdTraceRaysIndirect";
+                return "vkCmdTraceRaysIndirectKHR";
+            case kTraceRaysIndirect2:
+                return "vkCmdTraceRaysIndirect2KHR";
             default:
                 assert(0);
                 return "UnrecognizedTraceRaysCommand";
@@ -384,6 +389,21 @@ class DispatchTraceRaysDumpingContext
 
             TraceRaysIndirect trace_rays_indirect;
 
+            struct TraceRaysIndirect2
+            {
+                VkDeviceAddress indirect_device_address;
+
+                VkBuffer       buffer_on_device_address;
+                VkDeviceMemory buffer_on_device_address_memory;
+
+                VkBuffer       new_params_buffer;
+                VkDeviceMemory new_params_buffer_memory;
+
+                VkTraceRaysIndirectCommand2KHR trace_rays_params;
+            };
+
+            TraceRaysIndirect2 trace_rays_indirect2;
+
             TraceRaysParamsUnion(uint32_t width, uint32_t height, uint32_t depth) : trace_rays{ width, height, depth }
             {}
 
@@ -393,41 +413,20 @@ class DispatchTraceRaysDumpingContext
             {}
         } trace_rays_params_union;
 
-        TraceRaysParameters(TraceRaysTypes                         type,
-                            const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
-                            const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
-                            const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
-                            const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
-                            uint32_t                               width,
-                            uint32_t                               height,
-                            uint32_t                               depth) :
-            trace_rays_params_union(width, height, depth),
-            type(type), pRaygenShaderBindingTable(pRaygenShaderBindingTable),
-            pMissShaderBindingTable(pMissShaderBindingTable), pHitShaderBindingTable(pHitShaderBindingTable),
-            pCallableShaderBindingTable(pCallableShaderBindingTable)
+        TraceRaysParameters(TraceRaysTypes type, uint32_t width, uint32_t height, uint32_t depth) :
+            type(type), trace_rays_params_union(width, height, depth)
         {
             assert(type == kTraceRays);
         }
 
-        TraceRaysParameters(TraceRaysTypes                         type,
-                            const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
-                            const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
-                            const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
-                            const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
-                            VkDeviceAddress                        indirectDeviceAddress) :
-            trace_rays_params_union(indirectDeviceAddress),
-            type(type), pRaygenShaderBindingTable(pRaygenShaderBindingTable),
-            pMissShaderBindingTable(pMissShaderBindingTable), pHitShaderBindingTable(pHitShaderBindingTable),
-            pCallableShaderBindingTable(pCallableShaderBindingTable)
+        TraceRaysParameters(TraceRaysTypes type, VkDeviceAddress indirectDeviceAddress) :
+            type(type), trace_rays_params_union(indirectDeviceAddress)
+
         {
             assert(type == kTraceRaysIndirect);
         }
 
-        TraceRaysTypes                         type;
-        const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable;
-        const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable;
-        const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable;
-        const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable;
+        TraceRaysTypes type;
 
         std::unordered_map<VkShaderStageFlagBits,
                            std::unordered_map<uint32_t, DescriptorSetInfo::DescriptorBindingsInfo>>

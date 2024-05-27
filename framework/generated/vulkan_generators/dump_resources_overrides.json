@@ -19,6 +19,7 @@
     "vkCmdDispatchIndirect": "OverrideCmdDispatchIndirect",
     "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
     "vkCmdTraceRaysIndirectKHR": "OverrideCmdTraceRaysIndirectKHR",
+    "vkCmdTraceRaysIndirect2KHR": "OverrideCmdTraceRaysIndirect2KHR",
     "vkCmdDraw": "OverrideCmdDraw",
     "vkCmdDrawIndexed": "OverrideCmdDrawIndexed",
     "vkCmdDrawIndirect": "OverrideCmdDrawIndirect",
