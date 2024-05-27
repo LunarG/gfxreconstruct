@@ -702,7 +702,7 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--dump-resources-dir <fir>]
                           [--dump-resources-image-format <format>]
                           [--dump-resources-dump-depth-attachment]
-                          [--dump-resources-dump-color-attachment-index]
+                          [--dump-resources-dump-color-attachment-index <index>]
                           [--dump-resources-dump-vertex-index-buffers]
                           [--dump-resources-json-output-per-command]
                           [--dump-resources-dump-immutable-resources]
