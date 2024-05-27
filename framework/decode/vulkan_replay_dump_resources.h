@@ -205,6 +205,11 @@ class VulkanReplayDumpResourcesBase
         StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
         VkDeviceAddress                                                indirectDeviceAddress);
 
+    void OverrideCmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
+                                          PFN_vkCmdTraceRaysIndirect2KHR func,
+                                          VkCommandBuffer                original_command_buffer,
+                                          VkDeviceAddress                indirectDeviceAddress);
+
     void OverrideCmdBindDescriptorSets(const ApiCallInfo&          call_info,
                                        PFN_vkCmdBindDescriptorSets func,
                                        VkCommandBuffer             original_command_buffer,

@@ -1548,6 +1548,59 @@ void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirectKHR(
     }
 }
 
+void VulkanReplayDumpResourcesBase::OverrideCmdTraceRaysIndirect2KHR(const ApiCallInfo&             call_info,
+                                                                     PFN_vkCmdTraceRaysIndirect2KHR func,
+                                                                     VkCommandBuffer original_command_buffer,
+                                                                     VkDeviceAddress indirectDeviceAddress)
+{
+    assert(IsRecording(original_command_buffer));
+
+    const uint64_t                   tr_index   = call_info.index;
+    const bool                       must_dump  = MustDumpTraceRays(original_command_buffer, tr_index);
+    DispatchTraceRaysDumpingContext* dr_context = FindDispatchRaysCommandBufferContext(original_command_buffer);
+
+    if (must_dump)
+    {
+        assert(dr_context != nullptr);
+
+        dr_context->InsertNewTraceRaysIndirect2Parameters(tr_index, indirectDeviceAddress);
+    }
+
+    if (dump_resources_before_ && must_dump)
+    {
+        assert(dr_context != nullptr);
+
+        dr_context->CloneTraceRaysMutableResources(tr_index, true);
+        dr_context->FinalizeCommandBuffer(true);
+    }
+
+    CommandBufferIterator first, last;
+    if (GetDrawCallActiveCommandBuffers(original_command_buffer, first, last))
+    {
+        for (CommandBufferIterator it = first; it < last; ++it)
+        {
+            func(*it, indirectDeviceAddress);
+        }
+    }
+
+    VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
+    if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+    {
+        func(dispatch_rays_command_buffer, indirectDeviceAddress);
+    }
+
+    if (must_dump)
+    {
+        assert(dr_context != nullptr);
+
+        dr_context->CloneTraceRaysMutableResources(tr_index, false);
+        dr_context->CopyTraceRaysIndirectParameters(tr_index);
+        dr_context->SnapshotBoundDescriptorsTraceRays(tr_index);
+        dr_context->FinalizeCommandBuffer(false);
+        UpdateRecordingStatus(original_command_buffer);
+    }
+}
+
 void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
     const ApiCallInfo&                             call_info,
     PFN_vkCmdBeginRendering                        func,
