@@ -6329,6 +6329,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
     // Ignore swapchain creation if surface creation was skipped when rendering is restricted to a specific surface.
     if (replay_create_info->surface != VK_NULL_HANDLE)
     {
+        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
+
         // Ensure that the window has been resized properly.  For Android, this ensures that we will set the proper
         // screen orientation when the swapchain pre-transform specifies a 90 or 270 degree rotation for older files
         // that do not include a ResizeWindowCmd2 command.
@@ -6336,13 +6338,33 @@ VkResult VulkanReplayConsumerBase::OverrideCreateSwapchainKHR(
         if (meta_info != nullptr)
         {
             SetSwapchainWindowSize(meta_info);
+
+            const auto surface_info = object_info_table_->GetVkSurfaceKHRInfo(meta_info->surface);
+
+            if (surface_info && (surface_info->window != nullptr))
+            {
+                VkExtent2D window_size = surface_info->window->GetSize();
+
+                if ((window_size.width != modified_create_info.imageExtent.width ||
+                     window_size.height != modified_create_info.imageExtent.height) &&
+                    !(window_size.width == 0 && window_size.height == 0))
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Could not resize window to (%u, %u). Instead, window was resized to (%u, %u). Swapchain will "
+                        "be resized accordingly, but bugs might occur. Using virtual swapchain should mitigate those "
+                        "bugs.",
+                        modified_create_info.imageExtent.width,
+                        modified_create_info.imageExtent.height,
+                        window_size.width,
+                        window_size.height);
+
+                    modified_create_info.imageExtent = window_size;
+                }
+            }
         }
 
         ProcessSwapchainFullScreenExclusiveInfo(pCreateInfo->GetMetaStructPointer());
 
-        VkSwapchainCreateInfoKHR modified_create_info = (*replay_create_info);
-
-        // Screenshots are active, so ensure that swapchain images can be used as a transfer source.
         if (screenshot_handler_ != nullptr || options_.dumping_resources)
         {
             // Screenshots and/or dump resources are active, so ensure that swapchain images can be used as a transfer

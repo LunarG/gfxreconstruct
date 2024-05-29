@@ -286,6 +286,11 @@ std::string Win32Window::GetWsiExtension() const
     return VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
 }
 
+VkExtent2D Win32Window::GetSize() const
+{
+    return { width_, height_ };
+}
+
 VkResult Win32Window::CreateSurface(const encode::VulkanInstanceTable* table,
                                     VkInstance                         instance,
                                     VkFlags                            flags,
