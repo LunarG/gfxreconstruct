@@ -300,6 +300,11 @@ std::string XlibWindow::GetWsiExtension() const
     return VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
 }
 
+VkExtent2D XlibWindow::GetSize() const
+{
+    return { width_, height_ };
+}
+
 VkResult XlibWindow::CreateSurface(const encode::VulkanInstanceTable* table,
                                    VkInstance                         instance,
                                    VkFlags                            flags,

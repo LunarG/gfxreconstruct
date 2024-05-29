@@ -86,6 +86,8 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
         {
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
+
+        swapchain_resources_[*replay_swapchain]->actual_extent = modified_create_info.imageExtent;
     }
     return result;
 }
@@ -900,7 +902,9 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
                                           &initial_barrier_swapchain_image);
 
         subresource.layerCount   = swapchain_info->image_array_layers;
-        VkExtent3D  image_extent = { swapchain_info->width, swapchain_info->height, 1 };
+        VkExtent3D  image_extent = { std::min(swapchain_resources->actual_extent.width, swapchain_info->width),
+                                     std::min(swapchain_resources->actual_extent.height, swapchain_info->height),
+                                     1 };
         VkImageCopy image_copy   = { subresource, offset, subresource, offset, image_extent };
 
         // NOTE: vkCmdCopyImage works on Queues of types including Graphics, Compute
