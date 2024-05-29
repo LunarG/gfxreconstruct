@@ -64,6 +64,8 @@ class XlibWindow : public decode::Window
 
     virtual std::string GetWsiExtension() const override;
 
+    virtual VkExtent2D GetSize() const override;
+
     virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
                                    VkInstance                         instance,
                                    VkFlags                            flags,

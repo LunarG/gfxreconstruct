@@ -65,6 +65,8 @@ class HeadlessWindow : public decode::Window
 
     virtual std::string GetWsiExtension() const override;
 
+    virtual VkExtent2D GetSize() const override;
+
     virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
                                    VkInstance                         instance,
                                    VkFlags                            flags,
@@ -75,6 +77,9 @@ class HeadlessWindow : public decode::Window
 
   private:
     HeadlessContext* headless_context_;
+
+    uint32_t width_;
+    uint32_t height_;
 };
 
 class HeadlessWindowFactory : public decode::WindowFactory

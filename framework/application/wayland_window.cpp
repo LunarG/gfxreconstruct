@@ -254,6 +254,11 @@ std::string WaylandWindow::GetWsiExtension() const
     return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
 }
 
+VkExtent2D WaylandWindow::GetSize() const
+{
+    return { width_, height_ };
+}
+
 VkResult WaylandWindow::CreateSurface(const encode::VulkanInstanceTable* table,
                                       VkInstance                         instance,
                                       VkFlags                            flags,
