@@ -216,8 +216,10 @@ void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
             NSRect window_frame      = [screen convertRectToBacking:[window_ contentRectForFrameRect:[window_ frame]]];
             window_frame.size.width  = std::min<CGFloat>(screen_frame.size.width, width);
             window_frame.size.height = std::min<CGFloat>(screen_frame.size.height, height);
-            window_frame.origin.x = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.x, screen_frame.size.width - window_frame.size.width));
-            window_frame.origin.y = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.y, screen_frame.size.height - window_frame.size.height));
+            window_frame.origin.x    = std::max<CGFloat>(
+                0, std::min<CGFloat>(window_frame.origin.x, screen_frame.size.width - window_frame.size.width));
+            window_frame.origin.y = std::max<CGFloat>(
+                0, std::min<CGFloat>(window_frame.origin.y, screen_frame.size.height - window_frame.size.height));
             [window_ setFrame:[window_ frameRectForContentRect: window_frame] display:YES];
 
             NSSize content_size;
