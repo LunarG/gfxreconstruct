@@ -50,6 +50,9 @@ struct ReplayOptions
     bool     flush_measurement_frame_range{ false };
     bool     flush_inside_measurement_range{ false };
     bool     force_windowed{ false };
+    bool     enable_print_block_info{ false };
+    int64_t  block_index_from{ -1 };
+    int64_t  block_index_to{ -1 };
     uint32_t windowed_width{ 0 };
     uint32_t windowed_height{ 0 };
     bool     force_windowed_origin{ false };

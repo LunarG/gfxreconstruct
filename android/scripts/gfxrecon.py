@@ -100,6 +100,8 @@ def CreateReplayParser():
     parser.add_argument('--vssb', '--virtual-swapchain-skip-blit', action='store_true', default=False, help='Skip blit to real swapchain to gain performance during replay.')
     parser.add_argument('--use-captured-swapchain-indices', action='store_true', default=False, help='Same as "--swapchain captured". Ignored if the "--swapchain" option is used.')
     parser.add_argument('file', nargs='?', help='File on device to play (forwarded to replay tool)')
+    parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
+    parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     return parser
 
 def MakeExtrasString(args):
@@ -219,8 +221,16 @@ def MakeExtrasString(args):
     if args.wait_before_present:
         arg_list.append('--wait-before-present')
 
+    if args.pbi_all:
+        arg_list.append('--pbi-all')
+
+    if args.pbis:
+        arg_list.append('--pbis')
+        arg_list.append('{}'.format(args.pbis))
+
     if args.file:
         arg_list.append(args.file)
+
     elif not args.version:
         print('gfxrecon.py release: error: the following arguments are required: file')
         return None
