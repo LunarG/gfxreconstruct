@@ -1161,7 +1161,8 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
             RaiseFatalError(enumutil::GetResultDescription(replay));
         }
         else if (!((replay == VK_SUCCESS) &&
-                   ((original == VK_TIMEOUT) || (original == VK_NOT_READY) || (original == VK_ERROR_OUT_OF_DATE_KHR))))
+                   ((original == VK_TIMEOUT) || (original == VK_NOT_READY) || (original == VK_ERROR_OUT_OF_DATE_KHR) ||
+                    (original == VK_SUBOPTIMAL_KHR))))
         {
             // Report differences between replay result and capture result, unless the replay results indicates
             // that a wait operation completed before the original or a WSI function succeeded when the original failed.
