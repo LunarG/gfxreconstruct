@@ -1619,28 +1619,32 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                         VkDeviceMemory&       scaled_image_mem,
                                         bool&                 scaling_supported)
 {
-    scaling_supported = true;
-    scaled_extent     = extent;
-    scaled_image      = VK_NULL_HANDLE;
-    scaled_image_mem  = VK_NULL_HANDLE;
+    scaled_extent    = extent;
+    scaled_image     = VK_NULL_HANDLE;
+    scaled_image_mem = VK_NULL_HANDLE;
+    VkImageTiling tiling;
 
     VkFormatProperties format_props;
     instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_props);
 
     // Check if the new image can be the target image of a vkCmdBlit command
-    if ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) != VK_FORMAT_FEATURE_BLIT_DST_BIT)
+    if (((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT) &&
+        ((format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) ==
+         VK_FORMAT_FEATURE_TRANSFER_SRC_BIT))
     {
-        GFXRECON_LOG_WARNING("Image with format %s and optimal tilling does not support "
-                             "VK_FORMAT_FEATURE_BLIT_DST_BIT. Scaling will be disabled for these images.",
-                             util::ToString<VkFormat>(format).c_str());
-        scaling_supported = false;
+        tiling            = VK_IMAGE_TILING_OPTIMAL;
+        scaling_supported = true;
     }
-
-    if (scaling_supported &&
-        (format_props.optimalTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) != VK_FORMAT_FEATURE_TRANSFER_SRC_BIT)
+    else if (((format_props.linearTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT) == VK_FORMAT_FEATURE_BLIT_DST_BIT) &&
+             ((format_props.linearTilingFeatures & VK_FORMAT_FEATURE_TRANSFER_SRC_BIT) ==
+              VK_FORMAT_FEATURE_TRANSFER_SRC_BIT))
     {
-        GFXRECON_LOG_WARNING("Image with format %s and optimal tilling does not support "
-                             "VK_FORMAT_FEATURE_TRANSFER_SRC_BIT. Scaling will be disabled for these images.",
+        tiling            = VK_IMAGE_TILING_LINEAR;
+        scaling_supported = true;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Image with format %s cannot be scaled. Scaling will be disabled for these images.",
                              util::ToString<VkFormat>(format).c_str());
         scaling_supported = false;
     }
@@ -1692,7 +1696,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     create_info.mipLevels             = mip_levels;
     create_info.arrayLayers           = array_layers;
     create_info.samples               = VK_SAMPLE_COUNT_1_BIT;
-    create_info.tiling                = VK_IMAGE_TILING_OPTIMAL;
+    create_info.tiling                = tiling;
     create_info.usage                 = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     create_info.sharingMode           = VK_SHARING_MODE_EXCLUSIVE;
     create_info.queueFamilyIndexCount = 0;
