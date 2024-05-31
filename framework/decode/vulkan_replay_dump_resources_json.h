@@ -63,9 +63,10 @@ class VulkanReplayDumpResourcesJson
                          const ImageInfo*        image_info,
                          const std::string&      filename,
                          VkImageAspectFlagBits   aspect,
-                         uint32_t                mip_level   = 0,
-                         uint32_t                array_layer = 0,
-                         const VkExtent3D*       extent      = nullptr);
+                         bool                    scale_failed = false,
+                         uint32_t                mip_level    = 0,
+                         uint32_t                array_layer  = 0,
+                         const VkExtent3D*       extent       = nullptr);
 
     void
     InsertBufferInfo(nlohmann::ordered_json& json_entry, const BufferInfo* buffer_info, const std::string& filename);

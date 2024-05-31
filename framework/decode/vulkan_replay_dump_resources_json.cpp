@@ -154,6 +154,7 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
                                                     const ImageInfo*        image_info,
                                                     const std::string&      filename,
                                                     VkImageAspectFlagBits   aspect,
+                                                    bool                    scale_failed,
                                                     uint32_t                mip_level,
                                                     uint32_t                array_layer,
                                                     const VkExtent3D*       extent)
@@ -174,6 +175,11 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
 
     json_entry["mipLevel"]   = mip_level;
     json_entry["arrayLayer"] = array_layer;
+
+    if (scale_failed)
+    {
+        json_entry["scaleFailed"] = true;
+    }
 
     json_entry["file"] = filename;
 }

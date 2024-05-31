@@ -1086,8 +1086,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             const std::vector<std::string> filenames =
                 GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
 
-            const std::string filename = filenames[0] + ImageFileExtension(image_info->format, image_file_format);
-            dump_json.InsertImageInfo(rt_entries[i], image_info, filename, VK_IMAGE_ASPECT_COLOR_BIT);
+            const bool        scaling_failed = images_failed_scaling.find(filenames[0]) != images_failed_scaling.end();
+            const std::string filename       = filenames[0] + ImageFileExtension(image_info->format, image_file_format);
+            dump_json.InsertImageInfo(rt_entries[i], image_info, filename, VK_IMAGE_ASPECT_COLOR_BIT, scaling_failed);
         }
     }
 
@@ -1105,8 +1106,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
 
         for (size_t i = 0; i < filenames.size(); ++i)
         {
-            const std::string filename = filenames[i] + ImageFileExtension(image_info->format, image_file_format);
-            dump_json.InsertImageInfo(depth_entries[i], image_info, filename, aspects[i]);
+            const bool        scaling_failed = images_failed_scaling.find(filenames[i]) != images_failed_scaling.end();
+            const std::string filename       = filenames[i] + ImageFileExtension(image_info->format, image_file_format);
+            dump_json.InsertImageInfo(depth_entries[i], image_info, filename, aspects[i], scaling_failed);
         }
     }
 
@@ -1210,9 +1212,14 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                             desc_shader_binding_json_entry["descriptor"];
                                         for (size_t f = 0; f < filenames.size(); ++f)
                                         {
+                                            const bool scaling_failed =
+                                                images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
                                             filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                                            dump_json.InsertImageInfo(
-                                                image_descriptor_json_entry[f], img_info, filenames[f], aspects[f]);
+                                            dump_json.InsertImageInfo(image_descriptor_json_entry[f],
+                                                                      img_info,
+                                                                      filenames[f],
+                                                                      aspects[f],
+                                                                      scaling_failed);
                                         }
                                     }
                                 }
@@ -1423,7 +1430,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
 }
 
 VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
-    uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index) const
+    uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index)
 {
     assert(device_table != nullptr);
 
@@ -1462,14 +1469,16 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         const std::vector<std::string> filenames =
             GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
 
-        const VkExtent3D extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
-        VkResult         res = DumpImageToFile(image_info,
+        const VkExtent3D  extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
+        std::vector<bool> scaling_supported(filenames.size());
+        VkResult          res = DumpImageToFile(image_info,
                                        device_info,
                                        device_table,
                                        instance_table,
                                        object_info_table,
                                        filenames,
                                        dump_resources_scale,
+                                       scaling_supported,
                                        image_file_format,
                                        dump_all_image_subresources,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -1479,6 +1488,15 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         {
             GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
+        }
+
+        // Keep track of images for which scaling failed
+        for (size_t i = 0; i < filenames.size(); ++i)
+        {
+            if (!scaling_supported[i])
+            {
+                images_failed_scaling.insert(filenames[i]);
+            }
         }
     }
 
@@ -1490,19 +1508,20 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
-        bool                  scaling_supported;
 
         const std::vector<std::string> filenames = GenerateRenderTargetImageFilename(
             image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
 
-        const VkExtent3D extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
-        VkResult         res = DumpImageToFile(image_info,
+        const VkExtent3D  extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
+        std::vector<bool> scaling_supported(filenames.size());
+        VkResult          res = DumpImageToFile(image_info,
                                        device_info,
                                        device_table,
                                        instance_table,
                                        object_info_table,
                                        filenames,
                                        dump_resources_scale,
+                                       scaling_supported,
                                        image_file_format,
                                        dump_all_image_subresources,
                                        VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -1512,6 +1531,15 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         {
             GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
+        }
+
+        // Keep track of images for which scaling failed
+        for (size_t i = 0; i < filenames.size(); ++i)
+        {
+            if (!scaling_supported[i])
+            {
+                images_failed_scaling.insert(filenames[i]);
+            }
         }
     }
 
@@ -1734,19 +1762,30 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     for (const auto& img_info : image_descriptors)
     {
         const std::vector<std::string> filenames = GenerateImageDescriptorFilename(qs_index, bcb_index, rp, img_info);
-        VkResult                       res       = DumpImageToFile(img_info,
+        std::vector<bool>              scaling_supported(filenames.size());
+        VkResult                       res = DumpImageToFile(img_info,
                                        device_info,
                                        device_table,
                                        instance_table,
                                        object_info_table,
                                        filenames,
                                        dump_resources_scale,
+                                       scaling_supported,
                                        image_file_format,
                                        dump_all_image_subresources);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Dumping image failed (%s)", util::ToString<VkResult>(res).c_str())
             return res;
+        }
+
+        // Keep track of images for which scaling failed
+        for (size_t i = 0; i < filenames.size(); ++i)
+        {
+            if (!scaling_supported[i])
+            {
+                images_failed_scaling.insert(filenames[i]);
+            }
         }
     }
 

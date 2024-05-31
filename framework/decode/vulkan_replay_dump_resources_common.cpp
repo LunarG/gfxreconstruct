@@ -445,6 +445,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                          VulkanObjectInfoTable&             object_info_table,
                          const std::vector<std::string>&    filenames,
                          float                              scale,
+                         std::vector<bool>&                 scaling_supported,
                          util::ScreenshotFormat             image_file_format,
                          bool                               dump_all_subresources,
                          VkImageLayout                      layout,
@@ -461,6 +462,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
     const uint32_t total_files =
         dump_all_subresources ? (aspects.size() * image_info->layer_count * image_info->level_count) : aspects.size();
     assert(total_files == filenames.size());
+    assert(scaling_supported.size() == total_files);
 
     const PhysicalDeviceInfo* phys_dev_info = object_info_table.GetPhysicalDeviceInfo(device_info->parent_id);
     assert(phys_dev_info);
@@ -483,7 +485,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
         std::vector<uint8_t>  data;
         std::vector<uint64_t> subresource_offsets;
         std::vector<uint64_t> subresource_sizes;
-        bool                  scaling_supported;
+        bool                  scaled;
 
         VkResult res = resource_util.ReadFromImageResourceStaging(
             image_info->handle,
@@ -500,12 +502,14 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
             data,
             subresource_offsets,
             subresource_sizes,
-            scaling_supported,
+            scaled,
             false,
             scale);
 
         assert(!subresource_offsets.empty());
         assert(!subresource_sizes.empty());
+
+        scaling_supported[i] = scaled;
 
         if (res != VK_SUCCESS)
         {
@@ -527,7 +531,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
             if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
             {
                 VkExtent3D scaled_extent;
-                if (scaling_supported)
+                if (scale != 1.0f && scaled)
                 {
                     scaled_extent.width  = std::max(image_info->extent.width * scale, 1.0f);
                     scaled_extent.height = std::max(image_info->extent.height * scale, 1.0f);
@@ -605,7 +609,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                     if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
                     {
                         VkExtent3D scaled_extent;
-                        if (scaling_supported)
+                        if (scale != 1.0f && scaled)
                         {
                             scaled_extent.width  = extent.width * scale;
                             scaled_extent.height = extent.height * scale;

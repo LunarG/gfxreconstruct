@@ -122,7 +122,7 @@ class DrawCallsDumpingContext
     DumpDrawCalls(VkQueue queue, uint64_t qs_index, uint64_t bcb_index, const VkSubmitInfo& submit_info, VkFence fence);
 
     VkResult DumpRenderTargetAttachments(
-        uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index) const;
+        uint64_t cmd_buf_index, uint64_t rp, uint64_t sp, uint64_t qs_index, uint64_t bcb_index);
 
     VkResult DumpImmutableDescriptors(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index, uint64_t rp);
 
@@ -702,6 +702,10 @@ class DrawCallsDumpingContext
     };
 
     std::vector<RenderPassDumpedDescriptors> render_pass_dumped_descriptors;
+
+    // Keep track of images for which scalling failed so we can
+    // note them in the output json
+    std::unordered_set<std::string> images_failed_scaling;
 
     VkCommandBuffer aux_command_buffer;
     VkFence         aux_fence;
