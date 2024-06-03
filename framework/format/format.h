@@ -147,6 +147,10 @@ enum class MetaDataType : uint16_t
     kReserved25                             = 25,
     kDx12RuntimeInfoCommand                 = 26,
     kParentToChildDependency                = 27,
+    kReserved28                             = 28,
+    kReserved29                             = 29,
+    kReserved30                             = 30,
+    kReserved31                             = 31,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
