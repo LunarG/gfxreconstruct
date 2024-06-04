@@ -81,21 +81,23 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
 #if defined(WIN32)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
-#if defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup] <file>\n");
-#endif
-#else
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] <file>");
-#endif
-#if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
 #endif
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <args>] [--dump-resources <file>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-before-draw] [--dump-resources-scale <scale>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dir <dir>] [--dump-resources-image-format <format>]");
+#if defined(WIN32)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--batching-memory-usage <pct>]");
+#if defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--no-debug-popup]");
+#endif
+#else
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>]");
+#endif
+    GFXRECON_WRITE_CONSOLE("\t\t\t<file>\n");
+
     GFXRECON_WRITE_CONSOLE("Required arguments:");
     GFXRECON_WRITE_CONSOLE("  <file>\t\tPath to the capture file to replay.");
     GFXRECON_WRITE_CONSOLE("\nOptional arguments:");
@@ -108,7 +110,6 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("  --log-debugview\tLog messages with OutputDebugStringA.");
 #endif
-
     GFXRECON_WRITE_CONSOLE("  --pause-frame <N>\tPause after replaying frame number N.");
     GFXRECON_WRITE_CONSOLE("  --paused\t\tPause after replaying the first frame (same");
     GFXRECON_WRITE_CONSOLE("          \t\tas --pause-frame 1).");
@@ -146,7 +147,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tSpecify desired screenshot dimensions. Leaving this unspecified");
     GFXRECON_WRITE_CONSOLE("          \t\tscreenshots will use the swapchain images dimensions. If ");
     GFXRECON_WRITE_CONSOLE("          \t\t--screenshot-scale is also specified then this option is ignored.");
-    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnables the Khronos Vulkan validation layer when replaying a");
+    GFXRECON_WRITE_CONSOLE("  --validate\t\tEnable the Khronos Vulkan validation layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tVulkan capture or the Direct3D debug layer when replaying a");
     GFXRECON_WRITE_CONSOLE("            \t\tDirect3D 12 capture.");
     GFXRECON_WRITE_CONSOLE("  --gpu <index>\t\tUse the specified device for replay, where index");
@@ -156,17 +157,22 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("Windows-only:")
+    GFXRECON_WRITE_CONSOLE("Windows only:")
     GFXRECON_WRITE_CONSOLE(
         "  --fwo <x,y>\t\tForce windowed mode if not already, and allow setting of a custom window location.");
     GFXRECON_WRITE_CONSOLE("          \t\t(Same as --force-windowed-origin)");
+#if defined(_DEBUG)
+    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
+#endif
 #endif
     GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("Vulkan-only:")
+    GFXRECON_WRITE_CONSOLE("Vulkan only:")
     GFXRECON_WRITE_CONSOLE("  --sfa\t\t\tSkip vkAllocateMemory, vkAllocateCommandBuffers, and");
     GFXRECON_WRITE_CONSOLE("       \t\t\tvkAllocateDescriptorSets calls that failed during");
     GFXRECON_WRITE_CONSOLE("       \t\t\tcapture (same as --skip-failed-allocations).");
-    GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir> Replace the shader code in each CreateShaderModule");
+    GFXRECON_WRITE_CONSOLE("  --replace-shaders <dir>");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tReplace the shader code in each CreateShaderModule");
     GFXRECON_WRITE_CONSOLE("       \t\t\twith the contents of the file <dir>/sh<handle_id> if found, where");
     GFXRECON_WRITE_CONSOLE("       \t\t\t<handle_id> is the handle id of the CreateShaderModule call.");
     GFXRECON_WRITE_CONSOLE("       \t\t\tSee gfxrecon-extract.");
@@ -275,17 +281,17 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tvkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources <file>");
     GFXRECON_WRITE_CONSOLE("          \t\tExtract --dump-resources args from the specified file. Can be");
-    GFXRECON_WRITE_CONSOLE("          \t\t either a json or a text file.");
-    GFXRECON_WRITE_CONSOLE("          \t\tIf a text file is used, each line of the file should contain comma");
-    GFXRECON_WRITE_CONSOLE("          \t\t separated indices as in the command line above.");
+    GFXRECON_WRITE_CONSOLE("          \t\teither a json or a text file. If a text file is used, each");
+    GFXRECON_WRITE_CONSOLE("          \t\tline of the file should contain comma separated indices as in");
+    GFXRECON_WRITE_CONSOLE("          \t\tthe command line above.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-before-draw");
     GFXRECON_WRITE_CONSOLE("          \t\tIn addition to dumping GPU resources after the Vulkan draw calls");
-    GFXRECON_WRITE_CONSOLE("          \t\t specified by the --dump-resources argument, also dump resources");
-    GFXRECON_WRITE_CONSOLE("          \t\t before the draw calls.");
+    GFXRECON_WRITE_CONSOLE("          \t\tspecified by the --dump-resources argument, also dump resources");
+    GFXRECON_WRITE_CONSOLE("          \t\tbefore the draw calls.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-scale <scale>");
     GFXRECON_WRITE_CONSOLE("          \t\tScale images generated by dump resources by the given scale factor.");
-    GFXRECON_WRITE_CONSOLE("          \t\t The scale factor mustbe a floating point number greater than 0.");
-    GFXRECON_WRITE_CONSOLE("          \t\t Values greater than 10 are capped at 10. Default value is 1.0.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThe scale factor must be a floating point number greater than 0.");
+    GFXRECON_WRITE_CONSOLE("          \t\tValues greater than 10 are capped at 10. Default value is 1.0.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dir <dir>");
     GFXRECON_WRITE_CONSOLE("          \t\tDirectory to write dump resources output files.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is the current working directory.");
@@ -299,34 +305,35 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tConfigures which color attachment to dump when dumping draw calls.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is all attachments.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-vertex-index-buffers");
-    GFXRECON_WRITE_CONSOLE("          \t\tEnables dumping of vertex and index buffers while dumping draw");
+    GFXRECON_WRITE_CONSOLE("          \t\tEnable dumping of vertex and index buffers while dumping draw");
     GFXRECON_WRITE_CONSOLE("          \t\tcall resources. Default is disabled.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-json-output-per-command");
-    GFXRECON_WRITE_CONSOLE("          \t\tEnables storing a json output file for each dumped command.");
+    GFXRECON_WRITE_CONSOLE("          \t\tEnable storing a json output file for each dumped command.");
     GFXRECON_WRITE_CONSOLE("          \t\tOverrides default behavior which is generating one output json file that");
     GFXRECON_WRITE_CONSOLE("          \t\tcontains the information for all dumped commands.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-immutable-resources");
-    GFXRECON_WRITE_CONSOLE("          \t\tDump immutable immutable shader resources.");
+    GFXRECON_WRITE_CONSOLE("          \t\tDump immutable shader resources.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-all-image-subresources");
     GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
-    GFXRECON_WRITE_CONSOLE("D3D12-only:")
+    GFXRECON_WRITE_CONSOLE("D3D12 only:")
     GFXRECON_WRITE_CONSOLE(
         "  --use-cached-psos  \tPermit using cached PSOs when creating graphics or compute pipelines.");
     GFXRECON_WRITE_CONSOLE(
         "       \t\t\tUsing cached PSOs may reduce PSO creation time but may result in replay errors.");
-    GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnables automatic injection of breadcrumbs into command buffers");
+    GFXRECON_WRITE_CONSOLE("  --debug-device-lost\tEnable automatic injection of breadcrumbs into command buffers");
     GFXRECON_WRITE_CONSOLE("            \t\tand page fault reporting.");
     GFXRECON_WRITE_CONSOLE("            \t\tUsed to debug Direct3D 12 device removed problems.");
     GFXRECON_WRITE_CONSOLE("  --fw <width,height>\tSetup windowed and override resolution.");
     GFXRECON_WRITE_CONSOLE("                     \t(Same as --force-windowed)");
-    GFXRECON_WRITE_CONSOLE("  --create-dummy-allocations Enables creation of dummy heaps and resources");
-    GFXRECON_WRITE_CONSOLE("                             for replay validation.");
-    GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names Generates unique names for all ID3D12Objects and");
-    GFXRECON_WRITE_CONSOLE("                               assigns each object the generated name.");
-    GFXRECON_WRITE_CONSOLE("                               This is intended to assist replay debugging.");
+    GFXRECON_WRITE_CONSOLE("  --create-dummy-allocations");
+    GFXRECON_WRITE_CONSOLE("          \t\tEnable creation of dummy heaps and resources for replay validation.");
+    GFXRECON_WRITE_CONSOLE("  --dx12-override-object-names");
+    GFXRECON_WRITE_CONSOLE("          \t\tGenerate unique names for all ID3D12Objects and");
+    GFXRECON_WRITE_CONSOLE("          \t\tassign each object the generated name.");
+    GFXRECON_WRITE_CONSOLE("          \t\tThis is intended to assist in replay debugging.");
     GFXRECON_WRITE_CONSOLE("  --batching-memory-usage <pct>");
     GFXRECON_WRITE_CONSOLE("          \t\tMax amount of memory consumption while loading a trimmed capture file.");
     GFXRECON_WRITE_CONSOLE("          \t\tAcceptable values range from 0 to 100 (default: 80)");
@@ -338,11 +345,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tand depth stencil. And for before and after drawcall.");
     GFXRECON_WRITE_CONSOLE("          \t\tArguments becomes three indices, submit index, command index,");
     GFXRECON_WRITE_CONSOLE("          \t\tdrawcall index. The command index is based on its in ExecuteCommandLists.");
-#endif
-
-#if defined(_DEBUG)
-    GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tdisplayed when abort() is called (Windows debug only).");
 #endif
 }
 
