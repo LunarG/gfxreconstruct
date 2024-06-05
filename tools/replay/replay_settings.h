@@ -275,7 +275,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tbefore calling Present. This is needed for accurate acquisition");
     GFXRECON_WRITE_CONSOLE("          \t\tof instrumentation data on some platforms.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources <args>");
-    GFXRECON_WRITE_CONSOLE("          \t\tArgs is BeginCommandBuffer=<n>,Draw=<m>,RenderPass=<o>,");
+    GFXRECON_WRITE_CONSOLE("          \t\tArgs is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,");
     GFXRECON_WRITE_CONSOLE("          \t\tNextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>");
     GFXRECON_WRITE_CONSOLE("          \t\tGPU resources are dumped after the given vkCmdDraw*,");
     GFXRECON_WRITE_CONSOLE("          \t\tvkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");

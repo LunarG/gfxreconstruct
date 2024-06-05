@@ -741,16 +741,16 @@ Optional arguments:
               Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
   --dump-resources-dump-color-attachment-index <index>
               Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
-              based integer. Default is to dump all color attachment
+              based integer. Default is to dump all color attachments.
   --dump-resources-dump-vertex-index-buffers
               Enables dumping of vertex and index buffers while dumping draw call resources.
   --dump-resources-json-output-per-command
               Enables storing a json output file for each dumped command. Overrides default behavior which
               is generating one output json file that contains the information for all dumped commands.
   --dump-resources-dump-immutable-resources
-              Enables dumping of resources that are used as inputs in the commands requested for dumping
+              Enables dumping of resources that are used as inputs in the commands requested for dumping.
   --dump-resources-dump-all-image-subresources
-              Enables dumping of all image sub resources (mip map levels and array layers)
+              Enables dumping of all image sub resources (mip map levels and array layers).
 ```
 
 ### Key Controls
