@@ -2236,7 +2236,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         if (IsDrawCallIndexed(dc_params.type))
         {
             // For indexed draw calls the greatest vertex index will be used as the max vertex count
-            vertex_count = greatest_vertex_index;
+            vertex_count = greatest_vertex_index + 1;
         }
         else
         {
