@@ -1974,7 +1974,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                     for (size_t f = 0; f < filenames.size(); ++f)
                     {
                         filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                        dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, filenames[f], aspects[f]);
+                        dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f]);
                     }
                 }
             }
@@ -2051,7 +2051,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                 for (size_t f = 0; f < filenames.size(); ++f)
                 {
                     filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                    dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, filenames[f], aspects[f]);
+                    dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f]);
                 }
             }
         }
@@ -2126,7 +2126,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                         auto& image_descriptor_json_entry = entry["descriptor"];
                                         filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                                         dump_json.InsertImageInfo(
-                                            image_descriptor_json_entry, img_info, filenames[f], aspects[f]);
+                                            image_descriptor_json_entry, img_info, {filenames[f]}, aspects[f]);
                                     }
                                 }
                             }
@@ -2305,7 +2305,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                     for (size_t f = 0; f < filenames.size(); ++f)
                     {
                         filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                        dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, filenames[f], aspects[f]);
+                        dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f]);
                     }
                 }
             }
@@ -2380,7 +2380,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                 for (size_t f = 0; f < filenames.size(); ++f)
                 {
                     filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                    dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, filenames[f], aspects[f]);
+                    dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f]);
                 }
             }
         }
@@ -2455,7 +2455,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJson(uint64_t qs_index, uint
                                             filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                                             auto& image_descriptor_json_entry = entry["descriptor"];
                                             dump_json.InsertImageInfo(
-                                                image_descriptor_json_entry[f], img_info, filenames[f], aspects[f]);
+                                                image_descriptor_json_entry[f], img_info, {filenames[f]}, aspects[f]);
                                         }
                                     }
                                 }

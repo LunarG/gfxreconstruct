@@ -850,7 +850,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         rp                                   = RP_index.first;
 
         // Dump vertex/index buffers
-        if (dump_vertex_index_buffers)
+        if (dump_vertex_index_buffers &&
+           (!dump_resources_before || dump_resources_before && !(cb%2)))
         {
             res = DumpVertexIndexBuffers(qs_index, bcb_index, dc_index);
             if (res != VK_SUCCESS)
@@ -869,7 +870,8 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
 
         // Dump immutable resources
-        if (dump_immutable_resources)
+        if (dump_immutable_resources &&
+           (!dump_resources_before || dump_resources_before && !(cb%2)))
         {
             if (previous_rp != rp)
             {
@@ -882,7 +884,10 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             }
         }
 
-        GenerateOutputJsonDrawCallInfo(qs_index, bcb_index, cb, rp, sp);
+        if (!dump_resources_before || dump_resources_before && !(cb%2))
+        {
+            GenerateOutputJsonDrawCallInfo(qs_index, bcb_index, cb, rp, sp);
+        }
 
         res = RevertRenderTargetImageLayouts(queue, cb);
         if (res != VK_SUCCESS)
@@ -1137,12 +1142,23 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             }
 
             const ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
-
-            const std::vector<std::string> filenames =
-                GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
-
-            const std::string filename = filenames[0] + ImageFileExtension(image_info->format, image_file_format);
-            dump_json.InsertImageInfo(rt_entries[i], image_info, filename, VK_IMAGE_ASPECT_COLOR_BIT);
+            std::vector<std::string> filenamesBefore, filenamesAfter;
+            std::vector<std::string> filenamesBeforeAfter;
+            if (dump_resources_before)
+            {
+                filenamesBefore = GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+                filenamesAfter = GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index+1, qs_index, bcb_index, dc_index, i);
+                filenamesBeforeAfter.resize(2);
+                filenamesBeforeAfter[0] = filenamesBefore[0] + ImageFileExtension(image_info->format, image_file_format);
+                filenamesBeforeAfter[1] = filenamesAfter[0] + ImageFileExtension(image_info->format, image_file_format);
+            }
+            else
+            {
+                filenamesAfter = GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+                filenamesBeforeAfter.resize(1);
+                filenamesBeforeAfter[0] = filenamesAfter[0] + ImageFileExtension(image_info->format, image_file_format);
+            }
+            dump_json.InsertImageInfo(rt_entries[i], image_info, filenamesBeforeAfter, VK_IMAGE_ASPECT_COLOR_BIT);
         }
     }
 
@@ -1152,16 +1168,37 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
         auto& depth_entries = draw_call_entry["depthAttachments"];
 
         const ImageInfo*               image_info = render_targets[rp][sp].depth_att_img;
-        const std::vector<std::string> filenames  = GenerateRenderTargetImageFilename(
-            image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
+        std::vector<std::string> filenamesBefore, filenamesAfter;
+        if(dump_resources_before)
+        {
+            filenamesBefore = GenerateRenderTargetImageFilename(
+                image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
+            filenamesAfter  = GenerateRenderTargetImageFilename(
+                image_info->format, cmd_buf_index+1, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
+        }
+        else
+        {
+            filenamesAfter  = GenerateRenderTargetImageFilename(
+                image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
+        }
 
         std::vector<VkImageAspectFlagBits> aspects;
         graphics::GetFormatAspects(image_info->format, &aspects);
 
-        for (size_t i = 0; i < filenames.size(); ++i)
+        for (size_t i = 0; i < filenamesAfter.size(); ++i)
         {
-            const std::string filename = filenames[i] + ImageFileExtension(image_info->format, image_file_format);
-            dump_json.InsertImageInfo(depth_entries[i], image_info, filename, aspects[i]);
+            std::vector<std::string> filenamesBeforeAfter;
+            if(dump_resources_before)
+            {
+                filenamesBeforeAfter.resize(2);
+                filenamesBeforeAfter[0] = filenamesBefore[i] + ImageFileExtension(image_info->format, image_file_format);
+                filenamesBeforeAfter[1] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
+            } else
+            {
+                filenamesBeforeAfter.resize(1);
+                filenamesBeforeAfter[0] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
+            }
+            dump_json.InsertImageInfo(depth_entries[i], image_info, filenamesBeforeAfter, aspects[i]);
         }
     }
 
@@ -1263,7 +1300,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                         {
                                             filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                                             dump_json.InsertImageInfo(
-                                                image_descriptor_json_entry[f], img_info, filenames[f], aspects[f]);
+                                                image_descriptor_json_entry[f], img_info, {filenames[f]}, aspects[f]);
                                         }
                                     }
                                 }

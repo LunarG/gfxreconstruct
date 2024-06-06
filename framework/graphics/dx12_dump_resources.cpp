@@ -103,7 +103,7 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json&   jdata,
     std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
 
     util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
-    std::string json_path = suffix + "_file_name";
+    std::string json_path = (suffix.empty() ?  "file" : suffix + "File");
     for (const auto sub_index : resource_data->subresource_indices)
     {
         auto offset = resource_data->subresource_offsets[sub_index];
