@@ -228,7 +228,7 @@ Dump resources feature can be control in several ways. To do so, a number of par
 
 ```text
 --dump-resources BeginCommandBuffer=<n>,Draw=<n>,BeginRenderPass=<n>,NextSubPass=<n>,EndRenderPass=<n>,Dispatch=<n>,TraceRays=<n>,QueueSubmit=<n>
-              Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
+              Dump gpu resources after the given vkCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
               each is a block index from the capture file.  The additional parameters are used to identify during which occurence
               of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
               indicate subpasses withing a render pass.  Note that the minimal set of parameters must be one of:
@@ -242,10 +242,10 @@ Dump resources feature can be control in several ways. To do so, a number of par
               Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
               in the gfxreconstruct documentation.
   --dump-resources-image-format <format>
-                        Image file format to use for image resource dumping.
-                        Available formats are:
-                            bmp         Bitmap file format.  This is the default format.
-                            png         Png file format.
+              Image file format to use for image resource dumping.
+              Available formats are:
+                  bmp         Bitmap file format.  This is the default format.
+                  png         Png file format.
   --dump-resources-before-draw
               In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
               --dump-resources argument, also dump resources before those calls.

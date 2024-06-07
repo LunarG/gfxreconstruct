@@ -83,9 +83,15 @@ static void PrintUsage(const char* exe_name)
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
 #endif
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <args>] [--dump-resources <file>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <arg>] [--dump-resources <file>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-before-draw] [--dump-resources-scale <scale>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dir <dir>] [--dump-resources-image-format <format>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-depth-attachment]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-color-attachment-index <index>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-vertex-index-buffers]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-json-output-per-command]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-immutable-resources]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-all-image-subresources]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
@@ -274,8 +280,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tForce wait on completion of queue operations for all queues");
     GFXRECON_WRITE_CONSOLE("          \t\tbefore calling Present. This is needed for accurate acquisition");
     GFXRECON_WRITE_CONSOLE("          \t\tof instrumentation data on some platforms.");
-    GFXRECON_WRITE_CONSOLE("  --dump-resources <args>");
-    GFXRECON_WRITE_CONSOLE("          \t\tArgs is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,");
+    GFXRECON_WRITE_CONSOLE("  --dump-resources <arg>");
+    GFXRECON_WRITE_CONSOLE("          \t\t<arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,");
     GFXRECON_WRITE_CONSOLE("          \t\tNextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>");
     GFXRECON_WRITE_CONSOLE("          \t\tGPU resources are dumped after the given vkCmdDraw*,");
     GFXRECON_WRITE_CONSOLE("          \t\tvkCmdDispatch, or vkCmdTraceRaysKHR is replayed.");
@@ -283,7 +289,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tExtract --dump-resources args from the specified file. Can be");
     GFXRECON_WRITE_CONSOLE("          \t\teither a json or a text file. If a text file is used, each");
     GFXRECON_WRITE_CONSOLE("          \t\tline of the file should contain comma separated indices as in");
-    GFXRECON_WRITE_CONSOLE("          \t\tthe command line above.");
+    GFXRECON_WRITE_CONSOLE("          \t\t--dump-resources <arg> above.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-before-draw");
     GFXRECON_WRITE_CONSOLE("          \t\tIn addition to dumping GPU resources after the Vulkan draw calls");
     GFXRECON_WRITE_CONSOLE("          \t\tspecified by the --dump-resources argument, also dump resources");
