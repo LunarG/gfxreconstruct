@@ -125,7 +125,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         if (!is_3d)
         {
             GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("RenderPass indices should be a 3 dimentional array");
+            GFXRECON_LOG_ERROR("RenderPass indices should be a 3 dimensional array");
             return true;
         }
     }
@@ -409,7 +409,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 else
                 {
                     parse_error         = true;
-                    parse_error_message = "Bad --dump-resource parameter: " + drargs[i].substr(apos, epos - apos);
+                    parse_error_message = "Bad --dump-resources parameter: " + drargs[i].substr(apos, epos - apos);
                 }
 
                 apos = cpos + 1;
