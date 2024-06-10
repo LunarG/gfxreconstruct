@@ -180,10 +180,10 @@ class VulkanResourceTrackingConsumer : public VulkanConsumer
     util::platform::LibraryHandle loader_handle_;
 
     // map to function pointers to API calls
-    std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr>     get_device_proc_addrs_;
-    std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>          create_device_procs_;
-    std::unordered_map<encode::DispatchKey, encode::VulkanInstanceTable> instance_tables_;
-    std::unordered_map<encode::DispatchKey, encode::VulkanDeviceTable>   device_tables_;
+    std::unordered_map<encode::VulkanDispatchKey, PFN_vkGetDeviceProcAddr>     get_device_proc_addrs_;
+    std::unordered_map<encode::VulkanDispatchKey, PFN_vkCreateDevice>          create_device_procs_;
+    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanInstanceTable> instance_tables_;
+    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanDeviceTable>   device_tables_;
     // funtion pointers to the API calls that will be made during the first pass of replay
     PFN_vkCreateInstance      create_instance_function_;
     PFN_vkGetInstanceProcAddr get_instance_proc_addr_;

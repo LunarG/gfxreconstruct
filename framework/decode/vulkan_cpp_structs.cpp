@@ -169,7 +169,7 @@ std::string GenerateStruct_VkWriteDescriptorSet(std::ostream&                 ou
             break;
         }
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
-        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
         case VK_DESCRIPTOR_TYPE_MAX_ENUM:
         {
             // Nothing to do.

@@ -24,6 +24,7 @@
 #include "decode/vulkan_object_info.h"
 
 #include "decode/copy_shaders.h"
+#include "decode/decoder_util.h"
 #include "util/platform.h"
 
 #include <algorithm>
@@ -318,22 +319,7 @@ VkResult VulkanResourceInitializer::GetCommandExecObjects(uint32_t         queue
 
             if (result == VK_SUCCESS)
             {
-                const auto queue_family_flags = device_info_->queue_family_creation_flags.find(queue_family_index);
-                assert(queue_family_flags != device_info_->queue_family_creation_flags.end());
-                if (queue_family_flags->second != 0)
-                {
-                    const VkDeviceQueueInfo2 queue_info = { VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2,
-                                                            nullptr,
-                                                            queue_family_flags->second,
-                                                            queue_family_index,
-                                                            0 };
-                    device_table_->GetDeviceQueue2(device_, &queue_info, queue);
-                }
-                else
-                {
-                    device_table_->GetDeviceQueue(device_, queue_family_index, 0, queue);
-                }
-
+                *queue = GetDeviceQueue(device_table_, device_info_, queue_family_index, 0);
                 command_exec_objects_.emplace(queue_family_index,
                                               CommandExecObjects{ *queue, command_pool, *command_buffer });
             }
@@ -657,7 +643,7 @@ VkResult VulkanResourceInitializer::CreateDrawObjects(VkFormat              form
             input_assembly_info.primitiveRestartEnable = VK_FALSE;
 
             VkViewport viewport     = { 0.0f, 0.0f, static_cast<float>(extent.width), static_cast<float>(extent.height),
-                                    0.0f, 1.0f };
+                                        0.0f, 1.0f };
             VkRect2D   scissor_rect = { { 0, 0 }, { extent.width, extent.height } };
 
             VkPipelineViewportStateCreateInfo viewport_info = { VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO };

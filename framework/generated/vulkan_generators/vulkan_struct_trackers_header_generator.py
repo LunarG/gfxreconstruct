@@ -83,6 +83,7 @@ class VulkanStructTrackersHeaderGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        write('GFXRECON_BEGIN_NAMESPACE(vulkan_trackers)', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
         write('T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
@@ -101,6 +102,7 @@ class VulkanStructTrackersHeaderGenerator(BaseGenerator):
         self.newline()
         write('void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory);', file=self.outFile)
         self.newline()
+        write('GFXRECON_END_NAMESPACE(vulkan_trackers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 

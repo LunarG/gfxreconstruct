@@ -93,47 +93,47 @@ void HandleToJson(nlohmann::ordered_json& jdata,
 // library hidden in the assignments so we can give the inlining of that code a
 // natural place to stop right here.
 
-void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t data, const util::JsonOptions& options)
+void Bool32ToJson(nlohmann::ordered_json& jdata, const uint32_t& data, const util::JsonOptions& options)
 {
     jdata = static_cast<bool>(data);
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, short data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const short& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, int data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const int& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, long long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const long long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned short data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned short& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned int data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned int& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long& data, const JsonOptions& options)
 {
     jdata = data;
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, unsigned long long data, const JsonOptions& options)
+void FieldToJson(nlohmann::ordered_json& jdata, const unsigned long long& data, const JsonOptions& options)
 {
     jdata = data;
 }

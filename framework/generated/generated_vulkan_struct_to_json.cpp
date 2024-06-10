@@ -13764,7 +13764,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorWri
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["attachmentCount"], decoded_value.attachmentCount, options);
-        Bool32ToJson(jdata["pColorWriteEnables"], &meta_struct.pColorWriteEnables);
+        FieldToJson(jdata["pColorWriteEnables"], meta_struct.pColorWriteEnables, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }

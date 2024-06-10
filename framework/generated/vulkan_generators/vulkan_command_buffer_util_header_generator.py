@@ -115,7 +115,7 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        wrapper_prefix = self.get_handle_wrapper_prefix()
+        wrapper_prefix = self.get_wrapper_prefix_from_type()
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
             values = info[2]

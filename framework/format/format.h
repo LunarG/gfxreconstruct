@@ -53,6 +53,7 @@ typedef uint64_t SizeTEncodeType;
 typedef uint64_t AddressEncodeType;
 typedef uint8_t  CharEncodeType;  // Encoding type for UTF-8 strings.
 typedef uint16_t WCharEncodeType; // Encoding type for LPCWSTR (UTF-16) strings.
+typedef uint32_t FormatEncodeType;
 
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
@@ -65,8 +66,9 @@ const size_t   kAdapterDescriptionSize    = 128;
 
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
-const char* const kAnnotationLabelOperation     = "operation";
-const char* const kAnnotationLabelReplayOptions = "replayopts";
+const char* const kAnnotationLabelOperation       = "operation";
+const char* const kAnnotationLabelReplayOptions   = "replayopts";
+const char* const kAnnotationLabelRemovedResource = "removed-resource";
 
 const char* const kOperationAnnotationGfxreconstructVersion = "gfxrecon-version";
 const char* const kOperationAnnotationVulkanVersion         = "vulkan-version";
@@ -145,6 +147,10 @@ enum class MetaDataType : uint16_t
     kReserved25                             = 25,
     kDx12RuntimeInfoCommand                 = 26,
     kParentToChildDependency                = 27,
+    kReserved28                             = 28,
+    kReserved29                             = 29,
+    kReserved30                             = 30,
+    kReserved31                             = 31,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.

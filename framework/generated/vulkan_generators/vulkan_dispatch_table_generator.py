@@ -113,7 +113,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
         """Method override."""
         self.newline()
 
-        write('typedef const void* DispatchKey;', file=self.outFile)
+        write('typedef const void* VulkanDispatchKey;', file=self.outFile)
         self.newline()
 
         write(
@@ -121,12 +121,12 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static DispatchKey GetDispatchKey(const void* handle)',
+            'static VulkanDispatchKey GetVulkanDispatchKey(const void* handle)',
             file=self.outFile
         )
         write('{', file=self.outFile)
         write(
-            '    const DispatchKey* dispatch_key = reinterpret_cast<const DispatchKey*>(handle);',
+            '    const VulkanDispatchKey* dispatch_key = reinterpret_cast<const VulkanDispatchKey*>(handle);',
             file=self.outFile
         )
         write('    return (*dispatch_key);', file=self.outFile)
@@ -159,7 +159,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             file=self.outFile
         )
         write(
-            'static void LoadFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
+            'static void LoadVulkanFunction(GetProcAddr gpa, Handle handle, const char* name, FuncP* funcp)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -273,7 +273,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
                     '    table->GetInstanceProcAddr = gpa;', file=self.outFile
                 )
             else:
-                expr = '    LoadFunction(gpa, instance, "{}", &table->{});'.format(
+                expr = '    LoadVulkanFunction(gpa, instance, "{}", &table->{});'.format(
                     name, name[2:]
                 )
                 write(expr, file=self.outFile)
@@ -294,7 +294,7 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             if name == 'vkGetDeviceProcAddr':
                 write('    table->GetDeviceProcAddr = gpa;', file=self.outFile)
             else:
-                expr = '    LoadFunction(gpa, device, "{}", &table->{});'.format(
+                expr = '    LoadVulkanFunction(gpa, device, "{}", &table->{});'.format(
                     name, name[2:]
                 )
                 write(expr, file=self.outFile)

@@ -4,6 +4,7 @@ target_sources(gfxrecon_decode
                PRIVATE
                    ${GFXRECON_SOURCE_DIR}/framework/decode/annotation_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/common_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/copy_shaders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.cpp
@@ -19,8 +20,6 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/file_transformer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/handle_pointer_decoder.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_node.h
-                   ${GFXRECON_SOURCE_DIR}/framework/decode/pnext_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/pointer_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/portability.h
@@ -58,6 +57,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_object_info_table_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_pnext_node.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_pnext_typed_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_realign_allocator.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_realign_allocator.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_rebind_allocator.h

@@ -24,6 +24,7 @@
 #define GFXRECON_DECODE_SCREENSHOT_HANDLER_H
 
 #include "decode/screenshot_handler_base.h"
+#include "decode/vulkan_object_info.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_resource_allocator.h"
 #include "generated/generated_vulkan_dispatch_table.h"
@@ -52,7 +53,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
     {}
 
     void WriteImage(const std::string&                      filename_prefix,
-                    VkDevice                                device,
+                    const DeviceInfo*                       device_info,
                     const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties& memory_properties,
                     VulkanResourceAllocator*                allocator,

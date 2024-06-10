@@ -332,6 +332,39 @@ For Linux, the default install directory `/usr/local` can be changed by setting 
 variable. For example, to install to a "/tmp/gfxreconstruct" directory, run `cmake -DCMAKE_INSTALL_PREFIX=/tmp/gfxreconstruct .`
 from gfxreconstruct's root source directory. Then install with `make install`.
 
+
+## Building for MacOS
+
+
+### Required Package List
+
+Building on MacOS requires the installation of the following packages:
+
+- Command Line Tools (CLT) for Xcode: 
+  - from `xcode-select --install` 
+  - or https://developer.apple.com/download/all/) 
+  - or [Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
+- Git
+- CMake
+  - install e.g. via https://brew.sh/
+
+### MacOS Build
+The approach is identical to a linux-build with one addition.
+
+#### Explicit CPU-Architecture
+Building for specific cpu-architectures can be accomplished by using the cmake-variable `CMAKE_OSX_ARCHITECTURES` 
+with values `x86_64` (Intel) or `arm64` (Apple Silicon).
+The default behavior is to build only for the architecture present in the build-machine.
+A universal build, containing code for both architectures, can be done like this:
+
+```bash
+cd gfxreconstruct
+mkdir build
+cmake . -Bbuild -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+cd build
+make -j4
+```
+
 ## Building for Android
 
 ### Android Development Requirements

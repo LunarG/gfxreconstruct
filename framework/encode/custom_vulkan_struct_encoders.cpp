@@ -82,12 +82,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPipelineExecutableStatistic
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressKHR& value)
 {
-    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeUInt64Value(value.deviceAddress);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkDeviceOrHostAddressConstKHR& value)
 {
-    encoder->EncodeVkDeviceAddressValue(value.deviceAddress);
+    encoder->EncodeUInt64Value(value.deviceAddress);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureMotionInstanceNV& value)
@@ -145,12 +145,11 @@ void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value)
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
             omit_texel_buffer_data = false;
             break;
-        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-            // TODO
-            break;
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
             // TODO
             break;
+        case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+            // Handles are encoded in the VkWriteDescriptorSetInlineUniformBlock structure in the pNext chain
         case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
             // Handles are encoded in the VkWriteDescriptorSetAccelerationStructureKHR structure in the pNext chain
             break;

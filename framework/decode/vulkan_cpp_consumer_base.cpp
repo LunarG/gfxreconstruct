@@ -18,7 +18,7 @@
 #include "decode/vulkan_cpp_consumer_base.h"
 #include "decode/vulkan_cpp_template_strings.h"
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 #include "util/file_path.h"
 #include "util/platform.h"
 #include <util/hash.h>
@@ -1007,7 +1007,7 @@ void VulkanCppConsumerBase::Generate_vkAllocateMemory(VkResult                  
     fprintf(file, "\t{\n");
 
     // Check to see if we need to worry about opaque memory here.
-    DeviceInfo* dev_info = nullptr;
+    VkDeviceInfo* dev_info = nullptr;
     if (device_info_map_.find(device) != device_info_map_.end())
     {
         dev_info                       = device_info_map_[device];
@@ -1097,7 +1097,7 @@ void VulkanCppConsumerBase::Generate_vkCreateBuffer(VkResult                    
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
 
-    DeviceInfo*      dev_info      = nullptr;
+    VkDeviceInfo*    dev_info      = nullptr;
     format::HandleId buffer_handle = *pBuffer->GetPointer();
     if (device_info_map_.find(device) != device_info_map_.end())
     {
@@ -1341,7 +1341,7 @@ static void BuildInstanceCreateInfo(std::ostream&                       out,
     std::string              enabled_extensions_names = "NULL";
     if (struct_info->enabledExtensionCount > 0)
     {
-        GfxToCppPlatform cur_platform = consumer.GetPlatform();
+        GfxToCppPlatform cur_platform       = consumer.GetPlatform();
         std::string      cur_extension_name = kTargetPlatforms.at(cur_platform).wsiSurfaceExtName;
 
         // Generate a map of WSI extensions to the new extension for this current platform
@@ -1417,7 +1417,7 @@ void VulkanCppConsumerBase::Generate_vkCreateDevice(VkResult                    
 {
     FILE* file = GetFrameFile();
 
-    DeviceInfo* new_dev_info                 = new DeviceInfo();
+    VkDeviceInfo* new_dev_info               = new VkDeviceInfo();
     new_dev_info->parent                     = physicalDevice;
     device_info_map_[*pDevice->GetPointer()] = new_dev_info;
 
@@ -1468,7 +1468,7 @@ void VulkanCppConsumerBase::Generate_vkDestroyDevice(format::HandleId           
 
     if (device_info_map_.find(device) != device_info_map_.end())
     {
-        DeviceInfo* dev_info = device_info_map_[device];
+        VkDeviceInfo* dev_info = device_info_map_[device];
         delete dev_info;
         device_info_map_.erase(device);
     }
@@ -1966,6 +1966,7 @@ void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplate(
         size_t buffer_info_count            = 0;
         size_t texel_buffer_view_count      = 0;
         size_t acceleration_structure_count = 0;
+        size_t inline_uniform_block_count   = 0;
 
         for (auto entry = entries.begin(); entry != entries.end(); ++entry)
         {
@@ -1992,6 +1993,10 @@ void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplate(
             {
                 acceleration_structure_count += entry->descriptorCount;
             }
+            else if (type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
+            {
+                inline_uniform_block_count += entry->descriptorCount;
+            }
             else
             {
                 assert(false);
@@ -2003,6 +2008,8 @@ void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplate(
         size_t buffer_info_offset       = image_info_count * sizeof(VkDescriptorImageInfo);
         size_t texel_buffer_view_offset = buffer_info_offset + (buffer_info_count * sizeof(VkDescriptorBufferInfo));
         size_t accel_struct_offset      = texel_buffer_view_offset + (texel_buffer_view_count * sizeof(VkBufferView));
+        size_t inline_uniform_block_offset =
+            accel_struct_offset + (acceleration_structure_count * sizeof(VkAccelerationStructureKHR));
 
         // Track descriptor image type.
         std::vector<VkDescriptorType> image_types;
@@ -2051,6 +2058,15 @@ void VulkanCppConsumerBase::Generate_vkCreateDescriptorUpdateTemplate(
                 accel_struct_offset += entry->descriptorCount * sizeof(VkAccelerationStructureKHR);
 
                 descriptor_update_template_entry_map_[template_handle_id].accelerations.emplace_back(*entry);
+            }
+            else if (type == VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK)
+            {
+                constexpr size_t byte_stride = 1;
+                entry->stride                = byte_stride;
+                entry->offset                = inline_uniform_block_offset;
+                inline_uniform_block_offset += entry->descriptorCount * byte_stride;
+
+                descriptor_update_template_entry_map_[template_handle_id].inline_uniform_blocks.emplace_back(*entry);
             }
             else
             {
@@ -2142,11 +2158,13 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
     std::vector<std::string>    buffer_desc_info_variables;
     std::vector<std::string>    texel_desc_info_variables;
     std::vector<std::string>    accel_desc_info_variables;
+    std::vector<std::string>    inline_uniform_block_info_variables;
 
-    uint32_t image_info_count        = static_cast<uint32_t>(decoder->GetImageInfoCount());
-    uint32_t buffer_info_count       = static_cast<uint32_t>(decoder->GetBufferInfoCount());
-    uint32_t texel_buffer_view_count = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
-    uint32_t accel_struct_count      = static_cast<uint32_t>(decoder->GetAccelerationStructureKHRCount());
+    uint32_t image_info_count           = static_cast<uint32_t>(decoder->GetImageInfoCount());
+    uint32_t buffer_info_count          = static_cast<uint32_t>(decoder->GetBufferInfoCount());
+    uint32_t texel_buffer_view_count    = static_cast<uint32_t>(decoder->GetTexelBufferViewCount());
+    uint32_t accel_struct_count         = static_cast<uint32_t>(decoder->GetAccelerationStructureKHRCount());
+    uint32_t inline_uniform_block_count = static_cast<uint32_t>(decoder->GetInlineUniformBlockCount());
 
     assert(descriptor_update_template_entry_map_.find(descriptor_update_template) !=
            descriptor_update_template_entry_map_.end());
@@ -2285,6 +2303,18 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
                 variables.push_back(std::move(offset));
                 break;
             }
+            case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+            {
+                // TODO: needs testing, unsure when/how we'll use this
+                assert(false);
+
+                VariableOffset offset = {
+                    inline_uniform_block_info_variables[0], entry.descriptorType, entry.descriptorCount, entry.offset
+                };
+                inline_uniform_block_info_variables.erase(inline_uniform_block_info_variables.begin());
+                variables.push_back(std::move(offset));
+                break;
+            }
             default:
                 break;
         }
@@ -2332,10 +2362,9 @@ void VulkanCppConsumerBase::GenerateDescriptorUpdateTemplateData(DescriptorUpdat
                         struct_define_stream << "\t\t\tVkAccelerationStructureKHR descAccelInfo" << cur_count++ << "["
                                              << var.count << "];\n";
                         break;
-                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
-                        // Not handled
-                        assert(false);
-                        struct_define_stream << "INLINE UNIFORM BLOCK not handled,";
+                    case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
+                        struct_define_stream << "\t\t\tInlineUniformBlock descInlineUniformInfo" << cur_count++ << "["
+                                             << var.count << "];\n";
                         break;
                     default:
                         assert(false);
@@ -3305,7 +3334,7 @@ void VulkanCppConsumerBase::ProcessSetOpaqueAddressCommand(format::HandleId devi
 {
     if (device_info_map_.find(device_id) != device_info_map_.end())
     {
-        DeviceInfo* dev_info = device_info_map_[device_id];
+        VkDeviceInfo* dev_info = device_info_map_[device_id];
         // Store the opaque address to use at object creation.
         dev_info->opaque_addresses[object_id] = address;
     }

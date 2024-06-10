@@ -274,6 +274,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
         std::vector<UpdateTemplateEntryInfo> buffer_infos;
         std::vector<UpdateTemplateEntryInfo> texel_buffer_view_infos;
         std::vector<UpdateTemplateEntryInfo> acceleration_structure_infos;
+        std::vector<UpdateTemplateEntryInfo> inline_uniform_block_infos;
     };
 
     // Table of descriptor update template info, keyed by VkDescriptorUpdateTemplate ID.

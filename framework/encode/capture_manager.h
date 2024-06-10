@@ -49,7 +49,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-class CaptureManager
+class ApiCaptureManager;
+
+// The CommonCaptureManager provides common functionality referenced API specific capture managers
+class CommonCaptureManager
 {
   public:
     typedef std::shared_mutex ApiCallMutexT;
@@ -114,20 +117,20 @@ class CaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type);
 
-    void EndFrame();
+    void EndFrame(format::ApiFamilyId api_family);
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
-    void PreQueueSubmit();
-    void PostQueueSubmit();
+    void PreQueueSubmit(format::ApiFamilyId api_family);
+    void PostQueueSubmit(format::ApiFamilyId api_family);
 
     bool ShouldTriggerScreenshot();
 
     util::ScreenshotFormat GetScreenshotFormat() { return screenshot_format_; }
 
-    void CheckContinueCaptureForWriteMode(uint32_t current_boundary_count);
+    void CheckContinueCaptureForWriteMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
 
-    void CheckStartCaptureForTrackMode(uint32_t current_boundary_count);
+    void CheckStartCaptureForTrackMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
 
     bool IsTrimHotkeyPressed();
 
@@ -137,9 +140,9 @@ class CaptureManager
 
     bool RuntimeTriggerDisabled();
 
-    void WriteDisplayMessageCmd(const char* message);
+    void WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message);
 
-    void WriteExeFileInfo(const gfxrecon::util::filepath::FileInfo& info);
+    void WriteExeFileInfo(format::ApiFamilyId api_family, const gfxrecon::util::filepath::FileInfo& info);
 
     void ForcedWriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
 
@@ -148,8 +151,6 @@ class CaptureManager
     /// @param label The key or name of the annotation.
     /// @param data The value or payload text of the annotation.
     void WriteAnnotation(const format::AnnotationType type, const char* label, const char* data);
-
-    virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
     bool GetIUnknownWrappingSetting() const { return iunknown_wrapping_; }
     auto GetForceCommandSerialization() const { return force_command_serialization_; }
@@ -167,7 +168,15 @@ class CaptureManager
         return thread_data->block_index_ == 0 ? 0 : thread_data->block_index_ - 1;
     }
 
-  protected:
+    static bool CreateInstance(ApiCaptureManager* api_instance_, const std::function<void()>& destroyer);
+    template <typename Derived>
+    static bool CreateInstance()
+    {
+        return CreateInstance(Derived::InitSingleton(), Derived::DestroySingleton);
+    }
+
+    CommonCaptureManager();
+
     enum CaptureModeFlags : uint32_t
     {
         kModeDisabled      = 0x0,
@@ -218,32 +227,22 @@ class CaptureManager
         std::vector<uint8_t> scratch_buffer_;
     };
 
+    ThreadData* GetThreadData();
+    bool        IsCaptureModeTrack() const;
+    bool        IsCaptureModeWrite() const;
+
+    void DestroyInstance(ApiCaptureManager* singleton);
+
   protected:
-    static bool CreateInstance(std::function<CaptureManager*()> GetInstanceFunc,
-                               std::function<void()>            NewInstanceFunc,
-                               std::function<void()>            DeleteInstanceFunc);
+    bool LockedCreateInstance(ApiCaptureManager* api_capture_singleton, const std::function<void()>& destroyer);
 
-    static void DestroyInstance(std::function<const CaptureManager*()> GetInstanceFunc);
+    virtual ~CommonCaptureManager();
 
-    CaptureManager(format::ApiFamilyId api_family);
+    bool Initialize(format::ApiFamilyId                   api_family,
+                    std::string                           base_filename,
+                    const CaptureSettings::TraceSettings& trace_settings);
 
-    virtual ~CaptureManager();
-
-    bool Initialize(std::string base_filename, const CaptureSettings::TraceSettings& trace_settings);
-
-    virtual void CreateStateTracker()                                                               = 0;
-    virtual void DestroyStateTracker()                                                              = 0;
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) = 0;
-
-    ThreadData* GetThreadData()
-    {
-        if (!thread_data_)
-        {
-            thread_data_ = std::make_unique<ThreadData>();
-        }
-        return thread_data_.get();
-    }
-
+  public:
     bool                                GetForceFileFlush() const { return force_file_flush_; }
     CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const { return memory_tracking_mode_; }
     bool                                GetPageGuardAlignBufferSizes() const { return page_guard_align_buffer_sizes_; }
@@ -258,8 +257,14 @@ class CaptureManager
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
 
+    util::Compressor*      GetCompressor() { return compressor_.get(); }
+    std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
+    util::Keyboard&        GetKeyboard() { return keyboard_; }
+    const std::string&     GetScreenshotPrefix() const { return screenshot_prefix_; }
+    util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
+
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
-    bool        CreateCaptureFile(const std::string& base_filename);
+    bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
     void        ActivateTrimming();
     void        DeactivateTrimming();
@@ -272,19 +277,13 @@ class CaptureManager
 
     ParameterEncoder* InitMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id);
 
-    void WriteResizeWindowCmd(format::HandleId surface_id, uint32_t width, uint32_t height);
+    void
+    WriteResizeWindowCmd(format::ApiFamilyId api_family, format::HandleId surface_id, uint32_t width, uint32_t height);
 
-    void WriteFillMemoryCmd(format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
+    void WriteFillMemoryCmd(
+        format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
 
-    void WriteCreateHeapAllocationCmd(uint64_t allocation_id, uint64_t allocation_size);
-
-  protected:
-    std::unique_ptr<util::Compressor> compressor_;
-    std::mutex                        mapped_memory_lock_;
-    util::Keyboard                    keyboard_;
-    std::string                       screenshot_prefix_;
-    util::ScreenshotFormat            screenshot_format_;
-    static std::atomic<uint64_t>      block_index_;
+    void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
 
     void WriteToFile(const void* data, size_t size);
 
@@ -306,24 +305,42 @@ class CaptureManager
         WriteToFile(scratch_buffer.data(), scratch_buffer.size());
     }
 
-  private:
-    static void AtExit()
+    void IncrementBlockIndex(uint64_t blocks)
     {
-        if (delete_instance_func_)
-        {
-            delete_instance_func_();
-            delete_instance_func_ = nullptr;
-        }
+        block_index_ += blocks;
+        GetThreadData()->block_index_ = block_index_;
     }
 
+  protected:
+    std::unique_ptr<util::Compressor> compressor_;
+    std::mutex                        mapped_memory_lock_;
+    util::Keyboard                    keyboard_;
+    std::string                       screenshot_prefix_;
+    util::ScreenshotFormat            screenshot_format_;
+    std::atomic<uint64_t>             block_index_;
+
   private:
-    static uint32_t                                 instance_count_;
+    static void AtExit();
+
+  private:
     static std::mutex                               instance_lock_;
+    static CommonCaptureManager*                    singleton_;
     static thread_local std::unique_ptr<ThreadData> thread_data_;
     static std::atomic<format::HandleId>            unique_id_counter_;
     static ApiCallMutexT                            api_call_mutex_;
 
-    const format::ApiFamilyId api_family_;
+    uint32_t instance_count_ = 0;
+    struct ApiInstanceRecord
+    {
+        size_t                count;
+        std::function<void()> destroyer;
+    };
+    using ApiCaptureManagerMap = std::unordered_map<ApiCaptureManager*, ApiInstanceRecord>;
+    ApiCaptureManagerMap api_capture_managers_;
+
+    CaptureSettings default_settings_; // Default settings from the initial api singleton
+    CaptureSettings
+        capture_settings_; // Settings from the settings file and environment at capture manager creation time.
 
     std::unique_ptr<util::FileOutputStream> file_stream_;
     format::EnabledOptions                  file_options_;
@@ -363,7 +380,6 @@ class CaptureManager
     bool                                    queue_zero_only_;
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
-    static std::function<void()>            delete_instance_func_;
 
     struct
     {

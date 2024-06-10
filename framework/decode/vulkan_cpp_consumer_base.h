@@ -47,10 +47,11 @@ struct DescriptorUpdateTemplateEntries
     std::vector<VkDescriptorUpdateTemplateEntry> buffers;
     std::vector<VkDescriptorUpdateTemplateEntry> texels;
     std::vector<VkDescriptorUpdateTemplateEntry> accelerations;
+    std::vector<VkDescriptorUpdateTemplateEntry> inline_uniform_blocks;
 };
 
 // Track items that are specific to a given device
-struct DeviceInfo
+struct VkDeviceInfo
 {
     format::HandleId                               parent{ 0 };
     std::unordered_map<format::HandleId, uint64_t> opaque_addresses;
@@ -554,11 +555,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                             format::HandleId   device,
                                             format::HandleId   operation) override;
 
-    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                           format::HandleId                 device,
-                                                           format::HandleId                 descriptorSet,
-                                                           format::HandleId                 descriptorUpdateTemplate,
-                                                           DescriptorUpdateTemplateDecoder* pData) override;
+    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                   format::HandleId                 device,
+                                                   format::HandleId                 descriptorSet,
+                                                   format::HandleId                 descriptorUpdateTemplate,
+                                                   DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                                format::HandleId   commandBuffer,
@@ -700,7 +701,7 @@ class VulkanCppConsumerBase : public VulkanConsumer
     std::unordered_map<VkObjectType, uint32_t>                            counters_;
     VulkanCppLoaderGenerator                                              pfn_loader_;
     std::unordered_map<format::HandleId, std::string>                     handle_id_map_;
-    std::unordered_map<format::HandleId, DeviceInfo*>                     device_info_map_;
+    std::unordered_map<format::HandleId, VkDeviceInfo*>                   device_info_map_;
     std::vector<std::string>                                              func_data_;
     std::unordered_map<uint64_t, std::string>                             memory_id_map_;
     std::unordered_map<uint64_t, VulkanCppAndroidBufferInfo>              android_buffer_id_map_;

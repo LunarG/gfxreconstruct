@@ -239,6 +239,16 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_UNO
             wrapper->Texture2DArray->decoded_value = &(value->Texture2DArray);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DArray);
             break;
+        case D3D12_UAV_DIMENSION_TEXTURE2DMS:
+            wrapper->Texture2DMS                = DecodeAllocator::Allocate<Decoded_D3D12_TEX2DMS_UAV>();
+            wrapper->Texture2DMS->decoded_value = &(value->Texture2DMS);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMS);
+            break;
+        case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
+            wrapper->Texture2DMSArray                = DecodeAllocator::Allocate<Decoded_D3D12_TEX2DMS_ARRAY_UAV>();
+            wrapper->Texture2DMSArray->decoded_value = &(value->Texture2DMSArray);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Texture2DMSArray);
+            break;
         case D3D12_UAV_DIMENSION_TEXTURE3D:
             wrapper->Texture3D                = DecodeAllocator::Allocate<Decoded_D3D12_TEX3D_UAV>();
             wrapper->Texture3D->decoded_value = &(value->Texture3D);
@@ -451,6 +461,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VER
             wrapper->Desc_1_1->decoded_value = &(value->Desc_1_1);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc_1_1);
             break;
+        case D3D_ROOT_SIGNATURE_VERSION_1_2:
+            wrapper->Desc_1_2                = DecodeAllocator::Allocate<Decoded_D3D12_ROOT_SIGNATURE_DESC2>();
+            wrapper->Desc_1_2->decoded_value = &(value->Desc_1_2);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Desc_1_2);
+            break;
     }
 
     return bytes_read;
@@ -571,6 +586,11 @@ DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_
             wrapper->Dred_1_2                = DecodeAllocator::Allocate<Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2>();
             wrapper->Dred_1_2->decoded_value = &(value->Dred_1_2);
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Dred_1_2);
+            break;
+        case D3D12_DRED_VERSION_1_3:
+            wrapper->Dred_1_3                = DecodeAllocator::Allocate<Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3>();
+            wrapper->Dred_1_3->decoded_value = &(value->Dred_1_3);
+            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->Dred_1_3);
             break;
     }
 

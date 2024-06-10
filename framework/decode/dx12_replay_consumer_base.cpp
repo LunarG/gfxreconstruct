@@ -40,8 +40,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-constexpr int32_t  kDefaultWindowPositionX = 0;
-constexpr int32_t  kDefaultWindowPositionY = 0;
 constexpr uint32_t kDefaultWaitTimeout     = INFINITE;
 
 constexpr uint64_t kInternalEventId = static_cast<uint64_t>(~0);
@@ -816,10 +814,15 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
     if (window_factory != nullptr && desc_pointer != nullptr)
     {
         ReplaceWindowedResolution(desc_pointer->BufferDesc.Width, desc_pointer->BufferDesc.Height);
-        window = window_factory->Create(kDefaultWindowPositionX,
-                                        kDefaultWindowPositionY,
+
+        // By default, the created window will be automatically in full screen mode, and its location will be set to 0,0
+        // if the requested size exceeds or equals the current screen size. If the user specifies "--fw" or "--fwo" this
+        // behavior will change, and replay will instead render in windowed mode.
+        window = window_factory->Create(options_.window_topleft_x,
+                                        options_.window_topleft_y,
                                         desc_pointer->BufferDesc.Width,
-                                        desc_pointer->BufferDesc.Height);
+                                        desc_pointer->BufferDesc.Height,
+                                        options_.force_windowed || options_.force_windowed_origin);
     }
 
     if (window != nullptr)
@@ -2407,8 +2410,11 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     if (window_factory != nullptr && desc_pointer != nullptr)
     {
         ReplaceWindowedResolution(desc_pointer->Width, desc_pointer->Height);
-        window = window_factory->Create(
-            kDefaultWindowPositionX, kDefaultWindowPositionY, desc_pointer->Width, desc_pointer->Height);
+        window = window_factory->Create(options_.window_topleft_x,
+                                        options_.window_topleft_y,
+                                        desc_pointer->Width,
+                                        desc_pointer->Height,
+                                        options_.force_windowed || options_.force_windowed_origin);
     }
 
     if (window != nullptr)
@@ -2434,7 +2440,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
             }
 
             auto full_screen_desc_ptr = full_screen_desc->GetPointer();
-            if (options_.force_windowed)
+            if ((options_.force_windowed) || (options_.force_windowed_origin))
             {
                 full_screen_desc_ptr = nullptr;
             }
@@ -3293,7 +3299,7 @@ Dx12ReplayConsumerBase::OverrideSetFullscreenState(DxObjectInfo* swapchain_info,
     auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_info);
 
     HRESULT replay_result = S_OK;
-    if (options_.force_windowed)
+    if ((options_.force_windowed) || (options_.force_windowed_origin))
     {
         replay_result                       = swapchain->SetFullscreenState(FALSE, nullptr);
         swapchain_extra_info->is_fullscreen = false;

@@ -203,7 +203,8 @@ class Dx12ResourceValueMapper
                                           std::set<ResourceValueInfo>& command_signature_resource_value_info_map,
                                           uint32_t                     command_count,
                                           uint64_t                     command_offset,
-                                          uint8_t                      stride);
+                                          uint8_t                      stride,
+                                          D3D12StateObjectInfo*        state_object);
 
     // Parse the D3D12_STATE_OBJECT_DESC for LRS association information.
     void GetStateObjectLrsAssociationInfo(

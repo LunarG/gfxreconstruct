@@ -84,8 +84,8 @@ class DecodePNextStructGenerator(BaseGenerator):
             file=self.outFile
         )
         write('#include "decode/decode_allocator.h"', file=self.outFile)
-        write('#include "decode/pnext_node.h"', file=self.outFile)
-        write('#include "decode/pnext_typed_node.h"', file=self.outFile)
+        write('#include "decode/vulkan_pnext_node.h"', file=self.outFile)
+        write('#include "decode/vulkan_pnext_typed_node.h"', file=self.outFile)
         write(
             '#include "generated/generated_vulkan_struct_decoders.h"',
             file=self.outFile
