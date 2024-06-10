@@ -7326,7 +7326,7 @@ void VulkanReplayConsumerBase::OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryA
             instance_table->GetPhysicalDeviceMemoryProperties(device_info->parent, &memory_properties);
 
             screenshot_handler_->WriteImage(filename_prefix,
-                                            device,
+                                            device_info,
                                             GetDeviceTable(device),
                                             memory_properties,
                                             device_info->allocator.get(),
