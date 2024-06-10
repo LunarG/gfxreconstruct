@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2020 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2020-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -76,6 +76,11 @@ const TrackedPhysicalDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedPhysica
 }
 
 TrackedDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceInfo(format::HandleId id)
+{
+    return GetTrackedObjectInfo<TrackedDeviceInfo>(id, &tracked_device_map_);
+}
+
+const TrackedDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceInfo(format::HandleId id) const
 {
     return GetTrackedObjectInfo<TrackedDeviceInfo>(id, &tracked_device_map_);
 }
