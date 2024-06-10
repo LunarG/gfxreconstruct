@@ -5589,11 +5589,11 @@ void VulkanReplayConsumer::Process_vkFrameBoundaryANDROID(
     format::HandleId                            semaphore,
     format::HandleId                            image)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkSemaphore in_semaphore = MapHandle<SemaphoreInfo>(semaphore, &VulkanObjectInfoTable::GetSemaphoreInfo);
-    VkImage in_image = MapHandle<ImageInfo>(image, &VulkanObjectInfoTable::GetImageInfo);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_semaphore = GetObjectInfoTable().GetSemaphoreInfo(semaphore);
+    auto in_image = GetObjectInfoTable().GetImageInfo(image);
 
-    GetDeviceTable(in_device)->FrameBoundaryANDROID(in_device, in_semaphore, in_image);
+    OverrideFrameBoundaryANDROID(GetDeviceTable(in_device->handle)->FrameBoundaryANDROID, in_device, in_semaphore, in_image);
 }
 
 void VulkanReplayConsumer::Process_vkCreateDebugReportCallbackEXT(
