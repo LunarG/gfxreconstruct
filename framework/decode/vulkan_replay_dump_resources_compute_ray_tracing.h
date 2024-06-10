@@ -35,6 +35,7 @@
 
 #include <cstdint>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -455,6 +456,10 @@ class DispatchTraceRaysDumpingContext
 
     DumpedDescriptors dispatch_dumped_descriptors;
     DumpedDescriptors trace_rays_dumped_descriptors;
+
+    // Keep track of images for which scalling failed so we can
+    // note them in the output json
+    std::unordered_set<std::string> images_failed_scaling;
 
     // One entry for each dispatch command
     std::unordered_map<uint64_t, DispatchParameters> dispatch_params;

@@ -63,6 +63,7 @@ class VulkanReplayDumpResourcesJson
                          const ImageInfo*                image_info,
                          const std::vector<std::string>& filenames,
                          VkImageAspectFlagBits           aspect,
+                         bool                            scale_failed = false,
                          uint32_t                        mip_level   = 0,
                          uint32_t                        array_layer = 0,
                          const VkExtent3D*               extent      = nullptr);

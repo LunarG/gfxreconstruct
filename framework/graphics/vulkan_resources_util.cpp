@@ -1316,7 +1316,8 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     }
     else
     {
-        scaled_image = copy_image;
+        scaled_image      = copy_image;
+        scaling_supported = true;
     }
 
     assert(scaled_image != VK_NULL_HANDLE);
