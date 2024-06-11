@@ -73,6 +73,9 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/settings_loader.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/options.h
                     ${CMAKE_CURRENT_LIST_DIR}/options.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/spirv_helper.h
+                    ${CMAKE_CURRENT_LIST_DIR}/spirv_parsing_util.h
+                    ${CMAKE_CURRENT_LIST_DIR}/spirv_parsing_util.cpp
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/interception_util.h>
@@ -119,7 +122,35 @@ target_include_directories(gfxrecon_util
                            PUBLIC
                                ${CMAKE_SOURCE_DIR}/framework
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
-target_link_libraries(gfxrecon_util platform_specific vulkan_registry nlohmann_json::nlohmann_json ${CMAKE_DL_LIBS})
+
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    if (WIN32)
+        target_link_directories(gfxrecon_util
+                PUBLIC
+                ${CMAKE_SOURCE_DIR}/external/precompiled/win64/lib)
+    elseif(APPLE)
+        target_link_directories(gfxrecon_util
+                PUBLIC
+                ${CMAKE_SOURCE_DIR}/external/precompiled/macos/lib)
+    else()
+        target_link_directories(gfxrecon_util
+                PUBLIC
+                ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86_64)
+    endif()
+else (CMAKE_SIZEOF_VOID_P EQUAL 4)
+    if (WIN32)
+        target_link_directories(gfxrecon_util
+                PUBLIC
+                ${CMAKE_SOURCE_DIR}/external/precompiled/win32/lib)
+    else()
+        target_link_directories(gfxrecon_util
+                PUBLIC
+                ${CMAKE_SOURCE_DIR}/external/precompiled/linux/lib/x86)
+    endif()
+endif()
+
+target_link_libraries(gfxrecon_util platform_specific vulkan_registry spirv_registry spirv-reflect-static nlohmann_json::nlohmann_json
+        ${CMAKE_DL_LIBS})
 target_link_libraries(gfxrecon_util $<$<BOOL:${WIN32}>:version.lib>)
 
 if (UNIX AND NOT APPLE)

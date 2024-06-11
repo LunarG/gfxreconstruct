@@ -37,6 +37,7 @@
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
+#include "util/spirv_parsing_util.h"
 
 #include <cassert>
 #include <unordered_set>
@@ -2833,6 +2834,35 @@ void VulkanCaptureManager::PreProcess_vkBindImageMemory2(VkDevice               
             GFXRECON_LOG_WARNING_ONCE("Image bound to device memory at an offset which is not page aligned. Corruption "
                                       "might occur. In that case set "
                                       "Page Guard Align Buffer Sizes env variable to true.");
+        }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCreateShaderModule(VkResult                        result,
+                                                            VkDevice                        device,
+                                                            const VkShaderModuleCreateInfo* pCreateInfo,
+                                                            const VkAllocationCallbacks*    pAllocator,
+                                                            VkShaderModule*                 pShaderModule)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pShaderModule);
+
+    if (result == VK_SUCCESS)
+    {
+        // spirv-parsing for buffer-references
+        gfxrecon::util::SpirVParsingUtil spirv_util;
+
+        if (spirv_util.Parse(pCreateInfo->pCode, pCreateInfo->codeSize))
+        {
+            auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
+
+            if (!buffer_reference_infos.empty())
+            {
+                GFXRECON_LOG_WARNING_ONCE(
+                    "Shader is using the 'GL_EXT_buffer_reference2' feature. "
+                    "Resource tracking for buffers accessed via references is currently unsupported");
+            }
         }
     }
 }

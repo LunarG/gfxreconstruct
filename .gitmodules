@@ -1,3 +1,6 @@
 [submodule "external/Vulkan-Headers"]
 	path = external/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers.git
+[submodule "external/SPIRV-Headers"]
+	path = external/SPIRV-Headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git

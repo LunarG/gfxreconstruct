@@ -62,6 +62,9 @@ add_library(vulkan_registry INTERFACE)
 target_include_directories(vulkan_registry INTERFACE ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include)
 target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_BETA_EXTENSIONS)
 
+add_library(spirv_registry INTERFACE)
+target_include_directories(spirv_registry INTERFACE ${GFXRECON_SOURCE_DIR}/external/SPIRV-Headers/include)
+
 add_library(nlohmann_json INTERFACE)
 target_include_directories(nlohmann_json INTERFACE ${GFXRECON_SOURCE_DIR}/external/nlohmann)
 
