@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_feature_util.h"
 
+#include "vulkan/vulkan_metal.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
@@ -47,6 +48,8 @@ std::set<std::string> kIgnorableExtensions = {
     VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
     "VK_ANDROID_frame_boundary",
     "VK_EXT_frame_boundary",
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME,
+    VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 };
 
 VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
