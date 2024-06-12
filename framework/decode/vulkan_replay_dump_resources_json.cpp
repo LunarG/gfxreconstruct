@@ -150,14 +150,14 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::GetCurrentSubEntry()
     return current_entry != nullptr ? *current_entry : json_data_;
 }
 
-void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json_entry,
-                                                    const ImageInfo*        image_info,
-                                                    const std::string&      filename,
-                                                    VkImageAspectFlagBits   aspect,
-                                                    bool                    scale_failed,
-                                                    uint32_t                mip_level,
-                                                    uint32_t                array_layer,
-                                                    const VkExtent3D*       extent)
+void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json&         json_entry,
+                                                    const ImageInfo*                image_info,
+                                                    const std::vector<std::string>& filenames,
+                                                    VkImageAspectFlagBits           aspect,
+                                                    bool                            scale_failed,
+                                                    uint32_t                        mip_level,
+                                                    uint32_t                        array_layer,
+                                                    const VkExtent3D*               extent)
 {
     assert(image_info != nullptr);
 
@@ -181,7 +181,16 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json& json
         json_entry["scaleFailed"] = true;
     }
 
-    json_entry["file"] = filename;
+    assert(filenames.size() == 1 || filenames.size() == 2);
+    if (filenames.size() == 2)
+    {
+        json_entry["beforeFile"] = filenames[0];
+        json_entry["afterFile"]  = filenames[1];
+    }
+    else
+    {
+        json_entry["file"] = filenames[0];
+    }
 }
 
 void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& json_entry,

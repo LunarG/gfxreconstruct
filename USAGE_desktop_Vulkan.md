@@ -534,7 +534,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--no-debug-popup] [--use-colorspace-fallback]
                         [--wait-before-present]
-                        [--dump-resources <dump-args>] [--dump-resources-before-draw]
+                        [--dump-resources <arg>] [--dump-resources-before-draw]
                         [--dump-resources-scale <scale>] [--dump-resources-dir <dir>]
                         [--dump-resources-image-format <format>]
                         [--dump-resources-dump-depth-attachment]
@@ -708,12 +708,11 @@ Optional arguments:
               Force wait on completion of queue operations for all queues
               before calling Present. This is needed for accurate acquisition
               of instrumentation data on some platforms.
-  --dump-resources <vulkan-begincommandbuffercall-index>,<vulkan-drawcall-index>,<vulkan-queuesubmitcall-index>
-              Dump gpu resources after the specified draw call in the specific
-              command buffer, during the specific queuesubmit call.
-              This option can be repeated to initiate multiple dumps of
-              gpu resources.
-  --dump-resources BeginCommandBuffer=<n>,Draw=<n>,BeginRenderPass=<n>,NextSubPass=<n>,EndRenderPass=<n>,Dispatch=<n>,TraceRays=<n>,QueueSubmit=<n>
+   --dump-resources <arg>
+              <arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,
+              NextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>
+              GPU resources are dumped after the given vkCmdDraw*,
+              vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
               Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for
               each is a block index from the capture file.  The additional parameters are used to identify during which occurence
               of the vkCmdDraw/VkCmdDispath/VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be repeated 0 or more times to
@@ -728,10 +727,10 @@ Optional arguments:
               Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
               in the gfxreconstruct documentation.
   --dump-resources-image-format <format>
-                        Image file format to use for image resource dumping.
-                        Available formats are:
-                            bmp         Bitmap file format.  This is the default format.
-                            png         Png file format.
+              Image file format to use for image resource dumping.
+              Available formats are:
+                  bmp         Bitmap file format.  This is the default format.
+                  png         Png file format.
   --dump-resources-before-draw
               In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
               --dump-resources argument, also dump resources before those calls.
@@ -744,18 +743,18 @@ Optional arguments:
               Image file format to use when dumping image resources. Available formats are: bmp, png
   --dump-resources-dump-depth-attachment
               Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
-  --dump-resources-dump-color-attachment-index
+  --dump-resources-dump-color-attachment-index <index>
               Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
-              based integer. Default is to dump all color attachment
+              based integer. Default is to dump all color attachments.
   --dump-resources-dump-vertex-index-buffers
               Enables dumping of vertex and index buffers while dumping draw call resources.
   --dump-resources-json-output-per-command
               Enables storing a json output file for each dumped command. Overrides default behavior which
               is generating one output json file that contains the information for all dumped commands.
   --dump-resources-dump-immutable-resources
-              Enables dumping of resources that are used as inputs in the commands requested for dumping
+              Enables dumping of resources that are used as inputs in the commands requested for dumping.
   --dump-resources-dump-all-image-subresources
-              Enables dumping of all image sub resources (mip map levels and array layers)
+              Enables dumping of all image sub resources (mip map levels and array layers).
 ```
 
 ### Key Controls

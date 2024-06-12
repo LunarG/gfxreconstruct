@@ -125,7 +125,7 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
         if (!is_3d)
         {
             GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
-            GFXRECON_LOG_ERROR("RenderPass indices should be a 3 dimentional array");
+            GFXRECON_LOG_ERROR("RenderPass indices should be a 3 dimensional array");
             return true;
         }
     }
@@ -215,16 +215,26 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
 
 bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_replay_options)
 {
-    bool        parse_error  = false;
-    bool        d3d12enabled = false;
+    bool        parse_error                   = false;
+    bool        dump_resource_option_is_d3d12 = false;
     std::string parse_error_message;
 
 #if defined(D3D12_SUPPORT)
-    d3d12enabled = true;
+    // Parse dump_resource arg to see if it is for d3d12
+    // (i.e. it consists of 3 comma-separated integers)
+    std::vector<std::string> values = gfxrecon::util::strings::SplitString(vulkan_replay_options.dump_resources, ',');
+    if (values.size() == 3)
+    {
+        dump_resource_option_is_d3d12 = true;
+        for (int n = 0; n < 3; n++)
+        {
+            std::string v = values[n];
+            dump_resource_option_is_d3d12 &= (!v.empty() && std::all_of(v.begin(), v.end(), ::isdigit));
+        }
+    }
 #endif
 
-    if (vulkan_replay_options.dump_resources.length() == 0 ||
-        (d3d12enabled && (vulkan_replay_options.dump_resources.find("drawcall-", 0) == 0)))
+    if (vulkan_replay_options.dump_resources.empty() || dump_resource_option_is_d3d12)
     {
         // Clear dump resources indices and return if arg is either null or intended for d3d12
         vulkan_replay_options.BeginCommandBuffer_Indices.clear();
@@ -350,7 +360,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
         }
 
         // Process non-json dump_resources args
-        int i;
         for (int i = 0; i < drargs.size() && !parse_error; i++)
         {
             uint64_t              num;
@@ -400,7 +409,7 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
                 else
                 {
                     parse_error         = true;
-                    parse_error_message = "Bad --dump-resource parameter: " + drargs[i].substr(apos, epos - apos);
+                    parse_error_message = "Bad --dump-resources parameter: " + drargs[i].substr(apos, epos - apos);
                 }
 
                 apos = cpos + 1;
@@ -457,16 +466,6 @@ bool parse_dump_resources_arg(gfxrecon::decode::VulkanReplayOptions& vulkan_repl
     }
 
     vulkan_replay_options.dumping_resources = !parse_error;
-    if (parse_error)
-    {
-        vulkan_replay_options.BeginCommandBuffer_Indices.clear();
-        vulkan_replay_options.Draw_Indices.clear();
-        vulkan_replay_options.RenderPass_Indices.clear();
-        vulkan_replay_options.Dispatch_Indices.clear();
-        vulkan_replay_options.TraceRays_Indices.clear();
-        vulkan_replay_options.QueueSubmit_Indices.clear();
-    }
-
     return !parse_error;
 }
 

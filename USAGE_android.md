@@ -38,6 +38,7 @@ to one of these other documents:
     7. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
     8. [Dumping resources](#dumping-resources)
 3. [Android Detailed Examples](#android-detailed-examples)
+>>>>>>> davidp_dump_resources_merge2
 
 
 ## Behavior on Android
@@ -697,9 +698,11 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--flush-measurement-range] [-m MODE]
                           [--swapchain MODE] [--use-captured-swapchain-indices]
                           [--use-colorspace-fallback] [--wait-before-present]
-                          [--dump-resources <dump-args>]
+                          [--dump-resources <arg>]
+                          [--dump-resources <filename>]
+                          [--dump-resources <filename>.json]
                           [--dump-resources-before-draw] [--dump-resources-scale <scale>]
-                          [--dump-resources-dir <fir>]
+                          [--dump-resources-dir <dir>]
                           [--dump-resources-image-format <format>]
                           [--dump-resources-dump-depth-attachment]
                           [--dump-resources-dump-color-attachment-index <index>]
@@ -849,6 +852,21 @@ optional arguments:
                         Force wait on completion of queue operations for all queues
                         before calling Present. This is needed for accurate acquisition
                         of instrumentation data on some platforms.
+   --dump-resources <arg>
+                        <arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,
+                        NextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>
+                        GPU resources are dumped after the given vkCmdDraw*,
+                        vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
+                        Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or
+                        vkCmdTraceRaysKHR is replayed. The parameter for each is a block
+                        index from the capture file.  The additional parameters are used
+                        to identify during which occurence of the vkCmdDraw/VkCmdDispath/
+                        VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be
+                        repeated 0 or more times to indicate subpasses withing a render
+                        pass.  Note that the minimal set of parameters must be one of:
+                            BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, and QueueSubmit
+                            BeginCmdBuffer, Dispatch and QueueSubmit
+                            BeginCmdBuffer, TraceRays and QueueSubmit
   --dump-resources <filename>
               Extract --dump-resources args from the specified file, with each line in the file containing a comma or space separated
               list of the parameters to --dump-resources. The file can contain multiple lines specifying multiple dumps.
@@ -870,7 +888,7 @@ optional arguments:
               Directory to write dump resources output files. Default is the current working directory.
   --dump-resources-dump-depth-attachment
               Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
-  --dump-resources-dump-color-attachment-index
+  --dump-resources-dump-color-attachment-index <index>
               Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
               based integer. Default is to dump all color attachment
   --dump-resources-dump-vertex-index-buffers

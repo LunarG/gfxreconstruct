@@ -52,7 +52,8 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
                                                                  const std::vector<uint64_t>&   trace_rays_indices,
                                                                  VulkanObjectInfoTable&         object_info_table,
                                                                  const VulkanReplayOptions&     options,
-                                                                 VulkanReplayDumpResourcesJson& dump_json) :
+                                                                 VulkanReplayDumpResourcesJson& dump_json,
+                                                                 std::string                    capture_filename) :
     original_command_buffer_info(nullptr),
     DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices), trace_rays_indices(trace_rays_indices),
     bound_pipelines{ nullptr }, dump_resources_before(options.dump_resources_before),
@@ -62,7 +63,8 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
     current_dispatch_index(0), current_trace_rays_index(0), dump_json(dump_json),
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
-    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources)
+    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources),
+    capture_filename(capture_filename)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -948,9 +950,11 @@ DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilename(VkFormat
         std::string       aspect_str = ImageAspectToStr(aspects[a]);
         std::stringstream filename;
 
+        filename << capture_filename << '_';
+
         if (before_cmd)
         {
-            filename << (is_dispatch ? "Dispatch_" : "TraceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
+            filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
                      << bcb_index << "_before_stage_" << shader_stage_name << "_set_" << desc_set << "_binding_"
                      << desc_binding << "_index_" << array_index;
             if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
@@ -961,7 +965,7 @@ DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysImageFilename(VkFormat
         }
         else
         {
-            filename << (is_dispatch ? "Dispatch_" : "TraceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
+            filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
                      << bcb_index << "_" << (dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name
                      << "_set_" << desc_set << "_binding_" << desc_binding << "_index_" << array_index;
             if (output_image_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
@@ -1002,17 +1006,19 @@ std::string DispatchTraceRaysDumpingContext::GenerateDispatchTraceRaysBufferFile
 {
     std::stringstream filename;
 
+    filename << capture_filename << '_';
+
     const std::string shader_stage_name = ShaderStageToStr(stage);
 
     if (before_cmd)
     {
-        filename << (is_dispatch ? "Dispatch_" : "TraceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
+        filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
                  << bcb_index << "_before_stage_" << shader_stage_name << "_set_" << desc_set << "_binding_"
                  << desc_binding << "_index_" << array_index << "_buffer.bin";
     }
     else
     {
-        filename << (is_dispatch ? "Dispatch_" : "TraceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
+        filename << (is_dispatch ? "dispatch_" : "traceRays_") << cmd_index << "_qs_" << qs_index << "_bcb_"
                  << bcb_index << "_" << (dump_resources_before ? "after_" : "") << "stage_" << shader_stage_name
                  << "_set_" << desc_set << "_binding_" << desc_binding << "_index_" << array_index << "_buffer.bin";
     }
@@ -1364,15 +1370,17 @@ std::vector<std::string> DispatchTraceRaysDumpingContext::GenerateImageDescripto
         std::string       aspect_str = ImageAspectToStr(aspects[i]);
         std::stringstream base_filename;
 
+        base_filename << capture_filename << '_';
+
         if (VkFormatToImageWriterDataFormat(img_info->format) != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
         {
-            base_filename << "Image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index
+            base_filename << "image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index
                           << "_aspect_" << aspect_str;
         }
         else
         {
             std::string format_name = FormatToStr(img_info->format);
-            base_filename << "Image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_"
+            base_filename << "image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_"
                           << format_name << "_aspect_" << aspect_str;
         }
 
@@ -1422,8 +1430,8 @@ std::string DispatchTraceRaysDumpingContext::GenerateInlineUniformBufferDescript
                                                                                            uint32_t binding) const
 {
     std::stringstream filename;
-    filename << "InlineUniformBlock_set_" << set << "_binding_" << binding << "_qs_" << qs_index << "_bcb_" << bcb_index
-             << ".bin";
+    filename << capture_filename << '_' << "inlineUniformBlock_set_" << set << "_binding_" << binding
+             << "_qs_" << qs_index << "_bcb_" << bcb_index << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
@@ -2086,10 +2094,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                 for (size_t f = 0; f < filenames.size(); ++f)
                 {
                     const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                    const std::string full_filename =
-                        filenames[f] + ImageFileExtension(img_info->format, image_file_format);
-                    dump_json.InsertImageInfo(
-                        image_json_entry_desc[f], img_info, full_filename, aspects[f], scaling_failed);
+                    filenames[f] += ImageFileExtension(img_info->format, image_file_format);
+                    dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f], scaling_failed);
                 }
             }
         }
@@ -2164,8 +2170,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
             for (size_t f = 0; f < filenames.size(); ++f)
             {
                 const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                const std::string full_filename =
-                    filenames[f] + ImageFileExtension(img_info->format, image_file_format);
+                const std::vector<std::string> full_filename {
+                    filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
                 dump_json.InsertImageInfo(
                     image_json_entry_desc[f], img_info, full_filename, aspects[f], scaling_failed);
             }
@@ -2240,8 +2246,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                     auto&      image_descriptor_json_entry = entry["descriptor"];
                                     const bool scaling_failed =
                                         images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                                    const std::string full_filename =
-                                        filenames[f] + ImageFileExtension(img_info->format, image_file_format);
+                                    const std::vector<std::string> full_filename {
+                                        filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
                                     dump_json.InsertImageInfo(image_descriptor_json_entry,
                                                               img_info,
                                                               full_filename,
@@ -2438,10 +2444,9 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                 for (size_t f = 0; f < filenames.size(); ++f)
                 {
                     const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                    const std::string full_filename =
-                        filenames[f] + ImageFileExtension(img_info->format, image_file_format);
+                    filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                     dump_json.InsertImageInfo(
-                        image_json_entry_desc[f], img_info, full_filename, aspects[f], scaling_failed);
+                        image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f], scaling_failed);
                 }
             }
         }
@@ -2515,8 +2520,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
             for (size_t f = 0; f < filenames.size(); ++f)
             {
                 const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                const std::string full_filename =
-                    filenames[f] + ImageFileExtension(img_info->format, image_file_format);
+                const std::vector<std::string> full_filename {
+                    filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
                 dump_json.InsertImageInfo(
                     image_json_entry_desc[f], img_info, full_filename, aspects[f], scaling_failed);
             }
@@ -2592,8 +2597,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                     {
                                         const bool scaling_failed =
                                             images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                                        const std::string full_filename =
-                                            filenames[f] + ImageFileExtension(img_info->format, image_file_format);
+                                        const std::vector<std::string> full_filename {
+                                            filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
                                         auto& image_descriptor_json_entry = entry["descriptor"];
                                         dump_json.InsertImageInfo(image_descriptor_json_entry[f],
                                                                   img_info,

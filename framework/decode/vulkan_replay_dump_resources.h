@@ -344,6 +344,8 @@ class VulkanReplayDumpResourcesBase
     VulkanObjectInfoTable&        object_info_table_;
     VulkanReplayDumpResourcesJson dump_json_;
     bool                          output_json_per_command;
+
+    std::string capture_filename;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)
