@@ -1294,13 +1294,6 @@ void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value,
     }
 }
 
-void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
 void UnwrapStructHandles(VkAccelerationStructureCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
