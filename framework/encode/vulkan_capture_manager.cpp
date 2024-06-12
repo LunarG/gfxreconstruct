@@ -2853,14 +2853,14 @@ void VulkanCaptureManager::PostProcess_vkCreateShaderModule(VkResult            
         // spirv-parsing for buffer-references
         gfxrecon::util::SpirVParsingUtil spirv_util;
 
-        if (spirv_util.Parse(pCreateInfo->pCode, pCreateInfo->codeSize))
+        if (spirv_util.ParseBufferReferences(pCreateInfo->pCode, pCreateInfo->codeSize))
         {
             auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
 
             if (!buffer_reference_infos.empty())
             {
                 GFXRECON_LOG_WARNING_ONCE(
-                    "Shader is using the 'GL_EXT_buffer_reference2' feature. "
+                    "Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
                     "Resource tracking for buffers accessed via references is currently unsupported");
             }
         }

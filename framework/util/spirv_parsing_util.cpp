@@ -86,6 +86,13 @@ class SpirVParsingUtil::Instruction
     //! operand id, return 0 if no type
     [[nodiscard]] uint32_t typeId() const { return (type_id_index_ == 0) ? 0 : words_[type_id_index_]; }
 
+    //! constant values can safely be returned as uint32_t
+    [[nodiscard]] uint32_t constant_value() const
+    {
+        GFXRECON_ASSERT(opcode() == spv::OpConstant);
+        return words_[3];
+    }
+
   private:
     // store minimal extra data
     uint32_t result_id_index_ = 0;
@@ -160,7 +167,7 @@ bool SpirVParsingUtil::GetVariableDecorations(const Instruction*   variable_insn
     }
 }
 
-bool SpirVParsingUtil::Parse(const uint32_t* const spirv_code, size_t spirv_num_bytes)
+bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, size_t spirv_num_bytes)
 {
     if (spirv_code == nullptr)
     {
@@ -217,8 +224,8 @@ bool SpirVParsingUtil::Parse(const uint32_t* const spirv_code, size_t spirv_num_
                         {
                             if (ins->opcode() == spv::OpConstant)
                             {
-                                // store resolved indices
-                                indices.push_back(ins->operand(0));
+                                // store access-chain index
+                                indices.push_back(ins->constant_value());
                             }
                         }
                     }
@@ -363,7 +370,7 @@ bool SpirVParsingUtil::Parse(const uint32_t* const spirv_code, size_t spirv_num_
                     break;
                 }
                 default:
-                    GFXRECON_LOG_WARNING("Failed to track back the Function Variable OpStore, hit a %s\n",
+                    GFXRECON_LOG_WARNING("Failed to track back the Function Variable OpStore, hit a %s",
                                          string_SpvOpcode(object_insn->opcode()));
                     object_insn = nullptr;
                     break;
