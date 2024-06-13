@@ -94,7 +94,7 @@ format::HandleId GetAtomWrappedId(const typename Wrapper::HandleType& handle)
     auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("openxr_wrappers::GetAtomWrappedId() couldn't find Handle: %" PRIu64
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetAtomWrappedId() couldn't find Atom: %" PRIu64
                              "'s wrapper. It might have been destroyed",
                              handle);
         return format::kNullHandleId;
@@ -129,7 +129,7 @@ Wrapper* GetAtomWrapper(const typename Wrapper::HandleType& handle)
     auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("openxr_wrappers::GetAtomWrapper() couldn't find Handle: %" PRIu64
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetAtomWrapper() couldn't find Atom: %" PRIu64
                              "'s wrapper. It might have been destroyed",
                              handle);
     }
@@ -416,9 +416,9 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
     assert(handle != nullptr);
     if ((*handle) != XR_NULL_HANDLE)
     {
-        Wrapper* wrapper      = new Wrapper;
-        wrapper->handle       = (*handle);
-        wrapper->handle_id    = get_id();
+        Wrapper* wrapper   = new Wrapper;
+        wrapper->handle    = (*handle);
+        wrapper->handle_id = get_id();
 
         if (!openxr_state_handle_table_.InsertWrapper(wrapper))
         {
@@ -1625,6 +1625,37 @@ inline void CreateWrappedHandle<PassthroughFBWrapper, NoParentWrapper, Passthrou
         wrapper                  = GetWrapper<PassthroughColorLutMETAWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
         parent_wrapper->child_passthroughcolorlutmetas.push_back(wrapper);
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper, typename Wrapper>
+void CreateWrappedHandles(typename ParentWrapper::HandleType   parent,
+                          typename CoParentWrapper::HandleType co_parent,
+                          typename Wrapper::HandleType*        handles,
+                          uint32_t                             count,
+                          PFN_GetHandleId                      get_id)
+{
+    if (handles != nullptr)
+    {
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            CreateWrappedHandle<ParentWrapper, CoParentWrapper, Wrapper>(parent, co_parent, &handles[i], get_id);
+        }
+    }
+}
+
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedAtoms(typename ParentWrapper::HandleType parent,
+                        typename Wrapper::HandleType*      handles,
+                        uint32_t                           count,
+                        PFN_GetHandleId                    get_id)
+{
+    if (handles != nullptr)
+    {
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            CreateWrappedAtom<ParentWrapper, Wrapper>(parent, &handles[i], get_id);
+        }
     }
 }
 
