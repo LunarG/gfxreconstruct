@@ -233,16 +233,24 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         if name == "xrCreateApiLayerInstance":
             capture_manager = 'OpenXrCaptureManager::Get()'
             body += indent + 'auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();\n'
-        else :
+        else:
             capture_manager = 'manager'
             body += indent + 'OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();\n'
             body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
             if not is_override:
                 # Declare for handles that need unwrapping.
-                unwrapped_arg_list, unwrap_list = self.make_handle_unwrapping(name, values)
+                unwrapped_arg_list, unwrap_list = self.make_handle_unwrapping(
+                    name, values
+                )
                 if unwrap_list:
                     body += indent + f'HandleUnwrapMemory* handle_unwrap_memory = nullptr;\n'
-                    body += '\n'.join([indent + '{type} {wrap_name} = nullptr;\n'.format(**unwrap) for unwrap in unwrap_list ])
+                    body += '\n'.join(
+                        [
+                            indent +
+                            '{type} {wrap_name} = nullptr;\n'.format(**unwrap)
+                            for unwrap in unwrap_list
+                        ]
+                    )
 
                 top_indent = indent + ' ' * self.INDENT_SIZE
                 body += indent + '{\n'
@@ -251,7 +259,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 body += top_indent + lock_call
 
         body += '\n'
-
 
         body += top_indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch({}, {});\n'.format(
             name, capture_manager, arg_list
@@ -262,7 +269,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             body += self.make_parameter_encoding(
                 name, values, return_type, top_indent, omit_output_param
             )
-
 
         if is_override:
             # Capture overrides simply call the override function without handle unwrap/wrap
@@ -285,8 +291,14 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         else:
             # Unwrap handles that need unwrapping
             if unwrap_list:
-                body += '\n' +top_indent + f'handle_unwrap_memory = {capture_manager}->GetHandleUnwrapMemory();\n'
-                body += '\n'.join([top_indent + '{wrap_name} = {call};\n'.format(**unwrap) for unwrap in unwrap_list ])
+                body += '\n' + top_indent + f'handle_unwrap_memory = {capture_manager}->GetHandleUnwrapMemory();\n'
+                body += '\n'.join(
+                    [
+                        top_indent
+                        + '{wrap_name} = {call};\n'.format(**unwrap)
+                        for unwrap in unwrap_list
+                    ]
+                )
 
             body += indent + '}\n\n'
 
@@ -558,11 +570,14 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         decl += ';\n'
         return decl
 
+    def need_wrapping(self, type):
+        return self.is_handle(type) or self.is_atom(type)
+
     def make_handle_wrapping(self, values, indent):
         expr = ''
         for value in values:
             if self.is_output_parameter(value) and (
-                self.is_handle(value.base_type) or (
+                self.need_wrapping(value.base_type) or (
                     self.is_struct(value.base_type) and
                     (value.base_type in self.structs_with_handles)
                 )
@@ -586,7 +601,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 # values will be provided to the wrapper creation function.
                 parent_type = parent_prefix + 'NoParentWrapper'
                 parent_value = parent_prefix + 'NoParentWrapper::kHandleValue'
-                if self.is_handle(values[0].base_type):
+                if self.need_wrapping(values[0].base_type):
                     parent_type = self.get_handle_wrapper(values[0].base_type)
                     parent_value = values[0].name
 
@@ -594,7 +609,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 # or command buffers and descriptor sets allocated from pools.
                 co_parent_type = co_parent_prefix + 'NoParentWrapper'
                 co_parent_value = co_parent_prefix + 'NoParentWrapper::kHandleValue'
-                if self.is_handle(
+                if self.need_wrapping(
                     values[1].base_type
                 ) and not self.is_output_parameter(values[1]):
                     co_parent_type = self.get_handle_wrapper(
@@ -624,6 +639,15 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                             handle_wrapper, parent_value, co_parent_value,
                             value.name, length_name
                         )
+                    elif self.is_atom(value.base_type):
+
+                        handle_wrapper = self.get_handle_wrapper(
+                            value.base_type
+                        )
+                        expr += indent + '{}CreateWrappedAtoms<{}, {}>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, handle_wrapper,
+                            parent_value, value.name, length_name
+                        )
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
@@ -633,6 +657,8 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                             value.name, length_name
                         )
                 else:
+                    is_handle = self.is_handle(value.base_type)
+                    is_atom = self.is_atom(value.base_type)
                     if self.is_handle(value.base_type):
                         handle_wrapper = self.get_handle_wrapper(
                             value.base_type
@@ -641,6 +667,14 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                             parent_prefix, parent_type, co_parent_type,
                             handle_wrapper, parent_value, co_parent_value,
                             value.name
+                        )
+                    elif self.is_atom(value.base_type):
+                        handle_wrapper = self.get_handle_wrapper(
+                            value.base_type
+                        )
+                        expr += indent + '{}CreateWrappedAtom<{}, {}>({}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, handle_wrapper,
+                            parent_value, value.name
                         )
                     elif self.is_struct(
                         value.base_type
@@ -665,12 +699,25 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         wrapper_prefix = self.get_wrapper_prefix_from_type(
                             value.base_type
                         ) + '::'
-                        unwrap = { 'type': value.full_type, 'name': value.name, 'wrap_name':arg_name, 'prefix': wrapper_prefix}
+                        unwrap = {
+                            'type': value.full_type,
+                            'name': value.name,
+                            'wrap_name': arg_name,
+                            'prefix': wrapper_prefix
+                        }
                         if value.is_array:
                             unwrap['length'] = value.array_length
-                            unwrap['call']= '{prefix}UnwrapStructArrayHandles({name}, {length}, handle_unwrap_memory)'.format(**unwrap)
+                            unwrap[
+                                'call'
+                            ] = '{prefix}UnwrapStructArrayHandles({name}, {length}, handle_unwrap_memory)'.format(
+                                **unwrap
+                            )
                         else:
-                            unwrap['call'] = '{prefix}UnwrapStructPtrHandles({name}, handle_unwrap_memory)'.format(**unwrap)
+                            unwrap[
+                                'call'
+                            ] = '{prefix}UnwrapStructPtrHandles({name}, handle_unwrap_memory)'.format(
+                                **unwrap
+                            )
                         unwraps.append(unwrap)
             args.append(arg_name)
         return ', '.join(args), unwraps

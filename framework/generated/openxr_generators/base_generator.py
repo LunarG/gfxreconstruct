@@ -320,6 +320,7 @@ class BaseGenerator(OutputGenerator):
         self.base_types = dict()  # Set of OpenXR basetypes
         self.struct_names = set()  # Set of OpenXR struct typenames
         self.handle_names = set()  # Set of OpenXR handle typenames
+        self.atom_names = set()  # Set of OpenXR atom typenames
         self.flags_types = dict(
         )  # Map of flags types to base flag type (VkFlags or VkFlags64)
         self.enum_names = set()  # Set of OpenXR enumeration typenames
@@ -376,15 +377,6 @@ class BaseGenerator(OutputGenerator):
         self.enum_names.add('VkSamplerMipmapMode')
         self.enum_names.add('VkSamplerAddressMode')
         self.enum_names.add('VkComponentSwizzle')
-
-        self.atom_names = [
-            'XrSystemId',
-            'XrPath',
-            'XrAsyncRequestIdFB',
-            'XrRenderModelKeyFB',
-            'XrMarkerML',
-            'XrControllerModelKeyMSFT',
-        ]
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate.
@@ -517,7 +509,11 @@ class BaseGenerator(OutputGenerator):
                 # Otherwise, look for base type inside type declaration
                 self.flags_types[name] = type_elem.find('type').text
         elif (category == "basetype") and type_elem.find('type') is not None:
-            self.base_types[name] = type_elem.find('type').text
+            type_info = type_elem.find('type').text
+            if type_info == 'XR_DEFINE_ATOM':
+                self.atom_names.add(name)
+            else:
+                self.base_types[name] = type_elem.find('type').text
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override.
@@ -716,6 +712,28 @@ class BaseGenerator(OutputGenerator):
         if base_type in self.atom_names:
             return True
         return False
+
+    def get_default_handle_atom_value(self, base_type):
+        if self.is_handle(base_type):
+            if base_type.startswith('Vk'):
+                return 'VK_NULL_HANDLE'
+            elif base_type.startswith('Xr'):
+                return 'XR_NULL_HANDLE'
+            else:
+                return 'UNKNOWN_NULL_HANDLE'
+        elif self.is_atom(base_type):
+            # If the value was not specified by the XML element, process the struct type to create it.
+            type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', base_type)
+            type = type.upper()
+            default_type = re.sub('XR_', 'XR_NULL_', type)
+
+            # Special case remove any of the NULL atom types not defined
+            no_null_defined = [
+                'XR_NULL_ASYNC_REQUEST_ID_FB', 'XR_NULL_MARKER_ML'
+            ]
+            if default_type in no_null_defined:
+                default_type = '0'
+            return default_type
 
     def has_basetype(self, base_type):
         if base_type in self.base_types and self.base_types[base_type
@@ -928,11 +946,24 @@ class BaseGenerator(OutputGenerator):
                         ]
                         if member_infos:
                             for member_info in member_infos:
-                                found = self.registry.tree.find(
+                                # Check to see if this is a handle
+                                found_handle = self.registry.tree.find(
                                     "types/type/[name='" + member_info.text
                                     + "'][@category='handle']"
                                 )
-                                if found:
+
+                                # Also check to see if this is an atom
+                                base_type = self.registry.tree.find(
+                                    "types/type/[name='" + member_info.text
+                                    + "'][@category='basetype']"
+                                )
+                                found_atom = False
+                                if base_type is not None:
+                                    base_type_type = base_type.find('type')
+                                    if base_type_type is not None and base_type_type.text is not None and base_type_type.text == 'XR_DEFINE_ATOM':
+                                        found_atom = True
+
+                                if found_handle or found_atom:
                                     has_handles = True
                                     self.extension_structs_with_handles[
                                         struct_name] = True
@@ -1209,7 +1240,7 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
                     type_name = 'uint64_t'
-            elif self.is_handle(type_name):
+            elif self.is_handle(type_name) or self.is_atom(type_name):
                 type_name = 'HandlePointerDecoder<{}>'.format(type_name)
             else:
                 if count > 1:
