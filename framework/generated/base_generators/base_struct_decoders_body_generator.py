@@ -139,7 +139,7 @@ class BaseStructDecodersBodyGenerator():
                         arraylen=value.array_capacity
                     )
 
-                if is_struct or is_string or is_handle or (
+                if is_struct or is_string or is_handle or is_atom or (
                     is_class and value.pointer_count > 1
                 ):
                     body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
@@ -160,7 +160,7 @@ class BaseStructDecodersBodyGenerator():
                     )
 
                 if not is_static_array:
-                    if is_handle or is_class:
+                    if is_handle or is_atom or is_class:
                         # Point the real struct's member pointer to the handle pointer decoder's handle memory.
                         body += '    value->{} = nullptr;\n'.format(value.name)
                     else:
@@ -198,11 +198,12 @@ class BaseStructDecodersBodyGenerator():
                     buffer_args, value.name
                 )
                 body += '    value->{} = nullptr;\n'.format(value.name)
-            elif is_handle:
+            elif is_handle or is_atom:
                 body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name
                 )
-                body += '    value->{} = VK_NULL_HANDLE;\n'.format(value.name)
+                default_type = self.get_default_handle_atom_value(value.base_type)
+                body += '    value->{} = {};\n'.format(value.name, default_type)
             elif self.is_generic_struct_handle_value(name, value.name):
                 body += '    bytes_read += ValueDecoder::DecodeUInt64Value({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name

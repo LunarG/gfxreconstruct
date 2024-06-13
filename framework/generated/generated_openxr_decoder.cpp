@@ -159,12 +159,12 @@ size_t OpenXrDecoder::Decode_xrGetSystem(const ApiCallInfo& call_info, const uin
 
     format::HandleId instance;
     StructPointerDecoder<Decoded_XrSystemGetInfo> getInfo;
-    PointerDecoder<XrSystemId> systemId;
+    HandlePointerDecoder<XrSystemId> systemId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += getInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += systemId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += systemId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -185,7 +185,7 @@ size_t OpenXrDecoder::Decode_xrGetSystemProperties(const ApiCallInfo& call_info,
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += properties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -210,7 +210,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateEnvironmentBlendModes(const ApiCallInfo&
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewConfigurationType);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &environmentBlendModeCapacityInput);
     bytes_read += environmentBlendModeCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -409,7 +409,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateViewConfigurations(const ApiCallInfo& ca
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewConfigurationTypeCapacityInput);
     bytes_read += viewConfigurationTypeCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += viewConfigurationTypes.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -434,7 +434,7 @@ size_t OpenXrDecoder::Decode_xrGetViewConfigurationProperties(const ApiCallInfo&
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewConfigurationType);
     bytes_read += configurationProperties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -460,7 +460,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateViewConfigurationViews(const ApiCallInfo
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewConfigurationType);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewCapacityInput);
     bytes_read += viewCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -753,12 +753,12 @@ size_t OpenXrDecoder::Decode_xrStringToPath(const ApiCallInfo& call_info, const 
 
     format::HandleId instance;
     StringDecoder pathString;
-    PointerDecoder<XrPath> path;
+    HandlePointerDecoder<XrPath> path;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += pathString.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += path.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += path.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -781,7 +781,7 @@ size_t OpenXrDecoder::Decode_xrPathToString(const ApiCallInfo& call_info, const 
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &path);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &path);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferCapacityInput);
     bytes_read += bufferCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += buffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -925,7 +925,7 @@ size_t OpenXrDecoder::Decode_xrGetCurrentInteractionProfile(const ApiCallInfo& c
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelUserPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelUserPath);
     bytes_read += interactionProfile.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1053,14 +1053,14 @@ size_t OpenXrDecoder::Decode_xrEnumerateBoundSourcesForAction(const ApiCallInfo&
     StructPointerDecoder<Decoded_XrBoundSourcesForActionEnumerateInfo> enumerateInfo;
     uint32_t sourceCapacityInput;
     PointerDecoder<uint32_t> sourceCountOutput;
-    PointerDecoder<XrPath> sources;
+    HandlePointerDecoder<XrPath> sources;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += enumerateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &sourceCapacityInput);
     bytes_read += sourceCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += sources.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += sources.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -1217,7 +1217,7 @@ size_t OpenXrDecoder::Decode_xrGetOpenGLGraphicsRequirementsKHR(const ApiCallInf
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += graphicsRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1239,7 +1239,7 @@ size_t OpenXrDecoder::Decode_xrGetOpenGLESGraphicsRequirementsKHR(const ApiCallI
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += graphicsRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1263,7 +1263,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanInstanceExtensionsKHR(const ApiCallInfo&
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferCapacityInput);
     bytes_read += bufferCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += buffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -1289,7 +1289,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanDeviceExtensionsKHR(const ApiCallInfo& c
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferCapacityInput);
     bytes_read += bufferCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += buffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -1314,7 +1314,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo& cal
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &vkInstance);
     bytes_read += vkPhysicalDevice.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -1337,7 +1337,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsRequirementsKHR(const ApiCallInf
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += graphicsRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1359,7 +1359,7 @@ size_t OpenXrDecoder::Decode_xrGetD3D11GraphicsRequirementsKHR(const ApiCallInfo
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += graphicsRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1381,7 +1381,7 @@ size_t OpenXrDecoder::Decode_xrGetD3D12GraphicsRequirementsKHR(const ApiCallInfo
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += graphicsRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1588,7 +1588,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsRequirements2KHR(const ApiCallIn
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += graphicsRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1863,8 +1863,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceActiveEXT(const ApiCallInfo& call_i
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &interactionProfile);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &interactionProfile);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &isActive);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1887,8 +1887,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceStateBoolEXT(const ApiCallInfo& cal
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &state);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1911,8 +1911,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceStateFloatEXT(const ApiCallInfo& ca
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
     bytes_read += ValueDecoder::DecodeFloatValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &state);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1937,8 +1937,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceStateVector2fEXT(const ApiCallInfo&
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &state);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1964,8 +1964,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceLocationEXT(const ApiCallInfo& call
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &inputSourcePath);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &space);
     bytes_read += DecodeStruct((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pose);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
@@ -2178,7 +2178,7 @@ size_t OpenXrDecoder::Decode_xrGetControllerModelKeyMSFT(const ApiCallInfo& call
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelUserPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &topLevelUserPath);
     bytes_read += controllerModelKeyState.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -2202,7 +2202,7 @@ size_t OpenXrDecoder::Decode_xrLoadControllerModelMSFT(const ApiCallInfo& call_i
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &modelKey);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &modelKey);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferCapacityInput);
     bytes_read += bufferCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += buffer.DecodeUInt8((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -2226,7 +2226,7 @@ size_t OpenXrDecoder::Decode_xrGetControllerModelPropertiesMSFT(const ApiCallInf
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &modelKey);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &modelKey);
     bytes_read += properties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -2248,7 +2248,7 @@ size_t OpenXrDecoder::Decode_xrGetControllerModelStateMSFT(const ApiCallInfo& ca
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &modelKey);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &modelKey);
     bytes_read += state.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -2317,7 +2317,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateReprojectionModesMSFT(const ApiCallInfo&
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &viewConfigurationType);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &modeCapacityInput);
     bytes_read += modeCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -2466,7 +2466,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateSceneComputeFeaturesMSFT(const ApiCallIn
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &featureCapacityInput);
     bytes_read += featureCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += features.DecodeEnum((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -2930,12 +2930,12 @@ size_t OpenXrDecoder::Decode_xrCreateSpatialAnchorFB(const ApiCallInfo& call_inf
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrSpatialAnchorCreateInfoFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -2996,12 +2996,12 @@ size_t OpenXrDecoder::Decode_xrSetSpaceComponentStatusFB(const ApiCallInfo& call
 
     format::HandleId space;
     StructPointerDecoder<Decoded_XrSpaceComponentStatusSetInfoFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &space);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -3462,7 +3462,7 @@ size_t OpenXrDecoder::Decode_xrGetRenderModelPropertiesFB(const ApiCallInfo& cal
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &path);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &path);
     bytes_read += properties.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3753,13 +3753,13 @@ size_t OpenXrDecoder::Decode_xrGetMarkersML(const ApiCallInfo& call_info, const 
     format::HandleId markerDetector;
     uint32_t markerCapacityInput;
     PointerDecoder<uint32_t> markerCountOutput;
-    PointerDecoder<XrMarkerML> markers;
+    HandlePointerDecoder<XrMarkerML> markers;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &markerDetector);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &markerCapacityInput);
     bytes_read += markerCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += markers.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += markers.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -3780,7 +3780,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerReprojectionErrorML(const ApiCallInfo& c
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &markerDetector);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
     bytes_read += reprojectionErrorMeters.DecodeFloat((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3802,7 +3802,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerLengthML(const ApiCallInfo& call_info, c
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &markerDetector);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
     bytes_read += meters.DecodeFloat((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3824,7 +3824,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerNumberML(const ApiCallInfo& call_info, c
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &markerDetector);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
     bytes_read += number.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -3848,7 +3848,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerStringML(const ApiCallInfo& call_info, c
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &markerDetector);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &marker);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &bufferCapacityInput);
     bytes_read += bufferCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += buffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
@@ -4236,12 +4236,12 @@ size_t OpenXrDecoder::Decode_xrQuerySpacesFB(const ApiCallInfo& call_info, const
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -4262,7 +4262,7 @@ size_t OpenXrDecoder::Decode_xrRetrieveSpaceQueryResultsFB(const ApiCallInfo& ca
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &requestId);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &requestId);
     bytes_read += results.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -4280,12 +4280,12 @@ size_t OpenXrDecoder::Decode_xrSaveSpaceFB(const ApiCallInfo& call_info, const u
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrSpaceSaveInfoFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -4302,12 +4302,12 @@ size_t OpenXrDecoder::Decode_xrEraseSpaceFB(const ApiCallInfo& call_info, const 
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrSpaceEraseInfoFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -4364,12 +4364,12 @@ size_t OpenXrDecoder::Decode_xrShareSpacesFB(const ApiCallInfo& call_info, const
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrSpaceShareInfoFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -4516,12 +4516,12 @@ size_t OpenXrDecoder::Decode_xrRequestSceneCaptureFB(const ApiCallInfo& call_inf
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrSceneCaptureRequestInfoFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -5023,13 +5023,13 @@ size_t OpenXrDecoder::Decode_xrEnumeratePerformanceMetricsCounterPathsMETA(const
     format::HandleId instance;
     uint32_t counterPathCapacityInput;
     PointerDecoder<uint32_t> counterPathCountOutput;
-    PointerDecoder<XrPath> counterPaths;
+    HandlePointerDecoder<XrPath> counterPaths;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &counterPathCapacityInput);
     bytes_read += counterPathCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += counterPaths.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += counterPaths.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -5090,7 +5090,7 @@ size_t OpenXrDecoder::Decode_xrQueryPerformanceMetricsCounterMETA(const ApiCallI
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += ValueDecoder::DecodeUInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &counterPath);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &counterPath);
     bytes_read += counter.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -5108,12 +5108,12 @@ size_t OpenXrDecoder::Decode_xrSaveSpaceListFB(const ApiCallInfo& call_info, con
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrSpaceListSaveInfoFB> info;
-    PointerDecoder<XrAsyncRequestIdFB> requestId;
+    HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += requestId.DecodeUInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
