@@ -252,7 +252,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSystem(
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetSystem(instance, getInfo, systemId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::InstanceWrapper, openxr_wrappers::SystemIdWrapper>(instance, systemId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -1267,7 +1272,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrStringToPath(
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->StringToPath(instance, pathString, path);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::InstanceWrapper, openxr_wrappers::PathWrapper>(instance, path, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -1817,7 +1827,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateBoundSourcesForAction(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateBoundSourcesForAction(session, enumerateInfo_unwrapped, sourceCapacityInput, sourceCountOutput, sources);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtoms<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, sources, sourceCapacityInput, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -2243,7 +2258,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(
 
     if (result >= 0)
     {
-        openxr_wrappers::CreateWrappedHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::NoParentWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(instance, openxr_wrappers::NoParentWrapper::kHandleValue, vkPhysicalDevice, OpenXrCaptureManager::GetUniqueId);
+        openxr_wrappers::CreateWrappedHandle<openxr_wrappers::InstanceWrapper, openxr_wrappers::SystemIdWrapper, vulkan_wrappers::PhysicalDeviceWrapper>(instance, systemId, vkPhysicalDevice, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -5049,7 +5064,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateSpatialAnchorFB(session, info_unwrapped, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -5163,7 +5183,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetSpaceComponentStatusFB(
     XrResult result = openxr_wrappers::GetInstanceTable(space)->SetSpaceComponentStatusFB(space, info, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SpaceWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(space, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -6473,7 +6498,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetMarkersML(
     XrResult result = openxr_wrappers::GetInstanceTable(markerDetector)->GetMarkersML(markerDetector, markerCapacityInput, markerCountOutput, markers);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtoms<openxr_wrappers::MarkerDetectorMLWrapper, openxr_wrappers::MarkerMLWrapper>(markerDetector, markers, markerCapacityInput, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -7307,7 +7337,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrQuerySpacesFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->QuerySpacesFB(session, info, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -7348,7 +7383,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRetrieveSpaceQueryResultsFB(
 
     if (result >= 0)
     {
-        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, results, OpenXrCaptureManager::GetUniqueId);
+        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, results, OpenXrCaptureManager::GetUniqueId);
     }
     else
     {
@@ -7393,7 +7428,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SaveSpaceFB(session, info_unwrapped, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -7436,7 +7476,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEraseSpaceFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EraseSpaceFB(session, info_unwrapped, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -7551,7 +7596,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrShareSpacesFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->ShareSpacesFB(session, info_unwrapped, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -7809,7 +7859,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestSceneCaptureFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->RequestSceneCaptureFB(session, info, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -8712,7 +8767,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePerformanceMetricsCounterPathsMETA(
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumeratePerformanceMetricsCounterPathsMETA(instance, counterPathCapacityInput, counterPathCountOutput, counterPaths);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtoms<openxr_wrappers::InstanceWrapper, openxr_wrappers::PathWrapper>(instance, counterPaths, counterPathCapacityInput, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -8860,7 +8920,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceListFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->SaveSpaceListFB(session, info_unwrapped, requestId);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedAtom<openxr_wrappers::SessionWrapper, openxr_wrappers::AsyncRequestIdFBWrapper>(session, requestId, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }

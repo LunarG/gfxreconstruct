@@ -307,19 +307,34 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
                     member_wrapper_type = self.get_handle_wrapper(
                         member.base_type
                     )
-                    if member.is_array:
-                        body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
-                            member_wrapper_type, member.name,
-                            member.array_length
-                        )
-                    elif member.is_pointer:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, get_id);\n'.format(
-                            member_wrapper_type, member.name
-                        )
-                    else:
-                        body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, &value->{}, get_id);\n'.format(
-                            member_wrapper_type, member.name
-                        )
+                    if self.is_handle(member.base_type):
+                        if member.is_array:
+                            body += '        CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                                member_wrapper_type, member.name,
+                                member.array_length
+                            )
+                        elif member.is_pointer:
+                            body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, get_id);\n'.format(
+                                member_wrapper_type, member.name
+                            )
+                        else:
+                            body += '        CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, &value->{}, get_id);\n'.format(
+                                member_wrapper_type, member.name
+                            )
+                    elif self.is_atom(member.base_type):
+                        if member.is_array:
+                            body += '        CreateWrappedAtoms<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
+                                member_wrapper_type, member.name,
+                                member.array_length
+                            )
+                        elif member.is_pointer:
+                            body += '        CreateWrappedAtom<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, value->{}, get_id);\n'.format(
+                                member_wrapper_type, member.name
+                            )
+                        else:
+                            body += '        CreateWrappedAtom<ParentWrapper, CoParentWrapper, {}>(parent, co_parent, &value->{}, get_id);\n'.format(
+                                member_wrapper_type, member.name
+                            )
 
             body += '    }\n'
             body += '}\n'
