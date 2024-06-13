@@ -193,10 +193,16 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
     std::vector<Instruction> instructions;
 
     // First build up instructions object to make it easier to work with the SPIR-V
-    while (spirv_ptr != spirv_end)
+    while (spirv_ptr < spirv_end)
     {
         Instruction& insn = instructions.emplace_back(spirv_ptr);
         spirv_ptr += insn.length();
+        GFXRECON_ASSERT(insn.length() > 0);
+    }
+    if (spirv_ptr != spirv_end)
+    {
+        GFXRECON_LOG_WARNING("error during SpirV-parsing, mismatching instruction-lengths");
+        return false;
     }
     instructions.shrink_to_fit();
 

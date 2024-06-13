@@ -44,6 +44,7 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
+#include "util/spirv_parsing_util.h"
 
 #include "spirv_reflect.h"
 
@@ -5418,6 +5419,23 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
 
     assert((device_info != nullptr) && (pCreateInfo != nullptr) && !pCreateInfo->IsNull() &&
            (pShaderModule != nullptr) && !pShaderModule->IsNull());
+
+    {
+        // check for buffer-references, issue warning
+        gfxrecon::util::SpirVParsingUtil spirv_util;
+
+        if (spirv_util.ParseBufferReferences(pCreateInfo->GetPointer()->pCode, pCreateInfo->GetPointer()->codeSize))
+        {
+            auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
+
+            if (!buffer_reference_infos.empty())
+            {
+                GFXRECON_LOG_WARNING_ONCE("Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
+                                          "Resource tracking for buffers accessed via references is currently "
+                                          "unsupported, so replay may fail.");
+            }
+        }
+    }
 
     auto original_info = pCreateInfo->GetPointer();
     if (original_result < 0 || options_.replace_dir.empty())
