@@ -403,7 +403,7 @@ struct Decoded_XrActionCreateInfo
 
     OpenXrNextNode* next{ nullptr };
     StringDecoder actionName;
-    PointerDecoder<XrPath> subactionPaths;
+    HandlePointerDecoder<XrPath> subactionPaths;
     StringDecoder localizedActionName;
 };
 

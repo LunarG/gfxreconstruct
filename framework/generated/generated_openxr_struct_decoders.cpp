@@ -207,7 +207,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSystemP
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->systemId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->systemId));
+    value->systemId = XR_NULL_SYSTEM_ID;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->vendorId));
     wrapper->systemName.SetExternalMemory(value->systemName, XR_MAX_SYSTEM_NAME_SIZE);
     bytes_read += wrapper->systemName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
@@ -232,7 +233,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSession
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->createFlags));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->systemId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->systemId));
+    value->systemId = XR_NULL_SYSTEM_ID;
 
     return bytes_read;
 }
@@ -346,8 +348,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrActionS
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->action));
-    value->action = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subactionPath));
+    value->action = XR_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->subactionPath));
+    value->subactionPath = XR_NULL_PATH;
     wrapper->poseInActionSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInActionSpace->decoded_value = &(value->poseInActionSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInActionSpace);
@@ -561,7 +564,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -579,7 +582,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrViewLoc
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewConfigurationType));
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->displayTime));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -667,8 +670,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrActionC
     bytes_read += wrapper->actionName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->actionType));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->countSubactionPaths));
-    bytes_read += wrapper->subactionPaths.DecodeUInt64((buffer + bytes_read), (buffer_size - bytes_read));
-    value->subactionPaths = wrapper->subactionPaths.GetPointer();
+    bytes_read += wrapper->subactionPaths.Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->subactionPaths = nullptr;
     wrapper->localizedActionName.SetExternalMemory(value->localizedActionName, XR_MAX_LOCALIZED_ACTION_NAME_SIZE);
     bytes_read += wrapper->localizedActionName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
 
@@ -683,8 +686,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrActionS
     XrActionSuggestedBinding* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->action));
-    value->action = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->binding));
+    value->action = XR_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->binding));
+    value->binding = XR_NULL_PATH;
 
     return bytes_read;
 }
@@ -699,7 +703,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->interactionProfile));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->interactionProfile));
+    value->interactionProfile = XR_NULL_PATH;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->countSuggestedBindings));
     wrapper->suggestedBindings = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrActionSuggestedBinding>>();
     bytes_read += wrapper->suggestedBindings->Decode((buffer + bytes_read), (buffer_size - bytes_read));
@@ -735,7 +740,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->interactionProfile));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->interactionProfile));
+    value->interactionProfile = XR_NULL_PATH;
 
     return bytes_read;
 }
@@ -751,8 +757,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrActionS
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->action));
-    value->action = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subactionPath));
+    value->action = XR_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->subactionPath));
+    value->subactionPath = XR_NULL_PATH;
 
     return bytes_read;
 }
@@ -849,8 +856,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrActiveA
     XrActiveActionSet* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->actionSet));
-    value->actionSet = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subactionPath));
+    value->actionSet = XR_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->subactionPath));
+    value->subactionPath = XR_NULL_PATH;
 
     return bytes_read;
 }
@@ -884,7 +892,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrBoundSo
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->action));
-    value->action = VK_NULL_HANDLE;
+    value->action = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -899,7 +907,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInputSo
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sourcePath));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sourcePath));
+    value->sourcePath = XR_NULL_PATH;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->whichComponents));
 
     return bytes_read;
@@ -916,8 +925,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrHapticA
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->action));
-    value->action = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->subactionPath));
+    value->action = XR_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->subactionPath));
+    value->subactionPath = XR_NULL_PATH;
 
     return bytes_read;
 }
@@ -987,7 +997,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSwapcha
     XrSwapchainSubImage* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->swapchain));
-    value->swapchain = VK_NULL_HANDLE;
+    value->swapchain = XR_NULL_HANDLE;
     wrapper->imageRect = DecodeAllocator::Allocate<Decoded_XrRect2Di>();
     wrapper->imageRect->decoded_value = &(value->imageRect);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->imageRect);
@@ -1031,7 +1041,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewCount));
     wrapper->views = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerProjectionView>>();
     bytes_read += wrapper->views->Decode((buffer + bytes_read), (buffer_size - bytes_read));
@@ -1052,7 +1062,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->eyeVisibility));
     wrapper->subImage = DecodeAllocator::Allocate<Decoded_XrSwapchainSubImage>();
     wrapper->subImage->decoded_value = &(value->subImage);
@@ -1122,7 +1132,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->session));
-    value->session = VK_NULL_HANDLE;
+    value->session = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->state));
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
 
@@ -1140,7 +1150,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->session));
-    value->session = VK_NULL_HANDLE;
+    value->session = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->referenceSpaceType));
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->changeTime));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->poseValid));
@@ -1162,7 +1172,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->session));
-    value->session = VK_NULL_HANDLE;
+    value->session = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -1320,10 +1330,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->eyeVisibility));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->swapchain));
-    value->swapchain = VK_NULL_HANDLE;
+    value->swapchain = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->imageArrayIndex));
     wrapper->orientation = DecodeAllocator::Allocate<Decoded_XrQuaternionf>();
     wrapper->orientation->decoded_value = &(value->orientation);
@@ -1400,7 +1410,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->eyeVisibility));
     wrapper->subImage = DecodeAllocator::Allocate<Decoded_XrSwapchainSubImage>();
     wrapper->subImage->decoded_value = &(value->subImage);
@@ -1427,7 +1437,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->eyeVisibility));
     wrapper->subImage = DecodeAllocator::Allocate<Decoded_XrSwapchainSubImage>();
     wrapper->subImage->decoded_value = &(value->subImage);
@@ -1791,7 +1801,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->session));
-    value->session = VK_NULL_HANDLE;
+    value->session = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewConfigurationType));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewIndex));
 
@@ -1860,7 +1870,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanG
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->systemId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->systemId));
+    value->systemId = XR_NULL_SYSTEM_ID;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->vulkanInstance));
     value->vulkanInstance = VK_NULL_HANDLE;
 
@@ -1879,7 +1890,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->eyeVisibility));
     wrapper->subImage = DecodeAllocator::Allocate<Decoded_XrSwapchainSubImage>();
     wrapper->subImage->decoded_value = &(value->subImage);
@@ -2082,7 +2093,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpatial
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->pose = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->pose->decoded_value = &(value->pose);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->pose);
@@ -2102,7 +2113,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpatial
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->anchor));
-    value->anchor = VK_NULL_HANDLE;
+    value->anchor = XR_NULL_HANDLE;
     wrapper->poseInAnchorSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInAnchorSpace->decoded_value = &(value->poseInAnchorSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInAnchorSpace);
@@ -2214,7 +2225,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpatial
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->poseInSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInSpace->decoded_value = &(value->poseInSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInSpace);
@@ -2298,7 +2309,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrHandJoi
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
 
     return bytes_read;
@@ -2608,7 +2619,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrControl
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->modelKey));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->modelKey));
+    value->modelKey = XR_NULL_CONTROLLER_MODEL_KEY_MSFT;
 
     return bytes_read;
 }
@@ -2896,7 +2908,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrBodyJoi
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
 
     return bytes_read;
@@ -2934,9 +2946,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->binding));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->binding));
+    value->binding = XR_NULL_PATH;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->actionSet));
-    value->actionSet = VK_NULL_HANDLE;
+    value->actionSet = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->forceThreshold));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->forceThresholdReleased));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->centerRegion));
@@ -2963,8 +2976,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrInterac
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->action));
-    value->action = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->binding));
+    value->action = XR_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->binding));
+    value->binding = XR_NULL_PATH;
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->onThreshold));
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->offThreshold));
     wrapper->onHaptic = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrHapticBaseHeader>>();
@@ -3091,7 +3105,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSceneBo
     XrSceneBoundsMSFT* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->sphereCount));
     wrapper->spheres = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSceneSphereBoundMSFT>>();
@@ -3242,7 +3256,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSceneCo
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->componentIdCount));
     wrapper->componentIds = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrUuidMSFT>>();
@@ -3558,8 +3572,10 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrViveTra
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->persistentPath));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->rolePath));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->persistentPath));
+    value->persistentPath = XR_NULL_PATH;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->rolePath));
+    value->rolePath = XR_NULL_PATH;
 
     return bytes_read;
 }
@@ -3804,7 +3820,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpatial
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->poseInSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInSpace->decoded_value = &(value->poseInSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInSpace);
@@ -3869,10 +3885,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->uuid = DecodeAllocator::Allocate<Decoded_XrUuidEXT>();
     wrapper->uuid->decoded_value = &(value->uuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->uuid);
@@ -3890,10 +3907,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->uuid = DecodeAllocator::Allocate<Decoded_XrUuidEXT>();
     wrapper->uuid->decoded_value = &(value->uuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->uuid);
@@ -3944,7 +3962,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSwapcha
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->profile));
-    value->profile = VK_NULL_HANDLE;
+    value->profile = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -4108,7 +4126,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrPassthr
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->passthrough));
-    value->passthrough = VK_NULL_HANDLE;
+    value->passthrough = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->purpose));
 
@@ -4127,9 +4145,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->layerHandle));
-    value->layerHandle = VK_NULL_HANDLE;
+    value->layerHandle = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -4145,11 +4163,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrGeometr
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->layer));
-    value->layer = VK_NULL_HANDLE;
+    value->layer = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->mesh));
-    value->mesh = VK_NULL_HANDLE;
+    value->mesh = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     wrapper->pose = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->pose->decoded_value = &(value->pose);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->pose);
@@ -4171,7 +4189,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrGeometr
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
     wrapper->pose = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->pose->decoded_value = &(value->pose);
@@ -4276,7 +4294,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrRenderM
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->path));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->path));
+    value->path = XR_NULL_PATH;
 
     return bytes_read;
 }
@@ -4294,7 +4313,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrRenderM
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->vendorId));
     wrapper->modelName.SetExternalMemory(value->modelName, XR_MAX_RENDER_MODEL_NAME_SIZE_FB);
     bytes_read += wrapper->modelName.Decode((buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->modelKey));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->modelKey));
+    value->modelKey = XR_NULL_RENDER_MODEL_KEY_FB;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->modelVersion));
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->flags));
 
@@ -4329,7 +4349,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrRenderM
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->modelKey));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->modelKey));
+    value->modelKey = XR_NULL_RENDER_MODEL_KEY_FB;
 
     return bytes_read;
 }
@@ -4662,8 +4683,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrMarkerS
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->markerDetector));
-    value->markerDetector = VK_NULL_HANDLE;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->marker));
+    value->markerDetector = XR_NULL_HANDLE;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->marker));
+    value->marker = 0;
     wrapper->poseInMarkerSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInMarkerSpace->decoded_value = &(value->poseInMarkerSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInMarkerSpace);
@@ -4702,7 +4724,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->session));
-    value->session = VK_NULL_HANDLE;
+    value->session = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->state));
     wrapper->map = DecodeAllocator::Allocate<Decoded_XrLocalizationMapML>();
     wrapper->map->decoded_value = &(value->map);
@@ -4803,7 +4825,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpatial
     wrapper->spatialAnchorPersistenceName->decoded_value = &(value->spatialAnchorPersistenceName);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->spatialAnchorPersistenceName);
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->spatialAnchor));
-    value->spatialAnchor = VK_NULL_HANDLE;
+    value->spatialAnchor = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -4819,7 +4841,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpatial
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->spatialAnchorStore));
-    value->spatialAnchorStore = VK_NULL_HANDLE;
+    value->spatialAnchorStore = XR_NULL_HANDLE;
     wrapper->spatialAnchorPersistenceName = DecodeAllocator::Allocate<Decoded_XrSpatialAnchorPersistenceNameMSFT>();
     wrapper->spatialAnchorPersistenceName->decoded_value = &(value->spatialAnchorPersistenceName);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->spatialAnchorPersistenceName);
@@ -5019,7 +5041,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpaceQu
     XrSpaceQueryResultFB* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->uuid = DecodeAllocator::Allocate<Decoded_XrUuidEXT>();
     wrapper->uuid->decoded_value = &(value->uuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->uuid);
@@ -5056,7 +5078,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
 
     return bytes_read;
 }
@@ -5071,7 +5094,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
 
     return bytes_read;
@@ -5088,7 +5112,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpaceSa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->location));
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->persistenceMode));
 
@@ -5106,7 +5130,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpaceEr
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->location));
 
     return bytes_read;
@@ -5122,10 +5146,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->uuid = DecodeAllocator::Allocate<Decoded_XrUuidEXT>();
     wrapper->uuid->decoded_value = &(value->uuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->uuid);
@@ -5144,10 +5169,11 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->uuid = DecodeAllocator::Allocate<Decoded_XrUuidEXT>();
     wrapper->uuid->decoded_value = &(value->uuid);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->uuid);
@@ -5273,7 +5299,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
 
     return bytes_read;
@@ -5490,7 +5517,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
 
     return bytes_read;
@@ -5703,7 +5731,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEyeGaze
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
 
     return bytes_read;
@@ -5896,7 +5924,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVirtual
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->locationType));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->poseInSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInSpace->decoded_value = &(value->poseInSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInSpace);
@@ -5916,7 +5944,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVirtual
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->locationType));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->poseInSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInSpace->decoded_value = &(value->poseInSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInSpace);
@@ -6007,7 +6035,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVirtual
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->inputSource));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->inputSpace));
-    value->inputSpace = VK_NULL_HANDLE;
+    value->inputSpace = XR_NULL_HANDLE;
     wrapper->inputPoseInSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->inputPoseInSpace->decoded_value = &(value->inputPoseInSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->inputPoseInSpace);
@@ -6043,7 +6071,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->keyboard));
-    value->keyboard = VK_NULL_HANDLE;
+    value->keyboard = XR_NULL_HANDLE;
     wrapper->text.SetExternalMemory(value->text, XR_MAX_VIRTUAL_KEYBOARD_COMMIT_TEXT_SIZE_META);
     bytes_read += wrapper->text.Decode((buffer + bytes_read), (buffer_size - bytes_read));
 
@@ -6061,7 +6089,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->keyboard));
-    value->keyboard = VK_NULL_HANDLE;
+    value->keyboard = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -6077,7 +6105,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->keyboard));
-    value->keyboard = VK_NULL_HANDLE;
+    value->keyboard = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -6093,7 +6121,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->keyboard));
-    value->keyboard = VK_NULL_HANDLE;
+    value->keyboard = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -6109,7 +6137,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->keyboard));
-    value->keyboard = VK_NULL_HANDLE;
+    value->keyboard = XR_NULL_HANDLE;
 
     return bytes_read;
 }
@@ -6250,7 +6278,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
-    bytes_read += ValueDecoder::DecodeUInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->requestId));
+    bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->requestId));
+    value->requestId = 0;
     bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->result));
 
     return bytes_read;
@@ -6385,7 +6414,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrPassthr
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->colorLut));
-    value->colorLut = VK_NULL_HANDLE;
+    value->colorLut = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->weight));
 
     return bytes_read;
@@ -6402,9 +6431,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrPassthr
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->sourceColorLut));
-    value->sourceColorLut = VK_NULL_HANDLE;
+    value->sourceColorLut = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->targetColorLut));
-    value->targetColorLut = VK_NULL_HANDLE;
+    value->targetColorLut = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeFloatValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->weight));
 
     return bytes_read;
@@ -6583,7 +6612,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrPassthr
     bytes_read += wrapper->indices.DecodeUInt32((buffer + bytes_read), (buffer_size - bytes_read));
     value->indices = wrapper->indices.GetPointer();
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
     wrapper->pose = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->pose->decoded_value = &(value->pose);
@@ -6607,9 +6636,9 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerFlags));
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->passthrough));
-    value->passthrough = VK_NULL_HANDLE;
+    value->passthrough = XR_NULL_HANDLE;
     wrapper->color = DecodeAllocator::Allocate<Decoded_XrPassthroughColorHTC>();
     wrapper->color->decoded_value = &(value->color);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->color);
@@ -6724,7 +6753,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpatial
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->space));
-    value->space = VK_NULL_HANDLE;
+    value->space = XR_NULL_HANDLE;
     wrapper->poseInSpace = DecodeAllocator::Allocate<Decoded_XrPosef>();
     wrapper->poseInSpace->decoded_value = &(value->poseInSpace);
     bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->poseInSpace);
@@ -6743,7 +6772,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrActiveA
     XrActiveActionSetPriorityEXT* value = wrapper->decoded_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->actionSet));
-    value->actionSet = VK_NULL_HANDLE;
+    value->actionSet = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->priorityOverride));
 
     return bytes_read;
@@ -6901,7 +6930,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrPlaneDe
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->orientationCount));
     bytes_read += wrapper->orientations.DecodeEnum((buffer + bytes_read), (buffer_size - bytes_read));
@@ -6932,7 +6961,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrPlaneDe
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->baseSpace));
-    value->baseSpace = VK_NULL_HANDLE;
+    value->baseSpace = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->time));
 
     return bytes_read;
@@ -7012,7 +7041,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDa
     bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
     value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
     bytes_read += ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->session));
-    value->session = VK_NULL_HANDLE;
+    value->session = XR_NULL_HANDLE;
     bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->isUserPresent));
 
     return bytes_read;

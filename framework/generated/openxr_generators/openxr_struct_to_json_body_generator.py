@@ -181,7 +181,8 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
             elif value.is_pointer:
                 if 'String' in type_name:
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                elif self.is_handle(value.base_type):
+                elif self.is_handle(value.base_type
+                                    ) or self.is_atom(value.base_type):
                     to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                 elif 'XrBool32' == value.base_type:
                     to_json = 'Bool32ToJson(jdata["{0}"], &meta_struct.{0})'
@@ -193,7 +194,8 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
                         to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}), options)'
                     elif 'String' in type_name:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_handle(value.base_type):
+                    elif self.is_handle(value.base_type
+                                        ) or self.is_atom(value.base_type):
                         to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
                     elif self.is_struct(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
@@ -205,7 +207,8 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
                     else:
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                 else:
-                    if self.is_handle(value.base_type):
+                    if self.is_handle(value.base_type
+                                      ) or self.is_atom(value.base_type):
                         to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif self.is_struct(value.base_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
