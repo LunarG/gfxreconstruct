@@ -665,6 +665,11 @@ XRAPI_ATTR XrResult XRAPI_CALL GetInstanceProcAddr(XrInstance instance, const ch
         *function = reinterpret_cast<PFN_xrVoidFunction>(GetInstanceProcAddr);
         result    = XR_SUCCESS;
     }
+    else if (!strcmp(name, "xrInitializeLoaderKHR"))
+    {
+        *function = reinterpret_cast<PFN_xrVoidFunction>(encode::xrInitializeLoaderKHR);
+        result    = XR_SUCCESS;
+    }
     else if (!strcmp(name, "xrEnumerateInstanceExtensionProperties"))
     {
         *function = reinterpret_cast<PFN_xrVoidFunction>(EnumerateInstanceExtensionProperties);
