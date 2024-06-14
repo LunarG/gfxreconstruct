@@ -33,6 +33,7 @@
 #include "decode/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format_util.h"
+#include "generated/generated_vulkan_enum_to_string.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "generated/generated_vulkan_constant_maps.h"
 #include "graphics/vulkan_device_util.h"
@@ -161,7 +162,9 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     loader_handle_(nullptr),
     get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr), application_(application), options_(options),
     loading_trim_state_(false), replaying_trimmed_capture_(false), have_imported_semaphores_(false), fps_info_(nullptr),
-    omitted_pipeline_cache_data_(false)
+    omitted_pipeline_cache_data_(false),
+    device_fault_supported_(false), device_fault_vendor_data_supported_(false),
+    device_fault_vendor_binary_dump_v1_header_size_(56)
 {
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -1172,6 +1175,118 @@ void VulkanReplayConsumerBase::CheckResult(const char*                func_name,
                 util::ToString<VkResult>(original).c_str());
         }
     }
+}
+
+void VulkanReplayConsumerBase::CheckResult(const char*                 func_name,
+                                           VkResult                    original,
+                                           VkResult                    replay,
+                                           const decode::ApiCallInfo&  call_info,
+                                           VkDevice                    lost_device,
+                                           PFN_vkGetDeviceFaultInfoEXT func)
+{
+    if (device_fault_supported_ && replay == VK_ERROR_DEVICE_LOST)
+    {
+        graphics::DeviceFaultData device_fault_info = graphics::QueryDeviceFaultData(func, lost_device);
+        for (const auto& address_info : device_fault_info.address_infos_)
+        {
+            GFXRECON_LOG_ERROR("Address type: %s",
+                               util::ToString<VkDeviceFaultAddressTypeEXT>(address_info.addressType).c_str());
+            GFXRECON_LOG_ERROR("Reported address: %" PRIu64, address_info.reportedAddress);
+            GFXRECON_LOG_ERROR("Address precision: %" PRIu64, address_info.addressPrecision);
+        }
+
+        for (const auto& vendor_info : device_fault_info.vendor_infos_)
+        {
+            GFXRECON_LOG_ERROR("Vendor description: %s", vendor_info.description);
+            GFXRECON_LOG_ERROR("Vendor fault code: %" PRIu64, vendor_info.vendorFaultCode);
+            GFXRECON_LOG_ERROR("Vendor fault data: %" PRIu64, vendor_info.vendorFaultData);
+        }
+        if (device_fault_vendor_data_supported_ && !device_fault_info.vendor_binary_data_.empty())
+        {
+            uint8_t        bytes_read         = 0;
+            const uint8_t* vendor_binary_data = device_fault_info.vendor_binary_data_.data();
+            uint32_t       header_size        = *reinterpret_cast<const uint32_t*>(vendor_binary_data);
+            bytes_read += sizeof(uint32_t);
+            VkDeviceFaultVendorBinaryHeaderVersionEXT header_version =
+                *reinterpret_cast<const VkDeviceFaultVendorBinaryHeaderVersionEXT*>(vendor_binary_data + bytes_read);
+            bytes_read += sizeof(VkDeviceFaultVendorBinaryHeaderVersionEXT);
+            GFXRECON_LOG_ERROR("Header version: %s",
+                               util::ToString<VkDeviceFaultVendorBinaryHeaderVersionEXT>(header_version).c_str());
+            switch (header_version)
+            {
+                case VK_DEVICE_FAULT_VENDOR_BINARY_HEADER_VERSION_ONE_EXT:
+                {
+                    VkDeviceFaultVendorBinaryHeaderVersionOneEXT header{ header_size, header_version };
+                    ConsumeVendorBinaryDataHeader(vendor_binary_data + bytes_read, header);
+                    break;
+                }
+
+                default:
+                {
+                    GFXRECON_LOG_ERROR("Vendor binary data header version is not supported");
+                    break;
+                }
+            }
+        }
+    }
+    CheckResult(func_name, original, replay, call_info);
+}
+
+void VulkanReplayConsumerBase::ConsumeVendorBinaryDataHeader(const uint8_t* vendor_binary_data,
+                                                             VkDeviceFaultVendorBinaryHeaderVersionOneEXT& header)
+{
+    if (sizeof(header) == device_fault_vendor_binary_dump_v1_header_size_)
+    {
+        // Structure size complies to Vulkan specification
+        util::platform::MemoryCopy(&header, sizeof(header), vendor_binary_data, sizeof(header));
+    }
+    else
+    {
+        // Structure size does not comply to Vulkan specification, manually read header
+        uint32_t bytes_read = 0;
+        header.vendorID     = *reinterpret_cast<const uint32_t*>(vendor_binary_data);
+        bytes_read += sizeof(header.vendorID);
+
+        header.deviceID = *reinterpret_cast<const uint32_t*>(vendor_binary_data + bytes_read);
+        bytes_read += sizeof(header.deviceID);
+
+        header.driverVersion = *reinterpret_cast<const uint32_t*>(vendor_binary_data + bytes_read);
+        bytes_read += sizeof(header.driverVersion);
+
+        util::platform::MemoryCopy(&header.pipelineCacheUUID,
+                                   sizeof(uint8_t) * VK_UUID_SIZE,
+                                   vendor_binary_data + bytes_read,
+                                   sizeof(uint8_t) * VK_UUID_SIZE);
+        bytes_read += sizeof(uint8_t) * VK_UUID_SIZE;
+
+        header.applicationNameOffset = *reinterpret_cast<const uint32_t*>(vendor_binary_data + bytes_read);
+        bytes_read += sizeof(header.applicationNameOffset);
+
+        header.applicationVersion = *reinterpret_cast<const uint32_t*>(vendor_binary_data + bytes_read);
+        bytes_read += sizeof(header.applicationVersion);
+
+        header.engineNameOffset = *reinterpret_cast<const uint32_t*>(vendor_binary_data + bytes_read);
+        bytes_read += sizeof(header.engineNameOffset);
+
+        header.engineVersion = *reinterpret_cast<const uint32_t*>(vendor_binary_data + bytes_read);
+        bytes_read += sizeof(header.engineVersion);
+
+        header.apiVersion = *reinterpret_cast<const uint32_t*>(vendor_binary_data + bytes_read);
+        bytes_read += sizeof(header.apiVersion);
+    }
+
+    GFXRECON_LOG_ERROR("Vendor ID: " PRIu32, header.vendorID);
+    GFXRECON_LOG_ERROR("Device ID: " PRIu32, header.deviceID);
+    GFXRECON_LOG_ERROR("Driver version: " PRIu32, header.driverVersion);
+    for (uint32_t i = 0; i < VK_UUID_SIZE; ++i)
+    {
+        GFXRECON_LOG_ERROR("Pipeline cache UUID %" PRIu32 ": %" PRIu32, header.pipelineCacheUUID[i]);
+    }
+    GFXRECON_LOG_ERROR("Application name offset: " PRIu32, header.applicationNameOffset);
+    GFXRECON_LOG_ERROR("Application version: " PRIu32, header.applicationVersion);
+    GFXRECON_LOG_ERROR("Engine name offset: " PRIu32, header.engineNameOffset);
+    GFXRECON_LOG_ERROR("Engine version: " PRIu32, header.engineVersion);
+    GFXRECON_LOG_ERROR("API version: " PRIu32, header.apiVersion);
 }
 
 void VulkanReplayConsumerBase::SetInstancePhysicalDeviceEntries(InstanceInfo*           instance_info,
@@ -2638,6 +2753,19 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
                                                    modified_create_info.pNext,
                                                    modified_create_info.pEnabledFeatures,
                                                    options_.remove_unsupported_features);
+
+            if (feature_util::IsSupportedExtension(properties, VK_EXT_DEVICE_FAULT_EXTENSION_NAME))
+            {
+                modified_extensions.emplace_back(VK_EXT_DEVICE_FAULT_EXTENSION_NAME);
+                VkPhysicalDeviceFaultFeaturesEXT device_fault_features{
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT, nullptr
+                };
+                VkPhysicalDeviceFeatures2KHR features{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2_KHR,
+                                                       &device_fault_features };
+                table->GetPhysicalDeviceFeatures2(physical_device, &features);
+                device_fault_supported_             = device_fault_features.deviceFault;
+                device_fault_vendor_data_supported_ = device_fault_features.deviceFaultVendorBinary;
+            }
         }
 
         modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());

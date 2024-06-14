@@ -81,7 +81,6 @@ class VulkanReplayConsumerBodyGenerator(
     SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
 
     NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
-    
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
 
     def __init__(
@@ -186,7 +185,7 @@ class VulkanReplayConsumerBodyGenerator(
         write('        InitializeOutputStructPNextImpl(in_pnext, output_struct);', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
-       
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -249,7 +248,7 @@ class VulkanReplayConsumerBodyGenerator(
         is_override = name in self.REPLAY_OVERRIDES
 
         is_skip_offscreen = True
-        
+
         for key in self.NOT_SKIP_FUNCTIONS_OFFSCREEN:
             if key in name:
                 is_skip_offscreen = False
@@ -324,9 +323,32 @@ class VulkanReplayConsumerBodyGenerator(
             body += '\n'
         if return_type == 'VkResult':
             body += '    VkResult replay_result = {};\n'.format(call_expr)
-            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(
-                name
-            )
+            val = values[0]
+            if val.full_type == 'VkDevice':
+                if is_override:
+                    body += '    CheckResult("{}", returnValue, replay_result, call_info, {}->handle, GetDeviceTable({}->handle)->GetDeviceFaultInfoEXT);\n'.format(
+                    name, args[0], args[0]
+                )
+                else:
+                    body += '    CheckResult("{}", returnValue, replay_result, call_info, in_device, GetDeviceTable({})->GetDeviceFaultInfoEXT);\n'.format(
+                        name, args[0]
+                    )
+            elif 'GetDeviceTable' in dispatchfunc:
+                if is_override:
+                    body += '    auto in_device = GetObjectInfoTable().GetDeviceInfo({}->parent_id);\n'.format(args[0])
+                    body += '    CheckResult("{}", returnValue, replay_result, call_info, in_device->handle, GetDeviceTable(in_device->handle)->GetDeviceFaultInfoEXT);\n'.format(
+                        name
+                    )
+                else:
+                    body += '    auto {}_info = GetObjectInfoTable().Get{}Info({});\n'.format(val.name, val.full_type[2:], val.name)
+                    body += '    auto in_device = GetObjectInfoTable().GetDeviceInfo({}_info->parent_id);\n'.format(val.name)
+                    body += '    CheckResult("{}", returnValue, replay_result, call_info, in_device->handle, GetDeviceTable(in_device->handle)->GetDeviceFaultInfoEXT);\n'.format(
+                        name
+                    )
+            else:
+                body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(
+                    name
+                )
         else:
             body += '    {};\n'.format(call_expr)
         if postexpr:
@@ -720,7 +742,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(value.name, arg_name, name=name)
-                                    )                                    
+                                    )
                             else:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
                                     paramname=value.name
@@ -734,7 +756,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
                                         .format(paramname=value.name, name=name)
-                                    )                                    
+                                    )
                         elif self.is_handle(value.base_type):
                             # Add mapping for the newly created handle
                             preexpr.append(

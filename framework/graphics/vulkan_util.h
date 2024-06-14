@@ -65,6 +65,30 @@ static T* GetPNextStruct(const Parent_T* parent, VkStructureType struct_type)
 
 static const char* kVulkanVrFrameDelimiterString = "vr-marker,frame_end,type,application";
 
+struct DeviceFaultData
+{
+    std::vector<VkDeviceFaultAddressInfoEXT> address_infos_;
+    std::vector<VkDeviceFaultVendorInfoEXT>  vendor_infos_;
+    std::vector<uint8_t>                     vendor_binary_data_;
+};
+
+static DeviceFaultData QueryDeviceFaultData(PFN_vkGetDeviceFaultInfoEXT func, VkDevice lost_device)
+{
+    VkDeviceFaultCountsEXT device_fault_counts{ VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT, nullptr };
+    VkResult               result = func(lost_device, &device_fault_counts, nullptr);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+
+    DeviceFaultData      data{ std::vector<VkDeviceFaultAddressInfoEXT>(device_fault_counts.addressInfoCount),
+                          std::vector<VkDeviceFaultVendorInfoEXT>(device_fault_counts.vendorInfoCount),
+                          std::vector<uint8_t>(device_fault_counts.vendorBinarySize) };
+    VkDeviceFaultInfoEXT info{ VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT, nullptr };
+    info.pAddressInfos     = data.address_infos_.data();
+    info.pVendorInfos      = data.vendor_infos_.data();
+    info.pVendorBinaryData = data.vendor_binary_data_.data();
+    result                 = func(lost_device, &device_fault_counts, &info);
+    GFXRECON_ASSERT(result == VK_SUCCESS);
+    return data;
+}
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

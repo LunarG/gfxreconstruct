@@ -221,6 +221,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
 
+    void CheckResult(const char*                 func_name,
+                     VkResult                    original,
+                     VkResult                    replay,
+                     const decode::ApiCallInfo&  call_info,
+                     VkDevice                    lost_device,
+                     PFN_vkGetDeviceFaultInfoEXT func);
+
     template <typename T>
     typename T::HandleType MapHandle(format::HandleId id,
                                      const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
@@ -1158,6 +1165,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     bool CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info);
     bool CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const PNextNode* pnext);
 
+    void ConsumeVendorBinaryDataHeader(const uint8_t*                                vendor_binary_data,
+                                       VkDeviceFaultVendorBinaryHeaderVersionOneEXT& header);
+
   private:
     struct HardwareBufferInfo
     {
@@ -1249,6 +1259,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void*                capture_pipeline_cache_data_;
     bool                 matched_replay_cache_data_exist_ = false;
     std::vector<uint8_t> matched_replay_cache_data_;
+
+    bool           device_fault_supported_;
+    bool           device_fault_vendor_data_supported_;
+    const uint32_t device_fault_vendor_binary_dump_v1_header_size_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
