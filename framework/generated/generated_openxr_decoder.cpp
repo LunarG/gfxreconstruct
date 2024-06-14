@@ -1143,17 +1143,54 @@ size_t OpenXrDecoder::Decode_xrApplyHapticFeedback(const ApiCallInfo& call_info,
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrHapticActionInfo> hapticActionInfo;
-    StructPointerDecoder<Decoded_XrHapticBaseHeader> hapticFeedback;
+    StructPointerDecoder<Decoded_XrHapticBaseHeader>* hapticFeedback;
+    StructPointerDecoder<Decoded_XrHapticBaseHeader> haptic_base_header;
+    StructPointerDecoder<Decoded_XrHapticVibration> haptic_vibration;
+    StructPointerDecoder<Decoded_XrHapticAmplitudeEnvelopeVibrationFB> haptic_amplitude_envelope_vibration_fb;
+    StructPointerDecoder<Decoded_XrHapticPcmVibrationFB> haptic_pcm_vibration_fb;
     XrResult return_value;
 
+    bool     peak_is_null    = false;
+    bool     peak_is_struct  = false;
+    bool     peak_has_length = false;
+    size_t   peak_length{};
+    uint32_t peak_structure_type = 0;
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
     bytes_read += hapticActionInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += hapticFeedback.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                   (buffer_size - bytes_read),
+                                                   peak_is_null,
+                                                   peak_is_struct,
+                                                   peak_has_length,
+                                                   peak_length,
+                                                   peak_structure_type))
+     {
+         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);
+         switch (xr_type)
+         {
+             case XR_TYPE_HAPTIC_VIBRATION:
+                 bytes_read += haptic_vibration.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 hapticFeedback = reinterpret_cast<StructPointerDecoder<Decoded_XrHapticBaseHeader>*>(&haptic_vibration);
+                 break;
+             case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+                 bytes_read += haptic_amplitude_envelope_vibration_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 hapticFeedback = reinterpret_cast<StructPointerDecoder<Decoded_XrHapticBaseHeader>*>(&haptic_amplitude_envelope_vibration_fb);
+                 break;
+             case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+                 bytes_read += haptic_pcm_vibration_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 hapticFeedback = reinterpret_cast<StructPointerDecoder<Decoded_XrHapticBaseHeader>*>(&haptic_pcm_vibration_fb);
+                 break;
+             default:
+                 bytes_read += haptic_base_header.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 hapticFeedback = &haptic_base_header;
+                 break;
+         }
+     }
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_xrApplyHapticFeedback(call_info, return_value, session, &hapticActionInfo, &hapticFeedback);
+        consumer->Process_xrApplyHapticFeedback(call_info, return_value, session, &hapticActionInfo, hapticFeedback);
     }
 
     return bytes_read;
@@ -1562,6 +1599,51 @@ size_t OpenXrDecoder::Decode_xrConvertTimeToTimespecTimeKHR(const ApiCallInfo& c
     for (auto consumer : GetConsumers())
     {
         consumer->Process_xrConvertTimeToTimespecTimeKHR(call_info, return_value, instance, time, &timespecTime);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrInitializeLoaderKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo;
+    StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR> loader_init_info_base_header_khr;
+    StructPointerDecoder<Decoded_XrLoaderInitInfoAndroidKHR> loader_init_info_android_khr;
+    XrResult return_value;
+
+    bool     peak_is_null    = false;
+    bool     peak_is_struct  = false;
+    bool     peak_has_length = false;
+    size_t   peak_length{};
+    uint32_t peak_structure_type = 0;
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                   (buffer_size - bytes_read),
+                                                   peak_is_null,
+                                                   peak_is_struct,
+                                                   peak_has_length,
+                                                   peak_length,
+                                                   peak_structure_type))
+     {
+         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);
+         switch (xr_type)
+         {
+             case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+                 bytes_read += loader_init_info_android_khr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 loaderInitInfo = reinterpret_cast<StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>*>(&loader_init_info_android_khr);
+                 break;
+             default:
+                 bytes_read += loader_init_info_base_header_khr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 loaderInitInfo = &loader_init_info_base_header_khr;
+                 break;
+         }
+     }
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrInitializeLoaderKHR(call_info, return_value, loaderInitInfo);
     }
 
     return bytes_read;
@@ -2396,16 +2478,58 @@ size_t OpenXrDecoder::Decode_xrUpdateSwapchainFB(const ApiCallInfo& call_info, c
     size_t bytes_read = 0;
 
     format::HandleId swapchain;
-    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB> state;
+    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state;
+    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB> swapchain_state_base_header_fb;
+    StructPointerDecoder<Decoded_XrSwapchainStateFoveationFB> swapchain_state_foveation_fb;
+    StructPointerDecoder<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB> swapchain_state_android_surface_dimensions_fb;
+    StructPointerDecoder<Decoded_XrSwapchainStateSamplerOpenGLESFB> swapchain_state_sampler_open_glesfb;
+    StructPointerDecoder<Decoded_XrSwapchainStateSamplerVulkanFB> swapchain_state_sampler_vulkan_fb;
     XrResult return_value;
 
+    bool     peak_is_null    = false;
+    bool     peak_is_struct  = false;
+    bool     peak_has_length = false;
+    size_t   peak_length{};
+    uint32_t peak_structure_type = 0;
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
-    bytes_read += state.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                   (buffer_size - bytes_read),
+                                                   peak_is_null,
+                                                   peak_is_struct,
+                                                   peak_has_length,
+                                                   peak_length,
+                                                   peak_structure_type))
+     {
+         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);
+         switch (xr_type)
+         {
+             case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+                 bytes_read += swapchain_state_foveation_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_foveation_fb);
+                 break;
+             case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+                 bytes_read += swapchain_state_android_surface_dimensions_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_android_surface_dimensions_fb);
+                 break;
+             case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+                 bytes_read += swapchain_state_sampler_open_glesfb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_sampler_open_glesfb);
+                 break;
+             case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+                 bytes_read += swapchain_state_sampler_vulkan_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_sampler_vulkan_fb);
+                 break;
+             default:
+                 bytes_read += swapchain_state_base_header_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = &swapchain_state_base_header_fb;
+                 break;
+         }
+     }
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_xrUpdateSwapchainFB(call_info, return_value, swapchain, &state);
+        consumer->Process_xrUpdateSwapchainFB(call_info, return_value, swapchain, state);
     }
 
     return bytes_read;
@@ -2416,16 +2540,58 @@ size_t OpenXrDecoder::Decode_xrGetSwapchainStateFB(const ApiCallInfo& call_info,
     size_t bytes_read = 0;
 
     format::HandleId swapchain;
-    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB> state;
+    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>* state;
+    StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB> swapchain_state_base_header_fb;
+    StructPointerDecoder<Decoded_XrSwapchainStateFoveationFB> swapchain_state_foveation_fb;
+    StructPointerDecoder<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB> swapchain_state_android_surface_dimensions_fb;
+    StructPointerDecoder<Decoded_XrSwapchainStateSamplerOpenGLESFB> swapchain_state_sampler_open_glesfb;
+    StructPointerDecoder<Decoded_XrSwapchainStateSamplerVulkanFB> swapchain_state_sampler_vulkan_fb;
     XrResult return_value;
 
+    bool     peak_is_null    = false;
+    bool     peak_is_struct  = false;
+    bool     peak_has_length = false;
+    size_t   peak_length{};
+    uint32_t peak_structure_type = 0;
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
-    bytes_read += state.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                   (buffer_size - bytes_read),
+                                                   peak_is_null,
+                                                   peak_is_struct,
+                                                   peak_has_length,
+                                                   peak_length,
+                                                   peak_structure_type))
+     {
+         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);
+         switch (xr_type)
+         {
+             case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+                 bytes_read += swapchain_state_foveation_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_foveation_fb);
+                 break;
+             case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+                 bytes_read += swapchain_state_android_surface_dimensions_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_android_surface_dimensions_fb);
+                 break;
+             case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+                 bytes_read += swapchain_state_sampler_open_glesfb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_sampler_open_glesfb);
+                 break;
+             case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+                 bytes_read += swapchain_state_sampler_vulkan_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainStateBaseHeaderFB>*>(&swapchain_state_sampler_vulkan_fb);
+                 break;
+             default:
+                 bytes_read += swapchain_state_base_header_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 state = &swapchain_state_base_header_fb;
+                 break;
+         }
+     }
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_xrGetSwapchainStateFB(call_info, return_value, swapchain, &state);
+        consumer->Process_xrGetSwapchainStateFB(call_info, return_value, swapchain, state);
     }
 
     return bytes_read;
@@ -4324,18 +4490,45 @@ size_t OpenXrDecoder::Decode_xrQuerySpacesFB(const ApiCallInfo& call_info, const
     size_t bytes_read = 0;
 
     format::HandleId session;
-    StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB> info;
+    StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB>* info;
+    StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB> space_query_info_base_header_fb;
+    StructPointerDecoder<Decoded_XrSpaceQueryInfoFB> space_query_info_fb;
     HandlePointerDecoder<XrAsyncRequestIdFB> requestId;
     XrResult return_value;
 
+    bool     peak_is_null    = false;
+    bool     peak_is_struct  = false;
+    bool     peak_has_length = false;
+    size_t   peak_length{};
+    uint32_t peak_structure_type = 0;
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
-    bytes_read += info.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                   (buffer_size - bytes_read),
+                                                   peak_is_null,
+                                                   peak_is_struct,
+                                                   peak_has_length,
+                                                   peak_length,
+                                                   peak_structure_type))
+     {
+         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);
+         switch (xr_type)
+         {
+             case XR_TYPE_SPACE_QUERY_INFO_FB:
+                 bytes_read += space_query_info_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 info = reinterpret_cast<StructPointerDecoder<Decoded_XrSpaceQueryInfoBaseHeaderFB>*>(&space_query_info_fb);
+                 break;
+             default:
+                 bytes_read += space_query_info_base_header_fb.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 info = &space_query_info_base_header_fb;
+                 break;
+         }
+     }
     bytes_read += requestId.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_xrQuerySpacesFB(call_info, return_value, session, &info, &requestId);
+        consumer->Process_xrQuerySpacesFB(call_info, return_value, session, info, &requestId);
     }
 
     return bytes_read;
@@ -5960,6 +6153,9 @@ void OpenXrDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_xrConvertTimeToTimespecTimeKHR:
         Decode_xrConvertTimeToTimespecTimeKHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrInitializeLoaderKHR:
+        Decode_xrInitializeLoaderKHR(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR:
         Decode_xrCreateVulkanInstanceKHR(call_info, parameter_buffer, buffer_size);
