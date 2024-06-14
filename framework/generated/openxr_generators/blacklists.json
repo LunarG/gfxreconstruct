@@ -1,7 +1,6 @@
 {
   "functions-all": [
     "xrGetInstanceProcAddr",
-    "xrInitializeLoaderKHR",
     "xrCreateInstance",
     "xrEnumerateApiLayerProperties",
     "xrEnumerateInstanceExtensionProperties",
@@ -13,6 +12,7 @@
     "xrTriangleMeshGetIndexBufferFB"
   ],
   "functions-encoder": [
+    "xrInitializeLoaderKHR",
     "xrEndFrame"
   ],
   "functions-decoder": [

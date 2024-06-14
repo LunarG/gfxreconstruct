@@ -20,6 +20,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import re
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
@@ -66,7 +67,7 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -75,11 +76,15 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         self.flagsType = dict()
         self.flagsTypeAlias = dict()
         self.flagEnumBitsType = dict()
+        self.cmd_names = []
+        self.cmd_info = dict()
 
         self.externalStructs = ['LARGE_INTEGER', 'LUID']
 
         # Names of any OpenXR commands whose decoders are manually generated
-        self.MANUALLY_GENERATED_COMMANDS = ['xrEnumerateSwapchainImages']
+        self.MANUALLY_GENERATED_COMMANDS = [
+            'xrEnumerateSwapchainImages',
+        ]
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -109,32 +114,11 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        body = format_cpp_code(
-            '''
-            GFXRECON_END_NAMESPACE(decode)
-            GFXRECON_END_NAMESPACE(gfxrecon)
-        '''
-        )
-        write(body, file=self.outFile)
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
         first = True
 
-        for cmd in self.get_filtered_cmd_names():
-            if self.is_manually_generated_cmd_name(cmd):
-                continue
-
-            info = self.feature_cmd_params[cmd]
+        self.newline()
+        for cmd in self.cmd_names:
+            info = self.cmd_info[cmd]
             return_type = info[0]
             values = info[2]
 
@@ -159,6 +143,32 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
             )
             write(cmddef, file=self.outFile)
             first = False
+
+        body = format_cpp_code(
+            '''
+            GFXRECON_END_NAMESPACE(decode)
+            GFXRECON_END_NAMESPACE(gfxrecon)
+        '''
+        )
+        write(body, file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
+    def need_feature_generation(self):
+        """Indicates that the current feature has C++ code to generate."""
+        if self.feature_cmd_params:
+            return True
+        return False
+
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        for cmd in self.get_filtered_cmd_names():
+            if self.is_manually_generated_cmd_name(cmd):
+                continue
+
+            self.cmd_names.append(cmd)
+            self.cmd_info[cmd] = self.feature_cmd_params[cmd]
 
     def is_command_buffer_cmd(self, command):
         if 'vkCmd' in command:
@@ -185,6 +195,7 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
             # Handle function arguments
             for value in values:
                 flagsEnumType = value.base_type
+                is_base_header_type = False
 
                 # Default to letting the right function overload to be resolved based on argument types,
                 # including enums, strings ints, floats etc.:
@@ -194,11 +205,34 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                 else:
                     if value.base_type in self.externalStructs:
                         to_json = 'FieldToJson(args["{0}"], *{0}->GetPointer(), json_options)'
-                    elif value.base_type in self.base_header_structs.keys() and value.is_array:
-                        # If this is a situation with a BaseHeader base for the data and it's an
-                        # array, we need to determine the type of the first element of that array
-                        # and then treat the entire array as if it is of that type.
-                        to_json = 'BaseHeaderFieldToJson(args["{0}"], {0}, json_options)'
+                    elif value.base_type in self.base_header_structs.keys():
+                        if value.is_array:
+                            # If this is a situation with a BaseHeader base for the data and it's an
+                            # array, we need to determine the type of the first element of that array
+                            # and then treat the entire array as if it is of that type.
+                            to_json = 'BaseHeaderFieldToJson(args["{0}"], {0}, json_options)'
+                        else:
+                            # Otherwise, we need to go through and actually decode the appropriate
+                            # type of the struct pointed at by the base header struct pointer.
+                            is_base_header_type = True
+                            body += f'        switch ({value.name}->GetPointer()->type)\n'
+                            body += '        {\n'
+                            body += '            default:\n'
+                            body += f'                FieldToJson(args["{value.name}"], {value.name}, json_options);\n'
+                            body += '                break;\n'
+                            for child in self.base_header_structs[value.base_type]:
+                                type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
+                                type = type.upper()
+                                switch_type = re.sub('XR_', 'XR_TYPE_', type)
+                                if 'OPEN_GLESFB' in switch_type:
+                                    type = switch_type
+                                    switch_type = re.sub('OPEN_GLESFB', 'OPENGL_ES_FB', type)
+                                body += f'            case {switch_type}:\n'
+                                body += f'                FieldToJson(args["{value.name}"],\n'
+                                body += f'                            reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({value.name}),\n'
+                                body += '                            json_options);\n'
+                                body += '                break;\n'
+                            body += '        }\n'
                     else:
                         to_json = 'FieldToJson(args["{0}"], {0}, json_options)'
 
@@ -216,8 +250,9 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                         # Default to outputting as the raw type but warn:
                         print("Missing conversion of pointers to", flagsEnumType, "in", name,  file=sys.stderr)
 
-                to_json = to_json.format(value.name, value.base_type, flagsEnumType)
-                body += '        {0};\n'.format(to_json)
+                if not is_base_header_type:
+                    to_json = to_json.format(value.name, value.base_type, flagsEnumType)
+                    body += '    {0};\n'.format(to_json)
         return body
     # yapf: enable
 

@@ -66,8 +66,8 @@ class OpenXrDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         BaseGenerator.__init__(
             self,
             process_cmds=True,
-            process_structs=False,
-            feature_break=True,
+            process_structs=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -75,9 +75,12 @@ class OpenXrDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
 
         # Names of all OpenXR commands processed by the generator.
         self.cmd_names = []
+        self.cmd_info = dict()
 
         # Names of any OpenXR commands whose decoders are manually generated
-        self.MANUALLY_GENERATED_COMMANDS = ['xrEnumerateSwapchainImages']
+        self.MANUALLY_GENERATED_COMMANDS = [
+            'xrEnumerateSwapchainImages',
+        ]
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -109,6 +112,9 @@ class OpenXrDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        self.newline()
+        self.generate_commands()
+
         self.newline()
         # Generate the OpenXrDecoder::DecodeFunctionCall method for all of the commands processed by the generator.
         self.generate_decode_cases()

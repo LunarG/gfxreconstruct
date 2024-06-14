@@ -43,6 +43,51 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
+XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(const XrLoaderInitInfoBaseHeaderKHR* loader_init_info)
+{
+    XrResult result = XR_ERROR_INITIALIZATION_FAILED;
+
+    if (OpenXrCaptureManager::CreateInstance())
+    {
+        OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+
+        auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrInitializeLoaderKHR>::Dispatch(manager, loader_init_info);
+
+        auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrInitializeLoaderKHR);
+        if (encoder)
+        {
+            switch (loader_init_info->type)
+            {
+                case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+                {
+                    const XrLoaderInitInfoAndroidKHR* android_init_info =
+                        reinterpret_cast<const XrLoaderInitInfoAndroidKHR*>(loader_init_info);
+                    EncodeStructPtr(encoder, android_init_info);
+                    break;
+                }
+                default:
+                    GFXRECON_LOG_WARNING("Unknown XrLoaderInitInfoBaseHeaderKHR derived structure type %d",
+                                         loader_init_info->type);
+                    EncodeStructPtr(encoder, loader_init_info);
+                    break;
+            }
+
+            // Just record the information and return a SUCCESS message
+            result = XR_SUCCESS;
+
+            encoder->EncodeEnumValue(result);
+            manager->EndApiCallCapture();
+        }
+
+        CustomEncoderPostCall<format::ApiCallId::ApiCall_xrInitializeLoaderKHR>::Dispatch(
+            manager, result, loader_init_info);
+    }
+
+    return result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo)
 {
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
@@ -145,7 +190,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrDestroyTriangleMeshFB(XrTriangleMeshFB mesh)
     XrResult          result = openxr_wrappers::GetInstanceTable(mesh)->DestroyTriangleMeshFB(mesh);
 
     auto call_lock = manager->AcquireCallLock();
-    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB);
+    auto encoder   = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyTriangleMeshFB);
     if (encoder)
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::TriangleMeshFBWrapper>(mesh);

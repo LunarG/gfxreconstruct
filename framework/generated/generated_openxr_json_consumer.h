@@ -516,6 +516,10 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         XrTime                                      time,
         StructPointerDecoder<Decoded_timespec>*     timespecTime) override;
 
+    virtual void Process_xrInitializeLoaderKHR(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo) override;
 
     virtual void Process_xrCreateVulkanInstanceKHR(
         const ApiCallInfo&                          call_info,
