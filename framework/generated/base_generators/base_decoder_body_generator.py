@@ -21,24 +21,23 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import re
 from base_generator import ValueInfo, write
+from copy import deepcopy
 
 
 class BaseDecoderBodyGenerator():
     """Base class for generating decoder body code."""
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
+    def generate_commands(self):
         platform_type = self.get_api_prefix()
 
         first = True
-        for cmd in self.get_filtered_cmd_names():
-            self.cmd_names.append(cmd)
-
+        for cmd in self.cmd_names:
             if self.is_manually_generated_cmd_name(cmd):
                 continue
 
-            info = self.feature_cmd_params[cmd]
+            info = self.cmd_info[cmd]
             return_type = info[0]
             values = info[2]
 
@@ -57,15 +56,43 @@ class BaseDecoderBodyGenerator():
             write(cmddef, file=self.outFile)
             first = False
 
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        for cmd in self.get_filtered_cmd_names():
+            self.cmd_names.append(cmd)
+            self.cmd_info[cmd] = self.feature_cmd_params[cmd]
+
+    def gen_child_var_name(self, base_type):
+        child_base_type = base_type
+        new_type_name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child_base_type)
+        new_type_name = new_type_name.lower()
+        return re.sub('xr_', '', new_type_name)
+
     def make_cmd_body(self, return_type, name, values, dx12_method=False):
         """Generate C++ code for the decoder method body."""
         body = ''
         arg_names = []
+        has_base_header_to_peak = False
 
         # Declarations for decoded types.
         for value in values:
-            decode_type = self.make_decoded_param_type(value)
-            body += '    {} {};\n'.format(decode_type, value.name)
+            is_base_header_value = False
+            # If the value is a base header type, we need to do some work to read the actual
+            # structure that is used, and then pass the information down.
+            if value.base_type in self.base_header_structs.keys():
+                has_base_header_to_peak = True
+                is_base_header_value    = True
+                decode_type = self.make_decoded_param_type(value)
+                body += '    {}* {};\n'.format(decode_type, value.name)
+                body += '    {} {};\n'.format(decode_type, self.gen_child_var_name(value.base_type))
+                for child in self.base_header_structs[value.base_type]:
+                    new_value = deepcopy(value)
+                    new_value.base_type = child
+                    decode_type = self.make_decoded_param_type(new_value)
+                    body += '    {} {};\n'.format(decode_type, self.gen_child_var_name(child))
+            else:
+                decode_type = self.make_decoded_param_type(value)
+                body += '    {} {};\n'.format(decode_type, value.name)
 
             if decode_type == 'Decoded_{}'.format(value.base_type):
                 body += '    {} value_{};\n'.format(
@@ -75,7 +102,11 @@ class BaseDecoderBodyGenerator():
                     value.name
                 )
 
-            if 'Decoder' in decode_type:
+            # For base header values, we'll use the pointer variable which uses the default value.name
+            # and not dereference it.
+            if is_base_header_value:
+                arg_names.append(value.name)
+            elif 'Decoder' in decode_type:
                 arg_names.append('&{}'.format(value.name))
             else:
                 arg_names.append(value.name)
@@ -105,6 +136,13 @@ class BaseDecoderBodyGenerator():
         # Blank line after declarations.
         if values or return_type:
             body += '\n'
+
+        if has_base_header_to_peak:
+            body += '    bool     peak_is_null    = false;\n'
+            body += '    bool     peak_is_struct  = false;\n'
+            body += '    bool     peak_has_length = false;\n'
+            body += '    size_t   peak_length{};\n'
+            body += '    uint32_t peak_structure_type = 0;\n'
 
         # Decode() method calls for pointer decoder wrappers.
         for value in values:
@@ -191,9 +229,44 @@ class BaseDecoderBodyGenerator():
                 if is_struct or is_string or is_handle or is_atom or (
                     is_class and value.pointer_count > 1
                 ):
-                    body += '    bytes_read += {}.Decode({});\n'.format(
-                        value.name, buffer_args
-                    )
+                    if type_name in self.base_header_structs.keys():
+                        base_type_name = self.gen_child_var_name(value.base_type)
+                        body += '    if (PointerDecoderBase::PeakAttributesAndType((parameter_buffer + bytes_read),\n'
+                        body += '                                                   (buffer_size - bytes_read),\n'
+                        body += '                                                   peak_is_null,\n'
+                        body += '                                                   peak_is_struct,\n'
+                        body += '                                                   peak_has_length,\n'
+                        body += '                                                   peak_length,\n'
+                        body += '                                                   peak_structure_type))\n'
+                        body += '     {\n'
+                        body += '         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);\n'
+                        body += '         switch (xr_type)\n'
+                        body += '         {\n'
+                        for child in self.base_header_structs[value.base_type]:
+                            type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
+                            type = type.upper()
+                            switch_type = re.sub('XR_', 'XR_TYPE_', type)
+                            if 'OPEN_GLESFB' in switch_type:
+                                type = switch_type
+                                switch_type = re.sub('OPEN_GLESFB', 'OPENGL_ES_FB', type)
+
+                            body += f'             case {switch_type}:\n'
+                            child_var = self.gen_child_var_name(child)
+                            body += f'                 bytes_read += {child_var}.Decode({buffer_args});\n'
+                            body += f'                 {value.name} = reinterpret_cast<StructPointerDecoder<Decoded_{value.base_type}>*>(&{child_var});\n'
+                            body += '                 break;\n'
+
+                        body += '             default:\n'
+                        body += f'                 bytes_read += {base_type_name}.Decode({buffer_args});\n'
+                        body += f'                 {value.name} = &{base_type_name};\n'
+                        body += '                 break;\n'
+                        body += '         }\n'
+                        body += '     }\n'
+
+                    else:
+                        body += '    bytes_read += {}.Decode({});\n'.format(
+                            value.name, buffer_args
+                        )
                 elif is_class and value.pointer_count == 1:
                     body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                         buffer_args, value.name

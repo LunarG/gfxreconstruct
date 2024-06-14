@@ -524,6 +524,10 @@ class OpenXrConsumer : public OpenXrConsumerBase
         XrTime                                      time,
         StructPointerDecoder<Decoded_timespec>*     timespecTime) {}
 
+    virtual void Process_xrInitializeLoaderKHR(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo) {}
 
     virtual void Process_xrCreateVulkanInstanceKHR(
         const ApiCallInfo&                          call_info,
