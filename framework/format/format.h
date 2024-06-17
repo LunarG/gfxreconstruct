@@ -63,6 +63,7 @@ const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
 const HandleId kNullHandleId              = 0;
 const size_t   kAdapterDescriptionSize    = 128;
+const int8_t   kNoneIndex                 = -1;
 
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.

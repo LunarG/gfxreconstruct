@@ -97,9 +97,14 @@ class Dx12ReplayConsumerBodyGenerator(
             file=self.outFile
         )
         write(
+            '#include "decode/custom_dx12_replay_commands.h"',
+            file=self.outFile
+        )
+        write(
             '#include "generated/generated_dx12_struct_object_mappers.h"',
             file=self.outFile
         )
+        self.newline()
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
@@ -143,18 +148,12 @@ class Dx12ReplayConsumerBodyGenerator(
                 is_override = method_name in self.REPLAY_OVERRIDES[
                     'classmethods'][class_name]
 
-            if is_override:
-                cmddef += (
-                    "    auto replay_object = GetObjectInfo(object_id);\n"
-                    "    if ((replay_object != nullptr) &&"
-                    " (replay_object->object != nullptr))\n"
-                )
-            else:
-                cmddef += (
-                    "    auto replay_object = MapObject<{}>(object_id);\n"
-                    "    if (replay_object != nullptr)\n".format(class_name)
-                )
-            cmddef += "    {\n"
+            cmddef += (
+                "    auto replay_object = GetObjectInfo(object_id);\n"
+                "    if ((replay_object != nullptr) &&"
+                " (replay_object->object != nullptr))\n"
+                "    {\n"
+            )
 
             body = self.make_consumer_func_body(return_type, method, values)
             code_list = body.split('\n')
@@ -190,6 +189,21 @@ class Dx12ReplayConsumerBodyGenerator(
                 is_resource_creation_methods = True
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']
+        
+        code += (
+            "    CustomReplayPreCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n"
+            "        this,\n"
+            "        call_info,".format(name)
+        )
+
+        if is_object:
+            code += "\n        replay_object,"
+
+        for value in values:
+            code += ('\n' + "        " + value.name + ",")
+
+        code = code[:-1]
+        code += ");\n"
 
         for value in values:
             is_class = self.is_class(value)
@@ -211,8 +225,8 @@ class Dx12ReplayConsumerBodyGenerator(
                     code += '    if(!{0}->IsNull()) {0}->SetHandleLength({1});\n'\
                             .format(value.name, handle_length)
                     if is_override:
-                        code += '    DxObjectInfo object_info{{}};\n'\
-                                '    {0}->SetConsumerData(0, &object_info);\n'\
+                        code += '    DxObjectInfo object_info_{0}{{}};\n'\
+                                '    {0}->SetConsumerData(0, &object_info_{0});\n'\
                                 .format(value.name)
                     else:
                         code += '    auto out_p_{0}    = {0}->GetPointer();\n'\
@@ -226,7 +240,7 @@ class Dx12ReplayConsumerBodyGenerator(
 
                     if is_override:
                         add_object_list.append(
-                            'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), std::move(object_info), format::ApiCall_{1});\n'.format(value.name, name)
+                            'AddObject({0}->GetPointer(), {0}->GetHandlePointer(), std::move(object_info_{0}), format::ApiCall_{1});\n'.format(value.name, name)
                         )
                     else:
                         add_object_list.append(
@@ -401,7 +415,7 @@ class Dx12ReplayConsumerBodyGenerator(
             code += 'auto replay_result = '
 
         if is_object and not is_override:
-            code += 'replay_object->'
+            code += 'reinterpret_cast<{}*>(replay_object->object)->'.format(class_name)
 
         first = True
         if is_override:
@@ -435,6 +449,42 @@ class Dx12ReplayConsumerBodyGenerator(
 
         code += ');\n'
 
+        if is_object and not is_override and ('ID3D12GraphicsCommandList' in class_name):
+            code += (
+                "    if(options_.enable_dump_resources)\n"
+                "    {{\n"
+                "        GFXRECON_ASSERT(dump_resources_);\n"
+                "        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(replay_object, call_info.index, format::ApiCall_{}_{});\n"
+                "        for (auto& command_set : dump_command_sets)\n"
+                "        {{\n".format(class_name, method_name)
+            )
+            if class_name != 'ID3D12GraphicsCommandList':
+                code += (
+                    "            {0}* command_list{1};\n"
+                    "            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list{1}));\n".format(class_name, class_name[-1])
+                )
+                indent_length = len(code)
+                code += "            command_list{}".format(class_name[-1])
+                
+            else:
+                indent_length = len(code)
+                code += "            command_set.list"
+            code += "->{}(".format(method_name)
+
+            first = True
+            indent_length = len(code) - indent_length
+            for arg in arg_list:
+                if not first:
+                    code += ',\n{}'.format(' ' * indent_length)
+                first = False
+                code += arg
+
+            code += (
+                ");\n"
+                "        }\n"
+                "    }\n"
+            )
+           
         if return_type == 'HRESULT':
             if len(add_object_list) or len(struct_add_object_list):
                 code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
@@ -451,6 +501,21 @@ class Dx12ReplayConsumerBodyGenerator(
                 '    CheckReplayResult("{}", return_value, replay_result);\n'.
                 format(name)
             )
+
+        code += (
+            "    CustomReplayPostCall<format::ApiCallId::ApiCall_{}>::Dispatch(\n"
+            "        this,\n"
+            "        call_info,".format(name)
+        )
+
+        if is_object:
+            code += "\n        replay_object,"
+
+        for value in values:
+            code += ('\n' + "        " + value.name + ",")
+
+        code = code[:-1]
+        code +=");\n"
 
         for e in post_extenal_object_list:
             code += '    {}'.format(e)
