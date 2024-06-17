@@ -44,12 +44,9 @@ GFXRECON_BEGIN_NAMESPACE(feature_util)
 // enable the extension with no support present on the replay device (usually because the layer is
 // no longer there)
 std::set<std::string> kIgnorableExtensions = {
-    VK_EXT_TOOLING_INFO_EXTENSION_NAME,
-    VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
-    "VK_ANDROID_frame_boundary",
-    "VK_EXT_frame_boundary",
-    VK_EXT_METAL_SURFACE_EXTENSION_NAME,
-    VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
+    VK_EXT_TOOLING_INFO_EXTENSION_NAME,  VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
+    "VK_ANDROID_frame_boundary",         "VK_EXT_frame_boundary",
+    VK_EXT_METAL_SURFACE_EXTENSION_NAME, VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME
 };
 
 VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
