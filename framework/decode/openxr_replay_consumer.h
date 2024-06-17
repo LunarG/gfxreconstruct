@@ -48,7 +48,7 @@ class OpenXrReplayConsumer : public OpenXrConsumer
                                      XrResult                                       returnValue,
                                      format::HandleId                               instance,
                                      StructPointerDecoder<Decoded_XrSystemGetInfo>* getInfo,
-                                     PointerDecoder<XrSystemId>*                    systemId) override;
+                                     PointerDecoder<XrSystemId>*                    systemId);
     virtual void
                  Process_xrEnumerateViewConfigurationViews(const ApiCallInfo&        call_info,
                                                            XrResult                  returnValue,
