@@ -202,6 +202,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         }
     };
 
+    // Xr Support requires this minimal set of remapping information
+
+    VkInstance MapInstance(format::HandleId capture_id)
+    {
+        return MapHandle<InstanceInfo>(capture_id, &VulkanObjectInfoTable::GetInstanceInfo);
+    }
+    VkDevice MapDevice(format::HandleId capture_id)
+    {
+        return MapHandle<DeviceInfo>(capture_id, &VulkanObjectInfoTable::GetDeviceInfo);
+    }
+
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 

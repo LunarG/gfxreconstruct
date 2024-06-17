@@ -56,7 +56,7 @@ class OpenXrNextNode
 };
 
 template <typename T>
-const T* GetPNextMetaStruct(const OpenXrNextNode* next)
+const T* GetNextMetaStruct(const OpenXrNextNode* next)
 {
     struct MetaStructHeader
     {
