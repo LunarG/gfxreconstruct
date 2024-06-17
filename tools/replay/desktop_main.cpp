@@ -49,6 +49,10 @@
 #endif
 #include "parse_dump_resources_cli.h"
 
+#if ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_replay_consumer.h"
+#endif
+
 #include <exception>
 #include <memory>
 #include <stdexcept>
@@ -289,6 +293,14 @@ int main(int argc, const char** argv)
                 file_processor->AddDecoder(&ags_decoder);
 #endif // GFXRECON_AGS_SUPPORT
             }
+#endif
+
+#if ENABLE_OPENXR_SUPPORT
+            gfxrecon::decode::OpenXrDecoder        openxr_decoder;
+            gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer;
+            openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
+            openxr_decoder.AddConsumer(&openxr_replay_consumer);
+            file_processor->AddDecoder(&openxr_decoder);
 #endif
 
             // Warn if the capture layer is active.

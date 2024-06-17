@@ -90,6 +90,8 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_json_consumer_base.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_next_node.h
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_next_typed_node.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/openxr_replay_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/openxr_stats_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/pointer_decoder.h
@@ -393,10 +395,11 @@ target_link_libraries(gfxrecon_decode
                         gfxrecon_util
                         vulkan_registry
                         vulkan_memory_allocator
-                        openxr_headers
+                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:openxr_headers>
                         platform_specific
                         spirv-reflect-static
                         nlohmann_json::nlohmann_json
+                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR::openxr_loader>
                         $<$<BOOL:${D3D12_SUPPORT}>:dxguid.lib>)
 
 common_build_directives(gfxrecon_decode)
