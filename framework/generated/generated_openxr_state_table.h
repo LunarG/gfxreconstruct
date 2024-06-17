@@ -46,10 +46,13 @@ class OpenXrStateTable : OpenXrStateTableBase
     OpenXrStateTable() {}
     ~OpenXrStateTable() {}
 
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::CommandBufferWrapper* wrapper) { return InsertEntry(id, wrapper, v_commandBuffer_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::DeviceWrapper* wrapper) { return InsertEntry(id, wrapper, v_device_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::ImageWrapper* wrapper) { return InsertEntry(id, wrapper, v_image_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::InstanceWrapper* wrapper) { return InsertEntry(id, wrapper, v_instance_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { return InsertEntry(id, wrapper, v_physicalDevice_map_); }
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::QueueWrapper* wrapper) { return InsertEntry(id, wrapper, v_queue_map_); }
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::SurfaceKHRWrapper* wrapper) { return InsertEntry(id, wrapper, v_surfaceKHR_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::SwapchainKHRWrapper* wrapper) { return InsertEntry(id, wrapper, v_swapchainKHR_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::ActionWrapper* wrapper) { return InsertEntry(id, wrapper, x_action_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::ActionSetWrapper* wrapper) { return InsertEntry(id, wrapper, x_actionSet_map_); }
@@ -88,10 +91,13 @@ class OpenXrStateTable : OpenXrStateTableBase
     bool InsertWrapper(format::HandleId id, openxr_wrappers::RenderModelKeyFBWrapper* wrapper) { return InsertEntry(id, wrapper, x_renderModelKeyFB_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::SystemIdWrapper* wrapper) { return InsertEntry(id, wrapper, x_systemId_map_); }
 
+    bool RemoveWrapper(const vulkan_wrappers::CommandBufferWrapper* wrapper) { return RemoveEntry(wrapper, v_commandBuffer_map_); }
     bool RemoveWrapper(const vulkan_wrappers::DeviceWrapper* wrapper) { return RemoveEntry(wrapper, v_device_map_); }
     bool RemoveWrapper(const vulkan_wrappers::ImageWrapper* wrapper) { return RemoveEntry(wrapper, v_image_map_); }
     bool RemoveWrapper(const vulkan_wrappers::InstanceWrapper* wrapper) { return RemoveEntry(wrapper, v_instance_map_); }
     bool RemoveWrapper(const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { return RemoveEntry(wrapper, v_physicalDevice_map_); }
+    bool RemoveWrapper(const vulkan_wrappers::QueueWrapper* wrapper) { return RemoveEntry(wrapper, v_queue_map_); }
+    bool RemoveWrapper(const vulkan_wrappers::SurfaceKHRWrapper* wrapper) { return RemoveEntry(wrapper, v_surfaceKHR_map_); }
     bool RemoveWrapper(const vulkan_wrappers::SwapchainKHRWrapper* wrapper) { return RemoveEntry(wrapper, v_swapchainKHR_map_); }
     bool RemoveWrapper(const openxr_wrappers::ActionWrapper* wrapper) { return RemoveEntry(wrapper, x_action_map_); }
     bool RemoveWrapper(const openxr_wrappers::ActionSetWrapper* wrapper) { return RemoveEntry(wrapper, x_actionSet_map_); }
@@ -130,10 +136,13 @@ class OpenXrStateTable : OpenXrStateTableBase
     bool RemoveWrapper(const openxr_wrappers::RenderModelKeyFBWrapper* wrapper) { return RemoveEntry(wrapper, x_renderModelKeyFB_map_); }
     bool RemoveWrapper(const openxr_wrappers::SystemIdWrapper* wrapper) { return RemoveEntry(wrapper, x_systemId_map_); }
 
+    const vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, v_commandBuffer_map_); }
     const vulkan_wrappers::DeviceWrapper* GetVulkanDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, v_device_map_); }
     const vulkan_wrappers::ImageWrapper* GetVulkanImageWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, v_image_map_); }
     const vulkan_wrappers::InstanceWrapper* GetVulkanInstanceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::InstanceWrapper>(id, v_instance_map_); }
     const vulkan_wrappers::PhysicalDeviceWrapper* GetVulkanPhysicalDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, v_physicalDevice_map_); }
+    const vulkan_wrappers::QueueWrapper* GetVulkanQueueWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::QueueWrapper>(id, v_queue_map_); }
+    const vulkan_wrappers::SurfaceKHRWrapper* GetVulkanSurfaceKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, v_surfaceKHR_map_); }
     const vulkan_wrappers::SwapchainKHRWrapper* GetVulkanSwapchainKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, v_swapchainKHR_map_); }
     const openxr_wrappers::ActionWrapper* GetOpenXrActionWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::ActionWrapper>(id, x_action_map_); }
     const openxr_wrappers::ActionSetWrapper* GetOpenXrActionSetWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::ActionSetWrapper>(id, x_actionSet_map_); }
@@ -172,10 +181,13 @@ class OpenXrStateTable : OpenXrStateTableBase
     const openxr_wrappers::RenderModelKeyFBWrapper* GetOpenXrRenderModelKeyFBWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(id, x_renderModelKeyFB_map_); }
     const openxr_wrappers::SystemIdWrapper* GetOpenXrSystemIdWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::SystemIdWrapper>(id, x_systemId_map_); }
 
+    vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, v_commandBuffer_map_); }
     vulkan_wrappers::DeviceWrapper* GetVulkanDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, v_device_map_); }
     vulkan_wrappers::ImageWrapper* GetVulkanImageWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::ImageWrapper>(id, v_image_map_); }
     vulkan_wrappers::InstanceWrapper* GetVulkanInstanceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::InstanceWrapper>(id, v_instance_map_); }
     vulkan_wrappers::PhysicalDeviceWrapper* GetVulkanPhysicalDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, v_physicalDevice_map_); }
+    vulkan_wrappers::QueueWrapper* GetVulkanQueueWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::QueueWrapper>(id, v_queue_map_); }
+    vulkan_wrappers::SurfaceKHRWrapper* GetVulkanSurfaceKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(id, v_surfaceKHR_map_); }
     vulkan_wrappers::SwapchainKHRWrapper* GetVulkanSwapchainKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(id, v_swapchainKHR_map_); }
     openxr_wrappers::ActionWrapper* GetOpenXrActionWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::ActionWrapper>(id, x_action_map_); }
     openxr_wrappers::ActionSetWrapper* GetOpenXrActionSetWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::ActionSetWrapper>(id, x_actionSet_map_); }
@@ -214,10 +226,13 @@ class OpenXrStateTable : OpenXrStateTableBase
     openxr_wrappers::RenderModelKeyFBWrapper* GetOpenXrRenderModelKeyFBWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(id, x_renderModelKeyFB_map_); }
     openxr_wrappers::SystemIdWrapper* GetOpenXrSystemIdWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::SystemIdWrapper>(id, x_systemId_map_); }
 
+    void VisitWrappers(std::function<void(vulkan_wrappers::CommandBufferWrapper*)> visitor) const { for (auto entry : v_commandBuffer_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::DeviceWrapper*)> visitor) const { for (auto entry : v_device_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::ImageWrapper*)> visitor) const { for (auto entry : v_image_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::InstanceWrapper*)> visitor) const { for (auto entry : v_instance_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::PhysicalDeviceWrapper*)> visitor) const { for (auto entry : v_physicalDevice_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::QueueWrapper*)> visitor) const { for (auto entry : v_queue_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::SurfaceKHRWrapper*)> visitor) const { for (auto entry : v_surfaceKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::SwapchainKHRWrapper*)> visitor) const { for (auto entry : v_swapchainKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::ActionWrapper*)> visitor) const { for (auto entry : x_action_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::ActionSetWrapper*)> visitor) const { for (auto entry : x_actionSet_map_) { visitor(entry.second); } }
@@ -257,10 +272,13 @@ class OpenXrStateTable : OpenXrStateTableBase
     void VisitWrappers(std::function<void(openxr_wrappers::SystemIdWrapper*)> visitor) const { for (auto entry : x_systemId_map_) { visitor(entry.second); } }
 
   private:
+    std::map<format::HandleId, vulkan_wrappers::CommandBufferWrapper*> v_commandBuffer_map_;
     std::map<format::HandleId, vulkan_wrappers::DeviceWrapper*> v_device_map_;
     std::map<format::HandleId, vulkan_wrappers::ImageWrapper*> v_image_map_;
     std::map<format::HandleId, vulkan_wrappers::InstanceWrapper*> v_instance_map_;
     std::map<format::HandleId, vulkan_wrappers::PhysicalDeviceWrapper*> v_physicalDevice_map_;
+    std::map<format::HandleId, vulkan_wrappers::QueueWrapper*> v_queue_map_;
+    std::map<format::HandleId, vulkan_wrappers::SurfaceKHRWrapper*> v_surfaceKHR_map_;
     std::map<format::HandleId, vulkan_wrappers::SwapchainKHRWrapper*> v_swapchainKHR_map_;
     std::map<format::HandleId, openxr_wrappers::ActionWrapper*> x_action_map_;
     std::map<format::HandleId, openxr_wrappers::ActionSetWrapper*> x_actionSet_map_;
@@ -306,10 +324,13 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     OpenXrStateHandleTable() {}
     ~OpenXrStateHandleTable() {}
 
+    bool InsertWrapper(vulkan_wrappers::CommandBufferWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_commandBuffer_map_); }
     bool InsertWrapper(vulkan_wrappers::DeviceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_device_map_); }
     bool InsertWrapper(vulkan_wrappers::ImageWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_image_map_); }
     bool InsertWrapper(vulkan_wrappers::InstanceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_instance_map_); }
     bool InsertWrapper(vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_physicalDevice_map_); }
+    bool InsertWrapper(vulkan_wrappers::QueueWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_queue_map_); }
+    bool InsertWrapper(vulkan_wrappers::SurfaceKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_surfaceKHR_map_); }
     bool InsertWrapper(vulkan_wrappers::SwapchainKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, v_swapchainKHR_map_); }
     bool InsertWrapper(openxr_wrappers::ActionWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_action_map_); }
     bool InsertWrapper(openxr_wrappers::ActionSetWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_actionSet_map_); }
@@ -348,6 +369,10 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     bool InsertWrapper(openxr_wrappers::RenderModelKeyFBWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_renderModelKeyFB_map_); }
     bool InsertWrapper(openxr_wrappers::SystemIdWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_systemId_map_); }
 
+    bool RemoveWrapper(const vulkan_wrappers::CommandBufferWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, v_commandBuffer_map_);
+    }
     bool RemoveWrapper(const vulkan_wrappers::DeviceWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, v_device_map_);
@@ -363,6 +388,14 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, v_physicalDevice_map_);
+    }
+    bool RemoveWrapper(const vulkan_wrappers::QueueWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, v_queue_map_);
+    }
+    bool RemoveWrapper(const vulkan_wrappers::SurfaceKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, v_surfaceKHR_map_);
     }
     bool RemoveWrapper(const vulkan_wrappers::SwapchainKHRWrapper* wrapper) {
          if (wrapper == nullptr) return false;
@@ -518,10 +551,13 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }
 
   private:
+    std::unordered_map<VkCommandBuffer, vulkan_wrappers::CommandBufferWrapper*> v_commandBuffer_map_;
     std::unordered_map<VkDevice, vulkan_wrappers::DeviceWrapper*> v_device_map_;
     std::unordered_map<VkImage, vulkan_wrappers::ImageWrapper*> v_image_map_;
     std::unordered_map<VkInstance, vulkan_wrappers::InstanceWrapper*> v_instance_map_;
     std::unordered_map<VkPhysicalDevice, vulkan_wrappers::PhysicalDeviceWrapper*> v_physicalDevice_map_;
+    std::unordered_map<VkQueue, vulkan_wrappers::QueueWrapper*> v_queue_map_;
+    std::unordered_map<VkSurfaceKHR, vulkan_wrappers::SurfaceKHRWrapper*> v_surfaceKHR_map_;
     std::unordered_map<VkSwapchainKHR, vulkan_wrappers::SwapchainKHRWrapper*> v_swapchainKHR_map_;
     std::unordered_map<XrAction, openxr_wrappers::ActionWrapper*> x_action_map_;
     std::unordered_map<XrActionSet, openxr_wrappers::ActionSetWrapper*> x_actionSet_map_;
@@ -561,10 +597,13 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     std::unordered_map<XrSystemId, openxr_wrappers::SystemIdWrapper*> x_systemId_map_;
 };
 
+template<> inline const vulkan_wrappers::CommandBufferWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(VkCommandBuffer handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_commandBuffer_map_); }
 template<> inline const vulkan_wrappers::DeviceWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::DeviceWrapper>(VkDevice handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_device_map_); }
 template<> inline const vulkan_wrappers::ImageWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::ImageWrapper>(VkImage handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_image_map_); }
 template<> inline const vulkan_wrappers::InstanceWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::InstanceWrapper>(VkInstance handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_instance_map_); }
 template<> inline const vulkan_wrappers::PhysicalDeviceWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(VkPhysicalDevice handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_physicalDevice_map_); }
+template<> inline const vulkan_wrappers::QueueWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::QueueWrapper>(VkQueue handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_queue_map_); }
+template<> inline const vulkan_wrappers::SurfaceKHRWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(VkSurfaceKHR handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_surfaceKHR_map_); }
 template<> inline const vulkan_wrappers::SwapchainKHRWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(VkSwapchainKHR handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_swapchainKHR_map_); }
 template<> inline const openxr_wrappers::ActionWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ActionWrapper>(XrAction handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_action_map_); }
 template<> inline const openxr_wrappers::ActionSetWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ActionSetWrapper>(XrActionSet handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_actionSet_map_); }
@@ -603,10 +642,13 @@ template<> inline const openxr_wrappers::PathWrapper* OpenXrStateHandleTable::Ge
 template<> inline const openxr_wrappers::RenderModelKeyFBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(XrRenderModelKeyFB handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_renderModelKeyFB_map_); }
 template<> inline const openxr_wrappers::SystemIdWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::SystemIdWrapper>(XrSystemId handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_systemId_map_); }
 
+template<> inline vulkan_wrappers::CommandBufferWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(VkCommandBuffer handle) { return OpenXrStateTableBase::GetWrapper(handle, v_commandBuffer_map_); }
 template<> inline vulkan_wrappers::DeviceWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::DeviceWrapper>(VkDevice handle) { return OpenXrStateTableBase::GetWrapper(handle, v_device_map_); }
 template<> inline vulkan_wrappers::ImageWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::ImageWrapper>(VkImage handle) { return OpenXrStateTableBase::GetWrapper(handle, v_image_map_); }
 template<> inline vulkan_wrappers::InstanceWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::InstanceWrapper>(VkInstance handle) { return OpenXrStateTableBase::GetWrapper(handle, v_instance_map_); }
 template<> inline vulkan_wrappers::PhysicalDeviceWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(VkPhysicalDevice handle) { return OpenXrStateTableBase::GetWrapper(handle, v_physicalDevice_map_); }
+template<> inline vulkan_wrappers::QueueWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::QueueWrapper>(VkQueue handle) { return OpenXrStateTableBase::GetWrapper(handle, v_queue_map_); }
+template<> inline vulkan_wrappers::SurfaceKHRWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::SurfaceKHRWrapper>(VkSurfaceKHR handle) { return OpenXrStateTableBase::GetWrapper(handle, v_surfaceKHR_map_); }
 template<> inline vulkan_wrappers::SwapchainKHRWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::SwapchainKHRWrapper>(VkSwapchainKHR handle) { return OpenXrStateTableBase::GetWrapper(handle, v_swapchainKHR_map_); }
 template<> inline openxr_wrappers::ActionWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ActionWrapper>(XrAction handle) { return OpenXrStateTableBase::GetWrapper(handle, x_action_map_); }
 template<> inline openxr_wrappers::ActionSetWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ActionSetWrapper>(XrActionSet handle) { return OpenXrStateTableBase::GetWrapper(handle, x_actionSet_map_); }

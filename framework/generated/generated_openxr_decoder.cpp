@@ -200,7 +200,7 @@ size_t OpenXrDecoder::Decode_xrGetSystemProperties(const ApiCallInfo& call_info,
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     StructPointerDecoder<Decoded_XrSystemProperties> properties;
     XrResult return_value;
 
@@ -222,7 +222,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateEnvironmentBlendModes(const ApiCallInfo&
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     XrViewConfigurationType viewConfigurationType;
     uint32_t environmentBlendModeCapacityInput;
     PointerDecoder<uint32_t> environmentBlendModeCountOutput;
@@ -422,7 +422,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateViewConfigurations(const ApiCallInfo& ca
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     uint32_t viewConfigurationTypeCapacityInput;
     PointerDecoder<uint32_t> viewConfigurationTypeCountOutput;
     PointerDecoder<XrViewConfigurationType> viewConfigurationTypes;
@@ -448,7 +448,7 @@ size_t OpenXrDecoder::Decode_xrGetViewConfigurationProperties(const ApiCallInfo&
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     XrViewConfigurationType viewConfigurationType;
     StructPointerDecoder<Decoded_XrViewConfigurationProperties> configurationProperties;
     XrResult return_value;
@@ -472,7 +472,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateViewConfigurationViews(const ApiCallInfo
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     XrViewConfigurationType viewConfigurationType;
     uint32_t viewCapacityInput;
     PointerDecoder<uint32_t> viewCountOutput;
@@ -794,7 +794,7 @@ size_t OpenXrDecoder::Decode_xrPathToString(const ApiCallInfo& call_info, const 
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrPath path;
+    format::HandleId path;
     uint32_t bufferCapacityInput;
     PointerDecoder<uint32_t> bufferCountOutput;
     StringDecoder buffer;
@@ -950,7 +950,7 @@ size_t OpenXrDecoder::Decode_xrGetCurrentInteractionProfile(const ApiCallInfo& c
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath topLevelUserPath;
+    format::HandleId topLevelUserPath;
     StructPointerDecoder<Decoded_XrInteractionProfileState> interactionProfile;
     XrResult return_value;
 
@@ -1289,7 +1289,7 @@ size_t OpenXrDecoder::Decode_xrGetOpenGLGraphicsRequirementsKHR(const ApiCallInf
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     StructPointerDecoder<Decoded_XrGraphicsRequirementsOpenGLKHR> graphicsRequirements;
     XrResult return_value;
 
@@ -1311,7 +1311,7 @@ size_t OpenXrDecoder::Decode_xrGetOpenGLESGraphicsRequirementsKHR(const ApiCallI
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     StructPointerDecoder<Decoded_XrGraphicsRequirementsOpenGLESKHR> graphicsRequirements;
     XrResult return_value;
 
@@ -1333,7 +1333,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanInstanceExtensionsKHR(const ApiCallInfo&
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     uint32_t bufferCapacityInput;
     PointerDecoder<uint32_t> bufferCountOutput;
     StringDecoder buffer;
@@ -1369,7 +1369,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanDeviceExtensionsKHR(const ApiCallInfo& c
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     uint32_t bufferCapacityInput;
     PointerDecoder<uint32_t> bufferCountOutput;
     StringDecoder buffer;
@@ -1405,7 +1405,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo& cal
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     format::HandleId vkInstance;
     HandlePointerDecoder<VkPhysicalDevice> vkPhysicalDevice;
     XrResult return_value;
@@ -1429,7 +1429,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsRequirementsKHR(const ApiCallInf
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR> graphicsRequirements;
     XrResult return_value;
 
@@ -1451,7 +1451,7 @@ size_t OpenXrDecoder::Decode_xrGetD3D11GraphicsRequirementsKHR(const ApiCallInfo
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     StructPointerDecoder<Decoded_XrGraphicsRequirementsD3D11KHR> graphicsRequirements;
     XrResult return_value;
 
@@ -1473,7 +1473,7 @@ size_t OpenXrDecoder::Decode_xrGetD3D12GraphicsRequirementsKHR(const ApiCallInfo
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     StructPointerDecoder<Decoded_XrGraphicsRequirementsD3D12KHR> graphicsRequirements;
     XrResult return_value;
 
@@ -1724,7 +1724,7 @@ size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsRequirements2KHR(const ApiCallIn
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR> graphicsRequirements;
     XrResult return_value;
 
@@ -1998,8 +1998,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceActiveEXT(const ApiCallInfo& call_i
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath interactionProfile;
-    XrPath topLevelPath;
+    format::HandleId interactionProfile;
+    format::HandleId topLevelPath;
     XrBool32 isActive;
     XrResult return_value;
 
@@ -2022,8 +2022,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceStateBoolEXT(const ApiCallInfo& cal
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath topLevelPath;
-    XrPath inputSourcePath;
+    format::HandleId topLevelPath;
+    format::HandleId inputSourcePath;
     XrBool32 state;
     XrResult return_value;
 
@@ -2046,8 +2046,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceStateFloatEXT(const ApiCallInfo& ca
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath topLevelPath;
-    XrPath inputSourcePath;
+    format::HandleId topLevelPath;
+    format::HandleId inputSourcePath;
     float state;
     XrResult return_value;
 
@@ -2070,8 +2070,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceStateVector2fEXT(const ApiCallInfo&
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath topLevelPath;
-    XrPath inputSourcePath;
+    format::HandleId topLevelPath;
+    format::HandleId inputSourcePath;
     Decoded_XrVector2f state;
     XrVector2f value_state;
     state.decoded_value = &value_state;
@@ -2096,8 +2096,8 @@ size_t OpenXrDecoder::Decode_xrSetInputDeviceLocationEXT(const ApiCallInfo& call
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath topLevelPath;
-    XrPath inputSourcePath;
+    format::HandleId topLevelPath;
+    format::HandleId inputSourcePath;
     format::HandleId space;
     Decoded_XrPosef pose;
     XrPosef value_pose;
@@ -2314,7 +2314,7 @@ size_t OpenXrDecoder::Decode_xrGetControllerModelKeyMSFT(const ApiCallInfo& call
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath topLevelUserPath;
+    format::HandleId topLevelUserPath;
     StructPointerDecoder<Decoded_XrControllerModelKeyStateMSFT> controllerModelKeyState;
     XrResult return_value;
 
@@ -2336,7 +2336,7 @@ size_t OpenXrDecoder::Decode_xrLoadControllerModelMSFT(const ApiCallInfo& call_i
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrControllerModelKeyMSFT modelKey;
+    format::HandleId modelKey;
     uint32_t bufferCapacityInput;
     PointerDecoder<uint32_t> bufferCountOutput;
     PointerDecoder<uint8_t> buffer;
@@ -2362,7 +2362,7 @@ size_t OpenXrDecoder::Decode_xrGetControllerModelPropertiesMSFT(const ApiCallInf
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrControllerModelKeyMSFT modelKey;
+    format::HandleId modelKey;
     StructPointerDecoder<Decoded_XrControllerModelPropertiesMSFT> properties;
     XrResult return_value;
 
@@ -2384,7 +2384,7 @@ size_t OpenXrDecoder::Decode_xrGetControllerModelStateMSFT(const ApiCallInfo& ca
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrControllerModelKeyMSFT modelKey;
+    format::HandleId modelKey;
     StructPointerDecoder<Decoded_XrControllerModelStateMSFT> state;
     XrResult return_value;
 
@@ -2450,7 +2450,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateReprojectionModesMSFT(const ApiCallInfo&
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     XrViewConfigurationType viewConfigurationType;
     uint32_t modeCapacityInput;
     PointerDecoder<uint32_t> modeCountOutput;
@@ -2684,7 +2684,7 @@ size_t OpenXrDecoder::Decode_xrEnumerateSceneComputeFeaturesMSFT(const ApiCallIn
     size_t bytes_read = 0;
 
     format::HandleId instance;
-    XrSystemId systemId;
+    format::HandleId systemId;
     uint32_t featureCapacityInput;
     PointerDecoder<uint32_t> featureCountOutput;
     PointerDecoder<XrSceneComputeFeatureMSFT> features;
@@ -3682,7 +3682,7 @@ size_t OpenXrDecoder::Decode_xrGetRenderModelPropertiesFB(const ApiCallInfo& cal
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath path;
+    format::HandleId path;
     StructPointerDecoder<Decoded_XrRenderModelPropertiesFB> properties;
     XrResult return_value;
 
@@ -4000,7 +4000,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerReprojectionErrorML(const ApiCallInfo& c
     size_t bytes_read = 0;
 
     format::HandleId markerDetector;
-    XrMarkerML marker;
+    format::HandleId marker;
     PointerDecoder<float> reprojectionErrorMeters;
     XrResult return_value;
 
@@ -4022,7 +4022,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerLengthML(const ApiCallInfo& call_info, c
     size_t bytes_read = 0;
 
     format::HandleId markerDetector;
-    XrMarkerML marker;
+    format::HandleId marker;
     PointerDecoder<float> meters;
     XrResult return_value;
 
@@ -4044,7 +4044,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerNumberML(const ApiCallInfo& call_info, c
     size_t bytes_read = 0;
 
     format::HandleId markerDetector;
-    XrMarkerML marker;
+    format::HandleId marker;
     PointerDecoder<uint64_t> number;
     XrResult return_value;
 
@@ -4066,7 +4066,7 @@ size_t OpenXrDecoder::Decode_xrGetMarkerStringML(const ApiCallInfo& call_info, c
     size_t bytes_read = 0;
 
     format::HandleId markerDetector;
-    XrMarkerML marker;
+    format::HandleId marker;
     uint32_t bufferCapacityInput;
     PointerDecoder<uint32_t> bufferCountOutput;
     StringDecoder buffer;
@@ -4539,7 +4539,7 @@ size_t OpenXrDecoder::Decode_xrRetrieveSpaceQueryResultsFB(const ApiCallInfo& ca
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId;
     StructPointerDecoder<Decoded_XrSpaceQueryResultsFB> results;
     XrResult return_value;
 
@@ -5387,7 +5387,7 @@ size_t OpenXrDecoder::Decode_xrQueryPerformanceMetricsCounterMETA(const ApiCallI
     size_t bytes_read = 0;
 
     format::HandleId session;
-    XrPath counterPath;
+    format::HandleId counterPath;
     StructPointerDecoder<Decoded_XrPerformanceMetricsCounterMETA> counter;
     XrResult return_value;
 

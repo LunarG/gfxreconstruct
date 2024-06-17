@@ -30,6 +30,7 @@
 #include "decode/common_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/custom_openxr_struct_decoders.h"
+#include "decode/openxr_enum_util.h"
 #include "format/platform_types.h"
 #include "util/defines.h"
 
@@ -46,6 +47,19 @@ class OpenXrConsumerBase : public CommonConsumerBase
     OpenXrConsumerBase() {}
 
     virtual ~OpenXrConsumerBase() {}
+
+    virtual void
+    Process_xrInitializeLoaderKHR(const ApiCallInfo&                                           call_info,
+                                  XrResult                                                     returnValue,
+                                  StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
+    {}
+
+    virtual void Process_xrCreateApiLayerInstance(const ApiCallInfo&                                  call_info,
+                                                  XrResult                                            returnValue,
+                                                  StructPointerDecoder<Decoded_XrInstanceCreateInfo>* info,
+                                                  StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* layerInfo,
+                                                  HandlePointerDecoder<XrInstance>*                   instance)
+    {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

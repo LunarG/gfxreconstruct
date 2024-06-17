@@ -293,6 +293,9 @@ class BaseGenerator(OutputGenerator):
         # These structures should not be processed by the code generator.  They require special implementations.
         self.STRUCT_BLACKLIST = []
 
+        # These structures should be ignored for handle mapping/unwrapping. They require special implementations.
+        self.STRUCT_MAPPERS_BLACKLIST = []
+
         # Platform specific basic types that have been defined extarnally to the OpenXR header.
         self.PLATFORM_TYPES = {}
 
@@ -378,6 +381,9 @@ class BaseGenerator(OutputGenerator):
         self.handle_names.add('VkPhysicalDevice')
         self.handle_names.add('VkDevice')
         self.handle_names.add('VkImage')
+        self.handle_names.add('VkCommandBuffer')
+        self.handle_names.add('VkQueue')
+        self.handle_names.add('VkSurfaceKHR')
         self.handle_names.add('VkSwapchainKHR')
 
         # Add Vulkan enums
@@ -903,6 +909,11 @@ class BaseGenerator(OutputGenerator):
     def is_openxr_class(self):
         return True if ('OpenXr' in self.__class__.__name__) else False
 
+    def is_resource_dump_class(self):
+        return True if (
+            'ReplayDumpResources' in self.__class__.__name__
+        ) else False
+
     def get_filtered_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
         return [
@@ -963,6 +974,10 @@ class BaseGenerator(OutputGenerator):
                                     + "'][@category='handle']"
                                 )
 
+                                # Check for Vulkan handles as well.
+                                if member_info.text in self.handle_names:
+                                    found_handle = True
+
                                 # Also check to see if this is an atom
                                 base_type = self.registry.tree.find(
                                     "types/type/[name='" + member_info.text
@@ -1017,7 +1032,9 @@ class BaseGenerator(OutputGenerator):
         has_handle_pointer = False
         map_data = []
         for value in self.feature_struct_members[typename]:
-            if self.is_handle(value.base_type) or self.is_class(value) or (
+            if self.is_handle(value.base_type) or self.is_atom(
+                value.base_type
+            ) or self.is_class(value) or (
                 extra_types and value.base_type in extra_types
             ):
                 # The member is a handle.
@@ -1054,7 +1071,7 @@ class BaseGenerator(OutputGenerator):
                     elif union_info.base_type in self.MAP_STRUCT_TYPE:
                         if (structs_with_map_data is not None):
                             map_data.append(value)
-            elif ('next' in value.name):
+            elif ('next' == value.name):
                 # The next chain may include a struct with handles.
                 has_next_handles, has_next_handle_ptrs = self.check_struct_next_handles(
                     typename
@@ -1181,7 +1198,7 @@ class BaseGenerator(OutputGenerator):
         """Convert a type name to a string to be used as part of an encoder/decoder function/method name."""
         if self.is_struct(base_type):
             return base_type
-        elif self.is_handle(base_type):
+        elif self.is_handle(base_type) or self.is_atom(base_type):
             type_name = self.get_prefix_from_type(base_type)
             type_name += 'Handle'
             return type_name
@@ -1268,7 +1285,7 @@ class BaseGenerator(OutputGenerator):
             type_name = 'uint64_t'
         elif self.is_struct(type_name):
             type_name = 'Decoded_{}'.format(type_name)
-        elif self.is_handle(type_name):
+        elif self.is_handle(type_name) or self.is_atom(type_name):
             type_name = 'format::HandleId'
         else:
             type_name = '{}'.format(type_name)

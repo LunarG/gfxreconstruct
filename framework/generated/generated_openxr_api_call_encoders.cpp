@@ -295,7 +295,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSystemProperties(
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetSystemProperties(instance, systemId, properties);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::InstanceWrapper, openxr_wrappers::SystemIdWrapper>(instance, systemId, properties, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -368,13 +373,18 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateSession(
 
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSessionCreateInfo* createInfo_unwrapped = nullptr;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateSession>::Dispatch(manager, instance, createInfo, session);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateSession(instance, createInfo, session);
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateSession(instance, createInfo_unwrapped, session);
 
     auto call_lock = manager->AcquireCallLock();
 
@@ -1422,13 +1432,18 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateAction(
 
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrActionCreateInfo* createInfo_unwrapped = nullptr;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateAction>::Dispatch(manager, actionSet, createInfo, action);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(actionSet)->CreateAction(actionSet, createInfo, action);
+    XrResult result = openxr_wrappers::GetInstanceTable(actionSet)->CreateAction(actionSet, createInfo_unwrapped, action);
 
     auto call_lock = manager->AcquireCallLock();
 
@@ -1575,7 +1590,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetCurrentInteractionProfile(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetCurrentInteractionProfile(session, topLevelUserPath, interactionProfile);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, topLevelUserPath, interactionProfile, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -1865,13 +1885,18 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetInputSourceLocalizedName(
 
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrInputSourceLocalizedNameGetInfo* getInfo_unwrapped = nullptr;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetInputSourceLocalizedName>::Dispatch(manager, session, getInfo, bufferCapacityInput, bufferCountOutput, buffer);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->GetInputSourceLocalizedName(session, getInfo, bufferCapacityInput, bufferCountOutput, buffer);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->GetInputSourceLocalizedName(session, getInfo_unwrapped, bufferCapacityInput, bufferCountOutput, buffer);
 
     auto call_lock = manager->AcquireCallLock();
     if (result < 0)
@@ -3557,7 +3582,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetControllerModelKeyMSFT(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetControllerModelKeyMSFT(session, topLevelUserPath, controllerModelKeyState);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, topLevelUserPath, controllerModelKeyState, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -4616,7 +4646,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViveTrackerPathsHTCX(
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->EnumerateViveTrackerPathsHTCX(instance, pathCapacityInput, pathCountOutput, paths);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedStructArrayHandles<openxr_wrappers::InstanceWrapper, openxr_wrappers::NoParentWrapper, XrViveTrackerPathsHTCX>(instance, openxr_wrappers::NoParentWrapper::kHandleValue, paths, pathCapacityInput, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -5770,7 +5805,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateRenderModelPathsFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EnumerateRenderModelPathsFB(session, pathCapacityInput, pathCountOutput, paths);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedStructArrayHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, XrRenderModelPathInfoFB>(session, openxr_wrappers::NoParentWrapper::kHandleValue, paths, pathCapacityInput, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -5809,7 +5849,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetRenderModelPropertiesFB(
     XrResult result = openxr_wrappers::GetInstanceTable(session)->GetRenderModelPropertiesFB(session, path, properties);
 
     auto call_lock = manager->AcquireCallLock();
-    if (result < 0)
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedStructHandles<openxr_wrappers::SessionWrapper, openxr_wrappers::PathWrapper>(session, path, properties, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }
@@ -5838,13 +5883,18 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLoadRenderModelFB(
 
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrRenderModelLoadInfoFB* info_unwrapped = nullptr;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLoadRenderModelFB>::Dispatch(manager, session, info, buffer);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        info_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(info, handle_unwrap_memory);
     }
 
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->LoadRenderModelFB(session, info, buffer);
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->LoadRenderModelFB(session, info_unwrapped, buffer);
 
     auto call_lock = manager->AcquireCallLock();
     if (result < 0)

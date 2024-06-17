@@ -35,6 +35,24 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(openxr_wrappers)
 
+void UnwrapStructHandles(XrSystemProperties* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrSessionCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
+    }
+}
+
 void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -60,6 +78,13 @@ void UnwrapStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_mem
     }
 }
 
+void UnwrapStructHandles(XrActionCreateInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrActionSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -76,6 +101,13 @@ void UnwrapStructHandles(XrInteractionProfileSuggestedBinding* value, HandleUnwr
 }
 
 void UnwrapStructHandles(XrSessionActionSetsAttachInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrInteractionProfileState* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -105,6 +137,13 @@ void UnwrapStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_me
 }
 
 void UnwrapStructHandles(XrBoundSourcesForActionEnumerateInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrInputSourceLocalizedNameGetInfo* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -212,6 +251,10 @@ void UnwrapStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* u
 {
     if (value != nullptr)
     {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
     }
 }
 
@@ -273,6 +316,13 @@ void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, Ha
     }
 }
 
+void UnwrapStructHandles(XrControllerModelKeyStateMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -313,6 +363,21 @@ void UnwrapStructHandles(XrSceneComponentsLocateInfoMSFT* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
+    }
+}
+
+void UnwrapStructHandles(XrViveTrackerPathsHTCX* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrEventDataViveTrackerConnectedHTCX* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->paths = UnwrapStructPtrHandles(value->paths, unwrap_memory);
     }
 }
 
@@ -383,6 +448,27 @@ void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap
     }
 }
 
+void UnwrapStructHandles(XrRenderModelPathInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrRenderModelPropertiesFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrRenderModelLoadInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -423,6 +509,20 @@ void UnwrapStructHandles(XrSpaceQueryResultsFB* value, HandleUnwrapMemory* unwra
     if (value != nullptr)
     {
         value->results = UnwrapStructArrayHandles(value->results, value->resultCapacityInput, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(XrEventDataSpaceQueryResultsAvailableFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrEventDataSpaceQueryCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
     }
 }
 
@@ -468,12 +568,26 @@ void UnwrapStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_m
     }
 }
 
+void UnwrapStructHandles(XrEventDataSpaceShareCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
         UnwrapStructHandles(&value->motionVectorSubImage, unwrap_memory);
         UnwrapStructHandles(&value->depthSubImage, unwrap_memory);
+    }
+}
+
+void UnwrapStructHandles(XrEventDataSceneCaptureCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
     }
 }
 
@@ -541,6 +655,13 @@ void UnwrapStructHandles(XrEventDataVirtualKeyboardHiddenMETA* value, HandleUnwr
 }
 
 void UnwrapStructHandles(XrSpaceListSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrEventDataSpaceListSaveCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -965,7 +1086,7 @@ XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMem
     return copy;
 }
 
-const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)
+void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {

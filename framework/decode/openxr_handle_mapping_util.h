@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2018-2021 Valve Corporation
-** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2020-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,38 +20,26 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
-#define GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
+#ifndef GFXRECON_DECODE_OPENXR_HANDLE_MAPPING_UTIL_H
+#define GFXRECON_DECODE_OPENXR_HANDLE_MAPPING_UTIL_H
 
 #if ENABLE_OPENXR_SUPPORT
-#include "generated/generated_openxr_object_info_table.h"
-#endif
-#include "decode/vulkan_object_info_table.h"
+
+#include "decode/common_handle_mapping_util.h"
+#include "generated/generated_openxr_struct_decoders.h"
+
+#include "openxr/openxr.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(handle_mapping)
 
-// This class combines all Object info tables into one so that multi-API
-// capture can work by allowing various API entrypoints access to all
-// available objects.   For example, OpenXR objects will be in a shared
-// table with Vulkan objects.
+uint64_t MapHandle(uint64_t object, XrObjectType object_type, const CommonObjectInfoTable& object_info_table);
 
-#if ENABLE_OPENXR_SUPPORT
-class CommonObjectInfoTable : public VulkanObjectInfoTable, public OpenXrObjectInfoTable
-#else
-class CommonObjectInfoTable : public VulkanObjectInfoTable
-#endif
-{
-  public:
-    static CommonObjectInfoTable* GetSingleton();
-    static void                   ReleaseSingleton();
-
-  private:
-    static CommonObjectInfoTable* singleton_;
-    static uint32_t               singleton_refcount_;
-};
-
+GFXRECON_END_NAMESPACE(handle_mapping)
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
+#endif // ENABLE_OPENXR_SUPPORT
+
+#endif // GFXRECON_DECODE_OPENXR_HANDLE_MAPPING_UTIL_H

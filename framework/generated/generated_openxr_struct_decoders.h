@@ -149,7 +149,7 @@ struct Decoded_XrSystemProperties
     XrSystemProperties* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrSystemId systemId;
+    format::HandleId systemId{ format::kNullHandleId };
     StringDecoder systemName;
     Decoded_XrSystemGraphicsProperties* graphicsProperties{ nullptr };
     Decoded_XrSystemTrackingProperties* trackingProperties{ nullptr };
@@ -162,7 +162,7 @@ struct Decoded_XrSessionCreateInfo
     XrSessionCreateInfo* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrSystemId systemId;
+    format::HandleId systemId{ format::kNullHandleId };
 };
 
 struct Decoded_XrVector3f
@@ -225,7 +225,7 @@ struct Decoded_XrActionSpaceCreateInfo
 
     OpenXrNextNode* next{ nullptr };
     format::HandleId action{ format::kNullHandleId };
-    XrPath subactionPath;
+    format::HandleId subactionPath{ format::kNullHandleId };
     Decoded_XrPosef* poseInActionSpace{ nullptr };
 };
 
@@ -396,7 +396,7 @@ struct Decoded_XrActionSuggestedBinding
     XrActionSuggestedBinding* decoded_value{ nullptr };
 
     format::HandleId action{ format::kNullHandleId };
-    XrPath binding;
+    format::HandleId binding{ format::kNullHandleId };
 };
 
 struct Decoded_XrInteractionProfileSuggestedBinding
@@ -406,7 +406,7 @@ struct Decoded_XrInteractionProfileSuggestedBinding
     XrInteractionProfileSuggestedBinding* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrPath interactionProfile;
+    format::HandleId interactionProfile{ format::kNullHandleId };
     StructPointerDecoder<Decoded_XrActionSuggestedBinding>* suggestedBindings{ nullptr };
 };
 
@@ -427,7 +427,7 @@ struct Decoded_XrInteractionProfileState
     XrInteractionProfileState* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrPath interactionProfile;
+    format::HandleId interactionProfile{ format::kNullHandleId };
 };
 
 struct Decoded_XrActionStateGetInfo
@@ -438,7 +438,7 @@ struct Decoded_XrActionStateGetInfo
 
     OpenXrNextNode* next{ nullptr };
     format::HandleId action{ format::kNullHandleId };
-    XrPath subactionPath;
+    format::HandleId subactionPath{ format::kNullHandleId };
 };
 
 struct Decoded_XrActionStateBoolean
@@ -492,7 +492,7 @@ struct Decoded_XrActiveActionSet
     XrActiveActionSet* decoded_value{ nullptr };
 
     format::HandleId actionSet{ format::kNullHandleId };
-    XrPath subactionPath;
+    format::HandleId subactionPath{ format::kNullHandleId };
 };
 
 struct Decoded_XrActionsSyncInfo
@@ -522,7 +522,7 @@ struct Decoded_XrInputSourceLocalizedNameGetInfo
     XrInputSourceLocalizedNameGetInfo* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrPath sourcePath;
+    format::HandleId sourcePath{ format::kNullHandleId };
 };
 
 struct Decoded_XrHapticActionInfo
@@ -533,7 +533,7 @@ struct Decoded_XrHapticActionInfo
 
     OpenXrNextNode* next{ nullptr };
     format::HandleId action{ format::kNullHandleId };
-    XrPath subactionPath;
+    format::HandleId subactionPath{ format::kNullHandleId };
 };
 
 struct Decoded_XrOffset2Di
@@ -1028,7 +1028,7 @@ struct Decoded_XrVulkanGraphicsDeviceGetInfoKHR
     XrVulkanGraphicsDeviceGetInfoKHR* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrSystemId systemId;
+    format::HandleId systemId{ format::kNullHandleId };
     format::HandleId vulkanInstance{ format::kNullHandleId };
 };
 
@@ -1436,7 +1436,7 @@ struct Decoded_XrControllerModelKeyStateMSFT
     XrControllerModelKeyStateMSFT* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrControllerModelKeyMSFT modelKey;
+    format::HandleId modelKey{ format::kNullHandleId };
 };
 
 struct Decoded_XrControllerModelNodePropertiesMSFT
@@ -1614,7 +1614,7 @@ struct Decoded_XrInteractionProfileDpadBindingEXT
     XrInteractionProfileDpadBindingEXT* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrPath binding;
+    format::HandleId binding{ format::kNullHandleId };
     format::HandleId actionSet{ format::kNullHandleId };
     StructPointerDecoder<Decoded_XrHapticBaseHeader>* onHaptic{ nullptr };
     StructPointerDecoder<Decoded_XrHapticBaseHeader>* offHaptic{ nullptr };
@@ -1628,7 +1628,7 @@ struct Decoded_XrInteractionProfileAnalogThresholdVALVE
 
     OpenXrNextNode* next{ nullptr };
     format::HandleId action{ format::kNullHandleId };
-    XrPath binding;
+    format::HandleId binding{ format::kNullHandleId };
     StructPointerDecoder<Decoded_XrHapticBaseHeader>* onHaptic{ nullptr };
     StructPointerDecoder<Decoded_XrHapticBaseHeader>* offHaptic{ nullptr };
 };
@@ -1965,8 +1965,8 @@ struct Decoded_XrViveTrackerPathsHTCX
     XrViveTrackerPathsHTCX* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrPath persistentPath;
-    XrPath rolePath;
+    format::HandleId persistentPath{ format::kNullHandleId };
+    format::HandleId rolePath{ format::kNullHandleId };
 };
 
 struct Decoded_XrEventDataViveTrackerConnectedHTCX
@@ -2133,7 +2133,7 @@ struct Decoded_XrEventDataSpatialAnchorCreateCompleteFB
     XrEventDataSpatialAnchorCreateCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
     Decoded_XrUuidEXT* uuid{ nullptr };
 };
@@ -2145,7 +2145,7 @@ struct Decoded_XrEventDataSpaceSetStatusCompleteFB
     XrEventDataSpaceSetStatusCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
     Decoded_XrUuidEXT* uuid{ nullptr };
 };
@@ -2364,7 +2364,7 @@ struct Decoded_XrRenderModelPathInfoFB
     XrRenderModelPathInfoFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrPath path;
+    format::HandleId path{ format::kNullHandleId };
 };
 
 struct Decoded_XrRenderModelPropertiesFB
@@ -2375,7 +2375,7 @@ struct Decoded_XrRenderModelPropertiesFB
 
     OpenXrNextNode* next{ nullptr };
     StringDecoder modelName;
-    XrRenderModelKeyFB modelKey;
+    format::HandleId modelKey{ format::kNullHandleId };
 };
 
 struct Decoded_XrRenderModelBufferFB
@@ -2395,7 +2395,7 @@ struct Decoded_XrRenderModelLoadInfoFB
     XrRenderModelLoadInfoFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrRenderModelKeyFB modelKey;
+    format::HandleId modelKey{ format::kNullHandleId };
 };
 
 struct Decoded_XrSystemRenderModelPropertiesFB
@@ -2588,7 +2588,7 @@ struct Decoded_XrMarkerSpaceCreateInfoML
 
     OpenXrNextNode* next{ nullptr };
     format::HandleId markerDetector{ format::kNullHandleId };
-    XrMarkerML marker;
+    format::HandleId marker{ format::kNullHandleId };
     Decoded_XrPosef* poseInMarkerSpace{ nullptr };
 };
 
@@ -2796,7 +2796,7 @@ struct Decoded_XrEventDataSpaceQueryResultsAvailableFB
     XrEventDataSpaceQueryResultsAvailableFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
 };
 
 struct Decoded_XrEventDataSpaceQueryCompleteFB
@@ -2806,7 +2806,7 @@ struct Decoded_XrEventDataSpaceQueryCompleteFB
     XrEventDataSpaceQueryCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
 };
 
 struct Decoded_XrSpaceSaveInfoFB
@@ -2836,7 +2836,7 @@ struct Decoded_XrEventDataSpaceSaveCompleteFB
     XrEventDataSpaceSaveCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
     Decoded_XrUuidEXT* uuid{ nullptr };
 };
@@ -2848,7 +2848,7 @@ struct Decoded_XrEventDataSpaceEraseCompleteFB
     XrEventDataSpaceEraseCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
     Decoded_XrUuidEXT* uuid{ nullptr };
 };
@@ -2910,7 +2910,7 @@ struct Decoded_XrEventDataSpaceShareCompleteFB
     XrEventDataSpaceShareCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
 };
 
 struct Decoded_XrCompositionLayerSpaceWarpInfoFB
@@ -3026,7 +3026,7 @@ struct Decoded_XrEventDataSceneCaptureCompleteFB
     XrEventDataSceneCaptureCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
 };
 
 struct Decoded_XrSceneCaptureRequestInfoFB
@@ -3460,7 +3460,7 @@ struct Decoded_XrEventDataSpaceListSaveCompleteFB
     XrEventDataSpaceListSaveCompleteFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    XrAsyncRequestIdFB requestId;
+    format::HandleId requestId{ format::kNullHandleId };
 };
 
 struct Decoded_XrSpaceUserCreateInfoFB

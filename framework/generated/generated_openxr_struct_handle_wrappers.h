@@ -47,17 +47,25 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(openxr_wrappers)
 
+void UnwrapStructHandles(XrSystemProperties* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrSessionCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrActionCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrActionSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrInteractionProfileSuggestedBinding* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSessionActionSetsAttachInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrInteractionProfileState* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrActionStateGetInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -66,6 +74,8 @@ void UnwrapStructHandles(XrActiveActionSet* value, HandleUnwrapMemory* unwrap_me
 void UnwrapStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrBoundSourcesForActionEnumerateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrInputSourceLocalizedNameGetInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrHapticActionInfo* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -111,6 +121,8 @@ void UnwrapStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* u
 
 void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrControllerModelKeyStateMSFT* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrInteractionProfileDpadBindingEXT* value, HandleUnwrapMemory* unwrap_memory);
@@ -122,6 +134,10 @@ void UnwrapStructHandles(XrSceneBoundsMSFT* value, HandleUnwrapMemory* unwrap_me
 void UnwrapStructHandles(XrNewSceneComputeInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSceneComponentsLocateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrViveTrackerPathsHTCX* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrEventDataViveTrackerConnectedHTCX* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSpatialAnchorCreateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -141,6 +157,12 @@ void UnwrapStructHandles(XrGeometryInstanceTransformFB* value, HandleUnwrapMemor
 
 void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrRenderModelPathInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrRenderModelPropertiesFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrRenderModelLoadInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrEventDataLocalizationChangedML* value, HandleUnwrapMemory* unwrap_memory);
@@ -152,6 +174,10 @@ void UnwrapStructHandles(XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* value
 void UnwrapStructHandles(XrSpaceQueryResultFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSpaceQueryResultsFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrEventDataSpaceQueryResultsAvailableFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrEventDataSpaceQueryCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSpaceSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -165,7 +191,11 @@ void UnwrapStructHandles(XrSwapchainImageFoveationVulkanFB* value, HandleUnwrapM
 
 void UnwrapStructHandles(XrSpaceShareInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrEventDataSpaceShareCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrEventDataSceneCaptureCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -186,6 +216,8 @@ void UnwrapStructHandles(XrEventDataVirtualKeyboardShownMETA* value, HandleUnwra
 void UnwrapStructHandles(XrEventDataVirtualKeyboardHiddenMETA* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSpaceListSaveInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrEventDataSpaceListSaveCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrRecommendedLayerResolutionGetInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -213,7 +245,7 @@ void UnwrapStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapM
 
 XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);
 
-const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
+void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory);
 
 template <typename ParentWrapper, typename CoParentWrapper, typename T>
 void CreateWrappedStructArrayHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, T* value, size_t len, PFN_GetHandleId get_id);
@@ -241,6 +273,77 @@ T* UnwrapStructPtrHandles(const T* value, HandleUnwrapMemory* unwrap_memory)
     }
 
     return unwrapped_struct;
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrSystemProperties* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedAtom<ParentWrapper, openxr_wrappers::SystemIdWrapper>(parent, &value->systemId, get_id);
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrSystemGraphicsProperties* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrSystemTrackingProperties* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrInteractionProfileState* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedAtom<ParentWrapper, openxr_wrappers::PathWrapper>(parent, &value->interactionProfile, get_id);
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrControllerModelKeyStateMSFT* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedAtom<ParentWrapper, openxr_wrappers::ControllerModelKeyMSFTWrapper>(parent, &value->modelKey, get_id);
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrViveTrackerPathsHTCX* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedAtom<ParentWrapper, openxr_wrappers::PathWrapper>(parent, &value->persistentPath, get_id);
+        CreateWrappedAtom<ParentWrapper, openxr_wrappers::PathWrapper>(parent, &value->rolePath, get_id);
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrRenderModelPathInfoFB* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedAtom<ParentWrapper, openxr_wrappers::PathWrapper>(parent, &value->path, get_id);
+    }
+}
+
+template <typename ParentWrapper, typename CoParentWrapper>
+void CreateWrappedStructHandles(typename ParentWrapper::HandleType parent, typename CoParentWrapper::HandleType co_parent, XrRenderModelPropertiesFB* value, PFN_GetHandleId get_id)
+{
+    if (value != nullptr)
+    {
+        CreateWrappedAtom<ParentWrapper, openxr_wrappers::RenderModelKeyFBWrapper>(parent, &value->modelKey, get_id);
+    }
 }
 
 template <typename ParentWrapper, typename CoParentWrapper>

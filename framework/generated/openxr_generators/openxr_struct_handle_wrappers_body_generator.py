@@ -136,7 +136,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         # Generate the next handle wrapping code.
         self.newline()
         write(
-            'const void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)',
+            'void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memory)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -215,7 +215,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.feature_struct_members:
+        if self.feature_struct_members or self.feature_cmd_params:
             return True
         return False
 
@@ -232,6 +232,11 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                 ) and (value.base_type in self.structs_with_handles
                        ) and (value.base_type not in self.output_structs):
                     self.output_structs.append(value.base_type)
+                    for member in self.feature_struct_members[value.base_type]:
+                        if self.is_struct(
+                            member.base_type
+                        ) and (member.base_type not in self.output_structs):
+                            self.output_structs.append(member.base_type)
 
         for struct in self.get_filtered_struct_names():
             if (

@@ -28,6 +28,11 @@
 #include "decode/file_processor.h"
 #include "decode/preload_file_processor.h"
 #include "decode/vulkan_replay_options.h"
+#ifdef ENABLE_OPENXR_SUPPORT
+#include "decode/openxr_tracked_object_info_table.h"
+#include "generated/generated_openxr_decoder.h"
+#include "generated/generated_openxr_replay_consumer.h"
+#endif
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
@@ -48,10 +53,6 @@
 #include "graphics/dx12_util.h"
 #endif
 #include "parse_dump_resources_cli.h"
-
-#if ENABLE_OPENXR_SUPPORT
-#include "decode/openxr_replay_consumer.h"
-#endif
 
 #include <exception>
 #include <memory>
@@ -296,8 +297,9 @@ int main(int argc, const char** argv)
 #endif
 
 #if ENABLE_OPENXR_SUPPORT
+            gfxrecon::decode::OpenXrReplayOptions  openxr_replay_options = {};
             gfxrecon::decode::OpenXrDecoder        openxr_decoder;
-            gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer;
+            gfxrecon::decode::OpenXrReplayConsumer openxr_replay_consumer(application, openxr_replay_options);
             openxr_replay_consumer.SetVulkanReplayConsumer(&vulkan_replay_consumer);
             openxr_decoder.AddConsumer(&openxr_replay_consumer);
             file_processor->AddDecoder(&openxr_decoder);

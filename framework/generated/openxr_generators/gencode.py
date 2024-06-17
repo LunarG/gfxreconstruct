@@ -74,6 +74,9 @@ from openxr_enum_to_string_body_generator import OpenXrEnumToStringBodyGenerator
 from openxr_enum_to_string_header_generator import OpenXrEnumToStringHeaderGenerator, OpenXrEnumToStringHeaderGeneratorOptions
 from openxr_state_table_header_generator import OpenXrStateTableHeaderGenerator, OpenXrStateTableHeaderGeneratorOptions
 
+#  Object Info
+from openxr_object_info_table_header_generator import OpenXrObjectInfoTableHeaderGenerator, OpenXrObjectInfoTableHeaderGeneratorOptions
+
 # To Json
 from openxr_enum_to_json_body_generator import OpenXrEnumToJsonBodyGenerator, OpenXrEnumToJsonBodyGeneratorOptions
 from openxr_enum_to_json_header_generator import OpenXrEnumToJsonHeaderGenerator, OpenXrEnumToJsonHeaderGeneratorOptions
@@ -86,6 +89,10 @@ from openxr_struct_decoders_header_generator import OpenXrStructDecodersHeaderGe
 from openxr_struct_decoders_body_generator import OpenXrStructDecodersBodyGenerator, OpenXrStructDecodersBodyGeneratorOptions
 from openxr_struct_next_decoders_generator import OpenXrStructNextDecodersGenerator, OpenXrStructNextDecodersGeneratorOptions
 
+# Mappers
+from openxr_struct_handle_mappers_header_generator import OpenXrStructHandleMappersHeaderGenerator, OpenXrStructHandleMappersHeaderGeneratorOptions
+from openxr_struct_handle_mappers_body_generator import OpenXrStructHandleMappersBodyGenerator, OpenXrStructHandleMappersBodyGeneratorOptions
+
 # Constants
 from openxr_type_util_generator import OpenXrTypeUtilGenerator, OpenXrTypeUtilGeneratorOptions
 
@@ -93,6 +100,7 @@ from openxr_type_util_generator import OpenXrTypeUtilGenerator, OpenXrTypeUtilGe
 from openxr_consumer_header_generator import OpenXrConsumerHeaderGenerator, OpenXrConsumerHeaderGeneratorOptions
 from openxr_json_consumer_header_generator import OpenXrExportJsonConsumerHeaderGenerator, OpenXrExportJsonConsumerHeaderGeneratorOptions
 from openxr_json_consumer_body_generator import OpenXrExportJsonConsumerBodyGenerator, OpenXrExportJsonConsumerBodyGeneratorOptions
+from openxr_replay_consumer_body_generator import OpenXrReplayConsumerBodyGenerator, OpenXrReplayConsumerBodyGeneratorOptions
 
 # Simple timer functions
 start_time = None
@@ -445,6 +453,20 @@ def make_gen_opts(args):
         )
     ]
 
+    gen_opts['generated_openxr_object_info_table.h'] = [
+        OpenXrObjectInfoTableHeaderGenerator,
+        OpenXrObjectInfoTableHeaderGeneratorOptions(
+            filename='generated_openxr_object_info_table.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
     gen_opts['generated_openxr_state_table.h'] = [
         OpenXrStateTableHeaderGenerator,
         OpenXrStateTableHeaderGeneratorOptions(
@@ -572,6 +594,37 @@ def make_gen_opts(args):
     ]
 
     #
+    # Mapper generators
+
+    gen_opts['generated_openxr_struct_handle_mappers.h'] = [
+        OpenXrStructHandleMappersHeaderGenerator,
+        OpenXrStructHandleMappersHeaderGeneratorOptions(
+            filename='generated_openxr_struct_handle_mappers.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_struct_handle_mappers.cpp'] = [
+        OpenXrStructHandleMappersBodyGenerator,
+        OpenXrStructHandleMappersBodyGeneratorOptions(
+            filename='generated_openxr_struct_handle_mappers.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    #
     # Constant generators
 
     gen_opts['generated_openxr_type_util.h'] = [
@@ -630,6 +683,39 @@ def make_gen_opts(args):
             filename='generated_openxr_json_consumer.cpp',
             directory=directory,
             blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+
+    gen_opts['generated_openxr_replay_consumer.h'] = [
+        OpenXrConsumerHeaderGenerator,
+        OpenXrConsumerHeaderGeneratorOptions(
+            class_name='OpenXrReplayConsumer',
+            base_class_header='openxr_replay_consumer_base.h',
+            is_override=True,
+            constructor_args=
+            'std::shared_ptr<application::Application> application, const OpenXrReplayOptions& options',
+            filename='generated_openxr_replay_consumer.h',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + xr_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraOpenXrHeaders=extraOpenXrHeaders
+        )
+    ]
+    gen_opts['generated_openxr_replay_consumer.cpp'] = [
+        OpenXrReplayConsumerBodyGenerator,
+        OpenXrReplayConsumerBodyGeneratorOptions(
+            filename='generated_openxr_replay_consumer.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            replay_overrides=replay_overrides,
             platform_types=platform_types,
             prefix_text=prefix_strings + xr_prefix_strings,
             protect_file=False,

@@ -142,7 +142,7 @@ void OpenXrExportJsonConsumer::Process_xrGetSystemProperties(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     StructPointerDecoder<Decoded_XrSystemProperties>* properties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetSystemProperties");
@@ -159,7 +159,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateEnvironmentBlendModes(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     XrViewConfigurationType                     viewConfigurationType,
     uint32_t                                    environmentBlendModeCapacityInput,
     PointerDecoder<uint32_t>*                   environmentBlendModeCountOutput,
@@ -314,7 +314,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViewConfigurations(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     uint32_t                                    viewConfigurationTypeCapacityInput,
     PointerDecoder<uint32_t>*                   viewConfigurationTypeCountOutput,
     PointerDecoder<XrViewConfigurationType>*    viewConfigurationTypes)
@@ -335,7 +335,7 @@ void OpenXrExportJsonConsumer::Process_xrGetViewConfigurationProperties(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     XrViewConfigurationType                     viewConfigurationType,
     StructPointerDecoder<Decoded_XrViewConfigurationProperties>* configurationProperties)
 {
@@ -354,7 +354,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateViewConfigurationViews(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     XrViewConfigurationType                     viewConfigurationType,
     uint32_t                                    viewCapacityInput,
     PointerDecoder<uint32_t>*                   viewCountOutput,
@@ -601,7 +601,7 @@ void OpenXrExportJsonConsumer::Process_xrPathToString(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrPath                                      path,
+    format::HandleId                            path,
     uint32_t                                    bufferCapacityInput,
     PointerDecoder<uint32_t>*                   bufferCountOutput,
     StringDecoder*                              buffer)
@@ -712,7 +712,7 @@ void OpenXrExportJsonConsumer::Process_xrGetCurrentInteractionProfile(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      topLevelUserPath,
+    format::HandleId                            topLevelUserPath,
     StructPointerDecoder<Decoded_XrInteractionProfileState>* interactionProfile)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetCurrentInteractionProfile");
@@ -959,7 +959,7 @@ void OpenXrExportJsonConsumer::Process_xrGetOpenGLGraphicsRequirementsKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     StructPointerDecoder<Decoded_XrGraphicsRequirementsOpenGLKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetOpenGLGraphicsRequirementsKHR");
@@ -976,7 +976,7 @@ void OpenXrExportJsonConsumer::Process_xrGetOpenGLESGraphicsRequirementsKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     StructPointerDecoder<Decoded_XrGraphicsRequirementsOpenGLESKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetOpenGLESGraphicsRequirementsKHR");
@@ -993,7 +993,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanInstanceExtensionsKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     uint32_t                                    bufferCapacityInput,
     PointerDecoder<uint32_t>*                   bufferCountOutput,
     StringDecoder*                              buffer)
@@ -1014,7 +1014,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanDeviceExtensionsKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     uint32_t                                    bufferCapacityInput,
     PointerDecoder<uint32_t>*                   bufferCountOutput,
     StringDecoder*                              buffer)
@@ -1035,7 +1035,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanGraphicsDeviceKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     format::HandleId                            vkInstance,
     HandlePointerDecoder<VkPhysicalDevice>*     vkPhysicalDevice)
 {
@@ -1054,7 +1054,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanGraphicsRequirementsKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanGraphicsRequirementsKHR");
@@ -1071,7 +1071,7 @@ void OpenXrExportJsonConsumer::Process_xrGetD3D11GraphicsRequirementsKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     StructPointerDecoder<Decoded_XrGraphicsRequirementsD3D11KHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetD3D11GraphicsRequirementsKHR");
@@ -1088,7 +1088,7 @@ void OpenXrExportJsonConsumer::Process_xrGetD3D12GraphicsRequirementsKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     StructPointerDecoder<Decoded_XrGraphicsRequirementsD3D12KHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetD3D12GraphicsRequirementsKHR");
@@ -1272,7 +1272,7 @@ void OpenXrExportJsonConsumer::Process_xrGetVulkanGraphicsRequirements2KHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR>* graphicsRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetVulkanGraphicsRequirements2KHR");
@@ -1481,8 +1481,8 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceActiveEXT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      interactionProfile,
-    XrPath                                      topLevelPath,
+    format::HandleId                            interactionProfile,
+    format::HandleId                            topLevelPath,
     XrBool32                                    isActive)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceActiveEXT");
@@ -1500,8 +1500,8 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceStateBoolEXT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      topLevelPath,
-    XrPath                                      inputSourcePath,
+    format::HandleId                            topLevelPath,
+    format::HandleId                            inputSourcePath,
     XrBool32                                    state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceStateBoolEXT");
@@ -1519,8 +1519,8 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceStateFloatEXT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      topLevelPath,
-    XrPath                                      inputSourcePath,
+    format::HandleId                            topLevelPath,
+    format::HandleId                            inputSourcePath,
     float                                       state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceStateFloatEXT");
@@ -1538,8 +1538,8 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceStateVector2fEXT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      topLevelPath,
-    XrPath                                      inputSourcePath,
+    format::HandleId                            topLevelPath,
+    format::HandleId                            inputSourcePath,
     Decoded_XrVector2f                          state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrSetInputDeviceStateVector2fEXT");
@@ -1557,8 +1557,8 @@ void OpenXrExportJsonConsumer::Process_xrSetInputDeviceLocationEXT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      topLevelPath,
-    XrPath                                      inputSourcePath,
+    format::HandleId                            topLevelPath,
+    format::HandleId                            inputSourcePath,
     format::HandleId                            space,
     Decoded_XrPosef                             pose)
 {
@@ -1723,7 +1723,7 @@ void OpenXrExportJsonConsumer::Process_xrGetControllerModelKeyMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      topLevelUserPath,
+    format::HandleId                            topLevelUserPath,
     StructPointerDecoder<Decoded_XrControllerModelKeyStateMSFT>* controllerModelKeyState)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetControllerModelKeyMSFT");
@@ -1740,7 +1740,7 @@ void OpenXrExportJsonConsumer::Process_xrLoadControllerModelMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrControllerModelKeyMSFT                    modelKey,
+    format::HandleId                            modelKey,
     uint32_t                                    bufferCapacityInput,
     PointerDecoder<uint32_t>*                   bufferCountOutput,
     PointerDecoder<uint8_t>*                    buffer)
@@ -1761,7 +1761,7 @@ void OpenXrExportJsonConsumer::Process_xrGetControllerModelPropertiesMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrControllerModelKeyMSFT                    modelKey,
+    format::HandleId                            modelKey,
     StructPointerDecoder<Decoded_XrControllerModelPropertiesMSFT>* properties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetControllerModelPropertiesMSFT");
@@ -1778,7 +1778,7 @@ void OpenXrExportJsonConsumer::Process_xrGetControllerModelStateMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrControllerModelKeyMSFT                    modelKey,
+    format::HandleId                            modelKey,
     StructPointerDecoder<Decoded_XrControllerModelStateMSFT>* state)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetControllerModelStateMSFT");
@@ -1829,7 +1829,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateReprojectionModesMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     XrViewConfigurationType                     viewConfigurationType,
     uint32_t                                    modeCapacityInput,
     PointerDecoder<uint32_t>*                   modeCountOutput,
@@ -1994,7 +1994,7 @@ void OpenXrExportJsonConsumer::Process_xrEnumerateSceneComputeFeaturesMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            instance,
-    XrSystemId                                  systemId,
+    format::HandleId                            systemId,
     uint32_t                                    featureCapacityInput,
     PointerDecoder<uint32_t>*                   featureCountOutput,
     PointerDecoder<XrSceneComputeFeatureMSFT>*  features)
@@ -2752,7 +2752,7 @@ void OpenXrExportJsonConsumer::Process_xrGetRenderModelPropertiesFB(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      path,
+    format::HandleId                            path,
     StructPointerDecoder<Decoded_XrRenderModelPropertiesFB>* properties)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetRenderModelPropertiesFB");
@@ -2995,7 +2995,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerReprojectionErrorML(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            markerDetector,
-    XrMarkerML                                  marker,
+    format::HandleId                            marker,
     PointerDecoder<float>*                      reprojectionErrorMeters)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerReprojectionErrorML");
@@ -3012,7 +3012,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerLengthML(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            markerDetector,
-    XrMarkerML                                  marker,
+    format::HandleId                            marker,
     PointerDecoder<float>*                      meters)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerLengthML");
@@ -3029,7 +3029,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerNumberML(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            markerDetector,
-    XrMarkerML                                  marker,
+    format::HandleId                            marker,
     PointerDecoder<uint64_t>*                   number)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetMarkerNumberML");
@@ -3046,7 +3046,7 @@ void OpenXrExportJsonConsumer::Process_xrGetMarkerStringML(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            markerDetector,
-    XrMarkerML                                  marker,
+    format::HandleId                            marker,
     uint32_t                                    bufferCapacityInput,
     PointerDecoder<uint32_t>*                   bufferCountOutput,
     StringDecoder*                              buffer)
@@ -3377,7 +3377,7 @@ void OpenXrExportJsonConsumer::Process_xrRetrieveSpaceQueryResultsFB(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrAsyncRequestIdFB                          requestId,
+    format::HandleId                            requestId,
     StructPointerDecoder<Decoded_XrSpaceQueryResultsFB>* results)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrRetrieveSpaceQueryResultsFB");
@@ -4010,7 +4010,7 @@ void OpenXrExportJsonConsumer::Process_xrQueryPerformanceMetricsCounterMETA(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    XrPath                                      counterPath,
+    format::HandleId                            counterPath,
     StructPointerDecoder<Decoded_XrPerformanceMetricsCounterMETA>* counter)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrQueryPerformanceMetricsCounterMETA");

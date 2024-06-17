@@ -13,6 +13,8 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_decoders_forward.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_handle_mappers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/custom_openxr_struct_handle_mappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders_forward.h
@@ -54,8 +56,22 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_decoder_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_enum_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_handle_mapping_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_handle_mapping_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_next_node.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_next_typed_node.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_object_info.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_object_info_table_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_consumer_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_consumer_base.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_replay_options.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_resource_tracking_consumer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_resource_tracking_consumer.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/openxr_tracked_object_info_table.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_consumer_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/vulkan_decoder_base.cpp
@@ -115,9 +131,14 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_decoder.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_replay_consumer.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_replay_consumer.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_decoders_forward.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_mappers.h
+                   ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_handle_mappers.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_openxr_struct_next_decoder.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_consumer.h
                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_decoder.h

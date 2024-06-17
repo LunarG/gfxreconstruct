@@ -106,6 +106,17 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
     std::string GenerateFilename(const std::string& filename);
     bool        WriteBinaryFile(const std::string& filename, uint64_t data_size, const uint8_t* data);
 
+    void
+    Process_xrInitializeLoaderKHR(const ApiCallInfo&                                           call_info,
+                                  XrResult                                                     returnValue,
+                                  StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo) override;
+
+    void Process_xrCreateApiLayerInstance(const ApiCallInfo&                                  call_info,
+                                          XrResult                                            returnValue,
+                                          StructPointerDecoder<Decoded_XrInstanceCreateInfo>* info,
+                                          StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* layerInfo,
+                                          HandlePointerDecoder<XrInstance>*                   instance);
+
     void Process_xrEnumerateSwapchainImages(const ApiCallInfo&        call_info,
                                             XrResult                  returnValue,
                                             format::HandleId          swapchain,

@@ -89,6 +89,15 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
         self.all_struct_aliases = OrderedDict(
         )  # Map of struct names to aliases
 
+        # These functions should be manual if anything, not code-gened
+        self.skip_cmds = [
+            'xrNegotiateLoaderRuntimeInterface',
+            'xrNegotiateLoaderApiLayerInterface',
+            'xrInitializeLoaderKHR',
+            'xrCreateInstance',
+            'xrCreateApiLayerInstance',
+        ]
+
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -184,5 +193,7 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
         for cmd in self.get_filtered_cmd_names():
+            if cmd in self.skip_cmds:
+                continue
             self.all_cmds.append(cmd)
             self.all_cmd_params[cmd] = self.feature_cmd_params[cmd]
