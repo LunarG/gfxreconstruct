@@ -41,6 +41,7 @@ template <typename T, typename OutputT = T>
 class PointerDecoder : public PointerDecoderBase
 {
   public:
+    using ValueType = T;
     PointerDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false), output_len_(0) {}
 
     T* GetPointer() { return data_; }
