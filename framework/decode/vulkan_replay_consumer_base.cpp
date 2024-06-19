@@ -192,6 +192,8 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     {
         GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
     }
+
+    threadpool_.set_num_threads(std::max<uint32_t>(std::thread::hardware_concurrency() - 1, 1));
 }
 
 VulkanReplayConsumerBase::~VulkanReplayConsumerBase()

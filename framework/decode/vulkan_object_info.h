@@ -39,6 +39,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <future>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -360,6 +361,9 @@ struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    // track asynchronous compilation status
+    std::future<VkResult> result_future;
 };
 
 struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>

@@ -986,10 +986,21 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, in_pCreateInfos);}
     VkPipeline* out_pPipelines = pPipelines->GetHandlePointer();
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateGraphicsPipelines(in_device, in_pipelineCache, createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
-    CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
+    // hook up async/threadpool pipeline-creation
+    // TODO: copy/assert object-lifetimes
+    auto device_table = GetDeviceTable(in_device);
 
-    AddHandles<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), out_pPipelines, createInfoCount, &VulkanObjectInfoTable::AddPipelineInfo);
+    auto task = [this, device_table, in_device, in_pipelineCache, createInfoCount, returnValue, call_info, createInfos = std::move(*pCreateInfos), pipelines = *pPipelines]() -> VkResult
+    {
+        const VkGraphicsPipelineCreateInfo* in_pCreateInfos = createInfos.GetPointer();
+        VkPipeline* out_pPipelines = const_cast<VkPipeline*>(pipelines.GetHandlePointer());
+        const VkAllocationCallbacks* in_pAllocator = nullptr;
+        VkResult replay_result = device_table->CreateGraphicsPipelines(in_device, in_pipelineCache,
+            createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
+        CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
+        return replay_result;
+    };
+    AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), out_pPipelines, createInfoCount, &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
 }
 
 void VulkanReplayConsumer::Process_vkCreateComputePipelines(

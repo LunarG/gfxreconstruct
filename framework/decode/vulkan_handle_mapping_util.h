@@ -61,6 +61,35 @@ static typename T::HandleType MapHandle(format::HandleId             id,
     return handle;
 }
 
+template <>
+PipelineInfo::HandleType MapHandle(format::HandleId             id,
+                                   const VulkanObjectInfoTable& object_info_table,
+                                   const PipelineInfo* (VulkanObjectInfoTable::*GetInfoFunc)(format::HandleId) const)
+{
+    typename PipelineInfo::HandleType handle = VK_NULL_HANDLE;
+
+    if (id != format::kNullHandleId)
+    {
+        const PipelineInfo* info = (object_info_table.*GetInfoFunc)(id);
+
+        if (info != nullptr)
+        {
+            handle = info->handle;
+
+            if (info->result_future.valid())
+            {
+                info->result_future.wait();
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Failed to map async handle for object id %" PRIu64, id);
+        }
+    }
+
+    return handle;
+}
+
 uint64_t MapHandle(uint64_t object, VkObjectType object_type, const VulkanObjectInfoTable& object_info_table);
 
 uint64_t
@@ -186,6 +215,33 @@ static void AddHandleArray(format::HandleId              parent_id,
             info.handle     = handles[i];
             info.capture_id = ids[i];
             info.parent_id  = parent_id;
+            (object_info_table->*AddFunc)(std::move(info));
+        }
+    }
+}
+
+template <typename T>
+static void AddHandleArrayAsync(format::HandleId              parent_id,
+                                const format::HandleId*       ids,
+                                size_t                        ids_len,
+                                const typename T::HandleType* handles,
+                                size_t                        handles_len,
+                                VulkanObjectInfoTable*        object_info_table,
+                                void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                                std::future<VkResult> result_future)
+{
+    assert(object_info_table != nullptr);
+
+    if ((ids != nullptr) && (handles != nullptr))
+    {
+        size_t len = std::min(ids_len, handles_len);
+        for (size_t i = 0; i < len; ++i)
+        {
+            T info;
+            info.handle        = handles[i];
+            info.capture_id    = ids[i];
+            info.parent_id     = parent_id;
+            info.result_future = std::move(result_future);
             (object_info_table->*AddFunc)(std::move(info));
         }
     }

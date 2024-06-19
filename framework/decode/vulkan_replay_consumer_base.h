@@ -44,6 +44,7 @@
 #include "graphics/fps_info.h"
 #include "util/defines.h"
 #include "util/logging.h"
+#include "util/threadpool.h"
 
 #include "application/application.h"
 
@@ -313,6 +314,24 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+    }
+
+    template <typename T>
+    void AddHandlesAsync(format::HandleId              parent_id,
+                         const format::HandleId*       ids,
+                         size_t                        ids_len,
+                         const typename T::HandleType* handles,
+                         size_t                        handles_len,
+                         void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                         std::function<VkResult()> create_function)
+    {
+        if (create_function)
+        {
+            std::future<VkResult> result_future = threadpool_.post(std::move(create_function));
+            threadpool_.poll();
+            handle_mapping::AddHandleArrayAsync(
+                parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc, std::move(result_future));
+        }
     }
 
     template <typename S, typename T>
@@ -1210,6 +1229,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unique_ptr<VulkanSwapchain>                                           swapchain_;
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
+
+    util::ThreadPool threadpool_;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid
