@@ -272,6 +272,27 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAcceler
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPushDescriptorSetWithTemplateInfoKHR* wrapper)
+{
+    GFXRECON_ASSERT((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                                  bytes_read = 0;
+    VkPushDescriptorSetWithTemplateInfoKHR* value      = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &value->sType);
+    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->pNext);
+    bytes_read += ValueDecoder::DecodeHandleIdValue(
+        (buffer + bytes_read), (buffer_size - bytes_read), &wrapper->descriptorUpdateTemplate);
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->layout);
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &value->set);
+
+    if (wrapper->pNext != nullptr)
+        value->pNext = wrapper->pNext->GetPointer();
+
+    return bytes_read;
+}
+
 // The WIN32 SID structure has a variable size, so was encoded as an array of bytes instead of a struct.
 static uint8_t* unpack_sid_struct(const PointerDecoder<uint8_t>& packed_value)
 {

@@ -685,7 +685,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkBindMemoryStatusKHR& value)
 void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorSetsInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPushConstantsInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetInfoKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTemplateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkSetDescriptorBufferOffsetsInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindDescriptorBufferEmbeddedSamplersInfoEXT& value);
 

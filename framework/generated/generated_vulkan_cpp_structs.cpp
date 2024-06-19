@@ -12404,23 +12404,6 @@ std::string GenerateStruct_VkPushDescriptorSetInfoKHR(std::ostream &out, const V
 }
 
 
-std::string GenerateStruct_VkPushDescriptorSetWithTemplateInfoKHR(std::ostream &out, const VkPushDescriptorSetWithTemplateInfoKHR* structInfo, Decoded_VkPushDescriptorSetWithTemplateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->descriptorUpdateTemplate) << "," << std::endl;
-    struct_body << "\t\t\t" << consumer.GetHandle(metaInfo->layout) << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->set << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->pData << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "pushDescriptorSetWithTemplateInfoKHR");
-    out << "\t\t" << "VkPushDescriptorSetWithTemplateInfoKHR " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkSetDescriptorBufferOffsetsInfoEXT(std::ostream &out, const VkSetDescriptorBufferOffsetsInfoEXT* structInfo, Decoded_VkSetDescriptorBufferOffsetsInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);

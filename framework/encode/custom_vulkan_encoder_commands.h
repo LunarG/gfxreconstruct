@@ -791,6 +791,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWi
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdPushDescriptorSetWithTemplate2KHR(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>
 {
     template <typename... Args>
