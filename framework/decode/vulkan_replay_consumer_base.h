@@ -323,11 +323,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                          const typename T::HandleType* handles,
                          size_t                        handles_len,
                          void (VulkanObjectInfoTable::*AddFunc)(T&&),
-                         std::function<VkResult()> create_function)
+                         std::function<std::pair<VkResult, VkPipeline>()> create_function)
     {
         if (create_function)
         {
-            std::future<VkResult> result_future = threadpool_.post(std::move(create_function));
+            std::future<std::pair<VkResult, VkPipeline>> result_future = threadpool_.post(std::move(create_function));
             threadpool_.poll();
             handle_mapping::AddHandleArrayAsync(
                 parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc, std::move(result_future));

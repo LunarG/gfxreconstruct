@@ -51,42 +51,21 @@ static typename T::HandleType MapHandle(format::HandleId             id,
         if (info != nullptr)
         {
             handle = info->handle;
+
+            if constexpr (has_future<T>::value)
+            {
+                if (info->future.valid())
+                {
+                    auto [result, async_handles] = info->future.get();
+                    handle                       = async_handles[info->future_handle_index];
+                }
+            }
         }
         else
         {
             GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
         }
     }
-
-    return handle;
-}
-
-template <>
-PipelineInfo::HandleType MapHandle(format::HandleId             id,
-                                   const VulkanObjectInfoTable& object_info_table,
-                                   const PipelineInfo* (VulkanObjectInfoTable::*GetInfoFunc)(format::HandleId) const)
-{
-    typename PipelineInfo::HandleType handle = VK_NULL_HANDLE;
-
-    if (id != format::kNullHandleId)
-    {
-        const PipelineInfo* info = (object_info_table.*GetInfoFunc)(id);
-
-        if (info != nullptr)
-        {
-            handle = info->handle;
-
-            if (info->result_future.valid())
-            {
-                info->result_future.wait();
-            }
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Failed to map async handle for object id %" PRIu64, id);
-        }
-    }
-
     return handle;
 }
 
@@ -228,7 +207,7 @@ static void AddHandleArrayAsync(format::HandleId              parent_id,
                                 size_t                        handles_len,
                                 VulkanObjectInfoTable*        object_info_table,
                                 void (VulkanObjectInfoTable::*AddFunc)(T&&),
-                                std::future<VkResult> result_future)
+                                std::shared_future<std::pair<VkResult, VkPipeline>> future)
 {
     assert(object_info_table != nullptr);
 
@@ -238,10 +217,10 @@ static void AddHandleArrayAsync(format::HandleId              parent_id,
         for (size_t i = 0; i < len; ++i)
         {
             T info;
-            info.handle        = handles[i];
-            info.capture_id    = ids[i];
-            info.parent_id     = parent_id;
-            info.result_future = std::move(result_future);
+            info.handle     = VK_NULL_HANDLE;//handles[i];
+            info.capture_id = ids[i];
+            info.parent_id  = parent_id;
+            info.future     = future;
             (object_info_table->*AddFunc)(std::move(info));
         }
     }

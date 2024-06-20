@@ -363,7 +363,8 @@ struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // track asynchronous compilation status
-    std::future<VkResult> result_future;
+    std::shared_future<std::pair<VkResult, std::vector<VkPipeline>>> future;
+    uint32_t future_handle_index = 0;
 };
 
 struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
