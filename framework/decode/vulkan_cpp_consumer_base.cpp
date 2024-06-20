@@ -2724,7 +2724,8 @@ std::string VulkanCppConsumerBase::BuildValue(const VkClearColorValue color)
     }
 
     std::stringstream output;
-    output << "{{" << values[0] << ", " << values[1] << ", " << values[2] << ", " << values[3] << "" << "}}";
+    output << "{{" << values[0] << ", " << values[1] << ", " << values[2] << ", " << values[3] << ""
+           << "}}";
     return output.str();
 }
 
