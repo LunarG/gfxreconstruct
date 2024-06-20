@@ -38,10 +38,12 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 template <typename T, typename = int>
-struct has_future : std::false_type { };
+struct has_future : std::false_type
+{};
 
 template <typename T>
-struct has_future <T, decltype((void) T::future, 0)> : std::true_type { };
+struct has_future<T, decltype((void)T::future, 0)> : std::true_type
+{};
 
 class VulkanObjectInfoTableBase
 {

@@ -207,8 +207,9 @@ static void AddHandleArrayAsync(format::HandleId              parent_id,
                                 size_t                        handles_len,
                                 VulkanObjectInfoTable*        object_info_table,
                                 void (VulkanObjectInfoTable::*AddFunc)(T&&),
-                                std::shared_future<std::pair<VkResult, VkPipeline>> future)
+                                std::shared_future<std::pair<VkResult, std::vector<typename T::HandleType>>> future)
 {
+    static_assert(has_future<T>::value, "handle-type does not support asynchronous creation");
     assert(object_info_table != nullptr);
 
     if ((ids != nullptr) && (handles != nullptr))
@@ -217,10 +218,11 @@ static void AddHandleArrayAsync(format::HandleId              parent_id,
         for (size_t i = 0; i < len; ++i)
         {
             T info;
-            info.handle     = VK_NULL_HANDLE;//handles[i];
-            info.capture_id = ids[i];
-            info.parent_id  = parent_id;
-            info.future     = future;
+            info.handle              = VK_NULL_HANDLE; // handle does not yet exist
+            info.capture_id          = ids[i];
+            info.parent_id           = parent_id;
+            info.future              = future;
+            info.future_handle_index = i;
             (object_info_table->*AddFunc)(std::move(info));
         }
     }
