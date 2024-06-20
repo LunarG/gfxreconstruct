@@ -34,46 +34,25 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-static double GetElapsedSeconds(uint64_t start_time, uint64_t end_time)
-{
-    return util::datetime::ConvertTimestampToSeconds(util::datetime::DiffTimestamps(start_time, end_time));
-}
-
-static void
-WriteFpsToConsole(const char* prefix, uint64_t start_frame, uint64_t end_frame, int64_t start_time, int64_t end_time)
-{
-    assert(end_frame >= start_frame && end_time >= start_time);
-
-    double   diff_time_sec = GetElapsedSeconds(start_time, end_time);
-    uint64_t total_frames  = (end_frame - start_frame) + 1;
-    double   fps           = (diff_time_sec > 0.0) ? (static_cast<double>(total_frames) / diff_time_sec) : 0.0;
-    GFXRECON_WRITE_CONSOLE("%s %f fps, %f seconds, %" PRIu64 " frame%s, framerange %" PRIu64 "-%" PRIu64,
-                           prefix,
-                           fps,
-                           diff_time_sec,
-                           total_frames,
-                           total_frames > 1 ? "s" : "",
-                           start_frame,
-                           end_frame);
-}
-
 FpsInfo::FpsInfo(uint64_t               measurement_start_frame,
                  uint64_t               measurement_end_frame,
-                 bool                   has_measurement_range,
                  bool                   quit_after_range,
                  bool                   flush_measurement_range,
                  bool                   flush_inside_measurement_range,
                  const std::string_view measurement_file_name) :
-    measurement_start_frame_(measurement_start_frame),
-    measurement_end_frame_(measurement_end_frame), measurement_start_time_(0), measurement_end_time_(0),
-    quit_after_range_(quit_after_range), flush_measurement_range_(flush_measurement_range),
-    flush_inside_measurement_range_(flush_inside_measurement_range), has_measurement_range_(has_measurement_range),
-    started_measurement_(false), ended_measurement_(false), frame_start_time_(0), frame_durations_(),
-    measurement_file_name_(measurement_file_name)
+    start_time_(0),
+    replay_start_time_(0), replay_end_time_(0), measurement_start_time_(0), measurement_end_time_(0),
+    measurement_start_boot_time_(0), measurement_end_boot_time_(0), measurement_start_process_time_(0),
+    measurement_end_process_time_(0), replay_start_frame_(0), measurement_start_frame_(measurement_start_frame),
+    measurement_end_frame_(measurement_end_frame), quit_after_range_(quit_after_range),
+    flush_measurement_range_(flush_measurement_range), flush_inside_measurement_range_(flush_inside_measurement_range),
+    started_measurement_(false), ended_measurement_(false), measurement_file_name_(measurement_file_name),
+    frame_start_time_(0), frame_durations_()
 {
-    if (has_measurement_range_)
+    if (util::filepath::IsFile(measurement_file_name_))
     {
-        GFXRECON_ASSERT(!measurement_file_name_.empty());
+        // To avoid thinking an ancient file is the result of this run
+        std::remove(measurement_file_name_.c_str());
     }
 }
 
@@ -100,8 +79,11 @@ void FpsInfo::BeginFrame(uint64_t frame)
     {
         if (frame >= measurement_start_frame_)
         {
-            measurement_start_time_ = util::datetime::GetTimestamp();
-            started_measurement_    = true;
+            measurement_start_boot_time_    = util::datetime::GetBootTime();
+            measurement_start_time_         = util::datetime::GetTimestamp();
+            measurement_start_process_time_ = util::datetime::GetProcessTime();
+            started_measurement_            = true;
+            GFXRECON_WRITE_CONSOLE("================== Start timer (Frame: %llu) ==================", frame);
             frame_durations_.clear();
         }
     }
@@ -113,66 +95,16 @@ void FpsInfo::EndFrame(uint64_t frame)
 {
     if (started_measurement_ && !ended_measurement_)
     {
-        frame_durations_.push_back(util::datetime::DiffTimestamps(frame_start_time_, util::datetime::GetTimestamp()));
+        int64_t frame_end_time = util::datetime::GetTimestamp();
+        frame_durations_.push_back(util::datetime::DiffTimestamps(frame_start_time_, frame_end_time));
 
         // Measurement frame range end is non-inclusive, as opposed to trim frame range
         if (frame >= measurement_end_frame_ - 1)
         {
-            measurement_end_time_ = util::datetime::GetTimestamp();
-            ended_measurement_    = true;
-
-            // Save measurements to file
-            if (!measurement_file_name_.empty())
-            {
-                double   start_time   = util::datetime::ConvertTimestampToSeconds(measurement_start_time_);
-                double   end_time     = util::datetime::ConvertTimestampToSeconds(measurement_end_time_);
-                double   diff_time    = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
-                uint64_t total_frames = measurement_end_frame_ - measurement_start_frame_;
-                double   fps          = static_cast<double>(total_frames) / diff_time;
-
-                nlohmann::json file_content = { { "frame_range",
-                                                  { { "start_frame", measurement_start_frame_ },
-                                                    { "end_frame", measurement_end_frame_ },
-                                                    { "frame_count", total_frames },
-                                                    { "start_time_monotonic", start_time },
-                                                    { "end_time_monotonic", end_time },
-                                                    { "duration", diff_time },
-                                                    { "fps", fps },
-                                                    { "frame_durations", frame_durations_ } } } };
-
-                FILE*   file_pointer = nullptr;
-                int32_t result       = util::platform::FileOpen(&file_pointer, measurement_file_name_.c_str(), "w");
-                if (result == 0)
-                {
-                    const std::string json_string = file_content.dump(util::kJsonIndentWidth);
-
-                    const size_t size_written =
-                        util::platform::FileWrite(json_string.data(), 1, json_string.size(), file_pointer);
-                    util::platform::FileClose(file_pointer);
-
-                    // It either writes a fully valid file, or it doesn't write anything !
-                    if (size_written != json_string.size())
-                    {
-                        GFXRECON_LOG_ERROR("Failed to write to measurements file '%s'.",
-                                           measurement_file_name_.c_str());
-
-                        // Try to delete the partial file from disk using <cstdio>
-                        const int remove_result = std::remove(measurement_file_name_.c_str());
-                        if (remove_result != 0)
-                        {
-                            GFXRECON_LOG_ERROR("Failed to remove measurements file '%s' (Error %i).",
-                                               measurement_file_name_.c_str(),
-                                               remove_result);
-                        }
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR(
-                        "Failed to open measurements file '%s' (Error %i).", measurement_file_name_.c_str(), result);
-                    GFXRECON_LOG_ERROR("%s", std::strerror(result));
-                }
-            }
+            measurement_end_boot_time_    = util::datetime::GetBootTime();
+            measurement_end_process_time_ = util::datetime::GetProcessTime();
+            measurement_end_time_         = frame_end_time;
+            ended_measurement_            = true;
         }
     }
 }
@@ -186,10 +118,14 @@ bool FpsInfo::ShouldWaitIdleAfterFrame(uint64_t frame)
 
 void FpsInfo::EndFile(uint64_t frame)
 {
+    replay_end_time_ = gfxrecon::util::datetime::GetTimestamp();
+
     if (!ended_measurement_)
     {
-        measurement_end_time_  = gfxrecon::util::datetime::GetTimestamp();
-        measurement_end_frame_ = frame;
+        measurement_end_boot_time_    = util::datetime::GetBootTime();
+        measurement_end_process_time_ = util::datetime::GetProcessTime();
+        measurement_end_time_         = replay_end_time_;
+        measurement_end_frame_        = frame;
     }
 }
 
@@ -199,39 +135,71 @@ void FpsInfo::ProcessStateEndMarker(uint64_t frame_number)
     replay_start_time_  = util::datetime::GetTimestamp();
 }
 
-void FpsInfo::LogToConsole()
+void FpsInfo::LogMeasurements()
 {
-    if (!has_measurement_range_)
+    double start_time_monotonic = util::datetime::ConvertTimestampToSeconds(measurement_start_time_);
+    double end_time_monotonic   = util::datetime::ConvertTimestampToSeconds(measurement_end_time_);
+
+    double   load_time       = util::datetime::GetElapsedSeconds(start_time_, replay_start_time_);
+    double   total_time      = util::datetime::GetElapsedSeconds(start_time_, replay_end_time_);
+    double   measured_time   = util::datetime::GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
+    uint64_t measured_frames = measurement_end_frame_ - measurement_start_frame_;
+    double   measured_fps    = (measured_time > 0.0) ? static_cast<double>(measured_frames) / measured_time : 0.0;
+
+    GFXRECON_WRITE_CONSOLE("Load time:  %f seconds (frame %lu)", load_time, replay_start_frame_);
+    GFXRECON_WRITE_CONSOLE("Total time: %f seconds", total_time);
+    GFXRECON_WRITE_CONSOLE("Measured FPS: %f fps, %f seconds, %lu frame%s, 1 loop, framerange [%lu-%lu)",
+                           measured_fps,
+                           measured_time,
+                           measured_frames,
+                           measured_frames > 1 ? "s" : "",
+                           measurement_start_frame_,
+                           measurement_end_frame_);
+
+    // Save measurements to file
+
+    nlohmann::json file_content = { { "frame_range",
+                                      { { "start_frame", measurement_start_frame_ },
+                                        { "end_frame", measurement_end_frame_ },
+                                        { "frame_count", measured_frames },
+                                        { "start_time_boot", measurement_start_boot_time_ },
+                                        { "start_time_process", measurement_start_process_time_ },
+                                        { "start_time_monotonic", start_time_monotonic },
+                                        { "end_time_boot", measurement_end_boot_time_ },
+                                        { "end_time_process", measurement_end_process_time_ },
+                                        { "end_time_monotonic", end_time_monotonic },
+                                        { "duration", measured_time },
+                                        { "fps", measured_fps },
+                                        { "frame_durations", frame_durations_ } } } };
+
+    FILE*   file_pointer = nullptr;
+    int32_t result       = util::platform::FileOpen(&file_pointer, measurement_file_name_.c_str(), "w");
+    if (result == 0)
     {
-        // No measurement range or no end limit to range, include trimmed
-        // range load statistics.
+        const std::string json_string = file_content.dump(util::kJsonIndentWidth);
 
-        if (replay_start_time_ != start_time_)
+        const size_t size_written = util::platform::FileWrite(json_string.data(), 1, json_string.size(), file_pointer);
+        util::platform::FileClose(file_pointer);
+
+        // It either writes a fully valid file, or it doesn't write anything !
+        if (size_written != json_string.size())
         {
-            GFXRECON_WRITE_CONSOLE("Load time:  %f seconds", GetElapsedSeconds(start_time_, replay_start_time_));
-        }
-        GFXRECON_WRITE_CONSOLE("Total time: %f seconds", GetElapsedSeconds(start_time_, measurement_end_time_));
+            GFXRECON_LOG_ERROR("Failed to write to measurements file '%s'.", measurement_file_name_.c_str());
 
-        WriteFpsToConsole("Replay FPS:",
-                          replay_start_frame_,
-                          measurement_end_frame_ - 1 + replay_start_frame_ - 1,
-                          replay_start_time_,
-                          measurement_end_time_);
+            // Try to delete the partial file from disk using <cstdio>
+            const int remove_result = std::remove(measurement_file_name_.c_str());
+            if (remove_result != 0)
+            {
+                GFXRECON_LOG_ERROR("Failed to remove measurements file '%s' (Error %i).",
+                                   measurement_file_name_.c_str(),
+                                   remove_result);
+            }
+        }
     }
     else
     {
-        // There was a measurement range, emit only statistics about the
-        // measurement range
-        double   diff_time_sec = GetElapsedSeconds(measurement_start_time_, measurement_end_time_);
-        uint64_t total_frames  = measurement_end_frame_ - measurement_start_frame_;
-        double   fps           = static_cast<double>(total_frames) / diff_time_sec;
-        GFXRECON_WRITE_CONSOLE("Measurement range FPS: %f fps, %f seconds, %lu frame%s, 1 loop, framerange [%lu-%lu)",
-                               fps,
-                               diff_time_sec,
-                               total_frames,
-                               total_frames > 1 ? "s" : "",
-                               measurement_start_frame_,
-                               measurement_end_frame_);
+        GFXRECON_LOG_ERROR("Failed to open measurements file '%s' (Error %i).", measurement_file_name_.c_str(), result);
+        GFXRECON_LOG_ERROR("%s", std::strerror(result));
     }
 }
 

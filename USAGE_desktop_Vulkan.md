@@ -657,7 +657,7 @@ Optional arguments:
               last frame in the trace it will be clamped to the frame after the last
               (so in that case the results would include the last frame).
   --measurement-file <file>
-              Write measurements to a file at the specified path.
+              File in which measurements are written.
               Default is: '/sdcard/gfxrecon-measurements.json' on android and
               './gfxrecon-measurements.json' on desktop.
   --quit-after-measurement-range

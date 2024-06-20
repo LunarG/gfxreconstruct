@@ -46,7 +46,7 @@ GFXRECON_BEGIN_NAMESPACE(datetime)
 #if defined(WIN32)
 
 ///@ Retrieve a timestamp, relative to an undefined reference point, suitable for computing time intervals.
-inline uint64_t GetTimestamp()
+inline int64_t GetTimestamp()
 {
     LARGE_INTEGER StartingTime;
     LARGE_INTEGER Frequency;
@@ -99,6 +99,11 @@ inline double ConvertTimestampToSeconds(int64_t timestamp)
     return static_cast<double>(timestamp) / 1000000000.0;
 }
 
+inline double GetElapsedSeconds(int64_t start_timestamp, int64_t end_timestamp)
+{
+    return ConvertTimestampToSeconds(DiffTimestamps(start_timestamp, end_timestamp));
+}
+
 /// @brief Generate a compact representation of the current time.
 /// @param use_gmt Use a location-independent time zone if true, else the local
 /// one.
@@ -112,6 +117,58 @@ std::string UtcString(const time_t seconds_since_epoch);
 /// @brief The current moment in UTC to the second as a string formatted to
 /// rfc3339.
 std::string UtcNowString();
+
+#if defined(WIN32)
+
+// Time in seconds since boot
+inline double GetBootTime()
+{
+    return ConvertTimestampToSeconds(GetTimestamp());
+}
+
+// Time in seconds consumed by this process
+inline double GetProcessTime()
+{
+    ULONG64 CycleTime;
+
+    // Get time and convert ticks to seconds
+    QueryProcessCycleTime(GetCurrentProcess(), &CycleTime);
+    return (static_cast<double>(CycleTime) / CLOCKS_PER_SEC);
+}
+
+#else // !defined(WIN32)
+
+// Time in seconds since boot
+inline double GetBootTime()
+{
+#if defined(CLOCK_BOOTTIME)
+
+    timespec time;
+    clock_gettime(CLOCK_BOOTTIME, &time);
+    int64_t timestamp = (1000000000 * static_cast<int64_t>(time.tv_sec)) + static_cast<int64_t>(time.tv_nsec);
+    return ConvertTimestampToSeconds(timestamp);
+
+#else
+    return 0.0;
+#endif
+}
+
+// Time in seconds consumed by this process
+inline double GetProcessTime()
+{
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+
+    timespec time;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
+    int64_t timestamp = (1000000000 * static_cast<int64_t>(time.tv_sec)) + static_cast<int64_t>(time.tv_nsec);
+    return ConvertTimestampToSeconds(timestamp);
+
+#else
+    return 0.0;
+#endif
+}
+
+#endif // WIN32
 
 GFXRECON_END_NAMESPACE(datetime)
 GFXRECON_END_NAMESPACE(util)

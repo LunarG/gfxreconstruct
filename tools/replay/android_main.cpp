@@ -117,18 +117,16 @@ void android_main(struct android_app* app)
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
-                uint32_t                               start_frame, end_frame;
-                bool        has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
+
+                uint32_t measurement_start_frame;
+                uint32_t measurement_end_frame;
+                GetMeasurementFrameRange(arg_parser, measurement_start_frame, measurement_end_frame);
+
                 std::string measurement_file_name;
+                GetMeasurementFilename(arg_parser, measurement_file_name);
 
-                if (has_mfr)
-                {
-                    GetMeasurementFilename(arg_parser, measurement_file_name);
-                }
-
-                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(start_frame),
-                                                     static_cast<uint64_t>(end_frame),
-                                                     has_mfr,
+                gfxrecon::graphics::FpsInfo fps_info(static_cast<uint64_t>(measurement_start_frame),
+                                                     static_cast<uint64_t>(measurement_end_frame),
                                                      replay_options.quit_after_measurement_frame_range,
                                                      replay_options.flush_measurement_frame_range,
                                                      replay_options.flush_inside_measurement_range,
@@ -161,17 +159,17 @@ void android_main(struct android_app* app)
                 if ((file_processor.GetCurrentFrameNumber() > 0) &&
                     (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    if (file_processor.GetCurrentFrameNumber() < start_frame)
+                    if (file_processor.GetCurrentFrameNumber() < measurement_start_frame)
                     {
                         GFXRECON_LOG_WARNING(
                             "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
                             "Measurements were never started, cannot calculate measurement range FPS.",
-                            start_frame,
+                            measurement_start_frame,
                             file_processor.GetCurrentFrameNumber());
                     }
                     else
                     {
-                        fps_info.LogToConsole();
+                        fps_info.LogMeasurements();
                     }
                 }
                 else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)

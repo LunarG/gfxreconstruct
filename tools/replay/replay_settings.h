@@ -225,7 +225,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tCheck if color space is not supported by replay device and fallback to "
                            "VK_COLOR_SPACE_SRGB_NONLINEAR_KHR.");
     GFXRECON_WRITE_CONSOLE("  --measurement-file <file>");
-    GFXRECON_WRITE_CONSOLE("          \t\tWrite measurements to a file at the specified path.");
+    GFXRECON_WRITE_CONSOLE("          \t\tFile in which measurements are written.");
     GFXRECON_WRITE_CONSOLE("          \t\tDefault is: '/sdcard/gfxrecon-measurements.json' on android and");
     GFXRECON_WRITE_CONSOLE("          \t\t'./gfxrecon-measurements.json' on desktop.");
     GFXRECON_WRITE_CONSOLE("  --quit-after-measurement-range");
