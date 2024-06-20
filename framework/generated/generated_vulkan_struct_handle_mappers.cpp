@@ -1258,23 +1258,6 @@ void MapStructHandles(Decoded_VkPushDescriptorSetInfoKHR* wrapper, const VulkanO
     }
 }
 
-void MapStructHandles(Decoded_VkPushDescriptorSetWithTemplateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkPushDescriptorSetWithTemplateInfoKHR* value = wrapper->decoded_value;
-
-        if (wrapper->pNext)
-        {
-            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
-        }
-
-        value->descriptorUpdateTemplate = handle_mapping::MapHandle<DescriptorUpdateTemplateInfo>(wrapper->descriptorUpdateTemplate, object_info_table, &VulkanObjectInfoTable::GetDescriptorUpdateTemplateInfo);
-
-        value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
-    }
-}
-
 void MapStructHandles(Decoded_VkSetDescriptorBufferOffsetsInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

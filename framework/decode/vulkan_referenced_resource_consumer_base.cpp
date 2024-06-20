@@ -659,6 +659,21 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTem
     PushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, pData);
 }
 
+void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+    const ApiCallInfo&                                                    call_info,
+    format::HandleId                                                      commandBuffer,
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+{
+    Decoded_VkPushDescriptorSetWithTemplateInfoKHR* info = pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
+    format::HandleId                                descriptorUpdateTemplate = info->descriptorUpdateTemplate;
+
+    DescriptorUpdateTemplateDecoder pData;
+    const uint8_t*                  ptr = static_cast<const uint8_t*>(info->pNext->GetPointer());
+    pData.Decode(ptr, pData.GetLength());
+
+    PushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, &pData);
+}
+
 void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
     const ApiCallInfo&               call_info,
     format::HandleId                 device,

@@ -46,6 +46,7 @@ void EncodeStruct(ParameterEncoder* encoder, VkDescriptorType type, const VkDesc
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteDescriptorSet& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkPerformanceValueINTEL& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureGeometryKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTemplateInfoKHR& value);
 
 // Platform defined structures that are external to Vulkan.
 void EncodeStruct(ParameterEncoder* encoder, const ACL& value);

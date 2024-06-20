@@ -1983,10 +1983,6 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkPushDescriptorSetInfoKHR*           pPushDescriptorSetInfo);
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
-    VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
-
 VKAPI_ATTR void VKAPI_CALL CmdSetDescriptorBufferOffsets2EXT(
     VkCommandBuffer                             commandBuffer,
     const VkSetDescriptorBufferOffsetsInfoEXT*  pSetDescriptorBufferOffsetsInfo);

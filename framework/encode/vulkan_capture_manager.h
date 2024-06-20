@@ -1050,6 +1050,13 @@ class VulkanCaptureManager : public ApiCaptureManager
         // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
     }
 
+    void PostProcess_vkCmdPushDescriptorSetWithTemplate2KHR(VkCommandBuffer,
+                                                            const VkPushDescriptorSetWithTemplateInfoKHR* info)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(info);
+        // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
+    }
+
     void PostProcess_vkResetDescriptorPool(VkResult result,
                                            VkDevice,
                                            VkDescriptorPool descriptorPool,

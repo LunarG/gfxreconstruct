@@ -14568,42 +14568,6 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSet2KHR(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2KHR>::Dispatch(manager, commandBuffer, pPushDescriptorSetInfo);
 }
 
-VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
-    VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo)
-{
-    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
-    GFXRECON_ASSERT(manager != nullptr);
-    auto force_command_serialization = manager->GetForceCommandSerialization();
-    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-    if (force_command_serialization)
-    {
-        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
-    }
-    else
-    {
-        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
-    }
-
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>::Dispatch(manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
-
-    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
-    if (encoder)
-    {
-        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        EncodeStructPtr(encoder, pPushDescriptorSetWithTemplateInfo);
-        manager->EndCommandApiCallCapture(commandBuffer, TrackCmdPushDescriptorSetWithTemplate2KHRHandles, pPushDescriptorSetWithTemplateInfo);
-    }
-
-    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pPushDescriptorSetWithTemplateInfo, handle_unwrap_memory);
-
-    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR(commandBuffer, pPushDescriptorSetWithTemplateInfo_unwrapped);
-
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>::Dispatch(manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
-}
-
 VKAPI_ATTR void VKAPI_CALL CmdSetDescriptorBufferOffsets2EXT(
     VkCommandBuffer                             commandBuffer,
     const VkSetDescriptorBufferOffsetsInfoEXT*  pSetDescriptorBufferOffsetsInfo)
