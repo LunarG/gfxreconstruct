@@ -111,6 +111,7 @@
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
     "vkWaitSemaphores": "OverrideWaitSemaphores",
     "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID",
+    "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
     "vkCreateGraphicsPipelines": "OverrideCreateGraphicsPipelines",
     "vkCreateComputePipelines": "OverrideCreateComputePipelines"
   }
