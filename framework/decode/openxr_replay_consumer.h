@@ -25,6 +25,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 #include <unordered_map>
+#include <unordered_set>
 #include "generated/generated_openxr_consumer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -82,15 +83,72 @@ class OpenXrReplayConsumer : public OpenXrConsumer
                                            format::HandleId                                     session,
                                            StructPointerDecoder<Decoded_XrSwapchainCreateInfo>* createInfo,
                                            HandlePointerDecoder<XrSwapchain>*                   swapchain) override;
+    virtual void Process_xrAcquireSwapchainImage(const ApiCallInfo&                                         call_info,
+                                                 XrResult                                                   returnValue,
+                                                 format::HandleId                                           swapchain,
+                                                 StructPointerDecoder<Decoded_XrSwapchainImageAcquireInfo>* acquireInfo,
+                                                 PointerDecoder<uint32_t>* index) override;
+
+    virtual void
+    Process_xrWaitSwapchainImage(const ApiCallInfo&                                      call_info,
+                                 XrResult                                                returnValue,
+                                 format::HandleId                                        swapchain,
+                                 StructPointerDecoder<Decoded_XrSwapchainImageWaitInfo>* waitInfo) override;
+
+    virtual void
+    Process_xrReleaseSwapchainImage(const ApiCallInfo&                                         call_info,
+                                    XrResult                                                   returnValue,
+                                    format::HandleId                                           swapchain,
+                                    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
+
+    virtual void Process_xrPollEvent(const ApiCallInfo&                               call_info,
+                                     XrResult                                         returnValue,
+                                     format::HandleId                                 instance,
+                                     StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
+
     virtual void Process_xrBeginSession(const ApiCallInfo&                                call_info,
                                         XrResult                                          returnValue,
                                         format::HandleId                                  session,
                                         StructPointerDecoder<Decoded_XrSessionBeginInfo>* beginInfo) override;
+    virtual void Process_xrWaitFrame(const ApiCallInfo&                             call_info,
+                                     XrResult                                       returnValue,
+                                     format::HandleId                               session,
+                                     StructPointerDecoder<Decoded_XrFrameWaitInfo>* frameWaitInfo,
+                                     StructPointerDecoder<Decoded_XrFrameState>*    frameState) override;
+
+    virtual void Process_xrBeginFrame(const ApiCallInfo&                              call_info,
+                                      XrResult                                        returnValue,
+                                      format::HandleId                                session,
+                                      StructPointerDecoder<Decoded_XrFrameBeginInfo>* frameBeginInfo) override;
+
+    virtual void Process_xrEndFrame(const ApiCallInfo&                            call_info,
+                                    XrResult                                      returnValue,
+                                    format::HandleId                              session,
+                                    StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo) override;
+
+    virtual void Process_xrEnumerateReferenceSpaces(const ApiCallInfo&                    call_info,
+                                                    XrResult                              returnValue,
+                                                    format::HandleId                      session,
+                                                    uint32_t                              spaceCapacityInput,
+                                                    PointerDecoder<uint32_t>*             spaceCountOutput,
+                                                    PointerDecoder<XrReferenceSpaceType>* spaces) override;
+
+    virtual void Process_xrCreateReferenceSpace(const ApiCallInfo&                                        call_info,
+                                                XrResult                                                  returnValue,
+                                                format::HandleId                                          session,
+                                                StructPointerDecoder<Decoded_XrReferenceSpaceCreateInfo>* createInfo,
+                                                HandlePointerDecoder<XrSpace>* space) override;
 
   private:
     // WIP Refactor out of consumer object to something like the vulkan approach
     void MapNextStructHandles(OpenXrNextNode* next);
     void MapStructHandles(Decoded_XrSessionCreateInfo* wrapper);
+    void MapStructHandles(Decoded_XrReferenceSpaceCreateInfo* wrapper);
+    void MapStructHandles(Decoded_XrFrameEndInfo* wrapper);
+    void MapStructHandles(uint32_t layer_count, Decoded_XrCompositionLayerBaseHeader** layer_wrappers);
+    void MapStructHandles(Decoded_XrCompositionLayerProjection* wrapper);
+    void MapStructHandles(Decoded_XrCompositionLayerProjectionView* wrapper);
+    void MapStructHandles(Decoded_XrSwapchainSubImage* wrapper);
     void MapStructHandles(Decoded_XrGraphicsBindingVulkanKHR* wrapper);
 
     template <typename T>
@@ -121,6 +179,7 @@ class OpenXrReplayConsumer : public OpenXrConsumer
     HandleMap<XrSwapchain>      swapchain_info_map_;
     ValueMap<XrSystemId>        system_id_info_map_;
     HandleMap<VkPhysicalDevice> vk_physical_device_info_map_;
+    HandleMap<XrSpace>          space_info_map_;
 
     // TODO: Should DRY the handle remapping code with the Vulkan side at least.
     template <typename HandleDecoder, typename Map>
@@ -153,7 +212,43 @@ class OpenXrReplayConsumer : public OpenXrConsumer
         return info;
     }
 
+    using ReferenceSpaceSet = std::unordered_set<XrReferenceSpaceType>;
+    struct SessionData
+    {
+        ReferenceSpaceSet reference_spaces;
+        XrTime            last_display_time = XrTime();
+    };
+
+    struct SwapchainData
+    {
+        std::unordered_map<uint32_t, uint32_t> index_map;
+    };
+
+    template <typename Handle, typename DataMap>
+    static void AddHandleData(Handle handle, DataMap& data_map)
+    {
+        auto insert_info = data_map.insert(std::make_pair(handle, typename DataMap::mapped_type()));
+        assert(insert_info.second);
+    }
+
+    template <typename Handle, typename DataMap, typename Data = typename DataMap::mapped_type>
+    static Data& GetHandleData(Handle handle, DataMap& data_map)
+    {
+        auto find_it = data_map.find(handle);
+        assert(find_it != data_map.end());
+        return find_it->second;
+    }
+
+    void AddSessionData(XrSession session) { AddHandleData(session, session_data_); }
+    void AddSwapchainData(XrSwapchain swapchain) { AddHandleData(swapchain, swapchain_data_); }
+
+    SessionData&   GetSessionData(XrSession session) { return GetHandleData(session, session_data_); }
+    SwapchainData& GetSwapchainData(XrSwapchain swapchain) { return GetHandleData(swapchain, swapchain_data_); }
+
     VulkanReplayConsumerBase* vulkan_replay_consumer_ = nullptr;
+
+    std::unordered_map<XrSession, SessionData>     session_data_;
+    std::unordered_map<XrSwapchain, SwapchainData> swapchain_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

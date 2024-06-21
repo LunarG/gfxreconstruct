@@ -69,7 +69,7 @@ void OpenXrReplayConsumer::Process_xrCreateApiLayerInstance(
     }
     else
     {
-        // WIP: Properly log and this
+        // WIP: Properly log and handle this
         assert(result > 0);
     }
 }
@@ -207,10 +207,11 @@ void OpenXrReplayConsumer::Process_xrCreateSession(const ApiCallInfo&           
     if (result >= 0)
     {
         AddHandleMapping(instance, *session, session_info_map_);
+        AddSessionData(*replay_session);
     }
     else
     {
-        // WIP: Properly log and this
+        // WIP: Properly log and handle this
         assert(result > 0);
     }
 }
@@ -238,11 +239,157 @@ void OpenXrReplayConsumer::Process_xrCreateSwapchain(const ApiCallInfo&         
     if (result >= 0)
     {
         AddHandleMapping(session, *swapchain, swapchain_info_map_);
+        AddSwapchainData(*replay_swapchain);
     }
     else
     {
-        // WIP: Properly log and this
+        // WIP: Properly log and handle this
+        assert(result >= 0);
+    }
+}
+void OpenXrReplayConsumer::Process_xrAcquireSwapchainImage(
+    const ApiCallInfo&                                         call_info,
+    XrResult                                                   returnValue,
+    format::HandleId                                           swapchain,
+    StructPointerDecoder<Decoded_XrSwapchainImageAcquireInfo>* acquireInfo,
+    PointerDecoder<uint32_t>*                                  index)
+{
+    auto swapchain_info = GetMappingInfo(swapchain, swapchain_info_map_);
+    // WIP: Properly log and handle this
+    assert(swapchain_info);
+    XrSwapchain replay_handle = swapchain_info->handle;
+
+    // WIP add handle mapping for acquireInfo, though only needed for non-null next
+
+    if (!index->IsNull())
+    {
+        index->AllocateOutputData(1);
+    }
+    uint32_t* replay_index = index->GetOutputPointer();
+
+    auto result = xrAcquireSwapchainImage(replay_handle, acquireInfo->GetPointer(), replay_index);
+
+    if (result >= 0)
+    {
+        // Need to map indexes between capture and replay
+        auto& swapchain_data                           = GetSwapchainData(replay_handle);
+        swapchain_data.index_map[*index->GetPointer()] = *replay_index;
+    }
+    else
+    {
+        // WIP: Properly log and handle this
+        assert(result >= 0);
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrWaitSwapchainImage(
+    const ApiCallInfo&                                      call_info,
+    XrResult                                                returnValue,
+    format::HandleId                                        swapchain,
+    StructPointerDecoder<Decoded_XrSwapchainImageWaitInfo>* waitInfo)
+{
+    auto swapchain_info = GetMappingInfo(swapchain, swapchain_info_map_);
+    // WIP: Properly log and handle this
+    assert(swapchain_info);
+
+    if (returnValue == XR_SUCCESS)
+    {
+        // Only attempt to wait if the captured wait succeeded
+        assert(waitInfo);
+
+        // WIP: Call MapStructHandles for wait_info->next mapping (extensions only)
+        XrSwapchainImageWaitInfo* wait_info = waitInfo->GetPointer();
+        // WIP: Properly log and handle this
+        assert(wait_info);
+        XrResult result;
+
+        // WIP: Add retry limit
+        do
+        {
+            result = xrWaitSwapchainImage(swapchain_info->handle, wait_info);
+        } while (XR_SUCCEEDED(result) && (result == XR_TIMEOUT_EXPIRED));
+
+        // WIP: Properly log and handle this
+        assert(result == XR_SUCCESS);
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrReleaseSwapchainImage(
+    const ApiCallInfo&                                         call_info,
+    XrResult                                                   returnValue,
+    format::HandleId                                           swapchain,
+    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo)
+{
+    auto swapchain_info = GetMappingInfo(swapchain, swapchain_info_map_);
+    // WIP: Properly log and handle this
+    assert(swapchain_info);
+
+    // NULL release value is valid
+    XrSwapchainImageReleaseInfo* release_info = nullptr;
+    if (releaseInfo)
+    {
+        release_info = releaseInfo->GetPointer();
+    }
+
+    if (release_info)
+    {
+        // WIP: MapStructHandles for next, extensions only
+    }
+
+    auto result = xrReleaseSwapchainImage(swapchain_info->handle, release_info);
+
+    if (result < 0)
+    {
+        // WIP: Properly log and handle this
         assert(result > 0);
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrPollEvent(const ApiCallInfo&                               call_info,
+                                               XrResult                                         returnValue,
+                                               format::HandleId                                 instance,
+                                               StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData)
+{
+    if (returnValue != XR_SUCCESS)
+    {
+        // Capture did not return an event, skip
+        return;
+    }
+
+    auto* instance_info = GetMappingInfo(instance, instance_info_map_);
+    // WIP: Properly log and handle this
+    assert(instance_info);
+
+    XrEventDataBuffer* capture_event = eventData->GetPointer();
+
+    XrEventDataBuffer replay_event;
+    // WIP: Put this constant somewhere interesting
+    const uint32_t kRetryLimit = 10000;
+    uint32_t       retry_count = 0;
+
+    do
+    {
+        replay_event = XrEventDataBuffer{ XR_TYPE_EVENT_DATA_BUFFER };
+        auto result  = xrPollEvent(instance_info->handle, &replay_event);
+        retry_count++;
+
+        if (capture_event->type != replay_event.type)
+        {
+            if (result == XR_SUCCESS)
+            {
+                GFXRECON_LOG_WARNING("Skipping event %u", replay_event.type);
+            }
+            else
+            {
+                // Yield and retry
+                std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+            }
+        }
+    } while ((retry_count < kRetryLimit) && capture_event->type != replay_event.type);
+
+    if (capture_event->type != replay_event.type)
+    {
+        assert("always assert: text=" == "event not found");
     }
 }
 void OpenXrReplayConsumer::Process_xrBeginSession(const ApiCallInfo&                                call_info,
@@ -261,48 +408,296 @@ void OpenXrReplayConsumer::Process_xrBeginSession(const ApiCallInfo&            
 
     if (result < 0)
     {
-        // WIP: Properly log and this
+        // WIP: Properly log and handle this
+        assert(result > 0);
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrWaitFrame(const ApiCallInfo&                             call_info,
+                                               XrResult                                       returnValue,
+                                               format::HandleId                               session,
+                                               StructPointerDecoder<Decoded_XrFrameWaitInfo>* frameWaitInfo,
+                                               StructPointerDecoder<Decoded_XrFrameState>*    frameState)
+{
+    auto* session_info = GetMappingInfo(session, session_info_map_);
+    // WIP: Properly log and handle this
+    assert(session_info);
+
+    XrFrameWaitInfo* capture_frame_wait_info = frameWaitInfo->GetPointer();
+
+    XrFrameState replay_frame_state = { XR_TYPE_FRAME_STATE };
+    auto         result             = xrWaitFrame(session_info->handle, capture_frame_wait_info, &replay_frame_state);
+    if (result < 0)
+    {
+        // WIP: Properly log and handle this
+        assert("always assert: text=" == "wait frame failed");
+    }
+    else
+    {
+        // Store wait frame information for this session if needed later
+        SessionData& session_data      = GetSessionData(session_info->handle);
+        session_data.last_display_time = replay_frame_state.predictedDisplayTime;
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrBeginFrame(const ApiCallInfo&                              call_info,
+                                                XrResult                                        returnValue,
+                                                format::HandleId                                session,
+                                                StructPointerDecoder<Decoded_XrFrameBeginInfo>* frameBeginInfo)
+{
+    auto* session_info = GetMappingInfo(session, session_info_map_);
+    // WIP: Properly log and handle this
+    assert(session_info);
+
+    XrFrameBeginInfo* capture_frame_begin_info = frameBeginInfo->GetPointer();
+    auto              result                   = xrBeginFrame(session_info->handle, capture_frame_begin_info);
+
+    if (result < 0)
+    {
+        // WIP: Properly log and handle this
+        assert("always assert: text=" == "begin frame failed");
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrEndFrame(const ApiCallInfo&                            call_info,
+                                              XrResult                                      returnValue,
+                                              format::HandleId                              session,
+                                              StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo)
+{
+    auto* session_info = GetMappingInfo(session, session_info_map_);
+    // WIP: Properly log and handle this
+    assert(session_info);
+    XrSession replay_session = session_info->handle;
+
+    MapStructHandles(frameEndInfo->GetMetaStructPointer());
+    XrFrameEndInfo replay_end_info = *frameEndInfo->GetPointer();
+    replay_end_info.displayTime    = GetSessionData(replay_session).last_display_time;
+    auto result                    = xrEndFrame(replay_session, &replay_end_info);
+
+    if (result < 0)
+    {
+        // WIP: Properly log and handle this
+        assert("always assert: text=" == "end frame failed");
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrEnumerateReferenceSpaces(const ApiCallInfo&                    call_info,
+                                                              XrResult                              returnValue,
+                                                              format::HandleId                      session,
+                                                              uint32_t                              spaceCapacityInput,
+                                                              PointerDecoder<uint32_t>*             spaceCountOutput,
+                                                              PointerDecoder<XrReferenceSpaceType>* spaces)
+{
+    auto* session_info = GetMappingInfo(session, session_info_map_);
+    // WIP: Properly log and handle this
+    assert(session_info);
+
+    // Only make the call when we're going to look at the results
+    if (spaceCapacityInput)
+    {
+        const XrSession replay_session = session_info->handle;
+        uint32_t*       output_count   = spaceCountOutput->GetPointer();
+        if (output_count && *output_count)
+        {
+            uint32_t replay_req = 0;
+            xrEnumerateReferenceSpaces(replay_session, 0, &replay_req, nullptr);
+            std::vector<XrReferenceSpaceType> replay_reference_spaces(replay_req);
+            uint32_t                          replay_count = 0;
+            xrEnumerateReferenceSpaces(replay_session, replay_req, &replay_count, replay_reference_spaces.data());
+
+            SessionData& session_data = GetSessionData(replay_session);
+
+            ReferenceSpaceSet& runtime_spaces = session_data.reference_spaces;
+            runtime_spaces.clear();
+            for (const auto& space : replay_reference_spaces)
+            {
+                runtime_spaces.insert(space);
+            }
+
+            // Don't check whether a captured space type is missing, only report if/when a space is being created
+        }
+    }
+}
+
+void OpenXrReplayConsumer::Process_xrCreateReferenceSpace(
+    const ApiCallInfo&                                        call_info,
+    XrResult                                                  returnValue,
+    format::HandleId                                          session,
+    StructPointerDecoder<Decoded_XrReferenceSpaceCreateInfo>* createInfo,
+    HandlePointerDecoder<XrSpace>*                            space)
+{
+    auto* session_info = GetMappingInfo(session, session_info_map_);
+    // WIP: Properly log and handle this
+    assert(session_info);
+
+    if (!space->IsNull())
+    {
+        space->SetHandleLength(1);
+    }
+    XrSpace* replay_space = space->GetHandlePointer();
+
+    MapStructHandles(createInfo->GetMetaStructPointer());
+
+    auto result = xrCreateReferenceSpace(session_info->handle, createInfo->GetPointer(), replay_space);
+
+    if (result >= 0)
+    {
+        // Create the mapping between the recorded and replay instance handles
+        AddHandleMapping(session, *space, space_info_map_);
+    }
+    else
+    {
+        // WIP: Properly log and handle this
         assert(result > 0);
     }
 }
 
 void OpenXrReplayConsumer::MapNextStructHandles(OpenXrNextNode* next)
 {
+    if (!next)
+        return; // Don't require callers to validate next
+
     void* value   = next->GetPointer();
     void* wrapper = next->GetMetaStructPointer();
-    if ((value != nullptr) && (wrapper != nullptr))
-    {
-        const XrBaseInStructure* base = reinterpret_cast<const XrBaseInStructure*>(value);
 
-        switch (base->type)
-        {
-            default:
-                // TODO: Report or raise fatal error for unrecongized sType?
-                assert("always assert: text=" == "unknown struct type");
-                break;
-            case XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR:
-                MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingVulkanKHR*>(wrapper));
-        }
+    if (!value || !wrapper)
+    {
+        return;
+    }
+
+    const XrBaseInStructure* base = reinterpret_cast<const XrBaseInStructure*>(value);
+    switch (base->type)
+    {
+        default:
+            // TODO: Report or raise fatal error for unrecongized sType?
+            assert("always assert: text=" == "unknown struct type");
+            break;
+        case XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingVulkanKHR*>(wrapper));
     }
 }
 
 void OpenXrReplayConsumer::MapStructHandles(Decoded_XrSessionCreateInfo* wrapper)
 {
+    assert(wrapper);
+    MapNextStructHandles(wrapper->next);
+
     auto                 system_id_info = GetMappingInfo(wrapper->systemId, system_id_info_map_);
     XrSessionCreateInfo* value          = wrapper->decoded_value;
     value->systemId                     = system_id_info->replay_value;
+}
+
+void OpenXrReplayConsumer::MapStructHandles(Decoded_XrReferenceSpaceCreateInfo* wrapper)
+{
+    assert(wrapper);
     MapNextStructHandles(wrapper->next);
+}
+
+void OpenXrReplayConsumer::MapStructHandles(Decoded_XrFrameEndInfo* wrapper)
+{
+    assert(wrapper);
+    MapNextStructHandles(wrapper->next);
+
+    XrFrameEndInfo* value = wrapper->decoded_value;
+    MapStructHandles(value->layerCount, wrapper->layers->GetMetaStructPointer());
+}
+
+void OpenXrReplayConsumer::MapStructHandles(uint32_t layer_count, Decoded_XrCompositionLayerBaseHeader** layer_wrappers)
+{
+    if (!layer_wrappers || (layer_count == 0))
+    {
+        return;
+    }
+
+    for (uint32_t layer = 0; layer < layer_count; layer++)
+    {
+        Decoded_XrCompositionLayerBaseHeader* base_wrapper = layer_wrappers[layer];
+        if (!base_wrapper)
+        {
+            continue;
+        }
+        XrCompositionLayerBaseHeader* base_value = base_wrapper->decoded_value;
+        switch (base_value->type)
+        {
+            default:
+                // WIP: Properly log and handle this
+                assert("always assert: text = " == "Unknown composition layer type");
+                break;
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+                MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerProjection*>(base_wrapper));
+                break;
+        }
+    }
+}
+
+void OpenXrReplayConsumer::MapStructHandles(Decoded_XrCompositionLayerProjection* wrapper)
+{
+    assert(wrapper);
+    MapNextStructHandles(wrapper->next);
+
+    XrCompositionLayerProjection* value = wrapper->decoded_value;
+    if (!value)
+    {
+        return;
+    }
+
+    auto* space_info = GetMappingInfo(wrapper->space, space_info_map_);
+    // WIP: Properly log and handle this
+    assert(space_info);
+
+    value->space = space_info->handle;
+
+    if (wrapper->views)
+    {
+        for (uint32_t view = 0; view < value->viewCount; view++)
+        {
+            MapStructHandles(wrapper->views[view].GetMetaStructPointer());
+        }
+    }
+}
+
+void OpenXrReplayConsumer::MapStructHandles(Decoded_XrCompositionLayerProjectionView* wrapper)
+{
+    assert(wrapper);
+    MapNextStructHandles(wrapper->next);
+
+    if (wrapper->subImage)
+    {
+        MapStructHandles(wrapper->subImage);
+    }
+}
+
+void OpenXrReplayConsumer::MapStructHandles(Decoded_XrSwapchainSubImage* wrapper)
+{
+    assert(wrapper);
+
+    auto* value = wrapper->decoded_value;
+    if (!value)
+    {
+        return;
+    }
+
+    auto replay_swapchain = GetMappingInfo(wrapper->swapchain, swapchain_info_map_);
+    // WIP: Properly log and handle this
+    assert(replay_swapchain);
+
+    value->swapchain = replay_swapchain->handle;
 }
 
 void OpenXrReplayConsumer::MapStructHandles(Decoded_XrGraphicsBindingVulkanKHR* wrapper)
 {
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    assert(wrapper);
+    MapNextStructHandles(wrapper->next);
+
+    XrGraphicsBindingVulkanKHR* value = wrapper->decoded_value;
+    if (!value)
     {
-        XrGraphicsBindingVulkanKHR* value = wrapper->decoded_value;
-        value->instance                   = vulkan_replay_consumer_->MapInstance(wrapper->instance);
-        value->device                     = vulkan_replay_consumer_->MapDevice(wrapper->device);
-        value->physicalDevice = GetMappingInfo(wrapper->physicalDevice, vk_physical_device_info_map_)->handle;
+        return;
     }
+
+    value->instance       = vulkan_replay_consumer_->MapInstance(wrapper->instance);
+    value->device         = vulkan_replay_consumer_->MapDevice(wrapper->device);
+    value->physicalDevice = GetMappingInfo(wrapper->physicalDevice, vk_physical_device_info_map_)->handle;
 }
 
 #endif
