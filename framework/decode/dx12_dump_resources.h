@@ -134,6 +134,64 @@ struct TrackDumpResources
     }
 };
 
+class Dx12DumpResourcesDelegate
+{
+  public:
+    virtual ~Dx12DumpResourcesDelegate() {}
+
+    virtual void BeginDumpResources(const std::string& filename, const TrackDumpResources& track_dump_resources) = 0;
+    virtual void DumpResource(CopyResourceDataPtr resource_data)                                                 = 0;
+    virtual void EndDumpResources()                                                                              = 0;
+};
+
+class DefaultDx12DumpResourcesDelegate : public Dx12DumpResourcesDelegate
+{
+  public:
+    virtual ~DefaultDx12DumpResourcesDelegate() {}
+
+    virtual void BeginDumpResources(const std::string&        capture_file_name,
+                                    const TrackDumpResources& track_dump_resources) override;
+    virtual void DumpResource(CopyResourceDataPtr resource_data) override;
+    virtual void EndDumpResources() override;
+
+  private:
+    void WriteResource(const CopyResourceDataPtr resource_data);
+    void WriteResource(nlohmann::ordered_json&   jdata,
+                       const std::string&        prefix_file_name,
+                       const std::string&        suffix,
+                       const CopyResourceDataPtr resource_data);
+
+    void StartFile();
+    void EndFile();
+    void WriteBlockStart();
+    void WriteBlockEnd();
+
+    constexpr const char* NameDrawCall() const { return "drawcall"; }
+
+    bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
+
+    void TestWriteReadableResource(const std::string&        prefix_file_name,
+                                   const std::string&        suffix,
+                                   const CopyResourceDataPtr resource_data);
+
+    void TestWriteFloatResource(const std::string&        prefix_file_name,
+                                const std::string&        suffix,
+                                const CopyResourceDataPtr resource_data);
+
+    void TestWriteImageResource(const std::string&        prefix_file_name,
+                                const std::string&        suffix,
+                                const CopyResourceDataPtr resource_data);
+
+    util::JsonOptions      json_options_;
+    std::string            json_filename_;
+    FILE*                  json_file_handle_{ nullptr };
+    nlohmann::ordered_json json_data_;
+    nlohmann::ordered_json header_;
+    nlohmann::ordered_json drawcall_;
+    uint32_t               num_objects_{ 0 };
+    uint32_t               num_files_{ 0 };
+};
+
 // TODO: This class copys a lot of code to write json from VulkanExportJsonConsumerBase.
 //       We might need a class for writing json.
 class Dx12DumpResources
@@ -142,6 +200,8 @@ class Dx12DumpResources
     Dx12DumpResources(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
                       const graphics::Dx12GpuVaMap&                     gpu_va_map,
                       DxReplayOptions&                                  options);
+
+    void SetDelegate(Dx12DumpResourcesDelegate* delegate) { user_delegate_ = delegate; }
 
     std::vector<CommandSet> GetCommandListsForDumpResources(DxObjectInfo*     command_list_object_info,
                                                             uint64_t          block_index,
@@ -183,33 +243,6 @@ class Dx12DumpResources
     void StartDump(ID3D12Device* device, const std::string& filename);
     void FinishDump(DxObjectInfo* queue_object_info);
     void CloseDump();
-
-    void WriteResource(const CopyResourceDataPtr resource_data);
-    void WriteResource(nlohmann::ordered_json&   jdata,
-                       const std::string&        prefix_file_name,
-                       const std::string&        suffix,
-                       const CopyResourceDataPtr resource_data);
-
-    void StartFile();
-    void EndFile();
-    void WriteBlockStart();
-    void WriteBlockEnd();
-
-    constexpr const char* NameDrawCall() const { return "drawcall"; }
-
-    bool WriteBinaryFile(const std::string& filename, const std::vector<uint8_t>& data, uint64_t offset, uint64_t size);
-
-    void TestWriteReadableResource(const std::string&        prefix_file_name,
-                                   const std::string&        suffix,
-                                   const CopyResourceDataPtr resource_data);
-
-    void TestWriteFloatResource(const std::string&        prefix_file_name,
-                                const std::string&        suffix,
-                                const CopyResourceDataPtr resource_data);
-
-    void TestWriteImageResource(const std::string&        prefix_file_name,
-                                const std::string&        suffix,
-                                const CopyResourceDataPtr resource_data);
 
     void CopyDrawcallResources(DxObjectInfo*                        queue_object_info,
                                const std::vector<format::HandleId>& front_command_list_ids,
@@ -263,19 +296,15 @@ class Dx12DumpResources
                                                                  HANDLE                            fence_event,
                                                                  CopyResourceDataPtr               copy_resource_data);
 
-    util::JsonOptions      json_options_;
-    std::string            json_filename_;
-    FILE*                  json_file_handle_{ nullptr };
-    nlohmann::ordered_json json_data_;
-    nlohmann::ordered_json header_;
-    nlohmann::ordered_json drawcall_;
-    uint32_t               num_objects_{ 0 };
-    uint32_t               num_files_{ 0 };
-    TrackDumpResources     track_dump_resources_;
+    TrackDumpResources track_dump_resources_;
 
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func_;
     const graphics::Dx12GpuVaMap&                     gpu_va_map_;
     const DxReplayOptions&                            options_;
+
+    std::unique_ptr<DefaultDx12DumpResourcesDelegate> default_delegate_;
+    Dx12DumpResourcesDelegate*                        user_delegate_;
+    Dx12DumpResourcesDelegate*                        active_delegate_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
