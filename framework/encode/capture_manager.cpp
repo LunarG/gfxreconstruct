@@ -92,7 +92,7 @@ CommonCaptureManager::CommonCaptureManager() :
     force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
-    page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
+    page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
     queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
@@ -348,6 +348,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         if (use_external_memory)
         {
             page_guard_memory_mode_ = kMemoryModeExternal;
+            page_guard_external_memory_ = true;
         }
         else if (trace_settings.page_guard_persistent_memory)
         {
