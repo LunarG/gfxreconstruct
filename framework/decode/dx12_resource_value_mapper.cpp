@@ -477,11 +477,18 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
 
         format::HandleId resource_id = format::kNullHandleId;
         bool             found       = false;
-        reverse_gpu_va_map_.Map(build_desc->Inputs.InstanceDescs,
-                                &resource_id,
-                                &found,
-                                build_desc->Inputs.InstanceDescs +
-                                    build_desc->Inputs.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
+
+        auto min_end_gpu_va = build_desc->Inputs.InstanceDescs;
+        if (build_desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY)
+        {
+            min_end_gpu_va += build_desc->Inputs.NumDescs * sizeof(D3D12_RAYTRACING_INSTANCE_DESC);
+        }
+        else
+        {
+            min_end_gpu_va += build_desc->Inputs.NumDescs * sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+        }
+
+        reverse_gpu_va_map_.Map(build_desc->Inputs.InstanceDescs, &resource_id, &found, min_end_gpu_va);
 
         if (resource_id != format::kNullHandleId)
         {
@@ -514,11 +521,22 @@ void Dx12ResourceValueMapper::PostProcessBuildRaytracingAccelerationStructure(
                           { nullptr, nullptr, 0 } });
                 }
             }
+            else if (build_desc->Inputs.DescsLayout == D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS)
+            {
+                constexpr auto instance_desc_pointer_stride = sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+                for (UINT i = 0; i < build_desc->Inputs.NumDescs; ++i)
+                {
+                    resource_value_infos.insert({ offset_to_instance_descs_start + instance_desc_pointer_stride * i,
+                                                  ResourceValueType::kRaytracingInstanceDescPointer,
+                                                  sizeof(D3D12_GPU_VIRTUAL_ADDRESS),
+                                                  nullptr,
+                                                  { nullptr, nullptr, 0 } });
+                }
+            }
             else
             {
-                // TODO: Support D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS.
-                GFXRECON_LOG_WARNING("Application built acceleration structure with unsupported layout: "
-                                     "D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS");
+                GFXRECON_LOG_ERROR("Unknown BuildRaytracingAccelerationStructure DescsLayout: %d",
+                                   static_cast<int>(build_desc->Inputs.DescsLayout));
             }
         }
         else
@@ -1289,6 +1307,72 @@ bool Dx12ResourceValueMapper::MapValue(const ResourceValueInfo& value_info,
                 value_info.state_object);
         }
         return false;
+    }
+    else if (value_info.type == ResourceValueType::kRaytracingInstanceDescPointer)
+    {
+        GFXRECON_ASSERT(value_info.size == sizeof(D3D12_GPU_VIRTUAL_ADDRESS));
+
+        // Map the GPU_VA in the array of instance desc pointers.
+        ResourceValueInfo rvi = value_info;
+        rvi.type              = ResourceValueType::kGpuVirtualAddress;
+        MapValue(rvi, result_data, resource_id, resource_info, indirect_values_map);
+
+        // Read instance desc GPU_VA from the array of pointers.
+        D3D12_GPU_VIRTUAL_ADDRESS instance_desc_gpu_va = 0;
+        util::platform::MemoryCopy(&instance_desc_gpu_va,
+                                   sizeof(instance_desc_gpu_va),
+                                   result_data.data() + value_info.offset,
+                                   sizeof(instance_desc_gpu_va));
+
+        GFXRECON_ASSERT(value_info.offset == final_offset);
+
+        // Insert new RV infos for instance desc's AccelerationStructure, which will queue it for mapping.
+        if (instance_desc_gpu_va != 0)
+        {
+            // The spec requires that instance descs are aligned to D3D12_RAYTRACING_INSTANCE_DESCS_BYTE_ALIGNMENT. If
+            // the instance descs are not aligned behavior may be undefined.
+            GFXRECON_ASSERT((instance_desc_gpu_va % D3D12_RAYTRACING_INSTANCE_DESCS_BYTE_ALIGNMENT) == 0);
+
+            // Find the resource that contains the address referenced by instance_desc_gpu_va.
+            format::HandleId instance_desc_resource_id = format::kNullHandleId;
+            bool             found                     = false;
+            reverse_gpu_va_map_.Map(instance_desc_gpu_va,
+                                    &instance_desc_resource_id,
+                                    &found,
+                                    instance_desc_gpu_va + sizeof(D3D12_RAYTRACING_INSTANCE_DESC));
+
+            if (instance_desc_resource_id != format::kNullHandleId)
+            {
+                GFXRECON_ASSERT(found);
+
+                auto resource_object_info = get_object_info_func_(instance_desc_resource_id);
+                GFXRECON_ASSERT(resource_object_info != nullptr);
+                GFXRECON_ASSERT(resource_object_info->object != nullptr);
+
+                auto instance_desc_resource = static_cast<ID3D12Resource*>(resource_object_info->object);
+                GFXRECON_ASSERT(instance_desc_gpu_va >= instance_desc_resource->GetGPUVirtualAddress());
+                auto offset_to_instance_desc_start =
+                    instance_desc_gpu_va - instance_desc_resource->GetGPUVirtualAddress();
+
+                constexpr auto accel_struct_gpu_va_offset =
+                    offsetof(D3D12_RAYTRACING_INSTANCE_DESC, AccelerationStructure);
+
+                auto& resource_value_infos = indirect_values_map[resource_object_info];
+                resource_value_infos.insert({ offset_to_instance_desc_start + accel_struct_gpu_va_offset,
+                                              ResourceValueType::kGpuVirtualAddress,
+                                              sizeof(D3D12_GPU_VIRTUAL_ADDRESS),
+                                              nullptr,
+                                              { nullptr, nullptr, 0 } });
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("Failed to find the resource containing the D3D12_GPU_VIRTUAL_ADDRESS (%" PRIu64
+                                   ") of InstanceDescs in call to BuildRaytracingAccelerationStructure. GPU addresses "
+                                   "pointed to by InstanceDescs may be incorrect.",
+                                   instance_desc_gpu_va);
+            }
+        }
+        return true;
     }
     else
     {
