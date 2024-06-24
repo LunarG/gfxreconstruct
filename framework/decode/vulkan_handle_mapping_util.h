@@ -52,12 +52,12 @@ static typename T::HandleType MapHandle(format::HandleId             id,
         {
             handle = info->handle;
 
-            if constexpr (has_future<T>::value)
+            if constexpr (has_handle_future_v<T>)
             {
-                if (info->future.valid())
+                if (info->handle == VK_NULL_HANDLE && info->future.valid())
                 {
-                    auto [result, async_handles] = info->future.get();
-                    handle                       = async_handles[info->future_handle_index];
+                    const auto& [result, async_handles] = info->future.get();
+                    handle                              = async_handles[info->future_handle_index];
                 }
             }
         }
@@ -207,7 +207,7 @@ static void AddHandleArrayAsync(format::HandleId              parent_id,
                                 void (VulkanObjectInfoTable::*AddFunc)(T&&),
                                 std::shared_future<handle_create_result_t<typename T::HandleType>> future)
 {
-    static_assert(has_future<T>::value, "handle-type does not support asynchronous creation");
+    static_assert(has_handle_future_v<T>, "handle-type does not support asynchronous creation");
     assert(object_info_table != nullptr);
 
     if (ids != nullptr)
