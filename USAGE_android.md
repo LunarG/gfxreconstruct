@@ -38,7 +38,6 @@ to one of these other documents:
     7. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
     8. [Dumping resources](#dumping-resources)
 3. [Android Detailed Examples](#android-detailed-examples)
->>>>>>> davidp_dump_resources_merge2
 
 
 ## Behavior on Android
