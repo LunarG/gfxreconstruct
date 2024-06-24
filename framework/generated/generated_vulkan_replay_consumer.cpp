@@ -987,19 +987,20 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto device_table = GetDeviceTable(in_device);
+
+    // TODO: replace with deep-copy of create-info array
     std::vector<VkGraphicsPipelineCreateInfo> create_infos(in_pCreateInfos, in_pCreateInfos + createInfoCount);
-    std::vector<VkPipeline> out_pipelines(pPipelines->GetLength());
-    VkPipeline* out_pPipelines = out_pipelines.data();
 
     auto task = [this, device_table, in_device, in_pipelineCache, returnValue, call_info, in_pAllocator,
-                           create_infos = std::move(create_infos), out_pipelines = std::move(out_pipelines)]() mutable -> std::pair<VkResult, std::vector<VkPipeline>>
+                           create_infos = std::move(create_infos)]() -> handle_create_result_t<VkPipeline>
     {
+        std::vector<VkPipeline> out_pipelines(create_infos.size());
         VkResult replay_result = device_table->CreateGraphicsPipelines(in_device, in_pipelineCache,
             create_infos.size(), create_infos.data(), in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
         return {replay_result, std::move(out_pipelines)};
     };
-    AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), out_pPipelines, createInfoCount, &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
+    AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
 }
 
 void VulkanReplayConsumer::Process_vkCreateComputePipelines(

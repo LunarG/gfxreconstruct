@@ -203,19 +203,16 @@ template <typename T>
 static void AddHandleArrayAsync(format::HandleId              parent_id,
                                 const format::HandleId*       ids,
                                 size_t                        ids_len,
-                                const typename T::HandleType* handles,
-                                size_t                        handles_len,
                                 VulkanObjectInfoTable*        object_info_table,
                                 void (VulkanObjectInfoTable::*AddFunc)(T&&),
-                                std::shared_future<std::pair<VkResult, std::vector<typename T::HandleType>>> future)
+                                std::shared_future<handle_create_result_t<typename T::HandleType>> future)
 {
     static_assert(has_future<T>::value, "handle-type does not support asynchronous creation");
     assert(object_info_table != nullptr);
 
-    if ((ids != nullptr) && (handles != nullptr))
+    if (ids != nullptr)
     {
-        size_t len = std::min(ids_len, handles_len);
-        for (size_t i = 0; i < len; ++i)
+        for (size_t i = 0; i < ids_len; ++i)
         {
             T info;
             info.handle              = VK_NULL_HANDLE; // handle does not yet exist

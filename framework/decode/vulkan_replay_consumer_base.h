@@ -317,24 +317,22 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     template <typename T>
-    void AddHandlesAsync(format::HandleId              parent_id,
-                         const format::HandleId*       ids,
-                         size_t                        ids_len,
-                         const typename T::HandleType* handles,
-                         size_t                        handles_len,
+    void AddHandlesAsync(format::HandleId        parent_id,
+                         const format::HandleId* ids,
+                         size_t                  ids_len,
                          void (VulkanObjectInfoTable::*AddFunc)(T&&),
-                         std::function<std::pair<VkResult, std::vector<typename T::HandleType>>()> create_function)
+                         std::function<handle_create_result_t<typename T::HandleType>()> create_function)
     {
         if (create_function)
         {
-            std::shared_future<std::pair<VkResult, std::vector<typename T::HandleType>>> result_future =
+            std::shared_future<handle_create_result_t<typename T::HandleType>> result_future =
                 threadpool_.post(std::move(create_function));
 
             // poll in case there are no worker-threads
             threadpool_.poll();
 
             handle_mapping::AddHandleArrayAsync(
-                parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc, std::move(result_future));
+                parent_id, ids, ids_len, &object_info_table_, AddFunc, std::move(result_future));
         }
     }
 

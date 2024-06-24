@@ -358,12 +358,19 @@ struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
     std::unordered_map<uint32_t, std::vector<PipelineCacheData>> pipeline_cache_data;
 };
 
+template<typename T>
+struct handle_create_result_t
+{
+    VkResult result = VK_INCOMPLETE;
+    std::vector<T> handles;
+};
+
 struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
 
     // track asynchronous compilation status
-    std::shared_future<std::pair<VkResult, std::vector<VkPipeline>>> future;
+    std::shared_future<handle_create_result_t<VkPipeline>> future;
     uint32_t future_handle_index = 0;
 };
 
