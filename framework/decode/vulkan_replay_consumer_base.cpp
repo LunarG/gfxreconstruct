@@ -8658,6 +8658,18 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(con
     GetDeviceTable(in_commandBuffer)
         ->CmdPushDescriptorSetWithTemplateKHR(
             in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, pData->GetPointer());
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper.Process_vkCmdPushDescriptorSetWithTemplateKHR(
+            call_info,
+            GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplateKHR,
+            in_commandBuffer,
+            in_descriptorUpdateTemplate,
+            in_layout,
+            set,
+            pData);
+    }
 }
 
 void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
@@ -8684,6 +8696,12 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
     }
 
     GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR(in_commandBuffer, value);
+
+    if (options_.dumping_resources)
+    {
+        resource_dumper.Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+            call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR, in_commandBuffer, value);
+    }
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
