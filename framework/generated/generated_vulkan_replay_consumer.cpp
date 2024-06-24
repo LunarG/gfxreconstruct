@@ -31,6 +31,7 @@
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/vulkan_handle_mapping_util.h"
+#include "decode/vulkan_struct_deep_copy.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/defines.h"
@@ -989,14 +990,18 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     auto device_table = GetDeviceTable(in_device);
 
     // TODO: replace with deep-copy of create-info array
-    std::vector<VkGraphicsPipelineCreateInfo> create_infos(in_pCreateInfos, in_pCreateInfos + createInfoCount);
+    uint32_t num_bytes = deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    std::shared_ptr<uint8_t[]> create_info_data = std::make_unique<uint8_t[]>(num_bytes);
+    deep_copy(in_pCreateInfos, createInfoCount, create_info_data.get());
+//    std::vector<VkGraphicsPipelineCreateInfo> create_infos(in_pCreateInfos, in_pCreateInfos + createInfoCount);
 
     auto task = [this, device_table, in_device, in_pipelineCache, returnValue, call_info, in_pAllocator,
-                           create_infos = std::move(create_infos)]() -> handle_create_result_t<VkPipeline>
+                           createInfoCount, create_info_data = std::move(create_info_data)]() -> handle_create_result_t<VkPipeline>
     {
-        std::vector<VkPipeline> out_pipelines(create_infos.size());
+        std::vector<VkPipeline> out_pipelines(createInfoCount);
+        auto create_infos = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.get());
         VkResult replay_result = device_table->CreateGraphicsPipelines(in_device, in_pipelineCache,
-            create_infos.size(), create_infos.data(), in_pAllocator, out_pipelines.data());
+            createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
         return {replay_result, std::move(out_pipelines)};
     };
