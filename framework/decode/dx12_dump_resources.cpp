@@ -75,7 +75,7 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& captu
     {
         json_filename_ = json_filename_.substr(0, ext_pos);
     }
-    json_options_.data_sub_dir = json_filename_;
+    json_options_.data_sub_dir = util::filepath::GetFilenameStem(json_filename_);
     json_options_.root_dir     = util::filepath::GetBasedir(json_filename_);
     json_filename_ += "_dr." + util::get_json_format(json_options_.format);
 
