@@ -20,6 +20,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include PROJECT_VERSION_HEADER_FILE
 #include "decode/dx12_dump_resources.h"
 // TODO: It should change the file name of "vulkan"
 #include "generated/generated_vulkan_struct_to_json.h"
@@ -31,6 +32,11 @@
 #include "graphics/dx12_util.h"
 #include "graphics/dx12_resource_data_util.h"
 
+extern "C"
+{
+    extern const UINT D3D12SDKVersion;
+}
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -41,12 +47,14 @@ constexpr bool TEST_READABLE   = false;
 constexpr bool TEST_SHADER_RES = true;
 
 Dx12DumpResources::Dx12DumpResources(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
-                                     const graphics::Dx12GpuVaMap&                     gpu_va_map) :
+                                     const graphics::Dx12GpuVaMap&                     gpu_va_map,
+                                     DxReplayOptions&                                  options) :
     get_object_info_func_(get_object_info_func),
-    gpu_va_map_(gpu_va_map)
+    gpu_va_map_(gpu_va_map),
+    options_(options)
 {}
 
-void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& filename)
+void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& capture_file_name)
 {
     // prepare for copy resources
     auto hr = device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT,
@@ -60,31 +68,33 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& filen
     // prepare for output data
     json_options_.format = kDefaultDumpResourcesFileFormat;
 
-    json_filename_    = filename;
+    json_filename_    = capture_file_name;
     auto ext_pos      = json_filename_.find_last_of(".");
     auto path_sep_pos = json_filename_.find_last_of(util::filepath::kPathSepStr);
     if (ext_pos != std::string::npos && (path_sep_pos == std::string::npos || ext_pos > path_sep_pos))
     {
         json_filename_ = json_filename_.substr(0, ext_pos);
     }
-    json_filename_ += "_resources_submit_" +
-                      std::to_string(track_dump_resources_.target.dump_resources_target.submit_index) + "_command_" +
-                      std::to_string(track_dump_resources_.target.dump_resources_target.command_index) + "_drawcall_" +
-                      std::to_string(track_dump_resources_.target.dump_resources_target.drawcall_index) + "." +
-                      util::get_json_format(json_options_.format);
-
-    json_options_.data_sub_dir = util::filepath::GetFilenameStem(json_filename_);
+    json_options_.data_sub_dir = json_filename_;
     json_options_.root_dir     = util::filepath::GetBasedir(json_filename_);
+    json_filename_ += "_dr." + util::get_json_format(json_options_.format);
 
     util::platform::FileOpen(&json_file_handle_, json_filename_.c_str(), "w");
 
-    header_["source-path"] = filename;
+    header_["D3D12SDKVersion"] = std::to_string(D3D12SDKVersion);
+    header_["gfxreconversion"] = GFXRECON_PROJECT_VERSION_STRING;
+    header_["captureFile"] = capture_file_name;
+
+    auto& dr_options = header_["dumpResourcesOptions"];
+    dr_options["submit"] = std::to_string(options_.dump_resources_target.submit_index);
+    dr_options["command"]  = std::to_string(options_.dump_resources_target.command_index);
+    dr_options["drawcall"] = std::to_string(options_.dump_resources_target.drawcall_index);
 
     StartFile();
 
     // Emit the header object as the first line of the file:
     WriteBlockStart();
-    json_data_["source-path"] = header_;
+    json_data_["header"] = header_;
     WriteBlockEnd();
 
     WriteBlockStart();
@@ -1421,10 +1431,10 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json&   jdata,
         return;
     }
 
-    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
 
     util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
-    std::string json_path = suffix + "_file_name";
+    std::string json_path = suffix.empty() ? "file" : suffix + "File";
     for (const auto sub_index : resource_data->subresource_indices)
     {
         auto offset = resource_data->subresource_offsets[sub_index];
@@ -1469,7 +1479,7 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {
@@ -1501,7 +1511,7 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {

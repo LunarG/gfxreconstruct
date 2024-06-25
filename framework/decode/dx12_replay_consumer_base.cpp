@@ -638,7 +638,7 @@ void Dx12ReplayConsumerBase::SetDumpTarget(TrackDumpDrawcall& track_dump_target)
     if (!dump_resources_)
     {
         auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
-        dump_resources_      = std::make_unique<Dx12DumpResources>(get_object_func, gpu_va_map_);
+        dump_resources_      = std::make_unique<Dx12DumpResources>(get_object_func, gpu_va_map_, options_);
     }
     dump_resources_->SetDumpTarget(track_dump_target);
 }

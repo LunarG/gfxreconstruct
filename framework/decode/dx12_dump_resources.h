@@ -140,7 +140,8 @@ class Dx12DumpResources
 {
   public:
     Dx12DumpResources(std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func,
-                      const graphics::Dx12GpuVaMap&                     gpu_va_map);
+                      const graphics::Dx12GpuVaMap&                     gpu_va_map,
+                      DxReplayOptions&                                  options);
 
     std::vector<CommandSet> GetCommandListsForDumpResources(DxObjectInfo*     command_list_object_info,
                                                             uint64_t          block_index,
@@ -274,6 +275,7 @@ class Dx12DumpResources
 
     std::function<DxObjectInfo*(format::HandleId id)> get_object_info_func_;
     const graphics::Dx12GpuVaMap&                     gpu_va_map_;
+    const DxReplayOptions&                            options_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
