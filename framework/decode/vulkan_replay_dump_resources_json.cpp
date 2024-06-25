@@ -86,7 +86,7 @@ bool VulkanReplayDumpResourcesJson::Open(const std::string& infile, const std::s
     {
         outfile = outfile.substr(0, outfile.size() - 5);
     }
-    outfile = outfile + "_rd.json";
+    outfile = outfile + "_dr.json";
 
     if (!InitializeFile(outfile))
     {
