@@ -991,15 +991,14 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
 
     // TODO: replace with deep-copy of create-info array
     uint32_t num_bytes = deep_copy(in_pCreateInfos, createInfoCount, nullptr);
-    std::shared_ptr<uint8_t[]> create_info_data = std::make_unique<uint8_t[]>(num_bytes);
-    deep_copy(in_pCreateInfos, createInfoCount, create_info_data.get());
-//    std::vector<VkGraphicsPipelineCreateInfo> create_infos(in_pCreateInfos, in_pCreateInfos + createInfoCount);
+    std::vector<uint8_t> create_info_data(num_bytes);
+    deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
 
     auto task = [this, device_table, in_device, in_pipelineCache, returnValue, call_info, in_pAllocator,
                            createInfoCount, create_info_data = std::move(create_info_data)]() -> handle_create_result_t<VkPipeline>
     {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
-        auto create_infos = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.get());
+        auto create_infos = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.data());
         VkResult replay_result = device_table->CreateGraphicsPipelines(in_device, in_pipelineCache,
             createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);

@@ -46,7 +46,7 @@ size_t deep_copy(const T* structs, uint32_t count, uint8_t* out_data)
 }
 
 // template <typename T>
-// size_t deep_copy(const T* structs, uint32_t count, uint8_t* out_data, uint64_t offset);
+// size_t deep_copy(const T* structs, uint32_t count, uint8_t* out_data);
 
 inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)
 {
@@ -81,8 +81,7 @@ size_t deep_copy(const VkPipelineShaderStageCreateInfo* structs, uint32_t count,
 }
 
 template <>
-size_t
-deep_copy(const VkPipelineVertexInputStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+size_t deep_copy(const VkPipelineVertexInputStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
 {
     uint64_t offset = 0;
 
@@ -106,7 +105,7 @@ deep_copy(const VkPipelineVertexInputStateCreateInfo* structs, uint32_t count, u
 template <>
 size_t deep_copy(const VkGraphicsPipelineCreateInfo* structs, uint32_t count, uint8_t* out_data)
 {
-    uint64_t offset = 0;
+    uint64_t offset   = 0;
 
     // start with base structure array
     offset += sizeof(VkGraphicsPipelineCreateInfo) * count;
@@ -121,23 +120,41 @@ size_t deep_copy(const VkGraphicsPipelineCreateInfo* structs, uint32_t count, ui
             out_structures[i]   = create_info;
         }
 
-        // TODO: deep copy all pointer members
-
-        // VkPipelineShaderStageCreateInfo
-        offset += deep_copy(create_info.pStages, create_info.stageCount, offset_ptr(out_data, offset));
-
-        offset += deep_copy(create_info.pVertexInputState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pInputAssemblyState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pTessellationState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pViewportState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pRasterizationState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pMultisampleState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pRasterizationState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pDepthStencilState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pColorBlendState, 1, offset_ptr(out_data, offset));
-        offset += deep_copy(create_info.pDynamicState, 1, offset_ptr(out_data, offset));
-
+        // copy pNext-chain
         offset += deep_copy_pnext(create_info.pNext, offset_ptr(out_data, offset));
+
+        auto handle_pointer_member = [out_data, i, &offset, &create_info](const auto &pointer_member, uint32_t count) {
+            using struct_type = std::decay_t<decltype(create_info)>;
+            constexpr uint32_t struct_size = sizeof(struct_type);
+
+            // member-offset within struct in bytes
+            uint32_t member_offset =
+                reinterpret_cast<const uint8_t*>(&pointer_member) - reinterpret_cast<const uint8_t*>(&create_info);
+
+            uint32_t copy_size = deep_copy(pointer_member, count, offset_ptr(out_data, offset));
+
+            // re-direct pointers to point at copy
+            if (out_data != nullptr)
+            {
+                using pointer_type = std::decay_t<decltype(pointer_member)>;
+                pointer_type* out_ptr = reinterpret_cast<pointer_type*>(out_data + i * struct_size + member_offset);
+                *out_ptr = reinterpret_cast<pointer_type>(offset_ptr(out_data, offset));
+            }
+            offset += copy_size;
+        };
+
+        // deep copy all pointer members
+        handle_pointer_member(create_info.pStages, create_info.stageCount);
+        handle_pointer_member(create_info.pVertexInputState, 1);
+        handle_pointer_member(create_info.pInputAssemblyState, 1);
+        handle_pointer_member(create_info.pTessellationState, 1);
+        handle_pointer_member(create_info.pViewportState, 1);
+        handle_pointer_member(create_info.pRasterizationState, 1);
+        handle_pointer_member(create_info.pMultisampleState, 1);
+        handle_pointer_member(create_info.pRasterizationState, 1);
+        handle_pointer_member(create_info.pDepthStencilState, 1);
+        handle_pointer_member(create_info.pColorBlendState, 1);
+        handle_pointer_member(create_info.pDynamicState, 1);
     }
     return offset;
 }
@@ -154,14 +171,13 @@ size_t deep_copy_pnext(const void* pNext, uint8_t* out_data)
 
     while (pNext != nullptr)
     {
-        auto base_struct = reinterpret_cast<const VkBaseInStructure*>(pNext);
+        auto base = reinterpret_cast<const VkBaseInStructure*>(pNext);
 
-        switch (base_struct->sType)
+        switch (base->sType)
         {
             case VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO:
-                offset += deep_copy(reinterpret_cast<const VkPipelineRenderingCreateInfo*>(pNext),
-                                    1,
-                                    offset_ptr(out_data, offset));
+                offset += deep_copy(
+                    reinterpret_cast<const VkPipelineRenderingCreateInfo*>(pNext), 1, offset_ptr(out_data, offset));
                 break;
             case VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO_KHR:
                 offset += deep_copy(reinterpret_cast<const VkPipelineCreateFlags2CreateInfoKHR*>(pNext),
@@ -177,7 +193,7 @@ size_t deep_copy_pnext(const void* pNext, uint8_t* out_data)
                 assert(false);
                 break;
         }
-        pNext = base_struct->pNext;
+        pNext = base->pNext;
     }
     return offset;
 }
