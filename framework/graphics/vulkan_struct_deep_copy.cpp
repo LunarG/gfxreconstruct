@@ -52,7 +52,7 @@ inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)
 
 //! create a helper-lambda to handle pointer-type struct-members
 template <typename T>
-auto create_handle_pointer_member_function(uint8_t* out_data, uint32_t i, uint64_t& offset, T& base_struct)
+auto create_handle_pointer_member_function(uint8_t* out_data, uint32_t i, uint64_t& offset, const T& base_struct)
 {
     auto handle_pointer_member = [out_data, i, &offset, &base_struct](const auto& pointer_member, uint32_t count) {
         if (pointer_member == nullptr)
