@@ -75,9 +75,9 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& captu
     {
         json_filename_ = json_filename_.substr(0, ext_pos);
     }
-    json_options_.data_sub_dir = json_filename_;
-    json_options_.root_dir     = util::filepath::GetBasedir(json_filename_);
     json_filename_ += "_dr." + util::get_json_format(json_options_.format);
+    json_options_.data_sub_dir = util::filepath::GetFilenameStem(json_filename_);
+    json_options_.root_dir     = util::filepath::GetBasedir(json_filename_);
 
     util::platform::FileOpen(&json_file_handle_, json_filename_.c_str(), "w");
 
@@ -1431,7 +1431,16 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json&   jdata,
         return;
     }
 
-    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name;
+    if (prefix_file_name.empty() || prefix_file_name.back() == '_')
+    {
+        file_name += "res_id_";
+    }
+    else
+    {
+        file_name += "_res_id_";
+    }
+    file_name += std::to_string(resource_data->source_resource_id);
 
     util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
     std::string json_path = suffix.empty() ? "file" : suffix + "File";
@@ -1479,7 +1488,16 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name;
+    if (prefix_file_name.empty() || prefix_file_name.back() == '_')
+    {
+        file_name += "res_id_";
+    }
+    else
+    {
+        file_name += "_res_id_";
+    }
+    file_name += std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {
@@ -1511,7 +1529,16 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name + "res_id_" + std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name;
+    if (prefix_file_name.empty() || prefix_file_name.back() == '_')
+    {
+        file_name += "res_id_";
+    }
+    else
+    {
+        file_name += "_res_id_";
+    }
+    file_name += std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {
