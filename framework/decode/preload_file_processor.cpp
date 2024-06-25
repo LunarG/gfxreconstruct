@@ -204,6 +204,50 @@ bool PreloadFileProcessor::ProcessBlocks()
                         }
                     }
                 }
+                else if (block_header.type == format::BlockType::kFrameMarkerBlock)
+                {
+                    format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
+                    uint64_t           frame_number = 0;
+
+                    success = ReadBytes(&marker_type, sizeof(marker_type));
+
+                    if (success)
+                    {
+                        const auto is_frame_delimiter = IsFrameDelimiter(block_header.type, marker_type);
+                        if (status_ == PreloadStatus::kRecord)
+                        {
+                            preload_buffer_.Reserve(sizeof(block_header) + block_header.size);
+                            preload_buffer_.Add(&block_header);
+                            preload_buffer_.Add(&marker_type);
+                            size_t parameters_size  = block_header.size - sizeof(marker_type);
+                            auto*  parameter_buffer = preload_buffer_.Add(parameters_size);
+                            success                 = ReadBytes(parameter_buffer, parameters_size);
+                            if (!success)
+                            {
+                                HandleBlockReadError(kErrorReadingBlockData, "Failed to preload frame marker block");
+                            }
+                            if (is_frame_delimiter)
+                            {
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            success = ProcessFrameMarker(block_header, marker_type);
+                            if (is_frame_delimiter)
+                            {
+                                // Make sure to increment the frame number on the way out.
+                                ++current_frame_number_;
+                                ++block_index_;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read frame marker header");
+                    }
+                }
                 else if (block_header.type == format::BlockType::kStateMarkerBlock)
                 {
                     format::MarkerType marker_type  = format::MarkerType::kUnknownMarker;
