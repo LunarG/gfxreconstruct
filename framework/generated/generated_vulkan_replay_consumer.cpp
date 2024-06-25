@@ -994,6 +994,9 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     std::vector<uint8_t> create_info_data(num_bytes);
     deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
 
+    std::vector<VkGraphicsPipelineCreateInfo> poop((VkGraphicsPipelineCreateInfo*)create_info_data.data(),
+                                                    ((VkGraphicsPipelineCreateInfo*)create_info_data.data()) + createInfoCount);
+
     auto task = [this, device_table, in_device, in_pipelineCache, returnValue, call_info, in_pAllocator,
                            createInfoCount, create_info_data = std::move(create_info_data)]() -> handle_create_result_t<VkPipeline>
     {

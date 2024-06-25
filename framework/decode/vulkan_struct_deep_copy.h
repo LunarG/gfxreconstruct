@@ -47,14 +47,14 @@ size_t shallow_copy(const T* structs, uint32_t count, uint8_t* out_data)
 
 // the generic template is defined, but deleted.
 // only explicit instantiations can be used
-//template <typename T>
-//size_t deep_copy(const T* structs, uint32_t count, uint8_t* out_data) = delete;
-
 template <typename T>
-size_t deep_copy(const T* structs, uint32_t count, uint8_t* out_data)
-{
-    return shallow_copy(structs, count, out_data);
-}
+size_t deep_copy(const T* structs, uint32_t count, uint8_t* out_data) = delete;
+
+//template <typename T>
+//size_t deep_copy(const T* structs, uint32_t count, uint8_t* out_data)
+//{
+//    return shallow_copy(structs, count, out_data);
+//}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -64,8 +64,8 @@ size_t deep_copy(const char* str, uint32_t count, uint8_t* out_data);
 template <>
 size_t deep_copy(const void* data, uint32_t count, uint8_t* out_data);
 
-//template <>
-//size_t deep_copy(const VkPipelineShaderStageCreateInfo* structs, uint32_t count, uint8_t* out_data);
+template <>
+size_t deep_copy(const VkPipelineShaderStageCreateInfo* structs, uint32_t count, uint8_t* out_data);
 
 template <>
 size_t deep_copy(const VkVertexInputAttributeDescription* structs, uint32_t count, uint8_t* out_data);
@@ -79,6 +79,57 @@ size_t deep_copy(const VkSpecializationInfo* structs, uint32_t count, uint8_t* o
 template <>
 size_t deep_copy(const VkSpecializationMapEntry* structs, uint32_t count, uint8_t* out_data);
 
+template <>
+size_t deep_copy(const VkPipelineInputAssemblyStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineTessellationStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineViewportStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkViewport* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkRect2D* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineRasterizationStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineMultisampleStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineDepthStencilStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkSampleMask* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineColorBlendStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineDynamicStateCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineColorBlendAttachmentState* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkDynamicState* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineRenderingCreateInfo* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineCreateFlags2CreateInfoKHR* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkPipelineDiscardRectangleStateCreateInfoEXT* structs, uint32_t count, uint8_t* out_data);
+
+template <>
+size_t deep_copy(const VkFormat* structs, uint32_t count, uint8_t* out_data);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)
@@ -91,6 +142,11 @@ auto create_handle_pointer_member_function = [](uint8_t* out_data, uint32_t i, u
     auto handle_pointer_member = [out_data, i, &offset, &base_struct](const auto& pointer_member, uint32_t count) {
         using struct_type              = std::decay_t<decltype(base_struct)>;
         constexpr uint32_t struct_size = sizeof(struct_type);
+
+        if(pointer_member == nullptr)
+        {
+            return;
+        }
 
         // member-offset within struct in bytes
         uint32_t member_offset =
@@ -121,9 +177,9 @@ size_t deep_copy(const char* str, uint32_t /*count*/, uint8_t* out_data)
         size_t len = strlen(str);
         if(out_data != nullptr)
         {
-            memcpy(out_data, str, len);
+            strcpy(reinterpret_cast<char*>(out_data), str);
         }
-        return len;
+        return len + 1;
     }
     return 0;
 }
@@ -139,44 +195,44 @@ size_t deep_copy(const void* data, uint32_t count, uint8_t* out_data)
     return count;
 }
 
-//template <>
-//size_t deep_copy(const VkPipelineShaderStageCreateInfo* structs, uint32_t count, uint8_t* out_data)
-//{
-//    using struct_type              = std::decay_t<decltype(*structs)>;
-//    constexpr uint32_t struct_size = sizeof(struct_type);
-//
-//    if(structs == nullptr || count == 0)
-//    {
-//        return 0;
-//    }
-//    uint64_t offset = 0;
-//
-//    // start with base structure array
-//    offset += struct_size * count;
-//
-//    for (uint32_t i = 0; i < count; ++i)
-//    {
-//        const auto& base_struct = structs[i];
-//
-//        if (out_data != nullptr)
-//        {
-//            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-//            out_structures[i]   = base_struct;
-//        }
-//
-//        // copy pNext-chain
-//        offset += deep_copy_pnext(base_struct.pNext, offset_ptr(out_data, offset));
-//
-//        // create lambda to handle pointer-members
-//        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
-//
-//        // deep copy all pointer members
-//        handle_pointer_member(base_struct.pName, 1);
-//        handle_pointer_member(base_struct.pSpecializationInfo, 1);
-//    }
-//    return offset;
-//}
-//
+template <>
+size_t deep_copy(const VkPipelineShaderStageCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        offset += deep_copy_pnext(base_struct.pNext, offset_ptr(out_data, offset));
+
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
+
+        // deep copy all pointer members
+        handle_pointer_member(base_struct.pName, 1);
+        handle_pointer_member(base_struct.pSpecializationInfo, 1);
+    }
+    return offset;
+}
+
 template <>
 size_t deep_copy(const VkPipelineVertexInputStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
 {
@@ -203,7 +259,17 @@ size_t deep_copy(const VkPipelineVertexInputStateCreateInfo* structs, uint32_t c
         }
 
         // copy pNext-chain
-        offset += deep_copy_pnext(base_struct.pNext, offset_ptr(out_data, offset));
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
 
         // create lambda to handle pointer-members
         auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
@@ -246,6 +312,494 @@ size_t deep_copy(const VkSpecializationInfo* structs, uint32_t count, uint8_t* o
         // deep copy all pointer members
         handle_pointer_member(base_struct.pMapEntries, base_struct.mapEntryCount);
         handle_pointer_member(base_struct.pData, base_struct.dataSize);
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineInputAssemblyStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineTessellationStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineViewportStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
+
+        // deep copy all pointer members
+        handle_pointer_member(base_struct.pViewports, base_struct.viewportCount);
+        handle_pointer_member(base_struct.pScissors, base_struct.scissorCount);
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineRasterizationStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineMultisampleStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
+
+        // deep copy all pointer members
+        handle_pointer_member(base_struct.pSampleMask, base_struct.rasterizationSamples / 32 + 1);
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineDepthStencilStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineColorBlendStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
+
+        // deep copy all pointer members
+        handle_pointer_member(base_struct.pAttachments, base_struct.attachmentCount);
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineDynamicStateCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
+
+        // deep copy all pointer members
+        handle_pointer_member(base_struct.pDynamicStates, base_struct.dynamicStateCount);
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineRenderingCreateInfo* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
+
+        // deep copy all pointer members
+        handle_pointer_member(base_struct.pColorAttachmentFormats, base_struct.colorAttachmentCount);
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineCreateFlags2CreateInfoKHR* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+    }
+    return offset;
+}
+
+template <>
+size_t deep_copy(const VkPipelineDiscardRectangleStateCreateInfoEXT* structs, uint32_t count, uint8_t* out_data)
+{
+    using struct_type              = std::decay_t<decltype(*structs)>;
+    constexpr uint32_t struct_size = sizeof(struct_type);
+
+    if(structs == nullptr || count == 0)
+    {
+        return 0;
+    }
+    uint64_t offset = 0;
+
+    // start with base structure array
+    offset += struct_size * count;
+
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& base_struct = structs[i];
+
+        if (out_data != nullptr)
+        {
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
+        }
+
+        // copy pNext-chain
+        if (base_struct.pNext != nullptr)
+        {
+            uint8_t* out_address = offset_ptr(out_data, offset);
+            offset += deep_copy_pnext(base_struct.pNext, out_address);
+
+            if (out_address != nullptr)
+            {
+                void** out_pNext = reinterpret_cast<void**>(out_data + i * struct_size + offsetof(struct_type, pNext));
+                *out_pNext       = out_address;
+            }
+        }
+
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, base_struct);
+
+        // deep copy all pointer members
+        handle_pointer_member(base_struct.pDiscardRectangles, base_struct.discardRectangleCount);
     }
     return offset;
 }
@@ -321,6 +875,42 @@ size_t deep_copy(const VkVertexInputAttributeDescription* structs, uint32_t coun
 
 template <>
 size_t deep_copy(const VkSpecializationMapEntry* structs, uint32_t count, uint8_t* out_data)
+{
+    return shallow_copy(structs, count, out_data);
+}
+
+template <>
+size_t deep_copy(const VkViewport* structs, uint32_t count, uint8_t* out_data)
+{
+    return shallow_copy(structs, count, out_data);
+}
+
+template <>
+size_t deep_copy(const VkRect2D* structs, uint32_t count, uint8_t* out_data)
+{
+    return shallow_copy(structs, count, out_data);
+}
+
+template <>
+size_t deep_copy(const VkSampleMask* structs, uint32_t count, uint8_t* out_data)
+{
+    return shallow_copy(structs, count, out_data);
+}
+
+template <>
+size_t deep_copy(const VkPipelineColorBlendAttachmentState* structs, uint32_t count, uint8_t* out_data)
+{
+    return shallow_copy(structs, count, out_data);
+}
+
+template <>
+size_t deep_copy(const VkDynamicState* structs, uint32_t count, uint8_t* out_data)
+{
+    return shallow_copy(structs, count, out_data);
+}
+
+template <>
+size_t deep_copy(const VkFormat* structs, uint32_t count, uint8_t* out_data)
 {
     return shallow_copy(structs, count, out_data);
 }
