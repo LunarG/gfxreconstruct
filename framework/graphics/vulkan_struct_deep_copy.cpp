@@ -79,8 +79,6 @@ auto create_handle_pointer_member_function(uint8_t* out_data, uint32_t i, uint64
     return handle_pointer_member;
 };
 
-size_t vulkan_struct_deep_copy_pnext(const void* pNext, uint8_t* out_data);
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // template <typename T>
