@@ -53,6 +53,32 @@ inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)
     return ptr != nullptr ? ptr + offset : nullptr;
 }
 
+//! create a helper-lambda to handle pointer-type struct-members
+auto create_handle_pointer_member_function = [](uint8_t* out_data, uint32_t i, uint64_t &offset, auto &base_struct)
+{
+    auto handle_pointer_member = [out_data, i, &offset, &base_struct](const auto &pointer_member, uint32_t count) {
+        using struct_type = std::decay_t<decltype(base_struct)>;
+        constexpr uint32_t struct_size = sizeof(struct_type);
+
+        // member-offset within struct in bytes
+        uint32_t member_offset =
+            reinterpret_cast<const uint8_t*>(&pointer_member) - reinterpret_cast<const uint8_t*>(&base_struct);
+
+        // copy pointer-chain recursively
+        uint32_t copy_size = deep_copy(pointer_member, count, offset_ptr(out_data, offset));
+
+        // re-direct pointers to point at copy
+        if (out_data != nullptr)
+        {
+            using pointer_type = std::decay_t<decltype(pointer_member)>;
+            pointer_type* out_ptr = reinterpret_cast<pointer_type*>(out_data + i * struct_size + member_offset);
+            *out_ptr = reinterpret_cast<pointer_type>(offset_ptr(out_data, offset));
+        }
+        offset += copy_size;
+    };
+    return handle_pointer_member;
+};
+
 size_t deep_copy_pnext(const void* pNext, uint8_t* out_data);
 
 template <>
@@ -123,25 +149,8 @@ size_t deep_copy(const VkGraphicsPipelineCreateInfo* structs, uint32_t count, ui
         // copy pNext-chain
         offset += deep_copy_pnext(create_info.pNext, offset_ptr(out_data, offset));
 
-        auto handle_pointer_member = [out_data, i, &offset, &create_info](const auto &pointer_member, uint32_t count) {
-            using struct_type = std::decay_t<decltype(create_info)>;
-            constexpr uint32_t struct_size = sizeof(struct_type);
-
-            // member-offset within struct in bytes
-            uint32_t member_offset =
-                reinterpret_cast<const uint8_t*>(&pointer_member) - reinterpret_cast<const uint8_t*>(&create_info);
-
-            uint32_t copy_size = deep_copy(pointer_member, count, offset_ptr(out_data, offset));
-
-            // re-direct pointers to point at copy
-            if (out_data != nullptr)
-            {
-                using pointer_type = std::decay_t<decltype(pointer_member)>;
-                pointer_type* out_ptr = reinterpret_cast<pointer_type*>(out_data + i * struct_size + member_offset);
-                *out_ptr = reinterpret_cast<pointer_type>(offset_ptr(out_data, offset));
-            }
-            offset += copy_size;
-        };
+        // create lambda to handle pointer-members
+        auto handle_pointer_member = create_handle_pointer_member_function(out_data, i, offset, create_info);
 
         // deep copy all pointer members
         handle_pointer_member(create_info.pStages, create_info.stageCount);
