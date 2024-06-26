@@ -58,6 +58,13 @@ class FileProcessor
         kErrorUnsupportedCompressionType   = -10
     };
 
+    enum BlockProcessReturn : int32_t
+    {
+        kSuccess = 0,
+        kFailure = 1,
+        kBreak   = 2,
+    };
+
   public:
     FileProcessor();
 
@@ -115,9 +122,9 @@ class FileProcessor
 
     bool SkipBytes(size_t skip_size);
 
-    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
+    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
 
-    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
+    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
@@ -127,7 +134,8 @@ class FileProcessor
 
     void HandleBlockReadError(Error error_code, const char* error_message);
 
-    bool ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
+    bool
+    ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
 
     bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 

@@ -115,12 +115,10 @@ bool PreloadFileProcessor::ProcessBlocks()
                         }
                         else
                         {
-                            success = ProcessFunctionCall(block_header, api_call_id);
-                            if (is_frame_delimiter)
+                            bool should_break = false;
+                            success           = ProcessFunctionCall(block_header, api_call_id, should_break);
+                            if (should_break)
                             {
-                                // Make sure to increment the frame number on the way out.
-                                ++current_frame_number_;
-                                ++block_index_;
                                 break;
                             }
                         }
@@ -159,12 +157,10 @@ bool PreloadFileProcessor::ProcessBlocks()
                         }
                         else
                         {
-                            success = ProcessMethodCall(block_header, api_call_id);
-                            if (is_frame_delimiter)
+                            bool should_break = false;
+                            success           = ProcessMethodCall(block_header, api_call_id, should_break);
+                            if (should_break)
                             {
-                                // Make sure to increment the frame number on the way out.
-                                ++current_frame_number_;
-                                ++block_index_;
                                 break;
                             }
                         }
@@ -214,9 +210,9 @@ bool PreloadFileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        const auto is_frame_delimiter = IsFrameDelimiter(block_header.type, marker_type);
                         if (status_ == PreloadStatus::kRecord)
                         {
+                            const auto is_frame_delimiter = IsFrameDelimiter(block_header.type, marker_type);
                             preload_buffer_.Reserve(sizeof(block_header) + block_header.size);
                             preload_buffer_.Add(&block_header);
                             preload_buffer_.Add(&marker_type);
@@ -234,12 +230,11 @@ bool PreloadFileProcessor::ProcessBlocks()
                         }
                         else
                         {
-                            success = ProcessFrameMarker(block_header, marker_type);
-                            if (is_frame_delimiter)
+                            bool should_break = false;
+                            success           = ProcessFrameMarker(block_header, marker_type, should_break);
+
+                            if (should_break)
                             {
-                                // Make sure to increment the frame number on the way out.
-                                ++current_frame_number_;
-                                ++block_index_;
                                 break;
                             }
                         }
