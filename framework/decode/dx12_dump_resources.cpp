@@ -50,8 +50,7 @@ Dx12DumpResources::Dx12DumpResources(std::function<DxObjectInfo*(format::HandleI
                                      const graphics::Dx12GpuVaMap&                     gpu_va_map,
                                      DxReplayOptions&                                  options) :
     get_object_info_func_(get_object_info_func),
-    gpu_va_map_(gpu_va_map),
-    options_(options)
+    gpu_va_map_(gpu_va_map), options_(options)
 {}
 
 void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& capture_file_name)
@@ -83,10 +82,10 @@ void Dx12DumpResources::StartDump(ID3D12Device* device, const std::string& captu
 
     header_["D3D12SDKVersion"] = std::to_string(D3D12SDKVersion);
     header_["gfxreconversion"] = GFXRECON_PROJECT_VERSION_STRING;
-    header_["captureFile"] = capture_file_name;
+    header_["captureFile"]     = capture_file_name;
 
-    auto& dr_options = header_["dumpResourcesOptions"];
-    dr_options["submit"] = std::to_string(options_.dump_resources_target.submit_index);
+    auto& dr_options       = header_["dumpResourcesOptions"];
+    dr_options["submit"]   = std::to_string(options_.dump_resources_target.submit_index);
     dr_options["command"]  = std::to_string(options_.dump_resources_target.command_index);
     dr_options["drawcall"] = std::to_string(options_.dump_resources_target.drawcall_index);
 
@@ -629,13 +628,13 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                                                 *descriptor_gpu_handles))
                 {
                     json_path_sub = json_path;
-                    json_path_sub.emplace_back("constant_buffer", resource_index);
+                    json_path_sub.emplace_back("constant_buffer_views", resource_index);
                     CopyDrawcallResourceByGPUVA(queue_object_info,
                                                 front_command_list_ids,
                                                 info.captured_view.BufferLocation,
                                                 info.captured_view.SizeInBytes,
                                                 json_path_sub,
-                                                "constant_buffer",
+                                                "cbv",
                                                 write_type);
                     ++resource_index;
                 }
@@ -672,16 +671,16 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                                 break;
                         }
                         json_path_sub = json_path;
-                        json_path_sub.emplace_back("shader_resource", resource_index);
-                        CopyDrawcallResource(queue_object_info,
-                                             front_command_list_ids,
-                                             info.resource_id,
-                                             offset,
-                                             size,
-                                             info.subresource_indices,
-                                             json_path_sub,
-                                             "shader_resource",
-                                             write_type);
+                        json_path_sub.emplace_back("shader_resource_views", resource_index);
+                        CopyDrawcallResourceBySubresource(queue_object_info,
+                                                          front_command_list_ids,
+                                                          info.resource_id,
+                                                          offset,
+                                                          size,
+                                                          info.subresource_indices,
+                                                          json_path_sub,
+                                                          "srv",
+                                                          write_type);
                         ++resource_index;
                     }
                 }
@@ -715,32 +714,32 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                                 break;
                         }
                         json_path_sub = json_path;
-                        json_path_sub.emplace_back("unordered_access", resource_index);
+                        json_path_sub.emplace_back("unordered_access_views", resource_index);
                         json_path_sub.emplace_back("resource", format::kNoneIndex);
-                        CopyDrawcallResource(queue_object_info,
-                                             front_command_list_ids,
-                                             info.resource_id,
-                                             offset,
-                                             size,
-                                             info.subresource_indices,
-                                             json_path_sub,
-                                             "unordered_access_resource",
-                                             write_type);
+                        CopyDrawcallResourceBySubresource(queue_object_info,
+                                                          front_command_list_ids,
+                                                          info.resource_id,
+                                                          offset,
+                                                          size,
+                                                          info.subresource_indices,
+                                                          json_path_sub,
+                                                          "uav",
+                                                          write_type);
 
                         if (info.counter_resource_id != format::kNullHandleId)
                         {
                             json_path_sub = json_path;
-                            json_path_sub.emplace_back("unordered_access", resource_index);
+                            json_path_sub.emplace_back("unordered_access_views", resource_index);
                             json_path_sub.emplace_back("counter_resource", format::kNoneIndex);
-                            CopyDrawcallResource(queue_object_info,
-                                                 front_command_list_ids,
-                                                 info.counter_resource_id,
-                                                 info.view.Buffer.CounterOffsetInBytes,
-                                                 0,
-                                                 sub_indices_emptry,
-                                                 json_path_sub,
-                                                 "unordered_access_counter_resource",
-                                                 write_type);
+                            CopyDrawcallResourceBySubresource(queue_object_info,
+                                                              front_command_list_ids,
+                                                              info.counter_resource_id,
+                                                              info.view.Buffer.CounterOffsetInBytes,
+                                                              0,
+                                                              sub_indices_emptry,
+                                                              json_path_sub,
+                                                              "uav_counter",
+                                                              write_type);
                         }
                         ++resource_index;
                     }
@@ -778,16 +777,16 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
                         break;
                 }
                 json_path.clear();
-                json_path.emplace_back("render_target", resource_index);
-                CopyDrawcallResource(queue_object_info,
-                                     front_command_list_ids,
-                                     info.resource_id,
-                                     0,
-                                     0,
-                                     info.subresource_indices,
-                                     json_path,
-                                     "render_target",
-                                     write_type);
+                json_path.emplace_back("render_target_views", resource_index);
+                CopyDrawcallResourceBySubresource(queue_object_info,
+                                                  front_command_list_ids,
+                                                  info.resource_id,
+                                                  0,
+                                                  0,
+                                                  info.subresource_indices,
+                                                  json_path,
+                                                  "rtv",
+                                                  write_type);
                 ++resource_index;
                 break;
             }
@@ -807,16 +806,16 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
             if (info.replay_handle.ptr == track_dump_resources_.replay_depth_stencil_handle.ptr)
             {
                 json_path.clear();
-                json_path.emplace_back("depth_stencil", format::kNoneIndex);
-                CopyDrawcallResource(queue_object_info,
-                                     front_command_list_ids,
-                                     info.resource_id,
-                                     0,
-                                     0,
-                                     info.subresource_indices,
-                                     json_path,
-                                     "depth_stencil",
-                                     write_type);
+                json_path.emplace_back("depth_stencil_views", format::kNoneIndex);
+                CopyDrawcallResourceBySubresource(queue_object_info,
+                                                  front_command_list_ids,
+                                                  info.resource_id,
+                                                  0,
+                                                  0,
+                                                  info.subresource_indices,
+                                                  json_path,
+                                                  "dsv",
+                                                  write_type);
                 break;
             }
         }
@@ -835,27 +834,27 @@ void Dx12DumpResources::CopyDrawcallResources(DxObjectInfo*                     
     if (exe_indirect_info)
     {
         json_path.clear();
-        json_path.emplace_back("execute_indirect_argument", format::kNoneIndex);
-        CopyDrawcallResource(queue_object_info,
-                             front_command_list_ids,
-                             exe_indirect_info->argument_id,
-                             exe_indirect_info->argument_offset,
-                             0,
-                             sub_indices_emptry,
-                             json_path,
-                             "execute_indirect_argument",
-                             write_type);
+        json_path.emplace_back("execute_indirect_arguments", format::kNoneIndex);
+        CopyDrawcallResourceBySubresource(queue_object_info,
+                                          front_command_list_ids,
+                                          exe_indirect_info->argument_id,
+                                          exe_indirect_info->argument_offset,
+                                          0,
+                                          sub_indices_emptry,
+                                          json_path,
+                                          "ei_args",
+                                          write_type);
         json_path.clear();
-        json_path.emplace_back("execute_indirect_count", format::kNoneIndex);
-        CopyDrawcallResource(queue_object_info,
-                             front_command_list_ids,
-                             exe_indirect_info->count_id,
-                             exe_indirect_info->count_offset,
-                             0,
-                             sub_indices_emptry,
-                             json_path,
-                             "execute_indirect_count",
-                             write_type);
+        json_path.emplace_back("execute_indirect_counts", format::kNoneIndex);
+        CopyDrawcallResourceBySubresource(queue_object_info,
+                                          front_command_list_ids,
+                                          exe_indirect_info->count_id,
+                                          exe_indirect_info->count_offset,
+                                          0,
+                                          sub_indices_emptry,
+                                          json_path,
+                                          "ei_count",
+                                          write_type);
     }
 }
 
@@ -871,31 +870,30 @@ void Dx12DumpResources::CopyDrawcallResourceByGPUVA(DxObjectInfo*               
     {
         return;
     }
-    CopyResourceDataPtr copy_resource_data(new CopyResourceData());
-    copy_resource_data->subresource_indices.emplace_back(0);
-    copy_resource_data->source_resource_id =
-        object_mapping::FindResourceIDbyGpuVA(captured_source_gpu_va, gpu_va_map_);
-
-    auto source_resource_object_info = get_object_info_func_(copy_resource_data->source_resource_id);
+    auto source_resource_id          = object_mapping::FindResourceIDbyGpuVA(captured_source_gpu_va, gpu_va_map_);
+    auto source_resource_object_info = get_object_info_func_(source_resource_id);
     auto source_resource_extra_info  = GetExtraInfo<D3D12ResourceInfo>(source_resource_object_info);
 
-    CopyDrawcallResource(queue_object_info,
-                         front_command_list_ids,
-                         copy_resource_data->source_resource_id,
-                         (captured_source_gpu_va - source_resource_extra_info->capture_address_),
-                         source_size,
-                         copy_resource_data);
+    CopyDrawcallResourceBySubresource(queue_object_info,
+                                      front_command_list_ids,
+                                      source_resource_id,
+                                      (captured_source_gpu_va - source_resource_extra_info->capture_address_),
+                                      source_size,
+                                      { 0 },
+                                      json_path,
+                                      file_name,
+                                      write_type);
 }
 
-void Dx12DumpResources::CopyDrawcallResource(DxObjectInfo*                                       queue_object_info,
-                                             const std::vector<format::HandleId>&                front_command_list_ids,
-                                             format::HandleId                                    source_resource_id,
-                                             uint64_t                                            source_offset,
-                                             uint64_t                                            source_size,
-                                             const std::vector<uint32_t>&                        subresource_indices,
-                                             const std::vector<std::pair<std::string, int32_t>>& json_path,
-                                             const std::string&                                  file_name,
-                                             const std::string&                                  write_type)
+void Dx12DumpResources::CopyDrawcallResourceBySubresource(DxObjectInfo*                        queue_object_info,
+                                                          const std::vector<format::HandleId>& front_command_list_ids,
+                                                          format::HandleId                     source_resource_id,
+                                                          uint64_t                             source_offset,
+                                                          uint64_t                             source_size,
+                                                          const std::vector<uint32_t>&         subresource_indices,
+                                                          const std::vector<std::pair<std::string, int32_t>>& json_path,
+                                                          const std::string&                                  file_name,
+                                                          const std::string& write_type)
 {
     CopyResourceDataPtr copy_resource_data(new CopyResourceData());
     copy_resource_data->subresource_indices = subresource_indices;
@@ -1431,19 +1429,10 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json&   jdata,
         return;
     }
 
-    std::string file_name = prefix_file_name;
-    if (prefix_file_name.empty() || prefix_file_name.back() == '_')
-    {
-        file_name += "res_id_";
-    }
-    else
-    {
-        file_name += "_res_id_";
-    }
-    file_name += std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
 
     util::FieldToJson(jdata["res_id"], resource_data->source_resource_id, json_options_);
-    std::string json_path = suffix.empty() ? "file" : suffix + "File";
+    std::string json_path = suffix + "_file";
     for (const auto sub_index : resource_data->subresource_indices)
     {
         auto offset = resource_data->subresource_offsets[sub_index];
@@ -1457,7 +1446,7 @@ void Dx12DumpResources::WriteResource(nlohmann::ordered_json&   jdata,
         // Write data.
         GFXRECON_ASSERT(!resource_data->datas[sub_index].empty());
 
-        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".bin ";
+        std::string file_name_sub = file_name + "_sub_" + std::to_string(sub_index) + "_" + suffix + ".bin";
         util::FieldToJson(jdata_sub[json_path], file_name_sub.c_str(), json_options_);
 
         std::string file_path = gfxrecon::util::filepath::Join(json_options_.root_dir, file_name_sub);
@@ -1488,16 +1477,7 @@ void Dx12DumpResources::TestWriteFloatResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name;
-    if (prefix_file_name.empty() || prefix_file_name.back() == '_')
-    {
-        file_name += "res_id_";
-    }
-    else
-    {
-        file_name += "_res_id_";
-    }
-    file_name += std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {
@@ -1529,16 +1509,7 @@ void Dx12DumpResources::TestWriteImageResource(const std::string&        prefix_
                                                const std::string&        suffix,
                                                const CopyResourceDataPtr resource_data)
 {
-    std::string file_name = prefix_file_name;
-    if (prefix_file_name.empty() || prefix_file_name.back() == '_')
-    {
-        file_name += "res_id_";
-    }
-    else
-    {
-        file_name += "_res_id_";
-    }
-    file_name += std::to_string(resource_data->source_resource_id);
+    std::string file_name = prefix_file_name + "_res_id_" + std::to_string(resource_data->source_resource_id);
 
     for (const auto sub_index : resource_data->subresource_indices)
     {

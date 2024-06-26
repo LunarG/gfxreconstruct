@@ -223,15 +223,15 @@ class Dx12DumpResources
                                      const std::string&                                  file_name,
                                      const std::string&                                  write_type);
 
-    void CopyDrawcallResource(DxObjectInfo*                                       queue_object_info,
-                              const std::vector<format::HandleId>&                front_command_list_ids,
-                              format::HandleId                                    source_resource_id,
-                              uint64_t                                            source_offset,
-                              uint64_t                                            source_size,
-                              const std::vector<uint32_t>&                        subresource_indices,
-                              const std::vector<std::pair<std::string, int32_t>>& json_path,
-                              const std::string&                                  file_name,
-                              const std::string&                                  write_type);
+    void CopyDrawcallResourceBySubresource(DxObjectInfo*                                       queue_object_info,
+                                           const std::vector<format::HandleId>&                front_command_list_ids,
+                                           format::HandleId                                    source_resource_id,
+                                           uint64_t                                            source_offset,
+                                           uint64_t                                            source_size,
+                                           const std::vector<uint32_t>&                        subresource_indices,
+                                           const std::vector<std::pair<std::string, int32_t>>& json_path,
+                                           const std::string&                                  file_name,
+                                           const std::string&                                  write_type);
 
     void CopyDrawcallResource(DxObjectInfo*                        queue_object_info,
                               const std::vector<format::HandleId>& front_command_list_ids,
