@@ -264,14 +264,11 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessFunctionCall(block_header, api_call_id);
+                        bool should_break = false;
+                        success           = ProcessFunctionCall(block_header, api_call_id, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(api_call_id))
+                        if (should_break)
                         {
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -288,14 +285,11 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessMethodCall(block_header, api_call_id);
+                        bool should_break = false;
+                        success           = ProcessMethodCall(block_header, api_call_id, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(api_call_id))
+                        if (should_break)
                         {
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -329,24 +323,11 @@ bool FileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessFrameMarker(block_header, marker_type);
+                        bool should_break = false;
+                        success           = ProcessFrameMarker(block_header, marker_type, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(block_header.type, marker_type))
+                        if (should_break)
                         {
-                            // If the capture file contains frame markers, it will have a frame marker for every
-                            // frame-ending API call such as vkQueuePresentKHR. If this is the first frame marker
-                            // encountered, reset the frame count and ignore frame-ending API calls in
-                            // IsFrameDelimiter(format::ApiCallId call_id).
-                            if (!capture_uses_frame_markers_)
-                            {
-                                capture_uses_frame_markers_ = true;
-                                current_frame_number_       = kFirstFrame;
-                            }
-
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -517,7 +498,9 @@ void FileProcessor::HandleBlockReadError(Error error_code, const char* error_mes
     }
 }
 
-bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
+                                        format::ApiCallId          call_id,
+                                        bool&                      should_break)
 {
     size_t      parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t    uncompressed_size     = 0;
@@ -587,10 +570,20 @@ bool FileProcessor::ProcessFunctionCall(const format::BlockHeader& block_header,
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
+    // Break from loop on frame delimiter.
+    if (IsFrameDelimiter(call_id))
+    {
+        // Make sure to increment the frame number on the way out.
+        ++current_frame_number_;
+        ++block_index_;
+        should_break = true;
+    }
     return success;
 }
 
-bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id)
+bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header,
+                                      format::ApiCallId          call_id,
+                                      bool&                      should_break)
 {
     size_t           parameter_buffer_size = static_cast<size_t>(block_header.size) - sizeof(call_id);
     uint64_t         uncompressed_size     = 0;
@@ -666,6 +659,14 @@ bool FileProcessor::ProcessMethodCall(const format::BlockHeader& block_header, f
         HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read function call block header");
     }
 
+    // Break from loop on frame delimiter.
+    if (IsFrameDelimiter(call_id))
+    {
+        // Make sure to increment the frame number on the way out.
+        ++current_frame_number_;
+        ++block_index_;
+        should_break = true;
+    }
     return success;
 }
 
@@ -1834,7 +1835,9 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     return success;
 }
 
-bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type)
+bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
+                                       format::MarkerType         marker_type,
+                                       bool&                      should_break)
 {
     // Read the rest of the frame marker data. Currently frame markers are not dispatched to decoders.
     uint64_t frame_number = 0;
@@ -1864,6 +1867,24 @@ bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header, 
         HandleBlockReadError(kErrorReadingBlockData, "Failed to read frame marker data");
     }
 
+    // Break from loop on frame delimiter.
+    if (IsFrameDelimiter(block_header.type, marker_type))
+    {
+        // If the capture file contains frame markers, it will have a frame marker for every
+        // frame-ending API call such as vkQueuePresentKHR. If this is the first frame marker
+        // encountered, reset the frame count and ignore frame-ending API calls in
+        // IsFrameDelimiter(format::ApiCallId call_id).
+        if (!capture_uses_frame_markers_)
+        {
+            capture_uses_frame_markers_ = true;
+            current_frame_number_       = kFirstFrame;
+        }
+
+        // Make sure to increment the frame number on the way out.
+        ++current_frame_number_;
+        ++block_index_;
+        should_break = true;
+    }
     return success;
 }
 
