@@ -896,8 +896,15 @@ void VulkanReplayConsumer::Process_vkDestroyShaderModule(
     VkShaderModule in_shaderModule = MapHandle<ShaderModuleInfo>(shaderModule, &VulkanObjectInfoTable::GetShaderModuleInfo);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyShaderModule(in_device, in_shaderModule, in_pAllocator);
-    RemoveHandle(shaderModule, &VulkanObjectInfoTable::RemoveShaderModuleInfo);
+    if(!IsUsedByAsyncTask((uint64_t)in_shaderModule))
+    {
+        GetDeviceTable(in_device)->DestroyShaderModule(in_device, in_shaderModule, in_pAllocator);
+        RemoveHandle(shaderModule, &VulkanObjectInfoTable::RemoveShaderModuleInfo);
+    }
+    else
+    {
+        printf("TODO: vkDestroyShaderModule: defer deletion of in-flight handle\n");
+    }
 }
 
 void VulkanReplayConsumer::Process_vkCreatePipelineCache(
@@ -986,7 +993,6 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
     if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, in_pCreateInfos);}
 
-    // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto device_table = GetDeviceTable(in_device);
 
     // replace with deep-copy of create-info array
@@ -997,14 +1003,66 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     std::vector<VkGraphicsPipelineCreateInfo> debug_view((VkGraphicsPipelineCreateInfo*)create_info_data.data(),
                                                     ((VkGraphicsPipelineCreateInfo*)create_info_data.data()) + createInfoCount);
 
-    auto task = [this, device_table, in_device, in_pipelineCache, returnValue, call_info, in_pAllocator,
-                           createInfoCount, create_info_data = std::move(create_info_data)]() -> handle_create_result_t<VkPipeline>
+
+    std::unordered_set<uint64_t> handle_deps;
+    auto track_handle = [&handle_deps](const auto *handle)
+    {
+        if(handle != nullptr)
+        {
+            handle_deps.insert(reinterpret_cast<uint64_t>(handle));
+        }
+    };
+
+    // should be once at beginning of frame
+    MainThreadQueue().poll();
+
+    // track dependencies on opaque vulkan-handles
+    for(uint32_t i = 0; i < createInfoCount; ++i)
+    {
+        const auto& create_info = in_pCreateInfos[i];
+
+        track_handle(create_info.layout);
+        track_handle(create_info.renderPass);
+        track_handle(create_info.basePipelineHandle);
+
+        for(uint32_t j = 0; j < create_info.stageCount; ++j)
+        {
+            track_handle(create_info.pStages[j].module);
+        }
+
+        if(create_info.pNext != nullptr)
+        {
+            auto base = reinterpret_cast<const VkBaseInStructure*>(create_info.pNext);
+            if(base->sType == VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR)
+            {
+                auto library_create_info = reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(base);
+                for(uint32_t j = 0; j < library_create_info->libraryCount; j++)
+                {
+                    track_handle(library_create_info->pLibraries[j]);
+                }
+            }
+        }
+    }
+    TrackAsyncHandles(handle_deps);
+
+    // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
+    auto task = [this, in_device, in_pipelineCache, returnValue, call_info, in_pAllocator,
+        createInfoCount, create_info_data = std::move(create_info_data),
+        handle_deps = std::move(handle_deps)]() -> handle_create_result_t<VkPipeline>
     {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
         auto create_infos = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.data());
+        auto device_table = GetDeviceTable(in_device);
         VkResult replay_result = device_table->CreateGraphicsPipelines(in_device, in_pipelineCache,
             createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
+
+        // schedule dependency-clear on main-thread
+        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)]
+        {
+//            printf("clearing %ld async handle-dependencies\n", handle_deps.size());
+            ClearAsyncHandles(handle_deps);
+        });
         return {replay_result, std::move(out_pipelines)};
     };
     AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
@@ -1318,8 +1376,15 @@ void VulkanReplayConsumer::Process_vkDestroyRenderPass(
     VkRenderPass in_renderPass = MapHandle<RenderPassInfo>(renderPass, &VulkanObjectInfoTable::GetRenderPassInfo);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyRenderPass(in_device, in_renderPass, in_pAllocator);
-    RemoveHandle(renderPass, &VulkanObjectInfoTable::RemoveRenderPassInfo);
+    if(!IsUsedByAsyncTask((uint64_t)in_renderPass))
+    {
+        GetDeviceTable(in_device)->DestroyRenderPass(in_device, in_renderPass, in_pAllocator);
+        RemoveHandle(renderPass, &VulkanObjectInfoTable::RemoveRenderPassInfo);
+    }
+    else
+    {
+        printf("TODO: vkDestroyRenderPass: defer deletion of in-flight handle\n");
+    }
 }
 
 void VulkanReplayConsumer::Process_vkGetRenderAreaGranularity(

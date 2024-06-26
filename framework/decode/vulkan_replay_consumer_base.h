@@ -326,14 +326,37 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         if (create_function)
         {
             std::shared_future<handle_create_result_t<typename T::HandleType>> result_future =
-                threadpool_.post(std::move(create_function));
+                background_queue_.post(std::move(create_function));
 
             // poll in case there are no worker-threads
-            threadpool_.poll();
+            background_queue_.poll();
 
             handle_mapping::AddHandleArrayAsync(
                 parent_id, ids, ids_len, &object_info_table_, AddFunc, std::move(result_future));
         }
+    }
+
+    void TrackAsyncHandles(const std::unordered_set<uint64_t> &async_handles)
+    {
+        async_inflight_handles_.insert(async_handles.begin(), async_handles.end());
+    }
+
+    void ClearAsyncHandles(const std::unordered_set<uint64_t> &async_handles)
+    {
+        for(const auto &handle : async_handles)
+        {
+            async_inflight_handles_.erase(handle);
+        }
+    }
+
+    bool IsUsedByAsyncTask(uint64_t handle) const
+    {
+        return async_inflight_handles_.count(handle) > 0;
+    }
+
+    util::ThreadPool& MainThreadQueue()
+    {
+        return main_thread_queue_;
     }
 
     template <typename S, typename T>
@@ -1232,7 +1255,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
 
-    util::ThreadPool threadpool_;
+    util::ThreadPool main_thread_queue_;
+    util::ThreadPool background_queue_;
+    std::unordered_set<uint64_t> async_inflight_handles_;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid
