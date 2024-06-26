@@ -2095,6 +2095,61 @@ HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12P
     return E_INVALIDARG;
 }
 
+HRESULT D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForHwnd(
+    IDXGIFactory2_Wrapper*                 factory2_wrapper,
+    IUnknown*                              pDevice,
+    HWND                                   hWnd,
+    const DXGI_SWAP_CHAIN_DESC1*           pDesc,
+    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+    IDXGIOutput*                           pRestrictToOutput,
+    IDXGISwapChain1**                      ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result =
+        factory2->CreateSwapChainForHwnd(pDevice, hWnd, pDesc, pFullscreenDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                        IUnknown*                    pDevice,
+                                                                        IUnknown*                    pWindow,
+                                                                        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                        IDXGIOutput*                 pRestrictToOutput,
+                                                                        IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForCoreWindow(pDevice, pWindow, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                         IUnknown*                    pDevice,
+                                                                         const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                         IDXGIOutput*                 pRestrictToOutput,
+                                                                         IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForComposition(pDevice, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
 PFN_D3D12_GET_DEBUG_INTERFACE D3D12CaptureManager::GetDebugInterfacePtr()
 {
     PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = d3d12_dispatch_table_.D3D12GetDebugInterface;

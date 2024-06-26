@@ -5321,15 +5321,14 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForHwnd(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForHwnd(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             hWnd,
             pDesc,
             pFullscreenDesc,
             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
             ppSwapChain);
-
-        manager->UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
 
         if (SUCCEEDED(result))
         {
@@ -5408,14 +5407,13 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForCoreWindow(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             encode::GetWrappedObject<IUnknown>(pWindow),
             pDesc,
             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
             ppSwapChain);
-
-        manager->UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
 
         if (SUCCEEDED(result))
         {
@@ -5883,7 +5881,8 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
             pRestrictToOutput,
             ppSwapChain);
 
-        result = GetWrappedObjectAs<IDXGIFactory2>()->CreateSwapChainForComposition(
+        result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForComposition(
+            this,
             encode::GetWrappedObject<IUnknown>(pDevice),
             pDesc,
             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),

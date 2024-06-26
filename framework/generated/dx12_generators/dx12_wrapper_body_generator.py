@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
-# Copyright (c) 2023-2024 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -757,11 +757,6 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += '\n'
                 expr += unwrapped_args
             expr += ');\n'
-
-            method_names = ["CreateSwapChainForHwnd", "CreateSwapChainForCoreWindow"]
-            if method_name in  method_names:
-                expr += '\n'
-                expr += indent + 'manager->UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);\n'
 
             expr += self.gen_wrap_object(return_type, parameters, indent)
 
