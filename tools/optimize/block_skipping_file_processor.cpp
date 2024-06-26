@@ -80,14 +80,10 @@ bool BlockSkippingFileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessFunctionCall(block_header, api_call_id);
-
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(api_call_id))
+                        bool should_break = false;
+                        success           = ProcessFunctionCall(block_header, api_call_id, should_break);
+                        if (should_break)
                         {
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -104,14 +100,11 @@ bool BlockSkippingFileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessMethodCall(block_header, api_call_id);
+                        bool should_break = false;
+                        success           = ProcessMethodCall(block_header, api_call_id, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(api_call_id))
+                        if (should_break)
                         {
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
@@ -145,14 +138,11 @@ bool BlockSkippingFileProcessor::ProcessBlocks()
 
                     if (success)
                     {
-                        success = ProcessFrameMarker(block_header, marker_type);
+                        bool should_break = false;
+                        success           = ProcessFrameMarker(block_header, marker_type, should_break);
 
-                        // Break from loop on frame delimiter.
-                        if (IsFrameDelimiter(block_header.type, marker_type))
+                        if (should_break)
                         {
-                            // Make sure to increment the frame number on the way out.
-                            ++current_frame_number_;
-                            ++block_index_;
                             break;
                         }
                     }
