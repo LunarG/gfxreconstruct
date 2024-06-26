@@ -100,6 +100,15 @@ static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::H
                 if (info != nullptr)
                 {
                     handles[i] = info->handle;
+
+                    if constexpr (has_handle_future_v<T>)
+                    {
+                        if (info->handle == VK_NULL_HANDLE && info->future.valid())
+                        {
+                            const auto& [result, async_handles] = info->future.get();
+                            handles[i]                          = async_handles[info->future_handle_index];
+                        }
+                    }
                 }
                 else
                 {
@@ -200,10 +209,10 @@ static void AddHandleArray(format::HandleId              parent_id,
 }
 
 template <typename T>
-static void AddHandleArrayAsync(format::HandleId              parent_id,
-                                const format::HandleId*       ids,
-                                size_t                        ids_len,
-                                VulkanObjectInfoTable*        object_info_table,
+static void AddHandleArrayAsync(format::HandleId        parent_id,
+                                const format::HandleId* ids,
+                                size_t                  ids_len,
+                                VulkanObjectInfoTable*  object_info_table,
                                 void (VulkanObjectInfoTable::*AddFunc)(T&&),
                                 std::shared_future<handle_create_result_t<typename T::HandleType>> future)
 {
