@@ -31,6 +31,7 @@
 #include <cinttypes>
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
+#include <time.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -70,6 +71,15 @@ static void internal_thread_termination_handler(int sig)
                        (_func_name),                                \
                        (_error),                                    \
                        strerror((_error)))
+
+#define LOG_THREAD_SYNCHRONIZATION_WARNING(_tid, _func_name, _error)  \
+    GFXRECON_LOG_WARNING("[%" PRIu64 "] %s: %u %s() failed %d (%s) ", \
+                         (_tid),                                      \
+                         __func__,                                    \
+                         __LINE__,                                    \
+                         (_func_name),                                \
+                         (_error),                                    \
+                         strerror((_error)))
 
 void PageGuardManager::UffdSignalHandler(int sig)
 {
@@ -727,13 +737,27 @@ uint32_t PageGuardManager::UffdBlockFaultingThreads()
     {
         while (blocked_threads < threads_to_block)
         {
-            ret = pthread_cond_wait(&wait_for_threads_cond, &wait_for_threads_mutex);
+            struct timespec timeout;
+            if (clock_gettime(CLOCK_REALTIME, &timeout))
+            {
+                GFXRECON_LOG_ERROR("clock_gettime() failed (%s)", strerror(errno))
+            }
+
+            // 1 second should be a reasonable time
+            timeout.tv_sec += 1;
+            ret = pthread_cond_timedwait(&wait_for_threads_cond, &wait_for_threads_mutex, &timeout);
             if (ret)
             {
-                LOG_THREAD_SYNCHRONIZATION_ERROR(this_tid, "pthread_cond_wait()", ret);
-                assert(0);
+                LOG_THREAD_SYNCHRONIZATION_WARNING(this_tid, "pthread_cond_wait() (%s)", ret);
+
+                // For some reason not all threads made it to the signal handler in a reasonable time.
+                if (ret == ETIMEDOUT)
+                {
+                    threads_to_block = blocked_threads;
+                }
             }
         }
+
         ret = pthread_mutex_unlock(&wait_for_threads_mutex);
         if (ret)
         {
@@ -761,7 +785,6 @@ void PageGuardManager::UffdUnblockFaultingThreads(uint32_t n_threads_to_wait)
         int ret = pthread_mutex_lock(&reset_regions_mutex);
         if (ret == 0)
         {
-            // GFXRECON_WRITE_CONSOLE("rst")
             block_accessor_threads = false;
             ret                    = pthread_cond_broadcast(&reset_regions_cond);
             if (ret)
