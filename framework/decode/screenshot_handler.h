@@ -53,7 +53,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
     {}
 
     void WriteImage(const std::string&                      filename_prefix,
-                    const DeviceInfo*                       device_info,
+                    const VulkanDeviceInfo*                 device_info,
                     const encode::VulkanDeviceTable*        device_table,
                     const VkPhysicalDeviceMemoryProperties& memory_properties,
                     VulkanResourceAllocator*                allocator,
@@ -92,8 +92,7 @@ class ScreenshotHandler : public ScreenshotHandlerBase
   private:
     bool IsSrgbFormat(VkFormat image_format) const;
 
-    VkFormat GetConversionFormat(VkFormat image_format) const;
-
+    VkFormat     GetConversionFormat(VkFormat image_format) const;
     VkDeviceSize GetCopyBufferSize(VkDevice                         device,
                                    const encode::VulkanDeviceTable* device_table,
                                    VkFormat                         format,

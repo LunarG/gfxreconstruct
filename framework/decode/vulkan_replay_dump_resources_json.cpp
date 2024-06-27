@@ -151,7 +151,7 @@ nlohmann::ordered_json& VulkanReplayDumpResourcesJson::GetCurrentSubEntry()
 }
 
 void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json&         json_entry,
-                                                    const ImageInfo*                image_info,
+                                                    const VulkanImageInfo*          image_info,
                                                     const std::vector<std::string>& filenames,
                                                     VkImageAspectFlagBits           aspect,
                                                     bool                            scale_failed,
@@ -194,7 +194,7 @@ void VulkanReplayDumpResourcesJson::InsertImageInfo(nlohmann::ordered_json&     
 }
 
 void VulkanReplayDumpResourcesJson::InsertBufferInfo(nlohmann::ordered_json& json_entry,
-                                                     const BufferInfo*       buffer_info,
+                                                     const VulkanBufferInfo* buffer_info,
                                                      const std::string&      filename)
 {
     assert(buffer_info != nullptr);
