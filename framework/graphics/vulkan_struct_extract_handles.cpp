@@ -32,7 +32,7 @@ std::unordered_set<uint64_t> vulkan_struct_extract_handles(const VkGraphicsPipel
     auto track_handle = [&handle_deps](const auto &handle) {
         if (handle != VK_NULL_HANDLE)
         {
-            handle_deps.insert(reinterpret_cast<uint64_t>(handle));
+            handle_deps.insert((uint64_t)handle);
         }
     };
 
