@@ -20,11 +20,11 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "vulkan_struct_deep_copy.h"
+#include "util/logging.h"
 #include <cstring>
 #include <type_traits>
 #include "vulkan/vulkan.h"
-
-#include "vulkan_struct_deep_copy.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
@@ -1048,7 +1048,7 @@ size_t vulkan_struct_deep_copy_pnext(const void* pNext, uint8_t* out_data)
                     vulkan_struct_deep_copy(reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(pNext), 1, out_ptr);
                 break;
             default:
-                assert(false);
+                GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_pnext: unhandled sType: %d", base->sType);
                 break;
         }
         pNext = base->pNext;

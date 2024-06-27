@@ -24,6 +24,7 @@
 #define GFXRECON_GRAPHICS_VULKAN_STRUCT_DEEP_COPY_H
 
 #include "util/defines.h"
+#include <cstddef>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
