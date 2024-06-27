@@ -339,24 +339,24 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                 else
                 {
                     // TODO: multi-plane image format support when strides do not match.
-                    GFXRECON_LOG_ERROR("Ignoring fill memory command for AHardwareBuffer with multi-plane format and "
-                                       "mismatched capture/replay strides (Memory ID = %" PRIu64
-                                       "): support not yet implemented",
-                                       memory_id);
+                    GFXRECON_LOG_WARNING("Ignoring fill memory command for AHardwareBuffer with multi-plane format and "
+                                         "mismatched capture/replay strides (Memory ID = %" PRIu64
+                                         "): support not yet implemented",
+                                         memory_id);
                 }
 
                 lock_result = AHardwareBuffer_unlock(buffer_info.hardware_buffer, nullptr);
                 if (lock_result != 0)
                 {
-                    GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed for AHardwareBuffer object (Memory ID = %" PRIu64
-                                       ")",
-                                       memory_id);
+                    GFXRECON_LOG_WARNING(
+                        "AHardwareBuffer_unlock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
+                        memory_id);
                 }
             }
             else
             {
-                GFXRECON_LOG_ERROR("AHardwareBuffer_lock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
-                                   memory_id);
+                GFXRECON_LOG_WARNING("AHardwareBuffer_lock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
+                                     memory_id);
             }
         }
     }
