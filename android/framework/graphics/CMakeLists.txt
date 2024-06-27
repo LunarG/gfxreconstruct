@@ -10,6 +10,10 @@ target_sources(gfxrecon_graphics
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_resources_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_deep_copy.h
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_deep_copy.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_extract_handles.h
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_extract_handles.cpp
               )
 
 target_include_directories(gfxrecon_graphics

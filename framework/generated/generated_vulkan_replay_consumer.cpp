@@ -31,6 +31,8 @@
 
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/vulkan_handle_mapping_util.h"
+#include "graphics/vulkan_struct_deep_copy.h"
+#include "graphics/vulkan_struct_extract_handles.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/defines.h"
@@ -895,8 +897,22 @@ void VulkanReplayConsumer::Process_vkDestroyShaderModule(
     VkShaderModule in_shaderModule = MapHandle<ShaderModuleInfo>(shaderModule, &VulkanObjectInfoTable::GetShaderModuleInfo);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyShaderModule(in_device, in_shaderModule, in_pAllocator);
-    RemoveHandle(shaderModule, &VulkanObjectInfoTable::RemoveShaderModuleInfo);
+    if(!IsUsedByAsyncTask((uint64_t)in_shaderModule))
+    {
+        GetDeviceTable(in_device)->DestroyShaderModule(in_device, in_shaderModule, in_pAllocator);
+        RemoveHandle(shaderModule, &VulkanObjectInfoTable::RemoveShaderModuleInfo);
+    }
+    else
+    {
+        // remove our handle right away
+        RemoveHandle(shaderModule, &VulkanObjectInfoTable::RemoveShaderModuleInfo);
+
+        // schedule deletion
+        DestroyAsyncHandle((uint64_t)in_shaderModule, [this, in_device, in_shaderModule, in_pAllocator]()
+        {
+            GetDeviceTable(in_device)->DestroyShaderModule(in_device, in_shaderModule, in_pAllocator);
+        });
+    }
 }
 
 void VulkanReplayConsumer::Process_vkCreatePipelineCache(
@@ -984,12 +1000,41 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
     if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
     if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, in_pCreateInfos);}
-    VkPipeline* out_pPipelines = pPipelines->GetHandlePointer();
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateGraphicsPipelines(in_device, in_pipelineCache, createInfoCount, in_pCreateInfos, in_pAllocator, out_pPipelines);
-    CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
+    auto device_table = GetDeviceTable(in_device);
 
-    AddHandles<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), out_pPipelines, createInfoCount, &VulkanObjectInfoTable::AddPipelineInfo);
+    // TODO: should be once at beginning of frame
+    MainThreadQueue().poll();
+
+    // replace with deep-copy of create-info array
+    uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    std::vector<uint8_t> create_info_data(num_bytes);
+    graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+
+    // extract handle-dependencies and track those
+    auto handle_deps = graphics::vulkan_struct_extract_handles(in_pCreateInfos, createInfoCount);
+    TrackAsyncHandles(handle_deps);
+
+    // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
+    auto task = [this, in_device, in_pipelineCache, returnValue, call_info, in_pAllocator,
+        createInfoCount, create_info_data = std::move(create_info_data),
+        handle_deps = std::move(handle_deps)]() -> handle_create_result_t<VkPipeline>
+    {
+        std::vector<VkPipeline> out_pipelines(createInfoCount);
+        auto create_infos = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.data());
+        auto device_table = GetDeviceTable(in_device);
+        VkResult replay_result = device_table->CreateGraphicsPipelines(in_device, in_pipelineCache,
+            createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
+        CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
+
+        // schedule dependency-clear on main-thread
+        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)]
+        {
+            ClearAsyncHandles(handle_deps);
+        });
+        return {replay_result, std::move(out_pipelines)};
+    };
+    AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
 }
 
 void VulkanReplayConsumer::Process_vkCreateComputePipelines(
@@ -1027,8 +1072,22 @@ void VulkanReplayConsumer::Process_vkDestroyPipeline(
     VkPipeline in_pipeline = MapHandle<PipelineInfo>(pipeline, &VulkanObjectInfoTable::GetPipelineInfo);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyPipeline(in_device, in_pipeline, in_pAllocator);
-    RemoveHandle(pipeline, &VulkanObjectInfoTable::RemovePipelineInfo);
+    if(!IsUsedByAsyncTask((uint64_t)in_pipeline))
+    {
+        GetDeviceTable(in_device)->DestroyPipeline(in_device, in_pipeline, in_pAllocator);
+        RemoveHandle(pipeline, &VulkanObjectInfoTable::RemovePipelineInfo);
+    }
+    else
+    {
+        // remove our handle right away
+        RemoveHandle(pipeline, &VulkanObjectInfoTable::RemovePipelineInfo);
+
+        // schedule deletion
+        DestroyAsyncHandle((uint64_t)in_pipeline, [this, in_device, in_pipeline, in_pAllocator]()
+        {
+            GetDeviceTable(in_device)->DestroyPipeline(in_device, in_pipeline, in_pAllocator);
+        });
+    }
 }
 
 void VulkanReplayConsumer::Process_vkCreatePipelineLayout(
@@ -1300,8 +1359,22 @@ void VulkanReplayConsumer::Process_vkDestroyRenderPass(
     VkRenderPass in_renderPass = MapHandle<RenderPassInfo>(renderPass, &VulkanObjectInfoTable::GetRenderPassInfo);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyRenderPass(in_device, in_renderPass, in_pAllocator);
-    RemoveHandle(renderPass, &VulkanObjectInfoTable::RemoveRenderPassInfo);
+    if(!IsUsedByAsyncTask((uint64_t)in_renderPass))
+    {
+        GetDeviceTable(in_device)->DestroyRenderPass(in_device, in_renderPass, in_pAllocator);
+        RemoveHandle(renderPass, &VulkanObjectInfoTable::RemoveRenderPassInfo);
+    }
+    else
+    {
+        // remove our handle right away
+        RemoveHandle(renderPass, &VulkanObjectInfoTable::RemoveRenderPassInfo);
+
+        // schedule deletion
+        DestroyAsyncHandle((uint64_t)in_renderPass, [this, in_device, in_renderPass, in_pAllocator]()
+        {
+            GetDeviceTable(in_device)->DestroyRenderPass(in_device, in_renderPass, in_pAllocator);
+        });
+    }
 }
 
 void VulkanReplayConsumer::Process_vkGetRenderAreaGranularity(
