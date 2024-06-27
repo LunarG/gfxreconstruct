@@ -70,10 +70,13 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
         {
             assert(options.RenderPass_Indices[i].size());
 
-            draw_call_contexts.emplace(
-                bcb_index,
-                DrawCallsDumpingContext(
-                    options.Draw_Indices[i], options.RenderPass_Indices[i], object_info_table, options, dump_json_, capture_filename));
+            draw_call_contexts.emplace(bcb_index,
+                                       DrawCallsDumpingContext(options.Draw_Indices[i],
+                                                               options.RenderPass_Indices[i],
+                                                               object_info_table,
+                                                               options,
+                                                               dump_json_,
+                                                               capture_filename));
         }
 
         if ((i < options.Dispatch_Indices.size() && options.Dispatch_Indices[i].size()) ||

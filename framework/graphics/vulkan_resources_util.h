@@ -274,7 +274,9 @@ class VulkanResourcesUtil
     StagingBufferContext                    staging_buffer_;
 };
 
-void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>* aspects, bool* combined_depth_stencil = nullptr);
+void GetFormatAspects(VkFormat                            format,
+                      std::vector<VkImageAspectFlagBits>* aspects,
+                      bool*                               combined_depth_stencil = nullptr);
 
 VkImageAspectFlags GetFormatAspectMask(VkFormat format);
 

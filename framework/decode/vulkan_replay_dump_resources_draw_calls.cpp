@@ -682,7 +682,7 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer()
                     barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                     barrier.image               = cat->handle;
                     barrier.subresourceRange    = {
-                        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+                           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
                     };
 
                     device_table->CmdPipelineBarrier(current_command_buffer,
@@ -817,8 +817,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         const uint64_t              rp       = RP_index.first;
 
         // Dump vertex/index buffers
-        if (dump_vertex_index_buffers &&
-           (!dump_resources_before || dump_resources_before && !(cb%2)))
+        if (dump_vertex_index_buffers && (!dump_resources_before || dump_resources_before && !(cb % 2)))
         {
             res = DumpVertexIndexBuffers(qs_index, bcb_index, dc_index);
             if (res != VK_SUCCESS)
@@ -837,8 +836,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         }
 
         // Dump immutable resources
-        if (dump_immutable_resources &&
-           (!dump_resources_before || dump_resources_before && !(cb%2)))
+        if (dump_immutable_resources && (!dump_resources_before || dump_resources_before && !(cb % 2)))
         {
             VkResult res = DumpImmutableDescriptors(qs_index, bcb_index, dc_index, rp);
             if (res != VK_SUCCESS)
@@ -848,7 +846,7 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
             }
         }
 
-        if (!dump_resources_before || dump_resources_before && !(cb%2))
+        if (!dump_resources_before || dump_resources_before && !(cb % 2))
         {
             GenerateOutputJsonDrawCallInfo(qs_index, bcb_index, cb, rp, sp);
         }
@@ -1090,25 +1088,31 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                 continue;
             }
 
-            const ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
+            const ImageInfo*         image_info = render_targets[rp][sp].color_att_imgs[i];
             std::vector<std::string> filenamesBefore, filenamesAfter;
             std::vector<std::string> filenamesBeforeAfter;
             if (dump_resources_before)
             {
-                filenamesBefore = GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
-                filenamesAfter = GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index+1, qs_index, bcb_index, dc_index, i);
+                filenamesBefore = GenerateRenderTargetImageFilename(
+                    image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+                filenamesAfter = GenerateRenderTargetImageFilename(
+                    image_info->format, cmd_buf_index + 1, qs_index, bcb_index, dc_index, i);
                 filenamesBeforeAfter.resize(2);
-                filenamesBeforeAfter[0] = filenamesBefore[0] + ImageFileExtension(image_info->format, image_file_format);
+                filenamesBeforeAfter[0] =
+                    filenamesBefore[0] + ImageFileExtension(image_info->format, image_file_format);
                 filenamesBeforeAfter[1] = filenamesAfter[0] + ImageFileExtension(image_info->format, image_file_format);
             }
             else
             {
-                filenamesAfter = GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+                filenamesAfter = GenerateRenderTargetImageFilename(
+                    image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
                 filenamesBeforeAfter.resize(1);
                 filenamesBeforeAfter[0] = filenamesAfter[0] + ImageFileExtension(image_info->format, image_file_format);
             }
-            const bool scaling_failed = images_failed_scaling.find(filenamesBeforeAfter[0]) != images_failed_scaling.end();
-            dump_json.InsertImageInfo(rt_entries[i], image_info, filenamesBeforeAfter, VK_IMAGE_ASPECT_COLOR_BIT, scaling_failed);
+            const bool scaling_failed =
+                images_failed_scaling.find(filenamesBeforeAfter[0]) != images_failed_scaling.end();
+            dump_json.InsertImageInfo(
+                rt_entries[i], image_info, filenamesBeforeAfter, VK_IMAGE_ASPECT_COLOR_BIT, scaling_failed);
         }
     }
 
@@ -1117,18 +1121,18 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
     {
         auto& depth_entries = draw_call_entry["depthAttachments"];
 
-        const ImageInfo*               image_info = render_targets[rp][sp].depth_att_img;
+        const ImageInfo*         image_info = render_targets[rp][sp].depth_att_img;
         std::vector<std::string> filenamesBefore, filenamesAfter;
-        if(dump_resources_before)
+        if (dump_resources_before)
         {
             filenamesBefore = GenerateRenderTargetImageFilename(
                 image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
-            filenamesAfter  = GenerateRenderTargetImageFilename(
-                image_info->format, cmd_buf_index+1, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
+            filenamesAfter = GenerateRenderTargetImageFilename(
+                image_info->format, cmd_buf_index + 1, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
         }
         else
         {
-            filenamesAfter  = GenerateRenderTargetImageFilename(
+            filenamesAfter = GenerateRenderTargetImageFilename(
                 image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
         }
 
@@ -1138,17 +1142,20 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
         for (size_t i = 0; i < filenamesAfter.size(); ++i)
         {
             std::vector<std::string> filenamesBeforeAfter;
-            if(dump_resources_before)
+            if (dump_resources_before)
             {
                 filenamesBeforeAfter.resize(2);
-                filenamesBeforeAfter[0] = filenamesBefore[i] + ImageFileExtension(image_info->format, image_file_format);
+                filenamesBeforeAfter[0] =
+                    filenamesBefore[i] + ImageFileExtension(image_info->format, image_file_format);
                 filenamesBeforeAfter[1] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
-            } else
+            }
+            else
             {
                 filenamesBeforeAfter.resize(1);
                 filenamesBeforeAfter[0] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
             }
-            const bool scaling_failed = images_failed_scaling.find(filenamesBeforeAfter[0]) != images_failed_scaling.end();
+            const bool scaling_failed =
+                images_failed_scaling.find(filenamesBeforeAfter[0]) != images_failed_scaling.end();
             dump_json.InsertImageInfo(depth_entries[i], image_info, filenamesBeforeAfter, aspects[i], scaling_failed);
         }
     }
@@ -1258,7 +1265,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                             filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                                             dump_json.InsertImageInfo(image_descriptor_json_entry[f],
                                                                       img_info,
-                                                                      {filenames[f]},
+                                                                      { filenames[f] },
                                                                       aspects[f],
                                                                       scaling_failed);
                                         }
@@ -1373,7 +1380,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.subresourceRange    = {
-        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
@@ -1658,8 +1665,8 @@ std::string DrawCallsDumpingContext::GenerateBufferDescriptorFilename(uint64_t  
 {
     std::stringstream filename;
 
-    filename << capture_filename << "_" << "buffer_" << buffer_id << "_qs_" << qs_index << "_bcb_"
-             << bcb_index << "_rp_" << rp << ".bin";
+    filename << capture_filename << "_"
+             << "buffer_" << buffer_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
@@ -1672,8 +1679,9 @@ std::string DrawCallsDumpingContext::GenerateInlineUniformBufferDescriptorFilena
                                                                                    uint32_t binding) const
 {
     std::stringstream filename;
-    filename << capture_filename << "_" << "inlineUniformBlock_set_" << set << "_binding_" << binding
-             << "_qs_" << qs_index << "_bcb_" << bcb_index << ".bin";
+    filename << capture_filename << "_"
+             << "inlineUniformBlock_set_" << set << "_binding_" << binding << "_qs_" << qs_index << "_bcb_" << bcb_index
+             << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
@@ -1880,7 +1888,7 @@ std::string DrawCallsDumpingContext::GenerateIndexBufferFilename(uint64_t    qs_
 {
     std::stringstream filename;
     filename << capture_filename << "_";
-    std::string       index_type_name = IndexTypeToStr(type);
+    std::string index_type_name = IndexTypeToStr(type);
     filename << "indexBuffer_"
              << "qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << dc_index << index_type_name << ".bin";
 
@@ -1895,8 +1903,9 @@ std::string DrawCallsDumpingContext::GenerateVertexBufferFilename(uint64_t qs_in
                                                                   uint32_t binding) const
 {
     std::stringstream filename;
-    filename << capture_filename << "_" << "vertexBuffers_" << "qs_" << qs_index << "_bcb_" << bcb_index
-             << "_dc_" << dc_index << "_binding_" << binding << ".bin";
+    filename << capture_filename << "_"
+             << "vertexBuffers_"
+             << "qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << dc_index << "_binding_" << binding << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());

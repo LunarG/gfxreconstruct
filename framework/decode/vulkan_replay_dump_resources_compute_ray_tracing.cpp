@@ -55,16 +55,15 @@ DispatchTraceRaysDumpingContext::DispatchTraceRaysDumpingContext(const std::vect
                                                                  VulkanReplayDumpResourcesJson& dump_json,
                                                                  std::string                    capture_filename) :
     original_command_buffer_info(nullptr),
-    DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices), trace_rays_indices(trace_rays_indices),
-    bound_pipelines{ nullptr }, dump_resources_before(options.dump_resources_before),
-    dump_resource_path(options.dump_resources_output_dir), image_file_format(options.dump_resources_image_format),
-    dump_resources_scale(options.dump_resources_scale), device_table(nullptr), parent_device(VK_NULL_HANDLE),
-    instance_table(nullptr), object_info_table(object_info_table), replay_device_phys_mem_props(nullptr),
-    current_dispatch_index(0), current_trace_rays_index(0), dump_json(dump_json),
+    DR_command_buffer(VK_NULL_HANDLE), dispatch_indices(dispatch_indices),
+    trace_rays_indices(trace_rays_indices), bound_pipelines{ nullptr },
+    dump_resources_before(options.dump_resources_before), dump_resource_path(options.dump_resources_output_dir),
+    image_file_format(options.dump_resources_image_format), dump_resources_scale(options.dump_resources_scale),
+    device_table(nullptr), parent_device(VK_NULL_HANDLE), instance_table(nullptr), object_info_table(object_info_table),
+    replay_device_phys_mem_props(nullptr), current_dispatch_index(0), current_trace_rays_index(0), dump_json(dump_json),
     output_json_per_command(options.dump_resources_json_per_command),
     dump_immutable_resources(options.dump_resources_dump_immutable_resources),
-    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources),
-    capture_filename(capture_filename)
+    dump_all_image_subresources(options.dump_resources_dump_all_image_subresources), capture_filename(capture_filename)
 {}
 
 DispatchTraceRaysDumpingContext::~DispatchTraceRaysDumpingContext()
@@ -357,7 +356,7 @@ void DispatchTraceRaysDumpingContext::CopyImageResource(const ImageInfo* src_ima
     img_barrier.dstQueueFamilyIndex = src_image_info->queue_family_index;
     img_barrier.image               = src_image_info->handle;
     img_barrier.subresourceRange    = {
-        graphics::GetFormatAspectMask(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           graphics::GetFormatAspectMask(src_image_info->format), 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     assert(device_table != nullptr);
@@ -1430,8 +1429,8 @@ std::string DispatchTraceRaysDumpingContext::GenerateInlineUniformBufferDescript
                                                                                            uint32_t binding) const
 {
     std::stringstream filename;
-    filename << capture_filename << '_' << "inlineUniformBlock_set_" << set << "_binding_" << binding
-             << "_qs_" << qs_index << "_bcb_" << bcb_index << ".bin";
+    filename << capture_filename << '_' << "inlineUniformBlock_set_" << set << "_binding_" << binding << "_qs_"
+             << qs_index << "_bcb_" << bcb_index << ".bin";
 
     std::filesystem::path filedirname(dump_resource_path);
     std::filesystem::path filebasename(filename.str());
@@ -2095,7 +2094,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                 {
                     const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
                     filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                    dump_json.InsertImageInfo(image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f], scaling_failed);
+                    dump_json.InsertImageInfo(
+                        image_json_entry_desc[f], img_info, { filenames[f] }, aspects[f], scaling_failed);
                 }
             }
         }
@@ -2170,8 +2170,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
             for (size_t f = 0; f < filenames.size(); ++f)
             {
                 const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                const std::vector<std::string> full_filename {
-                    filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
+                const std::vector<std::string> full_filename{ filenames[f] +
+                                                              ImageFileExtension(img_info->format, image_file_format) };
                 dump_json.InsertImageInfo(
                     image_json_entry_desc[f], img_info, full_filename, aspects[f], scaling_failed);
             }
@@ -2246,8 +2246,9 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                                     auto&      image_descriptor_json_entry = entry["descriptor"];
                                     const bool scaling_failed =
                                         images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                                    const std::vector<std::string> full_filename {
-                                        filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
+                                    const std::vector<std::string> full_filename{
+                                        filenames[f] + ImageFileExtension(img_info->format, image_file_format)
+                                    };
                                     dump_json.InsertImageInfo(image_descriptor_json_entry,
                                                               img_info,
                                                               full_filename,
@@ -2446,7 +2447,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                     const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
                     filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                     dump_json.InsertImageInfo(
-                        image_json_entry_desc[f], img_info, {filenames[f]}, aspects[f], scaling_failed);
+                        image_json_entry_desc[f], img_info, { filenames[f] }, aspects[f], scaling_failed);
                 }
             }
         }
@@ -2520,8 +2521,8 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
             for (size_t f = 0; f < filenames.size(); ++f)
             {
                 const bool scaling_failed = images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                const std::vector<std::string> full_filename {
-                    filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
+                const std::vector<std::string> full_filename{ filenames[f] +
+                                                              ImageFileExtension(img_info->format, image_file_format) };
                 dump_json.InsertImageInfo(
                     image_json_entry_desc[f], img_info, full_filename, aspects[f], scaling_failed);
             }
@@ -2597,8 +2598,9 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                     {
                                         const bool scaling_failed =
                                             images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
-                                        const std::vector<std::string> full_filename {
-                                            filenames[f] + ImageFileExtension(img_info->format, image_file_format)};
+                                        const std::vector<std::string> full_filename{
+                                            filenames[f] + ImageFileExtension(img_info->format, image_file_format)
+                                        };
                                         auto& image_descriptor_json_entry = entry["descriptor"];
                                         dump_json.InsertImageInfo(image_descriptor_json_entry[f],
                                                                   img_info,
