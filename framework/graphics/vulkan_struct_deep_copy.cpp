@@ -873,8 +873,8 @@ size_t vulkan_struct_deep_copy(const VkPipelineLibraryCreateInfoKHR* structs, ui
 
         if (out_data != nullptr)
         {
-            auto out_structures            = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]              = base_struct;
+            auto out_structures = reinterpret_cast<struct_type*>(out_data);
+            out_structures[i]   = base_struct;
         }
 
         // copy pNext-chain

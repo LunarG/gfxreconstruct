@@ -358,10 +358,10 @@ struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
     std::unordered_map<uint32_t, std::vector<PipelineCacheData>> pipeline_cache_data;
 };
 
-template<typename T>
+template <typename T>
 struct handle_create_result_t
 {
-    VkResult result = VK_INCOMPLETE;
+    VkResult       result = VK_INCOMPLETE;
     std::vector<T> handles;
 };
 
@@ -371,7 +371,7 @@ struct PipelineInfo : public VulkanObjectInfo<VkPipeline>
 
     // track asynchronous compilation status
     std::shared_future<handle_create_result_t<VkPipeline>> future;
-    uint32_t future_handle_index = 0;
+    uint32_t                                               future_handle_index = 0;
 };
 
 struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>
@@ -453,7 +453,7 @@ struct FramebufferInfo : public VulkanObjectInfo<VkFramebuffer>
 {
     VkFramebufferCreateFlags             framebuffer_flags{ 0 };
     std::unordered_map<uint32_t, size_t> array_counts;
-    std::vector<format::HandleId> attachment_image_view_ids;
+    std::vector<format::HandleId>        attachment_image_view_ids;
 };
 
 struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR>

@@ -32,6 +32,7 @@
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "graphics/vulkan_struct_deep_copy.h"
+#include "graphics/vulkan_struct_extract_handles.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "util/defines.h"
@@ -1002,54 +1003,16 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
 
     auto device_table = GetDeviceTable(in_device);
 
+    // TODO: should be once at beginning of frame
+    MainThreadQueue().poll();
+
     // replace with deep-copy of create-info array
     uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
 
-    std::vector<VkGraphicsPipelineCreateInfo> debug_view((VkGraphicsPipelineCreateInfo*)create_info_data.data(),
-                                                    ((VkGraphicsPipelineCreateInfo*)create_info_data.data()) + createInfoCount);
-
-
-    std::unordered_set<uint64_t> handle_deps;
-    auto track_handle = [&handle_deps](const auto *handle)
-    {
-        if(handle != nullptr)
-        {
-            handle_deps.insert(reinterpret_cast<uint64_t>(handle));
-        }
-    };
-
-    // should be once at beginning of frame
-    MainThreadQueue().poll();
-
-    // track dependencies on opaque vulkan-handles
-    for(uint32_t i = 0; i < createInfoCount; ++i)
-    {
-        const auto& create_info = in_pCreateInfos[i];
-
-        track_handle(create_info.layout);
-        track_handle(create_info.renderPass);
-        track_handle(create_info.basePipelineHandle);
-
-        for(uint32_t j = 0; j < create_info.stageCount; ++j)
-        {
-            track_handle(create_info.pStages[j].module);
-        }
-
-        if(create_info.pNext != nullptr)
-        {
-            auto base = reinterpret_cast<const VkBaseInStructure*>(create_info.pNext);
-            if(base->sType == VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR)
-            {
-                auto library_create_info = reinterpret_cast<const VkPipelineLibraryCreateInfoKHR*>(base);
-                for(uint32_t j = 0; j < library_create_info->libraryCount; j++)
-                {
-                    track_handle(library_create_info->pLibraries[j]);
-                }
-            }
-        }
-    }
+    // extract handle-dependencies and track those
+    auto handle_deps = graphics::vulkan_struct_extract_handles(in_pCreateInfos, createInfoCount);
     TrackAsyncHandles(handle_deps);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
@@ -1067,7 +1030,6 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this, handle_deps = std::move(handle_deps)]
         {
-//            printf("clearing %ld async handle-dependencies\n", handle_deps.size());
             ClearAsyncHandles(handle_deps);
         });
         return {replay_result, std::move(out_pipelines)};

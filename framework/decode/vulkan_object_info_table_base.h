@@ -46,7 +46,8 @@ struct has_handle_future<T, decltype((void)T::future, 0)>
     : std::is_same<decltype(T::future), std::shared_future<handle_create_result_t<typename T::HandleType>>>
 {};
 
-template <typename T> inline constexpr bool has_handle_future_v = has_handle_future<T>::value;
+template <typename T>
+inline constexpr bool has_handle_future_v = has_handle_future<T>::value;
 
 class VulkanObjectInfoTableBase
 {
