@@ -55,9 +55,9 @@ class DisplayWindow : public decode::Window
 
     virtual void SetPosition(const int32_t, const int32_t) override {}
 
-    virtual void SetSize(const uint32_t, const uint32_t) override{};
+    virtual void SetSize(const uint32_t width, const uint32_t height) override;
 
-    virtual void SetSizePreTransform(const uint32_t, const uint32_t, const uint32_t) override{};
+    virtual void SetSizePreTransform(const uint32_t, const uint32_t, const uint32_t) override {}
 
     virtual void SetVisibility(bool) override {}
 
@@ -66,6 +66,8 @@ class DisplayWindow : public decode::Window
     virtual bool GetNativeHandle(HandleType, void**) override { return false; }
 
     virtual std::string GetWsiExtension() const override;
+
+    virtual VkExtent2D GetSize() const override;
 
     virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
                                    VkInstance                         instance,
@@ -94,6 +96,9 @@ class DisplayWindow : public decode::Window
 
   private:
     DisplayContext* display_context_;
+
+    uint32_t width_;
+    uint32_t height_;
 };
 
 class DisplayWindowFactory : public decode::WindowFactory

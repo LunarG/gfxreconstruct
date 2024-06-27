@@ -47,9 +47,10 @@ bool HeadlessWindow::Create(const std::string& title,
     GFXRECON_UNREFERENCED_PARAMETER(title);
     GFXRECON_UNREFERENCED_PARAMETER(xpos);
     GFXRECON_UNREFERENCED_PARAMETER(ypos);
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
     GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
+
+    width_  = width;
+    height_ = height;
 
     return true;
 }
@@ -72,14 +73,14 @@ void HeadlessWindow::SetPosition(const int32_t x, const int32_t y)
 
 void HeadlessWindow::SetSize(const uint32_t width, const uint32_t height)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
+    width_  = width;
+    height_ = height;
 }
 
 void HeadlessWindow::SetSizePreTransform(const uint32_t width, const uint32_t height, const uint32_t pre_transform)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(width);
-    GFXRECON_UNREFERENCED_PARAMETER(height);
+    width_  = width;
+    height_ = height;
     GFXRECON_UNREFERENCED_PARAMETER(pre_transform);
 }
 
@@ -100,6 +101,11 @@ bool HeadlessWindow::GetNativeHandle(HandleType type, void** handle)
 std::string HeadlessWindow::GetWsiExtension() const
 {
     return VK_EXT_HEADLESS_SURFACE_EXTENSION_NAME;
+}
+
+VkExtent2D HeadlessWindow::GetSize() const
+{
+    return { width_, height_ };
 }
 
 VkResult HeadlessWindow::CreateSurface(const encode::VulkanInstanceTable* table,
