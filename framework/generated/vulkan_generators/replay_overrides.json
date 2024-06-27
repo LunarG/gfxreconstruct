@@ -111,6 +111,7 @@
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
     "vkWaitSemaphores": "OverrideWaitSemaphores",
     "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID",
+    "vkCmdInsertDebugUtilsLabelEXT": "OverrideCmdInsertDebugUtilsLabelEXT",
     "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
     "vkCreateGraphicsPipelines": "OverrideCreateGraphicsPipelines",
     "vkCreateComputePipelines": "OverrideCreateComputePipelines"

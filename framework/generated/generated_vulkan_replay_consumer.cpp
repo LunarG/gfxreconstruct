@@ -6119,23 +6119,6 @@ void VulkanReplayConsumer::Process_vkCmdPushDescriptorSet2KHR(
     }
 }
 
-void VulkanReplayConsumer::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
-{
-    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
-    const VkPushDescriptorSetWithTemplateInfoKHR* in_pPushDescriptorSetWithTemplateInfo = pPushDescriptorSetWithTemplateInfo->GetPointer();
-    MapStructHandles(pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-
-    GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR(in_commandBuffer, in_pPushDescriptorSetWithTemplateInfo);
-
-    if (options_.dumping_resources)
-    {
-        resource_dumper.Process_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR, in_commandBuffer, in_pPushDescriptorSetWithTemplateInfo);
-    }
-}
-
 void VulkanReplayConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -7048,14 +7031,13 @@ void VulkanReplayConsumer::Process_vkCmdInsertDebugUtilsLabelEXT(
     format::HandleId                            commandBuffer,
     StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* pLabelInfo)
 {
-    VkCommandBuffer in_commandBuffer = MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
-    const VkDebugUtilsLabelEXT* in_pLabelInfo = pLabelInfo->GetPointer();
+    auto in_commandBuffer = GetObjectInfoTable().GetCommandBufferInfo(commandBuffer);
 
-    GetDeviceTable(in_commandBuffer)->CmdInsertDebugUtilsLabelEXT(in_commandBuffer, in_pLabelInfo);
+    OverrideCmdInsertDebugUtilsLabelEXT(GetDeviceTable(in_commandBuffer->handle)->CmdInsertDebugUtilsLabelEXT, in_commandBuffer, pLabelInfo);
 
     if (options_.dumping_resources)
     {
-        resource_dumper.Process_vkCmdInsertDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer)->CmdInsertDebugUtilsLabelEXT, in_commandBuffer, in_pLabelInfo);
+        resource_dumper.Process_vkCmdInsertDebugUtilsLabelEXT(call_info, GetDeviceTable(in_commandBuffer->handle)->CmdInsertDebugUtilsLabelEXT, in_commandBuffer->handle, pLabelInfo->GetPointer());
     }
 }
 

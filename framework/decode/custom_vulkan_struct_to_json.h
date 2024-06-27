@@ -111,6 +111,10 @@ void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const DescriptorUpdateTemplateDecoder* const pData,
                  const util::JsonOptions&                     options = util::JsonOptions());
 
+void FieldToJson(nlohmann::ordered_json&                                     jdata,
+                 const Decoded_VkPushDescriptorSetWithTemplateInfoKHR* const pData,
+                 const util::JsonOptions&                                    options = util::JsonOptions());
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

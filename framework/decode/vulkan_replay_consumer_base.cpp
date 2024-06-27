@@ -347,24 +347,24 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
                 else
                 {
                     // TODO: multi-plane image format support when strides do not match.
-                    GFXRECON_LOG_ERROR("Ignoring fill memory command for AHardwareBuffer with multi-plane format and "
-                                       "mismatched capture/replay strides (Memory ID = %" PRIu64
-                                       "): support not yet implemented",
-                                       memory_id);
+                    GFXRECON_LOG_WARNING("Ignoring fill memory command for AHardwareBuffer with multi-plane format and "
+                                         "mismatched capture/replay strides (Memory ID = %" PRIu64
+                                         "): support not yet implemented",
+                                         memory_id);
                 }
 
                 lock_result = AHardwareBuffer_unlock(buffer_info.hardware_buffer, nullptr);
                 if (lock_result != 0)
                 {
-                    GFXRECON_LOG_ERROR("AHardwareBuffer_unlock failed for AHardwareBuffer object (Memory ID = %" PRIu64
-                                       ")",
-                                       memory_id);
+                    GFXRECON_LOG_WARNING(
+                        "AHardwareBuffer_unlock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
+                        memory_id);
                 }
             }
             else
             {
-                GFXRECON_LOG_ERROR("AHardwareBuffer_lock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
-                                   memory_id);
+                GFXRECON_LOG_WARNING("AHardwareBuffer_lock failed for AHardwareBuffer object (Memory ID = %" PRIu64 ")",
+                                     memory_id);
             }
         }
     }
@@ -7762,6 +7762,21 @@ void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(
     }
 };
 
+void VulkanReplayConsumerBase::OverrideCmdInsertDebugUtilsLabelEXT(
+    PFN_vkCmdInsertDebugUtilsLabelEXT                   func,
+    CommandBufferInfo*                                  command_buffer_info,
+    StructPointerDecoder<Decoded_VkDebugUtilsLabelEXT>* label_info_decoder)
+{
+    const VkDebugUtilsLabelEXT* label_info = label_info_decoder->GetPointer();
+    func(command_buffer_info->handle, label_info);
+
+    // Look for the label that identifies this command buffer as a VR frame boundary.
+    if (util::platform::StringContains(label_info->pLabelName, graphics::kVulkanVrFrameDelimiterString))
+    {
+        command_buffer_info->is_frame_boundary = true;
+    }
+};
+
 void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass(
     PFN_vkCmdBeginRenderPass                             func,
     CommandBufferInfo*                                   command_buffer_info,
@@ -8643,6 +8658,32 @@ void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplateKHR(con
     GetDeviceTable(in_commandBuffer)
         ->CmdPushDescriptorSetWithTemplateKHR(
             in_commandBuffer, in_descriptorUpdateTemplate, in_layout, set, pData->GetPointer());
+}
+
+void VulkanReplayConsumerBase::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+    const ApiCallInfo&                                                    call_info,
+    format::HandleId                                                      commandBuffer,
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
+{
+    Decoded_VkPushDescriptorSetWithTemplateInfoKHR* in_info =
+        pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
+    VkPushDescriptorSetWithTemplateInfoKHR* value = in_info->decoded_value;
+    DescriptorUpdateTemplateInfo*           update_template_info =
+        object_info_table_.GetDescriptorUpdateTemplateInfo(in_info->descriptorUpdateTemplate);
+
+    VkCommandBuffer in_commandBuffer =
+        MapHandle<CommandBufferInfo>(commandBuffer, &VulkanObjectInfoTable::GetCommandBufferInfo);
+    value->layout = MapHandle<PipelineLayoutInfo>(in_info->layout, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+
+    MapDescriptorUpdateTemplateHandles(update_template_info, &in_info->pData);
+    value->pData = in_info->pData.GetPointer();
+
+    if (update_template_info != nullptr)
+    {
+        value->descriptorUpdateTemplate = update_template_info->handle;
+    }
+
+    GetDeviceTable(in_commandBuffer)->CmdPushDescriptorSetWithTemplate2KHR(in_commandBuffer, value);
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,

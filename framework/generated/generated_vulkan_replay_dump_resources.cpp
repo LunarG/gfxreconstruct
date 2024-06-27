@@ -2829,32 +2829,6 @@ void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSet2KHR(
     }
 }
 
-void VulkanReplayDumpResources::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSetWithTemplate2KHR  func,
-    VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo)
-{
-    if (IsRecording(commandBuffer))
-    {
-        CommandBufferIterator first, last;
-        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
-        if (found)
-        {
-            for (CommandBufferIterator it = first; it < last; ++it)
-            {
-                 func(*it, pPushDescriptorSetWithTemplateInfo);
-            }
-        }
-
-        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
-        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
-        {
-             func(dispatch_rays_command_buffer, pPushDescriptorSetWithTemplateInfo);
-        }
-    }
-}
-
 void VulkanReplayDumpResources::Process_vkCmdSetDescriptorBufferOffsets2EXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetDescriptorBufferOffsets2EXT     func,

@@ -34,18 +34,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 template <typename T>
 bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
 {
-    int completed_consumers = 0;
-    if (consumers.size() == 0)
-    {
-        return true;
-    }
-
     for (auto it = std::begin(consumers); it != std::end(consumers);)
     {
         if ((*it)->IsComplete(block_index) == true)
         {
             it = consumers.erase(it);
-            completed_consumers++;
         }
         else
         {
@@ -53,7 +46,7 @@ bool IsComplete(std::vector<T>& consumers, uint64_t block_index)
         }
     }
 
-    return completed_consumers == consumers.size();
+    return consumers.empty();
 }
 
 static VkQueue GetDeviceQueue(const encode::VulkanDeviceTable* device_table,

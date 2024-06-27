@@ -987,12 +987,6 @@ void Process_vkCmdPushDescriptorSet2KHR(
     VkCommandBuffer                             commandBuffer,
     const VkPushDescriptorSetInfoKHR*           pPushDescriptorSetInfo);
 
-void Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo&                          call_info,
-    PFN_vkCmdPushDescriptorSetWithTemplate2KHR  func,
-    VkCommandBuffer                             commandBuffer,
-    const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo);
-
 void Process_vkCmdSetDescriptorBufferOffsets2EXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetDescriptorBufferOffsets2EXT     func,

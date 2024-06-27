@@ -1185,39 +1185,6 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
     }
 }
 
-void TrackCmdPushDescriptorSetWithTemplate2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkPushDescriptorSetWithTemplateInfoKHR* pPushDescriptorSetWithTemplateInfo)
-{
-    assert(wrapper != nullptr);
-
-    if (pPushDescriptorSetWithTemplateInfo != nullptr)
-    {
-        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetWithTemplateInfo->pNext);
-        while (pnext_header)
-        {
-            switch (pnext_header->sType)
-            {
-                default:
-                    break;
-                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
-                {
-                    auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
-                    if (pnext_value->pSetLayouts != nullptr)
-                    {
-                        for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
-                        {
-                            if(pnext_value->pSetLayouts[pSetLayouts_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorSetLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorSetLayoutWrapper>(pnext_value->pSetLayouts[pSetLayouts_index]));
-                        }
-                    }
-                    break;
-                }
-            }
-            pnext_header = pnext_header->pNext;
-        }
-        if(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::DescriptorUpdateTemplateHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(pPushDescriptorSetWithTemplateInfo->descriptorUpdateTemplate));
-        if(pPushDescriptorSetWithTemplateInfo->layout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineLayoutHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineLayoutWrapper>(pPushDescriptorSetWithTemplateInfo->layout));
-    }
-}
-
 void TrackCmdSetDescriptorBufferOffsets2EXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkSetDescriptorBufferOffsetsInfoEXT* pSetDescriptorBufferOffsetsInfo)
 {
     assert(wrapper != nullptr);

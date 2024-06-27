@@ -349,7 +349,7 @@ Building on MacOS requires the installation of the following packages:
   - install e.g. via https://brew.sh/
 
 ### MacOS Build
-The approach is identical to a linux-build with one addition.
+The approach is identical to a linux-build with few additions.
 
 #### Explicit CPU-Architecture
 Building for specific cpu-architectures can be accomplished by using the cmake-variable `CMAKE_OSX_ARCHITECTURES` 
@@ -364,6 +364,33 @@ cmake . -Bbuild -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
 cd build
 make -j4
 ```
+
+#### Code signing
+Capturing applications that are code-signed will require `libVkLayer_gfxreconstruct.dylib` to be code-signed as well.
+
+If a signed application tries to load an unsigned layer, an error-message will be issued by the OS:
+```
+ERROR: dlopen(/path/to/libVkLayer_gfxreconstruct.dylib, 0x0005): ...
+'libVkLayer_gfxreconstruct.dylib' not valid for use in process: mapping process and mapped file (non-platform) have different Team IDs)
+```
+
+In this case the layer can be signed using the same certificate, allowing it to be loaded at runtime.
+This can be achieved with either XCode or via command-line using `Apple's codesign utility`.
+
+Example usage of Apple's codesign commandline utility:
+```bash
+# unlock keychain
+security unlock-keychain
+
+# invoke Apple's codesign-utility
+codesign --force --timestamp --sign "Your Apple Developer Team ID" -v libVkLayer_gfxreconstruct.dylib
+
+# optionally print/verify resulting information
+codesign -dvvv libVkLayer_gfxreconstruct.dylib`
+```
+
+Apple's developer information about code-signing can be found here:
+https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Introduction/Introduction.html
 
 ## Building for Android
 
