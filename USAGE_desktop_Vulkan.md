@@ -532,7 +532,7 @@ gfxrecon-replay         [-h | --help] [--version] [--gpu <index>]
                         [--flush-measurement-range]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--no-debug-popup] [--use-colorspace-fallback]
-                        [--wait-before-present] <file>
+                        [--wait-before-present] <file> [--pbi-all] [--pbi <index1,index2>]
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -698,6 +698,8 @@ Optional arguments:
               Force wait on completion of queue operations for all queues
               before calling Present. This is needed for accurate acquisition
               of instrumentation data on some platforms.
+  --pbi-all             Print all block information.
+  --pbi <index1,index2> Print block information between block index1 and block index2.
 ```
 
 ### Key Controls
