@@ -146,6 +146,21 @@ bool IsSupportedExtension(const std::vector<VkExtensionProperties>& properties, 
     return false;
 }
 
+bool IsSupportedExtension(const std::vector<const char*>& extensions_names, const char* extension)
+{
+    assert(extension != nullptr);
+
+    for (const auto name : extensions_names)
+    {
+        if (util::platform::StringCompare(name, extension) == 0)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool IsIgnorableExtension(const char* extension)
 {
     return kIgnorableExtensions.count(extension) > 0;
