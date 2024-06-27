@@ -23,129 +23,30 @@
 #ifndef GFXRECON_DECODE_VULKAN_HANDLE_MAPPING_UTIL_H
 #define GFXRECON_DECODE_VULKAN_HANDLE_MAPPING_UTIL_H
 
-#include "decode/vulkan_object_info_table.h"
-#include "format/format.h"
+#include "decode/common_handle_mapping_util.h"
 #include "generated/generated_vulkan_struct_decoders.h"
-#include "util/defines.h"
-#include "util/logging.h"
 
 #include "vulkan/vulkan.h"
-
-#include <cassert>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 GFXRECON_BEGIN_NAMESPACE(handle_mapping)
 
-template <typename T>
-static typename T::HandleType MapHandle(format::HandleId             id,
-                                        const VulkanObjectInfoTable& object_info_table,
-                                        const T* (VulkanObjectInfoTable::*GetInfoFunc)(format::HandleId) const)
-{
-    typename T::HandleType handle = VK_NULL_HANDLE;
-
-    if (id != format::kNullHandleId)
-    {
-        const T* info = (object_info_table.*GetInfoFunc)(id);
-
-        if (info != nullptr)
-        {
-            handle = info->handle;
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
-        }
-    }
-
-    return handle;
-}
-
-uint64_t MapHandle(uint64_t object, VkObjectType object_type, const VulkanObjectInfoTable& object_info_table);
+uint64_t MapHandle(uint64_t object, VkObjectType object_type, const CommonObjectInfoTable& object_info_table);
 
 uint64_t
-MapHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type, const VulkanObjectInfoTable& object_info_table);
+MapHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type, const CommonObjectInfoTable& object_info_table);
 
-template <typename T>
-static typename T::HandleType* MapHandleArray(HandlePointerDecoder<typename T::HandleType>* handles_pointer,
-                                              const VulkanObjectInfoTable&                  object_info_table,
-                                              const T* (VulkanObjectInfoTable::*GetInfoFunc)(format::HandleId) const)
-{
-    assert(handles_pointer != nullptr);
-
-    typename T::HandleType* handles = nullptr;
-
-    if (!handles_pointer->IsNull())
-    {
-        size_t                  len = handles_pointer->GetLength();
-        const format::HandleId* ids = handles_pointer->GetPointer();
-
-        handles_pointer->SetHandleLength(len);
-
-        handles = handles_pointer->GetHandlePointer();
-
-        for (size_t i = 0; i < len; ++i)
-        {
-            if (ids[i] != format::kNullHandleId)
-            {
-                const T* info = (object_info_table.*GetInfoFunc)(ids[i]);
-                if (info != nullptr)
-                {
-                    handles[i] = info->handle;
-                }
-                else
-                {
-                    handles[i] = VK_NULL_HANDLE;
-                    GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, ids[i]);
-                }
-            }
-        }
-    }
-
-    return handles;
-}
-
-template <typename T>
-static void AddHandle(format::HandleId             parent_id,
-                      format::HandleId             id,
-                      const typename T::HandleType handle,
-                      T&&                          initial_info,
-                      VulkanObjectInfoTable*       object_info_table,
-                      void (VulkanObjectInfoTable::*AddFunc)(T&&))
-{
-    assert(object_info_table != nullptr);
-
-    initial_info.handle     = handle;
-    initial_info.capture_id = id;
-    initial_info.parent_id  = parent_id;
-    (object_info_table->*AddFunc)(std::forward<T>(initial_info));
-}
-
-template <typename T>
-static void AddHandle(format::HandleId       parent_id,
-                      format::HandleId       id,
-                      typename T::HandleType handle,
-                      VulkanObjectInfoTable* object_info_table,
-                      void (VulkanObjectInfoTable::*AddFunc)(T&&))
-{
-    assert(object_info_table != nullptr);
-
-    T info;
-    info.handle     = handle;
-    info.capture_id = id;
-    info.parent_id  = parent_id;
-    (object_info_table->*AddFunc)(std::move(info));
-}
-
-template <typename T>
+template <typename S, typename T>
 static void AddHandleArray(format::HandleId              parent_id,
+                           format::HandleId              pool_id,
                            const format::HandleId*       ids,
                            size_t                        ids_len,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
                            std::vector<T>&&              initial_infos,
-                           VulkanObjectInfoTable*        object_info_table,
-                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           CommonObjectInfoTable*        object_info_table,
+                           void (CommonObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -157,23 +58,30 @@ static void AddHandleArray(format::HandleId              parent_id,
 
         for (size_t i = 0; i < len; ++i)
         {
-            auto info_iter        = std::next(initial_infos.begin(), i);
-            info_iter->handle     = handles[i];
-            info_iter->capture_id = ids[i];
-            info_iter->parent_id  = parent_id;
-            (object_info_table->*AddFunc)(std::move(*info_iter));
+            // Prevent the the ID from being added to the pool's child list if it would be rejectd by AddFunc due to a
+            // null handle ID or null handle.
+            if ((ids[i] != format::kNullHandleId) && (handles[i] != 0))
+            {
+                auto info_iter        = std::next(initial_infos.begin(), i);
+                info_iter->handle     = handles[i];
+                info_iter->capture_id = ids[i];
+                info_iter->parent_id  = parent_id;
+                info_iter->pool_id    = pool_id;
+                (object_info_table->*AddFunc)(std::move(*info_iter));
+            }
         }
     }
 }
 
-template <typename T>
+template <typename S, typename T>
 static void AddHandleArray(format::HandleId              parent_id,
+                           format::HandleId              pool_id,
                            const format::HandleId*       ids,
                            size_t                        ids_len,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
-                           VulkanObjectInfoTable*        object_info_table,
-                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           CommonObjectInfoTable*        object_info_table,
+                           void (CommonObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -182,11 +90,17 @@ static void AddHandleArray(format::HandleId              parent_id,
         size_t len = std::min(ids_len, handles_len);
         for (size_t i = 0; i < len; ++i)
         {
-            T info;
-            info.handle     = handles[i];
-            info.capture_id = ids[i];
-            info.parent_id  = parent_id;
-            (object_info_table->*AddFunc)(std::move(info));
+            // Prevent the the ID from being added to the pool's child list if it would be rejectd by AddFunc due to a
+            // null handle ID or null handle.
+            if ((ids[i] != format::kNullHandleId) && (handles[i] != 0))
+            {
+                T info;
+                info.handle     = handles[i];
+                info.capture_id = ids[i];
+                info.parent_id  = parent_id;
+                info.pool_id    = pool_id;
+                (object_info_table->*AddFunc)(std::move(info));
+            }
         }
     }
 }
@@ -199,9 +113,9 @@ static void AddHandleArray(format::HandleId              parent_id,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
                            std::vector<T>&&              initial_infos,
-                           VulkanObjectInfoTable*        object_info_table,
-                           S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           CommonObjectInfoTable*        object_info_table,
+                           S* (CommonObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                           void (CommonObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -242,9 +156,9 @@ static void AddHandleArray(format::HandleId              parent_id,
                            size_t                        ids_len,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
-                           VulkanObjectInfoTable*        object_info_table,
-                           S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           CommonObjectInfoTable*        object_info_table,
+                           S* (CommonObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                           void (CommonObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -275,25 +189,13 @@ static void AddHandleArray(format::HandleId              parent_id,
     }
 }
 
-inline void RemoveHandle(format::HandleId       id,
-                         VulkanObjectInfoTable* object_info_table,
-                         void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
-{
-    assert(object_info_table != nullptr);
-
-    if (id != format::kNullHandleId)
-    {
-        (object_info_table->*RemoveFunc)(id);
-    }
-}
-
 // Special case removal of pool objects, which require removal of objects allocated from the pool.
 template <typename T>
 void RemovePoolHandle(format::HandleId       id,
-                      VulkanObjectInfoTable* object_info_table,
-                      T* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                      void (VulkanObjectInfoTable::*RemovePoolFunc)(format::HandleId),
-                      void (VulkanObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
+                      CommonObjectInfoTable* object_info_table,
+                      T* (CommonObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                      void (CommonObjectInfoTable::*RemovePoolFunc)(format::HandleId),
+                      void (CommonObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
 {
     assert(object_info_table != nullptr);
 
@@ -313,9 +215,9 @@ void RemovePoolHandle(format::HandleId       id,
 template <typename S, typename T>
 void RemoveHandleArray(format::HandleId                                    pool_id,
                        const HandlePointerDecoder<typename T::HandleType>* handles_pointer,
-                       VulkanObjectInfoTable*                              object_info_table,
-                       S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                       void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
+                       CommonObjectInfoTable*                              object_info_table,
+                       S* (CommonObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                       void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId))
 {
     assert((handles_pointer != nullptr) && (object_info_table != nullptr));
 

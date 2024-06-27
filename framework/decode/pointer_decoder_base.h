@@ -65,6 +65,59 @@ class PointerDecoderBase
 
     size_t GetLength() const { return len_; }
 
+    static bool PeekAttributesAndType(const uint8_t* buffer,
+                                      size_t         buffer_size,
+                                      bool&          is_null,
+                                      bool&          is_struct,
+                                      bool&          has_length,
+                                      size_t&        length,
+                                      uint32_t&      structure_type)
+    {
+        bool     success    = true;
+        size_t   bytes_read = 0;
+        uint32_t attrib     = 0;
+        uint64_t address;
+
+        is_null    = true;
+        is_struct  = false;
+        has_length = false;
+
+        bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &attrib);
+
+        if ((attrib & format::PointerAttributes::kIsNull) != format::PointerAttributes::kIsNull)
+        {
+            is_null = false;
+            if ((attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+            {
+                // Not interested right now, but need to read it if it's present
+                bytes_read += ValueDecoder::DecodeAddress((buffer + bytes_read), (buffer_size - bytes_read), &address);
+            }
+
+            has_length = true;
+            if (((attrib & format::PointerAttributes::kIsArray) == format::PointerAttributes::kIsArray) ||
+                ((attrib & format::PointerAttributes::kIsArray2D) == format::PointerAttributes::kIsArray2D) ||
+                ((attrib & format::PointerAttributes::kIsString) == format::PointerAttributes::kIsString) ||
+                ((attrib & format::PointerAttributes::kIsWString) == format::PointerAttributes::kIsWString))
+            {
+                bytes_read +=
+                    ValueDecoder::DecodeSizeTValue((buffer + bytes_read), (buffer_size - bytes_read), &length);
+            }
+            else
+            {
+                length = 1;
+            }
+
+            if ((attrib & format::PointerAttributes::kIsStruct) == format::PointerAttributes::kIsStruct)
+            {
+                is_struct = true;
+                bytes_read +=
+                    ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &structure_type);
+            }
+        }
+
+        return success;
+    }
+
   protected:
     size_t DecodeAttributes(const uint8_t* buffer, size_t buffer_size)
     {

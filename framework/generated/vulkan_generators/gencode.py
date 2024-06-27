@@ -500,7 +500,7 @@ def make_gen_opts(args):
             base_class_header='vulkan_replay_dump_resources.h',
             is_override=True,
             constructor_args=
-            'const VulkanReplayOptions& options, VulkanObjectInfoTable& object_info_table',
+            'const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table',
             filename='generated_vulkan_replay_dump_resources.h',
             directory=directory,
             blacklists=None,

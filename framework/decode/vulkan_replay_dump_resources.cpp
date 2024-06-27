@@ -45,7 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options,
-                                                             VulkanObjectInfoTable&     object_info_table) :
+                                                             CommonObjectInfoTable&     object_info_table) :
     QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), dump_json_(options)
@@ -239,8 +239,8 @@ VulkanReplayDumpResourcesBase::FindDispatchRaysCommandBufferContext(VkCommandBuf
     return context;
 }
 
-VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t           bcb_index,
-                                                           CommandBufferInfo* original_command_buffer_info,
+VkResult VulkanReplayDumpResourcesBase::CloneCommandBuffer(uint64_t                 bcb_index,
+                                                           VulkanCommandBufferInfo* original_command_buffer_info,
                                                            const encode::VulkanDeviceTable*   device_table,
                                                            const encode::VulkanInstanceTable* inst_table)
 
@@ -389,13 +389,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexed(const ApiCallInfo&   
     }
 }
 
-void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&    call_info,
-                                                            PFN_vkCmdDrawIndirect func,
-                                                            VkCommandBuffer       original_command_buffer,
-                                                            const BufferInfo*     buffer_info,
-                                                            VkDeviceSize          offset,
-                                                            uint32_t              draw_count,
-                                                            uint32_t              stride)
+void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&      call_info,
+                                                            PFN_vkCmdDrawIndirect   func,
+                                                            VkCommandBuffer         original_command_buffer,
+                                                            const VulkanBufferInfo* buffer_info,
+                                                            VkDeviceSize            offset,
+                                                            uint32_t                draw_count,
+                                                            uint32_t                stride)
 {
     assert(IsRecording(original_command_buffer));
 
@@ -445,7 +445,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirect(const ApiCallInfo&  
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCallInfo&           call_info,
                                                                    PFN_vkCmdDrawIndexedIndirect func,
                                                                    VkCommandBuffer              original_command_buffer,
-                                                                   const BufferInfo*            buffer_info,
+                                                                   const VulkanBufferInfo*      buffer_info,
                                                                    VkDeviceSize                 offset,
                                                                    uint32_t                     draw_count,
                                                                    uint32_t                     stride)
@@ -497,9 +497,9 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirect(const ApiCall
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCount(const ApiCallInfo&         call_info,
                                                                  PFN_vkCmdDrawIndirectCount func,
                                                                  VkCommandBuffer            original_command_buffer,
-                                                                 const BufferInfo*          buffer_info,
+                                                                 const VulkanBufferInfo*    buffer_info,
                                                                  VkDeviceSize               offset,
-                                                                 const BufferInfo*          count_buffer_info,
+                                                                 const VulkanBufferInfo*    count_buffer_info,
                                                                  VkDeviceSize               count_buffer_offset,
                                                                  uint32_t                   max_draw_count,
                                                                  uint32_t                   stride)
@@ -557,13 +557,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCount(const ApiCallIn
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCount(const ApiCallInfo&                call_info,
                                                                         PFN_vkCmdDrawIndexedIndirectCount func,
-                                                                        VkCommandBuffer   original_command_buffer,
-                                                                        const BufferInfo* buffer_info,
-                                                                        VkDeviceSize      offset,
-                                                                        const BufferInfo* count_buffer_info,
-                                                                        VkDeviceSize      count_buffer_offset,
-                                                                        uint32_t          max_draw_count,
-                                                                        uint32_t          stride)
+                                                                        VkCommandBuffer         original_command_buffer,
+                                                                        const VulkanBufferInfo* buffer_info,
+                                                                        VkDeviceSize            offset,
+                                                                        const VulkanBufferInfo* count_buffer_info,
+                                                                        VkDeviceSize            count_buffer_offset,
+                                                                        uint32_t                max_draw_count,
+                                                                        uint32_t                stride)
 {
     assert(IsRecording(original_command_buffer));
 
@@ -618,13 +618,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCount(const Ap
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCountKHR(const ApiCallInfo&            call_info,
                                                                     PFN_vkCmdDrawIndirectCountKHR func,
-                                                                    VkCommandBuffer   original_command_buffer,
-                                                                    const BufferInfo* buffer_info,
-                                                                    VkDeviceSize      offset,
-                                                                    const BufferInfo* count_buffer_info,
-                                                                    VkDeviceSize      count_buffer_offset,
-                                                                    uint32_t          max_draw_count,
-                                                                    uint32_t          stride)
+                                                                    VkCommandBuffer         original_command_buffer,
+                                                                    const VulkanBufferInfo* buffer_info,
+                                                                    VkDeviceSize            offset,
+                                                                    const VulkanBufferInfo* count_buffer_info,
+                                                                    VkDeviceSize            count_buffer_offset,
+                                                                    uint32_t                max_draw_count,
+                                                                    uint32_t                stride)
 {
     assert(IsRecording(original_command_buffer));
 
@@ -679,13 +679,13 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndirectCountKHR(const ApiCal
 
 void VulkanReplayDumpResourcesBase::OverrideCmdDrawIndexedIndirectCountKHR(const ApiCallInfo& call_info,
                                                                            PFN_vkCmdDrawIndexedIndirectCountKHR func,
-                                                                           VkCommandBuffer   original_command_buffer,
-                                                                           const BufferInfo* buffer_info,
-                                                                           VkDeviceSize      offset,
-                                                                           const BufferInfo* count_buffer_info,
-                                                                           VkDeviceSize      count_buffer_offset,
-                                                                           uint32_t          max_draw_count,
-                                                                           uint32_t          stride)
+                                                                           VkCommandBuffer original_command_buffer,
+                                                                           const VulkanBufferInfo* buffer_info,
+                                                                           VkDeviceSize            offset,
+                                                                           const VulkanBufferInfo* count_buffer_info,
+                                                                           VkDeviceSize            count_buffer_offset,
+                                                                           uint32_t                max_draw_count,
+                                                                           uint32_t                stride)
 {
     assert(IsRecording(original_command_buffer));
 
@@ -754,10 +754,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
         auto       framebuffer_id        = render_pass_info_meta->framebuffer;
         auto       render_pass_id        = render_pass_info_meta->renderPass;
 
-        const FramebufferInfo* framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
+        const VulkanFramebufferInfo* framebuffer_info = object_info_table_.GetVkFramebufferInfo(framebuffer_id);
         assert(framebuffer_info);
 
-        const RenderPassInfo* render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
+        const VulkanRenderPassInfo* render_pass_info = object_info_table_.GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
 
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
@@ -803,10 +803,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
         auto       framebuffer_id        = render_pass_info_meta->framebuffer;
         auto       render_pass_id        = render_pass_info_meta->renderPass;
 
-        const FramebufferInfo* framebuffer_info = object_info_table_.GetFramebufferInfo(framebuffer_id);
+        const VulkanFramebufferInfo* framebuffer_info = object_info_table_.GetVkFramebufferInfo(framebuffer_id);
         assert(framebuffer_info);
 
-        const RenderPassInfo* render_pass_info = object_info_table_.GetRenderPassInfo(render_pass_id);
+        const VulkanRenderPassInfo* render_pass_info = object_info_table_.GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
 
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
@@ -965,11 +965,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdEndRenderPass2(
     }
 }
 
-void VulkanReplayDumpResourcesBase::OverrideCmdBindPipeline(const ApiCallInfo&    call_info,
-                                                            PFN_vkCmdBindPipeline func,
-                                                            VkCommandBuffer       original_command_buffer,
-                                                            VkPipelineBindPoint   pipelineBindPoint,
-                                                            const PipelineInfo*   pipeline)
+void VulkanReplayDumpResourcesBase::OverrideCmdBindPipeline(const ApiCallInfo&        call_info,
+                                                            PFN_vkCmdBindPipeline     func,
+                                                            VkCommandBuffer           original_command_buffer,
+                                                            VkPipelineBindPoint       pipelineBindPoint,
+                                                            const VulkanPipelineInfo* pipeline)
 {
     assert(pipeline);
     assert(IsRecording(original_command_buffer));
@@ -1002,23 +1002,24 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
                                                                   PFN_vkCmdBindDescriptorSets func,
                                                                   VkCommandBuffer             original_command_buffer,
                                                                   VkPipelineBindPoint         pipeline_bind_point,
-                                                                  const PipelineLayoutInfo*   layout_info,
-                                                                  uint32_t                    first_set,
-                                                                  uint32_t                    descriptor_sets_count,
-                                                                  const format::HandleId*     descriptor_sets_ids,
-                                                                  uint32_t                    dynamicOffsetCount,
-                                                                  const uint32_t*             pDynamicOffsets)
+                                                                  const VulkanPipelineLayoutInfo* layout_info,
+                                                                  uint32_t                        first_set,
+                                                                  uint32_t                        descriptor_sets_count,
+                                                                  const format::HandleId*         descriptor_sets_ids,
+                                                                  uint32_t                        dynamicOffsetCount,
+                                                                  const uint32_t*                 pDynamicOffsets)
 {
     assert(IsRecording(original_command_buffer));
     assert(descriptor_sets_ids);
 
-    PipelineBindPoints                    bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
-    std::vector<VkDescriptorSet>          desc_set_handles(descriptor_sets_count, VK_NULL_HANDLE);
-    std::vector<const DescriptorSetInfo*> desc_set_infos(descriptor_sets_count, nullptr);
+    PipelineBindPoints           bind_point = VkPipelineBindPointToPipelineBindPoint(pipeline_bind_point);
+    std::vector<VkDescriptorSet> desc_set_handles(descriptor_sets_count, VK_NULL_HANDLE);
+    std::vector<const VulkanDescriptorSetInfo*> desc_set_infos(descriptor_sets_count, nullptr);
 
     for (uint32_t i = 0; i < descriptor_sets_count; ++i)
     {
-        const DescriptorSetInfo* desc_set_info = object_info_table_.GetDescriptorSetInfo(descriptor_sets_ids[i]);
+        const VulkanDescriptorSetInfo* desc_set_info =
+            object_info_table_.GetVkDescriptorSetInfo(descriptor_sets_ids[i]);
         assert(desc_set_info);
         desc_set_infos[i]   = desc_set_info;
         desc_set_handles[i] = desc_set_info->handle;
@@ -1069,7 +1070,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
 void VulkanReplayDumpResourcesBase::OverrideCmdBindIndexBuffer(const ApiCallInfo&       call_info,
                                                                PFN_vkCmdBindIndexBuffer func,
                                                                VkCommandBuffer          original_command_buffer,
-                                                               const BufferInfo*        buffer,
+                                                               const VulkanBufferInfo*  buffer,
                                                                VkDeviceSize             offset,
                                                                VkIndexType              indexType)
 {
@@ -1102,7 +1103,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindIndexBuffer(const ApiCallInfo
 void VulkanReplayDumpResourcesBase::OverrideCmdBindIndexBuffer2KHR(const ApiCallInfo&           call_info,
                                                                    PFN_vkCmdBindIndexBuffer2KHR func,
                                                                    VkCommandBuffer              original_command_buffer,
-                                                                   const BufferInfo*            buffer,
+                                                                   const VulkanBufferInfo*      buffer,
                                                                    VkDeviceSize                 offset,
                                                                    VkDeviceSize                 size,
                                                                    VkIndexType                  indexType)
@@ -1145,14 +1146,14 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers(const ApiCallIn
     bool                  found = GetDrawCallActiveCommandBuffers(original_command_buffer, first, last);
     VkCommandBuffer       dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(original_command_buffer);
 
-    std::vector<const BufferInfo*> buffer_infos(bindingCount, nullptr);
-    std::vector<VkBuffer>          buffer_handles(bindingCount, VK_NULL_HANDLE);
+    std::vector<const VulkanBufferInfo*> buffer_infos(bindingCount, nullptr);
+    std::vector<VkBuffer>                buffer_handles(bindingCount, VK_NULL_HANDLE);
     if (found || dispatch_rays_command_buffer != VK_NULL_HANDLE)
     {
         for (uint32_t i = 0; i < bindingCount; ++i)
         {
             // Buffer can be VK_NULL_HANDLE
-            const BufferInfo* buffer_info = object_info_table_.GetBufferInfo(buffer_ids[i]);
+            const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(buffer_ids[i]);
 
             buffer_infos[i]   = buffer_info;
             buffer_handles[i] = buffer_info != nullptr ? buffer_info->handle : VK_NULL_HANDLE;
@@ -1242,8 +1243,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallI
     {
         for (uint32_t i = 0; i < bindingCount; ++i)
         {
-            const BufferInfo* buffer_info = object_info_table_.GetBufferInfo(pBuffers_ids[i]);
-            buffer_handles[i]             = (buffer_info != nullptr) ? buffer_info->handle : VK_NULL_HANDLE;
+            const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(pBuffers_ids[i]);
+            buffer_handles[i]                   = (buffer_info != nullptr) ? buffer_info->handle : VK_NULL_HANDLE;
         }
     }
 
@@ -1262,11 +1263,11 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallI
             assert(pSizes);
             assert(pStrides);
 
-            std::vector<const BufferInfo*> buffer_infos(bindingCount);
+            std::vector<const VulkanBufferInfo*> buffer_infos(bindingCount);
 
             for (uint32_t i = 0; i < bindingCount; ++i)
             {
-                const BufferInfo* buffer_info = object_info_table_.GetBufferInfo(pBuffers_ids[i]);
+                const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(pBuffers_ids[i]);
 
                 buffer_infos[i] = buffer_info;
             }
@@ -1342,7 +1343,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdDispatch(const ApiCallInfo& call_
 void VulkanReplayDumpResourcesBase::OverrideCmdDispatchIndirect(const ApiCallInfo&        call_info,
                                                                 PFN_vkCmdDispatchIndirect func,
                                                                 VkCommandBuffer           original_command_buffer,
-                                                                const BufferInfo*         buffer_info,
+                                                                const VulkanBufferInfo*   buffer_info,
                                                                 VkDeviceSize              offset)
 {
     assert(IsRecording(original_command_buffer));
@@ -1624,31 +1625,31 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
             const size_t n_color_attachments    = rendering_info_meta->pColorAttachments->GetLength();
             const auto   color_attachments_meta = rendering_info_meta->pColorAttachments->GetMetaStructPointer();
 
-            std::vector<ImageInfo*>    color_attachments(n_color_attachments);
-            std::vector<VkImageLayout> color_attachment_layouts(n_color_attachments);
+            std::vector<VulkanImageInfo*> color_attachments(n_color_attachments);
+            std::vector<VkImageLayout>    color_attachment_layouts(n_color_attachments);
             for (size_t i = 0; i < n_color_attachments; ++i)
             {
-                const ImageViewInfo* img_view_info =
-                    object_info_table_.GetImageViewInfo(color_attachments_meta[i].imageView);
+                const VulkanImageViewInfo* img_view_info =
+                    object_info_table_.GetVkImageViewInfo(color_attachments_meta[i].imageView);
                 assert(img_view_info != nullptr);
 
-                ImageInfo* img_info = object_info_table_.GetImageInfo(img_view_info->image_id);
+                VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
                 assert(img_info != nullptr);
 
                 color_attachments[i]        = img_info;
                 color_attachment_layouts[i] = color_attachments_meta[i].decoded_value->imageLayout;
             }
 
-            ImageInfo*    depth_attachment;
-            VkImageLayout depth_attachment_layout;
+            VulkanImageInfo* depth_attachment;
+            VkImageLayout    depth_attachment_layout;
             if (rendering_info_meta->pDepthAttachment != nullptr)
             {
                 const auto depth_attachment_meta = rendering_info_meta->pDepthAttachment->GetMetaStructPointer();
-                const ImageViewInfo* img_view_info =
-                    object_info_table_.GetImageViewInfo(depth_attachment_meta->imageView);
+                const VulkanImageViewInfo* img_view_info =
+                    object_info_table_.GetVkImageViewInfo(depth_attachment_meta->imageView);
                 assert(img_view_info != nullptr);
 
-                ImageInfo* img_info = object_info_table_.GetImageInfo(img_view_info->image_id);
+                VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
                 assert(img_info != nullptr);
 
                 depth_attachment        = img_info;

@@ -46,8 +46,9 @@ void AddChildObject(std::unordered_map<format::HandleId, std::unordered_map<type
 
 // ImageInfo specialization to filter swapchain images from the list of VkImage objects to destroy.
 template <>
-void AddChildObject<ImageInfo>(
-    std::unordered_map<format::HandleId, std::unordered_map<VkImage, const ImageInfo*>>* objects, const ImageInfo* info)
+void AddChildObject<VulkanImageInfo>(
+    std::unordered_map<format::HandleId, std::unordered_map<VkImage, const VulkanImageInfo*>>* objects,
+    const VulkanImageInfo*                                                                     info)
 {
     assert(objects != nullptr);
 
@@ -58,14 +59,14 @@ void AddChildObject<ImageInfo>(
 }
 
 template <typename S, typename T>
-void FreeChildObjects(VulkanObjectInfoTable* table,
+void FreeChildObjects(CommonObjectInfoTable* table,
                       const std::string&     parent_type_name,
                       const std::string&     object_type_name,
                       bool                   remove_entries,
                       bool                   report_leaks,
-                      S* (VulkanObjectInfoTable::*GetParentInfoFunc)(format::HandleId),
-                      void (VulkanObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
-                      void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId),
+                      S* (CommonObjectInfoTable::*GetParentInfoFunc)(format::HandleId),
+                      void (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
+                      void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId),
                       std::function<void(const S*, const T*)> destroy_func)
 {
     assert(table != nullptr);
@@ -106,10 +107,10 @@ void FreeChildObjects(VulkanObjectInfoTable* table,
 }
 
 template <typename T>
-void FreeParentObjects(VulkanObjectInfoTable* table,
+void FreeParentObjects(CommonObjectInfoTable* table,
                        bool                   remove_entries,
-                       void (VulkanObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
-                       void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId),
+                       void (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
+                       void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId),
                        std::function<void(const T*)> destroy_func)
 {
     assert(table != nullptr);
@@ -132,9 +133,9 @@ void FreeParentObjects(VulkanObjectInfoTable* table,
 }
 
 template <typename T>
-void ClearObjects(VulkanObjectInfoTable* table,
-                  void (VulkanObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
-                  void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
+void ClearObjects(CommonObjectInfoTable* table,
+                  void (CommonObjectInfoTable::*VisitFunc)(std::function<void(const T*)>) const,
+                  void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId))
 {
     assert(table != nullptr);
 
@@ -151,151 +152,151 @@ void ClearObjects(VulkanObjectInfoTable* table,
     }
 }
 
-void FreeAllLiveObjects(VulkanObjectInfoTable*                                         table,
+void FreeAllLiveObjects(CommonObjectInfoTable*                                         table,
                         bool                                                           remove_entries,
                         bool                                                           report_leaks,
                         std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,
                         std::function<const encode::VulkanDeviceTable*(const void*)>   get_device_table,
                         VulkanSwapchain*                                               swapchain)
 {
-    FreeChildObjects<DeviceInfo, EventInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanEventInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkEvent),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitEventInfo,
-        &VulkanObjectInfoTable::RemoveEventInfo,
-        [&](const DeviceInfo* parent_info, const EventInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkEventInfo,
+        &CommonObjectInfoTable::RemoveVkEventInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanEventInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroyEvent(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, FenceInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanFenceInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkFence),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitFenceInfo,
-        &VulkanObjectInfoTable::RemoveFenceInfo,
-        [&](const DeviceInfo* parent_info, const FenceInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkFenceInfo,
+        &CommonObjectInfoTable::RemoveVkFenceInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanFenceInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroyFence(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, SemaphoreInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanSemaphoreInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkSemaphore),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitSemaphoreInfo,
-        &VulkanObjectInfoTable::RemoveSemaphoreInfo,
-        [&](const DeviceInfo* parent_info, const SemaphoreInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkSemaphoreInfo,
+        &CommonObjectInfoTable::RemoveVkSemaphoreInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanSemaphoreInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroySemaphore(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, QueryPoolInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanQueryPoolInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkQueryPool),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitQueryPoolInfo,
-        &VulkanObjectInfoTable::RemoveQueryPoolInfo,
-        [&](const DeviceInfo* parent_info, const QueryPoolInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkQueryPoolInfo,
+        &CommonObjectInfoTable::RemoveVkQueryPoolInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanQueryPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroyQueryPool(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, RenderPassInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanRenderPassInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkRenderPass),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitRenderPassInfo,
-        &VulkanObjectInfoTable::RemoveRenderPassInfo,
-        [&](const DeviceInfo* parent_info, const RenderPassInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkRenderPassInfo,
+        &CommonObjectInfoTable::RemoveVkRenderPassInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanRenderPassInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroyRenderPass(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, SamplerInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanSamplerInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkSampler),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitSamplerInfo,
-        &VulkanObjectInfoTable::RemoveSamplerInfo,
-        [&](const DeviceInfo* parent_info, const SamplerInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkSamplerInfo,
+        &CommonObjectInfoTable::RemoveVkSamplerInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanSamplerInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroySampler(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, SamplerYcbcrConversionInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanSamplerYcbcrConversionInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkSamplerYcbcrConversion),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitSamplerYcbcrConversionInfo,
-        &VulkanObjectInfoTable::RemoveSamplerYcbcrConversionInfo,
-        [&](const DeviceInfo* parent_info, const SamplerYcbcrConversionInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkSamplerYcbcrConversionInfo,
+        &CommonObjectInfoTable::RemoveVkSamplerYcbcrConversionInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanSamplerYcbcrConversionInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroySamplerYcbcrConversion(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, FramebufferInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanFramebufferInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkFramebuffer),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitFramebufferInfo,
-        &VulkanObjectInfoTable::RemoveFramebufferInfo,
-        [&](const DeviceInfo* parent_info, const FramebufferInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkFramebufferInfo,
+        &CommonObjectInfoTable::RemoveVkFramebufferInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanFramebufferInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyFramebuffer(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, ImageViewInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanImageViewInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkImageView),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitImageViewInfo,
-        &VulkanObjectInfoTable::RemoveImageViewInfo,
-        [&](const DeviceInfo* parent_info, const ImageViewInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkImageViewInfo,
+        &CommonObjectInfoTable::RemoveVkImageViewInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanImageViewInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroyImageView(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, ImageInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanImageInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkImage),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitImageInfo,
-        &VulkanObjectInfoTable::RemoveImageInfo,
-        [&](const DeviceInfo* parent_info, const ImageInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkImageInfo,
+        &CommonObjectInfoTable::RemoveVkImageInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanImageInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
 
             auto allocator = parent_info->allocator.get();
@@ -304,30 +305,30 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             allocator->DestroyImage(object_info->handle, nullptr, object_info->allocator_data);
         });
 
-    FreeChildObjects<DeviceInfo, BufferViewInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanBufferViewInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkBufferView),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitBufferViewInfo,
-        &VulkanObjectInfoTable::RemoveBufferViewInfo,
-        [&](const DeviceInfo* parent_info, const BufferViewInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkBufferViewInfo,
+        &CommonObjectInfoTable::RemoveVkBufferViewInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanBufferViewInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroyBufferView(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, BufferInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanBufferInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkBuffer),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitBufferInfo,
-        &VulkanObjectInfoTable::RemoveBufferInfo,
-        [&](const DeviceInfo* parent_info, const BufferInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkBufferInfo,
+        &CommonObjectInfoTable::RemoveVkBufferInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanBufferInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
 
             auto allocator = parent_info->allocator.get();
@@ -336,16 +337,16 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             allocator->DestroyBuffer(object_info->handle, nullptr, object_info->allocator_data);
         });
 
-    FreeChildObjects<DeviceInfo, DeviceMemoryInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanDeviceMemoryInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkDeviceMemory),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitDeviceMemoryInfo,
-        &VulkanObjectInfoTable::RemoveDeviceMemoryInfo,
-        [&](const DeviceInfo* parent_info, const DeviceMemoryInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkDeviceMemoryInfo,
+        &CommonObjectInfoTable::RemoveVkDeviceMemoryInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanDeviceMemoryInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
 
             auto allocator = parent_info->allocator.get();
@@ -354,240 +355,240 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
             allocator->FreeMemory(object_info->handle, nullptr, object_info->allocator_data);
         });
 
-    FreeChildObjects<DeviceInfo, PipelineCacheInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanPipelineCacheInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkPipelineCache),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitPipelineCacheInfo,
-        &VulkanObjectInfoTable::RemovePipelineCacheInfo,
-        [&](const DeviceInfo* parent_info, const PipelineCacheInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkPipelineCacheInfo,
+        &CommonObjectInfoTable::RemoveVkPipelineCacheInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineCacheInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyPipelineCache(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, PipelineInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanPipelineInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkPipeline),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitPipelineInfo,
-        &VulkanObjectInfoTable::RemovePipelineInfo,
-        [&](const DeviceInfo* parent_info, const PipelineInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkPipelineInfo,
+        &CommonObjectInfoTable::RemoveVkPipelineInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)->DestroyPipeline(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, PipelineLayoutInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanPipelineLayoutInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkPipelineLayout),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitPipelineLayoutInfo,
-        &VulkanObjectInfoTable::RemovePipelineLayoutInfo,
-        [&](const DeviceInfo* parent_info, const PipelineLayoutInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkPipelineLayoutInfo,
+        &CommonObjectInfoTable::RemoveVkPipelineLayoutInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanPipelineLayoutInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyPipelineLayout(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, ShaderModuleInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanShaderModuleInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkShaderModule),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitShaderModuleInfo,
-        &VulkanObjectInfoTable::RemoveShaderModuleInfo,
-        [&](const DeviceInfo* parent_info, const ShaderModuleInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkShaderModuleInfo,
+        &CommonObjectInfoTable::RemoveVkShaderModuleInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanShaderModuleInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyShaderModule(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, DescriptorSetLayoutInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorSetLayoutInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkDescriptorSetLayout),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitDescriptorSetLayoutInfo,
-        &VulkanObjectInfoTable::RemoveDescriptorSetLayoutInfo,
-        [&](const DeviceInfo* parent_info, const DescriptorSetLayoutInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkDescriptorSetLayoutInfo,
+        &CommonObjectInfoTable::RemoveVkDescriptorSetLayoutInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorSetLayoutInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyDescriptorSetLayout(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, DescriptorUpdateTemplateInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorUpdateTemplateInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkDescriptorUpdateTemplate),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitDescriptorUpdateTemplateInfo,
-        &VulkanObjectInfoTable::RemoveDescriptorUpdateTemplateInfo,
-        [&](const DeviceInfo* parent_info, const DescriptorUpdateTemplateInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkDescriptorUpdateTemplateInfo,
+        &CommonObjectInfoTable::RemoveVkDescriptorUpdateTemplateInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorUpdateTemplateInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyDescriptorUpdateTemplate(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, CommandPoolInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanCommandPoolInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkCommandPool),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitCommandPoolInfo,
-        &VulkanObjectInfoTable::RemoveCommandPoolInfo,
-        [&](const DeviceInfo* parent_info, const CommandPoolInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkCommandPoolInfo,
+        &CommonObjectInfoTable::RemoveVkCommandPoolInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanCommandPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyCommandPool(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, IndirectCommandsLayoutNVInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanIndirectCommandsLayoutNVInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkIndirectCommandsLayoutNV),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitIndirectCommandsLayoutNVInfo,
-        &VulkanObjectInfoTable::RemoveIndirectCommandsLayoutNVInfo,
-        [&](const DeviceInfo* parent_info, const IndirectCommandsLayoutNVInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkIndirectCommandsLayoutNVInfo,
+        &CommonObjectInfoTable::RemoveVkIndirectCommandsLayoutNVInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanIndirectCommandsLayoutNVInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyIndirectCommandsLayoutNV(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, ValidationCacheEXTInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanValidationCacheEXTInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkValidationCacheEXT),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitValidationCacheEXTInfo,
-        &VulkanObjectInfoTable::RemoveValidationCacheEXTInfo,
-        [&](const DeviceInfo* parent_info, const ValidationCacheEXTInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkValidationCacheEXTInfo,
+        &CommonObjectInfoTable::RemoveVkValidationCacheEXTInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanValidationCacheEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyValidationCacheEXT(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, AccelerationStructureKHRInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanAccelerationStructureKHRInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkAccelerationStructureKHR),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitAccelerationStructureKHRInfo,
-        &VulkanObjectInfoTable::RemoveAccelerationStructureKHRInfo,
-        [&](const DeviceInfo* parent_info, const AccelerationStructureKHRInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkAccelerationStructureKHRInfo,
+        &CommonObjectInfoTable::RemoveVkAccelerationStructureKHRInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanAccelerationStructureKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyAccelerationStructureKHR(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, AccelerationStructureNVInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanAccelerationStructureNVInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkAccelerationStructureNV),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitAccelerationStructureNVInfo,
-        &VulkanObjectInfoTable::RemoveAccelerationStructureNVInfo,
-        [&](const DeviceInfo* parent_info, const AccelerationStructureNVInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkAccelerationStructureNVInfo,
+        &CommonObjectInfoTable::RemoveVkAccelerationStructureNVInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanAccelerationStructureNVInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyAccelerationStructureNV(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, PerformanceConfigurationINTELInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanPerformanceConfigurationINTELInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkPerformanceConfigurationINTEL),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitPerformanceConfigurationINTELInfo,
-        &VulkanObjectInfoTable::RemovePerformanceConfigurationINTELInfo,
-        [&](const DeviceInfo* parent_info, const PerformanceConfigurationINTELInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkPerformanceConfigurationINTELInfo,
+        &CommonObjectInfoTable::RemoveVkPerformanceConfigurationINTELInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanPerformanceConfigurationINTELInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->ReleasePerformanceConfigurationINTEL(parent_info->handle, object_info->handle);
         });
 
-    FreeChildObjects<DeviceInfo, DeferredOperationKHRInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanDeferredOperationKHRInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkDeferredOperationKHR),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitDeferredOperationKHRInfo,
-        &VulkanObjectInfoTable::RemoveDeferredOperationKHRInfo,
-        [&](const DeviceInfo* parent_info, const DeferredOperationKHRInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkDeferredOperationKHRInfo,
+        &CommonObjectInfoTable::RemoveVkDeferredOperationKHRInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanDeferredOperationKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyDeferredOperationKHR(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<DeviceInfo, PrivateDataSlotInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanPrivateDataSlotInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkPrivateDataSlotEXT),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitPrivateDataSlotInfo,
-        &VulkanObjectInfoTable::RemovePrivateDataSlotInfo,
-        [&](const DeviceInfo* parent_info, const PrivateDataSlotInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkPrivateDataSlotInfo,
+        &CommonObjectInfoTable::RemoveVkPrivateDataSlotInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanPrivateDataSlotInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_device_table(parent_info->handle)
                 ->DestroyPrivateDataSlot(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<InstanceInfo, DebugReportCallbackEXTInfo>(
+    FreeChildObjects<VulkanInstanceInfo, VulkanDebugReportCallbackEXTInfo>(
         table,
         GFXRECON_STR(VkInstance),
         GFXRECON_STR(VkDebugReportCallbackEXT),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetInstanceInfo,
-        &VulkanObjectInfoTable::VisitDebugReportCallbackEXTInfo,
-        &VulkanObjectInfoTable::RemoveDebugReportCallbackEXTInfo,
-        [&](const InstanceInfo* parent_info, const DebugReportCallbackEXTInfo* object_info) {
+        &CommonObjectInfoTable::GetVkInstanceInfo,
+        &CommonObjectInfoTable::VisitVkDebugReportCallbackEXTInfo,
+        &CommonObjectInfoTable::RemoveVkDebugReportCallbackEXTInfo,
+        [&](const VulkanInstanceInfo* parent_info, const VulkanDebugReportCallbackEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_instance_table(parent_info->handle)
                 ->DestroyDebugReportCallbackEXT(parent_info->handle, object_info->handle, nullptr);
         });
 
-    FreeChildObjects<InstanceInfo, DebugUtilsMessengerEXTInfo>(
+    FreeChildObjects<VulkanInstanceInfo, VulkanDebugUtilsMessengerEXTInfo>(
         table,
         GFXRECON_STR(VkInstance),
         GFXRECON_STR(VkDebugUtilsMessengerEXT),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetInstanceInfo,
-        &VulkanObjectInfoTable::VisitDebugUtilsMessengerEXTInfo,
-        &VulkanObjectInfoTable::RemoveDebugUtilsMessengerEXTInfo,
-        [&](const InstanceInfo* parent_info, const DebugUtilsMessengerEXTInfo* object_info) {
+        &CommonObjectInfoTable::GetVkInstanceInfo,
+        &CommonObjectInfoTable::VisitVkDebugUtilsMessengerEXTInfo,
+        &CommonObjectInfoTable::RemoveVkDebugUtilsMessengerEXTInfo,
+        [&](const VulkanInstanceInfo* parent_info, const VulkanDebugUtilsMessengerEXTInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             get_instance_table(parent_info->handle)
                 ->DestroyDebugUtilsMessengerEXT(parent_info->handle, object_info->handle, nullptr);
@@ -595,16 +596,16 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
 
     // VKDescriptorPool objects have a special destroy function to destroy any retired descriptor pool objects that ran
     // out of memory during replay.
-    FreeChildObjects<DeviceInfo, DescriptorPoolInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanDescriptorPoolInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkDescriptorPool),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitDescriptorPoolInfo,
-        &VulkanObjectInfoTable::RemoveDescriptorPoolInfo,
-        [&](const DeviceInfo* parent_info, const DescriptorPoolInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkDescriptorPoolInfo,
+        &CommonObjectInfoTable::RemoveVkDescriptorPoolInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanDescriptorPoolInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
 
             for (auto retired_pool : object_info->retired_pools)
@@ -619,16 +620,16 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
 
     // VkSwapchainKHR objects have a special destroy function to ignore the object when it has a null surface handle.
     // A valid swapchain object was not created in this case.
-    FreeChildObjects<DeviceInfo, SwapchainKHRInfo>(
+    FreeChildObjects<VulkanDeviceInfo, VulkanSwapchainKHRInfo>(
         table,
         GFXRECON_STR(VkDevice),
         GFXRECON_STR(VkSwapchainKHR),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetDeviceInfo,
-        &VulkanObjectInfoTable::VisitSwapchainKHRInfo,
-        &VulkanObjectInfoTable::RemoveSwapchainKHRInfo,
-        [&](const DeviceInfo* parent_info, const SwapchainKHRInfo* object_info) {
+        &CommonObjectInfoTable::GetVkDeviceInfo,
+        &CommonObjectInfoTable::VisitVkSwapchainKHRInfo,
+        &CommonObjectInfoTable::RemoveVkSwapchainKHRInfo,
+        [&](const VulkanDeviceInfo* parent_info, const VulkanSwapchainKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
             if (object_info->surface != VK_NULL_HANDLE)
             {
@@ -641,7 +642,7 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
                 auto allocator = parent_info->allocator.get();
                 assert(allocator != nullptr);
 
-                for (const ImageInfo& image_info : object_info->image_infos)
+                for (const VulkanImageInfo& image_info : object_info->image_infos)
                 {
                     allocator->DestroyImageDirect(image_info.handle, nullptr, image_info.allocator_data);
                     allocator->FreeMemoryDirect(image_info.memory, nullptr, image_info.memory_allocator_data);
@@ -651,31 +652,31 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
 
     // VkSurfaceKHR objects have a special destroy function to destroy the object through the Window object that
     // initially created it.
-    FreeChildObjects<InstanceInfo, SurfaceKHRInfo>(
+    FreeChildObjects<VulkanInstanceInfo, VulkanSurfaceKHRInfo>(
         table,
         GFXRECON_STR(VkInstance),
         GFXRECON_STR(VkSurfaceKHR),
         remove_entries,
         report_leaks,
-        &VulkanObjectInfoTable::GetInstanceInfo,
-        &VulkanObjectInfoTable::VisitSurfaceKHRInfo,
-        &VulkanObjectInfoTable::RemoveSurfaceKHRInfo,
-        [&](const InstanceInfo* parent_info, const SurfaceKHRInfo* object_info) {
+        &CommonObjectInfoTable::GetVkInstanceInfo,
+        &CommonObjectInfoTable::VisitVkSurfaceKHRInfo,
+        &CommonObjectInfoTable::RemoveVkSurfaceKHRInfo,
+        [&](const VulkanInstanceInfo* parent_info, const VulkanSurfaceKHRInfo* object_info) {
             assert((parent_info != nullptr) && (object_info != nullptr));
-            auto table  = get_instance_table(parent_info->handle);
+            auto table = get_instance_table(parent_info->handle);
             swapchain->DestroySurface(table->DestroySurfaceKHR, parent_info, object_info, nullptr);
         });
 
-    FreeParentObjects<DeviceInfo>(table,
-                                  remove_entries,
-                                  &VulkanObjectInfoTable::VisitDeviceInfo,
-                                  &VulkanObjectInfoTable::RemoveDeviceInfo,
-                                  [&](const DeviceInfo* object_info) {
-                                      assert(object_info != nullptr);
-                                      object_info->allocator->Destroy();
-                                      auto table = get_device_table(object_info->handle);
-                                      table->DestroyDevice(object_info->handle, nullptr);
-                                  });
+    FreeParentObjects<VulkanDeviceInfo>(table,
+                                        remove_entries,
+                                        &CommonObjectInfoTable::VisitVkDeviceInfo,
+                                        &CommonObjectInfoTable::RemoveVkDeviceInfo,
+                                        [&](const VulkanDeviceInfo* object_info) {
+                                            assert(object_info != nullptr);
+                                            object_info->allocator->Destroy();
+                                            auto table = get_device_table(object_info->handle);
+                                            table->DestroyDevice(object_info->handle, nullptr);
+                                        });
 
     // Remove the objects that are not destroyed from the table.
     if (remove_entries)
@@ -692,38 +693,42 @@ void FreeAllLiveObjects(VulkanObjectInfoTable*                                  
         //   VkDescriptorSet
         //   VkImage objects that were retrieved from a VkSwapchainKHR object
 
-        ClearObjects<PhysicalDeviceInfo>(
-            table, &VulkanObjectInfoTable::VisitPhysicalDeviceInfo, &VulkanObjectInfoTable::RemovePhysicalDeviceInfo);
-        ClearObjects<QueueInfo>(table, &VulkanObjectInfoTable::VisitQueueInfo, &VulkanObjectInfoTable::RemoveQueueInfo);
-        ClearObjects<DisplayKHRInfo>(
-            table, &VulkanObjectInfoTable::VisitDisplayKHRInfo, &VulkanObjectInfoTable::RemoveDisplayKHRInfo);
-        ClearObjects<DisplayModeKHRInfo>(
-            table, &VulkanObjectInfoTable::VisitDisplayModeKHRInfo, &VulkanObjectInfoTable::RemoveDisplayModeKHRInfo);
-        ClearObjects<CommandBufferInfo>(
-            table, &VulkanObjectInfoTable::VisitCommandBufferInfo, &VulkanObjectInfoTable::RemoveCommandBufferInfo);
-        ClearObjects<DescriptorSetInfo>(
-            table, &VulkanObjectInfoTable::VisitDescriptorSetInfo, &VulkanObjectInfoTable::RemoveDescriptorSetInfo);
+        ClearObjects<VulkanPhysicalDeviceInfo>(table,
+                                               &CommonObjectInfoTable::VisitVkPhysicalDeviceInfo,
+                                               &CommonObjectInfoTable::RemoveVkPhysicalDeviceInfo);
+        ClearObjects<VulkanQueueInfo>(
+            table, &CommonObjectInfoTable::VisitVkQueueInfo, &CommonObjectInfoTable::RemoveVkQueueInfo);
+        ClearObjects<VulkanDisplayKHRInfo>(
+            table, &CommonObjectInfoTable::VisitVkDisplayKHRInfo, &CommonObjectInfoTable::RemoveVkDisplayKHRInfo);
+        ClearObjects<VulkanDisplayModeKHRInfo>(table,
+                                               &CommonObjectInfoTable::VisitVkDisplayModeKHRInfo,
+                                               &CommonObjectInfoTable::RemoveVkDisplayModeKHRInfo);
+        ClearObjects<VulkanCommandBufferInfo>(
+            table, &CommonObjectInfoTable::VisitVkCommandBufferInfo, &CommonObjectInfoTable::RemoveVkCommandBufferInfo);
+        ClearObjects<VulkanDescriptorSetInfo>(
+            table, &CommonObjectInfoTable::VisitVkDescriptorSetInfo, &CommonObjectInfoTable::RemoveVkDescriptorSetInfo);
 
         // Clear the remaining swap chain images.
-        ClearObjects<ImageInfo>(table, &VulkanObjectInfoTable::VisitImageInfo, &VulkanObjectInfoTable::RemoveImageInfo);
+        ClearObjects<VulkanImageInfo>(
+            table, &CommonObjectInfoTable::VisitVkImageInfo, &CommonObjectInfoTable::RemoveVkImageInfo);
     }
 }
 
-void FreeAllLiveInstances(VulkanObjectInfoTable*                                         table,
+void FreeAllLiveInstances(CommonObjectInfoTable*                                         table,
                           bool                                                           remove_entries,
                           bool                                                           report_leaks,
                           std::function<const encode::VulkanInstanceTable*(const void*)> get_instance_table,
                           std::function<const encode::VulkanDeviceTable*(const void*)>   get_device_table)
 {
-    FreeParentObjects<InstanceInfo>(table,
-                                    remove_entries,
-                                    &VulkanObjectInfoTable::VisitInstanceInfo,
-                                    &VulkanObjectInfoTable::RemoveInstanceInfo,
-                                    [&](const InstanceInfo* object_info) {
-                                        assert(object_info != nullptr);
-                                        auto table = get_instance_table(object_info->handle);
-                                        table->DestroyInstance(object_info->handle, nullptr);
-                                    });
+    FreeParentObjects<VulkanInstanceInfo>(table,
+                                          remove_entries,
+                                          &CommonObjectInfoTable::VisitVkInstanceInfo,
+                                          &CommonObjectInfoTable::RemoveVkInstanceInfo,
+                                          [&](const VulkanInstanceInfo* object_info) {
+                                              assert(object_info != nullptr);
+                                              auto table = get_instance_table(object_info->handle);
+                                              table->DestroyInstance(object_info->handle, nullptr);
+                                          });
 }
 
 GFXRECON_END_NAMESPACE(object_cleanup)

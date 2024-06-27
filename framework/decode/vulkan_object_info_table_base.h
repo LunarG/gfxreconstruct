@@ -41,7 +41,7 @@ class VulkanObjectInfoTableBase
 {
   protected:
     template <typename T>
-    void AddObjectInfo(T&& info, std::unordered_map<format::HandleId, T>* map)
+    void AddVkObjectInfo(T&& info, std::unordered_map<format::HandleId, T>* map)
     {
         assert(map != nullptr);
 
@@ -83,13 +83,13 @@ class VulkanObjectInfoTableBase
     // Note: the "dummy" template parameter is here for the sole purpose of working around a gcc issue which does
     // not allow full specialization in non-namespace scope (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85282)
     template <typename dummy>
-    void AddObjectInfo(SurfaceKHRInfo&& info, std::unordered_map<format::HandleId, SurfaceKHRInfo>* map)
+    void AddVkObjectInfo(VulkanSurfaceKHRInfo&& info, std::unordered_map<format::HandleId, VulkanSurfaceKHRInfo>* map)
     {
         assert(map != nullptr);
 
         if (info.capture_id != 0)
         {
-            auto result = map->emplace(info.capture_id, std::forward<SurfaceKHRInfo>(info));
+            auto result = map->emplace(info.capture_id, std::forward<VulkanSurfaceKHRInfo>(info));
 
             if (!result.second)
             {
@@ -104,14 +104,14 @@ class VulkanObjectInfoTableBase
                 auto iter = result.first;
                 if (iter->second.handle != info.handle)
                 {
-                    iter->second = std::forward<SurfaceKHRInfo>(info);
+                    iter->second = std::forward<VulkanSurfaceKHRInfo>(info);
                 }
             }
         }
     }
 
     template <typename T>
-    const T* GetObjectInfo(format::HandleId id, const std::unordered_map<format::HandleId, T>* map) const
+    const T* GetVkObjectInfo(format::HandleId id, const std::unordered_map<format::HandleId, T>* map) const
     {
         assert(map != nullptr);
 
@@ -131,7 +131,7 @@ class VulkanObjectInfoTableBase
     }
 
     template <typename T>
-    T* GetObjectInfo(format::HandleId id, std::unordered_map<format::HandleId, T>* map)
+    T* GetVkObjectInfo(format::HandleId id, std::unordered_map<format::HandleId, T>* map)
     {
         assert(map != nullptr);
 

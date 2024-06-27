@@ -5,6 +5,9 @@ target_sources(gfxrecon_decode
                    ${GFXRECON_SOURCE_DIR}/framework/decode/annotation_handler.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/api_decoder.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/common_consumer_base.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/common_handle_mapping_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/common_object_info_table.h
+                   ${GFXRECON_SOURCE_DIR}/framework/decode/common_struct_handle_mappers.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/copy_shaders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.h
                    ${GFXRECON_SOURCE_DIR}/framework/decode/custom_vulkan_struct_decoders.cpp
