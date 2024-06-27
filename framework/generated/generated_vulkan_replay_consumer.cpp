@@ -903,7 +903,14 @@ void VulkanReplayConsumer::Process_vkDestroyShaderModule(
     }
     else
     {
-        printf("TODO: vkDestroyShaderModule: defer deletion of in-flight handle\n");
+        // remove our handle right away
+        RemoveHandle(shaderModule, &VulkanObjectInfoTable::RemoveShaderModuleInfo);
+
+        // schedule deletion
+        DestroyAsyncHandle((uint64_t)in_shaderModule, [this, in_device, in_shaderModule, in_pAllocator]()
+        {
+            GetDeviceTable(in_device)->DestroyShaderModule(in_device, in_shaderModule, in_pAllocator);
+        });
     }
 }
 
@@ -1103,8 +1110,22 @@ void VulkanReplayConsumer::Process_vkDestroyPipeline(
     VkPipeline in_pipeline = MapHandle<PipelineInfo>(pipeline, &VulkanObjectInfoTable::GetPipelineInfo);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    GetDeviceTable(in_device)->DestroyPipeline(in_device, in_pipeline, in_pAllocator);
-    RemoveHandle(pipeline, &VulkanObjectInfoTable::RemovePipelineInfo);
+    if(!IsUsedByAsyncTask((uint64_t)in_pipeline))
+    {
+        GetDeviceTable(in_device)->DestroyPipeline(in_device, in_pipeline, in_pAllocator);
+        RemoveHandle(pipeline, &VulkanObjectInfoTable::RemovePipelineInfo);
+    }
+    else
+    {
+        // remove our handle right away
+        RemoveHandle(pipeline, &VulkanObjectInfoTable::RemovePipelineInfo);
+
+        // schedule deletion
+        DestroyAsyncHandle((uint64_t)in_pipeline, [this, in_device, in_pipeline, in_pAllocator]()
+        {
+            GetDeviceTable(in_device)->DestroyPipeline(in_device, in_pipeline, in_pAllocator);
+        });
+    }
 }
 
 void VulkanReplayConsumer::Process_vkCreatePipelineLayout(
@@ -1383,7 +1404,14 @@ void VulkanReplayConsumer::Process_vkDestroyRenderPass(
     }
     else
     {
-        printf("TODO: vkDestroyRenderPass: defer deletion of in-flight handle\n");
+        // remove our handle right away
+        RemoveHandle(renderPass, &VulkanObjectInfoTable::RemoveRenderPassInfo);
+
+        // schedule deletion
+        DestroyAsyncHandle((uint64_t)in_renderPass, [this, in_device, in_renderPass, in_pAllocator]()
+        {
+            GetDeviceTable(in_device)->DestroyRenderPass(in_device, in_renderPass, in_pAllocator);
+        });
     }
 }
 

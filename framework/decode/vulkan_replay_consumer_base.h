@@ -336,28 +336,48 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         }
     }
 
-    void TrackAsyncHandles(const std::unordered_set<uint64_t> &async_handles)
+    void TrackAsyncHandles(const std::unordered_set<uint64_t>& async_handles)
     {
-        async_inflight_handles_.insert(async_handles.begin(), async_handles.end());
-    }
-
-    void ClearAsyncHandles(const std::unordered_set<uint64_t> &async_handles)
-    {
-        for(const auto &handle : async_handles)
+        for (const auto& handle : async_handles)
         {
-            async_inflight_handles_.erase(handle);
+            // check to avoid overwriting existing handle-destructors
+            if (async_inflight_handles_.count(handle) == 0)
+            {
+                async_inflight_handles_[handle] = {};
+            }
         }
     }
 
-    bool IsUsedByAsyncTask(uint64_t handle) const
+    void ClearAsyncHandles(const std::unordered_set<uint64_t>& async_handles)
     {
-        return async_inflight_handles_.count(handle) > 0;
+        for (const auto& handle : async_handles)
+        {
+            auto it = async_inflight_handles_.find(handle);
+            if (it != async_inflight_handles_.end())
+            {
+                const auto& [tracked_handle, destroy_fn] = *it;
+                if (destroy_fn)
+                {
+                    destroy_fn();
+                }
+                async_inflight_handles_.erase(it);
+            }
+        }
     }
 
-    util::ThreadPool& MainThreadQueue()
+    void DestroyAsyncHandle(uint64_t handle, std::function<void()> destroy_fn)
     {
-        return main_thread_queue_;
+        auto it = async_inflight_handles_.find(handle);
+
+        if (it != async_inflight_handles_.end())
+        {
+            it->second = std::move(destroy_fn);
+        }
     }
+
+    bool IsUsedByAsyncTask(uint64_t handle) const { return async_inflight_handles_.count(handle) > 0; }
+
+    util::ThreadPool& MainThreadQueue() { return main_thread_queue_; }
 
     template <typename S, typename T>
     void AddPoolHandles(format::HandleId              parent_id,
@@ -1255,9 +1275,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
 
-    util::ThreadPool main_thread_queue_;
-    util::ThreadPool background_queue_;
-    std::unordered_set<uint64_t> async_inflight_handles_;
+    util::ThreadPool                                    main_thread_queue_;
+    util::ThreadPool                                    background_queue_;
+    std::unordered_map<uint64_t, std::function<void()>> async_inflight_handles_;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid
