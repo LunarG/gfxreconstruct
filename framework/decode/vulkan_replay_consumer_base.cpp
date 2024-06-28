@@ -3243,6 +3243,11 @@ VkResult VulkanReplayConsumerBase::OverrideGetFenceStatus(PFN_vkGetFenceStatus f
         return result;
     }
 
+    if (shadow_fences_.find(fence) != shadow_fences_.end())
+    {
+        return result;
+    }
+
     // If you find this loop to be infinite consider adding a limit in the same way
     // it is done for GetEventStatus and GetQueryPoolResults.
     do
@@ -6730,6 +6735,21 @@ VulkanReplayConsumerBase::OverrideQueuePresentKHR(PFN_vkQueuePresentKHR         
                     {
                         semaphore_info->forward_progress = false;
                     }
+                }
+            }
+        }
+        const auto* present_fence_info =
+            GetPNextMetaStruct<Decoded_VkSwapchainPresentFenceInfoEXT>(pPresentInfo->GetMetaStructPointer()->pNext);
+        if (present_fence_info != nullptr)
+        {
+            for (uint32_t i = 0; i < pPresentInfo->GetPointer()->swapchainCount; ++i)
+            {
+                format::HandleId fence      = present_fence_info->pFences.GetPointer()[i];
+                FenceInfo*       fence_info = object_info_table_.GetFenceInfo(fence);
+                if (fence_info)
+                {
+                    fence_info->shadow_signaled = true;
+                    shadow_fences_.insert(fence_info->handle);
                 }
             }
         }
