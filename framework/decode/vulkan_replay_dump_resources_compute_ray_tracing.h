@@ -461,6 +461,8 @@ class DispatchTraceRaysDumpingContext
     // note them in the output json
     std::unordered_set<std::string> images_failed_scaling;
 
+    bool ImageFailedScaling(const std::string& filename) const { return images_failed_scaling.count(filename); }
+
     // One entry for each dispatch command
     std::unordered_map<uint64_t, DispatchParameters> dispatch_params;
 
