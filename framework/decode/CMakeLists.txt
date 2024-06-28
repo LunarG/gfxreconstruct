@@ -296,8 +296,18 @@ if (WIN32)
                                    ${CMAKE_SOURCE_DIR}/external/precompiled/win32/include/
                                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
     endif()
+elseif(APPLE)
+    target_include_directories(gfxrecon_decode
+                           PRIVATE
+                               ${CMAKE_BINARY_DIR}
+                           PUBLIC
+                               ${CMAKE_BINARY_DIR}
+                               ${CMAKE_SOURCE_DIR}/framework
+                               ${CMAKE_SOURCE_DIR}/external
+                               ${CMAKE_SOURCE_DIR}/external/precompiled/macos/include/
+                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
 else()
-target_include_directories(gfxrecon_decode
+    target_include_directories(gfxrecon_decode
                            PRIVATE
                                ${CMAKE_BINARY_DIR}
                            PUBLIC
@@ -313,6 +323,10 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
         target_link_directories(gfxrecon_decode
                                 PUBLIC
                                     ${CMAKE_SOURCE_DIR}/external/precompiled/win64/lib)
+    elseif(APPLE)
+        target_link_directories(gfxrecon_decode
+                                PUBLIC
+                                    ${CMAKE_SOURCE_DIR}/external/precompiled/macos/lib)
     else()
         target_link_directories(gfxrecon_decode
                                 PUBLIC
