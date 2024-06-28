@@ -708,6 +708,8 @@ class DrawCallsDumpingContext
     // note them in the output json
     std::unordered_set<std::string> images_failed_scaling;
 
+    bool ImageFailedScaling(const std::string& filename) const { return images_failed_scaling.count(filename); }
+
     VkCommandBuffer aux_command_buffer;
     VkFence         aux_fence;
     bool            must_backup_resources;

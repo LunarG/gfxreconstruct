@@ -483,7 +483,7 @@ def make_gen_opts(args):
         VulkanReplayDumpResourcesBodyGeneratorOptions(
             filename='generated_vulkan_replay_dump_resources.cpp',
             directory=directory,
-            blacklists=blacklists,
+            blacklists=None,
             dump_resources_overrides=dump_resources_overrides,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
@@ -503,7 +503,7 @@ def make_gen_opts(args):
             'const VulkanReplayOptions& options, VulkanObjectInfoTable& object_info_table',
             filename='generated_vulkan_replay_dump_resources.h',
             directory=directory,
-            blacklists=blacklists,
+            blacklists=None,
             dump_resources_overrides=dump_resources_overrides,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,

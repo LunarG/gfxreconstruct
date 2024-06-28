@@ -682,7 +682,7 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer()
                     barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                     barrier.image               = cat->handle;
                     barrier.subresourceRange    = {
-                           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+                        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
                     };
 
                     device_table->CmdPipelineBarrier(current_command_buffer,
@@ -1091,12 +1091,14 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             const ImageInfo*         image_info = render_targets[rp][sp].color_att_imgs[i];
             std::vector<std::string> filenamesBefore, filenamesAfter;
             std::vector<std::string> filenamesBeforeAfter;
+            bool                     scaling_failed;
             if (dump_resources_before)
             {
                 filenamesBefore = GenerateRenderTargetImageFilename(
                     image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
                 filenamesAfter = GenerateRenderTargetImageFilename(
                     image_info->format, cmd_buf_index + 1, qs_index, bcb_index, dc_index, i);
+                scaling_failed = ImageFailedScaling(filenamesBefore[0]);
                 filenamesBeforeAfter.resize(2);
                 filenamesBeforeAfter[0] =
                     filenamesBefore[0] + ImageFileExtension(image_info->format, image_file_format);
@@ -1106,11 +1108,10 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             {
                 filenamesAfter = GenerateRenderTargetImageFilename(
                     image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+                scaling_failed = ImageFailedScaling(filenamesAfter[0]);
                 filenamesBeforeAfter.resize(1);
                 filenamesBeforeAfter[0] = filenamesAfter[0] + ImageFileExtension(image_info->format, image_file_format);
             }
-            const bool scaling_failed =
-                images_failed_scaling.find(filenamesBeforeAfter[0]) != images_failed_scaling.end();
             dump_json.InsertImageInfo(
                 rt_entries[i], image_info, filenamesBeforeAfter, VK_IMAGE_ASPECT_COLOR_BIT, scaling_failed);
         }
@@ -1142,9 +1143,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
         for (size_t i = 0; i < filenamesAfter.size(); ++i)
         {
             std::vector<std::string> filenamesBeforeAfter;
+            bool                     scaling_failed;
             if (dump_resources_before)
             {
                 filenamesBeforeAfter.resize(2);
+                scaling_failed = ImageFailedScaling(filenamesBefore[i]);
                 filenamesBeforeAfter[0] =
                     filenamesBefore[i] + ImageFileExtension(image_info->format, image_file_format);
                 filenamesBeforeAfter[1] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
@@ -1152,10 +1155,9 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             else
             {
                 filenamesBeforeAfter.resize(1);
+                scaling_failed          = ImageFailedScaling(filenamesAfter[i]);
                 filenamesBeforeAfter[0] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
             }
-            const bool scaling_failed =
-                images_failed_scaling.find(filenamesBeforeAfter[0]) != images_failed_scaling.end();
             dump_json.InsertImageInfo(depth_entries[i], image_info, filenamesBeforeAfter, aspects[i], scaling_failed);
         }
     }
@@ -1260,8 +1262,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                             desc_shader_binding_json_entry["descriptor"];
                                         for (size_t f = 0; f < filenames.size(); ++f)
                                         {
-                                            const bool scaling_failed =
-                                                images_failed_scaling.find(filenames[f]) != images_failed_scaling.end();
+                                            const bool scaling_failed = ImageFailedScaling(filenames[f]);
                                             filenames[f] += ImageFileExtension(img_info->format, image_file_format);
                                             dump_json.InsertImageInfo(image_descriptor_json_entry[f],
                                                                       img_info,
@@ -1380,7 +1381,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.subresourceRange    = {
-           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
