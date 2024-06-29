@@ -306,6 +306,9 @@ class BaseGenerator(OutputGenerator):
         # These structures should not be processed by the code generator.  They require special implementations.
         self.STRUCT_BLACKLIST = []
 
+        # These structures should be ignored for handle mapping/unwrapping. They require special implementations.
+        self.STRUCT_MAPPERS_BLACKLIST = ['VkAccelerationStructureBuildGeometryInfoKHR']
+
         # Platform specific basic types that have been defined extarnally to the Vulkan header.
         self.PLATFORM_TYPES = {}
 

@@ -113,5 +113,60 @@ void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const VulkanObjectI
     }
 }
 
+void MapStructHandles(Decoded_VkAccelerationStructureGeometryKHR* wrapper,
+                      const VulkanObjectInfoTable&                object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkAccelerationStructureGeometryKHR* value = wrapper->decoded_value;
+
+        switch (value->geometryType)
+        {
+            case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                MapStructHandles(wrapper->geometry->triangles, object_info_table);
+                break;
+            case VK_GEOMETRY_TYPE_AABBS_KHR:
+                // No handle there so the map func doesn't exist
+                break;
+            case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+                // No handle there so the map func doesn't exist
+                break;
+            default:
+                GFXRECON_LOG_WARNING("Attempting to map unknown acceleration structure geometry type");
+                break;
+        }
+    }
+}
+
+void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
+                      const VulkanObjectInfoTable&                         object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkAccelerationStructureBuildGeometryInfoKHR* value = wrapper->decoded_value;
+
+        value->srcAccelerationStructure = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(
+            wrapper->srcAccelerationStructure,
+            object_info_table,
+            &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+
+        value->dstAccelerationStructure = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(
+            wrapper->dstAccelerationStructure,
+            object_info_table,
+            &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
+
+        MapStructArrayHandles<Decoded_VkAccelerationStructureGeometryKHR>(
+            wrapper->pGeometries->GetMetaStructPointer(), wrapper->pGeometries->GetLength(), object_info_table);
+
+        if (wrapper->ppGeometries->GetMetaStructPointer() != nullptr)
+        {
+            for (size_t i = 0; i < wrapper->ppGeometries->GetLength(); ++i)
+            {
+                MapStructHandles(wrapper->ppGeometries->GetMetaStructPointer()[i], object_info_table);
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

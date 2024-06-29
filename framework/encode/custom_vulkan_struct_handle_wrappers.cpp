@@ -106,6 +106,48 @@ void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap
     }
 }
 
+void UnwrapStructHandles(VkAccelerationStructureGeometryKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        switch (value->geometryType)
+        {
+            case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                UnwrapStructHandles(&value->geometry.triangles, unwrap_memory);
+                break;
+            case VK_GEOMETRY_TYPE_AABBS_KHR:
+                // No handle there so the unwrap func doesn't exist
+                break;
+            case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+                // No handle there so the unwrap func doesn't exist
+                break;
+            default:
+                GFXRECON_LOG_WARNING("Attempting to unwrap unknown acceleration structure geometry type");
+                break;
+        }
+    }
+}
+
+void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pGeometries = UnwrapStructArrayHandles(value->pGeometries, value->geometryCount, unwrap_memory);
+
+        if ((value->ppGeometries != nullptr) && (value->geometryCount > 0))
+        {
+            auto unwrapped_structs = MakeUnwrapStructs(value->ppGeometries, value->geometryCount, unwrap_memory);
+
+            for (size_t i = 0; i < value->geometryCount; ++i)
+            {
+                unwrapped_structs[i] = UnwrapStructArrayHandles(value->ppGeometries[i], 1, unwrap_memory);
+            }
+
+            value->ppGeometries = unwrapped_structs;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

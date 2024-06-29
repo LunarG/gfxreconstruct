@@ -242,7 +242,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             if (
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ):
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = dict()
                 generic_handle_members = dict()
 

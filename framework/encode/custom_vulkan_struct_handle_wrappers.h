@@ -38,6 +38,10 @@ void UnwrapStructHandles(VkDescriptorType type, VkDescriptorImageInfo* value, Ha
 
 void UnwrapStructHandles(VkWriteDescriptorSet* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(VkAccelerationStructureGeometryKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
