@@ -117,11 +117,33 @@ target_sources(gfxrecon_util
                     $<$<BOOL:${WAYLAND_FOUND}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_wayland_xdg_shell.h>
 )
 
-
-target_include_directories(gfxrecon_util
-                           PUBLIC
-                               ${CMAKE_SOURCE_DIR}/framework
-                               $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+if (WIN32)
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+        target_include_directories(gfxrecon_util
+                PUBLIC
+                ${CMAKE_SOURCE_DIR}/framework
+                ${CMAKE_SOURCE_DIR}/external/precompiled/win64/include/
+                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+    else()
+        target_include_directories(gfxrecon_util
+                PUBLIC
+                ${CMAKE_SOURCE_DIR}/framework
+                ${CMAKE_SOURCE_DIR}/external/precompiled/win32/include/
+                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+    endif()
+elseif(APPLE)
+    target_include_directories(gfxrecon_util
+            PUBLIC
+            ${CMAKE_SOURCE_DIR}/framework
+            ${CMAKE_SOURCE_DIR}/external/precompiled/macos/include/
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+else()
+    target_include_directories(gfxrecon_util
+            PUBLIC
+            ${CMAKE_SOURCE_DIR}/framework
+            ${CMAKE_SOURCE_DIR}/external/precompiled/linux/include/
+            $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)
+endif()
 
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     if (WIN32)
