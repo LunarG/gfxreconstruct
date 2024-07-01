@@ -351,6 +351,21 @@ void VulkanRebindAllocator::DestroyImage(VkImage                      image,
     }
 }
 
+ VkResult VulkanRebindAllocator::CreateVideoSession(const VkVideoSessionCreateInfoKHR* create_info,
+                                                    const VkAllocationCallbacks*       allocation_callbacks,
+                                                    format::HandleId                   capture_id,
+                                                    VkVideoSessionKHR*                 session,
+                                                    std::vector<ResourceData>*         allocator_datas)
+{
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+    return result;
+}
+
+void VulkanRebindAllocator::DestroyVideoSession(VkVideoSessionKHR            session,
+                                                 const VkAllocationCallbacks* allocation_callbacks,
+                                                 std::vector<ResourceData>    allocator_datas)
+{}
+
 void VulkanRebindAllocator::GetImageSubresourceLayout(VkImage                    image,
                                                       const VkImageSubresource*  subresource,
                                                       VkSubresourceLayout*       layout,
@@ -785,6 +800,16 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
     return result;
 }
 
+VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
+                                                       uint32_t                               bind_info_count,
+                                                       const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                                       const ResourceData*                    allocator_session_datas,
+                                                       const MemoryData*                      allocator_memory_datas,
+                                                       VkMemoryPropertyFlags*                 bind_memory_properties)
+{
+    return VK_ERROR_INITIALIZATION_FAILED;
+}
+
 VkResult VulkanRebindAllocator::MapMemory(VkDeviceMemory   memory,
                                           VkDeviceSize     offset,
                                           VkDeviceSize     size,
@@ -933,6 +958,19 @@ void VulkanRebindAllocator::ReportBindImage2Incompatibility(uint32_t            
                                                             const ResourceData*          allocator_resource_datas,
                                                             const MemoryData*            allocator_memory_datas)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(bind_infos);
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_datas);
+
+    ReportBindIncompatibility(allocator_resource_datas, bind_info_count);
+}
+
+void VulkanRebindAllocator::ReportBindVideoSessionIncompatibility(VkVideoSessionKHR video_session,
+                                                                  uint32_t          bind_info_count,
+                                                                  const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                                                  const ResourceData* allocator_resource_datas,
+                                                                  const MemoryData*   allocator_memory_datas)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(video_session);
     GFXRECON_UNREFERENCED_PARAMETER(bind_infos);
     GFXRECON_UNREFERENCED_PARAMETER(allocator_memory_datas);
 
@@ -1239,7 +1277,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRange(
     ResourceAllocInfo* resource_alloc_info,
     VkDeviceSize       oiriginal_start,
     VkDeviceSize       original_end,
-    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult           (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult     result     = VK_SUCCESS;
     VkDeviceSize src_offset = 0;
@@ -1267,7 +1305,7 @@ VkResult VulkanRebindAllocator::UpdateMappedMemoryRanges(
     uint32_t                   memory_range_count,
     const VkMappedMemoryRange* memory_ranges,
     const MemoryData*          allocator_datas,
-    VkResult (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
+    VkResult                   (*update_func)(VmaAllocator, VmaAllocation, VkDeviceSize, VkDeviceSize))
 {
     VkResult result = VK_SUCCESS;
 

@@ -1840,7 +1840,12 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     functions.reset_command_buffer                        = device_table->ResetCommandBuffer;
     functions.free_command_buffers                        = device_table->FreeCommandBuffers;
     functions.destroy_command_pool                        = device_table->DestroyCommandPool;
+    functions.create_video_session                        = device_table->CreateVideoSessionKHR;
+    functions.destroy_video_session                       = device_table->DestroyVideoSessionKHR;
+    functions.bind_video_session_memory                   = device_table->BindVideoSessionMemoryKHR;
+    functions.get_video_session_memory_requirements       = device_table->GetVideoSessionMemoryRequirementsKHR;
     functions.get_physical_device_queue_family_properties = instance_table->GetPhysicalDeviceQueueFamilyProperties;
+
     if (physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         functions.get_physical_device_memory_properties2 = instance_table->GetPhysicalDeviceMemoryProperties2;
@@ -4215,9 +4220,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
             VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
-                          VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                          modified_allocate_info.pNext,
-                          opaque_address
+                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                modified_allocate_info.pNext,
+                opaque_address
             };
             modified_allocate_info.pNext = &address_info;
 
@@ -4612,6 +4617,81 @@ VkResult VulkanReplayConsumerBase::OverrideBindImageMemory2(
     return result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
+    PFN_vkBindVideoSessionMemoryKHR                                func,
+    VkResult                                                       original_result,
+    const DeviceInfo*                                              device_info,
+    VideoSessionKHRInfo*                                           video_session_info,
+    uint32_t                                                       bindSessionMemoryInfoCount,
+    StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((device_info != nullptr) && (video_session_info != nullptr) &&
+                    (pBindSessionMemoryInfos != nullptr));
+
+    auto replay_bind_infos      = pBindSessionMemoryInfos->GetPointer();
+    auto replay_bind_meta_infos = pBindSessionMemoryInfos->GetMetaStructPointer();
+    GFXRECON_ASSERT((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
+
+    video_session_info->allocator_datas.resize(bindSessionMemoryInfoCount);
+
+    std::vector<const DeviceMemoryInfo*>               memory_infos;
+    std::vector<VulkanResourceAllocator::ResourceData> allocator_session_datas(bindSessionMemoryInfoCount, 0);
+    std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(bindSessionMemoryInfoCount, 0);
+    std::vector<VkMemoryPropertyFlags>                 memory_property_flags(bindSessionMemoryInfoCount, 0);
+
+    for (uint32_t i = 0; i < bindSessionMemoryInfoCount; ++i)
+    {
+        const auto* bind_meta_info = &replay_bind_meta_infos[i];
+        auto        mem_index      = bind_meta_info->decoded_value->memoryBindIndex;
+        GFXRECON_ASSERT(mem_index < bindSessionMemoryInfoCount);
+
+        auto memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
+
+        memory_infos.push_back(memory_info);
+
+        allocator_session_datas[mem_index] = video_session_info->allocator_datas[mem_index];
+
+        if (memory_info != nullptr)
+        {
+            allocator_memory_datas[mem_index] = memory_info->allocator_data;
+        }
+    }
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VkResult result = allocator->BindVideoSessionMemory(video_session_info->handle,
+                                                        bindSessionMemoryInfoCount,
+                                                        replay_bind_infos,
+                                                        allocator_session_datas.data(),
+                                                        allocator_memory_datas.data(),
+                                                        memory_property_flags.data());
+
+    if (result == VK_SUCCESS)
+    {
+        video_session_info->memory_property_flags.resize(bindSessionMemoryInfoCount);
+        for (uint32_t i = 0; i < bindSessionMemoryInfoCount; ++i)
+        {
+            video_session_info->memory_property_flags[i] = memory_property_flags[i];
+        }
+    }
+    else if (original_result == VK_SUCCESS)
+    {
+        // When bind fails at replay, but succeeded at capture, check for memory incompatibilities and recommend
+        // enabling memory translation.
+        allocator->ReportBindVideoSessionIncompatibility(video_session_info->handle,
+                                                         bindSessionMemoryInfoCount,
+                                                         replay_bind_infos,
+                                                         allocator_session_datas.data(),
+                                                         allocator_memory_datas.data());
+    }
+
+    return result;
+}
+
 VkResult
 VulkanReplayConsumerBase::OverrideCreateBuffer(PFN_vkCreateBuffer                                      func,
                                                VkResult                                                original_result,
@@ -4847,6 +4927,42 @@ void VulkanReplayConsumerBase::OverrideDestroyImage(
     }
 
     allocator->DestroyImage(image, GetAllocationCallbacks(pAllocator), allocator_data);
+}
+
+VkResult VulkanReplayConsumerBase::OverrideCreateVideoSessionKHR(
+    PFN_vkCreateVideoSessionKHR                                func,
+    VkResult                                                   original_result,
+    const DeviceInfo*                                          device_info,
+    const StructPointerDecoder<VkVideoSessionCreateInfoKHR>*   pCreateInfo,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkVideoSessionKHR>*                   pVideoSession)
+{}
+
+void VulkanReplayConsumerBase::OverrideDestroyVideoSessionKHR(
+    PFN_vkDestroyVideoSessionKHR                               func,
+    const DeviceInfo*                                          device_info,
+    VideoSessionKHRInfo*                                       video_session_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(func);
+
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VkVideoSessionKHR                                  session        = VK_NULL_HANDLE;
+    std::vector<VulkanResourceAllocator::ResourceData> allocator_datas;
+
+    if (video_session_info != nullptr)
+    {
+        session        = video_session_info->handle;
+        allocator_datas = video_session_info->allocator_datas;
+
+        video_session_info->allocator_datas.empty();
+    }
+
+    allocator->DestroyVideoSession(session, GetAllocationCallbacks(pAllocator), allocator_datas);
 }
 
 void VulkanReplayConsumerBase::OverrideGetImageSubresourceLayout(

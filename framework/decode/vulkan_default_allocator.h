@@ -72,6 +72,16 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                               const VkAllocationCallbacks* allocation_callbacks,
                               ResourceData                 allocator_data) override;
 
+    virtual VkResult CreateVideoSession(const VkVideoSessionCreateInfoKHR* create_info,
+                                        const VkAllocationCallbacks*       allocation_callbacks,
+                                        format::HandleId                   capture_id,
+                                        VkVideoSessionKHR*                 session,
+                                        std::vector<ResourceData>*         allocator_datas) override;
+
+    virtual void DestroyVideoSession(VkVideoSessionKHR            session,
+                                     const VkAllocationCallbacks* allocation_callbacks,
+                                     std::vector<ResourceData>    allocator_datas) override;
+
     virtual void GetImageSubresourceLayout(VkImage                    image,
                                            const VkImageSubresource*  subresource,
                                            VkSubresourceLayout*       layout,
@@ -118,6 +128,13 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                       const MemoryData*            allocator_memory_datas,
                                       VkMemoryPropertyFlags*       bind_memory_properties) override;
 
+    virtual VkResult BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
+                                            uint32_t                               bind_info_count,
+                                            const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                            const ResourceData*                    allocator_session_datas,
+                                            const MemoryData*                      allocator_memory_datas,
+                                            VkMemoryPropertyFlags*                 bind_memory_properties) override;
+
     virtual VkResult MapMemory(VkDeviceMemory   memory,
                                VkDeviceSize     offset,
                                VkDeviceSize     size,
@@ -157,6 +174,12 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
                                                  const VkBindImageMemoryInfo* bind_infos,
                                                  const ResourceData*          allocator_resource_datas,
                                                  const MemoryData*            allocator_memory_datas) override;
+
+    virtual void ReportBindVideoSessionIncompatibility(VkVideoSessionKHR                      video_session,
+                                                       uint32_t                               bind_info_count,
+                                                       const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                                       const ResourceData*                    allocator_resource_datas,
+                                                       const MemoryData* allocator_memory_datas) override;
 
     // Direct allocation methods that perform memory allocation and resource creation without performing memory
     // translation.  These methods allow the replay tool to allocate staging resources through the resource allocator so

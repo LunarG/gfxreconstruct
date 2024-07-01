@@ -537,6 +537,12 @@ struct DeferredOperationKHRInfo : public VulkanObjectInfo<VkDeferredOperationKHR
 struct VideoSessionKHRInfo : VulkanObjectInfo<VkVideoSessionKHR>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
+    // The following values are only used for memory portability.
+    std::vector<VulkanResourceAllocator::ResourceData> allocator_datas;
+
+    // This is only used when loading the initial state for trimmed files.
+    std::vector<VkMemoryPropertyFlags> memory_property_flags;
 };
 
 struct ShaderEXTInfo : VulkanObjectInfo<VkShaderEXT>
