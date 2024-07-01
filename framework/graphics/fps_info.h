@@ -42,18 +42,20 @@ class FpsInfo
             bool                   quit_after_range               = false,
             bool                   flush_measurement_range        = false,
             bool                   flush_inside_measurement_range = false,
+            bool                   preload_measurement_range      = false,
             const std::string_view measurement_file_name          = "");
 
     void LogToConsole();
 
-    void BeginFile();
-    bool ShouldWaitIdleBeforeFrame(uint64_t file_processor_frame);
-    bool ShouldWaitIdleAfterFrame(uint64_t file_processor_frame);
-    bool ShouldQuit(uint64_t file_processor_frame);
-    void BeginFrame(uint64_t file_processor_frame);
-    void EndFrame(uint64_t file_processor_frame);
-    void EndFile(uint64_t end_file_processor_frame);
-    void ProcessStateEndMarker(uint64_t file_processor_frame);
+    void                   BeginFile();
+    bool                   ShouldWaitIdleBeforeFrame(uint64_t file_processor_frame);
+    bool                   ShouldWaitIdleAfterFrame(uint64_t file_processor_frame);
+    bool                   ShouldQuit(uint64_t file_processor_frame);
+    void                   BeginFrame(uint64_t file_processor_frame);
+    void                   EndFrame(uint64_t file_processor_frame);
+    void                   EndFile(uint64_t end_file_processor_frame);
+    void                   ProcessStateEndMarker(uint64_t file_processor_frame);
+    [[nodiscard]] uint64_t ShouldPreloadFrames(uint64_t current_frame) const;
 
   private:
     uint64_t start_time_;
@@ -79,6 +81,8 @@ class FpsInfo
     std::vector<int64_t> frame_durations_;
 
     std::string measurement_file_name_;
+
+    bool preload_measurement_range_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)

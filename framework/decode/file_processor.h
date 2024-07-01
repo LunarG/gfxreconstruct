@@ -58,6 +58,13 @@ class FileProcessor
         kErrorUnsupportedCompressionType   = -10
     };
 
+    enum BlockProcessReturn : int32_t
+    {
+        kSuccess = 0,
+        kFailure = 1,
+        kBreak   = 2,
+    };
+
   public:
     FileProcessor();
 
@@ -104,13 +111,13 @@ class FileProcessor
 
     bool ReadBlockHeader(format::BlockHeader* block_header);
 
-    bool ReadBytes(void* buffer, size_t buffer_size);
+    virtual bool ReadBytes(void* buffer, size_t buffer_size);
 
     bool SkipBytes(size_t skip_size);
 
-    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
+    bool ProcessFunctionCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
 
-    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id);
+    bool ProcessMethodCall(const format::BlockHeader& block_header, format::ApiCallId call_id, bool& should_break);
 
     bool ProcessMetaData(const format::BlockHeader& block_header, format::MetaDataId meta_data_id);
 
@@ -120,7 +127,8 @@ class FileProcessor
 
     void HandleBlockReadError(Error error_code, const char* error_message);
 
-    bool ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
+    bool
+    ProcessFrameMarker(const format::BlockHeader& block_header, format::MarkerType marker_type, bool& should_break);
 
     bool ProcessStateMarker(const format::BlockHeader& block_header, format::MarkerType marker_type);
 
@@ -132,6 +140,7 @@ class FileProcessor
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
     Error                    error_state_;
+    uint64_t                 bytes_read_;
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
@@ -156,7 +165,6 @@ class FileProcessor
     format::FileHeader                  file_header_;
     std::vector<format::FileOptionPair> file_options_;
     format::EnabledOptions              enabled_options_;
-    uint64_t                            bytes_read_;
     std::vector<uint8_t>                parameter_buffer_;
     std::vector<uint8_t>                compressed_parameter_buffer_;
     util::Compressor*                   compressor_;
