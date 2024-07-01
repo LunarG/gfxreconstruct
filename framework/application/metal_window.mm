@@ -201,7 +201,7 @@ void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
             window_frame.size.height = std::min<CGFloat>(screen_frame.size.height, height);
             window_frame.origin.x = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.x, screen_frame.size.width - window_frame.size.width));
             window_frame.origin.y = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.y, screen_frame.size.height - window_frame.size.height));
-            [window_ setFrame:[window_ frameRectForContentRect:[screen convertRectFromBacking:window_frame]] display:YES];
+            [window_ setFrame:[window_ frameRectForContentRect: window_frame] display:YES];
         }
     }
 }
