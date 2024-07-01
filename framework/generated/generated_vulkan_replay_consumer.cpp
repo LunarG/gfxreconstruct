@@ -4126,16 +4126,15 @@ void VulkanReplayConsumer::Process_vkCreateVideoSessionKHR(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkVideoSessionKHR>*    pVideoSession)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkVideoSessionCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
     if (!pVideoSession->IsNull()) { pVideoSession->SetHandleLength(1); }
-    VkVideoSessionKHR* out_pVideoSession = pVideoSession->GetHandlePointer();
+    VideoSessionKHRInfo handle_info;
+    pVideoSession->SetConsumerData(0, &handle_info);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateVideoSessionKHR(in_device, in_pCreateInfo, in_pAllocator, out_pVideoSession);
+    VkResult replay_result = OverrideCreateVideoSessionKHR(GetDeviceTable(in_device->handle)->CreateVideoSessionKHR, returnValue, in_device, pCreateInfo, pAllocator, pVideoSession);
     CheckResult("vkCreateVideoSessionKHR", returnValue, replay_result, call_info);
 
-    AddHandle<VideoSessionKHRInfo>(device, pVideoSession->GetPointer(), out_pVideoSession, &VulkanObjectInfoTable::AddVideoSessionKHRInfo);
+    AddHandle<VideoSessionKHRInfo>(device, pVideoSession->GetPointer(), pVideoSession->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::AddVideoSessionKHRInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(
@@ -4144,11 +4143,10 @@ void VulkanReplayConsumer::Process_vkDestroyVideoSessionKHR(
     format::HandleId                            videoSession,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkVideoSessionKHR in_videoSession = MapHandle<VideoSessionKHRInfo>(videoSession, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_videoSession = GetObjectInfoTable().GetVideoSessionKHRInfo(videoSession);
 
-    GetDeviceTable(in_device)->DestroyVideoSessionKHR(in_device, in_videoSession, in_pAllocator);
+    OverrideDestroyVideoSessionKHR(GetDeviceTable(in_device->handle)->DestroyVideoSessionKHR, in_device, in_videoSession, pAllocator);
     RemoveHandle(videoSession, &VulkanObjectInfoTable::RemoveVideoSessionKHRInfo);
 }
 
@@ -4179,12 +4177,12 @@ void VulkanReplayConsumer::Process_vkBindVideoSessionMemoryKHR(
     uint32_t                                    bindSessionMemoryInfoCount,
     StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    VkVideoSessionKHR in_videoSession = MapHandle<VideoSessionKHRInfo>(videoSession, &VulkanObjectInfoTable::GetVideoSessionKHRInfo);
-    const VkBindVideoSessionMemoryInfoKHR* in_pBindSessionMemoryInfos = pBindSessionMemoryInfos->GetPointer();
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+    auto in_videoSession = GetObjectInfoTable().GetVideoSessionKHRInfo(videoSession);
+
     MapStructArrayHandles(pBindSessionMemoryInfos->GetMetaStructPointer(), pBindSessionMemoryInfos->GetLength(), GetObjectInfoTable());
 
-    VkResult replay_result = GetDeviceTable(in_device)->BindVideoSessionMemoryKHR(in_device, in_videoSession, bindSessionMemoryInfoCount, in_pBindSessionMemoryInfos);
+    VkResult replay_result = OverrideBindVideoSessionMemoryKHR(GetDeviceTable(in_device->handle)->BindVideoSessionMemoryKHR, returnValue, in_device, in_videoSession, bindSessionMemoryInfoCount, pBindSessionMemoryInfos);
     CheckResult("vkBindVideoSessionMemoryKHR", returnValue, replay_result, call_info);
 }
 
