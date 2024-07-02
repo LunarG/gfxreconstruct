@@ -86,8 +86,7 @@ void DataFilePacker::WriteContentsToFile(const std::string& file_path,
 
     util::platform::FileSeek(fp, fileOffset, util::platform::FileSeekCurrent);
 
-    size_t written_size = util::platform::FileWrite(data, sizeof(uint8_t), size, fp);
-    if (written_size != size)
+    if (!util::platform::FileWrite(data, size, fp))
     {
         fprintf(stderr, "Error while saving data into %s\n", file_path.c_str());
     }

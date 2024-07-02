@@ -63,7 +63,7 @@ bool VulkanReplayDumpResourcesJson::InitializeFile(const std::string& filename)
         return false;
     }
 
-    util::platform::FileWrite("[\n", 2, 1, file_);
+    util::platform::FileWrite("[\n", 2, file_);
 
     BlockStart();
     json_data_["header"] = header_;
@@ -110,7 +110,7 @@ void VulkanReplayDumpResourcesJson::Close()
 {
     if (file_ != nullptr)
     {
-        util::platform::FileWrite("]", 1, 1, file_);
+        util::platform::FileWrite("]", 1, file_);
         gfxrecon::util::platform::FileClose(file_);
         file_ = nullptr;
     }
@@ -130,13 +130,13 @@ void VulkanReplayDumpResourcesJson::BlockEnd()
 
     if (!first_block_)
     {
-        util::platform::FileWrite(",\n", 2, 1, file_);
+        util::platform::FileWrite(",\n", 2, file_);
     }
 
     first_block_ = false;
 
     const std::string block = json_data_.dump(util::kJsonIndentWidth);
-    util::platform::FileWrite(block.c_str(), block.size(), 1, file_);
+    util::platform::FileWrite(block.c_str(), block.size(), file_);
 }
 
 nlohmann::ordered_json& VulkanReplayDumpResourcesJson::InsertSubEntry(const std::string& entry_name)

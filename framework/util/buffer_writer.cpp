@@ -44,15 +44,11 @@ bool WriteBuffer(const std::string& filename, const void* data, size_t size)
         return false;
     }
 
-    size_t ret = util::platform::FileWrite(data, size, 1, file);
-    if (ret != 1)
-    {
-        return false;
-    }
+    bool success = util::platform::FileWrite(data, size, file);
 
     util::platform::FileClose(file);
 
-    return true;
+    return success;
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
