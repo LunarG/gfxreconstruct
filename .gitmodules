@@ -6,4 +6,4 @@
 	url = https://github.com/KhronosGroup/SPIRV-Headers.git
 [submodule "external/SPIRV-Reflect"]
 	path = external/SPIRV-Reflect
-	url = https://github.com/KhronosGroup/SPIRV-Reflect
+	url = https://github.com/fabian-lunarg/SPIRV-Reflect
