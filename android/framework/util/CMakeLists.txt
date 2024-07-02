@@ -72,7 +72,7 @@ target_link_libraries(gfxrecon_util
                           platform_specific
                           vulkan_registry
                           spirv_registry
+                          spirv-reflect-static
                           ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
                           ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
-                          ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libspirv-reflect-static.a
                           z)
