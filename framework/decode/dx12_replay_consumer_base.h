@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -126,6 +126,15 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                            void*                                    src_data,
                                                            UINT                                     src_row_pitch,
                                                            UINT src_depth_pitch) override;
+
+    virtual void ProcessResizeWindowCommand(format::HandleId surface_id, uint32_t width, uint32_t height)
+    {
+        if (options_.windowed_width == 0 && options_.windowed_height == 0)
+        {
+            options_.windowed_width  = width;
+            options_.windowed_height = height;
+        }
+    }
 
     void
     PreCall_ID3D12GraphicsCommandList_ResourceBarrier(const ApiCallInfo&                                    call_info,
@@ -861,7 +870,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void ReplaceWindowedResolution(uint32_t& width, uint32_t& height)
     {
-        if (options_.force_windowed)
+        if (options_.force_windowed == true || width == 0 || height == 0)
         {
             width  = options_.windowed_width;
             height = options_.windowed_height;
