@@ -129,4 +129,4 @@ target_link_libraries(gfxrecon_decode
                       vulkan_memory_allocator
                       platform_specific
                       nlohmann_json
-                      ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libspirv-reflect-static.a)
+                      spirv-reflect-static)

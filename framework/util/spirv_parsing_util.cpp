@@ -326,12 +326,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                                         {
                                             num_scalar_bytes = sizeof(uint64_t);
                                         }
-                                        else if (member.op == SpvOpTypeArray)
-                                        {
-                                            num_scalar_bytes = std::max(num_scalar_bytes, member.traits.array.stride);
-                                            assert(false); // not handled
-                                        }
-                                        else if (member.op == SpvOpTypeRuntimeArray)
+                                        else if (member.op == SpvOpTypeArray || member.op == SpvOpTypeRuntimeArray)
                                         {
                                             num_scalar_bytes = std::max(num_scalar_bytes, member.traits.array.stride);
                                             assert(false); // not handled
@@ -358,7 +353,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
                             }
 
                             // buffer-references traced back to either pointer-type, uin64_t or arrays of those
-                            if (td->op == SpvOpTypeForwardPointer ||
+                            if (td->op == SpvOpTypePointer || td->op == SpvOpTypeForwardPointer ||
                                 (td->op == SpvOpTypeInt && td->traits.numeric.scalar.width == 64) ||
                                 td->op == SpvOpTypeRuntimeArray)
                             {

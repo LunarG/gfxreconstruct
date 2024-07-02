@@ -70,3 +70,11 @@ target_include_directories(nlohmann_json INTERFACE ${GFXRECON_SOURCE_DIR}/extern
 
 add_library(vulkan_memory_allocator INTERFACE)
 target_include_directories(vulkan_memory_allocator INTERFACE ${GFXRECON_SOURCE_DIR}/external/VulkanMemoryAllocator/include)
+
+# SPIRV-Reflect included as submodule -> libspirv-reflect-static.a
+set(SPIRV_REFLECT_EXAMPLES OFF CACHE INTERNAL "no spirv_reflect samples" FORCE)
+set(SPIRV_REFLECT_EXECUTABLE OFF CACHE INTERNAL "no spirv_reflect executables" FORCE)
+set(SPIRV_REFLECT_STATIC_LIB ON CACHE INTERNAL "create spirv-reflect-static library" FORCE)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW CACHE INTERNAL "set a cmake policy for spirv_reflect" FORCE)
+add_subdirectory("${GFXRECON_SOURCE_DIR}/external/SPIRV-Reflect" EXCLUDE_FROM_ALL "${CMAKE_BINARY_DIR}/external/SPIRV-Reflect")
+include_directories("${GFXRECON_SOURCE_DIR}/external/SPIRV-Reflect")
