@@ -119,6 +119,19 @@ class VulkanExportJsonConsumerBase : public VulkanConsumer
                                                    DescriptorUpdateTemplateDecoder* pData,
                                                    bool                             use_KHR_suffix);
 
+    virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
+                                                               format::HandleId   commandBuffer,
+                                                               format::HandleId   descriptorUpdateTemplate,
+                                                               format::HandleId   layout,
+                                                               uint32_t           set,
+                                                               DescriptorUpdateTemplateDecoder* pData) override;
+
+    virtual void
+    Process_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info,
+                                                   format::HandleId   commandBuffer,
+                                                   StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>*
+                                                       pPushDescriptorSetWithTemplateInfo) override;
+
     const util::JsonOptions& GetJsonOptions() const { return writer_->GetOptions(); }
 
     nlohmann::ordered_json& WriteBlockStart() { return writer_->WriteBlockStart(); }

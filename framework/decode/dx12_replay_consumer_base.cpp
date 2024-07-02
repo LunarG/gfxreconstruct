@@ -24,6 +24,7 @@
 #include "decode/dx12_replay_consumer_base.h"
 
 #include "decode/dx12_enum_util.h"
+#include "decode/custom_dx12_struct_object_mappers.h"
 #include "generated/generated_dx12_call_id_to_string.h"
 #include "graphics/dx12_util.h"
 #include "graphics/dx12_image_renderer.h"
@@ -40,7 +41,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-constexpr uint32_t kDefaultWaitTimeout     = INFINITE;
+constexpr uint32_t kDefaultWaitTimeout = INFINITE;
 
 constexpr uint64_t kInternalEventId = static_cast<uint64_t>(~0);
 
@@ -51,6 +52,25 @@ void SetExtraInfo(HandlePointerDecoder<T>* decoder, std::unique_ptr<U>&& extra_i
     assert(object_info != nullptr);
 
     object_info->extra_info = std::move(extra_info);
+}
+
+void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
+                              D3D12_RESOURCE_STATES        initial_state,
+                              bool                         is_reserved_resource)
+{
+    auto res        = static_cast<ID3D12Resource*>(*resource_decoder->GetHandlePointer());
+    auto extra_info = std::make_unique<D3D12ResourceInfo>();
+
+    extra_info->subresource_count = graphics::Dx12ResourceDataUtil::GetSubresourceCount(res);
+    extra_info->resource_state_infos.resize(extra_info->subresource_count);
+    for (auto& info : extra_info->resource_state_infos)
+    {
+        info.states        = initial_state;
+        info.barrier_flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    }
+    extra_info->is_reserved_resource = is_reserved_resource;
+
+    SetExtraInfo(resource_decoder, std::move(extra_info));
 }
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
@@ -359,6 +379,12 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
                                                      resource_info.second.subresource_sizes,
                                                      resource_info.second.staging_resource);
             }
+            auto object_info = GetObjectInfo(resource_info.second.resource_id);
+            if (object_info->extra_info != nullptr)
+            {
+                auto extra_info                  = GetExtraInfo<D3D12ResourceInfo>(object_info);
+                extra_info->resource_state_infos = resource_info.second.after_states;
+            }
         }
         resource_data_util_->CloseCommandList();
         resource_data_util_->ExecuteAndWaitForCommandList();
@@ -398,6 +424,7 @@ void Dx12ReplayConsumerBase::ProcessInitSubresourceCommand(const format::InitSub
 
     // System has enough memory to batch the next Copy()
     ResourceInitInfo resource_init_info = {};
+    resource_init_info.resource_id      = command_header.resource_id;
     resource_init_info.resource         = resource;
     bool is_reserved_resource           = false;
     bool is_texture_with_unknown_layout = false;
@@ -606,6 +633,16 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
     }
 }
 
+void Dx12ReplayConsumerBase::SetDumpTarget(TrackDumpDrawcall& track_dump_target)
+{
+    if (!dump_resources_)
+    {
+        auto get_object_func = std::bind(&Dx12ReplayConsumerBase::GetObjectInfo, this, std::placeholders::_1);
+        dump_resources_      = std::make_unique<Dx12DumpResources>(get_object_func, gpu_va_map_, options_);
+    }
+    dump_resources_->SetDumpTarget(track_dump_target);
+}
+
 void Dx12ReplayConsumerBase::CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result)
 {
     if (capture_result != replay_result)
@@ -710,7 +747,7 @@ void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info, UIN
     {
         dxgi_present_test_++;
     }
-    else if(screenshot_handler_ != nullptr )
+    else if (screenshot_handler_ != nullptr)
     {
         if (screenshot_handler_->IsScreenshotFrame())
         {
@@ -1258,7 +1295,42 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource(
             dummy_resource->Release();
         }
     }
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(resource, InitialResourceState, false);
+    }
+    return replay_result;
+}
 
+HRESULT Dx12ReplayConsumerBase::OverrideCreatePlacedResource(
+    DxObjectInfo*                                      replay_object_info,
+    HRESULT                                            original_result,
+    DxObjectInfo*                                      pHeap,
+    UINT64                                             HeapOffset,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC>* pDesc,
+    D3D12_RESOURCE_STATES                              InitialState,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*   pOptimizedClearValue,
+    Decoded_GUID                                       riid,
+    HandlePointerDecoder<void*>*                       ppvResource)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (pHeap != nullptr) &&
+                    (pHeap->object != nullptr) && (pDesc != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device*>(replay_object_info->object);
+    auto heap          = static_cast<ID3D12Heap*>(pHeap->object);
+
+    auto replay_result = replay_object->CreatePlacedResource(heap,
+                                                             HeapOffset,
+                                                             pDesc->GetPointer(),
+                                                             InitialState,
+                                                             pOptimizedClearValue->GetPointer(),
+                                                             *riid.decoded_value,
+                                                             ppvResource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(ppvResource, InitialState, false);
+    }
     return replay_result;
 }
 
@@ -1409,7 +1481,42 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource1(
             dummy_resource->Release();
         }
     }
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(resource, InitialResourceState, false);
+    }
+    return replay_result;
+}
 
+HRESULT Dx12ReplayConsumerBase::OverrideCreatePlacedResource1(
+    DxObjectInfo*                                       replay_object_info,
+    HRESULT                                             original_result,
+    DxObjectInfo*                                       pHeap,
+    UINT64                                              HeapOffset,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
+    D3D12_RESOURCE_STATES                               InitialState,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*    pOptimizedClearValue,
+    Decoded_GUID                                        riid,
+    HandlePointerDecoder<void*>*                        ppvResource)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (pHeap != nullptr) &&
+                    (pHeap->object != nullptr) && (pDesc != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device8*>(replay_object_info->object);
+    auto heap          = static_cast<ID3D12Heap*>(pHeap->object);
+
+    auto replay_result = replay_object->CreatePlacedResource1(heap,
+                                                              HeapOffset,
+                                                              pDesc->GetPointer(),
+                                                              InitialState,
+                                                              pOptimizedClearValue->GetPointer(),
+                                                              *riid.decoded_value,
+                                                              ppvResource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(ppvResource, InitialState, false);
+    }
     return replay_result;
 }
 
@@ -1479,7 +1586,46 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource2(
             dummy_resource->Release();
         }
     }
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(resource, InitialResourceState, false);
+    }
+    return replay_result;
+}
 
+HRESULT Dx12ReplayConsumerBase::OverrideCreatePlacedResource2(
+    DxObjectInfo*                                       replay_object_info,
+    HRESULT                                             original_result,
+    DxObjectInfo*                                       pHeap,
+    UINT64                                              HeapOffset,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_DESC1>* pDesc,
+    D3D12_BARRIER_LAYOUT                                InitialLayout,
+    StructPointerDecoder<Decoded_D3D12_CLEAR_VALUE>*    pOptimizedClearValue,
+    UINT32                                              NumCastableFormats,
+    PointerDecoder<DXGI_FORMAT>*                        pCastableFormats,
+    Decoded_GUID                                        riid,
+    HandlePointerDecoder<void*>*                        ppvResource)
+{
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) && (pHeap != nullptr) &&
+                    (pHeap->object != nullptr) && (pDesc != nullptr));
+
+    auto replay_object = static_cast<ID3D12Device10*>(replay_object_info->object);
+    auto heap          = static_cast<ID3D12Heap*>(pHeap->object);
+
+    auto replay_result = replay_object->CreatePlacedResource2(heap,
+                                                              HeapOffset,
+                                                              pDesc->GetPointer(),
+                                                              InitialLayout,
+                                                              pOptimizedClearValue->GetPointer(),
+                                                              NumCastableFormats,
+                                                              pCastableFormats->GetPointer(),
+                                                              *riid.decoded_value,
+                                                              ppvResource->GetHandlePointer());
+
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(ppvResource, D3D12_RESOURCE_STATE_COMMON, false);
+    }
     return replay_result;
 }
 
@@ -1556,6 +1702,10 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommittedResource3(
         }
     }
 
+    if (SUCCEEDED(replay_result))
+    {
+        InitialResourceExtraInfo(resource, D3D12_RESOURCE_STATE_COMMON, false);
+    }
     return replay_result;
 }
 
@@ -1983,7 +2133,21 @@ void Dx12ReplayConsumerBase::OverrideExecuteCommandLists(DxObjectInfo*          
         }
     }
 
-    replay_object->ExecuteCommandLists(num_command_lists, command_lists->GetHandlePointer());
+    bool is_complete = false;
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        is_complete = dump_resources_->ExecuteCommandLists(replay_object_info,
+                                                           num_command_lists,
+                                                           command_lists,
+                                                           GetCurrentBlockIndex(),
+                                                           needs_mapping,
+                                                           options_.capture_filename);
+    }
+    if (!is_complete)
+    {
+        replay_object->ExecuteCommandLists(num_command_lists, command_lists->GetHandlePointer());
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -2213,6 +2377,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
             if (swapchain_info->image_ids[buffer] == format::kNullHandleId)
             {
                 auto object_info = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
+                InitialResourceExtraInfo(surface, D3D12_RESOURCE_STATE_PRESENT, false);
 
                 // Increment the replay reference to prevent the swapchain image info entry from being removed from the
                 // object info table while the swapchain is active.
@@ -3147,7 +3312,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource(
 
     if (SUCCEEDED(replay_result))
     {
-        SetIsReservedResource(resource);
+        InitialResourceExtraInfo(resource, initial_state, true);
     }
 
     return replay_result;
@@ -3184,7 +3349,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource1(
 
     if (SUCCEEDED(replay_result))
     {
-        SetIsReservedResource(resource);
+        InitialResourceExtraInfo(resource, initial_state, true);
     }
 
     return replay_result;
@@ -3225,7 +3390,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateReservedResource2(
 
     if (SUCCEEDED(replay_result))
     {
-        SetIsReservedResource(resource);
+        InitialResourceExtraInfo(resource, D3D12_RESOURCE_STATE_COMMON, true);
     }
 
     return replay_result;
@@ -3347,7 +3512,9 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList(DxObjectInfo*         
 
     if (SUCCEEDED(replay_result) && !command_list_decoder->IsNull())
     {
-        SetExtraInfo(command_list_decoder, std::make_unique<D3D12CommandListInfo>());
+        auto cmd_list_info              = std::make_unique<D3D12CommandListInfo>();
+        cmd_list_info->create_list_type = type;
+        SetExtraInfo(command_list_decoder, std::move(cmd_list_info));
     }
     return replay_result;
 }
@@ -3367,7 +3534,9 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateCommandList1(DxObjectInfo*        
 
     if (SUCCEEDED(replay_result) && !command_list1_decoder->IsNull())
     {
-        SetExtraInfo(command_list1_decoder, std::make_unique<D3D12CommandListInfo>());
+        auto cmd_list_info              = std::make_unique<D3D12CommandListInfo>();
+        cmd_list_info->create_list_type = type;
+        SetExtraInfo(command_list1_decoder, std::move(cmd_list_info));
     }
     return replay_result;
 }
@@ -3388,8 +3557,20 @@ HRESULT Dx12ReplayConsumerBase::OverrideCommandListReset(DxObjectInfo* command_l
 
     HRESULT replay_result = command_list->Reset(allocator, initial_state);
 
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list_object_info, GetCurrentBlockIndex(), format::ApiCall_ID3D12GraphicsCommandList_Reset);
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->Reset(command_set.allocator, initial_state);
+        }
+    }
+
     auto command_list_extra_info                         = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
     command_list_extra_info->requires_sync_after_execute = false;
+    command_list_extra_info->pending_resource_states.clear();
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3407,6 +3588,17 @@ void Dx12ReplayConsumerBase::OverrideCopyResource(DxObjectInfo* command_list_obj
     auto dst_resource = static_cast<ID3D12Resource*>(dst_resource_object_info->object);
     auto src_resource = static_cast<ID3D12Resource*>(src_resource_object_info->object);
     command_list->CopyResource(dst_resource, src_resource);
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list_object_info, GetCurrentBlockIndex(), format::ApiCall_ID3D12GraphicsCommandList_CopyResource);
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->CopyResource(dst_resource, src_resource);
+        }
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3426,6 +3618,19 @@ void Dx12ReplayConsumerBase::OverrideCopyBufferRegion(DxObjectInfo* command_list
     auto dst_buffer   = static_cast<ID3D12Resource*>(dst_buffer_object_info->object);
     auto src_buffer   = static_cast<ID3D12Resource*>(src_buffer_object_info->object);
     command_list->CopyBufferRegion(dst_buffer, dst_offset, src_buffer, src_offset, num_bytes);
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list_object_info,
+            GetCurrentBlockIndex(),
+            format::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion);
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->CopyBufferRegion(dst_buffer, dst_offset, src_buffer, src_offset, num_bytes);
+        }
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3499,6 +3704,24 @@ void Dx12ReplayConsumerBase::OverrideExecuteIndirect(DxObjectInfo* command_list_
                                   count_buffer,
                                   count_buffer_offset);
 
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets =
+            dump_resources_->GetCommandListsForDumpResources(command_list_object_info,
+                                                             GetCurrentBlockIndex(),
+                                                             format::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect);
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->ExecuteIndirect(command_signature,
+                                              max_command_count,
+                                              argument_buffer,
+                                              argument_buffer_offset,
+                                              count_buffer,
+                                              count_buffer_offset);
+        }
+    }
+
     auto command_list_extra_info                         = GetExtraInfo<D3D12CommandListInfo>(command_list_object_info);
     command_list_extra_info->requires_sync_after_execute = true;
 
@@ -3529,6 +3752,22 @@ void Dx12ReplayConsumerBase::OverrideBuildRaytracingAccelerationStructure(
 
     command_list4->BuildRaytracingAccelerationStructure(
         desc->GetPointer(), num_post_build_info_descs, post_build_info_descs->GetPointer());
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list4_object_info,
+            GetCurrentBlockIndex(),
+            format::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure);
+        for (auto& command_set : dump_command_sets)
+        {
+            ID3D12GraphicsCommandList4* command_list4;
+            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+            command_list4->BuildRaytracingAccelerationStructure(
+                desc->GetPointer(), num_post_build_info_descs, post_build_info_descs->GetPointer());
+        }
+    }
 
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
     command_list_extra_info->requires_sync_after_execute = true;
@@ -3595,13 +3834,28 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
                                                             Decoded_GUID             riid,
                                                             HandlePointerDecoder<void*>* root_signature_decoder)
 {
-    auto device = static_cast<ID3D12Device*>(device_object_info->object);
-
-    auto replay_result = device->CreateRootSignature(node_mask,
-                                                     blob_with_root_signature_decoder->GetPointer(),
-                                                     blob_length_in_bytes,
-                                                     *riid.decoded_value,
-                                                     root_signature_decoder->GetHandlePointer());
+    HRESULT replay_result = E_UNEXPECTED;
+    bool    is_complete   = false;
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        is_complete = dump_resources_->CreateRootSignature(device_object_info,
+                                                           replay_result,
+                                                           node_mask,
+                                                           blob_with_root_signature_decoder,
+                                                           blob_length_in_bytes,
+                                                           riid,
+                                                           root_signature_decoder);
+    }
+    if (!is_complete)
+    {
+        auto device   = static_cast<ID3D12Device*>(device_object_info->object);
+        replay_result = device->CreateRootSignature(node_mask,
+                                                    blob_with_root_signature_decoder->GetPointer(),
+                                                    blob_length_in_bytes,
+                                                    *riid.decoded_value,
+                                                    root_signature_decoder->GetHandlePointer());
+    }
 
     if (SUCCEEDED(replay_result) && !root_signature_decoder->IsNull())
     {
@@ -3609,6 +3863,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideCreateRootSignature(DxObjectInfo*       
 
         if (resource_value_mapper_ != nullptr)
         {
+            // TODO: modified signature
             resource_value_mapper_->PostProcessCreateRootSignature(
                 blob_with_root_signature_decoder, blob_length_in_bytes, root_signature_decoder);
         }
@@ -3683,6 +3938,19 @@ void Dx12ReplayConsumerBase::OverrideDispatchRays(DxObjectInfo* command_list4_ob
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
     command_list4->DispatchRays(desc_decoder->GetPointer());
 
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list4_object_info, GetCurrentBlockIndex(), format::ApiCall_ID3D12GraphicsCommandList4_DispatchRays);
+        for (auto& command_set : dump_command_sets)
+        {
+            ID3D12GraphicsCommandList4* command_list4;
+            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+            command_list4->DispatchRays(desc_decoder->GetPointer());
+        }
+    }
+
     auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(command_list4_object_info);
     command_list_extra_info->requires_sync_after_execute = true;
 
@@ -3700,6 +3968,21 @@ void Dx12ReplayConsumerBase::OverrideSetPipelineState1(DxObjectInfo* command_lis
     auto command_list4 = static_cast<ID3D12GraphicsCommandList4*>(command_list4_object_info->object);
     auto state_object  = static_cast<ID3D12StateObject*>(state_object_object_info->object);
     command_list4->SetPipelineState1(state_object);
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list4_object_info,
+            GetCurrentBlockIndex(),
+            format::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1);
+        for (auto& command_set : dump_command_sets)
+        {
+            ID3D12GraphicsCommandList4* command_list4;
+            command_set.list->QueryInterface(IID_PPV_ARGS(&command_list4));
+            command_list4->SetPipelineState1(state_object);
+        }
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3723,6 +4006,24 @@ void Dx12ReplayConsumerBase::OverrideCopyTextureRegion(
     command_list->CopyTextureRegion(
         dst_decoder->GetPointer(), dst_x, dst_y, dst_z, src_decoder->GetPointer(), src_box_decoder->GetPointer());
 
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list_object_info,
+            GetCurrentBlockIndex(),
+            format::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion);
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->CopyTextureRegion(dst_decoder->GetPointer(),
+                                                dst_x,
+                                                dst_y,
+                                                dst_z,
+                                                src_decoder->GetPointer(),
+                                                src_box_decoder->GetPointer());
+        }
+    }
+
     if (resource_value_mapper_ != nullptr)
     {
         resource_value_mapper_->PostProcessCopyTextureRegion(
@@ -3738,6 +4039,19 @@ void Dx12ReplayConsumerBase::OverrideIASetIndexBuffer(
     auto command_list = reinterpret_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
 
     command_list->IASetIndexBuffer(views_decoder->GetPointer());
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list_object_info,
+            GetCurrentBlockIndex(),
+            format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer);
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->IASetIndexBuffer(views_decoder->GetPointer());
+        }
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3756,6 +4070,19 @@ void Dx12ReplayConsumerBase::OverrideIASetVertexBuffers(
     auto command_list = reinterpret_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
 
     command_list->IASetVertexBuffers(start_slot, num_views, views_decoder->GetPointer());
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        auto dump_command_sets = dump_resources_->GetCommandListsForDumpResources(
+            command_list_object_info,
+            GetCurrentBlockIndex(),
+            format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer);
+        for (auto& command_set : dump_command_sets)
+        {
+            command_set.list->IASetVertexBuffers(start_slot, num_views, views_decoder->GetPointer());
+        }
+    }
 
     if (resource_value_mapper_ != nullptr)
     {
@@ -3908,6 +4235,24 @@ Dx12ReplayConsumerBase::OverrideSetName(DxObjectInfo* replay_object_info, HRESUL
     return result;
 }
 
+void Dx12ReplayConsumerBase::OverrideExecuteBundle(DxObjectInfo* replay_object_info,
+                                                   DxObjectInfo* command_list_object_info)
+{
+    GFXRECON_ASSERT(replay_object_info != nullptr);
+    GFXRECON_ASSERT(replay_object_info->object != nullptr);
+    GFXRECON_ASSERT(command_list_object_info != nullptr);
+    GFXRECON_ASSERT(command_list_object_info->object != nullptr);
+
+    auto command_list = static_cast<ID3D12GraphicsCommandList*>(command_list_object_info->object);
+    reinterpret_cast<ID3D12GraphicsCommandList*>(replay_object_info->object)->ExecuteBundle(command_list);
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->ExecuteBundle(replay_object_info, command_list_object_info, GetCurrentBlockIndex());
+    }
+}
+
 std::wstring Dx12ReplayConsumerBase::ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id)
 {
     std::wstring object_creator = util::GetDx12CallIdString(call_id);
@@ -3917,6 +4262,867 @@ std::wstring Dx12ReplayConsumerBase::ConstructObjectName(format::HandleId captur
     constructed_name.append(L" (" + object_creator + L")");
 
     return constructed_name;
+}
+
+void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
+    const ApiCallInfo&                                    call_info,
+    DxObjectInfo*                                         object_info,
+    UINT                                                  NumBarriers,
+    StructPointerDecoder<Decoded_D3D12_RESOURCE_BARRIER>* pBarriers)
+{
+    const auto command_list_id = object_info->capture_id;
+    auto       extra_info      = GetExtraInfo<D3D12CommandListInfo>(GetObjectInfo(command_list_id));
+
+    auto barriers = pBarriers->GetMetaStructPointer();
+    for (uint32_t i = 0; i < NumBarriers; ++i)
+    {
+        if (barriers[i].decoded_value->Type == D3D12_RESOURCE_BARRIER_TYPE_TRANSITION)
+        {
+            // It shouldn't change the state here. It should save the AfterState until ExecuteCommandList to change
+            // it. It needs to record the code index. The reason is that it needs to know if this ResourceBarrier is
+            // before or after the target drawcall. For dump resources to set the correct state,
+            // it only cares before the target drawcall.
+            ResourceStatesOrder state;
+            state.block_index   = call_info.index;
+            state.transition    = *barriers[i].Transition->decoded_value;
+            state.barrier_flags = barriers[i].decoded_value->Flags;
+
+            auto it = extra_info->pending_resource_states.find(barriers[i].Transition->pResource);
+            if (it == extra_info->pending_resource_states.end())
+            {
+                std::vector<ResourceStatesOrder> states;
+                states.emplace_back(std::move(state));
+                extra_info->pending_resource_states.insert(
+                    std::pair(barriers[i].Transition->pResource, std::move(states)));
+            }
+            else
+            {
+                it->second.emplace_back(std::move(state));
+            }
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::PreCall_ID3D12Device_CreateConstantBufferView(
+    const ApiCallInfo&                                             call_info,
+    DxObjectInfo*                                                  object_info,
+    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
+{
+    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
+    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+    auto desc             = pDesc->GetMetaStructPointer();
+
+    ConstantBufferInfo info;
+    info.captured_view = *(desc->decoded_value);
+
+    heap_extra_info->constant_buffer_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateConstantBufferView(
+    const ApiCallInfo&                                             call_info,
+    DxObjectInfo*                                                  object_info,
+    StructPointerDecoder<Decoded_D3D12_CONSTANT_BUFFER_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
+{
+    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
+    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+
+    heap_extra_info->constant_buffer_infos[DestDescriptor.index].replay_handle = (*DestDescriptor.decoded_value);
+}
+
+std::vector<uint32_t> GetDescriptorSubresourceIndices(uint32_t first_mip_slice,
+                                                      uint32_t mip_size,
+                                                      uint32_t total_mip_count,
+                                                      uint32_t first_array_slice,
+                                                      uint32_t array_size,
+                                                      uint32_t total_array_count,
+                                                      uint32_t plane_slice)
+{
+    std::vector<uint32_t> result;
+    for (UINT array_index = first_array_slice; array_index < (first_array_slice + array_size); ++array_index)
+    {
+        for (UINT mip_index = first_mip_slice; mip_index < (first_mip_slice + mip_size); ++mip_index)
+        {
+            result.push_back(mip_index + (array_index * total_mip_count) +
+                             (plane_slice * total_mip_count * total_array_count));
+        }
+    }
+    return result;
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateShaderResourceView(
+    const ApiCallInfo&                                             call_info,
+    DxObjectInfo*                                                  object_info,
+    format::HandleId                                               pResource,
+    StructPointerDecoder<Decoded_D3D12_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                            DestDescriptor)
+{
+    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
+    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+
+    ShaderResourceInfo info;
+    info.resource_id   = pResource;
+    info.replay_handle = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        info.is_view_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_SRV_DIMENSION_BUFFER:
+                    info.subresource_indices.emplace_back(0);
+                    break;
+                case D3D12_SRV_DIMENSION_TEXTURE1D:
+                {
+                    auto view     = info.view.Texture1D;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE1DARRAY:
+                {
+                    auto view     = info.view.Texture1DArray;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.MostDetailedMip,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   array_size,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.ResourceMinLODClamp,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   array_size,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2D:
+                {
+                    auto view     = info.view.Texture2D;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, view.PlaneSlice);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, view.PlaneSlice);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2DARRAY:
+                {
+                    auto view     = info.view.Texture2DArray;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.MostDetailedMip,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   array_size,
+                                                                                   array_count,
+                                                                                   view.PlaneSlice);
+                    }
+                    else
+                    {
+                        mip_size -= view.MostDetailedMip;
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.ResourceMinLODClamp,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.FirstArraySlice,
+                                                                                   array_size,
+                                                                                   array_count,
+                                                                                   view.PlaneSlice);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2DMS:
+                {
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE2DMSARRAY:
+                {
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURE3D:
+                {
+                    array_count   = 1;
+                    auto view     = info.view.Texture3D;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    else
+                    {
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURECUBE:
+                {
+                    auto view     = info.view.TextureCube;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.MostDetailedMip, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    else
+                    {
+                        info.subresource_indices = GetDescriptorSubresourceIndices(
+                            view.ResourceMinLODClamp, mip_size, mip_count, 0, 1, array_count, 0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_TEXTURECUBEARRAY:
+                {
+                    auto view     = info.view.TextureCubeArray;
+                    auto mip_size = view.MipLevels;
+                    if (mip_size == -1)
+                    {
+                        mip_size = mip_count;
+                    }
+                    auto array_size = view.NumCubes;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    if (view.MostDetailedMip != 0)
+                    {
+                        if (mip_size == -1)
+                        {
+                            mip_size -= view.MostDetailedMip;
+                        }
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.MostDetailedMip,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.First2DArrayFace,
+                                                                                   array_size,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    else
+                    {
+                        info.subresource_indices = GetDescriptorSubresourceIndices(view.ResourceMinLODClamp,
+                                                                                   mip_size,
+                                                                                   mip_count,
+                                                                                   view.First2DArrayFace,
+                                                                                   array_size,
+                                                                                   array_count,
+                                                                                   0);
+                    }
+                    break;
+                }
+                case D3D12_SRV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_SRV_DIMENSION_UNKNOWN.");
+                    break;
+            }
+        }
+    }
+    heap_extra_info->shader_resource_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateUnorderedAccessView(
+    const ApiCallInfo&                                              call_info,
+    DxObjectInfo*                                                   object_info,
+    format::HandleId                                                pResource,
+    format::HandleId                                                pCounterResource,
+    StructPointerDecoder<Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                             DestDescriptor)
+{
+    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
+    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+
+    UnorderedAccessInfo info;
+    info.resource_id         = pResource;
+    info.counter_resource_id = pCounterResource;
+    info.replay_handle       = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        info.is_view_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_UAV_DIMENSION_BUFFER:
+                    info.subresource_indices.emplace_back(0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE1D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE1DARRAY:
+                {
+                    auto view       = info.view.Texture1DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_UAV_DIMENSION_TEXTURE2D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, info.view.Texture2D.PlaneSlice);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE2DARRAY:
+                {
+                    auto view       = info.view.Texture2DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, view.PlaneSlice);
+                    break;
+                }
+                case D3D12_UAV_DIMENSION_TEXTURE2DMS:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
+                {
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_UAV_DIMENSION_TEXTURE3D:
+                {
+                    // DUMPTODO: handle FirstWSlice and WSize
+                    info.subresource_indices =
+                        GetDescriptorSubresourceIndices(info.view.Texture3D.MipSlice, 1, mip_count, 0, 1, 1, 0);
+                    break;
+                }
+                case D3D12_UAV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_UAV_DIMENSION_UNKNOWN.");
+                    break;
+            }
+        }
+    }
+    heap_extra_info->unordered_access_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateRenderTargetView(
+    const ApiCallInfo&                                           call_info,
+    DxObjectInfo*                                                object_info,
+    format::HandleId                                             pResource,
+    StructPointerDecoder<Decoded_D3D12_RENDER_TARGET_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
+{
+    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
+    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+
+    RenderTargetInfo info;
+    info.resource_id   = pResource;
+    info.replay_handle = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        info.is_view_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_RTV_DIMENSION_BUFFER:
+                    info.subresource_indices.emplace_back(0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE1D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE1DARRAY:
+                {
+                    auto view       = info.view.Texture1DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_RTV_DIMENSION_TEXTURE2D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, info.view.Texture2D.PlaneSlice);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE2DARRAY:
+                {
+                    auto view       = info.view.Texture2DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, view.PlaneSlice);
+                    break;
+                }
+                case D3D12_RTV_DIMENSION_TEXTURE2DMS:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_RTV_DIMENSION_TEXTURE2DMSARRAY:
+                {
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_RTV_DIMENSION_TEXTURE3D:
+                {
+                    // DUMPTODO: Handle FirstWSlice and WSize
+                    info.subresource_indices =
+                        GetDescriptorSubresourceIndices(info.view.Texture3D.MipSlice, 1, mip_count, 0, 1, 1, 0);
+                    break;
+                }
+                case D3D12_RTV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_RTV_DIMENSION_UNKNOWN.");
+                    break;
+            }
+        }
+    }
+    heap_extra_info->render_target_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateDepthStencilView(
+    const ApiCallInfo&                                           call_info,
+    DxObjectInfo*                                                object_info,
+    format::HandleId                                             pResource,
+    StructPointerDecoder<Decoded_D3D12_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE                          DestDescriptor)
+{
+    auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
+    auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
+
+    DepthStencilInfo info;
+    info.resource_id   = pResource;
+    info.replay_handle = *DestDescriptor.decoded_value;
+    if (pDesc->IsNull())
+    {
+        info.is_view_null = true;
+        info.subresource_indices.emplace_back(0);
+    }
+    else
+    {
+        info.view         = *(pDesc->GetMetaStructPointer()->decoded_value);
+        info.is_view_null = false;
+
+        if (pResource != format::kNullHandleId)
+        {
+            auto desc        = reinterpret_cast<ID3D12Resource*>(GetObjectInfo(pResource)->object)->GetDesc();
+            auto mip_count   = desc.MipLevels;
+            auto array_count = desc.DepthOrArraySize;
+            switch (info.view.ViewDimension)
+            {
+                case D3D12_DSV_DIMENSION_TEXTURE1D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture1D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE1DARRAY:
+                {
+                    auto view       = info.view.Texture1DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_DSV_DIMENSION_TEXTURE2D:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        info.view.Texture2D.MipSlice, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE2DARRAY:
+                {
+                    auto view       = info.view.Texture2DArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        view.MipSlice, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_DSV_DIMENSION_TEXTURE2DMS:
+                    info.subresource_indices = GetDescriptorSubresourceIndices(0, 1, mip_count, 0, 1, array_count, 0);
+                    break;
+                case D3D12_DSV_DIMENSION_TEXTURE2DMSARRAY:
+                {
+                    auto view       = info.view.Texture2DMSArray;
+                    auto array_size = view.ArraySize;
+                    if (array_size == -1)
+                    {
+                        array_size = array_count;
+                    }
+                    info.subresource_indices = GetDescriptorSubresourceIndices(
+                        0, 1, mip_count, view.FirstArraySlice, array_size, array_count, 0);
+                    break;
+                }
+                case D3D12_DSV_DIMENSION_UNKNOWN:
+                default:
+                    GFXRECON_LOG_ERROR("Unknown D3D12_DSV_DIMENSION.");
+                    break;
+            }
+        }
+    }
+    heap_extra_info->depth_stencil_infos[DestDescriptor.index] = std::move(info);
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12GraphicsCommandList_OMSetRenderTargets(
+    const ApiCallInfo&                                         call_info,
+    DxObjectInfo*                                              object_info,
+    UINT                                                       NumRenderTargetDescriptors,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pRenderTargetDescriptors,
+    BOOL                                                       RTsSingleHandleToDescriptorRange,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDepthStencilDescriptor)
+{
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->OMSetRenderTargets(call_info,
+                                            object_info,
+                                            NumRenderTargetDescriptors,
+                                            pRenderTargetDescriptors,
+                                            RTsSingleHandleToDescriptorRange,
+                                            pDepthStencilDescriptor);
+    }
+}
+
+void Dx12ReplayConsumerBase::OverrideBeginRenderPass(
+    DxObjectInfo*                                                       replay_object_info,
+    UINT                                                                NumRenderTargets,
+    StructPointerDecoder<Decoded_D3D12_RENDER_PASS_RENDER_TARGET_DESC>* pRenderTargets,
+    StructPointerDecoder<Decoded_D3D12_RENDER_PASS_DEPTH_STENCIL_DESC>* pDepthStencil,
+    D3D12_RENDER_PASS_FLAGS                                             Flags)
+{
+    reinterpret_cast<ID3D12GraphicsCommandList4*>(replay_object_info->object)
+        ->BeginRenderPass(NumRenderTargets, pRenderTargets->GetPointer(), pDepthStencil->GetPointer(), Flags);
+
+    if (options_.enable_dump_resources)
+    {
+        GFXRECON_ASSERT(dump_resources_);
+        dump_resources_->BeginRenderPass(
+            replay_object_info, NumRenderTargets, pRenderTargets, pDepthStencil, Flags, GetCurrentBlockIndex());
+    }
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12CommandQueue_ExecuteCommandLists(
+    const ApiCallInfo&                        call_info,
+    DxObjectInfo*                             object_info,
+    UINT                                      NumCommandLists,
+    HandlePointerDecoder<ID3D12CommandList*>* ppCommandLists)
+{
+    for (uint32_t i = 0; i < NumCommandLists; ++i)
+    {
+        auto commandlist_id          = ppCommandLists->GetPointer()[i];
+        auto command_list_extra_info = GetExtraInfo<D3D12CommandListInfo>(GetObjectInfo(commandlist_id));
+
+        for (const auto& pair : command_list_extra_info->pending_resource_states)
+        {
+            auto resource_object_info = GetObjectInfo(pair.first);
+            if (resource_object_info == nullptr)
+            {
+                GFXRECON_LOG_WARNING("resource id %" PRIu64
+                                     " can't found for update state in ExecuteCommandLists. It could be released",
+                                     pair.first);
+            }
+            else
+            {
+                auto resource_extra_info = GetExtraInfo<D3D12ResourceInfo>(resource_object_info);
+                for (auto& state : pair.second)
+                {
+                    if (state.transition.Subresource == D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES)
+                    {
+                        for (auto& info : resource_extra_info->resource_state_infos)
+                        {
+                            info.states        = state.transition.StateAfter;
+                            info.barrier_flags = state.barrier_flags;
+                        }
+                    }
+                    else
+                    {
+                        resource_extra_info->resource_state_infos[state.transition.Subresource].states =
+                            state.transition.StateAfter;
+                        resource_extra_info->resource_state_infos[state.transition.Subresource].barrier_flags =
+                            state.barrier_flags;
+                    }
+                }
+            }
+        }
+        command_list_extra_info->pending_resource_states.clear();
+    }
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CopyDescriptors(
+    const ApiCallInfo&                                         call_info,
+    DxObjectInfo*                                              device_object_info,
+    UINT                                                       NumDestDescriptorRanges,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pDestDescriptorRangeStarts,
+    PointerDecoder<UINT>*                                      pDestDescriptorRangeSizes,
+    UINT                                                       NumSrcDescriptorRanges,
+    StructPointerDecoder<Decoded_D3D12_CPU_DESCRIPTOR_HANDLE>* pSrcDescriptorRangeStarts,
+    PointerDecoder<UINT>*                                      pSrcDescriptorRangeSizes,
+    D3D12_DESCRIPTOR_HEAP_TYPE                                 DescriptorHeapsType)
+{
+    UINT dest_range_i = 0;
+    UINT src_range_i  = 0;
+    UINT dest_i       = 0;
+    UINT src_i        = 0;
+
+    auto dest_range_sizes = pDestDescriptorRangeSizes->GetPointer();
+    auto src_range_sizes  = pSrcDescriptorRangeSizes->GetPointer();
+
+    auto dest_range_starts = pDestDescriptorRangeStarts->GetMetaStructPointer();
+    auto src_range_starts  = pSrcDescriptorRangeStarts->GetMetaStructPointer();
+
+    while (dest_range_i < NumDestDescriptorRanges && src_range_i < NumSrcDescriptorRanges)
+    {
+        auto dest_range_size = (dest_range_sizes != nullptr) ? dest_range_sizes[dest_range_i] : 1;
+        auto src_range_size  = (src_range_sizes != nullptr) ? src_range_sizes[src_range_i] : 1;
+
+        auto dest_size = dest_range_size - dest_i;
+        auto src_size  = src_range_size - src_i;
+
+        auto copy_size = std::min(dest_size, src_size);
+
+        // DUMPTODO: Test, cleanup, and share with code from CopyDescriptorsSimple
+        auto dest_descriptor_info  = dest_range_starts[dest_range_i];
+        auto dest_heap_object_info = GetObjectInfo(dest_descriptor_info.heap_id);
+        auto dest_heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(dest_heap_object_info);
+        auto src_descriptor_info   = src_range_starts[src_range_i];
+        auto src_heap_object_info  = GetObjectInfo(src_descriptor_info.heap_id);
+        auto src_heap_extra_info   = GetExtraInfo<D3D12DescriptorHeapInfo>(src_heap_object_info);
+
+        for (UINT i = 0; i < copy_size; ++i)
+        {
+            auto dest_idx = dest_descriptor_info.index + dest_i + i;
+            auto src_idx  = src_descriptor_info.index + src_i + i;
+
+            if (src_heap_extra_info->constant_buffer_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->constant_buffer_infos[dest_idx] =
+                    src_heap_extra_info->constant_buffer_infos[src_idx];
+            }
+            if (src_heap_extra_info->shader_resource_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->shader_resource_infos[dest_idx] =
+                    src_heap_extra_info->shader_resource_infos[src_idx];
+            }
+            if (src_heap_extra_info->unordered_access_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->unordered_access_infos[dest_idx] =
+                    src_heap_extra_info->unordered_access_infos[src_idx];
+            }
+            if (src_heap_extra_info->render_target_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->render_target_infos[dest_idx] = src_heap_extra_info->render_target_infos[src_idx];
+            }
+            if (src_heap_extra_info->depth_stencil_infos.count(src_idx) > 0)
+            {
+                dest_heap_extra_info->depth_stencil_infos[dest_idx] = src_heap_extra_info->depth_stencil_infos[src_idx];
+            }
+        }
+
+        dest_i += copy_size;
+        src_i += copy_size;
+
+        if (dest_i == dest_range_size)
+        {
+            dest_i = 0;
+            ++dest_range_i;
+        }
+        if (src_i == src_range_size)
+        {
+            src_i = 0;
+            ++src_range_i;
+        }
+    }
+}
+
+void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CopyDescriptorsSimple(
+    const ApiCallInfo&                  call_info,
+    DxObjectInfo*                       device_object_info,
+    UINT                                NumDescriptors,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE DestDescriptorRangeStart,
+    Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
+    D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType)
+{
+    auto dest_heap_object_info = GetObjectInfo(DestDescriptorRangeStart.heap_id);
+    auto dest_heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(dest_heap_object_info);
+    auto src_heap_object_info  = GetObjectInfo(SrcDescriptorRangeStart.heap_id);
+    auto src_heap_extra_info   = GetExtraInfo<D3D12DescriptorHeapInfo>(src_heap_object_info);
+
+    for (UINT i = 0; i < NumDescriptors; ++i)
+    {
+        auto dest_idx = DestDescriptorRangeStart.index + i;
+        auto src_idx  = SrcDescriptorRangeStart.index + i;
+
+        if (src_heap_extra_info->constant_buffer_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->constant_buffer_infos[dest_idx] = src_heap_extra_info->constant_buffer_infos[src_idx];
+        }
+        if (src_heap_extra_info->shader_resource_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->shader_resource_infos[dest_idx] = src_heap_extra_info->shader_resource_infos[src_idx];
+        }
+        if (src_heap_extra_info->unordered_access_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->unordered_access_infos[dest_idx] =
+                src_heap_extra_info->unordered_access_infos[src_idx];
+        }
+        if (src_heap_extra_info->render_target_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->render_target_infos[dest_idx] = src_heap_extra_info->render_target_infos[src_idx];
+        }
+        if (src_heap_extra_info->depth_stencil_infos.count(src_idx) > 0)
+        {
+            dest_heap_extra_info->depth_stencil_infos[dest_idx] = src_heap_extra_info->depth_stencil_infos[src_idx];
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

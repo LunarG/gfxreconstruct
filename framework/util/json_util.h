@@ -30,6 +30,7 @@
 
 #include "util/defines.h"
 #include "util/to_string.h"
+#include "util/logging.h"
 #include "format/format.h"
 
 #ifndef WIN32
@@ -52,6 +53,35 @@ enum class JsonFormat : uint8_t
     JSON,
     JSONL
 };
+
+inline std::string get_json_format(JsonFormat format)
+{
+    switch (format)
+    {
+        case gfxrecon::util::JsonFormat::JSONL:
+            return "jsonl";
+        case gfxrecon::util::JsonFormat::JSON:
+            return "json";
+        default:
+            break;
+    }
+    GFXRECON_LOG_WARNING("Unrecognized format %d. Defaulting to JSON format.", static_cast<int>(format));
+    return "json";
+}
+
+inline JsonFormat get_json_format(std::string format)
+{
+    if (format == "json")
+    {
+        return gfxrecon::util::JsonFormat::JSON;
+    }
+    else if (format == "jsonl")
+    {
+        return gfxrecon::util::JsonFormat::JSONL;
+    }
+    GFXRECON_LOG_WARNING("Unrecognized format %s. Defaulting to JSON format.", format.c_str());
+    return gfxrecon::util::JsonFormat::JSON;
+}
 
 /// Parameters potentially required in converting our datastructures to JSON.
 struct JsonOptions

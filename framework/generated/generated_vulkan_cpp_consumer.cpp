@@ -8685,28 +8685,6 @@ void VulkanCppConsumer::Process_vkCmdPushDescriptorSet2KHR(
     Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSet2KHR);
 }
 
-void VulkanCppConsumer::Process_vkCmdPushDescriptorSetWithTemplate2KHR(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR>* pPushDescriptorSetWithTemplateInfo)
-{
-    FILE* file = GetFrameFile();
-    fprintf(file, "\t{\n");
-    std::stringstream stream_ppush_descriptor_set_with_template_info;
-    std::string ppush_descriptor_set_with_template_info_struct = GenerateStruct_VkPushDescriptorSetWithTemplateInfoKHR(stream_ppush_descriptor_set_with_template_info,
-                                                                                                                       pPushDescriptorSetWithTemplateInfo->GetPointer(),
-                                                                                                                       pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer(),
-                                                                                                                       *this);
-    fprintf(file, "%s", stream_ppush_descriptor_set_with_template_info.str().c_str());
-    pfn_loader_.AddMethodName("vkCmdPushDescriptorSetWithTemplate2KHR");
-    fprintf(file,
-            "\t\tloaded_vkCmdPushDescriptorSetWithTemplate2KHR(%s, &%s);\n",
-            this->GetHandle(commandBuffer).c_str(),
-            ppush_descriptor_set_with_template_info_struct.c_str());
-    fprintf(file, "\t}\n");
-    Post_APICall(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
-}
-
 void VulkanCppConsumer::Process_vkCmdSetDescriptorBufferOffsets2EXT(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,

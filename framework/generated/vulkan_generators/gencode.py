@@ -64,6 +64,8 @@ from vulkan_cpp_consumer_header_generator import VulkanCppConsumerHeaderGenerato
 from vulkan_json_consumer_header_generator import VulkanExportJsonConsumerHeaderGenerator, VulkanExportJsonConsumerHeaderGeneratorOptions
 from vulkan_json_consumer_body_generator import VulkanExportJsonConsumerBodyGenerator, VulkanExportJsonConsumerBodyGeneratorOptions
 from vulkan_replay_consumer_body_generator import VulkanReplayConsumerBodyGenerator, VulkanReplayConsumerBodyGeneratorOptions
+from vulkan_replay_dump_resources_body_generator import VulkanReplayDumpResourcesBodyGenerator, VulkanReplayDumpResourcesBodyGeneratorOptions
+from vulkan_replay_dump_resources_header_generator import VulkanReplayDumpResourcesHeaderGenerator, VulkanReplayDumpResourcesHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_header_generator import VulkanReferencedResourceHeaderGenerator, VulkanReferencedResourceHeaderGeneratorOptions
 from vulkan_referenced_resource_consumer_body_generator import VulkanReferencedResourceBodyGenerator, VulkanReferencedResourceBodyGeneratorOptions
 from vulkan_struct_handle_mappers_header_generator import VulkanStructHandleMappersHeaderGenerator, VulkanStructHandleMappersHeaderGeneratorOptions
@@ -129,6 +131,7 @@ def end_timer(timeit, msg):
 default_blacklists = 'blacklists.json'
 default_platform_types = 'platform_types.json'
 default_replay_overrides = 'replay_overrides.json'
+default_dump_resources_overrides = 'dump_resources_overrides.json'
 default_capture_overrides = 'capture_overrides.json'
 
 
@@ -193,6 +196,7 @@ def make_gen_opts(args):
     blacklists = os.path.join(args.configs, default_blacklists)
     platform_types = os.path.join(args.configs, default_platform_types)
     replay_overrides = os.path.join(args.configs, default_replay_overrides)
+    dump_resources_overrides = os.path.join(args.configs, default_dump_resources_overrides)
     capture_overrides = os.path.join(args.configs, default_capture_overrides)
 
     # Copyright text prefixing all headers (list of strings).
@@ -465,9 +469,45 @@ def make_gen_opts(args):
             directory=directory,
             blacklists=blacklists,
             replay_overrides=replay_overrides,
+            dump_resources_overrides=dump_resources_overrides,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_replay_dump_resources.cpp'] = [
+        VulkanReplayDumpResourcesBodyGenerator,
+        VulkanReplayDumpResourcesBodyGeneratorOptions(
+            filename='generated_vulkan_replay_dump_resources.cpp',
+            directory=directory,
+            blacklists=None,
+            dump_resources_overrides=dump_resources_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_replay_dump_resources.h'] = [
+        VulkanReplayDumpResourcesHeaderGenerator,
+        VulkanReplayDumpResourcesHeaderGeneratorOptions(
+            class_name='VulkanReplayDumpResources',
+            base_class_header='vulkan_replay_dump_resources.h',
+            is_override=True,
+            constructor_args=
+            'const VulkanReplayOptions& options, VulkanObjectInfoTable& object_info_table',
+            filename='generated_vulkan_replay_dump_resources.h',
+            directory=directory,
+            blacklists=None,
+            dump_resources_overrides=dump_resources_overrides,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=True,
             protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )

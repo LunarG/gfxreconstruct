@@ -1169,8 +1169,6 @@ std::string GenerateStruct_VkPushConstantsInfoKHR(std::ostream &out, const VkPus
 
 std::string GenerateStruct_VkPushDescriptorSetInfoKHR(std::ostream &out, const VkPushDescriptorSetInfoKHR* structInfo, Decoded_VkPushDescriptorSetInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkPushDescriptorSetWithTemplateInfoKHR(std::ostream &out, const VkPushDescriptorSetWithTemplateInfoKHR* structInfo, Decoded_VkPushDescriptorSetWithTemplateInfoKHR* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkSetDescriptorBufferOffsetsInfoEXT(std::ostream &out, const VkSetDescriptorBufferOffsetsInfoEXT* structInfo, Decoded_VkSetDescriptorBufferOffsetsInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkDebugReportCallbackCreateInfoEXT(std::ostream &out, const VkDebugReportCallbackCreateInfoEXT* structInfo, Decoded_VkDebugReportCallbackCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);

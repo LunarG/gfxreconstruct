@@ -261,8 +261,6 @@ void UnwrapStructHandles(VkPushConstantsInfoKHR* value, HandleUnwrapMemory* unwr
 
 void UnwrapStructHandles(VkPushDescriptorSetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(VkPushDescriptorSetWithTemplateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(VkSetDescriptorBufferOffsetsInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(VkBindDescriptorBufferEmbeddedSamplersInfoEXT* value, HandleUnwrapMemory* unwrap_memory);

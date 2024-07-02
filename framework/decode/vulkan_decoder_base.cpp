@@ -372,6 +372,31 @@ size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplateKHR(const Api
     return bytes_read;
 }
 
+size_t VulkanDecoderBase::Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info,
+                                                                        const uint8_t*     parameter_buffer,
+                                                                        size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId                                                     commandBuffer;
+    StructPointerDecoder<Decoded_VkPushDescriptorSetWithTemplateInfoKHR> pPushDescriptorSetWithTemplateInfo;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
+    bytes_read +=
+        pPushDescriptorSetWithTemplateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pPushDescriptorSetWithTemplateInfo.GetMetaStructPointer()->pData.Decode(
+        (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_vkCmdPushDescriptorSetWithTemplate2KHR(
+            call_info, commandBuffer, &pPushDescriptorSetWithTemplateInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t VulkanDecoderBase::Decode_vkUpdateDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                                       const uint8_t*     parameter_buffer,
                                                                       size_t             buffer_size)
@@ -505,6 +530,9 @@ void VulkanDecoderBase::DecodeFunctionCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_vkCreateRayTracingPipelinesKHR:
             Decode_vkCreateRayTracingPipelinesKHR(call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR:
+            Decode_vkCmdPushDescriptorSetWithTemplate2KHR(call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_vkDeferredOperationJoinKHR:
             Decode_vkDeferredOperationJoinKHR(call_info, parameter_buffer, buffer_size);

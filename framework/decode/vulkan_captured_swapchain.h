@@ -105,6 +105,10 @@ class VulkanCapturedSwapchain : public VulkanSwapchain
                                     uint32_t                     image_memory_barrier_count,
                                     const VkImageMemoryBarrier*  image_memory_barriers) override;
 
+    virtual void CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
+                                     CommandBufferInfo*        command_buffer_info,
+                                     const VkDependencyInfo*   pDependencyInfo) override;
+
     virtual void ProcessSetSwapchainImageStateCommand(const DeviceInfo* device_info,
                                                       SwapchainKHRInfo* swapchain_info,
                                                       uint32_t          last_presented_image,

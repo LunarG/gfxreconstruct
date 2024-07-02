@@ -126,6 +126,18 @@ const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
 
+const char kDumpResourcesArgument[]               = "--dump-resources";
+const char kDumpResourcesBeforeDrawOption[]       = "--dump-resources-before-draw";
+const char kDumpResourcesImageFormat[]            = "--dump-resources-image-format";
+const char kDumpResourcesScaleArgument[]          = "--dump-resources-scale";
+const char kDumpResourcesDepth[]                  = "--dump-resources-dump-depth-attachment";
+const char kDumpResourcesDirArgument[]            = "--dump-resources-dir";
+const char kDumpResourcesColorAttIdxArg[]         = "--dump-resources-dump-color-attachment-index";
+const char kDumpResourcesDumpVertexIndexBuffers[] = "--dump-resources-dump-vertex-index-buffers";
+const char kDumpResourcesJsonPerCommand[]         = "--dump-resources-json-output-per-command";
+const char kDumpResourcesDumpImmutableResources[] = "--dump-resources-dump-immutable-resources";
+const char kDumpResourcesDumpImageSubresources[]  = "--dump-resources-dump-all-image-subresources";
+
 enum class WsiPlatform
 {
     kAuto,
@@ -166,9 +178,11 @@ const char kScreenshotFormatBmp[] = "bmp";
 const char kScreenshotFormatPng[] = "png";
 
 #if defined(__ANDROID__)
-const char kDefaultScreenshotDir[] = "/sdcard";
+const char kDefaultScreenshotDir[]    = "/sdcard";
+const char kDefaultDumpResourcesDir[] = "/sdcard";
 #else
-const char kDefaultScreenshotDir[] = "";
+const char kDefaultScreenshotDir[]    = "";
+const char kDefaultDumpResourcesDir[] = "";
 #endif
 
 static void ProcessDisableDebugPopup(const gfxrecon::util::ArgumentParser& arg_parser)
@@ -504,6 +518,30 @@ static gfxrecon::util::ScreenshotFormat GetScreenshotFormat(const gfxrecon::util
     return format;
 }
 
+static gfxrecon::util::ScreenshotFormat GetDumpresourcesImageFormat(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    gfxrecon::util::ScreenshotFormat format = gfxrecon::util::ScreenshotFormat::kBmp;
+    const auto&                      value  = arg_parser.GetArgumentValue(kDumpResourcesImageFormat);
+
+    if (!value.empty())
+    {
+        if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatBmp, value.c_str()) == 0)
+        {
+            format = gfxrecon::util::ScreenshotFormat::kBmp;
+        }
+        else if (gfxrecon::util::platform::StringCompareNoCase(kScreenshotFormatPng, value.c_str()) == 0)
+        {
+            format = gfxrecon::util::ScreenshotFormat::kPng;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING("Ignoring unrecognized dump resources image format option \"%s\"", value.c_str());
+        }
+    }
+
+    return format;
+}
+
 static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_parser)
 {
     const auto& value = arg_parser.GetArgumentValue(kScreenshotDirArgument);
@@ -514,6 +552,18 @@ static std::string GetScreenshotDir(const gfxrecon::util::ArgumentParser& arg_pa
     }
 
     return kDefaultScreenshotDir;
+}
+
+static std::string GetDumpResourcesDir(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesDirArgument);
+
+    if (!value.empty())
+    {
+        return value;
+    }
+
+    return kDefaultDumpResourcesDir;
 }
 
 static void GetScreenshotSize(const gfxrecon::util::ArgumentParser& arg_parser, uint32_t& width, uint32_t& height)
@@ -564,6 +614,36 @@ static float GetScreenshotScale(const gfxrecon::util::ArgumentParser& arg_parser
         {
             GFXRECON_LOG_WARNING(
                 "Ignoring invalid screenshot scale option. Expected format is --screenshot-scale [scale]");
+        }
+    }
+
+    return scale;
+}
+
+static float GetDumpResourcesScale(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const auto& value = arg_parser.GetArgumentValue(kDumpResourcesScaleArgument);
+
+    float scale = 1.0f;
+
+    if (!value.empty())
+    {
+        try
+        {
+            scale = std::stof(value);
+        }
+        catch (std::exception&)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option.");
+        }
+        if (scale <= 0.0f)
+        {
+            GFXRECON_LOG_WARNING("Ignoring invalid dump resources scale option. Value must > 0.0.");
+            scale = 1.0f;
+        }
+        if (scale >= 10.0f)
+        {
+            scale = 10.0f;
         }
     }
 
@@ -769,8 +849,12 @@ static std::vector<int32_t> GetFilteredMsgs(const gfxrecon::util::ArgumentParser
     return msgs;
 }
 
-static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
+                             const gfxrecon::util::ArgumentParser& arg_parser,
+                             const std::string&                    filename)
 {
+    options.capture_filename = filename;
+
     if (arg_parser.IsOptionSet(kValidateOption))
     {
         options.enable_validation_layer = true;
@@ -828,7 +912,7 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
                        gfxrecon::decode::VulkanTrackedObjectInfoTable* tracked_object_info_table)
 {
     gfxrecon::decode::VulkanReplayOptions replay_options;
-    GetReplayOptions(replay_options, arg_parser);
+    GetReplayOptions(replay_options, arg_parser, filename);
 
     const auto& override_gpu_group = arg_parser.GetArgumentValue(kOverrideGpuGroupArgument);
     if (!override_gpu_group.empty())
@@ -963,14 +1047,36 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.wait_before_present = true;
     }
 
+    replay_options.dump_resources              = arg_parser.GetArgumentValue(kDumpResourcesArgument);
+    replay_options.dump_resources_before       = arg_parser.IsOptionSet(kDumpResourcesBeforeDrawOption);
+    replay_options.dump_resources_dump_depth   = arg_parser.IsOptionSet(kDumpResourcesDepth);
+    replay_options.dump_resources_image_format = GetDumpresourcesImageFormat(arg_parser);
+    replay_options.dump_resources_scale        = GetDumpResourcesScale(arg_parser);
+    replay_options.dump_resources_output_dir   = GetDumpResourcesDir(arg_parser);
+    replay_options.dumping_resources           = !replay_options.dump_resources.empty();
+    replay_options.dump_resources_dump_vertex_index_buffer =
+        arg_parser.IsOptionSet(kDumpResourcesDumpVertexIndexBuffers);
+    replay_options.dump_resources_json_per_command = arg_parser.IsOptionSet(kDumpResourcesJsonPerCommand);
+    replay_options.dump_resources_dump_immutable_resources =
+        arg_parser.IsOptionSet(kDumpResourcesDumpImmutableResources);
+    replay_options.dump_resources_dump_all_image_subresources =
+        arg_parser.IsOptionSet(kDumpResourcesDumpImageSubresources);
+
+    std::string dr_color_att_idx = arg_parser.GetArgumentValue(kDumpResourcesColorAttIdxArg);
+    if (!dr_color_att_idx.empty())
+    {
+        replay_options.dump_resources_color_attachment_index = std::stoi(dr_color_att_idx);
+    }
+
     return replay_options;
 }
 
 #if defined(D3D12_SUPPORT)
-static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser)
+static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util::ArgumentParser& arg_parser,
+                                                            const std::string&                    filename)
 {
     gfxrecon::decode::DxReplayOptions replay_options;
-    GetReplayOptions(replay_options, arg_parser);
+    GetReplayOptions(replay_options, arg_parser, filename);
 
     replay_options.DeniedDebugMessages  = GetFilteredMsgs(arg_parser, kDeniedMessages);
     replay_options.AllowedDebugMessages = GetFilteredMsgs(arg_parser, kAllowedMessages);
@@ -994,6 +1100,23 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     if (arg_parser.IsOptionSet(kDxOverrideObjectNames))
     {
         replay_options.override_object_names = true;
+    }
+
+    const std::string& dump_resources = arg_parser.GetArgumentValue(kDumpResourcesArgument);
+    if (!dump_resources.empty())
+    {
+        // If the option parameter does not split into three comma separated values, consider
+        // it a Vulkan option and ignore it. It it does split into three comma separated values,
+        // the arg is for dx12 and should have already been validated in the Vulkan option parsing.
+        // In that case, we simply extract and save the values here.
+        std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, ',');
+        if (values.size() == 3)
+        {
+            replay_options.dump_resources_target.submit_index   = std::stoi(values[0]);
+            replay_options.dump_resources_target.command_index  = std::stoi(values[1]);
+            replay_options.dump_resources_target.drawcall_index = std::stoi(values[2]);
+            replay_options.enable_dump_resources                = true;
+        }
     }
 
     const std::string& memory_usage = arg_parser.GetArgumentValue(kBatchingMemoryUsageArgument);

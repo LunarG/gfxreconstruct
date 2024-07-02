@@ -36,7 +36,44 @@ to one of these other documents:
     5. [Key Controls](#key-controls)
     6. [Limitations of Replay On Android](#limitations-of-replay-on-android)
     7. [Troubleshooting Replay of Applications](#troubleshooting-replay-of-applications)
+    8. [Dumping resources](#dumping-resources)
 3. [Android Detailed Examples](#android-detailed-examples)
+
+
+## Behavior on Android
+
+The purpose of this section is to describe some of the software changes made to
+the GFXReconstruct software to add Android support.
+This section will not provide a comprehensive list of changes, but will instead
+highlight some of the primary adjustments required to adapt the GFXReconstruct
+software to the Android ecosystem.
+
+### Android Writable Locations
+
+The contents of the traces should be written to external storage on the
+Android device.
+The final "external storage" result varies based on Android version but some
+locations that can be tried are:
+
+ - `/sdcard/Download`
+ - `/storage/emulated/0/Download`
+ - `/sdcard/Android/data/${Application Full Name}`
+ - `/sdcard`
+ - `/mnt/shell/emulated/0`
+
+Where `${Application Full Name}` is the full name of the application, such
+as `com.khronos.vulkand_samples`.
+
+Some devices won't allow access to those folders for certain applications.
+In those cases, the following folders can be used, but will require `adb` root
+access to retrieve the files:
+
+ - `/data/data/${Application Full Name}/`
+ - `/data/user/0/${Application Full Name}/`
+
+**NOTE:** These directories may not be visible to other applications (including
+gfxrecon-replay, adb pull), so any capture files will need to be copied to a
+readable location with adb shell before they can be replayed.
 
 ## Capturing API Calls
 
@@ -660,7 +697,18 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--flush-measurement-range] [-m MODE]
                           [--swapchain MODE] [--use-captured-swapchain-indices]
                           [--use-colorspace-fallback] [--wait-before-present]
-                          [file]
+                          [--dump-resources <arg>]
+                          [--dump-resources <filename>]
+                          [--dump-resources <filename>.json]
+                          [--dump-resources-before-draw] [--dump-resources-scale <scale>]
+                          [--dump-resources-dir <dir>]
+                          [--dump-resources-image-format <format>]
+                          [--dump-resources-dump-depth-attachment]
+                          [--dump-resources-dump-color-attachment-index <index>]
+                          [--dump-resources-dump-vertex-index-buffers]
+                          [--dump-resources-json-output-per-command]
+                          [--dump-resources-dump-immutable-resources]
+                          [--dump-resources-dump-all-image-subresources] [file]
 
 Launch the replay tool.
 
@@ -803,6 +851,54 @@ optional arguments:
                         Force wait on completion of queue operations for all queues
                         before calling Present. This is needed for accurate acquisition
                         of instrumentation data on some platforms.
+   --dump-resources <arg>
+                        <arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,
+                        NextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>
+                        GPU resources are dumped after the given vkCmdDraw*,
+                        vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
+                        Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or
+                        vkCmdTraceRaysKHR is replayed. The parameter for each is a block
+                        index from the capture file.  The additional parameters are used
+                        to identify during which occurence of the vkCmdDraw/VkCmdDispath/
+                        VkCmdTrancRaysKHR resources will be dumped.  NextSubPass can be
+                        repeated 0 or more times to indicate subpasses withing a render
+                        pass.  Note that the minimal set of parameters must be one of:
+                            BeginCmdBuffer, Draw, BeginRenderPass, EndRenderPass, and QueueSubmit
+                            BeginCmdBuffer, Dispatch and QueueSubmit
+                            BeginCmdBuffer, TraceRays and QueueSubmit
+  --dump-resources <filename>
+              Extract --dump-resources args from the specified file, with each line in the file containing a comma or space separated
+              list of the parameters to --dump-resources. The file can contain multiple lines specifying multiple dumps.
+  --dump-resources <filename>.json
+              Extract --dump-resource args from the specified json file. The format for the json file is documented in detail
+              in the gfxreconstruct documentation.
+  --dump-resources-image-format <format>
+                        Image file format to use for image resource dumping.
+                        Available formats are:
+                            bmp         Bitmap file format.  This is the default format.
+                            png         Png file format.
+  --dump-resources-before-draw
+              In addition to dumping gpu resources after the CmdDraw, CmdDispatch and CmdTraceRays calls specified by the
+              --dump-resources argument, also dump resources before those calls.
+  --dump-resources-scale <scale>
+              Scale images generated by dump resources by the given scale factor. The scale factor must be a floating point number
+              greater than 0. Values greater than 10 are capped at 10. Default value is 1.0.
+  --dump-resources-dir <dir>
+              Directory to write dump resources output files. Default is the current working directory.
+  --dump-resources-dump-depth-attachment
+              Configures whether to dump the depth attachment when dumping draw calls. Default is disabled.
+  --dump-resources-dump-color-attachment-index <index>
+              Specify which color attachment to dump when dumping draw calls. It should be an unsigned zero
+              based integer. Default is to dump all color attachment
+  --dump-resources-dump-vertex-index-buffers
+              Enables dumping of vertex and index buffers while dumping draw call resources.
+  --dump-resources-json-output-per-command
+              Enables storing a json output file for each dumped command. Overrides default behavior which
+              is generating one output json file that contains the information for all dumped commands.
+  --dump-resources-dump-immutable-resources
+              Enables dumping of resources that are used as inputs in the commands requested for dumping
+  --dump-resources-dump-all-image-subresources
+              Enables dumping of all image sub resources (mip map levels and array layers)
 ```
 
 The command will force-stop an active replay process before starting the replay
@@ -944,6 +1040,9 @@ If the user wants to bypass the feature and use the captured indices to present
 directly on the swapchain of the replay implementation, they should add the
 `--use-captured-swapchain-indices` option when invoking `gfxrecon-replay`.
 
+#### Dumping resources
+
+GFXReconstruct offers the capability to dump resources when replaying a capture file. Detailed documentation of that feature can be found in [vulkan_dump_resources.md](./vulkan_dump_resources.md)
 
 ## Android Detailed Examples
 

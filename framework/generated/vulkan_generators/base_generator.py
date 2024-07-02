@@ -500,7 +500,7 @@ class BaseGenerator(OutputGenerator):
     def gen_video_type(self):
         if not self.VIDEO_TREE:
             return
-        
+
         if self.process_structs:
             types = self.VIDEO_TREE.find('types')
             for element in types.iter('type'):
@@ -1352,6 +1352,76 @@ class BaseGenerator(OutputGenerator):
 
         return 'void {}()'.format(name)
 
+    def make_dump_resources_func_decl(
+        self, return_type, name, values, is_override
+    ):
+        """make_consumer_decl - return VulkanConsumer class member function declaration.
+        Generate VulkanConsumer class member function declaration.
+        """
+        param_decls = []
+        param_decl = self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        param_decl = self.make_aligned_param_decl(
+            'PFN_' + name.rsplit('_', 1)[1], 'func', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        if return_type != 'void':
+            param_decl = self.make_aligned_param_decl(
+                return_type, 'returnValue', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        for value in values:
+            type_name = value.base_type
+
+            if is_override:
+                if value.is_pointer or value.is_array:
+                    count = value.pointer_count
+                    if self.is_struct(type_name):
+                        param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
+                            type_name
+                        )
+                    elif self.is_class(value):
+                        if count == 1:
+                            param_type = type_name[2:] + 'Info*'
+                        else:
+                            param_type = 'HandlePointerDecoder<{}*>'.format(type_name)
+                    elif self.is_handle(type_name) and type_name != 'VkCommandBuffer':
+                        param_type = 'HandlePointerDecoder<{}>*'.format(type_name)
+                    else:
+                        param_type = 'const ' + type_name + '*'
+                else:
+                    if self.is_handle(type_name) and type_name != 'VkCommandBuffer':
+                        param_type = "const " + type_name[2:] + "Info*"
+                    else:
+                        param_type = type_name
+            else:
+                if value.is_pointer or value.is_array:
+                    count = value.pointer_count
+                    param_type = 'const ' + type_name + '*'
+                    if count > 1:
+                        param_type += ' const *' * (count - 1)
+                else:
+                    param_type = type_name
+
+            param_decl = self.make_aligned_param_decl(
+                param_type, value.name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
+
+        return 'void {}()'.format(name)
+
     def make_structure_type_enum(self, typeinfo, typename):
         """Generate the VkStructureType enumeration value for the specified structure type."""
         members = typeinfo.elem.findall('.//member')
@@ -1379,7 +1449,7 @@ class BaseGenerator(OutputGenerator):
         """Generate an expression for the length of a given array value."""
         length_expr = value.array_length
         length_value = value.array_length_value
-    
+
         if length_value:
             if length_value.is_pointer:
                 # Add implicit dereference when length expr == pointer name
@@ -1520,6 +1590,9 @@ class BaseGenerator(OutputGenerator):
     def is_dx12_class(self):
         return True if ('Dx12' in self.__class__.__name__) else False
 
+    def is_resource_dump_class(self):
+        return True if ('ReplayDumpResources' in self.__class__.__name__) else False
+
     def __get_feature_protect(self, interface):
         """Return appropriate feature protect string from 'platform' tag on feature.
         From Vulkan-ValidationLayers common_codegen.py.
@@ -1589,13 +1662,13 @@ class BaseGenerator(OutputGenerator):
     def is_flags_enum_64bit(self, enum):
         flag_type = BitsEnumToFlagsTypedef(enum)
         return self.is_64bit_flags(flag_type)
-    
+
     def is_has_specific_key_word_in_type(self, value, key_word):
         if key_word in value.base_type:
             return True
-        
+
         values = self.feature_struct_members.get(value.base_type)
         if values:
             for value in values:
                 return self.is_has_specific_key_word_in_type(value, key_word)
-        return False  
+        return False

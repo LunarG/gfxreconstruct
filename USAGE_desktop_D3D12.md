@@ -211,6 +211,7 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
+                        [--dump-resources <submit-index,command-index,drawcall-index> <file>
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -334,6 +335,12 @@ D3D12-only:
                                for batching and does not guarantee overall max memory usage.
                                Acceptable values range from 0 to 100 (default: 80). 0 means no batching,
                                100 means use all available system and GPU memory.
+  --dump-resources <submit-index,command-index,drawcall-index>
+                                Output binaray resources for a specific drawcall.
+                                Include vertex, index, const buffer, shader resource, render target,
+                                and depth stencil. And for before and after drawcall.
+                                Arguments becomes three indices, submit index, command index,
+                                drawcall index. The command index is based on its in ExecuteCommandLists.
 ```
 
 

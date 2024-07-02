@@ -1301,7 +1301,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
         if (snapshot_entry.need_staging_copy)
         {
             VkResult result = resource_util.ReadFromBufferResource(
-                buffer_wrapper->handle, buffer_wrapper->created_size, buffer_wrapper->queue_family_index, data);
+                buffer_wrapper->handle, buffer_wrapper->created_size, 0, buffer_wrapper->queue_family_index, data);
 
             if (result == VK_SUCCESS)
             {
@@ -1411,7 +1411,9 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
         {
             std::vector<uint64_t> subresource_offsets;
             std::vector<uint64_t> subresource_sizes;
-            VkResult              result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
+            bool                  scaling_supported;
+
+            VkResult result = resource_util.ReadFromImageResourceStaging(image_wrapper->handle,
                                                                          image_wrapper->format,
                                                                          image_wrapper->image_type,
                                                                          image_wrapper->extent,
@@ -1425,6 +1427,7 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                                                                          data,
                                                                          subresource_offsets,
                                                                          subresource_sizes,
+                                                                         scaling_supported,
                                                                          true);
 
             if (result == VK_SUCCESS)
@@ -1705,7 +1708,9 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
                 ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
                 ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
                 graphics::VulkanResourcesUtil     resource_util(device_wrapper->handle,
+                                                            device_wrapper->physical_device->handle,
                                                             device_wrapper->layer_table,
+                                                            *device_wrapper->physical_device->layer_table_ref,
                                                             device_wrapper->physical_device->memory_properties);
 
                 bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
@@ -1824,8 +1829,11 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
         const vulkan_wrappers::DeviceWrapper* device_wrapper = resource_entry.first;
         VkResult                              result         = VK_SUCCESS;
 
-        graphics::VulkanResourcesUtil resource_util(
-            device_wrapper->handle, device_wrapper->layer_table, device_wrapper->physical_device->memory_properties);
+        graphics::VulkanResourcesUtil resource_util(device_wrapper->handle,
+                                                    device_wrapper->physical_device->handle,
+                                                    device_wrapper->layer_table,
+                                                    *device_wrapper->physical_device->layer_table_ref,
+                                                    device_wrapper->physical_device->memory_properties);
 
         if (max_staging_copy_size > 0)
         {

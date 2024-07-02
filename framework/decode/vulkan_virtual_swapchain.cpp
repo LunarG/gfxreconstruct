@@ -971,6 +971,21 @@ void VulkanVirtualSwapchain::CmdPipelineBarrier(PFN_vkCmdPipelineBarrier     fun
          image_memory_barriers);
 }
 
+void VulkanVirtualSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
+                                                 CommandBufferInfo*        command_buffer_info,
+                                                 const VkDependencyInfo*   pDependencyInfo)
+{
+
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+    if (command_buffer_info != nullptr)
+    {
+        command_buffer = command_buffer_info->handle;
+    }
+
+    func(command_buffer, pDependencyInfo);
+}
+
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const DeviceInfo*        device_info,
                                                              const VkImageCreateInfo& image_create_info,
                                                              VirtualImage&            image)

@@ -65,6 +65,8 @@ generate_targets = [
     'generated_vulkan_consumer.h',
     'generated_vulkan_replay_consumer.h',
     'generated_vulkan_replay_consumer.cpp',
+    'generated_vulkan_replay_dump_resources.h',
+    'generated_vulkan_replay_dump_resources.cpp',
     'generated_vulkan_referenced_resource_consumer.h',
     'generated_vulkan_referenced_resource_consumer.cpp',
     'generated_vulkan_struct_handle_mappers.h',
