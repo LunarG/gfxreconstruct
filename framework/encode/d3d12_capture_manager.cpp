@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2021-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -755,8 +755,8 @@ void D3D12CaptureManager::PostProcess_ID3D12Device_CreateDescriptorHeap(
         info->descriptor_info      = std::make_unique<DxDescriptorInfo[]>(num_descriptors);
         info->descriptor_increment = increment;
 
-        size_t offset    = 0;
-        auto   cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
+        size_t                      offset    = 0;
+        auto                        cpu_start = descriptor_heap->GetCPUDescriptorHandleForHeapStart();
         D3D12_GPU_DESCRIPTOR_HANDLE gpu_start{ 0 };
 
         // D3D12 validation layer states GetGPUDescriptorHandleForHeapStart() should only be used for heaps
@@ -2095,6 +2095,61 @@ HRESULT D3D12CaptureManager::OverrideID3D12PipelineLibrary1_LoadPipeline(ID3D12P
     return E_INVALIDARG;
 }
 
+HRESULT D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForHwnd(
+    IDXGIFactory2_Wrapper*                 factory2_wrapper,
+    IUnknown*                              pDevice,
+    HWND                                   hWnd,
+    const DXGI_SWAP_CHAIN_DESC1*           pDesc,
+    const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+    IDXGIOutput*                           pRestrictToOutput,
+    IDXGISwapChain1**                      ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result =
+        factory2->CreateSwapChainForHwnd(pDevice, hWnd, pDesc, pFullscreenDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                        IUnknown*                    pDevice,
+                                                                        IUnknown*                    pWindow,
+                                                                        const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                        IDXGIOutput*                 pRestrictToOutput,
+                                                                        IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForCoreWindow(pDevice, pWindow, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
+HRESULT
+D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                         IUnknown*                    pDevice,
+                                                                         const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                         IDXGIOutput*                 pRestrictToOutput,
+                                                                         IDXGISwapChain1**            ppSwapChain)
+{
+    auto factory2 = factory2_wrapper->GetWrappedObjectAs<IDXGIFactory2>();
+    if (factory2 == nullptr)
+    {
+        return E_INVALIDARG;
+    }
+    HRESULT result = factory2->CreateSwapChainForComposition(pDevice, pDesc, pRestrictToOutput, ppSwapChain);
+    UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
+    return result;
+}
+
 PFN_D3D12_GET_DEBUG_INTERFACE D3D12CaptureManager::GetDebugInterfacePtr()
 {
     PFN_D3D12_GET_DEBUG_INTERFACE get_debug_interface = d3d12_dispatch_table_.D3D12GetDebugInterface;
@@ -2881,6 +2936,19 @@ void D3D12CaptureManager::WriteDx2RuntimeInfoCommand(const format::Dx12RuntimeIn
                                    sizeof(runtime_info));
 
         WriteToFile(&dx12_runtime_info_header, sizeof(dx12_runtime_info_header));
+    }
+}
+
+void D3D12CaptureManager::UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain)
+{
+    if (width == 0 || height == 0)
+    {
+        DXGI_SWAP_CHAIN_DESC1 swapchain_desc;
+        if (swapchain != NULL)
+        {
+            swapchain->GetDesc1(&swapchain_desc);
+            WriteResizeWindowCmd(0, swapchain_desc.Width, swapchain_desc.Height);
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
-** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -687,6 +687,27 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                      void*                 feature_support_data,
                                                      UINT                  feature_support_data_size);
 
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForHwnd(IDXGIFactory2_Wrapper*                 factory2_wrapper,
+                                                         IUnknown*                              pDevice,
+                                                         HWND                                   hWnd,
+                                                         const DXGI_SWAP_CHAIN_DESC1*           pDesc,
+                                                         const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc,
+                                                         IDXGIOutput*                           pRestrictToOutput,
+                                                         IDXGISwapChain1**                      ppSwapChain);
+
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                               IUnknown*                    pDevice,
+                                                               IUnknown*                    pWindow,
+                                                               const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                               IDXGIOutput*                 pRestrictToOutput,
+                                                               IDXGISwapChain1**            ppSwapChain);
+
+    HRESULT OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFactory2_Wrapper*       factory2_wrapper,
+                                                                IUnknown*                    pDevice,
+                                                                const DXGI_SWAP_CHAIN_DESC1* pDesc,
+                                                                IDXGIOutput*                 pRestrictToOutput,
+                                                                IDXGISwapChain1**            ppSwapChain);
+
     void OverrideGetRaytracingAccelerationStructurePrebuildInfo(
         ID3D12Device5_Wrapper*                                      device5_wrapper,
         const D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS* pDesc,
@@ -785,6 +806,7 @@ class D3D12CaptureManager : public ApiCaptureManager
     bool     IsUploadResource(D3D12_HEAP_TYPE type, D3D12_CPU_PAGE_PROPERTY page_property);
     uint64_t GetResourceSizeInBytes(ID3D12Device_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC* desc);
     uint64_t GetResourceSizeInBytes(ID3D12Device8_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC1* desc);
+    void     UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain);
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();
