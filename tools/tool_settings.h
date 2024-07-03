@@ -120,6 +120,8 @@ const char kFilePerFrameOption[]                  = "--file-per-frame";
 const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
 const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
 const char kWaitBeforePresent[]                   = "--wait-before-present";
+const char kPrintBlockInfoAllOption[]             = "--pbi-all";
+const char kPrintBlockInfosArgument[]             = "--pbis";
 #if defined(WIN32)
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
@@ -894,6 +896,24 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     if (arg_parser.IsOptionSet(kFlushInsideMeasurementRangeOption))
     {
         options.flush_inside_measurement_range = true;
+    }
+
+    if (arg_parser.IsOptionSet(kPrintBlockInfoAllOption))
+    {
+        options.enable_print_block_info = true;
+    }
+    else if (arg_parser.IsArgumentSet(kPrintBlockInfosArgument))
+    {
+        options.enable_print_block_info = true;
+        const auto& value               = arg_parser.GetArgumentValue(kPrintBlockInfosArgument);
+
+        if (!value.empty())
+        {
+            std::vector<gfxrecon::util::UintRange> block_ranges =
+                gfxrecon::util::GetUintRanges(value.c_str(), "Print block information");
+            options.block_index_from = block_ranges[0].first;
+            options.block_index_to   = block_ranges[1].first;
+        }
     }
 
     const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);

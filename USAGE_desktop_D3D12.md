@@ -211,7 +211,8 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
-                        [--dump-resources <submit-index,command-index,drawcall-index> <file>
+                        [--dump-resources <submit-index,command-index,drawcall-index>] <file>
+                        [--pbi-all] [--pbis <index1,index2>]
 
 Required arguments:
   <file>                Path to the capture file to replay.
@@ -270,6 +271,8 @@ Optional arguments:
                         returned by vkEnumeratePhysicalDevices or IDXGIFactory1::EnumAdapters1.
                         Replay may fail if the specified device is not compatible with the
                         original capture devices.
+  --pbi-all             Print all block information.
+  --pbis <index1,index2>Print block information between block index1 and block index2.
 
 Windows-only:
   --fwo <x,y>           Force windowed mode if not already, and allow setting of a custom window location.

@@ -99,6 +99,13 @@ class FileProcessor
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
 
+    void SetPrintBlockInfoFlag(bool enable_print_block_info, int64_t block_index_from, int64_t block_index_to)
+    {
+        enable_print_block_info_ = enable_print_block_info;
+        block_index_from_        = block_index_from;
+        block_index_to_          = block_index_to;
+    }
+
   protected:
     bool ContinueDecoding();
 
@@ -128,7 +135,7 @@ class FileProcessor
 
   protected:
     FILE*                    file_descriptor_;
-    uint32_t                 current_frame_number_;
+    uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
     Error                    error_state_;
@@ -164,6 +171,9 @@ class FileProcessor
     uint64_t                            block_limit_;
     bool                                capture_uses_frame_markers_;
     uint64_t                            first_frame_;
+    bool                                enable_print_block_info_{ false };
+    int64_t                             block_index_from_{ 0 };
+    int64_t                             block_index_to_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

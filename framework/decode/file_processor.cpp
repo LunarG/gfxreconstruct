@@ -243,6 +243,12 @@ bool FileProcessor::ProcessBlocks()
 
     while (success)
     {
+        if (enable_print_block_info_ && ((block_index_from_ < 0 || block_index_to_ < 0) ||
+                                         (block_index_from_ <= block_index_ && block_index_to_ >= block_index_)))
+        {
+            GFXRECON_LOG_INFO(
+                "block info: index: %" PRIu64 ", current frame: %" PRIu64 "", block_index_, current_frame_number_);
+        }
         success = ContinueDecoding();
 
         if (success)
