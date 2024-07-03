@@ -57,6 +57,9 @@ struct ReplayOptions
     int32_t     window_topleft_y{ 0 };
     int32_t     override_gpu_index{ -1 };
     std::string capture_filename;
+    bool        enable_print_block_info{ false };
+    int64_t     block_index_from{ -1 };
+    int64_t     block_index_to{ -1 };
 };
 
 GFXRECON_END_NAMESPACE(decode)
