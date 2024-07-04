@@ -39,6 +39,9 @@ target_sources(gfxrecon_util
                    ${GFXRECON_SOURCE_DIR}/framework/util/platform.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/settings_loader.cpp
+                   ${GFXRECON_SOURCE_DIR}/framework/util/spirv_helper.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/spirv_parsing_util.h
+                   ${GFXRECON_SOURCE_DIR}/framework/util/spirv_parsing_util.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.h
                    ${GFXRECON_SOURCE_DIR}/framework/util/strings.cpp
                    ${GFXRECON_SOURCE_DIR}/framework/util/to_string.h
@@ -68,6 +71,8 @@ target_include_directories(gfxrecon_util
 target_link_libraries(gfxrecon_util
                           platform_specific
                           vulkan_registry
+                          spirv_registry
+                          spirv-reflect-static
                           ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/liblz4_static.a
                           ${GFXRECON_SOURCE_DIR}/external/precompiled/android/lib/${ANDROID_ABI}/libzstd.a
                           z)

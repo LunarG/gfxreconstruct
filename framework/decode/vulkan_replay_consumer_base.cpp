@@ -44,6 +44,7 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
+#include "util/spirv_parsing_util.h"
 
 #include "spirv_reflect.h"
 
@@ -5430,19 +5431,37 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         VkResult vk_res = func(
             device_info->handle, original_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 
-        if (vk_res == VK_SUCCESS && options_.dumping_resources)
+        if (vk_res == VK_SUCCESS)
         {
-            ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
-            assert(shader_info);
+            // check for buffer-references, issue warning
+            gfxrecon::util::SpirVParsingUtil spirv_util;
 
-            const PhysicalDeviceInfo* phys_dev = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
-            assert(phys_dev);
-            assert(phys_dev->replay_device_info);
+            if (spirv_util.ParseBufferReferences(original_info->pCode, original_info->codeSize))
+            {
+                auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
 
-            SPIRVReflectPerformReflectionOnShaderModule(shader_info,
-                                                        original_info->codeSize,
-                                                        original_info->pCode,
-                                                        phys_dev->replay_device_info->properties->limits);
+                if (!buffer_reference_infos.empty())
+                {
+                    GFXRECON_LOG_WARNING_ONCE("A Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
+                                              "Resource tracking for buffers accessed via references is currently "
+                                              "unsupported, so replay may fail.");
+                }
+            }
+
+            if (options_.dumping_resources)
+            {
+                ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
+                assert(shader_info);
+
+                const PhysicalDeviceInfo* phys_dev = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
+                assert(phys_dev);
+                assert(phys_dev->replay_device_info);
+
+                SPIRVReflectPerformReflectionOnShaderModule(shader_info,
+                                                            original_info->codeSize,
+                                                            original_info->pCode,
+                                                            phys_dev->replay_device_info->properties->limits);
+            }
         }
 
         return vk_res;
@@ -5475,17 +5494,37 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     VkResult vk_res = func(
         device_info->handle, &override_info, GetAllocationCallbacks(pAllocator), pShaderModule->GetHandlePointer());
 
-    if (vk_res == VK_SUCCESS && options_.dumping_resources)
+    if (vk_res == VK_SUCCESS)
     {
-        ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
-        assert(shader_info);
+        // check for buffer-references, issue warning
+        gfxrecon::util::SpirVParsingUtil spirv_util;
 
-        const PhysicalDeviceInfo* phys_dev = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
-        assert(phys_dev);
-        assert(phys_dev->replay_device_info);
+        if (spirv_util.ParseBufferReferences(original_info->pCode, original_info->codeSize))
+        {
+            auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
 
-        SPIRVReflectPerformReflectionOnShaderModule(
-            shader_info, override_info.codeSize, override_info.pCode, phys_dev->replay_device_info->properties->limits);
+            if (!buffer_reference_infos.empty())
+            {
+                GFXRECON_LOG_WARNING_ONCE("A Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
+                                          "Resource tracking for buffers accessed via references is currently "
+                                          "unsupported, so replay may fail.");
+            }
+        }
+
+        if (vk_res == VK_SUCCESS && options_.dumping_resources)
+        {
+            ShaderModuleInfo* shader_info = reinterpret_cast<ShaderModuleInfo*>(pShaderModule->GetConsumerData(0));
+            assert(shader_info);
+
+            const PhysicalDeviceInfo* phys_dev = object_info_table_.GetPhysicalDeviceInfo(device_info->parent_id);
+            assert(phys_dev);
+            assert(phys_dev->replay_device_info);
+
+            SPIRVReflectPerformReflectionOnShaderModule(shader_info,
+                                                        override_info.codeSize,
+                                                        override_info.pCode,
+                                                        phys_dev->replay_device_info->properties->limits);
+        }
     }
 
     return vk_res;
