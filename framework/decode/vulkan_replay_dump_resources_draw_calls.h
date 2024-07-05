@@ -486,26 +486,9 @@ class DrawCallsDumpingContext
 
         union DrawCallParamsUnion
         {
-            struct DrawParams
-            {
-                uint32_t vertex_count;
-                uint32_t instance_count;
-                uint32_t first_vertex;
-                uint32_t first_instance;
-            };
+            VkDrawIndirectCommand draw;
 
-            DrawParams draw;
-
-            struct DrawIndexedParams
-            {
-                uint32_t index_count;
-                uint32_t instance_count;
-                uint32_t first_index;
-                int32_t  vertex_offset;
-                uint32_t first_instance;
-            };
-
-            DrawIndexedParams draw_indexed;
+            VkDrawIndexedIndirectCommand draw_indexed;
 
             struct DrawIndirectParams
             {
@@ -524,8 +507,8 @@ class DrawCallsDumpingContext
                 // handle the memory managment ourselves.
                 // One of these pointer will be used, depending on whether the draw call is indexed
                 // or not.
-                DrawParams*        draw_params;
-                DrawIndexedParams* draw_indexed_params;
+                VkDrawIndirectCommand*        draw_params;
+                VkDrawIndexedIndirectCommand* draw_indexed_params;
             };
 
             DrawIndirectParams draw_indirect;
@@ -552,8 +535,8 @@ class DrawCallsDumpingContext
                 // handle the memory managment ourselves.
                 // One of these pointer will be used, depending on whether the draw call is indexed
                 // or not.
-                DrawParams*        draw_params;
-                DrawIndexedParams* draw_indexed_params;
+                VkDrawIndirectCommand*        draw_params;
+                VkDrawIndexedIndirectCommand* draw_indexed_params;
 
                 uint32_t actual_draw_count;
             };
