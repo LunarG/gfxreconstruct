@@ -680,7 +680,7 @@ void DrawCallsDumpingContext::FinalizeCommandBuffer()
                     barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
                     barrier.image               = cat->handle;
                     barrier.subresourceRange    = {
-                        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+                           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
                     };
 
                     device_table->CmdPipelineBarrier(current_command_buffer,
@@ -1190,8 +1190,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                     dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(vb_binding.first);
                 assert(vb_binding_buffer != dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
 
-                if (vb_binding_buffer->second.buffer_info != nullptr &&
-                    vb_binding.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX)
+                if (vb_binding_buffer->second.buffer_info != nullptr)
                 {
                     const std::string vb_filename =
                         GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, vb_binding.first);
@@ -1377,7 +1376,7 @@ VkResult DrawCallsDumpingContext::RevertRenderTargetImageLayouts(VkQueue queue, 
     img_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     img_barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     img_barrier.subresourceRange    = {
-        VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
+           VK_IMAGE_ASPECT_COLOR_BIT, 0, VK_REMAINING_MIP_LEVELS, 0, VK_REMAINING_ARRAY_LAYERS
     };
 
     for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
@@ -2231,15 +2230,68 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     // Dump vertex buffer
     if (!dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty())
     {
-        // In order to deduce the vertex buffer's size find the greatest vertex count
-        // used by all draw calls that reference this vertex buffer
-        uint32_t vertex_count = 0;
-        uint32_t first_vertex = 0;
+        uint32_t vertex_count   = 0;
+        uint32_t first_vertex   = 0;
+        uint32_t instance_count = 0;
+        uint32_t first_instance = 0;
 
         if (IsDrawCallIndexed(dc_params.type))
         {
             // For indexed draw calls the greatest vertex index will be used as the max vertex count
             vertex_count = greatest_vertex_index + 1;
+
+            if (IsDrawCallIndirect(dc_params.type))
+            {
+                if (IsDrawCallIndirectCount(dc_params.type))
+                {
+                    const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
+                        dc_params.dc_params_union.draw_indirect_count;
+
+                    if (ic_params.max_draw_count)
+                    {
+                        assert(ic_params.draw_params != nullptr);
+                        for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
+                        {
+                            if (instance_count < ic_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = ic_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < ic_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = ic_params.draw_params[d].firstInstance;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& i_params =
+                        dc_params.dc_params_union.draw_indirect;
+
+                    if (i_params.draw_count)
+                    {
+                        assert(i_params.draw_params != nullptr);
+                        for (uint32_t d = 0; d < i_params.draw_count; ++d)
+                        {
+                            if (instance_count < i_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = i_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < i_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = i_params.draw_params[d].firstInstance;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                instance_count = dc_params.dc_params_union.draw.instanceCount;
+                first_instance = dc_params.dc_params_union.draw.firstInstance;
+            }
         }
         else
         {
@@ -2264,6 +2316,16 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                             {
                                 first_vertex = ic_params.draw_params[d].firstVertex;
                             }
+
+                            if (instance_count < ic_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = ic_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < ic_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = ic_params.draw_params[d].firstInstance;
+                            }
                         }
                     }
                 }
@@ -2286,6 +2348,16 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                             {
                                 first_vertex = i_params.draw_params[d].firstVertex;
                             }
+
+                            if (instance_count < i_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = i_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < i_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = i_params.draw_params[d].firstInstance;
+                            }
                         }
                     }
                 }
@@ -2294,6 +2366,9 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             {
                 vertex_count = dc_params.dc_params_union.draw.vertexCount;
                 first_vertex = dc_params.dc_params_union.draw.firstVertex;
+
+                instance_count = dc_params.dc_params_union.draw.instanceCount;
+                first_instance = dc_params.dc_params_union.draw.firstInstance;
             }
         }
 
@@ -2302,12 +2377,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             for (auto& vis : dc_params.vertex_input_state.vertex_input_binding_map)
             {
                 const uint32_t binding = vis.first;
-
-                // Ignore instance data
-                if (vis.second.inputRate == VK_VERTEX_INPUT_RATE_INSTANCE)
-                {
-                    continue;
-                }
 
                 auto vb_entry = dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(binding);
                 assert(vb_entry != dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
@@ -2324,6 +2393,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     continue;
                 }
 
+                const uint32_t count =
+                    vis.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? vertex_count : instance_count;
+                const uint32_t first =
+                    vis.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? first_vertex : first_instance;
+
                 const uint32_t offset     = vb_entry->second.offset;
                 uint32_t       total_size = 0;
                 if (vb_entry->second.size)
@@ -2336,15 +2410,15 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     const uint32_t binding_stride = vis.second.stride;
                     if (binding_stride)
                     {
-                        total_size = (vertex_count + first_vertex) * binding_stride;
+                        total_size = (count + first) * binding_stride;
                     }
                     else
                     {
                         // According to the spec providing a VkVertexInputBindingDescription.stride equal to zero is
                         // valid. In these cases we will assume that information for only 1 vertex will be consumed
                         // (since we can't tell where the next one is located). So calculate the total size of all
-                        // attributes that are using that binding and use that as the size of the vertex information for
-                        // 1 vertex.
+                        // attributes that are using that binding and use that as the size of the vertex information
+                        // for 1 vertex.
                         uint32_t min_offset = std::numeric_limits<uint32_t>::max();
                         for (const auto& ppl_attr : dc_params.vertex_input_state.vertex_input_attribute_map)
                         {
