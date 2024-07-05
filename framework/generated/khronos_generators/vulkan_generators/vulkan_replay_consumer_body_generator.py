@@ -291,6 +291,7 @@ class VulkanReplayConsumerBodyGenerator(
         dispatchfunc = ''
         if name not in ['vkCreateInstance', 'vkCreateDevice']:
             object_name = args[0]
+            dispatch_func_is_set = False
             if self.use_instance_table(name, values[0].base_type):
                 dispatchfunc = 'GetInstanceTable'
                 if values[0].base_type == 'VkDevice':
@@ -300,10 +301,11 @@ class VulkanReplayConsumerBodyGenerator(
             else:
                 dispatchfunc = 'GetDeviceTable'
 
-            if is_override:
-                dispatchfunc += '({}->handle)->{}'.format(object_name, name[2:])
-            else:
-                dispatchfunc += '({})->{}'.format(object_name, name[2:])
+            if not dispatch_func_is_set:
+                if is_override:
+                    dispatchfunc += '({}->handle)->{}'.format(object_name, name[2:])
+                else:
+                    dispatchfunc += '({})->{}'.format(object_name, name[2:])
 
         call_expr = ''
         if is_override:

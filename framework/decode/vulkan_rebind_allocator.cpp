@@ -707,6 +707,12 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                         memory_alloc_info->original_buffers.insert(std::make_pair(buffer, resource_alloc_info));
 
                         bind_memory_properties[i] = property_flags;
+
+                        SetBindingDebugUtilsNameAndTag(memory_alloc_info,
+                                                       resource_alloc_info,
+                                                       allocation_info.deviceMemory,
+                                                       VK_OBJECT_TYPE_BUFFER,
+                                                       reinterpret_cast<uint64_t>(buffer));
                     }
                 }
             }
@@ -758,6 +764,8 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
                                                 VkMemoryPropertyFlags*                  bind_memory_properties,
                                                 const VkPhysicalDeviceMemoryProperties& device_memory_properties)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(memory);
+
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
     if ((image != VK_NULL_HANDLE) && (allocator_image_data != 0) && (allocator_memory_data != 0) &&
@@ -833,6 +841,12 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
                     }
 
                     (*bind_memory_properties) = property_flags;
+
+                    SetBindingDebugUtilsNameAndTag(memory_alloc_info,
+                                                   resource_alloc_info,
+                                                   allocation_info.deviceMemory,
+                                                   VK_OBJECT_TYPE_IMAGE,
+                                                   reinterpret_cast<uint64_t>(image));
                 }
             }
         }
@@ -940,6 +954,12 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
                             memory_alloc_info->original_images.insert(std::make_pair(image, resource_alloc_info));
 
                             bind_memory_properties[i] = property_flags;
+
+                            SetBindingDebugUtilsNameAndTag(memory_alloc_info,
+                                                           resource_alloc_info,
+                                                           allocation_info.deviceMemory,
+                                                           VK_OBJECT_TYPE_IMAGE,
+                                                           reinterpret_cast<uint64_t>(image));
                         }
                     }
                 }
@@ -1161,6 +1181,128 @@ VkResult VulkanRebindAllocator::InvalidateMappedMemoryRanges(uint32_t           
                                                              const MemoryData*          allocator_datas)
 {
     return UpdateMappedMemoryRanges(memory_range_count, memory_ranges, allocator_datas, vmaInvalidateAllocation);
+}
+
+VkResult VulkanRebindAllocator::SetDebugUtilsObjectNameEXT(VkDevice                       device,
+                                                           VkDebugUtilsObjectNameInfoEXT* name_info,
+                                                           uintptr_t                      allocator_data)
+{
+    if (allocator_data != 0)
+    {
+        switch (name_info->objectType)
+        {
+            case VK_OBJECT_TYPE_DEVICE_MEMORY:
+            {
+                MemoryAllocInfo* memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+                if (memory_alloc_info->original_buffers.empty() && memory_alloc_info->original_images.empty())
+                {
+                    memory_alloc_info->debug_utils_name = name_info->pObjectName;
+                    return VK_SUCCESS;
+                }
+                else
+                {
+                    VmaAllocationInfo allocation_info;
+                    if (!memory_alloc_info->original_buffers.empty())
+                    {
+                        auto it = memory_alloc_info->original_buffers.begin();
+                        vmaGetAllocationInfo(allocator_, it->second->allocation, &allocation_info);
+                    }
+                    else
+                    {
+                        auto it = memory_alloc_info->original_images.begin();
+                        vmaGetAllocationInfo(allocator_, it->second->allocation, &allocation_info);
+                    }
+
+                    name_info->objectHandle = reinterpret_cast<uint64_t>(allocation_info.deviceMemory);
+                }
+                break;
+            }
+            case VK_OBJECT_TYPE_BUFFER:
+            case VK_OBJECT_TYPE_IMAGE:
+            {
+                ResourceAllocInfo* resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+                if (resource_alloc_info->memory_info == nullptr)
+                {
+                    resource_alloc_info->debug_utils_name = name_info->pObjectName;
+                    return VK_SUCCESS;
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+
+    return functions_.set_debug_utils_object_name(device, name_info);
+}
+
+VkResult VulkanRebindAllocator::SetDebugUtilsObjectTagEXT(VkDevice                      device,
+                                                          VkDebugUtilsObjectTagInfoEXT* tag_info,
+                                                          uintptr_t                     allocator_data)
+{
+    if (allocator_data != 0)
+    {
+        switch (tag_info->objectType)
+        {
+            case VK_OBJECT_TYPE_DEVICE_MEMORY:
+            {
+                MemoryAllocInfo* memory_alloc_info = reinterpret_cast<MemoryAllocInfo*>(allocator_data);
+                if (memory_alloc_info->original_buffers.empty() && memory_alloc_info->original_images.empty())
+                {
+                    std::vector<uint8_t>& buffer = memory_alloc_info->debug_utils_tag;
+                    const uint8_t*        data   = reinterpret_cast<const uint8_t*>(tag_info->pTag);
+
+                    buffer.clear();
+                    buffer.insert(buffer.end(), data, data + tag_info->tagSize);
+                    memory_alloc_info->debug_utils_tag_name = tag_info->tagName;
+
+                    return VK_SUCCESS;
+                }
+                else
+                {
+                    VmaAllocationInfo allocation_info;
+                    if (!memory_alloc_info->original_buffers.empty())
+                    {
+                        auto it = memory_alloc_info->original_buffers.begin();
+                        vmaGetAllocationInfo(allocator_, it->second->allocation, &allocation_info);
+                    }
+                    else
+                    {
+                        auto it = memory_alloc_info->original_images.begin();
+                        vmaGetAllocationInfo(allocator_, it->second->allocation, &allocation_info);
+                    }
+
+                    tag_info->objectHandle = reinterpret_cast<uint64_t>(allocation_info.deviceMemory);
+                }
+                break;
+            }
+            case VK_OBJECT_TYPE_BUFFER:
+            case VK_OBJECT_TYPE_IMAGE:
+            {
+                ResourceAllocInfo* resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+                if (resource_alloc_info->memory_info == nullptr)
+                {
+                    std::vector<uint8_t>& buffer = resource_alloc_info->debug_utils_tag;
+                    const uint8_t*        data   = reinterpret_cast<const uint8_t*>(tag_info->pTag);
+
+                    buffer.clear();
+                    buffer.insert(buffer.end(), data, data + tag_info->tagSize);
+                    resource_alloc_info->debug_utils_tag_name = tag_info->tagName;
+
+                    return VK_SUCCESS;
+                }
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+
+    return functions_.set_debug_utils_object_tag(device, tag_info);
 }
 
 VkResult VulkanRebindAllocator::WriteMappedMemoryRange(MemoryData     allocator_data,
@@ -1944,6 +2086,61 @@ VkResult VulkanRebindAllocator::MapResourceMemoryDirect(VkDeviceSize     size,
     }
 
     return result;
+}
+
+void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo*   memory_alloc_info,
+                                                           const ResourceAllocInfo* resource_alloc_info,
+                                                           VkDeviceMemory           device_memory,
+                                                           VkObjectType             resource_type,
+                                                           uint64_t                 resource_handle)
+{
+    VkDebugUtilsObjectNameInfoEXT name_info;
+    name_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+    name_info.pNext = nullptr;
+
+    VkDebugUtilsObjectTagInfoEXT tag_info;
+    tag_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_TAG_INFO_EXT;
+    tag_info.pNext = nullptr;
+
+    if (!memory_alloc_info->debug_utils_name.empty())
+    {
+        name_info.objectType   = VK_OBJECT_TYPE_DEVICE_MEMORY;
+        name_info.objectHandle = reinterpret_cast<uint64_t>(device_memory);
+        name_info.pObjectName  = memory_alloc_info->debug_utils_name.c_str();
+
+        functions_.set_debug_utils_object_name(device_, &name_info);
+    }
+
+    if (!memory_alloc_info->debug_utils_tag.empty())
+    {
+        tag_info.objectType   = VK_OBJECT_TYPE_DEVICE_MEMORY;
+        tag_info.objectHandle = reinterpret_cast<uint64_t>(device_memory);
+        tag_info.tagName      = memory_alloc_info->debug_utils_tag_name;
+        tag_info.tagSize      = memory_alloc_info->debug_utils_tag.size();
+        tag_info.pTag         = memory_alloc_info->debug_utils_tag.data();
+
+        functions_.set_debug_utils_object_tag(device_, &tag_info);
+    }
+
+    if (!resource_alloc_info->debug_utils_name.empty())
+    {
+        name_info.objectType   = resource_type;
+        name_info.objectHandle = resource_handle;
+        name_info.pObjectName  = resource_alloc_info->debug_utils_name.c_str();
+
+        functions_.set_debug_utils_object_name(device_, &name_info);
+    }
+
+    if (!resource_alloc_info->debug_utils_tag.empty())
+    {
+        tag_info.objectType   = resource_type;
+        tag_info.objectHandle = resource_handle;
+        tag_info.tagName      = resource_alloc_info->debug_utils_tag_name;
+        tag_info.tagSize      = resource_alloc_info->debug_utils_tag.size();
+        tag_info.pTag         = resource_alloc_info->debug_utils_tag.data();
+
+        functions_.set_debug_utils_object_tag(device_, &tag_info);
+    }
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -174,6 +174,14 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                                                   const VkMappedMemoryRange* memory_ranges,
                                                   const MemoryData*          allocator_datas) override;
 
+    virtual VkResult SetDebugUtilsObjectNameEXT(VkDevice                       device,
+                                                VkDebugUtilsObjectNameInfoEXT* name_info,
+                                                uintptr_t                      allocator_data) override;
+
+    virtual VkResult SetDebugUtilsObjectTagEXT(VkDevice                      device,
+                                               VkDebugUtilsObjectTagInfoEXT* tag_info,
+                                               uintptr_t                     allocator_data) override;
+
     virtual VkResult
     WriteMappedMemoryRange(MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
@@ -340,6 +348,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         uint32_t         height{ 0 };
         bool             uses_extensions{ false };
 
+        std::string          debug_utils_name;
+        std::vector<uint8_t> debug_utils_tag;
+        uint64_t             debug_utils_tag_name;
+
         // Image layouts for performing mapped memory writes to linear images with different capture/replay memory
         // alignments.
         std::vector<SubresourceLayouts> layouts;
@@ -357,6 +369,10 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
         std::unordered_map<VkBuffer, ResourceAllocInfo*> original_buffers;
         std::unordered_map<VkImage, ResourceAllocInfo*>  original_images;
         std::unordered_map<VkVideoSessionKHR, ResourceAllocInfo*> original_sessions;
+
+        std::string          debug_utils_name;
+        std::vector<uint8_t> debug_utils_tag;
+        uint64_t             debug_utils_tag_name;
     };
 
   private:
@@ -437,6 +453,12 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
                              MemoryData                              allocator_memory_data,
                              VkMemoryPropertyFlags*                  bind_memory_properties,
                              const VkPhysicalDeviceMemoryProperties& device_memory_properties);
+
+    void SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo*   memory_alloc_info,
+                                        const ResourceAllocInfo* resource_alloc_info,
+                                        VkDeviceMemory           device_memory,
+                                        VkObjectType             resource_type,
+                                        uint64_t                 resource_handle);
 
   private:
     VkDevice                         device_ = VK_NULL_HANDLE;

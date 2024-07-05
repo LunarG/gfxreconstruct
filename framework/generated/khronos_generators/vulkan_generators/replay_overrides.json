@@ -112,6 +112,8 @@
     "vkAcquireProfilingLockKHR": "OverrideAcquireProfilingLockKHR",
     "vkWaitForPresentKHR": "OverrideWaitForPresentKHR",
     "vkWaitSemaphores": "OverrideWaitSemaphores",
+    "vkSetDebugUtilsObjectNameEXT": "OverrideSetDebugUtilsObjectNameEXT",
+    "vkSetDebugUtilsObjectTagEXT": "OverrideSetDebugUtilsObjectTagEXT",
     "vkFrameBoundaryANDROID": "OverrideFrameBoundaryANDROID",
     "vkCmdInsertDebugUtilsLabelEXT": "OverrideCmdInsertDebugUtilsLabelEXT",
     "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",

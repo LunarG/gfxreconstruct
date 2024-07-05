@@ -91,6 +91,8 @@ class VulkanResourceAllocator
         PFN_vkFreeCommandBuffers                     free_command_buffers{ nullptr };
         PFN_vkDestroyCommandPool                     destroy_command_pool{ nullptr };
         PFN_vkGetPhysicalDeviceQueueFamilyProperties get_physical_device_queue_family_properties{ nullptr };
+        PFN_vkSetDebugUtilsObjectNameEXT             set_debug_utils_object_name{ nullptr };
+        PFN_vkSetDebugUtilsObjectTagEXT              set_debug_utils_object_tag{ nullptr };
     };
 
   public:
@@ -204,6 +206,13 @@ class VulkanResourceAllocator
     virtual VkResult InvalidateMappedMemoryRanges(uint32_t                   memory_range_count,
                                                   const VkMappedMemoryRange* memory_ranges,
                                                   const MemoryData*          allocator_datas) = 0;
+
+    // allocator_data can be either MemoryData or ResourceData depending on name_info->objectType
+    virtual VkResult
+    SetDebugUtilsObjectNameEXT(VkDevice device, VkDebugUtilsObjectNameInfoEXT* name_info, uintptr_t allocator_data) = 0;
+
+    virtual VkResult
+    SetDebugUtilsObjectTagEXT(VkDevice device, VkDebugUtilsObjectTagInfoEXT* tag_info, uintptr_t allocator_data) = 0;
 
     // Offset is relative to the start of the pointer returned by vkMapMemory.
     virtual VkResult
