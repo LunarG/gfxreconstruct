@@ -215,7 +215,8 @@ bool PageGuardManager::UffdSetSignalHandler()
     // Install signal handler for the RT signal
     {
         struct sigaction sa = {};
-        sa.sa_flags         = SA_SIGINFO;
+        // Minimize side effects of the RT signal handler by restarting interrupted system calls when possible
+        sa.sa_flags = SA_RESTART;
         sigemptyset(&sa.sa_mask);
         sa.sa_handler = UffdStaticSignalHandler;
 
@@ -230,7 +231,6 @@ bool PageGuardManager::UffdSetSignalHandler()
     // Register a handler for SIGINT. We will use this signal to terminate the uffd handler thread
     {
         struct sigaction sa = {};
-        sa.sa_flags         = SA_SIGINFO;
         sigemptyset(&sa.sa_mask);
         sa.sa_handler = internal_thread_termination_handler;
 
@@ -253,9 +253,8 @@ void PageGuardManager::UffdRemoveSignalHandler()
     assert(uffd_rt_signal_used_ != -1);
 
     struct sigaction sa = {};
-    sa.sa_flags         = SA_SIGINFO;
     sigemptyset(&sa.sa_mask);
-    sa.sa_handler = nullptr;
+    sa.sa_handler = SIG_DFL;
 
     if (sigaction(uffd_rt_signal_used_, &sa, NULL))
     {
