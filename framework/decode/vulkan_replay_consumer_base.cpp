@@ -2286,189 +2286,166 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
 
     assert((pInstance != nullptr) && !pInstance->IsNull() && (pInstance->GetHandlePointer() != nullptr) &&
-           (pCreateInfo != nullptr));
+           (pCreateInfo != nullptr) && (pCreateInfo->GetPointer() != nullptr) &&
+           (pInstance->GetHandlePointer() != nullptr));
 
-    auto replay_create_info = pCreateInfo->GetPointer();
-    auto replay_instance    = pInstance->GetHandlePointer();
+    const VkInstanceCreateInfo* replay_create_info = pCreateInfo->GetPointer();
+    VkInstance*                 replay_instance    = pInstance->GetHandlePointer();
 
     if (loader_handle_ == nullptr)
     {
         InitializeLoader();
     }
 
-    std::vector<const char*> filtered_layers;
-    std::vector<const char*> filtered_extensions;
-    VkInstanceCreateInfo     modified_create_info{};
+    std::vector<const char*> modified_layers;
+    std::vector<const char*> modified_extensions;
+    VkInstanceCreateInfo     modified_create_info = (*replay_create_info);
 
-    // This struct may be inserted into the pNext chain of modified_create_info.
-    VkDebugUtilsMessengerCreateInfoEXT messenger_create_info{};
+    // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update the
+    // callback pointers.
+    ProcessCreateInstanceDebugCallbackInfo(pCreateInfo->GetMetaStructPointer());
 
-    if (replay_create_info != nullptr)
+    // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are needed in
+    // the replay application.
+    PFN_vkEnumerateInstanceLayerProperties instance_layer_proc =
+        reinterpret_cast<PFN_vkEnumerateInstanceLayerProperties>(
+            get_instance_proc_addr_(nullptr, "vkEnumerateInstanceLayerProperties"));
+    PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
+        reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
+            get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
+
+    // If a specific WSI extension was selected on the command line we need to make sure that extension is
+    // loaded and other WSI extensions are disabled
+    assert(application_);
+    const bool override_wsi_extensions = !application_->GetWsiCliContext().empty();
+
+    for (const auto& itr : application_->GetWsiContexts())
     {
-        modified_create_info = (*replay_create_info);
-
-        // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update
-        // the callback pointers.
-        ProcessCreateInstanceDebugCallbackInfo(pCreateInfo->GetMetaStructPointer());
-
-        // Proc addresses that can't be used in layers so are not generated into shared dispatch table, but are
-        // needed in the replay application.
-        PFN_vkEnumerateInstanceLayerProperties instance_layer_proc =
-            reinterpret_cast<PFN_vkEnumerateInstanceLayerProperties>(
-                get_instance_proc_addr_(nullptr, "vkEnumerateInstanceLayerProperties"));
-        PFN_vkEnumerateInstanceExtensionProperties instance_extension_proc =
-            reinterpret_cast<PFN_vkEnumerateInstanceExtensionProperties>(
-                get_instance_proc_addr_(nullptr, "vkEnumerateInstanceExtensionProperties"));
-
-        // Query for available extensions.
-        std::vector<VkExtensionProperties> available_extensions;
-        VkResult                           extension_query_result =
-            feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions);
-        if (extension_query_result != VK_SUCCESS)
+        // TODO : It's kinda ugly to be referencing Dx12 (even if just by name) in the Vulkan codepath, but
+        // having a string associated with the WSI context isn't really something Dx12 has a concept of...this
+        // should be able to be refactored away in another PR
+        if (gfxrecon::util::platform::StringCompareNoCase(itr.first.c_str(), "Dx12WsiContext"))
         {
-            GFXRECON_LOG_WARNING(
-                "Failed to query for available instance extensions. Some replay features may not work correctly.");
+            modified_extensions.push_back(itr.first.c_str());
         }
+    }
 
-        if (replay_create_info->ppEnabledExtensionNames)
+    // Transfer requested extensions to filtered extension
+    for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
+    {
+        const auto current_extension    = replay_create_info->ppEnabledExtensionNames[i];
+        const bool is_surface_extension = kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end();
+        if (!util::platform::StringCompare(current_extension, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
         {
-            // If a specific WSI extension was selected on the command line we need to make sure that extension is
-            // loaded and other WSI extensions are disabled
-            assert(application_);
-            const bool override_wsi_extensions = !application_->GetWsiCliContext().empty();
-
-            for (const auto& itr : application_->GetWsiContexts())
+            // Will always be added if available
+            continue;
+        }
+        else if (is_surface_extension)
+        {
+            if (!override_wsi_extensions)
             {
-                // TODO : It's kinda ugly to be referencing Dx12 (even if just by name) in the Vulkan codepath, but
-                // having a string associated with the WSI context isn't really something Dx12 has a concept of...this
-                // should be able to be refactored away in another PR
-                if (gfxrecon::util::platform::StringCompareNoCase(itr.first.c_str(), "Dx12WsiContext"))
-                {
-                    filtered_extensions.push_back(itr.first.c_str());
-                }
-            }
-
-            for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
-            {
-                const auto current_extension = replay_create_info->ppEnabledExtensionNames[i];
-                const bool is_surface_extension =
-                    kSurfaceExtensions.find(current_extension) != kSurfaceExtensions.end();
-                if (!util::platform::StringCompare(current_extension, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
-                {
-                    // Will always be added
-                    continue;
-                }
-                else if (is_surface_extension)
-                {
-                    if (!override_wsi_extensions)
-                    {
-                        application_->InitializeWsiContext(current_extension);
-                        filtered_extensions.push_back(current_extension);
-                    }
-                }
-                else
-                {
-                    filtered_extensions.push_back(current_extension);
-                }
-            }
-
-            if (extension_query_result == VK_SUCCESS)
-            {
-                if (options_.remove_unsupported_features)
-                {
-                    // Remove enabled extensions that are not available from the replay instance.
-                    feature_util::RemoveUnsupportedExtensions(available_extensions, &filtered_extensions);
-                }
-                else if (options_.use_colorspace_fallback)
-                {
-                    for (auto& extension_name : kColorSpaceExtensionNames)
-                    {
-                        feature_util::RemoveExtensionIfUnsupported(
-                            available_extensions, &filtered_extensions, extension_name);
-                    }
-                }
-                else
-                {
-                    // Remove enabled extensions that are ignorable from the replay instance.
-                    feature_util::RemoveIgnorableExtensions(available_extensions, &filtered_extensions);
-                }
-            }
-            else
-            {
-                GFXRECON_LOG_WARNING("Failed to get instance extensions. Cannot perform sanity checks or filters for "
-                                     "extension availability.");
+                application_->InitializeWsiContext(current_extension);
+                modified_extensions.push_back(current_extension);
             }
         }
+        else
+        {
+            modified_extensions.push_back(current_extension);
+        }
+    }
 
-        // Always enable portability enumeration
+    // Sanity checks depending on extension availability
+    std::vector<VkExtensionProperties> available_extensions;
+    if (feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
+    {
+        // Always enable portability enumeration if available
         modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
         for (const VkExtensionProperties& extension : available_extensions)
         {
             if (!util::platform::StringCompare(extension.extensionName, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME))
             {
-                filtered_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+                modified_extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
                 modified_create_info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
             }
         }
 
-        // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
-        if (options_.enable_validation_layer)
+        if (options_.remove_unsupported_features)
         {
-            std::vector<VkLayerProperties> available_layers;
-            if (feature_util::GetInstanceLayers(instance_layer_proc, &available_layers) == VK_SUCCESS)
+            // Remove enabled extensions that are not available from the replay instance.
+            feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+        }
+        else if (options_.use_colorspace_fallback)
+        {
+            for (auto& extension_name : kColorSpaceExtensionNames)
             {
-                if (feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
+                feature_util::RemoveExtensionIfUnsupported(available_extensions, &modified_extensions, extension_name);
+            }
+        }
+        else
+        {
+            // Remove enabled extensions that are ignorable from the replay instance.
+            feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to get instance extensions. Cannot perform sanity checks or filters for "
+                             "extension availability.");
+    }
+
+    // Enable validation layer and create a debug messenger if the enable_validation_layer replay option is set.
+    VkDebugUtilsMessengerCreateInfoEXT messenger_create_info{};
+    if (options_.enable_validation_layer)
+    {
+        std::vector<VkLayerProperties> available_layers;
+        if (feature_util::GetInstanceLayers(instance_layer_proc, &available_layers) == VK_SUCCESS)
+        {
+            if (feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
+            {
+                modified_layers.push_back(kValidationLayerName);
+
+                // Create a debug util messenger if replay was run with the enable_validation_layer option and the
+                // VK_EXT_debug_utils extension is available. Note that if the app also included one or more
+                // VkDebugUtilsMessengerCreateInfoEXT structs in the pNext chain, those messengers will also be
+                // created.
+                if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
                 {
-                    filtered_layers.push_back(kValidationLayerName);
+                    modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-                    // Create a debug util messenger if replay was run with the enable_validation_layer option and the
-                    // VK_EXT_debug_utils extension is available. Note that if the app also included one or more
-                    // VkDebugUtilsMessengerCreateInfoEXT structs in the pNext chain, those messengers will also be
-                    // created.
-                    if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
-                    {
-                        filtered_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+                    messenger_create_info.sType       = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+                    messenger_create_info.pNext       = modified_create_info.pNext;
+                    messenger_create_info.flags       = 0;
+                    messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                                                        VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+                    messenger_create_info.messageSeverity =
+                        VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+                    messenger_create_info.pfnUserCallback = DebugUtilsCallback;
+                    messenger_create_info.pUserData       = nullptr;
 
-                        messenger_create_info.sType       = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-                        messenger_create_info.pNext       = modified_create_info.pNext;
-                        messenger_create_info.flags       = 0;
-                        messenger_create_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-                        messenger_create_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                                                VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-                        messenger_create_info.pfnUserCallback = DebugUtilsCallback;
-                        messenger_create_info.pUserData       = nullptr;
-
-                        modified_create_info.pNext = &messenger_create_info;
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "Failed to create debug utils callback for the validation layer enabled by replay option "
-                            "'--validate'. VK_EXT_debug_utils extension is not available for the replay instance.");
-                    }
+                    modified_create_info.pNext = &messenger_create_info;
                 }
                 else
                 {
                     GFXRECON_LOG_WARNING(
-                        "Failed to enable validation layer '%s' required for replay option '--validate'.",
-                        kValidationLayerName);
+                        "Failed to create debug utils callback for the validation layer enabled by replay option "
+                        "'--validate'. VK_EXT_debug_utils extension is not available for the replay instance.");
                 }
             }
             else
             {
-                GFXRECON_LOG_WARNING(
-                    "Failed to query for available instance layers. Some replay features may not work correctly.");
+                GFXRECON_LOG_WARNING("Failed to enable validation layer '%s' required for replay option '--validate'.",
+                                     kValidationLayerName);
             }
         }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Failed to query for available instance layers. Some replay features may not work correctly.");
+        }
+    }
 
-        modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(filtered_extensions.size());
-        modified_create_info.ppEnabledExtensionNames = filtered_extensions.data();
-    }
-    else
-    {
-        GFXRECON_LOG_WARNING("The vkCreateInstance parameter pCreateInfo is NULL.");
-    }
+    modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+    modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
 
     // Disable layers; any layers needed for replay should be enabled for the replay app with the VK_INSTANCE_LAYERS
     // environment variable or debug.vulkan.layers Android property.
@@ -2487,18 +2464,18 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     }
 
     // Enable any required layers.
-    if (!filtered_layers.empty())
+    if (!modified_layers.empty())
     {
         GFXRECON_LOG_INFO(
             "Replay has added the following required layers to VkInstanceCreateInfo when calling vkCreateInstance:");
 
-        for (auto layer : filtered_layers)
+        for (auto layer : modified_layers)
         {
             GFXRECON_LOG_INFO("\t%s", layer);
         }
 
-        modified_create_info.enabledLayerCount   = static_cast<uint32_t>(filtered_layers.size());
-        modified_create_info.ppEnabledLayerNames = filtered_layers.data();
+        modified_create_info.enabledLayerCount   = static_cast<uint32_t>(modified_layers.size());
+        modified_create_info.ppEnabledLayerNames = modified_layers.data();
     }
 
     VkResult result = create_instance_proc_(&modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
@@ -2539,193 +2516,221 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
     VkPhysicalDevice        physical_device      = physical_device_info->handle;
     PFN_vkGetDeviceProcAddr get_device_proc_addr = GetDeviceAddrProc(physical_device);
     PFN_vkCreateDevice      create_device_proc   = GetCreateDeviceProc(physical_device);
-    VkResult                result               = VK_ERROR_INITIALIZATION_FAILED;
-    auto                    instance_table       = GetInstanceTable(physical_device);
 
-    if ((get_device_proc_addr != nullptr) && (create_device_proc != nullptr))
+    if ((get_device_proc_addr == nullptr) || (create_device_proc == nullptr))
     {
-        const auto                    decoded_capture_create_info = pCreateInfo->GetMetaStructPointer();
-        std::vector<format::HandleId> capture_device_group;
-        const auto*                   capture_next = decoded_capture_create_info->pNext;
-
-        const auto* decoded_capture_device_group_create_info =
-            GetPNextMetaStruct<Decoded_VkDeviceGroupDeviceCreateInfo>(decoded_capture_create_info->pNext);
-        if (decoded_capture_device_group_create_info != nullptr)
-        {
-            const auto  len        = decoded_capture_device_group_create_info->pPhysicalDevices.GetLength();
-            const auto* handle_ids = decoded_capture_device_group_create_info->pPhysicalDevices.GetPointer();
-            std::copy(handle_ids, handle_ids + len, std::back_inserter(capture_device_group));
-        }
-
-        auto replay_create_info = pCreateInfo->GetPointer();
-        auto replay_device      = pDevice->GetHandlePointer();
-        assert(replay_create_info != nullptr);
-
-        VkDeviceCreateInfo            modified_create_info              = (*replay_create_info);
-        VkDeviceGroupDeviceCreateInfo modified_device_group_create_info = {};
-        std::vector<VkPhysicalDevice> replay_device_group;
-        const VkBaseInStructure*      replay_previous_next =
-            reinterpret_cast<const VkBaseInStructure*>(&modified_create_info);
-        const VkBaseInStructure* replay_next = reinterpret_cast<const VkBaseInStructure*>(modified_create_info.pNext);
-
-        while (replay_next)
-        {
-            switch (replay_next->sType)
-            {
-                case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
-                {
-                    modified_device_group_create_info =
-                        (*reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(replay_next));
-
-                    SelectPhysicalDeviceGroup(physical_device_info, capture_device_group, replay_device_group);
-
-                    modified_device_group_create_info.physicalDeviceCount =
-                        static_cast<uint32_t>(replay_device_group.size());
-                    modified_device_group_create_info.pPhysicalDevices = replay_device_group.data();
-
-                    VkBaseInStructure** ppnext = const_cast<VkBaseInStructure**>(&replay_previous_next->pNext);
-                    (*ppnext) = reinterpret_cast<VkBaseInStructure*>(&modified_device_group_create_info);
-                    break;
-                }
-                default:
-                    break;
-            }
-            replay_previous_next = replay_next;
-            replay_next          = replay_next->pNext;
-        }
-
-        // Make copy so list can be modified without effecting original.
-        std::vector<const char*> modified_extensions;
-        if (replay_create_info->ppEnabledExtensionNames)
-        {
-            modified_extensions.insert(
-                modified_extensions.begin(),
-                replay_create_info->ppEnabledExtensionNames,
-                std::next(replay_create_info->ppEnabledExtensionNames, replay_create_info->enabledExtensionCount));
-        }
-
-        // Enable extensions used for loading resources during initial state setup for trimmed files.
-        std::vector<std::string> extensions;
-        if (loading_trim_state_ && CheckTrimDeviceExtensions(physical_device, &extensions))
-        {
-            for (const auto& extension : extensions)
-            {
-                if (std::find(modified_extensions.begin(), modified_extensions.end(), extension) ==
-                    modified_extensions.end())
-                {
-                    modified_extensions.push_back(extension.c_str());
-                }
-            }
-        }
-
-        if (physical_device != VK_NULL_HANDLE)
-        {
-            // Remove enabled extensions that are not available from the replay device.
-            auto table = GetInstanceTable(physical_device);
-            assert(table != nullptr);
-
-            std::vector<VkExtensionProperties> properties;
-            if (feature_util::GetDeviceExtensions(
-                    physical_device, table->EnumerateDeviceExtensionProperties, &properties) == VK_SUCCESS)
-            {
-                if (options_.remove_unsupported_features)
-                {
-                    feature_util::RemoveUnsupportedExtensions(properties, &modified_extensions);
-                }
-                else
-                {
-                    // Remove enabled extensions that are not available on the replay device, but
-                    // that can still be safely ignored.
-                    feature_util::RemoveIgnorableExtensions(properties, &modified_extensions);
-                }
-            }
-
-            // Remove enabled features that are not available from the replay device.
-            feature_util::CheckUnsupportedFeatures(physical_device,
-                                                   table->GetPhysicalDeviceFeatures,
-                                                   table->GetPhysicalDeviceFeatures2,
-                                                   modified_create_info.pNext,
-                                                   modified_create_info.pEnabledFeatures,
-                                                   options_.remove_unsupported_features);
-        }
-
-        modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
-        modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
-
-        graphics::VulkanDeviceUtil                device_util;
-        graphics::VulkanDevicePropertyFeatureInfo property_feature_info =
-            device_util.EnableRequiredPhysicalDeviceFeatures(physical_device_info->parent_api_version,
-                                                             GetInstanceTable(physical_device),
-                                                             physical_device,
-                                                             &modified_create_info);
-
-        result = create_device_proc(
-            physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
-
-        if ((replay_device != nullptr) && (result == VK_SUCCESS))
-        {
-            AddDeviceTable(*replay_device, get_device_proc_addr);
-
-            auto device_info = reinterpret_cast<DeviceInfo*>(pDevice->GetConsumerData(0));
-            assert(device_info != nullptr);
-
-            device_info->replay_device_group = std::move(replay_device_group);
-            device_info->extensions          = std::move(extensions);
-            device_info->parent              = physical_device;
-
-            // Create the memory allocator for the selected physical device.
-            auto replay_device_info = physical_device_info->replay_device_info;
-            assert(replay_device_info != nullptr);
-
-            if (replay_device_info->memory_properties == nullptr)
-            {
-                // Memory properties weren't queried before device creation, so retrieve them now.
-                auto table = GetInstanceTable(physical_device);
-                assert(table != nullptr);
-
-                replay_device_info->memory_properties = std::make_unique<VkPhysicalDeviceMemoryProperties>();
-                table->GetPhysicalDeviceMemoryProperties(physical_device, replay_device_info->memory_properties.get());
-            }
-
-            auto allocator = options_.create_resource_allocator();
-
-            std::vector<std::string> enabled_extensions(modified_create_info.ppEnabledExtensionNames,
-                                                        modified_create_info.ppEnabledExtensionNames +
-                                                            modified_create_info.enabledExtensionCount);
-            InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
-
-            device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
-
-            // Track state of physical device properties and features at device creation
-            device_info->property_feature_info = property_feature_info;
-
-            // Keep track of what queue families this device is planning on using.  This information is
-            // very important if we end up using the VulkanVirtualSwapchain path.
-            auto max = [](uint32_t current_max, const VkDeviceQueueCreateInfo& dqci) {
-                return std::max(current_max, dqci.queueFamilyIndex);
-            };
-            uint32_t max_queue_family =
-                std::accumulate(modified_create_info.pQueueCreateInfos,
-                                modified_create_info.pQueueCreateInfos + modified_create_info.queueCreateInfoCount,
-                                0,
-                                max);
-            device_info->queue_family_index_enabled.clear();
-            device_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
-
-            for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
-            {
-                const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
-                assert(device_info->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
-                       device_info->queue_family_creation_flags.end());
-                device_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] =
-                    queue_create_info->flags;
-                device_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex] = true;
-            }
-        }
-
-        // Restore modified property/feature create info values to the original application values
-        device_util.RestoreModifiedPhysicalDeviceFeatures();
+        return VK_ERROR_INITIALIZATION_FAILED;
     }
+
+    VkResult result         = VK_ERROR_INITIALIZATION_FAILED;
+    auto     instance_table = GetInstanceTable(physical_device);
+    assert(instance_table != nullptr);
+
+    auto replay_create_info = pCreateInfo->GetPointer();
+    auto replay_device      = pDevice->GetHandlePointer();
+    assert(replay_create_info != nullptr);
+
+    VkDeviceCreateInfo       modified_create_info = (*replay_create_info);
+    std::vector<const char*> modified_extensions;
+
+    // Attempt to recreate capture device group with replay device group
+
+    const auto                    decoded_capture_create_info = pCreateInfo->GetMetaStructPointer();
+    std::vector<format::HandleId> capture_device_group;
+    const auto*                   capture_next = decoded_capture_create_info->pNext;
+
+    const auto* decoded_capture_device_group_create_info =
+        GetPNextMetaStruct<Decoded_VkDeviceGroupDeviceCreateInfo>(decoded_capture_create_info->pNext);
+    if (decoded_capture_device_group_create_info != nullptr)
+    {
+        const auto  len        = decoded_capture_device_group_create_info->pPhysicalDevices.GetLength();
+        const auto* handle_ids = decoded_capture_device_group_create_info->pPhysicalDevices.GetPointer();
+        std::copy(handle_ids, handle_ids + len, std::back_inserter(capture_device_group));
+    }
+
+    VkDeviceGroupDeviceCreateInfo modified_device_group_create_info = {};
+    std::vector<VkPhysicalDevice> replay_device_group;
+    const VkBaseInStructure* replay_previous_next = reinterpret_cast<const VkBaseInStructure*>(&modified_create_info);
+    const VkBaseInStructure* replay_next = reinterpret_cast<const VkBaseInStructure*>(modified_create_info.pNext);
+
+    while (replay_next)
+    {
+        switch (replay_next->sType)
+        {
+            case VK_STRUCTURE_TYPE_DEVICE_GROUP_DEVICE_CREATE_INFO:
+            {
+                modified_device_group_create_info =
+                    (*reinterpret_cast<const VkDeviceGroupDeviceCreateInfo*>(replay_next));
+
+                SelectPhysicalDeviceGroup(physical_device_info, capture_device_group, replay_device_group);
+
+                modified_device_group_create_info.physicalDeviceCount =
+                    static_cast<uint32_t>(replay_device_group.size());
+                modified_device_group_create_info.pPhysicalDevices = replay_device_group.data();
+
+                VkBaseInStructure** ppnext = const_cast<VkBaseInStructure**>(&replay_previous_next->pNext);
+                (*ppnext)                  = reinterpret_cast<VkBaseInStructure*>(&modified_device_group_create_info);
+                break;
+            }
+            default:
+                break;
+        }
+        replay_previous_next = replay_next;
+        replay_next          = replay_next->pNext;
+    }
+
+    // Copy requested extensions to modified_extensions
+    for (uint32_t i = 0; i < replay_create_info->enabledExtensionCount; ++i)
+    {
+        modified_extensions.push_back(replay_create_info->ppEnabledExtensionNames[i]);
+    }
+
+    // Enable extensions used for loading resources during initial state setup for trimmed files.
+    std::vector<std::string> trim_extensions;
+    if (loading_trim_state_ && CheckTrimDeviceExtensions(physical_device, &trim_extensions))
+    {
+        for (const auto& extension : trim_extensions)
+        {
+            if (std::find(modified_extensions.begin(), modified_extensions.end(), extension) ==
+                modified_extensions.end())
+            {
+                modified_extensions.push_back(extension.c_str());
+            }
+        }
+    }
+
+    // Add VK_EXT_frame_boundary if an option uses it
+    if (options_.offscreen_swapchain_frame_boundary)
+    {
+        if (!feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+        {
+            modified_extensions.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+        }
+    }
+
+    // Sanity checks depending on extension availability
+    std::vector<VkExtensionProperties> available_extensions;
+    if (feature_util::GetDeviceExtensions(
+            physical_device, instance_table->EnumerateDeviceExtensionProperties, &available_extensions) == VK_SUCCESS)
+    {
+        // If VK_EXT_frame_boundary is not supported but requested, fake it
+        bool ext_frame_boundary_is_supported =
+            feature_util::IsSupportedExtension(available_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+        bool ext_frame_boundary_is_requested =
+            feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+
+        if (ext_frame_boundary_is_requested && !ext_frame_boundary_is_supported)
+        {
+            auto iter = std::find_if(modified_extensions.begin(), modified_extensions.end(), [](const char* extension) {
+                return util::platform::StringCompare(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, extension) == 0;
+            });
+            modified_extensions.erase(iter);
+        }
+
+        if (options_.remove_unsupported_features)
+        {
+            feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+        }
+        else
+        {
+            // Remove enabled extensions that are not available on the replay device, but
+            // that can still be safely ignored.
+            feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to get device extensions. Cannot perform sanity checks or filters for "
+                             "extension availability. Some replay features may not work correctly.");
+    }
+
+    modified_create_info.enabledExtensionCount   = static_cast<uint32_t>(modified_extensions.size());
+    modified_create_info.ppEnabledExtensionNames = modified_extensions.data();
+
+    // Enable necessary features
+    graphics::VulkanDeviceUtil                device_util;
+    graphics::VulkanDevicePropertyFeatureInfo property_feature_info = device_util.EnableRequiredPhysicalDeviceFeatures(
+        physical_device_info->parent_api_version, instance_table, physical_device, &modified_create_info);
+
+    // Remove unsupported features
+    if (options_.remove_unsupported_features)
+    {
+        feature_util::CheckUnsupportedFeatures(physical_device,
+                                               instance_table->GetPhysicalDeviceFeatures,
+                                               instance_table->GetPhysicalDeviceFeatures2,
+                                               modified_create_info.pNext,
+                                               modified_create_info.pEnabledFeatures,
+                                               options_.remove_unsupported_features);
+    }
+
+    // Forward device creation to next layer/driver
+    result =
+        create_device_proc(physical_device, &modified_create_info, GetAllocationCallbacks(pAllocator), replay_device);
+
+    if ((replay_device == nullptr) || (result != VK_SUCCESS))
+    {
+        return result;
+    }
+
+    AddDeviceTable(*replay_device, get_device_proc_addr);
+
+    auto device_info = reinterpret_cast<DeviceInfo*>(pDevice->GetConsumerData(0));
+    assert(device_info != nullptr);
+
+    device_info->replay_device_group = std::move(replay_device_group);
+    device_info->extensions          = std::move(trim_extensions);
+    device_info->parent              = physical_device;
+
+    // Create the memory allocator for the selected physical device.
+    auto replay_device_info = physical_device_info->replay_device_info;
+    assert(replay_device_info != nullptr);
+
+    if (replay_device_info->memory_properties == nullptr)
+    {
+        // Memory properties weren't queried before device creation, so retrieve them now.
+        auto table = GetInstanceTable(physical_device);
+        assert(table != nullptr);
+
+        replay_device_info->memory_properties = std::make_unique<VkPhysicalDeviceMemoryProperties>();
+        table->GetPhysicalDeviceMemoryProperties(physical_device, replay_device_info->memory_properties.get());
+    }
+
+    auto allocator = options_.create_resource_allocator();
+
+    std::vector<std::string> enabled_extensions(modified_create_info.ppEnabledExtensionNames,
+                                                modified_create_info.ppEnabledExtensionNames +
+                                                    modified_create_info.enabledExtensionCount);
+    InitializeResourceAllocator(physical_device_info, *replay_device, enabled_extensions, allocator);
+
+    device_info->allocator = std::unique_ptr<VulkanResourceAllocator>(allocator);
+
+    // Track state of physical device properties and features at device creation
+    device_info->property_feature_info = property_feature_info;
+
+    // Keep track of what queue families this device is planning on using.  This information is
+    // very important if we end up using the VulkanVirtualSwapchain path.
+    auto max = [](uint32_t current_max, const VkDeviceQueueCreateInfo& dqci) {
+        return std::max(current_max, dqci.queueFamilyIndex);
+    };
+    uint32_t max_queue_family =
+        std::accumulate(modified_create_info.pQueueCreateInfos,
+                        modified_create_info.pQueueCreateInfos + modified_create_info.queueCreateInfoCount,
+                        0,
+                        max);
+    device_info->queue_family_index_enabled.clear();
+    device_info->queue_family_index_enabled.resize(max_queue_family + 1, false);
+
+    for (uint32_t q = 0; q < modified_create_info.queueCreateInfoCount; ++q)
+    {
+        const VkDeviceQueueCreateInfo* queue_create_info = &modified_create_info.pQueueCreateInfos[q];
+        assert(device_info->queue_family_creation_flags.find(queue_create_info->queueFamilyIndex) ==
+               device_info->queue_family_creation_flags.end());
+        device_info->queue_family_creation_flags[queue_create_info->queueFamilyIndex] = queue_create_info->flags;
+        device_info->queue_family_index_enabled[queue_create_info->queueFamilyIndex]  = true;
+    }
+
+    // Restore modified property/feature create info values to the original application values
+    device_util.RestoreModifiedPhysicalDeviceFeatures();
 
     return result;
 }
