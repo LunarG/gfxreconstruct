@@ -3,12 +3,29 @@ set(OPENXR_VERSION_MAJOR "")
 set(OPENXR_VERSION_MINOR "")
 set(OPENXR_VERSION_PATCH "")
 
+# Temporarily store the sysroot and prefix path items and then modify those
+# variables to set CMake so that we're only searching local tree
+set(OLD_CMAKE_SYSROOT ${CMAKE_SYSROOT})
+set(OLD_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
+set(OLD_CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH})
+set(OLD_CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY})
+set(CMAKE_SYSROOT "")
+set(CMAKE_PREFIX_PATH "")
+set(CMAKE_FIND_ROOT_PATH "")
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY NEVER)
+
 # First, determine which header we need to grab the version information from.
 find_file (OPENXR_HEADER
             openxr.h
             HINTS
-                external/OpenXR-SDK/include/openxr
-                ../external/OpenXR-SDK/include/openxr)
+                ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include/openxr
+                ${CMAKE_SOURCE_DIR}/external/OpenXR-SDK/include/openxr
+                ${CMAKE_SOURCE_DIR}/../external/OpenXR-SDK/include/openxr
+                ${CMAKE_SOURCE_DIR}/../../external/OpenXR-SDK/include/openxr
+                ${CMAKE_CURRENT_SOURCE_DIR}/../external/OpenXR-SDK/include/openxr
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../external/OpenXR-SDK/include/openxr
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../external/OpenXR-SDK/include/openxr
+          )
 
 MESSAGE(STATUS "OpenXR Header = ${OPENXR_HEADER}")
 
@@ -53,3 +70,9 @@ MESSAGE(STATUS
         "Detected OpenXR Version ${XR_VERSION_MAJOR}."
         "${XR_VERSION_MINOR}."
         "${XR_VERSION_PATCH}")
+
+# Restore the sysroot and prefix path CMake variables
+set(CMAKE_SYSROOT ${OLD_CMAKE_SYSROOT})
+set(CMAKE_PREFIX_PATH ${OLD_CMAKE_PREFIX_PATH})
+set(CMAKE_FIND_ROOT_PATH ${OLD_CMAKE_FIND_ROOT_PATH})
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ${OLD_CMAKE_FIND_ROOT_PATH_MODE_LIBRARY})

@@ -3,14 +3,31 @@ set(VULKAN_VERSION_MAJOR "")
 set(VULKAN_VERSION_MINOR "")
 set(VULKAN_VERSION_PATCH "")
 
+# Temporarily store the sysroot and prefix path items and then modify those
+# variables to set CMake so that we're only searching local tree
+set(OLD_CMAKE_SYSROOT ${CMAKE_SYSROOT})
+set(OLD_CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH})
+set(OLD_CMAKE_FIND_ROOT_PATH ${CMAKE_FIND_ROOT_PATH})
+set(OLD_CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ${CMAKE_FIND_ROOT_PATH_MODE_LIBRARY})
+set(CMAKE_SYSROOT "")
+set(CMAKE_PREFIX_PATH "")
+set(CMAKE_FIND_ROOT_PATH "")
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY NEVER)
+
 # First, determine which header we need to grab the version information from.
 # Starting with Vulkan 1.1, we should use vulkan_core.h, but prior to that,
 # the information was in vulkan.h.
 find_file (VULKAN_HEADER
             vulkan_core.h
             HINTS
-                external/Vulkan-Headers/include/vulkan
-                ../external/Vulkan-Headers/include/vulkan)
+                ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include/vulkan
+                ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include/vulkan
+                ${CMAKE_SOURCE_DIR}/../../external/Vulkan-Headers/include/vulkan
+                ${CMAKE_SOURCE_DIR}/../../../external/Vulkan-Headers/include/vulkan
+                ${CMAKE_CURRENT_SOURCE_DIR}/../external/Vulkan-Headers/include/vulkan
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../external/Vulkan-Headers/include/vulkan
+                ${CMAKE_CURRENT_SOURCE_DIR}/../../../external/Vulkan-Headers/include/vulkan
+         )
 
 MESSAGE(STATUS "Vulkan Header = ${VULKAN_HEADER}")
 
@@ -20,8 +37,14 @@ else()
     find_file(VULKAN_HEADER
                 vulkan.h
                 HINTS
-                    external/Vulkan-Headers/include/vulkan
-                    ../external/Vulkan-Headers/include/vulkan)
+                    ${GFXRECON_SOURCE_DIR}/external/Vulkan-Headers/include/vulkan
+                    ${CMAKE_SOURCE_DIR}/external/Vulkan-Headers/include/vulkan
+                    ${CMAKE_SOURCE_DIR}/../../external/Vulkan-Headers/include/vulkan
+                    ${CMAKE_SOURCE_DIR}/../../../external/Vulkan-Headers/include/vulkan
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../external/Vulkan-Headers/include/vulkan
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../../external/Vulkan-Headers/include/vulkan
+                    ${CMAKE_CURRENT_SOURCE_DIR}/../../../external/Vulkan-Headers/include/vulkan
+             )
     set(VulkanHeaders_main_header ${VULKAN_HEADER})
 endif()
 
@@ -71,3 +94,9 @@ MESSAGE(STATUS
         "Detected Vulkan Version ${VULKAN_VERSION_MAJOR}."
         "${VULKAN_VERSION_MINOR}."
         "${VULKAN_VERSION_PATCH}")
+
+# Restore the sysroot and prefix path CMake variables
+set(CMAKE_SYSROOT ${OLD_CMAKE_SYSROOT})
+set(CMAKE_PREFIX_PATH ${OLD_CMAKE_PREFIX_PATH})
+set(CMAKE_FIND_ROOT_PATH ${OLD_CMAKE_FIND_ROOT_PATH})
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ${OLD_CMAKE_FIND_ROOT_PATH_MODE_LIBRARY})

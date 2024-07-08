@@ -5,6 +5,6 @@
         "library_path": "@RELATIVE_LAYER_BINARY@",
         "api_version" : "@XR_VERSION@",
         "implementation_version" : "@GFXRECONSTRUCT_VERSION@",
-        "description": "GFXReconstruct Capture Layer Version @GFXRECONSTRUCT_VERSION_STRING@"@GFXRECONSTRUCT_DISABLE_VARIABLE@
+        "description": "GFXReconstruct Capture Layer Version @GFXRECONSTRUCT_VERSION_STRING@"
     }
 }
