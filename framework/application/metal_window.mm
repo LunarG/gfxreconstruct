@@ -112,19 +112,23 @@ bool MetalWindow::Create(const std::string& title, const int32_t xpos, const int
         NSWindowStyleMask style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
         if (width >= screen_frame.size.width && height >= screen_frame.size.height)
             style |= NSWindowStyleMaskFullScreen;
-        window_ = [[NSWindow alloc] initWithContentRect:[screen convertRectFromBacking:NSMakeRect(xpos, ypos, width, height)]
+
+        auto frame_rect = NSMakeRect(xpos, ypos, width, height);
+        window_ = [[NSWindow alloc] initWithContentRect:frame_rect
                                               styleMask:style
                                                 backing:NSBackingStoreBuffered
                                                   defer:NO];
         [window_ setDelegate:window_delegate_];
         [window_ setCollectionBehavior:NSWindowCollectionBehaviorManaged | NSWindowCollectionBehaviorFullScreenPrimary | NSWindowCollectionBehaviorFullScreenAllowsTiling];
         layer_ = [CAMetalLayer layer];
-        NSView* content = [[GFXReconView alloc] initWithFrame:[window_ contentRectForFrameRect:[window_ frame]]
+        NSView* content = [[GFXReconView alloc] initWithFrame:frame_rect
                                                           app:metal_context_->GetApplication()];
         [window_ setContentView:content];
         [content setWantsLayer:YES];
         [content setLayer:layer_];
-        [layer_ setContentsScale:[window_ backingScaleFactor]];
+
+        // avoid highDPI settings, i.e. ignore [window_ backingScaleFactor]
+        [layer_ setContentsScale:1.0];
         SetTitle(title);
         SetSize(width, height);
         SetPosition(xpos, ypos);
@@ -201,7 +205,12 @@ void MetalWindow::SetSize(const uint32_t width, const uint32_t height)
             window_frame.size.height = std::min<CGFloat>(screen_frame.size.height, height);
             window_frame.origin.x = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.x, screen_frame.size.width - window_frame.size.width));
             window_frame.origin.y = std::max<CGFloat>(0, std::min<CGFloat>(window_frame.origin.y, screen_frame.size.height - window_frame.size.height));
-            [window_ setFrame:[window_ frameRectForContentRect:[screen convertRectFromBacking:window_frame]] display:YES];
+            [window_ setFrame:[window_ frameRectForContentRect: window_frame] display:YES];
+
+            NSSize content_size;
+            content_size.width = window_frame.size.width;
+            content_size.height = window_frame.size.height;
+            [window_ setContentSize: content_size];
         }
     }
 }
