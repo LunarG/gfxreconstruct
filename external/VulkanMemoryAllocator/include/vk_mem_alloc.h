@@ -6144,6 +6144,7 @@ private:
     VmaPool m_hParentPool; // VK_NULL_HANDLE if not belongs to custom pool.
     uint32_t m_MemoryTypeIndex;
     uint32_t m_Id;
+public:
     VkDeviceMemory m_hMemory;
 
     /*
@@ -6151,7 +6152,9 @@ private:
     Also protects m_MapCount, m_pMappedData.
     Allocations, deallocations, any change in m_pMetadata is protected by parent's VmaBlockVector::m_Mutex.
     */
+public:
     VMA_MUTEX m_MapAndBindMutex;
+private:
     VmaMappingHysteresis m_MappingHysteresis;
     uint32_t m_MapCount;
     void* m_pMappedData;

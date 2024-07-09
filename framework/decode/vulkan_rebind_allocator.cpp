@@ -393,6 +393,36 @@ void VulkanRebindAllocator::DestroyVideoSession(VkVideoSessionKHR            ses
                                                 std::vector<ResourceData>    allocator_datas)
 {
     // TODO: VMA doesn't support video session(vmaDestroyVideoSession). Do it ourselves until VMA support it.
+    GFXRECON_UNREFERENCED_PARAMETER(allocation_callbacks);
+
+    uint32_t index = 0;
+    for (auto& allocator_data : allocator_datas)
+    {
+        if (allocator_data != 0)
+        {
+            auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+            auto memory_alloc_info   = resource_alloc_info->memory_info;
+
+            if (memory_alloc_info != nullptr)
+            {
+                memory_alloc_info->original_sessions.erase(session);
+            }
+
+            if (resource_alloc_info->allocation != VK_NULL_HANDLE)
+            {
+                if (resource_alloc_info->mapped_pointer != nullptr)
+                {
+                    vmaUnmapMemory(allocator_, resource_alloc_info->allocation);
+                }
+                allocator_->FreeMemory(1, &resource_alloc_info->allocation);
+            }
+            delete resource_alloc_info;
+        }
+        ++index;
+    }
+    allocator_datas.clear();
+    GFXRECON_ASSERT(session != VK_NULL_HANDLE);
+    functions_.destroy_video_session(allocator_->m_hDevice, session, allocator_->GetAllocationCallbacks());
 }
 
 void VulkanRebindAllocator::GetImageSubresourceLayout(VkImage                    image,
@@ -843,7 +873,132 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 {
     // TODO: VMA doesn't support video session(vmaAllocateMemoryForVideoSession and vmaBindVideoSessionMemory).
     //       Do it ourselves until VMA support it.
-    return VK_ERROR_INITIALIZATION_FAILED;
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if ((video_session != VK_NULL_HANDLE) && (bind_infos != nullptr) && (allocator_session_datas != nullptr) &&
+        (allocator_memory_datas != nullptr) && (bind_memory_properties != nullptr))
+    {
+        uint32_t session_requirements_count = 0;
+        functions_.get_video_session_memory_requirements(device_, video_session, &session_requirements_count, nullptr);
+
+        VkVideoSessionMemoryRequirementsKHR reqs = {};
+        reqs.sType                               = VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR;
+        std::vector<VkVideoSessionMemoryRequirementsKHR> session_requirements(session_requirements_count, reqs);
+        functions_.get_video_session_memory_requirements(
+            device_, video_session, &session_requirements_count, session_requirements.data());
+
+        for (uint32_t i = 0; i < bind_info_count; ++i)
+        {
+            uint32_t  mem_index              = bind_infos[i].memoryBindIndex;
+            uintptr_t allocator_session_data = allocator_session_datas[mem_index];
+            uintptr_t allocator_memory_data  = allocator_memory_datas[mem_index];
+
+            if ((allocator_session_data != 0) && (allocator_memory_data != 0))
+            {
+                VmaAllocation allocation          = VK_NULL_HANDLE;
+                auto          resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_session_data);
+                auto          memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+
+                VmaAllocationCreateInfo create_info;
+                create_info.flags = 0;
+                create_info.usage = GetVideoSeesionMemoryUsage(
+                    capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
+                    session_requirements[mem_index].memoryRequirements);
+                create_info.requiredFlags  = 0;
+                create_info.preferredFlags = 0;
+                create_info.memoryTypeBits = 0;
+                create_info.pool           = VK_NULL_HANDLE;
+                create_info.pUserData      = nullptr;
+
+                VmaAllocationInfo allocation_info;
+                result = allocator_->AllocateMemory(session_requirements[mem_index].memoryRequirements,
+                                                    false,
+                                                    false,
+                                                    VK_NULL_HANDLE,               // dedicatedBuffer
+                                                    VK_NULL_HANDLE,               // dedicatedImage
+                                                    VmaBufferImageUsage::UNKNOWN, // dedicatedBufferImageUsage
+                                                    create_info,
+                                                    VMA_SUBALLOCATION_TYPE_FREE,
+                                                    1, // allocationCount
+                                                    &allocation);
+
+                if (result == VK_SUCCESS)
+                {
+                    allocator_->GetAllocationInfo(allocation, &allocation_info);
+                }
+
+                if (result >= 0)
+                {
+                    auto bind_info          = &bind_infos[i];
+                    auto modified_bind_info = *bind_info;
+
+                    switch (allocation->GetType())
+                    {
+                        case VmaAllocation_T::ALLOCATION_TYPE_DEDICATED:
+                        {
+                            modified_bind_info.memory = allocation->GetMemory();
+                            result =
+                                functions_.bind_video_session_memory(device_, video_session, 1, &modified_bind_info);
+                            break;
+                        }
+                        case VmaAllocation_T::ALLOCATION_TYPE_BLOCK:
+                        {
+                            VmaDeviceMemoryBlock* const pBlock = allocation->GetBlock();
+                            VMA_ASSERT(pBlock &&
+                                       "Binding Video Seesion to allocation that doesn't belong to any block.");
+
+                            // This lock is important so that we don't call vkBind... and/or vkMap... simultaneously
+                            // on the same VkDeviceMemory from multiple threads.
+                            VmaMutexLock lock(pBlock->m_MapAndBindMutex, allocator_->m_UseMutex);
+                            modified_bind_info.memory = pBlock->m_hMemory;
+                            modified_bind_info.memoryOffset += allocation->GetOffset();
+                            result =
+                                functions_.bind_video_session_memory(device_, video_session, 1, &modified_bind_info);
+                            break;
+                        }
+                        default:
+                            VMA_ASSERT(0);
+                    }
+
+                    if (result >= 0)
+                    {
+                        resource_alloc_info->allocation      = allocation;
+                        resource_alloc_info->mapped_pointer  = nullptr;
+                        resource_alloc_info->memory_info     = memory_alloc_info;
+                        resource_alloc_info->original_offset = bind_info->memoryOffset;
+                        resource_alloc_info->rebind_offset   = allocation_info.offset;
+                        resource_alloc_info->size            = allocation_info.size;
+
+                        VkMemoryPropertyFlags property_flags =
+                            replay_memory_properties_.memoryTypes[allocation_info.memoryType].propertyFlags;
+
+                        if ((property_flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                        {
+                            resource_alloc_info->is_host_visible = true;
+                        }
+
+                        if (memory_alloc_info->original_content != nullptr)
+                        {
+                            // Memory has been mapped and written prior to bind.  Copy the original content to the new
+                            // allocation to ensure it contains the correct data.
+                            WriteBoundResource(resource_alloc_info,
+                                               bind_info->memoryOffset,
+                                               0,
+                                               allocation_info.size,
+                                               memory_alloc_info->original_content.get());
+                        }
+
+                        memory_alloc_info->original_sessions.insert(std::make_pair(video_session, resource_alloc_info));
+
+                        bind_memory_properties[i] = property_flags;
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 VkResult VulkanRebindAllocator::MapMemory(VkDeviceMemory   memory,
