@@ -308,9 +308,20 @@ void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pnext_header);
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
+
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
@@ -318,6 +329,21 @@ void TrackCmdBeginRenderPassHandles(vulkan_wrappers::CommandBufferWrapper* wrapp
                             if(pnext_value->pAttachments[pAttachments_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->pAttachments[pAttachments_index]));
                         }
                     }
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassSampleLocationsBeginInfoEXT*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassTransformBeginInfoQCOM*>(pnext_header);
                     break;
                 }
             }
@@ -370,9 +396,20 @@ void TrackCmdBeginRenderPass2Handles(vulkan_wrappers::CommandBufferWrapper* wrap
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pnext_header);
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
+
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
@@ -380,6 +417,21 @@ void TrackCmdBeginRenderPass2Handles(vulkan_wrappers::CommandBufferWrapper* wrap
                             if(pnext_value->pAttachments[pAttachments_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->pAttachments[pAttachments_index]));
                         }
                     }
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassSampleLocationsBeginInfoEXT*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassTransformBeginInfoQCOM*>(pnext_header);
                     break;
                 }
             }
@@ -568,6 +620,31 @@ void TrackCmdBeginRenderingHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultisampledRenderToSingleSampledInfoEXT*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultiviewPerViewAttributesInfoNVX*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(pnext_header);
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
                 {
                     auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header);
@@ -655,6 +732,21 @@ void TrackCmdDecodeVideoKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoDecodeAV1PictureInfoKHR*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoDecodeH264PictureInfoKHR*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoDecodeH265PictureInfoKHR*>(pnext_header);
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
                 {
                     auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header);
@@ -701,6 +793,31 @@ void TrackCmdBeginRenderingKHRHandles(vulkan_wrappers::CommandBufferWrapper* wra
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultisampledRenderToSingleSampledInfoEXT*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultiviewPerViewAttributesInfoNVX*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(pnext_header);
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
                 {
                     auto pnext_value = reinterpret_cast<const VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pnext_header);
@@ -753,9 +870,20 @@ void TrackCmdBeginRenderPass2KHRHandles(vulkan_wrappers::CommandBufferWrapper* w
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const VkDeviceGroupRenderPassBeginInfo*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pnext_header);
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkRenderPassAttachmentBeginInfo*>(pnext_header);
+
                     if (pnext_value->pAttachments != nullptr)
                     {
                         for (uint32_t pAttachments_index = 0; pAttachments_index < pnext_value->attachmentCount; ++pAttachments_index)
@@ -763,6 +891,21 @@ void TrackCmdBeginRenderPass2KHRHandles(vulkan_wrappers::CommandBufferWrapper* w
                             if(pnext_value->pAttachments[pAttachments_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ImageViewHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(pnext_value->pAttachments[pAttachments_index]));
                         }
                     }
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassSampleLocationsBeginInfoEXT*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassStripeBeginInfoARM*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const VkRenderPassTransformBeginInfoQCOM*>(pnext_header);
                     break;
                 }
             }
@@ -789,6 +932,24 @@ void TrackCmdDrawIndexedIndirectCountKHRHandles(vulkan_wrappers::CommandBufferWr
     if(countBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::BufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(countBuffer));
 }
 
+void TrackCmdSetRenderingAttachmentLocationsKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkRenderingAttachmentLocationInfoKHR* pLocationInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pLocationInfo != nullptr)
+    {
+    }
+}
+
+void TrackCmdSetRenderingInputAttachmentIndicesKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkRenderingInputAttachmentIndexInfoKHR* pLocationInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pLocationInfo != nullptr)
+    {
+    }
+}
+
 void TrackCmdEncodeVideoKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkVideoEncodeInfoKHR* pEncodeInfo)
 {
     assert(wrapper != nullptr);
@@ -802,6 +963,16 @@ void TrackCmdEncodeVideoKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoEncodeH264PictureInfoKHR*>(pnext_header);
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const VkVideoEncodeH265PictureInfoKHR*>(pnext_header);
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
                 {
                     auto pnext_value = reinterpret_cast<const VkVideoInlineQueryInfoKHR*>(pnext_header);
@@ -1030,6 +1201,7 @@ void TrackCmdBindDescriptorSets2KHRHandles(vulkan_wrappers::CommandBufferWrapper
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1070,6 +1242,7 @@ void TrackCmdPushConstants2KHRHandles(vulkan_wrappers::CommandBufferWrapper* wra
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1102,6 +1275,7 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1130,6 +1304,7 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
                         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
                         {
                             auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureKHR*>(pnext_header);
+
                             if (pnext_value->pAccelerationStructures != nullptr)
                             {
                                 for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -1142,6 +1317,7 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
                         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
                         {
                             auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetAccelerationStructureNV*>(pnext_header);
+
                             if (pnext_value->pAccelerationStructures != nullptr)
                             {
                                 for (uint32_t pAccelerationStructures_index = 0; pAccelerationStructures_index < pnext_value->accelerationStructureCount; ++pAccelerationStructures_index)
@@ -1149,6 +1325,11 @@ void TrackCmdPushDescriptorSet2KHRHandles(vulkan_wrappers::CommandBufferWrapper*
                                     if(pnext_value->pAccelerationStructures[pAccelerationStructures_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureNVHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureNVWrapper>(pnext_value->pAccelerationStructures[pAccelerationStructures_index]));
                                 }
                             }
+                            break;
+                        }
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
+                        {
+                            auto pnext_value = reinterpret_cast<const VkWriteDescriptorSetInlineUniformBlock*>(pnext_header);
                             break;
                         }
                     }
@@ -1201,6 +1382,7 @@ void TrackCmdSetDescriptorBufferOffsets2EXTHandles(vulkan_wrappers::CommandBuffe
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)
@@ -1233,6 +1415,7 @@ void TrackCmdBindDescriptorBufferEmbeddedSamplers2EXTHandles(vulkan_wrappers::Co
                 case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const VkPipelineLayoutCreateInfo*>(pnext_header);
+
                     if (pnext_value->pSetLayouts != nullptr)
                     {
                         for (uint32_t pSetLayouts_index = 0; pSetLayouts_index < pnext_value->setLayoutCount; ++pSetLayouts_index)

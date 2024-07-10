@@ -474,9 +474,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkDeviceGroupRenderPassBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
+
                     if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
                     {
                         auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
@@ -486,6 +497,21 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass(
                             GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                         }
                     }
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassSampleLocationsBeginInfoEXT*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassStripeBeginInfoARM*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassTransformBeginInfoQCOM*>(pRenderPassBegin_ptr->pNext->GetPointer());
                     break;
                 }
             }
@@ -578,9 +604,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkDeviceGroupRenderPassBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
+
                     if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
                     {
                         auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
@@ -590,6 +627,21 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2(
                             GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                         }
                     }
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassSampleLocationsBeginInfoEXT*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassStripeBeginInfoARM*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassTransformBeginInfoQCOM*>(pRenderPassBegin_ptr->pNext->GetPointer());
                     break;
                 }
             }
@@ -818,6 +870,31 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRendering(
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkDeviceGroupRenderPassBeginInfo*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultisampledRenderToSingleSampledInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultiviewPerViewAttributesInfoNVX*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassStripeBeginInfoARM*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
                 {
                     auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
@@ -926,6 +1003,40 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDecodeVideoKHR(
     if (!pDecodeInfo->IsNull() && (pDecodeInfo->HasData()))
     {
         auto pDecodeInfo_ptr = pDecodeInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pDecodeInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pDecodeInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkVideoDecodeAV1PictureInfoKHR*>(pDecodeInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkVideoDecodeH264PictureInfoKHR*>(pDecodeInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkVideoDecodeH265PictureInfoKHR*>(pDecodeInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkVideoInlineQueryInfoKHR*>(pDecodeInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
         GetTable().AddResourceToUser(commandBuffer, pDecodeInfo_ptr->srcBuffer);
         GetTable().AddResourceToUser(commandBuffer, pDecodeInfo_ptr->dstPictureResource->imageViewBinding);
 
@@ -976,6 +1087,31 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderingKHR(
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkDeviceGroupRenderPassBeginInfo*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultisampledRenderToSingleSampledInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_ATTRIBUTES_INFO_NVX:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultiviewPerViewAttributesInfoNVX*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassStripeBeginInfoARM*>(pRenderingInfo_ptr->pNext->GetPointer());
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDERING_FRAGMENT_DENSITY_MAP_ATTACHMENT_INFO_EXT:
                 {
                     auto pnext_value = reinterpret_cast<const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT*>(pRenderingInfo_ptr->pNext->GetPointer());
@@ -1055,6 +1191,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
                     case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
                     {
                         auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(pDescriptorWrites_ptr->pNext->GetPointer());
+
                         if (!pnext_value->pAccelerationStructures.IsNull() && (pnext_value->pAccelerationStructures.HasData()))
                         {
                             auto pAccelerationStructures_ptr = pnext_value->pAccelerationStructures.GetPointer();
@@ -1064,6 +1201,16 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSetKHR(
                                 GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
                             }
                         }
+                        break;
+                    }
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                    {
+                        auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureNV*>(pDescriptorWrites_ptr->pNext->GetPointer());
+                        break;
+                    }
+                    case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
+                    {
+                        auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetInlineUniformBlock*>(pDescriptorWrites_ptr->pNext->GetPointer());
                         break;
                     }
                 }
@@ -1128,9 +1275,20 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
             {
                 default:
                     break;
+                case VK_STRUCTURE_TYPE_DEVICE_GROUP_RENDER_PASS_BEGIN_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkDeviceGroupRenderPassBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_MULTIVIEW_PER_VIEW_RENDER_AREAS_RENDER_PASS_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
                 case VK_STRUCTURE_TYPE_RENDER_PASS_ATTACHMENT_BEGIN_INFO:
                 {
                     auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassAttachmentBeginInfo*>(pRenderPassBegin_ptr->pNext->GetPointer());
+
                     if (!pnext_value->pAttachments.IsNull() && (pnext_value->pAttachments.HasData()))
                     {
                         auto pAttachments_ptr = pnext_value->pAttachments.GetPointer();
@@ -1140,6 +1298,21 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBeginRenderPass2KHR(
                             GetTable().AddResourceToUser(commandBuffer, pAttachments_ptr[pAttachments_index]);
                         }
                     }
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_SAMPLE_LOCATIONS_BEGIN_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassSampleLocationsBeginInfoEXT*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_BEGIN_INFO_ARM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassStripeBeginInfoARM*>(pRenderPassBegin_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_RENDER_PASS_TRANSFORM_BEGIN_INFO_QCOM:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkRenderPassTransformBeginInfoQCOM*>(pRenderPassBegin_ptr->pNext->GetPointer());
                     break;
                 }
             }
@@ -1187,6 +1360,32 @@ void VulkanReferencedResourceConsumer::Process_vkCmdDrawIndexedIndirectCountKHR(
     GetTable().AddResourceToUser(commandBuffer, countBuffer);
 }
 
+void VulkanReferencedResourceConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingAttachmentLocationInfoKHR>* pLocationInfo)
+{
+    assert(pLocationInfo != nullptr);
+
+    if (!pLocationInfo->IsNull() && (pLocationInfo->HasData()))
+    {
+        auto pLocationInfo_ptr = pLocationInfo->GetMetaStructPointer();
+    }
+}
+
+void VulkanReferencedResourceConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            commandBuffer,
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo)
+{
+    assert(pLocationInfo != nullptr);
+
+    if (!pLocationInfo->IsNull() && (pLocationInfo->HasData()))
+    {
+        auto pLocationInfo_ptr = pLocationInfo->GetMetaStructPointer();
+    }
+}
+
 void VulkanReferencedResourceConsumer::Process_vkCmdEncodeVideoKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
@@ -1197,6 +1396,35 @@ void VulkanReferencedResourceConsumer::Process_vkCmdEncodeVideoKHR(
     if (!pEncodeInfo->IsNull() && (pEncodeInfo->HasData()))
     {
         auto pEncodeInfo_ptr = pEncodeInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pEncodeInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pEncodeInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H264_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkVideoEncodeH264PictureInfoKHR*>(pEncodeInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_ENCODE_H265_PICTURE_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkVideoEncodeH265PictureInfoKHR*>(pEncodeInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkVideoInlineQueryInfoKHR*>(pEncodeInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
         GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->dstBuffer);
         GetTable().AddResourceToUser(commandBuffer, pEncodeInfo_ptr->srcPictureResource->imageViewBinding);
 
@@ -1464,6 +1692,25 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorSets2KHR(
     if (!pBindDescriptorSetsInfo->IsNull() && (pBindDescriptorSetsInfo->HasData()))
     {
         auto pBindDescriptorSetsInfo_ptr = pBindDescriptorSetsInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pBindDescriptorSetsInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorSetsInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkPipelineLayoutCreateInfo*>(pBindDescriptorSetsInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
 
         if (!pBindDescriptorSetsInfo_ptr->pDescriptorSets.IsNull() && (pBindDescriptorSetsInfo_ptr->pDescriptorSets.HasData()))
         {
@@ -1487,6 +1734,25 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushConstants2KHR(
     if (!pPushConstantsInfo->IsNull() && (pPushConstantsInfo->HasData()))
     {
         auto pPushConstantsInfo_ptr = pPushConstantsInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pPushConstantsInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushConstantsInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkPipelineLayoutCreateInfo*>(pPushConstantsInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
     }
 }
 
@@ -1500,6 +1766,25 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
     if (!pPushDescriptorSetInfo->IsNull() && (pPushDescriptorSetInfo->HasData()))
     {
         auto pPushDescriptorSetInfo_ptr = pPushDescriptorSetInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pPushDescriptorSetInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pPushDescriptorSetInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkPipelineLayoutCreateInfo*>(pPushDescriptorSetInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
 
         if (!pPushDescriptorSetInfo_ptr->pDescriptorWrites->IsNull() && (pPushDescriptorSetInfo_ptr->pDescriptorWrites->HasData()))
         {
@@ -1521,6 +1806,7 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
                         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
                         {
                             auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(pDescriptorWrites_ptr->pNext->GetPointer());
+
                             if (!pnext_value->pAccelerationStructures.IsNull() && (pnext_value->pAccelerationStructures.HasData()))
                             {
                                 auto pAccelerationStructures_ptr = pnext_value->pAccelerationStructures.GetPointer();
@@ -1530,6 +1816,16 @@ void VulkanReferencedResourceConsumer::Process_vkCmdPushDescriptorSet2KHR(
                                     GetTable().AddResourceToUser(commandBuffer, pAccelerationStructures_ptr[pAccelerationStructures_index]);
                                 }
                             }
+                            break;
+                        }
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV:
+                        {
+                            auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureNV*>(pDescriptorWrites_ptr->pNext->GetPointer());
+                            break;
+                        }
+                        case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK:
+                        {
+                            auto pnext_value = reinterpret_cast<const Decoded_VkWriteDescriptorSetInlineUniformBlock*>(pDescriptorWrites_ptr->pNext->GetPointer());
                             break;
                         }
                     }
@@ -1581,6 +1877,25 @@ void VulkanReferencedResourceConsumer::Process_vkCmdSetDescriptorBufferOffsets2E
     if (!pSetDescriptorBufferOffsetsInfo->IsNull() && (pSetDescriptorBufferOffsetsInfo->HasData()))
     {
         auto pSetDescriptorBufferOffsetsInfo_ptr = pSetDescriptorBufferOffsetsInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pSetDescriptorBufferOffsetsInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pSetDescriptorBufferOffsetsInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkPipelineLayoutCreateInfo*>(pSetDescriptorBufferOffsetsInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
     }
 }
 
@@ -1594,6 +1909,25 @@ void VulkanReferencedResourceConsumer::Process_vkCmdBindDescriptorBufferEmbedded
     if (!pBindDescriptorBufferEmbeddedSamplersInfo->IsNull() && (pBindDescriptorBufferEmbeddedSamplersInfo->HasData()))
     {
         auto pBindDescriptorBufferEmbeddedSamplersInfo_ptr = pBindDescriptorBufferEmbeddedSamplersInfo->GetMetaStructPointer();
+        const VkBaseInStructure* pnext_header = nullptr;
+        if (pBindDescriptorBufferEmbeddedSamplersInfo_ptr->pNext != nullptr)
+        {
+            pnext_header = reinterpret_cast<const VkBaseInStructure*>(pBindDescriptorBufferEmbeddedSamplersInfo_ptr->pNext->GetPointer());
+        }
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO:
+                {
+                    auto pnext_value = reinterpret_cast<const Decoded_VkPipelineLayoutCreateInfo*>(pBindDescriptorBufferEmbeddedSamplersInfo_ptr->pNext->GetPointer());
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
     }
 }
 

@@ -12718,10 +12718,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRenderingAttachmentLocationsKHR(
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         EncodeStructPtr(encoder, pLocationInfo);
-        manager->EndCommandApiCallCapture(commandBuffer);
+        manager->EndCommandApiCallCapture(commandBuffer, TrackCmdSetRenderingAttachmentLocationsKHRHandles, pLocationInfo);
     }
 
-    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingAttachmentLocationsKHR(commandBuffer, pLocationInfo);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkRenderingAttachmentLocationInfoKHR* pLocationInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pLocationInfo, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingAttachmentLocationsKHR(commandBuffer, pLocationInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRenderingAttachmentLocationsKHR>::Dispatch(manager, commandBuffer, pLocationInfo);
 }
@@ -12751,10 +12754,13 @@ VKAPI_ATTR void VKAPI_CALL CmdSetRenderingInputAttachmentIndicesKHR(
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
         EncodeStructPtr(encoder, pLocationInfo);
-        manager->EndCommandApiCallCapture(commandBuffer);
+        manager->EndCommandApiCallCapture(commandBuffer, TrackCmdSetRenderingInputAttachmentIndicesKHRHandles, pLocationInfo);
     }
 
-    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingInputAttachmentIndicesKHR(commandBuffer, pLocationInfo);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkRenderingInputAttachmentIndexInfoKHR* pLocationInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pLocationInfo, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetRenderingInputAttachmentIndicesKHR(commandBuffer, pLocationInfo_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR>::Dispatch(manager, commandBuffer, pLocationInfo);
 }
@@ -16833,7 +16839,10 @@ VKAPI_ATTR void VKAPI_CALL SubmitDebugUtilsMessageEXT(
         manager->EndApiCallCapture();
     }
 
-    vulkan_wrappers::GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, pCallbackData);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCallbackData, handle_unwrap_memory);
+
+    vulkan_wrappers::GetInstanceTable(instance)->SubmitDebugUtilsMessageEXT(instance, messageSeverity, messageTypes, pCallbackData_unwrapped);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkSubmitDebugUtilsMessageEXT>::Dispatch(manager, instance, messageSeverity, messageTypes, pCallbackData);
 }
@@ -23364,7 +23373,10 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceOpticalFlowImageFormatsNV(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetPhysicalDeviceOpticalFlowImageFormatsNV>::Dispatch(manager, physicalDevice, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
 
-    VkResult result = vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceOpticalFlowImageFormatsNV(physicalDevice, pOpticalFlowImageFormatInfo, pFormatCount, pImageFormatProperties);
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkOpticalFlowImageFormatInfoNV* pOpticalFlowImageFormatInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pOpticalFlowImageFormatInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceOpticalFlowImageFormatsNV(physicalDevice, pOpticalFlowImageFormatInfo_unwrapped, pFormatCount, pImageFormatProperties);
     if (result < 0)
     {
         omit_output_data = true;
