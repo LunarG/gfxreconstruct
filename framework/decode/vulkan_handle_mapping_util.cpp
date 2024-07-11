@@ -147,6 +147,9 @@ uint64_t MapHandle(uint64_t object, VkObjectType object_type, const VulkanObject
         case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV:
             return format::ToHandleId(MapHandle<IndirectCommandsLayoutNVInfo>(
                 object, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutNVInfo));
+        case VK_OBJECT_TYPE_MICROMAP_EXT:
+            return format::ToHandleId(
+                MapHandle<MicromapEXTInfo>(object, object_info_table, &VulkanObjectInfoTable::GetMicromapEXTInfo));
         case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT_EXT:
             return format::ToHandleId(MapHandle<PrivateDataSlotEXTInfo>(
                 object, object_info_table, &VulkanObjectInfoTable::GetPrivateDataSlotInfo));

@@ -1823,18 +1823,6 @@ void MapStructHandles(Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* w
     }
 }
 
-void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        VkAccelerationStructureBuildGeometryInfoKHR* value = wrapper->decoded_value;
-
-        value->srcAccelerationStructure = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(wrapper->srcAccelerationStructure, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
-
-        value->dstAccelerationStructure = handle_mapping::MapHandle<AccelerationStructureKHRInfo>(wrapper->dstAccelerationStructure, object_info_table, &VulkanObjectInfoTable::GetAccelerationStructureKHRInfo);
-    }
-}
-
 void MapStructHandles(Decoded_VkAccelerationStructureCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))

@@ -110,7 +110,7 @@ class BaseStructHandleMappersBodyGenerator():
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
                 or (struct in self.structs_with_map_data)
-            ):
+            ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = list()
                 generic_handle_members = dict()
 
