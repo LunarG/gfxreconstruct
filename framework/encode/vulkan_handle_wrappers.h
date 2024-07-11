@@ -198,6 +198,8 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
+
+    bool dirty;
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
@@ -219,6 +221,8 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
     bool                     is_swapchain_image{ false };
     std::set<VkSwapchainKHR> parent_swapchains;
+
+    bool dirty;
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>

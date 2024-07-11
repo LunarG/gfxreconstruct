@@ -73,8 +73,11 @@ struct DescriptorInfo
     std::unique_ptr<format::HandleId[]>           handle_ids;  // Image, buffer, or buffer view IDs depending on type.
     std::unique_ptr<format::HandleId[]>           sampler_ids; // Sampler IDs for image type.
     std::unique_ptr<VkDescriptorImageInfo[]>      images;
+    std::unique_ptr<VkDescriptorImageInfo[]>      storage_images;
     std::unique_ptr<VkDescriptorBufferInfo[]>     buffers;
-    std::unique_ptr<VkBufferView[]>               texel_buffer_views;
+    std::unique_ptr<VkDescriptorBufferInfo[]>     storage_buffers;
+    std::unique_ptr<VkBufferView[]>               uniform_texel_buffer_views;
+    std::unique_ptr<VkBufferView[]>               storage_texel_buffer_views;
     std::unique_ptr<VkAccelerationStructureKHR[]> acceleration_structures;
     std::unique_ptr<uint8_t[]>                    inline_uniform_block;
     std::unique_ptr<VkDescriptorType[]>           mutable_type;

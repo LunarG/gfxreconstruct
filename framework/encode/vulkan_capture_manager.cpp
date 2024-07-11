@@ -447,8 +447,7 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
             // as tightly packed arrays of structures.  One array will be written for each descriptor info
             // structure/textel buffer view.
             if ((type == VK_DESCRIPTOR_TYPE_SAMPLER) || (type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) ||
-                (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE) ||
-                (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
+                (type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE) || (type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT))
             {
                 UpdateTemplateEntryInfo image_info;
                 image_info.binding       = entry->dstBinding;
@@ -463,9 +462,22 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
 
                 entry_size = sizeof(VkDescriptorImageInfo);
             }
-            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
-                     (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC) ||
-                     (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
+            if (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE)
+            {
+                UpdateTemplateEntryInfo image_info;
+                image_info.binding       = entry->dstBinding;
+                image_info.array_element = entry->dstArrayElement;
+                image_info.count         = entry->descriptorCount;
+                image_info.offset        = entry->offset;
+                image_info.stride        = entry->stride;
+                image_info.type          = type;
+
+                info->storage_image_info_count += entry->descriptorCount;
+                info->storage_image_info.emplace_back(image_info);
+
+                entry_size = sizeof(VkDescriptorImageInfo);
+            }
+            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) || (type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC))
             {
                 UpdateTemplateEntryInfo buffer_info;
                 buffer_info.binding       = entry->dstBinding;
@@ -480,8 +492,22 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
 
                 entry_size = sizeof(VkDescriptorBufferInfo);
             }
-            else if ((type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER) ||
-                     (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER))
+            else if ((type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) || (type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC))
+            {
+                UpdateTemplateEntryInfo buffer_info;
+                buffer_info.binding       = entry->dstBinding;
+                buffer_info.array_element = entry->dstArrayElement;
+                buffer_info.count         = entry->descriptorCount;
+                buffer_info.offset        = entry->offset;
+                buffer_info.stride        = entry->stride;
+                buffer_info.type          = type;
+
+                info->storage_buffer_info_count += entry->descriptorCount;
+                info->storage_buffer_info.emplace_back(buffer_info);
+
+                entry_size = sizeof(VkDescriptorBufferInfo);
+            }
+            else if (type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER)
             {
                 UpdateTemplateEntryInfo texel_buffer_view_info;
                 texel_buffer_view_info.binding       = entry->dstBinding;
@@ -491,8 +517,23 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
                 texel_buffer_view_info.stride        = entry->stride;
                 texel_buffer_view_info.type          = type;
 
-                info->texel_buffer_view_count += entry->descriptorCount;
-                info->texel_buffer_view.emplace_back(texel_buffer_view_info);
+                info->uniform_texel_buffer_view_count += entry->descriptorCount;
+                info->uniform_texel_buffer_view.emplace_back(texel_buffer_view_info);
+
+                entry_size = sizeof(VkBufferView);
+            }
+            else if (type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER)
+            {
+                UpdateTemplateEntryInfo texel_buffer_view_info;
+                texel_buffer_view_info.binding       = entry->dstBinding;
+                texel_buffer_view_info.array_element = entry->dstArrayElement;
+                texel_buffer_view_info.count         = entry->descriptorCount;
+                texel_buffer_view_info.offset        = entry->offset;
+                texel_buffer_view_info.stride        = entry->stride;
+                texel_buffer_view_info.type          = type;
+
+                info->storage_texel_buffer_view_count += entry->descriptorCount;
+                info->storage_texel_buffer_view.emplace_back(texel_buffer_view_info);
 
                 entry_size = sizeof(VkBufferView);
             }

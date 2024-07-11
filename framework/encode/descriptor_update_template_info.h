@@ -53,13 +53,19 @@ struct UpdateTemplateInfo
     // items to encode prior to processing the individual UpdateTemplateEntry structures.
     size_t                               max_size{ 0 };
     size_t                               image_info_count{ 0 };
+    size_t                               storage_image_info_count{ 0 };
     size_t                               buffer_info_count{ 0 };
-    size_t                               texel_buffer_view_count{ 0 };
+    size_t                               storage_buffer_info_count{ 0 };
+    size_t                               uniform_texel_buffer_view_count{ 0 };
+    size_t                               storage_texel_buffer_view_count{ 0 };
     size_t                               acceleration_structure_khr_count{ 0 };
     size_t                               inline_uniform_block_count{ 0 };
     std::vector<UpdateTemplateEntryInfo> image_info;
+    std::vector<UpdateTemplateEntryInfo> storage_image_info;
     std::vector<UpdateTemplateEntryInfo> buffer_info;
-    std::vector<UpdateTemplateEntryInfo> texel_buffer_view;
+    std::vector<UpdateTemplateEntryInfo> storage_buffer_info;
+    std::vector<UpdateTemplateEntryInfo> uniform_texel_buffer_view;
+    std::vector<UpdateTemplateEntryInfo> storage_texel_buffer_view;
     std::vector<UpdateTemplateEntryInfo> acceleration_structure_khr;
     std::vector<UpdateTemplateEntryInfo> inline_uniform_block;
 };

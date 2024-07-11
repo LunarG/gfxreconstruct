@@ -2389,19 +2389,25 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
         case VK_DESCRIPTOR_TYPE_SAMPLER:
         case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
         case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
         case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
             write->pImageInfo = &binding->images[write->dstArrayElement];
             break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            write->pImageInfo = &binding->storage_images[write->dstArrayElement];
+            break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
             write->pBufferInfo = &binding->buffers[write->dstArrayElement];
             break;
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+        case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            write->pBufferInfo = &binding->storage_buffers[write->dstArrayElement];
+            break;
         case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            write->pTexelBufferView = &binding->uniform_texel_buffer_views[write->dstArrayElement];
+            break;
         case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-            write->pTexelBufferView = &binding->texel_buffer_views[write->dstArrayElement];
+            write->pTexelBufferView = &binding->storage_texel_buffer_views[write->dstArrayElement];
             break;
         case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
             if (binding->inline_uniform_block != nullptr)
