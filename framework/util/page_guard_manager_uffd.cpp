@@ -463,7 +463,9 @@ void* PageGuardManager::UffdHandlerThread(void* args)
                 continue;
             }
 
-            uffd_fault_causing_threads.insert(static_cast<uint64_t>(msg[i].arg.pagefault.feat.ptid));
+            thread_set_mutex_.lock();
+            uffd_fault_causing_threads_.insert(static_cast<uint64_t>(msg[i].arg.pagefault.feat.ptid));
+            thread_set_mutex_.unlock();
 
             // Skip repeating faults on the same page
             if (i && (msg[i].arg.pagefault.address % system_page_size_) ==
@@ -710,27 +712,32 @@ uint32_t PageGuardManager::UffdBlockFaultingThreads()
     block_accessor_threads = true;
 
     threads_to_block = 0;
-    for (const auto& entry : uffd_fault_causing_threads)
+    thread_set_mutex_.lock();
+    for (auto tid = uffd_fault_causing_threads_.begin(); tid != uffd_fault_causing_threads_.end();)
     {
         // Don't send the signal to this thread.
-        if (this_tid == entry)
+        if (this_tid == *tid)
         {
+            ++tid;
             continue;
         }
 
         // Threads that do not exist any more do not count. In this case SendSignalToThread()
         // will return an error
-        ret = util::platform::SendSignalToThread(entry, uffd_rt_signal_used_);
+        ret = util::platform::SendSignalToThread(*tid, uffd_rt_signal_used_);
         if (ret == 0)
         {
             ++threads_to_block;
+            ++tid;
         }
         else
         {
             GFXRECON_LOG_WARNING(
-                "Sending signal to thread %" PRIu64 " failed %d (%s - %s)", entry, ret, strerror(ret), strerror(errno));
+                "Sending signal to thread %" PRIu64 " failed %d (%s - %s)", *tid, ret, strerror(ret), strerror(errno));
+            tid = uffd_fault_causing_threads_.erase(tid);
         }
     }
+    thread_set_mutex_.unlock();
 
     // If the signal was sent to any threads wait to make sure all of them have entered the signal handler
     if (threads_to_block)
@@ -748,7 +755,7 @@ uint32_t PageGuardManager::UffdBlockFaultingThreads()
             ret = pthread_cond_timedwait(&wait_for_threads_cond, &wait_for_threads_mutex, &timeout);
             if (ret)
             {
-                LOG_THREAD_SYNCHRONIZATION_WARNING(this_tid, "pthread_cond_wait() (%s)", ret);
+                LOG_THREAD_SYNCHRONIZATION_WARNING(this_tid, "pthread_cond_timedwait()", ret);
 
                 // For some reason not all threads made it to the signal handler in a reasonable time.
                 if (ret == ETIMEDOUT)
