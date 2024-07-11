@@ -83,6 +83,32 @@ struct DescriptorInfo
     std::unique_ptr<VkDescriptorType[]>           mutable_type;
 };
 
+struct ShaderReflectionDescriptorInfo
+{
+    ShaderReflectionDescriptorInfo(
+        VkDescriptorType type, bool readonly, uint32_t accessed, uint32_t count, bool is_array) :
+        type(type),
+        readonly(readonly), accessed(accessed), count(count), is_array(is_array)
+    {}
+
+    ShaderReflectionDescriptorInfo(const ShaderReflectionDescriptorInfo& other) :
+        type(other.type), readonly(other.readonly), accessed(other.accessed), count(other.count),
+        is_array(other.is_array)
+    {}
+
+    VkDescriptorType type;
+    bool             readonly;
+    uint32_t         accessed;
+    uint32_t         count;
+    bool             is_array;
+};
+
+// One entry per descriptor binding
+using ShaderReflectionDescriptorSetInfo = std::unordered_map<uint32_t, ShaderReflectionDescriptorInfo>;
+
+// One entry per descriptor set
+using ShaderReflectionDescriptorSetsInfos = std::unordered_map<uint32_t, ShaderReflectionDescriptorSetInfo>;
+
 struct CreateDependencyInfo
 {
     format::HandleId  handle_id{ format::kNullHandleId };

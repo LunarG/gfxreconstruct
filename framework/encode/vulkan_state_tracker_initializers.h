@@ -725,6 +725,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
     wrapper->create_parameters = std::move(create_parameters);
 
     auto buffer        = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
+    wrapper->buffer    = buffer;
     wrapper->buffer_id = buffer->handle_id;
 }
 

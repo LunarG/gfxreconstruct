@@ -35,7 +35,9 @@
 #include "util/page_guard_manager.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
+#include <cstddef>
 #include <limits>
 #include <memory>
 #include <set>
@@ -71,7 +73,6 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
 // struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
 struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
@@ -94,6 +95,11 @@ struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR>
 //
 // Declarations for handle wrappers that require additional state info.
 //
+
+struct ShaderModuleWrapper : public HandleWrapper<VkShaderModule>
+{
+    vulkan_state_info::ShaderReflectionDescriptorSetsInfos used_descriptors_info;
+};
 
 // This handle type is retrieved and has no destroy function. The handle wrapper will be owned by its parent
 // VkPhysicalDevice handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is
@@ -199,7 +205,7 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
 
-    bool dirty;
+    bool dirty{ true };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
@@ -222,12 +228,13 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     bool                     is_swapchain_image{ false };
     std::set<VkSwapchainKHR> parent_swapchains;
 
-    bool dirty;
+    bool dirty{ true };
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 {
     format::HandleId buffer_id{ format::kNullHandleId };
+    BufferWrapper*   buffer{ nullptr };
 };
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
@@ -273,6 +280,71 @@ struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
     // Final image attachment layouts to be used for processing image layout transitions after calls to
     // vkCmdEndRenderPass.
     std::vector<VkImageLayout> attachment_final_layouts;
+};
+
+struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>
+{
+    // Members for general wrapper support.
+    UpdateTemplateInfo info;
+};
+
+struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
+{
+    // Members for trimming state tracking.
+    std::vector<vulkan_state_info::DescriptorBindingInfo> binding_info;
+};
+
+struct DescriptorPoolWrapper;
+struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
+{
+    // Members for general wrapper support.
+    // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
+    DescriptorPoolWrapper* parent_pool{ nullptr };
+
+    // Members for trimming state tracking.
+    DeviceWrapper* device{ nullptr };
+
+    // Map for descriptor binding index to array of descriptor info.
+    std::unordered_map<uint32_t, vulkan_state_info::DescriptorInfo> bindings;
+
+    // Creation info for objects used to allocate the descriptor set, which may have been destroyed after descriptor set
+    // allocation.
+    vulkan_state_info::CreateDependencyInfo set_layout_dependency;
+};
+
+struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
+{
+    // Members for general wrapper support.
+    // Track descriptor set info, which must be destroyed on descriptor pool reset.
+    std::unordered_map<format::HandleId, DescriptorSetWrapper*> child_sets;
+};
+
+struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
+{
+    // Creation info for objects used to create the pipeline layout, which may have been destroyed after pipeline layout
+    // creation.
+    std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies> layout_dependencies;
+};
+
+struct PipelineWrapper : public HandleWrapper<VkPipeline>
+{
+    // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
+    std::vector<vulkan_state_info::CreateDependencyInfo> shader_module_dependencies;
+    vulkan_state_info::CreateDependencyInfo              render_pass_dependency;
+    vulkan_state_info::CreateDependencyInfo              layout_dependency;
+    std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies>
+        layout_dependencies; // Shared with PipelineLayoutWrapper
+
+    // Ray tracing pipeline's shader group handle data
+    format::HandleId                        device_id{ format::kNullHandleId };
+    std::vector<uint8_t>                    shader_group_handle_data;
+    vulkan_state_info::CreateDependencyInfo deferred_operation;
+
+    // TODO: Base pipeline
+    // TODO: Pipeline cache
+
+    VkPipelineBindPoint                                       pipeline_bind_point;
+    std::unordered_map<uint32_t, const DescriptorSetWrapper*> descriptor_sets;
 };
 
 struct AccelerationStructureKHRWrapper;
@@ -323,31 +395,8 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
         uint32_t offset;
     };
     std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
-};
 
-struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
-{
-    // Creation info for objects used to create the pipeline layout, which may have been destroyed after pipeline layout
-    // creation.
-    std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies> layout_dependencies;
-};
-
-struct PipelineWrapper : public HandleWrapper<VkPipeline>
-{
-    // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
-    std::vector<vulkan_state_info::CreateDependencyInfo> shader_module_dependencies;
-    vulkan_state_info::CreateDependencyInfo              render_pass_dependency;
-    vulkan_state_info::CreateDependencyInfo              layout_dependency;
-    std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies>
-        layout_dependencies; // Shared with PipelineLayoutWrapper
-
-    // Ray tracing pipeline's shader group handle data
-    format::HandleId                        device_id{ format::kNullHandleId };
-    std::vector<uint8_t>                    shader_group_handle_data;
-    vulkan_state_info::CreateDependencyInfo deferred_operation;
-
-    // TODO: Base pipeline
-    // TODO: Pipeline cache
+    const PipelineWrapper* bound_pipeline{ nullptr };
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
@@ -361,43 +410,6 @@ struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR
     VkPipeline*                                    pPipelines;
     VkPipelineCache                                pipelineCache;
     bool                                           pending_state = false;
-};
-
-struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>
-{
-    // Members for general wrapper support.
-    UpdateTemplateInfo info;
-};
-
-struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
-{
-    // Members for trimming state tracking.
-    std::vector<vulkan_state_info::DescriptorBindingInfo> binding_info;
-};
-
-struct DescriptorPoolWrapper;
-struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
-{
-    // Members for general wrapper support.
-    // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
-    DescriptorPoolWrapper* parent_pool{ nullptr };
-
-    // Members for trimming state tracking.
-    DeviceWrapper* device{ nullptr };
-
-    // Map for descriptor binding index to array of descriptor info.
-    std::unordered_map<uint32_t, vulkan_state_info::DescriptorInfo> bindings;
-
-    // Creation info for objects used to allocate the descriptor set, which may have been destroyed after descriptor set
-    // allocation.
-    vulkan_state_info::CreateDependencyInfo set_layout_dependency;
-};
-
-struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
-{
-    // Members for general wrapper support.
-    // Track descriptor set info, which must be destroyed on descriptor pool reset.
-    std::unordered_map<format::HandleId, DescriptorSetWrapper*> child_sets;
 };
 
 struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>

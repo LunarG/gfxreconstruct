@@ -22,13 +22,16 @@
 
 #include "encode/vulkan_state_tracker.h"
 
+#include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_track_struct.h"
 #include "graphics/vulkan_struct_get_pnext.h"
+#include "vulkan/vulkan_core.h"
 
 #include <algorithm>
+#include <cstddef>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -1856,6 +1859,427 @@ void VulkanStateTracker::TrackTlasToBlasDependencies(uint32_t               comm
                 }
             }
         }
+    }
+}
+
+void VulkanStateTracker::TrackCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
+                                                    VkPipelineBindPoint    pipelineBindPoint,
+                                                    VkPipelineLayout       layout,
+                                                    uint32_t               firstSet,
+                                                    uint32_t               descriptorSetCount,
+                                                    const VkDescriptorSet* pDescriptorSets,
+                                                    uint32_t               dynamicOffsetCount,
+                                                    const uint32_t*        pDynamicOffsets)
+{
+    if (pDescriptorSets != nullptr)
+    {
+        for (uint32_t i = 0; i < descriptorSetCount; ++i)
+        {
+            vulkan_wrappers::DescriptorSetWrapper* desc_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets[i]);
+
+            for (auto& binding : desc_wrapper->bindings)
+            {
+                switch (binding.second.type)
+                {
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    {
+                        assert(binding.second.count);
+                        assert(binding.second.storage_images);
+
+                        for (uint32_t si = 0; si < binding.second.count; ++si)
+                        {
+                            const vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                                    binding.second.storage_images[si].imageView);
+                            assert(img_view_wrapper != nullptr);
+
+                            vulkan_wrappers::ImageWrapper* img_wrapper = img_view_wrapper->image;
+                            img_wrapper->dirty                         = true;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        assert(binding.second.count);
+                        assert(binding.second.storage_buffers);
+
+                        for (uint32_t sb = 0; sb < binding.second.count; ++sb)
+                        {
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                                    binding.second.storage_buffers[sb].buffer);
+                            assert(buffer_wrapper != nullptr);
+
+                            buffer_wrapper->dirty = true;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        assert(binding.second.count);
+                        assert(binding.second.storage_texel_buffer_views);
+
+                        for (uint32_t stb = 0; stb < binding.second.count; ++stb)
+                        {
+                            const vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
+                                    binding.second.storage_texel_buffer_views[stb]);
+                            assert(buffer_view_wrapper != nullptr);
+
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper = buffer_view_wrapper->buffer;
+                            buffer_wrapper->dirty                          = true;
+                        }
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
+
+void VulkanStateTracker::TrackCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
+                                                        const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo)
+{
+    if (pBindDescriptorSetsInfo != nullptr && pBindDescriptorSetsInfo->pDescriptorSets != nullptr)
+    {
+        for (uint32_t i = 0; i < pBindDescriptorSetsInfo->descriptorSetCount; ++i)
+        {
+            vulkan_wrappers::DescriptorSetWrapper* desc_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(
+                    pBindDescriptorSetsInfo->pDescriptorSets[i]);
+
+            for (auto& binding : desc_wrapper->bindings)
+            {
+                switch (binding.second.type)
+                {
+                    case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                    {
+                        assert(binding.second.count);
+                        assert(binding.second.storage_images);
+
+                        for (uint32_t si = 0; si < binding.second.count; ++si)
+                        {
+                            const vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                                    binding.second.storage_images[si].imageView);
+                            assert(img_view_wrapper != nullptr);
+
+                            vulkan_wrappers::ImageWrapper* img_wrapper = img_view_wrapper->image;
+                            img_wrapper->dirty                         = true;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+                    case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                    {
+                        assert(binding.second.count);
+                        assert(binding.second.storage_buffers);
+
+                        for (uint32_t sb = 0; sb < binding.second.count; ++sb)
+                        {
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                                    binding.second.storage_buffers[sb].buffer);
+                            assert(buffer_wrapper != nullptr);
+
+                            buffer_wrapper->dirty = true;
+                        }
+                    }
+                    break;
+
+                    case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+                    {
+                        assert(binding.second.count);
+                        assert(binding.second.storage_texel_buffer_views);
+
+                        for (uint32_t stb = 0; stb < binding.second.count; ++stb)
+                        {
+                            const vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
+                                    binding.second.storage_texel_buffer_views[stb]);
+                            assert(buffer_view_wrapper != nullptr);
+
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper = buffer_view_wrapper->buffer;
+                            buffer_wrapper->dirty                          = true;
+                        }
+                    }
+                    break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyBuffer(VkCommandBuffer     commandBuffer,
+                                            VkBuffer            srcBuffer,
+                                            VkBuffer            dstBuffer,
+                                            uint32_t            regionCount,
+                                            const VkBufferCopy* pRegions)
+{
+    if (dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
+                                           VkImage            srcImage,
+                                           VkImageLayout      srcImageLayout,
+                                           VkImage            dstImage,
+                                           VkImageLayout      dstImageLayout,
+                                           uint32_t           regionCount,
+                                           const VkImageCopy* pRegions)
+{
+    if (dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          commandBuffer,
+                                                   VkBuffer                 srcBuffer,
+                                                   VkImage                  dstImage,
+                                                   VkImageLayout            dstImageLayout,
+                                                   uint32_t                 regionCount,
+                                                   const VkBufferImageCopy* pRegions)
+{
+    if (dstImage != nullptr)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyImageToBuffer(VkCommandBuffer          commandBuffer,
+                                                   VkImage                  srcImage,
+                                                   VkImageLayout            srcImageLayout,
+                                                   VkBuffer                 dstBuffer,
+                                                   uint32_t                 regionCount,
+                                                   const VkBufferImageCopy* pRegions)
+{
+    if (dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyBuffer2(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo)
+{
+    if (pCopyBufferInfo != nullptr && pCopyBufferInfo->dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyBufferInfo->dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyImage2(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo)
+{
+    if (pCopyImageInfo != nullptr && pCopyImageInfo->dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyImageInfo->dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyBufferToImage2(VkCommandBuffer                 commandBuffer,
+                                                    const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo)
+{
+    if (pCopyBufferToImageInfo != nullptr && pCopyBufferToImageInfo->dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyBufferToImageInfo->dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyImageToBuffer2(VkCommandBuffer                 commandBuffer,
+                                                    const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)
+{
+    if (pCopyImageToBufferInfo != nullptr && pCopyImageToBufferInfo->dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyImageToBufferInfo->dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo)
+{
+    if (pCopyBufferInfo != nullptr && pCopyBufferInfo->dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyBufferInfo->dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyImage2KHR(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo)
+{
+    if (pCopyImageInfo != nullptr && pCopyImageInfo->dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyImageInfo->dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyBufferToImage2KHR(VkCommandBuffer                 commandBuffer,
+                                                       const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo)
+{
+    if (pCopyBufferToImageInfo != nullptr && pCopyBufferToImageInfo->dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyBufferToImageInfo->dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdCopyImageToBuffer2KHR(VkCommandBuffer                 commandBuffer,
+                                                       const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)
+{
+    if (pCopyImageToBufferInfo != nullptr && pCopyImageToBufferInfo->dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyImageToBufferInfo->dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdBlitImage(VkCommandBuffer    commandBuffer,
+                                           VkImage            srcImage,
+                                           VkImageLayout      srcImageLayout,
+                                           VkImage            dstImage,
+                                           VkImageLayout      dstImageLayout,
+                                           uint32_t           regionCount,
+                                           const VkImageBlit* pRegions,
+                                           VkFilter           filter)
+{
+    if (dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdBlitImage2(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo)
+{
+    if (pBlitImageInfo != nullptr && pBlitImageInfo->dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pBlitImageInfo->dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        dst_img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdBlitImage2KHR(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo)
+{
+    TrackCmdBlitImage2(commandBuffer, pBlitImageInfo);
+}
+
+void VulkanStateTracker::TrackCmdUpdateBuffer(
+    VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* pData)
+{
+    if (dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdFillBuffer(
+    VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data)
+{
+    if (dstBuffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
+        assert(dst_buffer_wrapper != nullptr);
+
+        dst_buffer_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdClearColorImage(VkCommandBuffer                commandBuffer,
+                                                 VkImage                        image,
+                                                 VkImageLayout                  imageLayout,
+                                                 const VkClearColorValue*       pColor,
+                                                 uint32_t                       rangeCount,
+                                                 const VkImageSubresourceRange* pRanges)
+{
+    if (image != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* img_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+        assert(img_wrapper != nullptr);
+
+        img_wrapper->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackCmdClearDepthStencilImage(VkCommandBuffer                 commandBuffer,
+                                                        VkImage                         image,
+                                                        VkImageLayout                   imageLayout,
+                                                        const VkClearDepthStencilValue* pDepthStencil,
+                                                        uint32_t                        rangeCount,
+                                                        const VkImageSubresourceRange*  pRanges)
+{
+    if (image != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::ImageWrapper* img_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+        assert(img_wrapper != nullptr);
+
+        img_wrapper->dirty = true;
     }
 }
 

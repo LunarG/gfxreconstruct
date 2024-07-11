@@ -411,6 +411,102 @@ class VulkanStateTracker
 
     void TrackTlasToBlasDependencies(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
 
+    void TrackCmdBindDescriptorSets(VkCommandBuffer        commandBuffer,
+                                    VkPipelineBindPoint    pipelineBindPoint,
+                                    VkPipelineLayout       layout,
+                                    uint32_t               firstSet,
+                                    uint32_t               descriptorSetCount,
+                                    const VkDescriptorSet* pDescriptorSets,
+                                    uint32_t               dynamicOffsetCount,
+                                    const uint32_t*        pDynamicOffsets);
+
+    void TrackCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
+                                        const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+
+    void TrackCmdCopyBuffer(VkCommandBuffer     commandBuffer,
+                            VkBuffer            srcBuffer,
+                            VkBuffer            dstBuffer,
+                            uint32_t            regionCount,
+                            const VkBufferCopy* pRegions);
+
+    void TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
+                           VkImage            srcImage,
+                           VkImageLayout      srcImageLayout,
+                           VkImage            dstImage,
+                           VkImageLayout      dstImageLayout,
+                           uint32_t           regionCount,
+                           const VkImageCopy* pRegions);
+
+    void TrackCmdCopyBufferToImage(VkCommandBuffer          commandBuffer,
+                                   VkBuffer                 srcBuffer,
+                                   VkImage                  dstImage,
+                                   VkImageLayout            dstImageLayout,
+                                   uint32_t                 regionCount,
+                                   const VkBufferImageCopy* pRegions);
+
+    void TrackCmdCopyImageToBuffer(VkCommandBuffer          commandBuffer,
+                                   VkImage                  srcImage,
+                                   VkImageLayout            srcImageLayout,
+                                   VkBuffer                 dstBuffer,
+                                   uint32_t                 regionCount,
+                                   const VkBufferImageCopy* pRegions);
+
+    void TrackCmdCopyBuffer2(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo);
+
+    void TrackCmdCopyImage2(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo);
+
+    void TrackCmdCopyBufferToImage2(VkCommandBuffer                 commandBuffer,
+                                    const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
+
+    void TrackCmdCopyImageToBuffer2(VkCommandBuffer                 commandBuffer,
+                                    const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
+
+    void TrackCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo);
+
+    void TrackCmdCopyImage2KHR(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo);
+
+    void TrackCmdCopyBufferToImage2KHR(VkCommandBuffer                 commandBuffer,
+                                       const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
+
+    void TrackCmdCopyImageToBuffer2KHR(VkCommandBuffer                 commandBuffer,
+                                       const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
+
+    void TrackCmdBlitImage(VkCommandBuffer    commandBuffer,
+                           VkImage            srcImage,
+                           VkImageLayout      srcImageLayout,
+                           VkImage            dstImage,
+                           VkImageLayout      dstImageLayout,
+                           uint32_t           regionCount,
+                           const VkImageBlit* pRegions,
+                           VkFilter           filter);
+
+    void TrackCmdBlitImage2(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo);
+
+    void TrackCmdBlitImage2KHR(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo);
+
+    void TrackCmdUpdateBuffer(VkCommandBuffer commandBuffer,
+                              VkBuffer        dstBuffer,
+                              VkDeviceSize    dstOffset,
+                              VkDeviceSize    dataSize,
+                              const void*     pData);
+
+    void TrackCmdFillBuffer(
+        VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data);
+
+    void TrackCmdClearColorImage(VkCommandBuffer                commandBuffer,
+                                 VkImage                        image,
+                                 VkImageLayout                  imageLayout,
+                                 const VkClearColorValue*       pColor,
+                                 uint32_t                       rangeCount,
+                                 const VkImageSubresourceRange* pRanges);
+
+    void TrackCmdClearDepthStencilImage(VkCommandBuffer                 commandBuffer,
+                                        VkImage                         image,
+                                        VkImageLayout                   imageLayout,
+                                        const VkClearDepthStencilValue* pDepthStencil,
+                                        uint32_t                        rangeCount,
+                                        const VkImageSubresourceRange*  pRanges);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                        parent_handle,
