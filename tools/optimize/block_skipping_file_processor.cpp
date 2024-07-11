@@ -53,6 +53,7 @@ bool BlockSkippingFileProcessor::ProcessBlocks()
 
     while (success)
     {
+        PrintBlockInfo();
         success = ContinueDecoding();
 
         if (success)

@@ -141,6 +141,8 @@ class FileProcessor
 
     bool ProcessAnnotation(const format::BlockHeader& block_header, format::AnnotationType annotation_type);
 
+    void PrintBlockInfo() const;
+
   protected:
     FILE*                    file_descriptor_;
     uint64_t                 current_frame_number_;
