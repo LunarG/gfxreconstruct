@@ -83,6 +83,26 @@ class PreloadFileProcessor : public FileProcessor
         kReplay
     } status_;
 
+    template <typename T>
+    bool ReadParameterBytes(format::BlockHeader& block_header, T& data, PreloadBuffer& preload_buffer)
+    {
+        preload_buffer.Reserve(sizeof(block_header) + block_header.size);
+        preload_buffer.Add(&block_header);
+        preload_buffer.Add(&data);
+        size_t parameters_size  = block_header.size - sizeof(T);
+        void*  parameter_buffer = preload_buffer.Add(parameters_size);
+        return ReadBytes(parameter_buffer, parameters_size);
+    }
+
+    bool ReadParameterBytes(format::BlockHeader& block_header, PreloadBuffer& preload_buffer)
+    {
+        preload_buffer.Reserve(sizeof(block_header) + block_header.size);
+        preload_buffer.Add(&block_header);
+        size_t parameters_size  = block_header.size;
+        void*  parameter_buffer = preload_buffer.Add(parameters_size);
+        return ReadBytes(parameter_buffer, parameters_size);
+    }
+
     bool ProcessBlocks() override;
 
     bool ReadBytes(void* buffer, size_t buffer_size) override;
