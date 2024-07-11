@@ -292,8 +292,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
         }
 
         const VkDeviceSize draw_call_params_size =
-            IsDrawCallIndexed(dc_params.type) ? sizeof(DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams)
-                                              : sizeof(DrawCallParameters::DrawCallParamsUnion::DrawParams);
+            IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
         const VkDeviceSize copy_buffer_size = draw_call_params_size * max_draw_count;
@@ -434,8 +433,7 @@ VkResult DrawCallsDumpingContext::CopyDrawIndirectParameters(uint64_t index)
         }
 
         const VkDeviceSize draw_call_params_size =
-            IsDrawCallIndexed(dc_params.type) ? sizeof(DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams)
-                                              : sizeof(DrawCallParameters::DrawCallParamsUnion::DrawParams);
+            IsDrawCallIndexed(dc_params.type) ? sizeof(VkDrawIndexedIndirectCommand) : sizeof(VkDrawIndirectCommand);
 
         // Create a buffer to copy the parameters buffer
         const VkDeviceSize copy_buffer_size = draw_call_params_size * draw_count;
@@ -968,26 +966,24 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
     {
         case kDraw:
         {
-            const DrawCallParameters::DrawCallParamsUnion::DrawParams& dc_params =
-                dc_param_entry->second.dc_params_union.draw;
+            const VkDrawIndirectCommand& dc_params = dc_param_entry->second.dc_params_union.draw;
 
-            dc_params_json_entry["vertexCount"]   = dc_params.vertex_count;
-            dc_params_json_entry["instanceCount"] = dc_params.instance_count;
-            dc_params_json_entry["firstVertex"]   = dc_params.first_vertex;
-            dc_params_json_entry["firstInstance"] = dc_params.first_instance;
+            dc_params_json_entry["vertexCount"]   = dc_params.vertexCount;
+            dc_params_json_entry["instanceCount"] = dc_params.instanceCount;
+            dc_params_json_entry["firstVertex"]   = dc_params.firstVertex;
+            dc_params_json_entry["firstInstance"] = dc_params.firstInstance;
         }
         break;
 
         case kDrawIndexed:
         {
-            const DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams& dc_params =
-                dc_param_entry->second.dc_params_union.draw_indexed;
+            const VkDrawIndexedIndirectCommand& dc_params = dc_param_entry->second.dc_params_union.draw_indexed;
 
-            dc_params_json_entry["indexCount"]    = dc_params.index_count;
-            dc_params_json_entry["instanceCount"] = dc_params.instance_count;
-            dc_params_json_entry["firstIndex"]    = dc_params.first_index;
-            dc_params_json_entry["vertexOffset"]  = dc_params.vertex_offset;
-            dc_params_json_entry["firstInstance"] = dc_params.first_instance;
+            dc_params_json_entry["indexCount"]    = dc_params.indexCount;
+            dc_params_json_entry["instanceCount"] = dc_params.instanceCount;
+            dc_params_json_entry["firstIndex"]    = dc_params.firstIndex;
+            dc_params_json_entry["vertexOffset"]  = dc_params.vertexOffset;
+            dc_params_json_entry["firstInstance"] = dc_params.firstInstance;
         }
         break;
 
@@ -1002,10 +998,10 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             auto& indirect_param_entries      = dc_params_json_entry["indirectParams"];
             for (uint32_t di = 0; di < dc_params.draw_count; ++di)
             {
-                indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertex_count;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_params[di].instance_count;
-                indirect_param_entries[di]["firstVertex"]   = dc_params.draw_params[di].first_vertex;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_params[di].first_instance;
+                indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertexCount;
+                indirect_param_entries[di]["instanceCount"] = dc_params.draw_params[di].instanceCount;
+                indirect_param_entries[di]["firstVertex"]   = dc_params.draw_params[di].firstVertex;
+                indirect_param_entries[di]["firstInstance"] = dc_params.draw_params[di].firstInstance;
             }
         }
         break;
@@ -1021,11 +1017,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             auto& indirect_param_entries      = dc_params_json_entry["indirectParams"];
             for (uint32_t di = 0; di < dc_params.draw_count; ++di)
             {
-                indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].index_count;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_indexed_params[di].instance_count;
-                indirect_param_entries[di]["firstIndex"]    = dc_params.draw_indexed_params[di].first_index;
-                indirect_param_entries[di]["vertexOffset"]  = dc_params.draw_indexed_params[di].vertex_offset;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_indexed_params[di].first_instance;
+                indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].indexCount;
+                indirect_param_entries[di]["instanceCount"] = dc_params.draw_indexed_params[di].instanceCount;
+                indirect_param_entries[di]["firstIndex"]    = dc_params.draw_indexed_params[di].firstIndex;
+                indirect_param_entries[di]["vertexOffset"]  = dc_params.draw_indexed_params[di].vertexOffset;
+                indirect_param_entries[di]["firstInstance"] = dc_params.draw_indexed_params[di].firstInstance;
             }
         }
         break;
@@ -1042,10 +1038,10 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             auto& indirect_param_entries = dc_params_json_entry["indirectParams"];
             for (uint32_t di = 0; di < dc_params.actual_draw_count; ++di)
             {
-                indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertex_count;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_params[di].instance_count;
-                indirect_param_entries[di]["firstVertex"]   = dc_params.draw_params[di].first_vertex;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_params[di].first_instance;
+                indirect_param_entries[di]["vertexCount"]   = dc_params.draw_params[di].vertexCount;
+                indirect_param_entries[di]["instanceCount"] = dc_params.draw_params[di].instanceCount;
+                indirect_param_entries[di]["firstVertex"]   = dc_params.draw_params[di].firstVertex;
+                indirect_param_entries[di]["firstInstance"] = dc_params.draw_params[di].firstInstance;
             }
         }
         break;
@@ -1062,11 +1058,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             auto& indirect_param_entries = dc_params_json_entry["indirectParams"];
             for (uint32_t di = 0; di < dc_params.actual_draw_count; ++di)
             {
-                indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].index_count;
-                indirect_param_entries[di]["instanceCount"] = dc_params.draw_indexed_params[di].instance_count;
-                indirect_param_entries[di]["firstIndex"]    = dc_params.draw_indexed_params[di].first_index;
-                indirect_param_entries[di]["vertexOffset"]  = dc_params.draw_indexed_params[di].vertex_offset;
-                indirect_param_entries[di]["firstInstance"] = dc_params.draw_indexed_params[di].first_instance;
+                indirect_param_entries[di]["indexCount"]    = dc_params.draw_indexed_params[di].indexCount;
+                indirect_param_entries[di]["instanceCount"] = dc_params.draw_indexed_params[di].instanceCount;
+                indirect_param_entries[di]["firstIndex"]    = dc_params.draw_indexed_params[di].firstIndex;
+                indirect_param_entries[di]["vertexOffset"]  = dc_params.draw_indexed_params[di].vertexOffset;
+                indirect_param_entries[di]["firstInstance"] = dc_params.draw_indexed_params[di].firstInstance;
             }
         }
         break;
@@ -1194,8 +1190,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                     dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(vb_binding.first);
                 assert(vb_binding_buffer != dc_param.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
 
-                if (vb_binding_buffer->second.buffer_info != nullptr &&
-                    vb_binding.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX)
+                if (vb_binding_buffer->second.buffer_info != nullptr)
                 {
                     const std::string vb_filename =
                         GenerateVertexBufferFilename(qs_index, bcb_index, dc_index, vb_binding.first);
@@ -1974,27 +1969,26 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
         if (IsDrawCallIndexed(dc_params.type))
         {
             assert(ic_params.draw_indexed_params == nullptr);
-            ic_params.draw_indexed_params =
-                new DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams[actual_draw_count];
+            ic_params.draw_indexed_params = new VkDrawIndexedIndirectCommand[actual_draw_count];
             if (ic_params.draw_indexed_params == nullptr)
             {
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
 
             // Now we know the exact draw count. We can fetch the exact draw params instead of the whole buffer
-            params_actual_size = sizeof(DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams) * actual_draw_count;
+            params_actual_size = sizeof(VkDrawIndexedIndirectCommand) * actual_draw_count;
         }
         else
         {
             assert(ic_params.draw_params == nullptr);
-            ic_params.draw_params = new DrawCallParameters::DrawCallParamsUnion::DrawParams[actual_draw_count];
+            ic_params.draw_params = new VkDrawIndirectCommand[actual_draw_count];
             if (ic_params.draw_params == nullptr)
             {
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
             }
 
             // Now we know the exact draw count. We can fetch the exact draw params instead of the whole buffer
-            params_actual_size = sizeof(DrawCallParameters::DrawCallParamsUnion::DrawParams) * actual_draw_count;
+            params_actual_size = sizeof(VkDrawIndirectCommand) * actual_draw_count;
         }
 
         // Fetch param buffers
@@ -2029,8 +2023,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
         if (IsDrawCallIndexed(dc_params.type))
         {
             assert(i_params.draw_indexed_params == nullptr);
-            i_params.draw_indexed_params =
-                new DrawCallParameters::DrawCallParamsUnion::DrawIndexedParams[i_params.draw_count];
+            i_params.draw_indexed_params = new VkDrawIndexedIndirectCommand[i_params.draw_count];
             if (i_params.draw_indexed_params == nullptr)
             {
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -2039,7 +2032,7 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
         else
         {
             assert(i_params.draw_params == nullptr);
-            i_params.draw_params = new DrawCallParameters::DrawCallParamsUnion::DrawParams[i_params.draw_count];
+            i_params.draw_params = new VkDrawIndirectCommand[i_params.draw_count];
             if (i_params.draw_params == nullptr)
             {
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -2106,7 +2099,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
 
     uint32_t greatest_vertex_index = 0;
 
-    // Dunp index buffer
+    // Dump index buffer
     if (IsDrawCallIndexed(dc_params.type) && dc_params.referenced_index_buffer.buffer_info != nullptr)
     {
         // Store all (indexCount, firstIndex) pairs used by all associated with this index buffer.
@@ -2129,8 +2122,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     assert(ic_params.draw_indexed_params != nullptr);
                     for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
                     {
-                        const uint32_t indirect_index_count = ic_params.draw_indexed_params[d].index_count;
-                        const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].first_index;
+                        const uint32_t indirect_index_count = ic_params.draw_indexed_params[d].indexCount;
+                        const uint32_t indirect_first_index = ic_params.draw_indexed_params[d].firstIndex;
 
                         index_count_first_index_pairs.emplace_back(
                             std::make_pair(indirect_index_count, indirect_first_index));
@@ -2157,8 +2150,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     assert(i_params.draw_indexed_params != nullptr);
                     for (uint32_t d = 0; d < i_params.draw_count; ++d)
                     {
-                        const uint32_t indirect_index_count = i_params.draw_indexed_params[d].index_count;
-                        const uint32_t indirect_first_index = i_params.draw_indexed_params[d].first_index;
+                        const uint32_t indirect_index_count = i_params.draw_indexed_params[d].indexCount;
+                        const uint32_t indirect_first_index = i_params.draw_indexed_params[d].firstIndex;
 
                         index_count_first_index_pairs.emplace_back(
                             std::make_pair(indirect_index_count, indirect_first_index));
@@ -2178,8 +2171,8 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
         }
         else
         {
-            index_count                = dc_params.dc_params_union.draw_indexed.index_count;
-            const uint32_t first_index = dc_params.dc_params_union.draw_indexed.first_index;
+            index_count                = dc_params.dc_params_union.draw_indexed.indexCount;
+            const uint32_t first_index = dc_params.dc_params_union.draw_indexed.firstIndex;
 
             index_count_first_index_pairs.emplace_back(std::make_pair(index_count, first_index));
             abs_index_count = index_count + first_index;
@@ -2237,15 +2230,68 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
     // Dump vertex buffer
     if (!dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.empty())
     {
-        // In order to deduce the vertex buffer's size find the greatest vertex count
-        // used by all draw calls that reference this vertex buffer
-        uint32_t vertex_count = 0;
-        uint32_t first_vertex = 0;
+        uint32_t vertex_count   = 0;
+        uint32_t first_vertex   = 0;
+        uint32_t instance_count = 0;
+        uint32_t first_instance = 0;
 
         if (IsDrawCallIndexed(dc_params.type))
         {
             // For indexed draw calls the greatest vertex index will be used as the max vertex count
             vertex_count = greatest_vertex_index + 1;
+
+            if (IsDrawCallIndirect(dc_params.type))
+            {
+                if (IsDrawCallIndirectCount(dc_params.type))
+                {
+                    const DrawCallParameters::DrawCallParamsUnion::DrawIndirectCountParams& ic_params =
+                        dc_params.dc_params_union.draw_indirect_count;
+
+                    if (ic_params.max_draw_count)
+                    {
+                        assert(ic_params.draw_params != nullptr);
+                        for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
+                        {
+                            if (instance_count < ic_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = ic_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < ic_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = ic_params.draw_params[d].firstInstance;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    const DrawCallParameters::DrawCallParamsUnion::DrawIndirectParams& i_params =
+                        dc_params.dc_params_union.draw_indirect;
+
+                    if (i_params.draw_count)
+                    {
+                        assert(i_params.draw_params != nullptr);
+                        for (uint32_t d = 0; d < i_params.draw_count; ++d)
+                        {
+                            if (instance_count < i_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = i_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < i_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = i_params.draw_params[d].firstInstance;
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                instance_count = dc_params.dc_params_union.draw.instanceCount;
+                first_instance = dc_params.dc_params_union.draw.firstInstance;
+            }
         }
         else
         {
@@ -2261,14 +2307,24 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         assert(ic_params.draw_params != nullptr);
                         for (uint32_t d = 0; d < ic_params.max_draw_count; ++d)
                         {
-                            if (vertex_count < ic_params.draw_params[d].vertex_count)
+                            if (vertex_count < ic_params.draw_params[d].vertexCount)
                             {
-                                vertex_count = ic_params.draw_params[d].vertex_count;
+                                vertex_count = ic_params.draw_params[d].vertexCount;
                             }
 
-                            if (first_vertex < ic_params.draw_params[d].first_vertex)
+                            if (first_vertex < ic_params.draw_params[d].firstVertex)
                             {
-                                first_vertex = ic_params.draw_params[d].first_vertex;
+                                first_vertex = ic_params.draw_params[d].firstVertex;
+                            }
+
+                            if (instance_count < ic_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = ic_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < ic_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = ic_params.draw_params[d].firstInstance;
                             }
                         }
                     }
@@ -2283,14 +2339,24 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                         assert(i_params.draw_params != nullptr);
                         for (uint32_t d = 0; d < i_params.draw_count; ++d)
                         {
-                            if (vertex_count < i_params.draw_params[d].vertex_count)
+                            if (vertex_count < i_params.draw_params[d].vertexCount)
                             {
-                                vertex_count = i_params.draw_params[d].vertex_count;
+                                vertex_count = i_params.draw_params[d].vertexCount;
                             }
 
-                            if (first_vertex < i_params.draw_params[d].first_vertex)
+                            if (first_vertex < i_params.draw_params[d].firstVertex)
                             {
-                                first_vertex = i_params.draw_params[d].first_vertex;
+                                first_vertex = i_params.draw_params[d].firstVertex;
+                            }
+
+                            if (instance_count < i_params.draw_params[d].instanceCount)
+                            {
+                                instance_count = i_params.draw_params[d].instanceCount;
+                            }
+
+                            if (first_instance < i_params.draw_params[d].firstInstance)
+                            {
+                                first_instance = i_params.draw_params[d].firstInstance;
                             }
                         }
                     }
@@ -2298,8 +2364,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             }
             else
             {
-                vertex_count = dc_params.dc_params_union.draw.vertex_count;
-                first_vertex = dc_params.dc_params_union.draw.first_vertex;
+                vertex_count = dc_params.dc_params_union.draw.vertexCount;
+                first_vertex = dc_params.dc_params_union.draw.firstVertex;
+
+                instance_count = dc_params.dc_params_union.draw.instanceCount;
+                first_instance = dc_params.dc_params_union.draw.firstInstance;
             }
         }
 
@@ -2308,12 +2377,6 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             for (auto& vis : dc_params.vertex_input_state.vertex_input_binding_map)
             {
                 const uint32_t binding = vis.first;
-
-                // Ignore instance data
-                if (vis.second.inputRate == VK_VERTEX_INPUT_RATE_INSTANCE)
-                {
-                    continue;
-                }
 
                 auto vb_entry = dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.find(binding);
                 assert(vb_entry != dc_params.referenced_vertex_buffers.bound_vertex_buffer_per_binding.end());
@@ -2330,6 +2393,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     continue;
                 }
 
+                const uint32_t count =
+                    vis.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? vertex_count : instance_count;
+                const uint32_t first =
+                    vis.second.inputRate == VK_VERTEX_INPUT_RATE_VERTEX ? first_vertex : first_instance;
+
                 const uint32_t offset     = vb_entry->second.offset;
                 uint32_t       total_size = 0;
                 if (vb_entry->second.size)
@@ -2342,15 +2410,15 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                     const uint32_t binding_stride = vis.second.stride;
                     if (binding_stride)
                     {
-                        total_size = (vertex_count + first_vertex) * binding_stride;
+                        total_size = (count + first) * binding_stride;
                     }
                     else
                     {
                         // According to the spec providing a VkVertexInputBindingDescription.stride equal to zero is
                         // valid. In these cases we will assume that information for only 1 vertex will be consumed
                         // (since we can't tell where the next one is located). So calculate the total size of all
-                        // attributes that are using that binding and use that as the size of the vertex information for
-                        // 1 vertex.
+                        // attributes that are using that binding and use that as the size of the vertex information
+                        // for 1 vertex.
                         uint32_t min_offset = std::numeric_limits<uint32_t>::max();
                         for (const auto& ppl_attr : dc_params.vertex_input_state.vertex_input_attribute_map)
                         {
