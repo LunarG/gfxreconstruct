@@ -305,6 +305,7 @@ class VulkanRebindAllocator : public VulkanResourceAllocator
     }
 
     virtual bool SupportsOpaqueDeviceAddresses() override { return false; }
+    virtual bool SupportBindVideoSessionMemory() override { return true; }
 
   private:
     struct MemoryAllocInfo;

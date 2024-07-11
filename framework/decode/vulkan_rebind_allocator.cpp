@@ -887,23 +887,32 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
         functions_.get_video_session_memory_requirements(
             device_, video_session, &session_requirements_count, session_requirements.data());
 
-        for (uint32_t i = 0; i < bind_info_count; ++i)
+        // Use replay MemoryRequeirements to AllocateMemory and Bind.
+        for (uint32_t mem_index = 0; mem_index < session_requirements_count; ++mem_index)
         {
-            uint32_t  mem_index              = bind_infos[i].memoryBindIndex;
             uintptr_t allocator_session_data = allocator_session_datas[mem_index];
             uintptr_t allocator_memory_data  = allocator_memory_datas[mem_index];
 
-            if ((allocator_session_data != 0) && (allocator_memory_data != 0))
+            if (allocator_session_data != 0)
             {
                 VmaAllocation allocation          = VK_NULL_HANDLE;
                 auto          resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_session_data);
-                auto          memory_alloc_info   = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
 
+                // if allocator_memory_data is 0, it means replay MemoryRequirements has more count.
+                MemoryAllocInfo* memory_alloc_info = (allocator_memory_data == 0)
+                                                         ? new MemoryAllocInfo
+                                                         : reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+                auto             requirements      = session_requirements[mem_index].memoryRequirements;
+                if (allocator_memory_data == 0)
+                {
+                    memory_alloc_info->allocation_size = requirements.size;
+                    memory_alloc_info->original_index  = requirements.memoryTypeBits;
+                }
                 VmaAllocationCreateInfo create_info;
                 create_info.flags = 0;
                 create_info.usage = GetVideoSeesionMemoryUsage(
                     capture_memory_properties_.memoryTypes[memory_alloc_info->original_index].propertyFlags,
-                    session_requirements[mem_index].memoryRequirements);
+                    requirements);
                 create_info.requiredFlags  = 0;
                 create_info.preferredFlags = 0;
                 create_info.memoryTypeBits = 0;
@@ -929,8 +938,11 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
                 if (result >= 0)
                 {
-                    auto bind_info          = &bind_infos[i];
-                    auto modified_bind_info = *bind_info;
+                    VkBindVideoSessionMemoryInfoKHR modified_bind_info{};
+                    modified_bind_info.sType           = VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR;
+                    modified_bind_info.memoryBindIndex = mem_index;
+                    modified_bind_info.memoryOffset    = 0;
+                    modified_bind_info.memorySize      = session_requirements[mem_index].memoryRequirements.size;
 
                     switch (allocation->GetType())
                     {
@@ -962,10 +974,23 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
                     if (result >= 0)
                     {
-                        resource_alloc_info->allocation      = allocation;
-                        resource_alloc_info->mapped_pointer  = nullptr;
-                        resource_alloc_info->memory_info     = memory_alloc_info;
-                        resource_alloc_info->original_offset = bind_info->memoryOffset;
+                        resource_alloc_info->allocation     = allocation;
+                        resource_alloc_info->mapped_pointer = nullptr;
+                        resource_alloc_info->memory_info    = memory_alloc_info;
+
+                        // The new bind_infos's index and captured bind_infos's index meanings are different.
+                        VkDeviceSize src_offset = 0;
+
+                        for (uint32_t i = 0; i < bind_info_count; ++i)
+                        {
+                            if (bind_infos[i].memoryBindIndex == mem_index)
+                            {
+                                src_offset = bind_infos[mem_index].memoryOffset;
+                                break;
+                            }
+                        }
+
+                        resource_alloc_info->original_offset = src_offset;
                         resource_alloc_info->rebind_offset   = allocation_info.offset;
                         resource_alloc_info->size            = allocation_info.size;
 
@@ -983,7 +1008,7 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
                             // Memory has been mapped and written prior to bind.  Copy the original content to the new
                             // allocation to ensure it contains the correct data.
                             WriteBoundResource(resource_alloc_info,
-                                               bind_info->memoryOffset,
+                                               src_offset,
                                                0,
                                                allocation_info.size,
                                                memory_alloc_info->original_content.get());
@@ -991,7 +1016,7 @@ VkResult VulkanRebindAllocator::BindVideoSessionMemory(VkVideoSessionKHR        
 
                         memory_alloc_info->original_sessions.insert(std::make_pair(video_session, resource_alloc_info));
 
-                        bind_memory_properties[i] = property_flags;
+                        bind_memory_properties[mem_index] = property_flags;
                     }
                 }
             }

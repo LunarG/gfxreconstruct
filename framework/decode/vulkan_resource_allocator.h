@@ -295,6 +295,7 @@ class VulkanResourceAllocator
                                                         const MemoryData*          allocator_datas) = 0;
 
     virtual bool SupportsOpaqueDeviceAddresses() = 0;
+    virtual bool SupportBindVideoSessionMemory() = 0;
 };
 
 GFXRECON_END_NAMESPACE(decode)

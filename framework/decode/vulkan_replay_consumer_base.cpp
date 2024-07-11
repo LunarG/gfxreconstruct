@@ -4631,6 +4631,15 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
     GFXRECON_ASSERT((device_info != nullptr) && (video_session_info != nullptr) &&
                     (pBindSessionMemoryInfos != nullptr));
 
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    if (!allocator->SupportBindVideoSessionMemory())
+    {
+        GFXRECON_LOG_WARNING_ONCE("The replay VideoSession's MemoryRequirements could be different, so replay may "
+                                  "fail. Try '-m rebind', if it fails.");
+    }
+
     auto replay_bind_infos      = pBindSessionMemoryInfos->GetPointer();
     auto replay_bind_meta_infos = pBindSessionMemoryInfos->GetMetaStructPointer();
     GFXRECON_ASSERT((replay_bind_infos != nullptr) && (replay_bind_meta_infos != nullptr));
@@ -4641,27 +4650,25 @@ VkResult VulkanReplayConsumerBase::OverrideBindVideoSessionMemoryKHR(
     std::vector<VulkanResourceAllocator::MemoryData>   allocator_memory_datas(session_mem_count, 0);
     std::vector<VkMemoryPropertyFlags>                 memory_property_flags(session_mem_count, 0);
 
-    for (uint32_t i = 0; i < bindSessionMemoryInfoCount; ++i)
+    for (uint32_t mem_index = 0; mem_index < session_mem_count; ++mem_index)
     {
-        const auto* bind_meta_info = &replay_bind_meta_infos[i];
-        auto        mem_index      = bind_meta_info->decoded_value->memoryBindIndex;
-        GFXRECON_ASSERT(mem_index < session_mem_count);
-
-        auto memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
-
-        memory_infos.push_back(memory_info);
-
         allocator_session_datas[mem_index] = video_session_info->allocator_datas[mem_index];
 
-        if (memory_info != nullptr)
+        for (uint32_t i = 0; i < bindSessionMemoryInfoCount; ++i)
         {
-            allocator_memory_datas[mem_index] = memory_info->allocator_data;
+            const auto* bind_meta_info = &replay_bind_meta_infos[i];
+            if (mem_index == bind_meta_info->decoded_value->memoryBindIndex)
+            {
+                auto memory_info = object_info_table_.GetDeviceMemoryInfo(bind_meta_info->memory);
+                memory_infos.push_back(memory_info);
+
+                if (memory_info != nullptr)
+                {
+                    allocator_memory_datas[mem_index] = memory_info->allocator_data;
+                }
+            }
         }
     }
-
-    auto allocator = device_info->allocator.get();
-    GFXRECON_ASSERT(allocator != nullptr);
-
     VkResult result = allocator->BindVideoSessionMemory(video_session_info->handle,
                                                         bindSessionMemoryInfoCount,
                                                         replay_bind_infos,

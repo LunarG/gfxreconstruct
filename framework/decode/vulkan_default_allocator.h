@@ -274,6 +274,8 @@ class VulkanDefaultAllocator : public VulkanResourceAllocator
 
     virtual bool SupportsOpaqueDeviceAddresses() override { return true; }
 
+    virtual bool SupportBindVideoSessionMemory() override { return false; }
+
   protected:
     struct ResourceAllocInfo
     {
