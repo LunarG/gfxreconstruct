@@ -5924,6 +5924,63 @@ struct Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT
     format::HandleId layout{ format::kNullHandleId };
 };
 
+struct Decoded_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR;
+
+    VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMaintenance7FeaturesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance7FeaturesKHR;
+
+    VkPhysicalDeviceMaintenance7FeaturesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceMaintenance7PropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceMaintenance7PropertiesKHR;
+
+    VkPhysicalDeviceMaintenance7PropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceLayeredApiPropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceLayeredApiPropertiesKHR;
+
+    VkPhysicalDeviceLayeredApiPropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StringDecoder deviceName;
+};
+
+struct Decoded_VkPhysicalDeviceLayeredApiPropertiesListKHR
+{
+    using struct_type = VkPhysicalDeviceLayeredApiPropertiesListKHR;
+
+    VkPhysicalDeviceLayeredApiPropertiesListKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkPhysicalDeviceLayeredApiPropertiesKHR>* pLayeredApis{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR
+{
+    using struct_type = VkPhysicalDeviceLayeredApiVulkanPropertiesKHR;
+
+    VkPhysicalDeviceLayeredApiVulkanPropertiesKHR* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    Decoded_VkPhysicalDeviceProperties2* properties{ nullptr };
+};
+
 struct Decoded_VkDebugReportCallbackCreateInfoEXT
 {
     using struct_type = VkDebugReportCallbackCreateInfoEXT;
@@ -9823,6 +9880,24 @@ struct Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT;
+
+    VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT
+{
+    using struct_type = VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT;
+
+    VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkLayerSettingEXT
 {
     using struct_type = VkLayerSettingEXT;
@@ -10120,11 +10195,47 @@ struct Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT
+{
+    using struct_type = VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT;
+
+    VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV
 {
     using struct_type = VkPhysicalDeviceRayTracingValidationFeaturesNV;
 
     VkPhysicalDeviceRayTracingValidationFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA
+{
+    using struct_type = VkPhysicalDeviceImageAlignmentControlFeaturesMESA;
+
+    VkPhysicalDeviceImageAlignmentControlFeaturesMESA* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceImageAlignmentControlPropertiesMESA
+{
+    using struct_type = VkPhysicalDeviceImageAlignmentControlPropertiesMESA;
+
+    VkPhysicalDeviceImageAlignmentControlPropertiesMESA* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkImageAlignmentControlCreateInfoMESA
+{
+    using struct_type = VkImageAlignmentControlCreateInfoMESA;
+
+    VkImageAlignmentControlCreateInfoMESA* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

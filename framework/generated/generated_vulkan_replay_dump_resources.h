@@ -852,7 +852,7 @@ void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetRenderingInputAttachmentIndicesKHR func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfoKHR* pLocationInfo);
+    const VkRenderingInputAttachmentIndexInfoKHR* pInputAttachmentIndexInfo);
 
 
 

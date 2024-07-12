@@ -2226,7 +2226,7 @@ class VulkanConsumer : public VulkanConsumerBase
     virtual void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo) {}
+        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pInputAttachmentIndexInfo) {}
 
     virtual void Process_vkWaitForPresentKHR(
         const ApiCallInfo&                          call_info,
