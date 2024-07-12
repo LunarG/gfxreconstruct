@@ -40,6 +40,8 @@
 #include "generated/generated_vulkan_constant_maps.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_struct_deep_copy.h"
+#include "graphics/vulkan_struct_extract_handles.h"
 #include "util/file_path.h"
 #include "util/hash.h"
 #include "util/platform.h"
@@ -200,6 +202,16 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     if (options_.enable_debug_device_lost)
     {
         GFXRECON_LOG_WARNING("This debugging feature has not been implemented for Vulkan.");
+    }
+
+    if (UseAsyncOperations())
+    {
+        int32_t num_threads = options_.num_pipeline_creation_jobs;
+        if (num_threads < 0)
+        {
+            num_threads += (int32_t)std::thread::hardware_concurrency();
+        }
+        background_queue_.set_num_threads(std::clamp<uint32_t>(num_threads, 0, std::thread::hardware_concurrency()));
     }
 }
 
@@ -9182,79 +9194,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
     if (replay_result == VK_SUCCESS && options_.dumping_resources)
     {
-        const Decoded_VkGraphicsPipelineCreateInfo* create_info_meta = pCreateInfos->GetMetaStructPointer();
-
-        for (uint32_t i = 0; i < create_info_count; ++i)
-        {
-            PipelineInfo* pipeline_info = reinterpret_cast<PipelineInfo*>(pPipelines->GetConsumerData(i));
-
-            // Copy shader stage information
-            const Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
-                create_info_meta[i].pStages->GetMetaStructPointer();
-            const size_t stages_count = create_info_meta->pStages->GetLength();
-
-            if (stages_info_meta != nullptr)
-            {
-                for (size_t s = 0; s < stages_count; ++s)
-                {
-                    ShaderModuleInfo* module_info = object_info_table_.GetShaderModuleInfo(stages_info_meta[s].module);
-                    assert(module_info);
-                    assert(pipeline_info);
-
-                    pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
-                }
-            }
-
-            // Copy vertex input state information
-            if (in_p_create_infos != nullptr && in_p_create_infos[i].pVertexInputState)
-            {
-                // Vertex binding info
-                for (uint32_t vb = 0; vb < in_p_create_infos[i].pVertexInputState->vertexBindingDescriptionCount; ++vb)
-                {
-                    PipelineInfo::InputBindingDescription info{
-                        in_p_create_infos[i].pVertexInputState->pVertexBindingDescriptions[vb].stride,
-                        in_p_create_infos[i].pVertexInputState->pVertexBindingDescriptions[vb].inputRate
-                    };
-
-                    uint32_t binding = in_p_create_infos[i].pVertexInputState->pVertexBindingDescriptions[vb].binding;
-                    pipeline_info->vertex_input_binding_map.emplace(binding, info);
-                }
-
-                // Vertex attribute info
-                for (uint32_t va = 0; va < in_p_create_infos[i].pVertexInputState->vertexAttributeDescriptionCount;
-                     ++va)
-                {
-                    PipelineInfo::InputAttributeDescription info{
-                        in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].binding,
-                        in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].format,
-                        in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].offset
-                    };
-
-                    uint32_t location =
-                        in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].location;
-                    pipeline_info->vertex_input_attribute_map.emplace(location, info);
-                }
-            }
-
-            // Dynamic state
-            if (in_p_create_infos != nullptr && in_p_create_infos[i].pDynamicState)
-            {
-                for (uint32_t ds = 0; ds < in_p_create_infos[i].pDynamicState->dynamicStateCount; ++ds)
-                {
-                    if (in_p_create_infos[i].pDynamicState->pDynamicStates[ds] == VK_DYNAMIC_STATE_VERTEX_INPUT_EXT)
-                    {
-                        pipeline_info->dynamic_vertex_input = true;
-                    }
-                    else if (in_p_create_infos[i].pDynamicState->pDynamicStates[ds] ==
-                             VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT)
-                    {
-                        pipeline_info->dynamic_vertex_binding_stride = true;
-                    }
-                }
-            }
-        }
+        resource_dumper.DumpGraphicsPipelineInfos(pCreateInfos, create_info_count, pPipelines);
     }
-
     return replay_result;
 }
 
@@ -9301,6 +9242,138 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     }
 
     return replay_result;
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyPipeline(
+    PFN_vkDestroyPipeline                                      func,
+    const DeviceInfo*                                          device_info,
+    PipelineInfo*                                              pipeline_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkDevice                     in_device     = device_info->handle;
+    VkPipeline                   in_pipeline   = pipeline_info->handle;
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    if (!IsUsedByAsyncTask(pipeline_info->capture_id))
+    {
+        func(in_device, in_pipeline, in_pAllocator);
+    }
+    else
+    {
+        // schedule deletion
+        DestroyAsyncHandle(pipeline_info->capture_id, [func, in_device, in_pipeline, in_pAllocator]() {
+            func(in_device, in_pipeline, in_pAllocator);
+        });
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
+    PFN_vkDestroyRenderPass                                    func,
+    const DeviceInfo*                                          device_info,
+    RenderPassInfo*                                            renderpass_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkDevice                     in_device     = device_info->handle;
+    VkRenderPass                 in_renderpass = renderpass_info->handle;
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+    if (!IsUsedByAsyncTask(renderpass_info->capture_id))
+    {
+        func(in_device, in_renderpass, in_pAllocator);
+    }
+    else
+    {
+        // schedule deletion
+        DestroyAsyncHandle(renderpass_info->capture_id, [func, in_device, in_renderpass, in_pAllocator]() {
+            func(in_device, in_renderpass, in_pAllocator);
+        });
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
+    PFN_vkDestroyShaderModule                                  func,
+    const DeviceInfo*                                          device_info,
+    ShaderModuleInfo*                                          shader_module_info,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    VkDevice                     in_device        = device_info->handle;
+    VkShaderModule               in_shader_module = shader_module_info->handle;
+    const VkAllocationCallbacks* in_pAllocator    = GetAllocationCallbacks(pAllocator);
+
+    if (!IsUsedByAsyncTask(shader_module_info->capture_id))
+    {
+        func(in_device, in_shader_module, in_pAllocator);
+    }
+    else
+    {
+        // schedule deletion
+        DestroyAsyncHandle(shader_module_info->capture_id, [func, in_device, in_shader_module, in_pAllocator]() {
+            func(in_device, in_shader_module, in_pAllocator);
+        });
+    }
+}
+
+std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateGraphicsPipelines(
+    const ApiCallInfo&                                          call_info,
+    VkResult                                                    returnValue,
+    const DeviceInfo*                                           device_info,
+    const PipelineCacheInfo*                                    pipeline_cache_info,
+    uint32_t                                                    createInfoCount,
+    StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
+    HandlePointerDecoder<VkPipeline>*                           pPipelines)
+{
+    const VkGraphicsPipelineCreateInfo* in_pCreateInfos = pCreateInfos->GetPointer();
+    const VkAllocationCallbacks*        in_pAllocator   = GetAllocationCallbacks(pAllocator);
+    VkDevice                            device_handle   = device_info->handle;
+    VkPipelineCache                     pipeline_cache_handle =
+        (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
+    if (returnValue == VK_SUCCESS && options_.dumping_resources)
+    {
+        resource_dumper.DumpGraphicsPipelineInfos(pCreateInfos, createInfoCount, pPipelines);
+    }
+
+    // replace with deep-copy of create-info array
+    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    std::vector<uint8_t> create_info_data(num_bytes);
+    graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+
+    // extract handle-dependencies and track those
+    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos, createInfoCount);
+    TrackAsyncHandles(handle_deps);
+
+    // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
+    auto task = [this,
+                 device_handle,
+                 pipeline_cache_handle,
+                 returnValue,
+                 call_info,
+                 in_pAllocator,
+                 createInfoCount,
+                 create_info_data = std::move(create_info_data),
+                 handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkPipeline> {
+        std::vector<VkPipeline> out_pipelines(createInfoCount);
+        auto     create_infos  = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.data());
+        auto     device_table  = GetDeviceTable(device_handle);
+        VkResult replay_result = device_table->CreateGraphicsPipelines(
+            device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
+        CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
+
+        // schedule dependency-clear on main-thread
+        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
+        return { replay_result, std::move(out_pipelines) };
+    };
+    return task;
+}
+
+void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
+{
+    VulkanConsumer::SetCurrentBlockIndex(block_index);
+
+    // poll main-dispatch-queue at beginning of new blocks
+    main_thread_queue_.poll();
 }
 
 GFXRECON_END_NAMESPACE(decode)

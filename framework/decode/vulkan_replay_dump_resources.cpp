@@ -2075,5 +2075,82 @@ void VulkanReplayDumpResourcesBase::ResetCommandBuffer(VkCommandBuffer original_
     }
 }
 
+void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
+    const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+    uint32_t                                                          createInfoCount,
+    HandlePointerDecoder<VkPipeline>*                                 pPipelines)
+{
+    const VkGraphicsPipelineCreateInfo*         in_p_create_infos = pCreateInfos->GetPointer();
+    const Decoded_VkGraphicsPipelineCreateInfo* create_info_meta  = pCreateInfos->GetMetaStructPointer();
+
+    for (uint32_t i = 0; i < createInfoCount; ++i)
+    {
+        PipelineInfo* pipeline_info = reinterpret_cast<PipelineInfo*>(pPipelines->GetConsumerData(i));
+
+        // Copy shader stage information
+        const Decoded_VkPipelineShaderStageCreateInfo* stages_info_meta =
+            create_info_meta[i].pStages->GetMetaStructPointer();
+        const size_t stages_count = create_info_meta->pStages->GetLength();
+
+        if (stages_info_meta != nullptr)
+        {
+            for (size_t s = 0; s < stages_count; ++s)
+            {
+                ShaderModuleInfo* module_info = object_info_table_.GetShaderModuleInfo(stages_info_meta[s].module);
+                assert(module_info);
+                assert(pipeline_info);
+
+                pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
+            }
+        }
+
+        // Copy vertex input state information
+        if (in_p_create_infos != nullptr && in_p_create_infos[i].pVertexInputState)
+        {
+            // Vertex binding info
+            for (uint32_t vb = 0; vb < in_p_create_infos[i].pVertexInputState->vertexBindingDescriptionCount; ++vb)
+            {
+                PipelineInfo::InputBindingDescription info{
+                    in_p_create_infos[i].pVertexInputState->pVertexBindingDescriptions[vb].stride,
+                    in_p_create_infos[i].pVertexInputState->pVertexBindingDescriptions[vb].inputRate
+                };
+
+                uint32_t binding = in_p_create_infos[i].pVertexInputState->pVertexBindingDescriptions[vb].binding;
+                pipeline_info->vertex_input_binding_map.emplace(binding, info);
+            }
+
+            // Vertex attribute info
+            for (uint32_t va = 0; va < in_p_create_infos[i].pVertexInputState->vertexAttributeDescriptionCount; ++va)
+            {
+                PipelineInfo::InputAttributeDescription info{
+                    in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].binding,
+                    in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].format,
+                    in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].offset
+                };
+
+                uint32_t location = in_p_create_infos[i].pVertexInputState->pVertexAttributeDescriptions[va].location;
+                pipeline_info->vertex_input_attribute_map.emplace(location, info);
+            }
+        }
+
+        // Dynamic state
+        if (in_p_create_infos != nullptr && in_p_create_infos[i].pDynamicState)
+        {
+            for (uint32_t ds = 0; ds < in_p_create_infos[i].pDynamicState->dynamicStateCount; ++ds)
+            {
+                if (in_p_create_infos[i].pDynamicState->pDynamicStates[ds] == VK_DYNAMIC_STATE_VERTEX_INPUT_EXT)
+                {
+                    pipeline_info->dynamic_vertex_input = true;
+                }
+                else if (in_p_create_infos[i].pDynamicState->pDynamicStates[ds] ==
+                         VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT)
+                {
+                    pipeline_info->dynamic_vertex_binding_stride = true;
+                }
+            }
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)

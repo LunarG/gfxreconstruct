@@ -35,6 +35,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         self,
         replay_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
         dump_resources_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
+        replay_async_overrides=None,  # Path to JSON file listing Vulkan API calls to override on replay.
         blacklists=None,  # Path to JSON file listing apicalls and structs to ignore.
         platform_types=None,  # Path to JSON file listing platform (WIN32, X11, etc.) defined types.
         filename=None,
@@ -57,6 +58,7 @@ class VulkanReplayConsumerBodyGeneratorOptions(BaseGeneratorOptions):
         )
         self.replay_overrides = replay_overrides
         self.dump_resources_overrides = dump_resources_overrides
+        self.replay_async_overrides = replay_async_overrides
 
 
 class VulkanReplayConsumerBodyGenerator(
@@ -113,7 +115,8 @@ class VulkanReplayConsumerBodyGenerator(
         BaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.replay_overrides:
-            self.__load_replay_overrides(gen_opts.replay_overrides, gen_opts.dump_resources_overrides)
+            self.__load_replay_overrides(gen_opts.replay_overrides, gen_opts.dump_resources_overrides,
+                                         gen_opts.replay_async_overrides)
 
         write(
             '#include "generated/generated_vulkan_replay_consumer.h"',
@@ -254,6 +257,9 @@ class VulkanReplayConsumerBodyGenerator(
 
         is_skip_offscreen = True
 
+        # function 'can' use asynchronous control-flow
+        is_async = name in self.REPLAY_ASYNC_OVERRIDES
+
         for key in self.NOT_SKIP_FUNCTIONS_OFFSCREEN:
             if key in name:
                 is_skip_offscreen = False
@@ -332,10 +338,17 @@ class VulkanReplayConsumerBodyGenerator(
             body += '\n'
             body += '\n'
         if return_type == 'VkResult':
+            if is_async:
+                body += '    if (UseAsyncOperations())\n'
+                body += '    {\n'
+                body += '        auto task = {}(call_info, returnValue, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], arglist)
+                body += '        {}\n'.format(postexpr[0])
+                body += '        return;\n'
+                body += '    }\n'
+                postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
+
             body += '    VkResult replay_result = {};\n'.format(call_expr)
-            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(
-                name
-            )
+            body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
         else:
             body += '    {};\n'.format(call_expr)
 
@@ -680,6 +693,18 @@ class VulkanReplayConsumerBodyGenerator(
                                         )
                                     )
                                 else:
+                                    # additionally add an asynchronous flavour to postexpr, so both are available later
+                                    if name in self.REPLAY_ASYNC_OVERRIDES:
+                                        postexpr.append(
+                                            'AddHandlesAsync<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info, std::move(task));'
+                                            .format(
+                                                self.get_parent_id(value, values),
+                                                arg_name,
+                                                length_name,
+                                                paramname=value.name,
+                                                basetype=value.base_type[2:]
+                                            )
+                                        )
                                     postexpr.append(
                                         'AddHandles<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -1004,9 +1029,15 @@ class VulkanReplayConsumerBodyGenerator(
 
         return expr
 
-    def __load_replay_overrides(self, filename, dump_resources_overrides_filename):
+    def is_async_handle_type(self, basetype):
+        return basetype in ["VkPipeline", "VkShaderExt"]
+
+    def __load_replay_overrides(self, filename, dump_resources_overrides_filename, replay_async_overrides_filename):
         overrides = json.loads(open(filename, 'r').read())
         self.REPLAY_OVERRIDES = overrides['functions']
 
         dump_resources_overrides = json.loads(open(dump_resources_overrides_filename, 'r').read())
         self.DUMP_RESOURCES_OVERRIDES = dump_resources_overrides['functions']
+
+        replay_async_overrides = json.loads(open(replay_async_overrides_filename, 'r').read())
+        self.REPLAY_ASYNC_OVERRIDES = replay_async_overrides['functions']

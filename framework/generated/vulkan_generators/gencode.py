@@ -88,6 +88,8 @@ from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWra
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
 from vulkan_struct_trackers_header_generator import VulkanStructTrackersHeaderGenerator, VulkanStructTrackersHeaderGeneratorOptions
 from vulkan_struct_trackers_body_generator import VulkanStructTrackersBodyGenerator, VulkanStructTrackersBodyGeneratorOptions
+from vulkan_struct_deep_copy_body_generator import VulkanStructDeepCopyBodyGenerator, VulkanStructDeepCopyBodyGeneratorOptions
+from vulkan_struct_deep_copy_pnext_body_generator import VulkanStructDeepCopyPNextBodyGenerator, VulkanStructDeepCopyPNextBodyGeneratorOptions
 
 # To String
 from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
@@ -133,6 +135,7 @@ default_platform_types = 'platform_types.json'
 default_replay_overrides = 'replay_overrides.json'
 default_dump_resources_overrides = 'dump_resources_overrides.json'
 default_capture_overrides = 'capture_overrides.json'
+default_replay_async_overrides = 'replay_async_overrides.json'
 
 
 def _getExtraVulkanHeaders(extraHeadersDir):
@@ -198,6 +201,7 @@ def make_gen_opts(args):
     replay_overrides = os.path.join(args.configs, default_replay_overrides)
     dump_resources_overrides = os.path.join(args.configs, default_dump_resources_overrides)
     capture_overrides = os.path.join(args.configs, default_capture_overrides)
+    replay_async_overrides = os.path.join(args.configs, default_replay_async_overrides)
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -470,6 +474,7 @@ def make_gen_opts(args):
             blacklists=blacklists,
             replay_overrides=replay_overrides,
             dump_resources_overrides=dump_resources_overrides,
+            replay_async_overrides=replay_async_overrides,
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=False,
@@ -911,6 +916,34 @@ def make_gen_opts(args):
             platform_types=platform_types,
             prefix_text=prefix_strings + vk_prefix_strings,
             protect_file=True,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_deep_copy.cpp'] = [
+        VulkanStructDeepCopyBodyGenerator,
+        VulkanStructDeepCopyBodyGeneratorOptions(
+            filename='generated_vulkan_struct_deep_copy.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
+            protect_feature=False,
+            extraVulkanHeaders=extraVulkanHeaders
+        )
+    ]
+
+    gen_opts['generated_vulkan_struct_deep_copy_pnext.cpp'] = [
+        VulkanStructDeepCopyPNextBodyGenerator,
+        VulkanStructDeepCopyPNextBodyGeneratorOptions(
+            filename='generated_vulkan_struct_deep_copy_pnext.cpp',
+            directory=directory,
+            blacklists=blacklists,
+            platform_types=platform_types,
+            prefix_text=prefix_strings + vk_prefix_strings,
+            protect_file=False,
             protect_feature=False,
             extraVulkanHeaders=extraVulkanHeaders
         )

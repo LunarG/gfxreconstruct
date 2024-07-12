@@ -113,6 +113,7 @@ def CreateReplayParser():
     parser.add_argument('--dump-resources-dump-all-image-subresources', action='store_true', default=False, help= 'Dump all available mip levels and layers when dumping images.')
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
+    parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
     return parser
 
 def MakeExtrasString(args):
@@ -276,6 +277,10 @@ def MakeExtrasString(args):
     if args.pbis:
         arg_list.append('--pbis')
         arg_list.append('{}'.format(args.pbis))
+
+    if args.pcj:
+        arg_list.append('--pcj')
+        arg_list.append('{}'.format(args.pcj))
 
     if args.file:
         arg_list.append(args.file)
