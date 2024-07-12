@@ -156,12 +156,16 @@ class VulkanStateWriter
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
                                 VkDeviceSize*           max_resource_size,
-                                VkDeviceSize*           max_staging_copy_size);
+                                VkDeviceSize*           max_staging_copy_size,
+                                size_t&                 dumped_bytes,
+                                size_t&                 skipped_bytes);
 
     void WriteImageMemoryState(const VulkanStateTable& state_table,
                                DeviceResourceTables*   resources,
                                VkDeviceSize*           max_resource_size,
-                               VkDeviceSize*           max_staging_copy_size);
+                               VkDeviceSize*           max_staging_copy_size,
+                               size_t&                 dumped_bytes,
+                               size_t&                 skipped_bytes);
 
     void WriteImageSubresourceLayouts(const vulkan_wrappers::ImageWrapper* image_wrapper,
                                       VkImageAspectFlags                   aspect_flags);

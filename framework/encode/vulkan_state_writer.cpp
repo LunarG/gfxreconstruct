@@ -24,6 +24,7 @@
 #include "encode/vulkan_state_writer.h"
 
 #include "encode/struct_pointer_encoder.h"
+#include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "format/format_util.h"
 #include "util/logging.h"
@@ -1558,86 +1559,102 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_table,
                                                DeviceResourceTables*   resources,
                                                VkDeviceSize*           max_resource_size,
-                                               VkDeviceSize*           max_staging_copy_size)
+                                               VkDeviceSize*           max_staging_copy_size,
+                                               size_t&                 dumped_bytes,
+                                               size_t&                 skipped_bytes)
 {
     assert((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
 
-    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
+    dumped_bytes  = 0;
+    skipped_bytes = 0;
+
+    state_table.VisitWrappers([&](vulkan_wrappers::BufferWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        // Perform memory binding.
-        const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
-            state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
-
-        if (memory_wrapper != nullptr)
+        if (wrapper->dirty)
         {
-            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
-            const VulkanDeviceTable*              device_table   = &device_wrapper->layer_table;
+            wrapper->dirty = false;
 
-            assert((device_wrapper != nullptr) && (device_table != nullptr));
+            // Perform memory binding.
+            const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
+                state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
 
-            // Write memory requirements query before bind command.
-            VkMemoryRequirements memory_requirements;
-
-            device_table->GetBufferMemoryRequirements(device_wrapper->handle, wrapper->handle, &memory_requirements);
-
-            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            EncodeStructPtr(&encoder_, &memory_requirements);
-
-            WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
-            parameter_stream_.Clear();
-
-            // Write memory bind command.
-            if (wrapper->bind_pnext == nullptr)
+            if (memory_wrapper != nullptr)
             {
+                const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+                const VulkanDeviceTable*              device_table   = &device_wrapper->layer_table;
+
+                assert((device_wrapper != nullptr) && (device_table != nullptr));
+
+                // Write memory requirements query before bind command.
+                VkMemoryRequirements memory_requirements;
+
+                device_table->GetBufferMemoryRequirements(
+                    device_wrapper->handle, wrapper->handle, &memory_requirements);
+
                 encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
                 encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-                encoder_.EncodeUInt64Value(wrapper->bind_offset);
-                encoder_.EncodeEnumValue(VK_SUCCESS);
+                EncodeStructPtr(&encoder_, &memory_requirements);
 
-                WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+                WriteFunctionCall(format::ApiCall_vkGetBufferMemoryRequirements, &parameter_stream_);
+                parameter_stream_.Clear();
+
+                // Write memory bind command.
+                if (wrapper->bind_pnext == nullptr)
+                {
+                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                    encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                    encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+                    encoder_.EncodeUInt64Value(wrapper->bind_offset);
+                    encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                    WriteFunctionCall(format::ApiCall_vkBindBufferMemory, &parameter_stream_);
+                }
+                else
+                {
+                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                    encoder_.EncodeUInt32Value(1);
+
+                    VkBindBufferMemoryInfo info = {};
+                    info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
+                    info.pNext                  = wrapper->bind_pnext;
+                    info.buffer                 = wrapper->handle;
+                    info.memory                 = memory_wrapper->handle;
+                    info.memoryOffset           = wrapper->bind_offset;
+                    EncodeStructArray(&encoder_, &info, 1);
+                    encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                    WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
+                }
+                parameter_stream_.Clear();
+
+                // Group buffers with memory bindings by device for memory snapshot.
+                ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
+                ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
+
+                BufferSnapshotInfo snapshot_info;
+                snapshot_info.buffer_wrapper    = wrapper;
+                snapshot_info.memory_wrapper    = memory_wrapper;
+                snapshot_info.memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
+                snapshot_info.need_staging_copy = !IsBufferReadable(snapshot_info.memory_properties, memory_wrapper);
+
+                if ((*max_resource_size) < wrapper->created_size)
+                {
+                    (*max_resource_size) = wrapper->created_size;
+                }
+
+                if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->created_size))
+                {
+                    (*max_staging_copy_size) = wrapper->created_size;
+                }
+
+                snapshot_entry.buffers.emplace_back(snapshot_info);
+                dumped_bytes += wrapper->created_size;
             }
-            else
-            {
-                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                encoder_.EncodeUInt32Value(1);
-
-                VkBindBufferMemoryInfo info = {};
-                info.sType                  = VK_STRUCTURE_TYPE_BIND_BUFFER_MEMORY_INFO;
-                info.pNext                  = wrapper->bind_pnext;
-                info.buffer                 = wrapper->handle;
-                info.memory                 = memory_wrapper->handle;
-                info.memoryOffset           = wrapper->bind_offset;
-                EncodeStructArray(&encoder_, &info, 1);
-                encoder_.EncodeEnumValue(VK_SUCCESS);
-
-                WriteFunctionCall(format::ApiCall_vkBindBufferMemory2, &parameter_stream_);
-            }
-            parameter_stream_.Clear();
-
-            // Group buffers with memory bindings by device for memory snapshot.
-            ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-            ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
-
-            BufferSnapshotInfo snapshot_info;
-            snapshot_info.buffer_wrapper    = wrapper;
-            snapshot_info.memory_wrapper    = memory_wrapper;
-            snapshot_info.memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
-            snapshot_info.need_staging_copy = !IsBufferReadable(snapshot_info.memory_properties, memory_wrapper);
-
-            if ((*max_resource_size) < wrapper->created_size)
-            {
-                (*max_resource_size) = wrapper->created_size;
-            }
-
-            if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->created_size))
-            {
-                (*max_staging_copy_size) = wrapper->created_size;
-            }
-
-            snapshot_entry.buffers.emplace_back(snapshot_info);
+        }
+        else
+        {
+            skipped_bytes += wrapper->created_size;
         }
     });
 }
@@ -1645,92 +1662,180 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
 void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_table,
                                               DeviceResourceTables*   resources,
                                               VkDeviceSize*           max_resource_size,
-                                              VkDeviceSize*           max_staging_copy_size)
+                                              VkDeviceSize*           max_staging_copy_size,
+                                              size_t&                 dumped_bytes,
+                                              size_t&                 skipped_bytes)
 {
     assert((resources != nullptr) && (max_resource_size != nullptr) && (max_staging_copy_size != nullptr));
 
-    state_table.VisitWrappers([&](const vulkan_wrappers::ImageWrapper* wrapper) {
+    dumped_bytes  = 0;
+    skipped_bytes = 0;
+
+    state_table.VisitWrappers([&](vulkan_wrappers::ImageWrapper* wrapper) {
         assert(wrapper != nullptr);
 
         // Perform memory binding.
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper =
             state_table.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
 
-        if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->bind_device != nullptr) ||
-            (!wrapper->is_swapchain_image && memory_wrapper != nullptr))
+        if (wrapper->dirty)
         {
-            const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
-            const VulkanDeviceTable*              device_table   = &device_wrapper->layer_table;
+            wrapper->dirty = false;
 
-            assert((device_wrapper != nullptr) && (device_table != nullptr));
-
-            // Write memory requirements query before bind command.
-            VkMemoryRequirements memory_requirements;
-
-            device_table->GetImageMemoryRequirements(device_wrapper->handle, wrapper->handle, &memory_requirements);
-
-            encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-            encoder_.EncodeHandleIdValue(wrapper->handle_id);
-            EncodeStructPtr(&encoder_, &memory_requirements);
-
-            WriteFunctionCall(format::ApiCall_vkGetImageMemoryRequirements, &parameter_stream_);
-            parameter_stream_.Clear();
-
-            // Write memory bind command.
-            if (wrapper->bind_pnext == nullptr)
+            if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->bind_device != nullptr) ||
+                (!wrapper->is_swapchain_image && memory_wrapper != nullptr))
             {
+                const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+                const VulkanDeviceTable*              device_table   = &device_wrapper->layer_table;
+
+                assert((device_wrapper != nullptr) && (device_table != nullptr));
+
+                // Write memory requirements query before bind command.
+                VkMemoryRequirements memory_requirements;
+
+                device_table->GetImageMemoryRequirements(device_wrapper->handle, wrapper->handle, &memory_requirements);
+
                 encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
                 encoder_.EncodeHandleIdValue(wrapper->handle_id);
-                encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
-                encoder_.EncodeUInt64Value(wrapper->bind_offset);
-                encoder_.EncodeEnumValue(VK_SUCCESS);
+                EncodeStructPtr(&encoder_, &memory_requirements);
 
-                WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
+                WriteFunctionCall(format::ApiCall_vkGetImageMemoryRequirements, &parameter_stream_);
+                parameter_stream_.Clear();
+
+                // Write memory bind command.
+                if (wrapper->bind_pnext == nullptr)
+                {
+                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                    encoder_.EncodeHandleIdValue(wrapper->handle_id);
+                    encoder_.EncodeHandleIdValue(memory_wrapper->handle_id);
+                    encoder_.EncodeUInt64Value(wrapper->bind_offset);
+                    encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                    WriteFunctionCall(format::ApiCall_vkBindImageMemory, &parameter_stream_);
+                }
+                else
+                {
+                    encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
+                    encoder_.EncodeUInt32Value(1);
+
+                    VkBindImageMemoryInfo info = {};
+                    info.sType                 = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
+                    info.pNext                 = wrapper->bind_pnext;
+                    info.image                 = wrapper->handle;
+                    info.memory                = memory_wrapper->handle;
+                    info.memoryOffset          = wrapper->bind_offset;
+                    EncodeStructArray(&encoder_, &info, 1);
+                    encoder_.EncodeEnumValue(VK_SUCCESS);
+
+                    WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
+                }
+                parameter_stream_.Clear();
+
+                VkMemoryPropertyFlags memory_properties = 0;
+                if (memory_wrapper != nullptr)
+                {
+                    memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
+                }
+
+                bool is_transitioned = (wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
+                                       (wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
+                bool is_writable =
+                    (wrapper->tiling == VK_IMAGE_TILING_LINEAR) &&
+                    ((memory_properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+                // If an image is not host writable and has not been transitioned from the undefined or preinitialized
+                // layouts, no data could have been loaded into it and its data will be omitted from the state snapshot.
+                if (is_transitioned || is_writable)
+                {
+                    // Group images with memory bindings by device for memory snapshot.
+                    ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
+                    ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
+                    graphics::VulkanResourcesUtil     resource_util(device_wrapper->handle,
+                                                                device_wrapper->physical_device->handle,
+                                                                device_wrapper->layer_table,
+                                                                *device_wrapper->physical_device->layer_table_ref,
+                                                                device_wrapper->physical_device->memory_properties);
+
+                    bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
+
+                    std::vector<VkImageAspectFlagBits> aspects;
+                    bool                               combined_depth_stencil;
+                    graphics::GetFormatAspects(wrapper->format, &aspects, &combined_depth_stencil);
+
+                    for (auto aspect : aspects)
+                    {
+                        ImageSnapshotInfo snapshot_info;
+
+                        snapshot_info.image_wrapper     = wrapper;
+                        snapshot_info.memory_wrapper    = memory_wrapper;
+                        snapshot_info.memory_properties = memory_properties;
+                        snapshot_info.need_staging_copy = need_staging_copy;
+                        snapshot_info.aspect            = aspect;
+
+                        snapshot_info.resource_size =
+                            resource_util.GetImageResourceSizesOptimal(wrapper->handle,
+                                                                       wrapper->format,
+                                                                       wrapper->image_type,
+                                                                       wrapper->extent,
+                                                                       wrapper->mip_levels,
+                                                                       wrapper->array_layers,
+                                                                       wrapper->tiling,
+                                                                       aspect,
+                                                                       nullptr,
+                                                                       &snapshot_info.level_sizes,
+                                                                       true);
+
+                        if ((*max_resource_size) < snapshot_info.resource_size)
+                        {
+                            (*max_resource_size) = snapshot_info.resource_size;
+                        }
+
+                        if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < snapshot_info.resource_size))
+                        {
+                            (*max_staging_copy_size) = snapshot_info.resource_size;
+                        }
+
+                        snapshot_entry.images.emplace_back(snapshot_info);
+
+                        dumped_bytes += snapshot_info.resource_size;
+
+                        // Write image subresource layout queries for linear/host-visible images.
+                        if (is_writable)
+                        {
+                            VkImageAspectFlags aspect_flags = aspect;
+
+                            if (!combined_depth_stencil)
+                            {
+                                WriteImageSubresourceLayouts(wrapper, aspect_flags);
+                            }
+                            else
+                            {
+                                // Specify combined depth-stencil aspect flags for combined depth-stencil formats when
+                                // processing the depth aspect, while skipping image subresource layout query for
+                                // stencil aspect.
+                                if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
+                                {
+                                    aspect_flags = graphics::GetFormatAspectMask(wrapper->format);
+                                    WriteImageSubresourceLayouts(wrapper, aspect_flags);
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            else
+        }
+        else
+        {
+            if ((wrapper->is_swapchain_image && memory_wrapper == nullptr && wrapper->bind_device != nullptr) ||
+                (!wrapper->is_swapchain_image && memory_wrapper != nullptr))
             {
-                encoder_.EncodeHandleIdValue(device_wrapper->handle_id);
-                encoder_.EncodeUInt32Value(1);
 
-                VkBindImageMemoryInfo info = {};
-                info.sType                 = VK_STRUCTURE_TYPE_BIND_IMAGE_MEMORY_INFO;
-                info.pNext                 = wrapper->bind_pnext;
-                info.image                 = wrapper->handle;
-                info.memory                = memory_wrapper->handle;
-                info.memoryOffset          = wrapper->bind_offset;
-                EncodeStructArray(&encoder_, &info, 1);
-                encoder_.EncodeEnumValue(VK_SUCCESS);
-
-                WriteFunctionCall(format::ApiCall_vkBindImageMemory2, &parameter_stream_);
-            }
-            parameter_stream_.Clear();
-
-            VkMemoryPropertyFlags memory_properties = 0;
-            if (memory_wrapper != nullptr)
-            {
-                memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
-            }
-
-            bool is_transitioned = (wrapper->current_layout != VK_IMAGE_LAYOUT_UNDEFINED) &&
-                                   (wrapper->current_layout != VK_IMAGE_LAYOUT_PREINITIALIZED);
-            bool is_writable =
-                (wrapper->tiling == VK_IMAGE_TILING_LINEAR) &&
-                ((memory_properties & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) == VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-            // If an image is not host writable and has not been transitioned from the undefined or preinitialized
-            // layouts, no data could have been loaded into it and its data will be omitted from the state snapshot.
-            if (is_transitioned || is_writable)
-            {
-                // Group images with memory bindings by device for memory snapshot.
-                ResourceSnapshotQueueFamilyTable& snapshot_table = (*resources)[device_wrapper];
-                ResourceSnapshotInfo&             snapshot_entry = snapshot_table[wrapper->queue_family_index];
-                graphics::VulkanResourcesUtil     resource_util(device_wrapper->handle,
+                const vulkan_wrappers::DeviceWrapper* device_wrapper = wrapper->bind_device;
+                graphics::VulkanResourcesUtil         resource_util(device_wrapper->handle,
                                                             device_wrapper->physical_device->handle,
                                                             device_wrapper->layer_table,
                                                             *device_wrapper->physical_device->layer_table_ref,
                                                             device_wrapper->physical_device->memory_properties);
-
-                bool need_staging_copy = !IsImageReadable(memory_properties, memory_wrapper, wrapper);
 
                 std::vector<VkImageAspectFlagBits> aspects;
                 bool                               combined_depth_stencil;
@@ -1738,59 +1843,18 @@ void VulkanStateWriter::WriteImageMemoryState(const VulkanStateTable& state_tabl
 
                 for (auto aspect : aspects)
                 {
-                    ImageSnapshotInfo snapshot_info;
-
-                    snapshot_info.image_wrapper     = wrapper;
-                    snapshot_info.memory_wrapper    = memory_wrapper;
-                    snapshot_info.memory_properties = memory_properties;
-                    snapshot_info.need_staging_copy = need_staging_copy;
-                    snapshot_info.aspect            = aspect;
-
-                    snapshot_info.resource_size = resource_util.GetImageResourceSizesOptimal(wrapper->handle,
-                                                                                             wrapper->format,
-                                                                                             wrapper->image_type,
-                                                                                             wrapper->extent,
-                                                                                             wrapper->mip_levels,
-                                                                                             wrapper->array_layers,
-                                                                                             wrapper->tiling,
-                                                                                             aspect,
-                                                                                             nullptr,
-                                                                                             &snapshot_info.level_sizes,
-                                                                                             true);
-
-                    if ((*max_resource_size) < snapshot_info.resource_size)
-                    {
-                        (*max_resource_size) = snapshot_info.resource_size;
-                    }
-
-                    if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < snapshot_info.resource_size))
-                    {
-                        (*max_staging_copy_size) = snapshot_info.resource_size;
-                    }
-
-                    snapshot_entry.images.emplace_back(snapshot_info);
-
-                    // Write image subresource layout queries for linear/host-visible images.
-                    if (is_writable)
-                    {
-                        VkImageAspectFlags aspect_flags = aspect;
-
-                        if (!combined_depth_stencil)
-                        {
-                            WriteImageSubresourceLayouts(wrapper, aspect_flags);
-                        }
-                        else
-                        {
-                            // Specify combined depth-stencil aspect flags for combined depth-stencil formats when
-                            // processing the depth aspect, while skipping image subresource layout query for
-                            // stencil aspect.
-                            if (aspect == VK_IMAGE_ASPECT_DEPTH_BIT)
-                            {
-                                aspect_flags = graphics::GetFormatAspectMask(wrapper->format);
-                                WriteImageSubresourceLayouts(wrapper, aspect_flags);
-                            }
-                        }
-                    }
+                    std::vector<uint64_t> level_sizes;
+                    skipped_bytes += resource_util.GetImageResourceSizesOptimal(wrapper->handle,
+                                                                                wrapper->format,
+                                                                                wrapper->image_type,
+                                                                                wrapper->extent,
+                                                                                wrapper->mip_levels,
+                                                                                wrapper->array_layers,
+                                                                                wrapper->tiling,
+                                                                                aspect,
+                                                                                nullptr,
+                                                                                &level_sizes,
+                                                                                true);
                 }
             }
         }
@@ -1837,8 +1901,23 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
     VkDeviceSize         max_resource_size     = 0;
     VkDeviceSize         max_staging_copy_size = 0;
 
-    WriteBufferMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size);
-    WriteImageMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size);
+    size_t buffer_bytes_dumped;
+    size_t buffer_bytes_skipped;
+    WriteBufferMemoryState(
+        state_table, &resources, &max_resource_size, &max_staging_copy_size, buffer_bytes_dumped, buffer_bytes_skipped);
+
+    size_t image_bytes_dumped;
+    size_t image_bytes_skipped;
+    WriteImageMemoryState(
+        state_table, &resources, &max_resource_size, &max_staging_copy_size, image_bytes_dumped, image_bytes_skipped);
+
+    GFXRECON_WRITE_CONSOLE("--------------------------------------")
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE("  buffer_bytes_dumped: %zu", buffer_bytes_dumped);
+    GFXRECON_WRITE_CONSOLE("  buffer_bytes_skipped: %zu", buffer_bytes_skipped);
+    GFXRECON_WRITE_CONSOLE("  image_bytes_dumped: %zu", image_bytes_dumped);
+    GFXRECON_WRITE_CONSOLE("  image_bytes_skipped: %zu", image_bytes_skipped);
+    GFXRECON_WRITE_CONSOLE("--------------------------------------")
 
     // Write resource memory content.
     for (const auto& resource_entry : resources)
