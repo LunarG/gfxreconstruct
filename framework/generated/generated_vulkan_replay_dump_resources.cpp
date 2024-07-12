@@ -2349,7 +2349,7 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndicesK
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetRenderingInputAttachmentIndicesKHR func,
     VkCommandBuffer                             commandBuffer,
-    const VkRenderingInputAttachmentIndexInfoKHR* pLocationInfo)
+    const VkRenderingInputAttachmentIndexInfoKHR* pInputAttachmentIndexInfo)
 {
     if (IsRecording(commandBuffer))
     {
@@ -2359,14 +2359,14 @@ void VulkanReplayDumpResources::Process_vkCmdSetRenderingInputAttachmentIndicesK
         {
             for (CommandBufferIterator it = first; it < last; ++it)
             {
-                 func(*it, pLocationInfo);
+                 func(*it, pInputAttachmentIndexInfo);
             }
         }
 
         VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
         if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
         {
-             func(dispatch_rays_command_buffer, pLocationInfo);
+             func(dispatch_rays_command_buffer, pInputAttachmentIndexInfo);
         }
     }
 }

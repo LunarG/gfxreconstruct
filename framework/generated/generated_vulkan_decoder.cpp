@@ -6911,14 +6911,14 @@ size_t VulkanDecoder::Decode_vkCmdSetRenderingInputAttachmentIndicesKHR(const Ap
     size_t bytes_read = 0;
 
     format::HandleId commandBuffer;
-    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR> pLocationInfo;
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR> pInputAttachmentIndexInfo;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &commandBuffer);
-    bytes_read += pLocationInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInputAttachmentIndexInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
 
     for (auto consumer : GetConsumers())
     {
-        consumer->Process_vkCmdSetRenderingInputAttachmentIndicesKHR(call_info, commandBuffer, &pLocationInfo);
+        consumer->Process_vkCmdSetRenderingInputAttachmentIndicesKHR(call_info, commandBuffer, &pInputAttachmentIndexInfo);
     }
 
     return bytes_read;
