@@ -1364,6 +1364,112 @@ class VulkanCaptureManager : public ApiCaptureManager
                                               const VkAllocationCallbacks*       pAllocator,
                                               VkPipeline*                        pPipelines);
 
+    void PostProcess_vkCreateRayTracingPipelinesKHR(VkResult                                 result,
+                                                    VkDevice                                 device,
+                                                    VkDeferredOperationKHR                   deferredOperation,
+                                                    VkPipelineCache                          pipelineCache,
+                                                    uint32_t                                 createInfoCount,
+                                                    const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
+                                                    const VkAllocationCallbacks*             pAllocator,
+                                                    VkPipeline*                              pPipelines);
+
+void PostProcess_vkCmdDraw(VkCommandBuffer commandBuffer,
+                      uint32_t        vertexCount,
+                      uint32_t        instanceCount,
+                      uint32_t        firstVertex,
+                      uint32_t        firstInstance);
+
+void PostProcess_vkCmdDrawIndexed(VkCommandBuffer commandBuffer,
+                             uint32_t        indexCount,
+                             uint32_t        instanceCount,
+                             uint32_t        firstIndex,
+                             int32_t         vertexOffset,
+                             uint32_t        firstInstance);
+
+void PostProcess_vkCmdDrawIndirect(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
+
+void PostProcess_vkCmdDrawIndexedIndirect(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
+
+void PostProcess_vkCmdDrawIndirectCount(VkCommandBuffer commandBuffer,
+                                   VkBuffer        buffer,
+                                   VkDeviceSize    offset,
+                                   VkBuffer        countBuffer,
+                                   VkDeviceSize    countBufferOffset,
+                                   uint32_t        maxDrawCount,
+                                   uint32_t        stride);
+
+void PostProcess_vkCmdDrawIndexedIndirectCount(VkCommandBuffer commandBuffer,
+                                          VkBuffer        buffer,
+                                          VkDeviceSize    offset,
+                                          VkBuffer        countBuffer,
+                                          VkDeviceSize    countBufferOffset,
+                                          uint32_t        maxDrawCount,
+                                          uint32_t        stride);
+
+void PostProcess_vkCmdDrawIndirectCountKHR(VkCommandBuffer commandBuffer,
+                                      VkBuffer        buffer,
+                                      VkDeviceSize    offset,
+                                      VkBuffer        countBuffer,
+                                      VkDeviceSize    countBufferOffset,
+                                      uint32_t        maxDrawCount,
+                                      uint32_t        stride);
+
+void PostProcess_vkCmdDrawIndexedIndirectCountKHR(VkCommandBuffer commandBuffer,
+                                             VkBuffer        buffer,
+                                             VkDeviceSize    offset,
+                                             VkBuffer        countBuffer,
+                                             VkDeviceSize    countBufferOffset,
+                                             uint32_t        maxDrawCount,
+                                             uint32_t        stride);
+
+void PostProcess_vkCmdDispatch(VkCommandBuffer commandBuffer, uint32_t groupCountX, uint32_t groupCountY, uint32_t groupCountZ);
+void PostProcess_vkCmdDispatchIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset);
+void PostProcess_vkCmdDispatchBase(VkCommandBuffer commandBuffer,
+                              uint32_t        baseGroupX,
+                              uint32_t        baseGroupY,
+                              uint32_t        baseGroupZ,
+                              uint32_t        groupCountX,
+                              uint32_t        groupCountY,
+                              uint32_t        groupCountZ);
+void PostProcess_vkCmdDispatchBaseKHR(VkCommandBuffer commandBuffer,
+                                 uint32_t        baseGroupX,
+                                 uint32_t        baseGroupY,
+                                 uint32_t        baseGroupZ,
+                                 uint32_t        groupCountX,
+                                 uint32_t        groupCountY,
+                                 uint32_t        groupCountZ);
+
+void PostProcess_vkCmdTraceRaysNV(VkCommandBuffer commandBuffer,
+                             VkBuffer        raygenShaderBindingTableBuffer,
+                             VkDeviceSize    raygenShaderBindingOffset,
+                             VkBuffer        missShaderBindingTableBuffer,
+                             VkDeviceSize    missShaderBindingOffset,
+                             VkDeviceSize    missShaderBindingStride,
+                             VkBuffer        hitShaderBindingTableBuffer,
+                             VkDeviceSize    hitShaderBindingOffset,
+                             VkDeviceSize    hitShaderBindingStride,
+                             VkBuffer        callableShaderBindingTableBuffer,
+                             VkDeviceSize    callableShaderBindingOffset,
+                             VkDeviceSize    callableShaderBindingStride,
+                             uint32_t        width,
+                             uint32_t        height,
+                             uint32_t        depth);
+
+void PostProcess_vkCmdTraceRaysKHR(VkCommandBuffer                        commandBuffer,
+                              const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable,
+                              const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable,
+                              const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable,
+                              const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable,
+                              uint32_t                               width,
+                              uint32_t                               height,
+                              uint32_t                               depth);
+
+void PostProcess_vkCmdTraceRaysIndirectKHR(VkCommandBuffer commandBuffer, const VkStridedDeviceAddressRegionKHR* pRaygenShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pMissShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pHitShaderBindingTable, const VkStridedDeviceAddressRegionKHR* pCallableShaderBindingTable, VkDeviceAddress indirectDeviceAddress);
+
+void PostProcess_vkCmdTraceRaysIndirect2KHR(VkCommandBuffer commandBuffer, VkDeviceAddress indirectDeviceAddress);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif

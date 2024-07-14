@@ -73,7 +73,6 @@ struct HandleWrapper
 //
 
 // clang-format off
-// struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
 struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
@@ -166,30 +165,6 @@ struct EventWrapper : public HandleWrapper<VkEvent>
     DeviceWrapper* device{ nullptr };
 };
 
-struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
-{
-    uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
-    VkDeviceSize allocation_size{ 0 };
-    // This is the device which was used to allocate the memory.
-    // Spec states if the memory can be mapped, the mapping device must be this device.
-    // The device wrapper will be initialized when allocating the memory. Some handling
-    // like StateTracker::TrackTlasToBlasDependencies may use it before mapping
-    // the memory.
-    DeviceWrapper*   parent_device{ nullptr };
-    const void*      mapped_data{ nullptr };
-    VkDeviceSize     mapped_offset{ 0 };
-    VkDeviceSize     mapped_size{ 0 };
-    VkMemoryMapFlags mapped_flags{ 0 };
-    void*            external_allocation{ nullptr };
-    uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
-    AHardwareBuffer* hardware_buffer{ nullptr };
-    format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
-
-    // State tracking info for memory with device addresses.
-    format::HandleId device_id{ format::kNullHandleId };
-    VkDeviceAddress  address{ 0 };
-};
-
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
     DeviceWrapper*             bind_device{ nullptr };
@@ -228,7 +203,38 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     bool                     is_swapchain_image{ false };
     std::set<VkSwapchainKHR> parent_swapchains;
 
-    bool dirty{ true };
+    bool   dirty{ true };
+    size_t size;
+};
+
+struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
+{
+    uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
+    VkDeviceSize allocation_size{ 0 };
+    // This is the device which was used to allocate the memory.
+    // Spec states if the memory can be mapped, the mapping device must be this device.
+    // The device wrapper will be initialized when allocating the memory. Some handling
+    // like StateTracker::TrackTlasToBlasDependencies may use it before mapping
+    // the memory.
+    DeviceWrapper*   parent_device{ nullptr };
+    const void*      mapped_data{ nullptr };
+    VkDeviceSize     mapped_offset{ 0 };
+    VkDeviceSize     mapped_size{ 0 };
+    VkMemoryMapFlags mapped_flags{ 0 };
+    void*            external_allocation{ nullptr };
+    uintptr_t        shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
+    AHardwareBuffer* hardware_buffer{ nullptr };
+    format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
+
+    // State tracking info for memory with device addresses.
+    format::HandleId device_id{ format::kNullHandleId };
+    VkDeviceAddress  address{ 0 };
+
+    struct
+    {
+        std::vector<ImageWrapper*>  images;
+        std::vector<BufferWrapper*> buffers;
+    } bound_assets;
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
@@ -343,8 +349,7 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
     // TODO: Base pipeline
     // TODO: Pipeline cache
 
-    VkPipelineBindPoint                                       pipeline_bind_point;
-    std::unordered_map<uint32_t, const DescriptorSetWrapper*> descriptor_sets;
+    std::vector<ShaderModuleWrapper> bound_shaders;
 };
 
 struct AccelerationStructureKHRWrapper;
@@ -396,7 +401,16 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     };
     std::vector<std::pair<AccelerationStructureKHRWrapper*, tlas_build_info>> tlas_build_info_map;
 
-    const PipelineWrapper* bound_pipeline{ nullptr };
+    const PipelineWrapper* bound_pipelines[vulkan_state_info::PipelineBindPoints::kBindPoint_count]{ nullptr };
+
+    std::unordered_map<uint32_t, const DescriptorSetWrapper*>
+        bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
+
+    struct
+    {
+        std::vector<ImageWrapper*>  images;
+        std::vector<BufferWrapper*> buffers;
+    } referenced_assets;
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>

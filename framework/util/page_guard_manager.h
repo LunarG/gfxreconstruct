@@ -145,6 +145,8 @@ class PageGuardManager
 
     void UffdUnblockRtSignal();
 
+    void GetModifiedMemoryRegions(std::unordered_map<uint64_t, PageStatusTracker::PageStatus> &memories_page_status);
+
   protected:
     PageGuardManager();
 

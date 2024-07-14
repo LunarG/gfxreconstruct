@@ -38,6 +38,9 @@ GFXRECON_BEGIN_NAMESPACE(util)
 class PageStatusTracker
 {
   public:
+    typedef std::vector<uint8_t> PageStatus;
+
+  public:
     PageStatusTracker(size_t page_count) : active_writes_(page_count, 0), active_reads_(page_count, 0) {}
 
     ~PageStatusTracker() {}
@@ -50,8 +53,7 @@ class PageStatusTracker
 
     void SetAllBlocksActiveWrite() { std::fill(active_writes_.begin(), active_writes_.end(), 1); }
 
-  private:
-    typedef std::vector<uint8_t> PageStatus;
+    void GetActiveWrites(PageStatus& writes) { writes = active_writes_; }
 
   private:
     PageStatus active_writes_; //< Track blocks that have been written.

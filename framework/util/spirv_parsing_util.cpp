@@ -553,6 +553,8 @@ bool SpirVParsingUtil::SPIRVReflectPerformReflectionOnShaderModule(
     assert(spirv_size);
     assert(spirv_code != nullptr);
 
+    shader_reflection.clear();
+
     spv_reflect::ShaderModule reflection(spirv_size, spirv_code);
     if (reflection.GetResult() != SPV_REFLECT_RESULT_SUCCESS)
     {
