@@ -283,9 +283,14 @@ struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
 
 struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
 {
-    // Final image attachment layouts to be used for processing image layout transitions after calls to
-    // vkCmdEndRenderPass.
-    std::vector<VkImageLayout> attachment_final_layouts;
+    struct
+    {
+        // Final image attachment layouts to be used for processing image layout transitions after calls to
+        // vkCmdEndRenderPass.
+        std::vector<VkImageLayout>       attachment_final_layouts;
+        std::vector<VkAttachmentStoreOp> store_op;
+        std::vector<VkAttachmentStoreOp> stencil_store_op;
+    } attachment_info;
 };
 
 struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>

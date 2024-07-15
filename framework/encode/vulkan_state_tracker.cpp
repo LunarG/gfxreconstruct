@@ -29,6 +29,7 @@
 #include "encode/vulkan_track_struct.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "util/platform.h"
+#include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "vulkan/vulkan_core.h"
 
 #include "util/page_status_tracker.h"
@@ -64,8 +65,8 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
              ++point)
         {
             wrapper->bound_descriptors[point].clear();
+            wrapper->bound_pipelines[point] = nullptr;
         }
-        memset(wrapper->bound_pipelines, 0, sizeof(wrapper->bound_pipelines));
 
         for (size_t i = 0; i < vulkan_state_info::CommandHandleType::NumHandleTypes; ++i)
         {
@@ -112,8 +113,8 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
              ++point)
         {
             entry.second->bound_descriptors[point].clear();
+            entry.second->bound_pipelines[point] = nullptr;
         }
-        memset(entry.second->bound_pipelines, 0, sizeof(entry.second->bound_pipelines));
 
         for (size_t i = 0; i < vulkan_state_info::CommandHandleType::NumHandleTypes; ++i)
         {
@@ -472,6 +473,26 @@ void VulkanStateTracker::TrackBeginRenderPass(VkCommandBuffer command_buffer, co
         vulkan_wrappers::GetWrapper<vulkan_wrappers::RenderPassWrapper>(begin_info->renderPass);
     wrapper->render_pass_framebuffer =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::FramebufferWrapper>(begin_info->framebuffer);
+
+    if (wrapper->render_pass_framebuffer != nullptr)
+    {
+        for (size_t i = 0; i < wrapper->render_pass_framebuffer->attachments.size(); ++i)
+        {
+            if (wrapper->render_pass_framebuffer->attachments[i]->is_swapchain_image)
+            {
+                continue;
+            }
+
+            const bool has_stencil = vkuFormatHasStencil(wrapper->render_pass_framebuffer->attachments[i]->format);
+            if ((!has_stencil &&
+                 wrapper->active_render_pass->attachment_info.store_op[i] == VK_ATTACHMENT_STORE_OP_STORE) ||
+                (has_stencil &&
+                 wrapper->active_render_pass->attachment_info.stencil_store_op[i] == VK_ATTACHMENT_STORE_OP_STORE))
+            {
+                wrapper->referenced_assets.images.push_back(wrapper->render_pass_framebuffer->attachments[i]);
+            }
+        }
+    }
 }
 
 void VulkanStateTracker::TrackEndRenderPass(VkCommandBuffer command_buffer)
@@ -486,12 +507,12 @@ void VulkanStateTracker::TrackEndRenderPass(VkCommandBuffer command_buffer)
     assert((framebuffer_wrapper != nullptr) && (render_pass_wrapper != nullptr));
 
     uint32_t attachment_count = static_cast<uint32_t>(framebuffer_wrapper->attachments.size());
-    assert(attachment_count <= render_pass_wrapper->attachment_final_layouts.size());
+    assert(attachment_count <= render_pass_wrapper->attachment_info.attachment_final_layouts.size());
 
     for (uint32_t i = 0; i < attachment_count; ++i)
     {
         wrapper->pending_layouts[framebuffer_wrapper->attachments[i]] =
-            render_pass_wrapper->attachment_final_layouts[i];
+            render_pass_wrapper->attachment_info.attachment_final_layouts[i];
     }
 
     // Clear the active render pass state now that the pass has ended.
