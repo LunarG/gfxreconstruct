@@ -330,6 +330,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         page_guard_unblock_sigsegv_                     = trace_settings.page_guard_unblock_sigsegv;
         page_guard_signal_handler_watcher_              = trace_settings.page_guard_signal_handler_watcher;
         page_guard_copy_on_map_                         = trace_settings.page_guard_copy_on_map;
+        page_guard_external_memory_                     = trace_settings.page_guard_external_memory;
         page_guard_signal_handler_watcher_max_restores_ = trace_settings.page_guard_signal_handler_watcher_max_restores;
         page_guard_separate_read_                       = trace_settings.page_guard_separate_read;
 
