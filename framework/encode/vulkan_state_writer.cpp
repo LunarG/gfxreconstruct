@@ -95,6 +95,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     // clang-format off
     blocks_written_ = 0;
 
+    uint32_t time, total_time = 0;
+    auto started = std::chrono::high_resolution_clock::now();
+
     format::Marker marker;
     marker.header.size = sizeof(marker.marker_type) + sizeof(marker.frame_number);
     marker.header.type = format::kStateMarkerBlock;
@@ -111,6 +114,12 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WriteDeviceState(state_table);
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
 
+    auto     done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Utility object creation.
     StandardCreateWrite<vulkan_wrappers::DebugReportCallbackEXTWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(state_table);
@@ -118,10 +127,22 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<vulkan_wrappers::DeferredOperationKHRWrapper>(state_table);
     WritePrivateDataSlotState(state_table);
 
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Synchronization primitive creation.
     WriteFenceState(state_table);
     WriteEventState(state_table);
     WriteSemaphoreState(state_table);
+
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
 
     // WSI object creation.
     StandardCreateWrite<vulkan_wrappers::DisplayKHRWrapper>(state_table);
@@ -129,22 +150,52 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WriteSurfaceKhrState(state_table);
     WriteSwapchainKhrState(state_table);
 
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Resource creation.
     WriteBufferState(state_table);
     StandardCreateWrite<vulkan_wrappers::ImageWrapper>(state_table);
     WriteDeviceMemoryState(state_table);
 
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Bind memory after buffer/image creation and memory allocation. The buffer/image needs to be created before memory
     // allocation for extensions like dedicated allocation that require a valid buffer/image handle at memory allocation.
     WriteResourceMemoryState(state_table);
 
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
     WriteMappedMemoryState(state_table);
+
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
 
     WriteBufferViewState(state_table);
     WriteImageViewState(state_table);
     StandardCreateWrite<vulkan_wrappers::SamplerWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::SamplerYcbcrConversionWrapper>(state_table);
+
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
 
     // Render object creation.
     StandardCreateWrite<vulkan_wrappers::RenderPassWrapper>(state_table);
@@ -159,10 +210,36 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<vulkan_wrappers::AccelerationStructureNVWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::ShaderEXTWrapper>(state_table);
 
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Descriptor creation.
     StandardCreateWrite<vulkan_wrappers::DescriptorPoolWrapper>(state_table);
+
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     StandardCreateWrite<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(state_table);
+
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     WriteDescriptorSetState(state_table);
+
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
 
     // Query object creation.
     WriteQueryPoolState(state_table);
@@ -173,20 +250,44 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<vulkan_wrappers::VideoSessionKHRWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::VideoSessionParametersKHRWrapper>(state_table);
 
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Command creation.
     StandardCreateWrite<vulkan_wrappers::CommandPoolWrapper>(state_table);
     WriteCommandBufferState(state_table);
     StandardCreateWrite<vulkan_wrappers::IndirectCommandsLayoutNVWrapper>(state_table);  // TODO: If we intend to support this, we need to reserve command space after creation.
     WriteTrimCommandPool(state_table);
 
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
+
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
+
+    done = std::chrono::high_resolution_clock::now();
+    time = std::chrono::duration_cast<std::chrono::milliseconds>(done - started).count();
+    total_time += time;
+    GFXRECON_WRITE_CONSOLE("   %u - %u ms", __LINE__, time);
+    started = std::chrono::high_resolution_clock::now();
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
 
     // For the EndMarker meta command
     ++blocks_written_;
+
+
+    GFXRECON_WRITE_CONSOLE("--------------------------------------")
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE("  saved in %u ms", total_time);
+    GFXRECON_WRITE_CONSOLE("--------------------------------------")
 
     return blocks_written_;
     // clang-format on
