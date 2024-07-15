@@ -281,11 +281,6 @@ class VulkanCaptureManager : public ApiCaptureManager
                                   const VkAllocationCallbacks* pAllocator,
                                   VkBuffer*                    pBuffer);
 
-    VkResult OverrideCreateImage(VkDevice                     device,
-                                 const VkImageCreateInfo*     pCreateInfo,
-                                 const VkAllocationCallbacks* pAllocator,
-                                 VkImage*                     pImage);
-
     VkResult OverrideCreateAccelerationStructureKHR(VkDevice                                    device,
                                                     const VkAccelerationStructureCreateInfoKHR* pCreateInfo,
                                                     const VkAllocationCallbacks*                pAllocator,
