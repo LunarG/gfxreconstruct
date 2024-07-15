@@ -1377,10 +1377,8 @@ void PageGuardManager::GetModifiedMemoryRegions(
 
     for (auto& entry : memory_info_)
     {
-        PageStatusTracker::PageStatus writes;
-        entry.second.status_tracker.GetActiveWrites(writes);
-        memories_page_status.emplace(
-            std::piecewise_construct, std::forward_as_tuple(entry.first), std::forward_as_tuple(std::move(writes)));
+        auto new_entry = memories_page_status.emplace(entry.first, PageStatusTracker::PageStatus());
+        entry.second.status_tracker.GetActiveWrites(new_entry.first->second);
     }
 }
 

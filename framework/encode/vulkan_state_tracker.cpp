@@ -2344,6 +2344,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
         vulkan_wrappers::DeviceMemoryWrapper* dev_mem_wrapper = state_table_.GetDeviceMemoryWrapper(entry.first);
         assert(dev_mem_wrapper != nullptr);
 
+        size_t page = 0;
         for (auto img : dev_mem_wrapper->bound_assets.images)
         {
             if (img->is_swapchain_image)
@@ -2351,37 +2352,46 @@ void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
                 continue;
             }
 
-            for (auto dirty_page : entry.second)
+            for (; page < entry.second.size(); ++page)
             {
-                const size_t page_offset_start = dirty_page * page_size;
-                const size_t page_offset_end   = (dirty_page + 1) * page_size;
+                if (!entry.second[page])
+                {
+                    continue;
+                }
+
+                const size_t page_offset_start = page * page_size;
+                const size_t page_offset_end   = (page + 1) * page_size;
 
                 if ((img->bind_offset >= page_offset_start && img->bind_offset <= page_offset_end) ||
                     ((img->bind_offset + img->size) >= page_offset_start &&
                      (img->bind_offset + img->size) <= page_offset_end) ||
-                    (img->bind_offset >= page_offset_start && (img->bind_offset + img->size) >= page_offset_end))
+                    (img->bind_offset <= page_offset_start && (img->bind_offset + img->size) >= page_offset_end))
                 {
-                    img->dirty = true;
                     cmd_buf_wrapper->referenced_assets.images.push_back(img);
                     break;
                 }
             }
         }
 
+        page = 0;
         for (auto buf : dev_mem_wrapper->bound_assets.buffers)
         {
-            for (auto dirty_page : entry.second)
+            for (; page < entry.second.size(); ++page)
             {
-                const size_t page_offset_start = dirty_page * page_size;
-                const size_t page_offset_end   = (dirty_page + 1) * page_size;
+                if (!entry.second[page])
+                {
+                    continue;
+                }
+
+                const size_t page_offset_start = page * page_size;
+                const size_t page_offset_end   = (page + 1) * page_size;
 
                 if ((buf->bind_offset >= page_offset_start && buf->bind_offset <= page_offset_end) ||
                     ((buf->bind_offset + buf->created_size) >= page_offset_start &&
                      (buf->bind_offset + buf->created_size) <= page_offset_end) ||
-                    (buf->bind_offset >= page_offset_start &&
+                    (buf->bind_offset <= page_offset_start &&
                      (buf->bind_offset + buf->created_size) >= page_offset_end))
                 {
-                    buf->dirty = true;
                     cmd_buf_wrapper->referenced_assets.buffers.push_back(buf);
                     break;
                 }
@@ -2414,7 +2424,10 @@ void VulkanStateTracker::TrackPipelineDescriptors(vulkan_wrappers::CommandBuffer
                         assert(desc_set_wrapper);
 
                         const auto& descriptor_binding = desc_set_wrapper->bindings.find(binding_index);
-                        assert(descriptor_binding != desc_set_wrapper->bindings.end());
+                        if (descriptor_binding == desc_set_wrapper->bindings.end())
+                        {
+                            continue;
+                        }
 
                         switch (descriptor_binding->second.type)
                         {
@@ -2674,11 +2687,13 @@ void VulkanStateTracker::MarkReferencedAssetsAsDirty(VkCommandBuffer commandBuff
 
     for (auto img : cmd_buf_wrapper->referenced_assets.images)
     {
+        assert(img);
         img->dirty = true;
     }
 
     for (auto buf : cmd_buf_wrapper->referenced_assets.buffers)
     {
+        assert(buf);
         buf->dirty = true;
     }
 }
