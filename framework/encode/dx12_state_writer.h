@@ -172,7 +172,8 @@ class Dx12StateWriter
 
     void WriteAccelerationStructuresState(const Dx12StateTable& state_table);
 
-    void WriteAccelerationStructuresState(std::map<uint64_t, const DxAccelerationStructureBuildInfo*> build_infos);
+    void WriteAccelerationStructuresState(std::map<uint64_t, const DxAccelerationStructureBuildInfo*> build_infos,
+                                          graphics::Dx12ResourceDataUtil* resource_data_util);
 
     void WriteStateObjectsState(const Dx12StateTable& state_table);
 
