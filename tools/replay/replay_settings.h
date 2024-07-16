@@ -43,7 +43,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
-    "--dump-resources-dump-color-attachment-index,--pbis";
+    "--dump-resources-dump-color-attachment-index,--pbis,--marking-layers";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -93,6 +93,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-json-output-per-command]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-immutable-resources]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources-dump-all-image-subresources]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--marking-layers <N1,...>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--fwo <x,y> | --force-windowed-origin <x,y>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--log-level <level>] [--log-file <file>] [--log-debugview]");
@@ -325,6 +326,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tDump immutable shader resources.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-all-image-subresources");
     GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
+    GFXRECON_WRITE_CONSOLE("  --marking-layers <N1[,...]>");
+    GFXRECON_WRITE_CONSOLE("          \t\t Specifies the layers that are used to mark API calls injected by replayer");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")

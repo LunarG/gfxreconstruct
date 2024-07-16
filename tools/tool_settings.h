@@ -123,6 +123,7 @@ const char kWaitBeforePresent[]                   = "--wait-before-present";
 const char kPrintBlockInfoAllOption[]             = "--pbi-all";
 const char kPrintBlockInfosArgument[]             = "--pbis";
 const char kPreloadMeasurementRangeOption[]       = "--preload-measurement-range";
+const char kMarkingLayersArgument[]               = "--marking-layers";
 #if defined(WIN32)
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
@@ -927,6 +928,16 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     SetWindowOrigin(options, arg_parser);
 }
 
+static std::vector<std::string> GetMarkingLayersNames(const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    const std::string& value = arg_parser.GetArgumentValue(kMarkingLayersArgument);
+    if (value.empty())
+    {
+        return {};
+    }
+    return gfxrecon::util::strings::SplitString(value, ',');
+}
+
 static gfxrecon::decode::VulkanReplayOptions
 GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parser,
                        const std::string&                              filename,
@@ -1093,6 +1104,8 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.dump_resources_color_attachment_index = std::stoi(dr_color_att_idx);
     }
 
+    replay_options.marking_layers_names = GetMarkingLayersNames(arg_parser);
+
     return replay_options;
 }
 
@@ -1204,5 +1217,4 @@ static bool CheckOptionPrintUsage(const char* exe_name, const gfxrecon::util::Ar
 
     return false;
 }
-
 #endif // GFXRECON_PLATFORM_SETTINGS_H

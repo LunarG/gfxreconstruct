@@ -24,6 +24,8 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "decode/decoder_util.h"
 
+#include "util/marking_layers.h"
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -102,7 +104,9 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
+    util::MarkingLayersUtil::instance().BeginInjected(device_info);
     default_queue_ = GetDeviceQueue(device_table_, device_info, default_queue_family_index_, 0);
+    util::MarkingLayersUtil::instance().EndInjected(device_info);
 
     // If this option is set, a command buffer submission with a `VkFrameBoundaryEXT` must be called each time
     // `vkQueuePresentKHR` should have been called by the offscreen swapchain. So a maximum of work must be done at
@@ -240,7 +244,9 @@ VkResult VulkanOffscreenSwapchain::AcquireNextImageKHR(VkResult                 
             signal_semaphores      = &semaphore;
         }
 
+        util::MarkingLayersUtil::instance().BeginInjected(device_info);
         VkResult result = SignalSemaphoresFence(nullptr, 0, nullptr, signal_semaphore_count, signal_semaphores, fence);
+        util::MarkingLayersUtil::instance().EndInjected(device_info);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Offscreen swapchain failed to singal semaphore (Handle = %" PRIu64
@@ -275,8 +281,10 @@ VkResult VulkanOffscreenSwapchain::AcquireNextImage2KHR(VkResult                
             signal_semaphores      = &acquire_info->semaphore;
         }
 
+        util::MarkingLayersUtil::instance().BeginInjected(device_info);
         VkResult result =
             SignalSemaphoresFence(nullptr, 0, nullptr, signal_semaphore_count, signal_semaphores, acquire_info->fence);
+        util::MarkingLayersUtil::instance().EndInjected(device_info);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Offscreen swapchain failed to singal semaphore (Handle = %" PRIu64
@@ -324,13 +332,16 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
         submitInfo.pCommandBuffers      = &command_buffers_.at(queue_info->family_index);
         submitInfo.signalSemaphoreCount = 0;
         submitInfo.pSignalSemaphores    = nullptr;
-
+        util::MarkingLayersUtil::instance().BeginInjected(queue_info);
         device_table_->QueueSubmit(queue_info->handle, 1, &submitInfo, VK_NULL_HANDLE);
+        util::MarkingLayersUtil::instance().EndInjected(queue_info);
     }
     else if (present_info->waitSemaphoreCount > 0)
     {
+        util::MarkingLayersUtil::instance().BeginInjected(queue_info);
         VkResult result = SignalSemaphoresFence(
             queue_info, present_info->waitSemaphoreCount, present_info->pWaitSemaphores, 0, nullptr, VK_NULL_HANDLE);
+        util::MarkingLayersUtil::instance().EndInjected(queue_info);
         if (result != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("Offscreen swapchain failed to wait semaphore (Handle = %" PRIu64
