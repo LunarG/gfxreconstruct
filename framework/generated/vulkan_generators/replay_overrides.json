@@ -114,6 +114,9 @@
     "vkCmdInsertDebugUtilsLabelEXT": "OverrideCmdInsertDebugUtilsLabelEXT",
     "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
     "vkCreateGraphicsPipelines": "OverrideCreateGraphicsPipelines",
-    "vkCreateComputePipelines": "OverrideCreateComputePipelines"
+    "vkCreateComputePipelines": "OverrideCreateComputePipelines",
+    "vkCreateVideoSessionKHR": "OverrideCreateVideoSessionKHR",
+    "vkDestroyVideoSessionKHR": "OverrideDestroyVideoSessionKHR",
+    "vkBindVideoSessionMemoryKHR": "OverrideBindVideoSessionMemoryKHR"
   }
 }

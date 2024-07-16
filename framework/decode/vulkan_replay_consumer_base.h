@@ -676,6 +676,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                       uint32_t                                                   bindInfoCount,
                                       const StructPointerDecoder<Decoded_VkBindImageMemoryInfo>* pBindInfos);
 
+    VkResult OverrideBindVideoSessionMemoryKHR(
+        PFN_vkBindVideoSessionMemoryKHR                                func,
+        VkResult                                                       original_result,
+        const DeviceInfo*                                              device_info,
+        VideoSessionKHRInfo*                                           video_session_info,
+        uint32_t                                                       bindSessionMemoryInfoCount,
+        StructPointerDecoder<Decoded_VkBindVideoSessionMemoryInfoKHR>* pBindSessionMemoryInfos);
+
     VkResult OverrideCreateBuffer(PFN_vkCreateBuffer                                         func,
                                   VkResult                                                   original_result,
                                   const DeviceInfo*                                          device_info,
@@ -699,6 +707,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                               const DeviceInfo*                                          device_info,
                               ImageInfo*                                                 image_info,
                               const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    VkResult OverrideCreateVideoSessionKHR(PFN_vkCreateVideoSessionKHR func,
+                                           VkResult                    original_result,
+                                           const DeviceInfo*           device_info,
+                                           const StructPointerDecoder<Decoded_VkVideoSessionCreateInfoKHR>* pCreateInfo,
+                                           const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                           HandlePointerDecoder<VkVideoSessionKHR>* pVideoSession);
+
+    void OverrideDestroyVideoSessionKHR(PFN_vkDestroyVideoSessionKHR                               func,
+                                        const DeviceInfo*                                          device_info,
+                                        VideoSessionKHRInfo*                                       video_session_info,
+                                        const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     void OverrideGetImageSubresourceLayout(PFN_vkGetImageSubresourceLayout                         func,
                                            const DeviceInfo*                                       device_info,

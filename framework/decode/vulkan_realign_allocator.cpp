@@ -207,6 +207,44 @@ VkResult VulkanRealignAllocator::BindImageMemory2(uint32_t                     b
                                                     bind_memory_properties);
 }
 
+VkResult VulkanRealignAllocator::BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
+                                                        uint32_t                               bind_info_count,
+                                                        const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                                        const ResourceData*                    allocator_session_datas,
+                                                        const MemoryData*                      allocator_memory_datas,
+                                                        VkMemoryPropertyFlags*                 bind_memory_properties)
+{
+    std::unique_ptr<VkBindVideoSessionMemoryInfoKHR[]> realign_bind_infos;
+
+    if ((allocator_session_datas != nullptr) && (bind_infos != nullptr))
+    {
+        realign_bind_infos = std::make_unique<VkBindVideoSessionMemoryInfoKHR[]>(bind_info_count);
+
+        for (uint32_t i = 0; i < bind_info_count; ++i)
+        {
+            realign_bind_infos[i] = bind_infos[i];
+
+            auto resource_info = GetResourceAllocInfo(allocator_session_datas[i]);
+            if (resource_info != nullptr)
+            {
+                // Update video seesion to new binding offset from first pass data collected from resource tracking.
+                auto tracked_session_info = tracked_object_table_->GetTrackedResourceInfo(resource_info->capture_id);
+                if (tracked_session_info != nullptr)
+                {
+                    realign_bind_infos[i].memoryOffset = tracked_session_info->GetReplayBindOffset();
+                }
+            }
+        }
+    }
+
+    return VulkanDefaultAllocator::BindVideoSessionMemory(video_session,
+                                                          bind_info_count,
+                                                          realign_bind_infos.get(),
+                                                          allocator_session_datas,
+                                                          allocator_memory_datas,
+                                                          bind_memory_properties);
+}
+
 VkResult VulkanRealignAllocator::MapMemory(VkDeviceMemory   memory,
                                            VkDeviceSize     offset,
                                            VkDeviceSize     size,
