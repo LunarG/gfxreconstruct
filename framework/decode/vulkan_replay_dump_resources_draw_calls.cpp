@@ -1979,6 +1979,8 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
         assert(ic_params.actual_draw_count == std::numeric_limits<uint32_t>::max());
         util::platform::MemoryCopy(&ic_params.actual_draw_count, sizeof(uint32_t), data.data(), data.size());
         assert(ic_params.actual_draw_count != std::numeric_limits<uint32_t>::max());
+        res = resource_util.ReadFromBufferResource(
+            ic_params.new_count_buffer, 4, 0, ic_params.count_buffer_info->queue_family_index, data);
 
         if (!ic_params.actual_draw_count)
         {
