@@ -4313,10 +4313,15 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12Device_CreateConstantBufferView(
     auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
     auto desc             = pDesc->GetMetaStructPointer();
 
-    ConstantBufferInfo info;
-    info.captured_view = *(desc->decoded_value);
+    if (desc != nullptr)
+    {
+        // In the API ID3D12Device::CreateConstantBufferView, pDesc is an optional parameter, so we need to include
+        // nullptr protection for it.
+        ConstantBufferInfo info;
+        info.captured_view = *(desc->decoded_value);
 
-    heap_extra_info->constant_buffer_infos[DestDescriptor.index] = std::move(info);
+        heap_extra_info->constant_buffer_infos[DestDescriptor.index] = std::move(info);
+    }
 }
 
 void Dx12ReplayConsumerBase::PostCall_ID3D12Device_CreateConstantBufferView(
