@@ -1749,7 +1749,6 @@ bool VulkanReplayDumpResourcesBase::MustDumpDispatch(VkCommandBuffer original_co
     assert(IsRecording(original_command_buffer));
 
     const DispatchTraceRaysDumpingContext* context = FindDispatchRaysCommandBufferContext(original_command_buffer);
-    assert(context);
 
     if (context != nullptr)
     {
@@ -1860,8 +1859,8 @@ VkResult VulkanReplayDumpResourcesBase::QueueSubmit(const std::vector<VkSubmitIn
             if (pre_submit)
             {
                 // These semaphores have already been handled. Do not bother with them
-                modified_submit_infos[s].waitSemaphoreCount = 0;
-                modified_submit_infos[s].pSignalSemaphores  = 0;
+                modified_submit_infos[s].waitSemaphoreCount   = 0;
+                modified_submit_infos[s].signalSemaphoreCount = 0;
             }
 
             DrawCallsDumpingContext*         dc_context = FindDrawCallCommandBufferContext(command_buffer_handles[o]);
