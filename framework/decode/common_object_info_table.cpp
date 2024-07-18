@@ -21,31 +21,40 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
-#define GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
-
-#include "decode/vulkan_object_info_table.h"
+#include "decode/common_object_info_table.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-// This class combines all Object info tables into one so that multi-API
-// capture can work by allowing various API entrypoints access to all
-// available objects.   For example, OpenXR objects will be in a shared
-// table with Vulkan objects.
+CommonObjectInfoTable* CommonObjectInfoTable::singleton_          = nullptr;
+uint32_t               CommonObjectInfoTable::singleton_refcount_ = 0;
 
-class CommonObjectInfoTable : public VulkanObjectInfoTable
+CommonObjectInfoTable* CommonObjectInfoTable::GetSingleton()
 {
-  public:
-    static CommonObjectInfoTable* GetSingleton();
-    static void                   ReleaseSingleton();
+    if (!singleton_)
+    {
+        singleton_          = new CommonObjectInfoTable();
+        singleton_refcount_ = 1;
+    }
+    return singleton_;
+}
 
-  private:
-    static CommonObjectInfoTable* singleton_;
-    static uint32_t               singleton_refcount_;
-};
+void CommonObjectInfoTable::ReleaseSingleton()
+{
+    if (singleton_)
+    {
+        singleton_refcount_--;
+        if (singleton_refcount_ == 0)
+        {
+            delete singleton_;
+            singleton_ = nullptr;
+        }
+    }
+    else
+    {
+        assert(singleton_refcount_ == 0);
+    }
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_DECODE_COMMON_OBJECT_TABLE_H
