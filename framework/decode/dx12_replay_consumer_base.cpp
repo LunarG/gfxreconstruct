@@ -4311,12 +4311,15 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12Device_CreateConstantBufferView(
 {
     auto heap_object_info = GetObjectInfo(DestDescriptor.heap_id);
     auto heap_extra_info  = GetExtraInfo<D3D12DescriptorHeapInfo>(heap_object_info);
-    auto desc             = pDesc->GetMetaStructPointer();
+
+    GFXRECON_ASSERT(pDesc != nullptr);
+    auto desc = pDesc->GetMetaStructPointer();
 
     if (desc != nullptr)
     {
-        // In the API ID3D12Device::CreateConstantBufferView, pDesc is an optional parameter, so we need to include
-        // nullptr protection for it.
+        // The decoded D3D12_CONSTANT_BUFFER_VIEW_DESC pointer from pDesc is an optional parameter in the API
+        // ID3D12Device::CreateConstantBufferView. In this case, the meta struct pointer returned from the
+        // StructPointerDecoder could be null, so check for it.
         ConstantBufferInfo info;
         info.captured_view = *(desc->decoded_value);
 
