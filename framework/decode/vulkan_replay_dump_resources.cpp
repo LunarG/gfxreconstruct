@@ -1641,7 +1641,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
 
             ImageInfo*    depth_attachment;
             VkImageLayout depth_attachment_layout;
-            if (rendering_info_meta->pDepthAttachment != nullptr)
+            if (rendering_info_meta->pDepthAttachment != nullptr &&
+                rendering_info_meta->pDepthAttachment->GetMetaStructPointer() != nullptr)
             {
                 const auto depth_attachment_meta = rendering_info_meta->pDepthAttachment->GetMetaStructPointer();
                 const ImageViewInfo* img_view_info =
