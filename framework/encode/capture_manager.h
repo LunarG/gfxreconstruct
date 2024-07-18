@@ -264,6 +264,7 @@ class CommonCaptureManager
     util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
+    std::string CreateAssetFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
     void        ActivateTrimming();
@@ -343,6 +344,7 @@ class CommonCaptureManager
         capture_settings_; // Settings from the settings file and environment at capture manager creation time.
 
     std::unique_ptr<util::FileOutputStream> file_stream_;
+    std::unique_ptr<util::FileOutputStream> asset_file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
     bool                                    timestamp_filename_;

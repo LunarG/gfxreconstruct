@@ -38,7 +38,9 @@
 
 #include "vulkan/vulkan.h"
 
+#include <cstdint>
 #include <set>
+#include <unordered_map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -47,7 +49,11 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class VulkanStateWriter
 {
   public:
-    VulkanStateWriter(util::FileOutputStream* output_stream, util::Compressor* compressor, format::ThreadId thread_id);
+    VulkanStateWriter(util::FileOutputStream*                output_stream,
+                      util::Compressor*                      compressor,
+                      format::ThreadId                       thread_id,
+                      std::unordered_map<uint64_t, int64_t>& asset_file_offsets,
+                      util::FileOutputStream*                asset_file_stream = nullptr);
 
     ~VulkanStateWriter();
 
@@ -58,7 +64,7 @@ class VulkanStateWriter
     // Data structures for processing resource memory snapshots.
     struct BufferSnapshotInfo
     {
-        const vulkan_wrappers::BufferWrapper*       buffer_wrapper{ nullptr };
+        vulkan_wrappers::BufferWrapper*             buffer_wrapper{ nullptr };
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper{ nullptr };
         VkMemoryPropertyFlags                       memory_properties{};
         bool                                        need_staging_copy{ false };
@@ -66,7 +72,7 @@ class VulkanStateWriter
 
     struct ImageSnapshotInfo
     {
-        const vulkan_wrappers::ImageWrapper*        image_wrapper{ nullptr };
+        vulkan_wrappers::ImageWrapper*              image_wrapper{ nullptr };
         const vulkan_wrappers::DeviceMemoryWrapper* memory_wrapper{ nullptr };
         VkMemoryPropertyFlags                       memory_properties{};
         bool                                        need_staging_copy{ false };
@@ -147,25 +153,25 @@ class VulkanStateWriter
 
     void ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
-                             graphics::VulkanResourcesUtil&         resource_util);
+                             graphics::VulkanResourcesUtil&         resource_util,
+                             size_t&                                dumped_bytes,
+                             size_t&                                skipped_bytes);
 
     void ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
                             const std::vector<ImageSnapshotInfo>& image_snapshot_info,
-                            graphics::VulkanResourcesUtil&        resource_util);
+                            graphics::VulkanResourcesUtil&        resource_util,
+                            size_t&                               dumped_bytes,
+                            size_t&                               skipped_bytes);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
                                 VkDeviceSize*           max_resource_size,
-                                VkDeviceSize*           max_staging_copy_size,
-                                size_t&                 dumped_bytes,
-                                size_t&                 skipped_bytes);
+                                VkDeviceSize*           max_staging_copy_size);
 
     void WriteImageMemoryState(const VulkanStateTable& state_table,
                                DeviceResourceTables*   resources,
                                VkDeviceSize*           max_resource_size,
-                               VkDeviceSize*           max_staging_copy_size,
-                               size_t&                 dumped_bytes,
-                               size_t&                 skipped_bytes);
+                               VkDeviceSize*           max_staging_copy_size);
 
     void WriteImageSubresourceLayouts(const vulkan_wrappers::ImageWrapper* image_wrapper,
                                       VkImageAspectFlags                   aspect_flags);
@@ -350,6 +356,8 @@ class VulkanStateWriter
 
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
 
+    void WriteAssetFilename();
+
   private:
     util::FileOutputStream*  output_stream_;
     util::Compressor*        compressor_;
@@ -358,6 +366,9 @@ class VulkanStateWriter
     util::MemoryOutputStream parameter_stream_;
     ParameterEncoder         encoder_;
     uint64_t                 blocks_written_;
+
+    util::FileOutputStream*                asset_file_stream_;
+    std::unordered_map<uint64_t, int64_t>& asset_file_offsets_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

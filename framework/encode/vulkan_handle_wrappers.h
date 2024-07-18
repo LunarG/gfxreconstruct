@@ -321,6 +321,8 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
     // Creation info for objects used to allocate the descriptor set, which may have been destroyed after descriptor set
     // allocation.
     vulkan_state_info::CreateDependencyInfo set_layout_dependency;
+
+    bool dirty{ true };
 };
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>

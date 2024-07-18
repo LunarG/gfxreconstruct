@@ -22,6 +22,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include <string>
 #include PROJECT_VERSION_HEADER_FILE
 
 #include "encode/capture_manager.h"
@@ -381,6 +382,16 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     {
         GFXRECON_ASSERT(trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kUnknown);
 
+        std::string asset_file_name = CreateAssetFilename(base_filename_);
+        asset_file_stream_          = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
+
+        GFXRECON_WRITE_CONSOLE("asset_file_name: %s", asset_file_name.c_str())
+
+        if (!asset_file_stream_->IsValid())
+        {
+            asset_file_stream_ = nullptr;
+        }
+
         // Override default kModeWrite capture mode.
         trim_enabled_            = true;
         trim_boundary_           = trace_settings.trim_boundary;
@@ -701,6 +712,13 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                 trim_enabled_  = false;
                 trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
                 capture_mode_  = kModeDisabled;
+
+                if (asset_file_stream_)
+                {
+                    asset_file_stream_->Flush();
+                    asset_file_stream_ = nullptr;
+                }
+
                 // Clean up all of the capture manager's state trackers
                 for (auto& manager_it : api_capture_managers_)
                 {
@@ -917,6 +935,32 @@ std::string CommonCaptureManager::CreateTrimFilename(const std::string&     base
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
+std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename) const
+{
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE(" base_filename: %s", base_filename.c_str())
+
+    std::string asset_filename = base_filename;
+
+    size_t dot_pos = base_filename.rfind('.');
+    if (dot_pos != std::string::npos)
+    {
+        GFXRECON_WRITE_CONSOLE("base_filename.substr(dot_pos): %s", base_filename.substr(dot_pos).c_str())
+        if (base_filename.substr(dot_pos) == ".gfxr")
+        {
+            asset_filename.insert(dot_pos, "_asset_file");
+        }
+    }
+    else
+    {
+        asset_filename += std::string("_asset_file");
+    }
+
+    GFXRECON_WRITE_CONSOLE(" asset_filename: %s", asset_filename.c_str())
+
+    return asset_filename;
+}
+
 bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
 {
     bool        success          = true;
@@ -1057,7 +1101,7 @@ void CommonCaptureManager::ActivateTrimming()
 
     for (auto& manager : api_capture_managers_)
     {
-        manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_);
+        manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_, asset_file_stream_.get());
     }
 }
 

@@ -684,6 +684,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
             assert(wrapper != nullptr);
 
+            wrapper->dirty = true;
+
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to consecutive bindings, where the next binding is dstBinding+1 and
             // starting from array element 0.  Track the current count, binding, and array element to handle
@@ -890,6 +892,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 }
             }
         }
+
+
     }
 
     if (copies != nullptr)
@@ -900,6 +904,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             auto dst_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(copy->dstSet);
             auto src_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(copy->srcSet);
             assert((dst_wrapper != nullptr) && (src_wrapper != nullptr));
+
+            dst_wrapper->dirty = true;
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to/from consecutive bindings.
@@ -1037,6 +1043,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
     {
         auto           wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(set);
         const uint8_t* bytes   = reinterpret_cast<const uint8_t*>(data);
+
+        wrapper->dirty = true;
 
         for (const auto& entry : template_info->image_info)
         {

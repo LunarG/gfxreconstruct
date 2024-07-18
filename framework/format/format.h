@@ -154,6 +154,8 @@ enum class MetaDataType : uint16_t
     kReserved30                             = 30,
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
+    kAssetFilename                          = 33,
+    kLoadAssetFromFile                      = 34
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -661,12 +663,26 @@ struct SetEnvironmentVariablesCommand
     // containing a list of environment variables and their values
 };
 
+struct AssetFilame
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    uint32_t         length;
+};
+
+struct LoadAssetFromAssetFile
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+    format::HandleId asset_id;
+    int64_t          offset;
+};
+
 // Restore size_t to normal behavior.
 #undef size_t
 
 #pragma pack(pop)
 
-GFXRECON_END_NAMESPACE(format)
-GFXRECON_END_NAMESPACE(gfxrecon)
+GFXRECON_END_NAMESPACE(format) GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_FORMAT_FORMAT_H

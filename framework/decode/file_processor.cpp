@@ -25,12 +25,14 @@
 #include "decode/file_processor.h"
 
 #include "decode/decode_allocator.h"
+#include "format/format.h"
 #include "format/format_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/platform.h"
 
 #include <cassert>
+#include <cstdint>
 #include <numeric>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -42,7 +44,8 @@ const uint32_t kFirstFrame = 0;
 FileProcessor::FileProcessor() :
     file_header_{}, file_descriptor_(nullptr), current_frame_number_(kFirstFrame), bytes_read_(0),
     error_state_(kErrorInvalidFileDescriptor), annotation_handler_(nullptr), compressor_(nullptr), block_index_(0),
-    api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
+    api_call_index_(0), block_limit_(0), capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1),
+    asset_file_descriptor_(nullptr), current_file_descriptor_(nullptr)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -60,7 +63,12 @@ FileProcessor::~FileProcessor()
 
     if (file_descriptor_)
     {
-        fclose(file_descriptor_);
+        util::platform::FileClose(file_descriptor_);
+    }
+
+    if (asset_file_descriptor_)
+    {
+        util::platform::FileClose(asset_file_descriptor_);
     }
 
     DecodeAllocator::DestroyInstance();
@@ -91,7 +99,7 @@ bool FileProcessor::Initialize(const std::string& filename)
         }
         else
         {
-            fclose(file_descriptor_);
+            util::platform::FileClose(file_descriptor_);
             file_descriptor_ = nullptr;
         }
     }
@@ -102,6 +110,19 @@ bool FileProcessor::Initialize(const std::string& filename)
     }
 
     return success;
+}
+
+bool FileProcessor::OpenAssetFile()
+{
+    int result = util::platform::FileOpen(&asset_file_descriptor_, asset_filename_.c_str(), "rb");
+    if (result || asset_file_descriptor_ == nullptr)
+    {
+        GFXRECON_LOG_ERROR("Failed to open file %s", asset_filename_.c_str());
+        error_state_ = kErrorOpeningFile;
+        return false;
+    }
+
+    return true;
 }
 
 bool FileProcessor::ProcessNextFrame()
@@ -467,7 +488,9 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    if (util::platform::FileRead(buffer, buffer_size, file_descriptor_))
+    FILE* fd = current_file_descriptor_ != nullptr ? current_file_descriptor_ : file_descriptor_;
+
+    if (util::platform::FileRead(buffer, buffer_size, fd))
     {
         bytes_read_ += buffer_size;
         return true;
@@ -1841,6 +1864,51 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
         }
+    }
+    else if (meta_data_type == format::MetaDataType::kAssetFilename)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::AssetFilame asset_filename_cmd;
+        uint32_t            length;
+        success = ReadBytes(&asset_filename_cmd.thread_id, sizeof(asset_filename_cmd.thread_id));
+        success = success && ReadBytes(&length, sizeof(length));
+
+        std::vector<char> name(length + 1);
+        success      = ReadBytes(name.data(), length);
+        name[length] = '\0';
+
+        asset_filename_ = std::string(name.data());
+
+        OpenAssetFile();
+    }
+    else if (meta_data_type == format::MetaDataType::kLoadAssetFromFile)
+    {
+        format::LoadAssetFromAssetFile load_asset;
+        success = ReadBytes(&load_asset.thread_id, sizeof(load_asset.thread_id));
+        success = success && ReadBytes(&load_asset.asset_id, sizeof(load_asset.asset_id));
+        success = success && ReadBytes(&load_asset.offset, sizeof(load_asset.offset));
+
+        util::platform::FileSeek(asset_file_descriptor_, load_asset.offset, util::platform::FileSeekSet);
+        current_file_descriptor_ = asset_file_descriptor_;
+
+        format::BlockHeader block_header;
+        success = ReadBlockHeader(&block_header);
+        assert(format::RemoveCompressedBlockBit(block_header.type) == format::BlockType::kMetaDataBlock);
+
+        format::MetaDataId meta_data_id =
+            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_None, format::MetaDataType::kUnknownMetaDataType);
+
+        success = ReadBytes(&meta_data_id, sizeof(meta_data_id));
+
+        format::MetaDataType meta_data_type = format::GetMetaDataType(meta_data_id);
+
+        assert(meta_data_type == format::MetaDataType::kInitBufferCommand ||
+               meta_data_type == format::MetaDataType::kInitImageCommand);
+
+        ProcessMetaData(block_header, meta_data_id);
+        current_file_descriptor_ = file_descriptor_;
     }
     else
     {

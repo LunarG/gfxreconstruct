@@ -169,6 +169,8 @@ class FileProcessor
 
     bool IsFileValid() const { return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)); }
 
+    bool OpenAssetFile();
+
   private:
     std::string                         filename_;
     format::FileHeader                  file_header_;
@@ -184,6 +186,10 @@ class FileProcessor
     bool                                enable_print_block_info_{ false };
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
+
+    std::string asset_filename_;
+    FILE*       asset_file_descriptor_;
+    FILE*       current_file_descriptor_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

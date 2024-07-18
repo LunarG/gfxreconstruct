@@ -53,15 +53,16 @@ class VulkanStateTracker
 
     ~VulkanStateTracker();
 
-    uint64_t WriteState(VulkanStateWriter* writer, uint64_t frame_number)
+    uint64_t WriteState(util::FileOutputStream* file_stream,
+                        format::ThreadId        thread_id,
+                        util::FileOutputStream* asset_file_stream,
+                        util::Compressor*       compressor,
+                        uint64_t                frame_number)
     {
-        if (writer != nullptr)
-        {
-            std::unique_lock<std::mutex> lock(state_table_mutex_);
-            return writer->WriteState(state_table_, frame_number);
-        }
+        VulkanStateWriter state_writer(file_stream, compressor, thread_id, asset_file_offsets_, asset_file_stream);
 
-        return 0;
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        return state_writer.WriteState(state_table_, frame_number);
     }
 
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
@@ -699,6 +700,8 @@ class VulkanStateTracker
 
     // Keeps track of acceleration structures' device addresses
     std::unordered_map<VkDeviceAddress, vulkan_wrappers::AccelerationStructureKHRWrapper*> as_device_addresses_map;
+
+    std::unordered_map<uint64_t, int64_t> asset_file_offsets_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
