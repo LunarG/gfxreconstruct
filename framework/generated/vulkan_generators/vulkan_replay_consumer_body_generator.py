@@ -383,7 +383,7 @@ class VulkanReplayConsumerBodyGenerator(
             body += '\n'
             body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
-            body += '        resource_dumper_.Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
             body += '    }\n'
 
         if postexpr:

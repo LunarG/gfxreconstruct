@@ -45,7 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options,
-                                                             CommonObjectInfoTable&     object_info_table) :
+                                                             CommonObjectInfoTable*     object_info_table) :
     QueueSubmit_indices_(options.QueueSubmit_Indices),
     recording_(false), dump_resources_before_(options.dump_resources_before), object_info_table_(object_info_table),
     output_json_per_command(options.dump_resources_json_per_command), dump_json_(options)
@@ -73,7 +73,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
             draw_call_contexts.emplace(bcb_index,
                                        DrawCallsDumpingContext(options.Draw_Indices[i],
                                                                options.RenderPass_Indices[i],
-                                                               object_info_table,
+                                                               *object_info_table,
                                                                options,
                                                                dump_json_,
                                                                capture_filename));
@@ -90,7 +90,7 @@ VulkanReplayDumpResourcesBase::VulkanReplayDumpResourcesBase(const VulkanReplayO
                                               (options.TraceRays_Indices.size() && options.TraceRays_Indices[i].size())
                                                   ? options.TraceRays_Indices[i]
                                                   : std::vector<uint64_t>(),
-                                              object_info_table_,
+                                              *object_info_table_,
                                               options,
                                               dump_json_,
                                               capture_filename));
@@ -754,10 +754,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass(
         auto       framebuffer_id        = render_pass_info_meta->framebuffer;
         auto       render_pass_id        = render_pass_info_meta->renderPass;
 
-        const VulkanFramebufferInfo* framebuffer_info = object_info_table_.GetVkFramebufferInfo(framebuffer_id);
+        const VulkanFramebufferInfo* framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
         assert(framebuffer_info);
 
-        const VulkanRenderPassInfo* render_pass_info = object_info_table_.GetVkRenderPassInfo(render_pass_id);
+        const VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
 
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
@@ -803,10 +803,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRenderPass2(
         auto       framebuffer_id        = render_pass_info_meta->framebuffer;
         auto       render_pass_id        = render_pass_info_meta->renderPass;
 
-        const VulkanFramebufferInfo* framebuffer_info = object_info_table_.GetVkFramebufferInfo(framebuffer_id);
+        const VulkanFramebufferInfo* framebuffer_info = object_info_table_->GetVkFramebufferInfo(framebuffer_id);
         assert(framebuffer_info);
 
-        const VulkanRenderPassInfo* render_pass_info = object_info_table_.GetVkRenderPassInfo(render_pass_id);
+        const VulkanRenderPassInfo* render_pass_info = object_info_table_->GetVkRenderPassInfo(render_pass_id);
         assert(render_pass_info);
 
         // Do not record vkCmdBeginRenderPass commands in current DrawCall context command buffers.
@@ -1019,7 +1019,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
     for (uint32_t i = 0; i < descriptor_sets_count; ++i)
     {
         const VulkanDescriptorSetInfo* desc_set_info =
-            object_info_table_.GetVkDescriptorSetInfo(descriptor_sets_ids[i]);
+            object_info_table_->GetVkDescriptorSetInfo(descriptor_sets_ids[i]);
         assert(desc_set_info);
         desc_set_infos[i]   = desc_set_info;
         desc_set_handles[i] = desc_set_info->handle;
@@ -1153,7 +1153,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers(const ApiCallIn
         for (uint32_t i = 0; i < bindingCount; ++i)
         {
             // Buffer can be VK_NULL_HANDLE
-            const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(buffer_ids[i]);
+            const VulkanBufferInfo* buffer_info = object_info_table_->GetVkBufferInfo(buffer_ids[i]);
 
             buffer_infos[i]   = buffer_info;
             buffer_handles[i] = buffer_info != nullptr ? buffer_info->handle : VK_NULL_HANDLE;
@@ -1243,7 +1243,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallI
     {
         for (uint32_t i = 0; i < bindingCount; ++i)
         {
-            const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(pBuffers_ids[i]);
+            const VulkanBufferInfo* buffer_info = object_info_table_->GetVkBufferInfo(pBuffers_ids[i]);
             buffer_handles[i]                   = (buffer_info != nullptr) ? buffer_info->handle : VK_NULL_HANDLE;
         }
     }
@@ -1267,7 +1267,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindVertexBuffers2(const ApiCallI
 
             for (uint32_t i = 0; i < bindingCount; ++i)
             {
-                const VulkanBufferInfo* buffer_info = object_info_table_.GetVkBufferInfo(pBuffers_ids[i]);
+                const VulkanBufferInfo* buffer_info = object_info_table_->GetVkBufferInfo(pBuffers_ids[i]);
 
                 buffer_infos[i] = buffer_info;
             }
@@ -1630,10 +1630,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
             for (size_t i = 0; i < n_color_attachments; ++i)
             {
                 const VulkanImageViewInfo* img_view_info =
-                    object_info_table_.GetVkImageViewInfo(color_attachments_meta[i].imageView);
+                    object_info_table_->GetVkImageViewInfo(color_attachments_meta[i].imageView);
                 assert(img_view_info != nullptr);
 
-                VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
+                VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(img_view_info->image_id);
                 assert(img_info != nullptr);
 
                 color_attachments[i]        = img_info;
@@ -1646,10 +1646,10 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBeginRendering(
             {
                 const auto depth_attachment_meta = rendering_info_meta->pDepthAttachment->GetMetaStructPointer();
                 const VulkanImageViewInfo* img_view_info =
-                    object_info_table_.GetVkImageViewInfo(depth_attachment_meta->imageView);
+                    object_info_table_->GetVkImageViewInfo(depth_attachment_meta->imageView);
                 assert(img_view_info != nullptr);
 
-                VulkanImageInfo* img_info = object_info_table_.GetVkImageInfo(img_view_info->image_id);
+                VulkanImageInfo* img_info = object_info_table_->GetVkImageInfo(img_view_info->image_id);
                 assert(img_info != nullptr);
 
                 depth_attachment        = img_info;

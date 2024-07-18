@@ -50,7 +50,7 @@ class VulkanReplayDumpResourcesBase
   public:
     VulkanReplayDumpResourcesBase() = delete;
 
-    VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options, CommonObjectInfoTable& object_info_table);
+    VulkanReplayDumpResourcesBase(const VulkanReplayOptions& options, CommonObjectInfoTable* object_info_table);
 
     ~VulkanReplayDumpResourcesBase();
 
@@ -341,7 +341,7 @@ class VulkanReplayDumpResourcesBase
 
     bool                          recording_;
     bool                          dump_resources_before_;
-    CommonObjectInfoTable&        object_info_table_;
+    CommonObjectInfoTable*        object_info_table_;
     VulkanReplayDumpResourcesJson dump_json_;
     bool                          output_json_per_command;
 

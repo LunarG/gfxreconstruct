@@ -221,9 +221,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
   protected:
-    const CommonObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
+    const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
 
-    CommonObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
+    CommonObjectInfoTable& GetObjectInfoTable() { return *object_info_table_; }
 
     const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
@@ -243,17 +243,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typename T::HandleType MapHandle(format::HandleId id,
                                      const T* (CommonObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
-        return handle_mapping::MapHandle(id, object_info_table_, MapFunc);
+        return handle_mapping::MapHandle(id, *object_info_table_, MapFunc);
     }
 
     uint64_t MapHandle(uint64_t object, VkObjectType object_type)
     {
-        return handle_mapping::MapHandle(object, object_type, object_info_table_);
+        return handle_mapping::MapHandle(object, object_type, *object_info_table_);
     }
 
     uint64_t MapHandle(uint64_t object, VkDebugReportObjectTypeEXT object_type)
     {
-        return handle_mapping::MapHandle(object, object_type, object_info_table_);
+        return handle_mapping::MapHandle(object, object_type, *object_info_table_);
     }
 
     template <typename T>
@@ -271,7 +271,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
             // The handle and ID array sizes are expected to be the same for mapping operations.
             assert(handles_len == handles_pointer->GetLength());
 
-            handles = handle_mapping::MapHandleArray(handles_pointer, object_info_table_, MapFunc);
+            handles = handle_mapping::MapHandleArray(handles_pointer, *object_info_table_, MapFunc);
         }
 
         return handles;
@@ -287,7 +287,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         if ((id != nullptr) && (handle != nullptr))
         {
             handle_mapping::AddHandle(
-                parent_id, *id, *handle, std::forward<T>(initial_info), &object_info_table_, AddFunc);
+                parent_id, *id, *handle, std::forward<T>(initial_info), object_info_table_, AddFunc);
         }
     }
 
@@ -299,7 +299,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     {
         if ((id != nullptr) && (handle != nullptr))
         {
-            handle_mapping::AddHandle(parent_id, *id, *handle, &object_info_table_, AddFunc);
+            handle_mapping::AddHandle(parent_id, *id, *handle, object_info_table_, AddFunc);
         }
     }
 
@@ -313,7 +313,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     void (CommonObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(
-            parent_id, ids, ids_len, handles, handles_len, std::move(initial_infos), &object_info_table_, AddFunc);
+            parent_id, ids, ids_len, handles, handles_len, std::move(initial_infos), object_info_table_, AddFunc);
     }
 
     template <typename T>
@@ -324,7 +324,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     size_t                        handles_len,
                     void (CommonObjectInfoTable::*AddFunc)(T&&))
     {
-        handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+        handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, object_info_table_, AddFunc);
     }
 
     template <typename S, typename T>
@@ -345,7 +345,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        handles,
                                        handles_len,
                                        std::move(initial_infos),
-                                       &object_info_table_,
+                                       object_info_table_,
                                        GetPoolInfoFunc,
                                        AddFunc);
     }
@@ -361,12 +361,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                         void (CommonObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(
-            parent_id, pool_id, ids, ids_len, handles, handles_len, &object_info_table_, GetPoolInfoFunc, AddFunc);
+            parent_id, pool_id, ids, ids_len, handles, handles_len, object_info_table_, GetPoolInfoFunc, AddFunc);
     }
 
     void RemoveHandle(format::HandleId id, void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId))
     {
-        handle_mapping::RemoveHandle(id, &object_info_table_, RemoveFunc);
+        handle_mapping::RemoveHandle(id, object_info_table_, RemoveFunc);
     }
 
     template <typename T>
@@ -375,7 +375,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                           void (CommonObjectInfoTable::*RemovePoolFunc)(format::HandleId),
                           void (CommonObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
     {
-        handle_mapping::RemovePoolHandle(id, &object_info_table_, GetPoolInfoFunc, RemovePoolFunc, RemoveObjectFunc);
+        handle_mapping::RemovePoolHandle(id, object_info_table_, GetPoolInfoFunc, RemovePoolFunc, RemoveObjectFunc);
     }
 
     template <typename S, typename T>
@@ -393,7 +393,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
             // The handle and ID array sizes are expected to be the same for mapping operations.
             assert(handles_len == handles_pointer->GetLength());
             handle_mapping::RemoveHandleArray<S, T>(
-                pool_id, handles_pointer, &object_info_table_, GetPoolInfoFunc, RemoveFunc);
+                pool_id, handles_pointer, object_info_table_, GetPoolInfoFunc, RemoveFunc);
         }
     }
 
@@ -403,7 +403,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                              size_t           count,
                              HandleInfoT* (CommonObjectInfoTable::*HandleInfoFunc)(format::HandleId))
     {
-        HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
+        HandleInfoT* info = (object_info_table_->*HandleInfoFunc)(handle_id);
         if (info != nullptr)
         {
             info->array_counts[index] = static_cast<size_t>(count);
@@ -433,7 +433,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
             // such as VK_INCOMPLETE, continue to be generated at replay.
             if (original_result == VK_SUCCESS)
             {
-                const HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
+                const HandleInfoT* info = (object_info_table_->*HandleInfoFunc)(handle_id);
                 if (info != nullptr)
                 {
                     auto entry = info->array_counts.find(index);
@@ -1158,7 +1158,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     const VulkanReplayOptions options_;
 
-    VulkanReplayDumpResources resource_dumper_;
+    VulkanReplayDumpResources* resource_dumper_;
 
   private:
     void RaiseFatalError(const char* message) const;
@@ -1317,7 +1317,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<encode::VulkanDispatchKey, encode::VulkanDeviceTable>   device_tables_;
     std::function<void(const char*)>                                           fatal_error_handler_;
     std::shared_ptr<application::Application>                                  application_;
-    CommonObjectInfoTable                                                      object_info_table_;
+    CommonObjectInfoTable*                                                     object_info_table_;
     bool                                                                       loading_trim_state_;
     bool                                                                       replaying_trimmed_capture_;
     SwapchainImageTracker                                                      swapchain_image_tracker_;
