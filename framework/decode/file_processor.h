@@ -32,9 +32,11 @@
 #include "util/defines.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
 #include <string>
-#include <unordered_set>
+#include <stack>
+#include <unordered_map>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -92,17 +94,41 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
-    const format::FileHeader& GetFileHeader() const { return file_header_; }
+    const format::FileHeader& GetFileHeader() const
+    {
+        auto file_entry = active_files_.find(file_stack.top().filename);
+        assert(file_entry != active_files_.end());
 
-    const std::vector<format::FileOptionPair>& GetFileOptions() const { return file_options_; }
+        return file_entry->second.file_header;
+    }
+
+    const std::vector<format::FileOptionPair>& GetFileOptions() const
+    {
+        auto file_entry = active_files_.find(file_stack.top().filename);
+        assert(file_entry != active_files_.end());
+
+        return file_entry->second.file_options;
+    }
 
     uint32_t GetCurrentFrameNumber() const { return current_frame_number_; }
 
-    uint64_t GetNumBytesRead() const { return bytes_read_; }
+    uint64_t GetNumBytesRead() const
+    {
+        auto file_entry = active_files_.find(file_stack.top().filename);
+        assert(file_entry != active_files_.end());
+
+        return file_entry->second.bytes_read;
+    }
 
     Error GetErrorState() const { return error_state_; }
 
-    bool EntireFileWasProcessed() const { return (feof(file_descriptor_) != 0); }
+    bool EntireFileWasProcessed() const
+    {
+        auto file_entry = active_files_.find(file_stack.top().filename);
+        assert(file_entry != active_files_.end());
+
+        return (feof(file_entry->second.fd) != 0);
+    }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
 
@@ -144,15 +170,22 @@ class FileProcessor
     void PrintBlockInfo() const;
 
   protected:
-    FILE*                    file_descriptor_;
     uint64_t                 current_frame_number_;
     std::vector<ApiDecoder*> decoders_;
     AnnotationHandler*       annotation_handler_;
     Error                    error_state_;
-    uint64_t                 bytes_read_;
 
     /// @brief Incremented at the end of every block successfully processed.
     uint64_t block_index_;
+
+  protected:
+    FILE* GetFileDescriptor()
+    {
+        auto file_entry = active_files_.find(file_stack.top().filename);
+        assert(file_entry != active_files_.end());
+
+        return file_entry->second.fd;
+    }
 
   private:
     bool ProcessFileHeader();
@@ -165,31 +198,70 @@ class FileProcessor
                                        size_t  expected_uncompressed_size,
                                        size_t* uncompressed_buffer_size);
 
-    bool IsFileHeaderValid() const { return (file_header_.fourcc == GFXRECON_FOURCC); }
+    bool IsFileHeaderValid() const
+    {
+        auto file_entry = active_files_.find(file_stack.top().filename);
+        assert(file_entry != active_files_.end());
 
-    bool IsFileValid() const { return (file_descriptor_ && !feof(file_descriptor_) && !ferror(file_descriptor_)); }
+        return (file_entry->second.file_header.fourcc == GFXRECON_FOURCC);
+    }
 
-    bool OpenAssetFile();
+    bool IsFileValid() const
+    {
+        auto file_entry = active_files_.find(file_stack.top().filename);
+        assert(file_entry != active_files_.end());
+
+        return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
+    }
+
+    bool OpenFile(const std::string& filename);
+
+    bool SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin);
+
+    bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
+
+    bool SetActiveFile(const std::string& filename);
+
+    bool SetActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin);
+
+    void DecrementRemainingCommands();
 
   private:
-    std::string                         filename_;
-    format::FileHeader                  file_header_;
-    std::vector<format::FileOptionPair> file_options_;
-    format::EnabledOptions              enabled_options_;
-    std::vector<uint8_t>                parameter_buffer_;
-    std::vector<uint8_t>                compressed_parameter_buffer_;
-    util::Compressor*                   compressor_;
-    uint64_t                            api_call_index_;
-    uint64_t                            block_limit_;
-    bool                                capture_uses_frame_markers_;
-    uint64_t                            first_frame_;
-    bool                                enable_print_block_info_{ false };
-    int64_t                             block_index_from_{ 0 };
-    int64_t                             block_index_to_{ 0 };
+    format::EnabledOptions enabled_options_;
+    std::vector<uint8_t>   parameter_buffer_;
+    std::vector<uint8_t>   compressed_parameter_buffer_;
+    util::Compressor*      compressor_;
+    uint64_t               api_call_index_;
+    uint64_t               block_limit_;
+    bool                   capture_uses_frame_markers_;
+    uint64_t               first_frame_;
+    bool                   enable_print_block_info_{ false };
+    int64_t                block_index_from_{ 0 };
+    int64_t                block_index_to_{ 0 };
 
-    std::string asset_filename_;
-    FILE*       asset_file_descriptor_;
-    FILE*       current_file_descriptor_;
+    struct ActiveFiles
+    {
+        ActiveFiles() {}
+
+        ActiveFiles(FILE* fd) : fd(fd) {}
+
+        FILE*                               fd{ nullptr };
+        uint64_t                            bytes_read{ 0 };
+        format::FileHeader                  file_header{ 0 };
+        std::vector<format::FileOptionPair> file_options;
+    };
+
+    std::unordered_map<std::string, ActiveFiles> active_files_;
+    std::string                                  main_filename;
+
+    struct ActiveFileContext
+    {
+        ActiveFileContext(const std::string& filename) : filename(filename){};
+
+        std::string filename;
+        uint32_t    remaining_commands{ 0 };
+    };
+    std::stack<ActiveFileContext> file_stack;
 };
 
 GFXRECON_END_NAMESPACE(decode)
