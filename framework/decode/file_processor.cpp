@@ -1943,16 +1943,32 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         success = success && ReadBytes(&exec_from_file.offset, sizeof(exec_from_file.offset));
         success = success && ReadBytes(&exec_from_file.filename_length, sizeof(exec_from_file.filename_length));
 
-        std::vector<char> asset_filename_c_str(exec_from_file.filename_length + 1);
-        success = success && ReadBytes(asset_filename_c_str.data(), exec_from_file.filename_length);
-        asset_filename_c_str[exec_from_file.filename_length] = '\0';
-
-        std::string asset_filename = std::string(asset_filename_c_str.data());
-
-        if (OpenFile(asset_filename))
+        std::vector<char> filename_c_str(exec_from_file.filename_length + 1);
+        success = success && ReadBytes(filename_c_str.data(), exec_from_file.filename_length);
+        if (success)
         {
-            SetActiveFile(asset_filename, exec_from_file.offset, util::platform::FileSeekSet);
-            file_stack.top().remaining_commands = exec_from_file.n_blocks + 1;
+            filename_c_str[exec_from_file.filename_length] = '\0';
+
+            const std::string filename = std::string(filename_c_str.data());
+
+            success = OpenFile(filename);
+            if (success)
+            {
+                for (auto decoder : decoders_)
+                {
+                    decoder->DispatchExecuteBlocksFromFile(
+                        exec_from_file.thread_id, exec_from_file.n_blocks, exec_from_file.offset, filename);
+                }
+
+                SetActiveFile(filename, exec_from_file.offset, util::platform::FileSeekSet);
+                // We need to add 1 because it will be decremented right after this function returns
+                file_stack.top().remaining_commands = exec_from_file.n_blocks + 1;
+            }
+        }
+
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read runtime info meta-data block");
         }
     }
     else
