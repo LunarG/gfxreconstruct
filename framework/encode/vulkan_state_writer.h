@@ -273,7 +273,9 @@ class VulkanStateWriter
                                       format::HandleId                object_id,
                                       const util::MemoryOutputStream* create_parameters);
 
-    void WriteFunctionCall(format::ApiCallId call_id, util::MemoryOutputStream* parameter_buffer);
+    void WriteFunctionCall(format::ApiCallId         call_id,
+                           util::MemoryOutputStream* parameter_buffer,
+                           util::FileOutputStream*   output_stream = nullptr);
 
     void WriteFillMemoryCmd(format::HandleId memory_id, VkDeviceSize offset, VkDeviceSize size, const void* data);
 
@@ -351,6 +353,8 @@ class VulkanStateWriter
                             const VulkanStateTable&                    state_table);
 
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
+
+    void WriteExecuteFromFile(uint32_t n_blocks, int64_t offset);
 
   private:
     util::FileOutputStream*  output_stream_;
