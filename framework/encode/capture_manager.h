@@ -271,6 +271,7 @@ class CommonCaptureManager
     void        DeactivateTrimming();
 
     void WriteFileHeader();
+    void WriteAssetFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
 
@@ -286,7 +287,7 @@ class CommonCaptureManager
 
     void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
 
-    void WriteToFile(const void* data, size_t size);
+    void WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream = nullptr);
 
     template <size_t N>
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])

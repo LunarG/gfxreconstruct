@@ -168,9 +168,7 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // Descriptor creation.
     StandardCreateWrite<vulkan_wrappers::DescriptorPoolWrapper>(state_table);
-
     StandardCreateWrite<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(state_table);
-
     WriteDescriptorSetState(state_table);
 
     // Query object creation.
@@ -190,7 +188,6 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // Process swapchain image acquire.
     WriteSwapchainImageState(state_table);
-
 
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
