@@ -155,7 +155,8 @@ enum class MetaDataType : uint16_t
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
     kAssetFilename                          = 33,
-    kLoadAssetFromFile                      = 34
+    kLoadAssetFromFile                      = 34,
+    kExecuteBlocksFromFile                  = 35
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -670,12 +671,13 @@ struct AssetFilame
     uint32_t         length;
 };
 
-struct LoadAssetFromAssetFile
+struct ExecuteBlocksFromFile
 {
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
-    format::HandleId asset_id;
+    uint32_t         n_blocks;
     int64_t          offset;
+    uint32_t         filename_length;
 };
 
 // Restore size_t to normal behavior.
@@ -683,6 +685,7 @@ struct LoadAssetFromAssetFile
 
 #pragma pack(pop)
 
-GFXRECON_END_NAMESPACE(format) GFXRECON_END_NAMESPACE(gfxrecon)
+GFXRECON_END_NAMESPACE(format)
+GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_FORMAT_FORMAT_H

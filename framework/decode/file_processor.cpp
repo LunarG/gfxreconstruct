@@ -1935,40 +1935,23 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
         }
     }
-    else if (meta_data_type == format::MetaDataType::kAssetFilename)
+    else if (meta_data_type == format::MetaDataType::kExecuteBlocksFromFile)
     {
-        // This command does not support compression.
-        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+        format::ExecuteBlocksFromFile exec_from_file;
+        success = ReadBytes(&exec_from_file.thread_id, sizeof(exec_from_file.thread_id));
+        success = success && ReadBytes(&exec_from_file.n_blocks, sizeof(exec_from_file.n_blocks));
+        success = success && ReadBytes(&exec_from_file.offset, sizeof(exec_from_file.offset));
+        success = success && ReadBytes(&exec_from_file.filename_length, sizeof(exec_from_file.filename_length));
 
-        format::AssetFilame asset_filename_cmd;
-        uint32_t            length;
-        success = ReadBytes(&asset_filename_cmd.thread_id, sizeof(asset_filename_cmd.thread_id));
-        success = success && ReadBytes(&length, sizeof(length));
-
-        std::vector<char> name(length + 1);
-        success      = ReadBytes(name.data(), length);
-        name[length] = '\0';
-
-        std::string assets_file_filename = std::string(name.data());
-        OpenFile(assets_file_filename);
-    }
-    else if (meta_data_type == format::MetaDataType::kLoadAssetFromFile)
-    {
-        format::LoadAssetFromAssetFile load_asset;
-        success = ReadBytes(&load_asset.thread_id, sizeof(load_asset.thread_id));
-        success = success && ReadBytes(&load_asset.asset_id, sizeof(load_asset.asset_id));
-        success = success && ReadBytes(&load_asset.offset, sizeof(load_asset.offset));
-        success = success && ReadBytes(&load_asset.filename_length, sizeof(load_asset.filename_length));
-
-        std::vector<char> asset_filename_c_str(load_asset.filename_length + 1);
-        success = success && ReadBytes(asset_filename_c_str.data(), load_asset.filename_length);
-        asset_filename_c_str[load_asset.filename_length] = '\0';
+        std::vector<char> asset_filename_c_str(exec_from_file.filename_length + 1);
+        success = success && ReadBytes(asset_filename_c_str.data(), exec_from_file.filename_length);
+        asset_filename_c_str[exec_from_file.filename_length] = '\0';
 
         std::string asset_filename = std::string(asset_filename_c_str.data());
 
         if (OpenFile(asset_filename))
         {
-            SetActiveFile(asset_filename, load_asset.offset, util::platform::FileSeekSet);
+            SetActiveFile(asset_filename, exec_from_file.offset, util::platform::FileSeekSet);
             file_stack.top().remaining_commands = 2;
         }
     }

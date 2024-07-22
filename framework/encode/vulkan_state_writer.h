@@ -153,15 +153,11 @@ class VulkanStateWriter
 
     void ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
-                             graphics::VulkanResourcesUtil&         resource_util,
-                             size_t&                                dumped_bytes,
-                             size_t&                                skipped_bytes);
+                             graphics::VulkanResourcesUtil&         resource_util);
 
     void ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
                             const std::vector<ImageSnapshotInfo>& image_snapshot_info,
-                            graphics::VulkanResourcesUtil&        resource_util,
-                            size_t&                               dumped_bytes,
-                            size_t&                               skipped_bytes);
+                            graphics::VulkanResourcesUtil&        resource_util);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
@@ -355,8 +351,6 @@ class VulkanStateWriter
                             const VulkanStateTable&                    state_table);
 
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
-
-    void WriteAssetFilename();
 
   private:
     util::FileOutputStream*  output_stream_;

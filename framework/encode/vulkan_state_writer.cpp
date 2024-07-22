@@ -143,7 +143,6 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // Bind memory after buffer/image creation and memory allocation. The buffer/image needs to be created before memory
     // allocation for extensions like dedicated allocation that require a valid buffer/image handle at memory allocation.
-    WriteAssetFilename();
     WriteResourceMemoryState(state_table);
 
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
@@ -208,28 +207,6 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     return blocks_written_;
     // clang-format on
-}
-
-void VulkanStateWriter::WriteAssetFilename()
-{
-    if (asset_file_stream_ == nullptr)
-    {
-        assert(0);
-        return;
-    }
-
-    const std::string filename = asset_file_stream_->GetFilename();
-
-    format::AssetFilame asset_filename_cmd;
-    asset_filename_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-    asset_filename_cmd.meta_header.block_header.size =
-        format::GetMetaDataBlockBaseSize(asset_filename_cmd) + filename.length();
-    asset_filename_cmd.meta_header.meta_data_id =
-        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kAssetFilename);
-    asset_filename_cmd.length = filename.length();
-
-    output_stream_->Write(&asset_filename_cmd, sizeof(asset_filename_cmd));
-    output_stream_->Write(filename.c_str(), filename.length());
 }
 
 void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_table)
@@ -1350,9 +1327,7 @@ void VulkanStateWriter::ProcessHardwareBuffer(format::HandleId memory_id,
 
 void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
                                             const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
-                                            graphics::VulkanResourcesUtil&         resource_util,
-                                            size_t&                                dumped_bytes,
-                                            size_t&                                skipped_bytes)
+                                            graphics::VulkanResourcesUtil&         resource_util)
 {
     assert(device_wrapper != nullptr);
 
@@ -1457,24 +1432,25 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                     asset_file_stream_->Write(&upload_cmd, sizeof(upload_cmd));
                     asset_file_stream_->Write(bytes, data_size);
 
-                    dumped_bytes += data_size;
-
                     asset_file_offsets_[buffer_wrapper->handle_id] = offset;
 
-                    format::LoadAssetFromAssetFile load_asset_cmd;
-                    load_asset_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(load_asset_cmd);
-                    load_asset_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-                    load_asset_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
-                        format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kLoadAssetFromFile);
-                    load_asset_cmd.thread_id = thread_id_;
-                    load_asset_cmd.asset_id  = buffer_wrapper->handle_id;
-                    load_asset_cmd.offset    = offset;
+                    format::ExecuteBlocksFromFile execute_from_file;
+                    execute_from_file.meta_header.block_header.size =
+                        format::GetMetaDataBlockBaseSize(execute_from_file);
+                    execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
+                    execute_from_file.meta_header.meta_data_id      = format::MakeMetaDataId(
+                        format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
+                    execute_from_file.thread_id       = thread_id_;
+                    execute_from_file.n_blocks        = 1;
+                    execute_from_file.offset          = offset;
+                    execute_from_file.filename_length = asset_file_stream_->GetFilename().length();
 
-                    output_stream_->Write(&load_asset_cmd, sizeof(load_asset_cmd));
+                    output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
+                    output_stream_->Write(asset_file_stream_->GetFilename().c_str(),
+                                          asset_file_stream_->GetFilename().length());
                 }
                 else
                 {
-                    assert(0);
                     output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
                     output_stream_->Write(bytes, data_size);
                 }
@@ -1497,29 +1473,26 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
 
             const int64_t offset = asset_file_offsets_[buffer_wrapper->handle_id];
 
-            skipped_bytes += buffer_wrapper->created_size;
+            format::ExecuteBlocksFromFile execute_from_file;
+            execute_from_file.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(execute_from_file);
+            execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
+            execute_from_file.meta_header.meta_data_id      = format::MakeMetaDataId(
+                format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
+            execute_from_file.thread_id       = thread_id_;
+            execute_from_file.n_blocks        = 1;
+            execute_from_file.offset          = offset;
+            execute_from_file.filename_length = asset_file_stream_->GetFilename().length();
 
-            format::LoadAssetFromAssetFile load_asset_cmd;
-            load_asset_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(load_asset_cmd);
-            load_asset_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-            load_asset_cmd.meta_header.meta_data_id =
-                format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kLoadAssetFromFile);
-            load_asset_cmd.thread_id = thread_id_;
-            load_asset_cmd.asset_id  = buffer_wrapper->handle_id;
-            load_asset_cmd.offset    = offset;
-
-            asset_file_offsets_[buffer_wrapper->handle_id] = offset;
-
-            output_stream_->Write(&load_asset_cmd, sizeof(load_asset_cmd));
+            output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
+            output_stream_->Write(asset_file_stream_->GetFilename().c_str(),
+                                  asset_file_stream_->GetFilename().length());
         }
     }
 }
 
 void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
                                            const std::vector<ImageSnapshotInfo>& image_snapshot_info,
-                                           graphics::VulkanResourcesUtil&        resource_util,
-                                           size_t&                               dumped_bytes,
-                                           size_t&                               skipped_bytes)
+                                           graphics::VulkanResourcesUtil&        resource_util)
 {
     assert(device_wrapper != nullptr);
 
@@ -1661,22 +1634,23 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
                         asset_file_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
                         asset_file_stream_->Write(bytes, data_size);
 
-                        dumped_bytes += levels_size + data_size;
+                        format::ExecuteBlocksFromFile execute_from_file;
+                        execute_from_file.meta_header.block_header.size =
+                            format::GetMetaDataBlockBaseSize(execute_from_file);
+                        execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
+                        execute_from_file.meta_header.meta_data_id      = format::MakeMetaDataId(
+                            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
+                        execute_from_file.thread_id       = thread_id_;
+                        execute_from_file.n_blocks        = 1;
+                        execute_from_file.offset          = offset;
+                        execute_from_file.filename_length = asset_file_stream_->GetFilename().length();
 
-                        format::LoadAssetFromAssetFile load_asset_cmd;
-                        load_asset_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(load_asset_cmd);
-                        load_asset_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-                        load_asset_cmd.meta_header.meta_data_id      = format::MakeMetaDataId(
-                            format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kLoadAssetFromFile);
-                        load_asset_cmd.thread_id = thread_id_;
-                        load_asset_cmd.asset_id  = image_wrapper->handle_id;
-                        load_asset_cmd.offset    = offset;
-
-                        output_stream_->Write(&load_asset_cmd, sizeof(load_asset_cmd));
+                        output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
+                        output_stream_->Write(asset_file_stream_->GetFilename().c_str(),
+                                              asset_file_stream_->GetFilename().length());
                     }
                     else
                     {
-                        assert(0);
                         output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
                         output_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
                         output_stream_->Write(bytes, data_size);
@@ -1706,20 +1680,19 @@ void VulkanStateWriter::ProcessImageMemory(const vulkan_wrappers::DeviceWrapper*
 
             const int64_t offset = asset_file_offsets_[image_wrapper->handle_id];
 
-            format::LoadAssetFromAssetFile load_asset_cmd;
-            load_asset_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(load_asset_cmd);
-            load_asset_cmd.meta_header.block_header.type = format::kMetaDataBlock;
-            load_asset_cmd.meta_header.meta_data_id =
-                format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kLoadAssetFromFile);
-            load_asset_cmd.thread_id = thread_id_;
-            load_asset_cmd.asset_id  = image_wrapper->handle_id;
-            load_asset_cmd.offset    = offset;
+            format::ExecuteBlocksFromFile execute_from_file;
+            execute_from_file.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(execute_from_file);
+            execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
+            execute_from_file.meta_header.meta_data_id      = format::MakeMetaDataId(
+                format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
+            execute_from_file.thread_id       = thread_id_;
+            execute_from_file.n_blocks        = 1;
+            execute_from_file.offset          = offset;
+            execute_from_file.filename_length = asset_file_stream_->GetFilename().length();
 
-            skipped_bytes += image_wrapper->size;
-
-            asset_file_offsets_[image_wrapper->handle_id] = offset;
-
-            output_stream_->Write(&load_asset_cmd, sizeof(load_asset_cmd));
+            output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
+            output_stream_->Write(asset_file_stream_->GetFilename().c_str(),
+                                  asset_file_stream_->GetFilename().length());
         }
     }
 }
@@ -2008,11 +1981,6 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
 
     auto started = std::chrono::high_resolution_clock::now();
 
-    size_t buffer_bytes_dumped  = 0;
-    size_t buffer_bytes_skipped = 0;
-    size_t image_bytes_dumped   = 0;
-    size_t image_bytes_skipped  = 0;
-
     WriteBufferMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size);
     WriteImageMemoryState(state_table, &resources, &max_resource_size, &max_staging_copy_size);
 
@@ -2052,16 +2020,8 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
 
             for (const auto& queue_family_entry : resource_entry.second)
             {
-                ProcessBufferMemory(device_wrapper,
-                                    queue_family_entry.second.buffers,
-                                    resource_util,
-                                    buffer_bytes_dumped,
-                                    buffer_bytes_skipped);
-                ProcessImageMemory(device_wrapper,
-                                   queue_family_entry.second.images,
-                                   resource_util,
-                                   image_bytes_dumped,
-                                   image_bytes_skipped);
+                ProcessBufferMemory(device_wrapper, queue_family_entry.second.buffers, resource_util);
+                ProcessImageMemory(device_wrapper, queue_family_entry.second.images, resource_util);
             }
 
             format::EndResourceInitCommand end_cmd;
@@ -2086,10 +2046,6 @@ void VulkanStateWriter::WriteResourceMemoryState(const VulkanStateTable& state_t
 
     GFXRECON_WRITE_CONSOLE("--------------------------------------")
     GFXRECON_WRITE_CONSOLE("%s()", __func__)
-    GFXRECON_WRITE_CONSOLE("  buffer_bytes_dumped: %zu", buffer_bytes_dumped);
-    GFXRECON_WRITE_CONSOLE("  buffer_bytes_skipped: %zu", buffer_bytes_skipped);
-    GFXRECON_WRITE_CONSOLE("  image_bytes_dumped: %zu", image_bytes_dumped);
-    GFXRECON_WRITE_CONSOLE("  image_bytes_skipped: %zu", image_bytes_skipped);
     GFXRECON_WRITE_CONSOLE("  saved in %u ms", time);
     GFXRECON_WRITE_CONSOLE("--------------------------------------")
 }
