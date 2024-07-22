@@ -1952,7 +1952,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         if (OpenFile(asset_filename))
         {
             SetActiveFile(asset_filename, exec_from_file.offset, util::platform::FileSeekSet);
-            file_stack.top().remaining_commands = 2;
+            file_stack.top().remaining_commands = exec_from_file.n_blocks + 1;
         }
     }
     else
