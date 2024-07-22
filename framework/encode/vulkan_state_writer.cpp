@@ -855,7 +855,21 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
             // Create a temporary object on first encounter.
             if (dep_inserted.second)
             {
-                WriteFunctionCall(wrapper->set_layout_dependency.create_call_id, dep_create_parameters);
+                if (wrapper->dirty)
+                {
+                    const int64_t offset                    = asset_file_stream_->GetOffset();
+                    asset_file_offsets_[wrapper->handle_id] = offset;
+                    WriteFunctionCall(
+                        wrapper->set_layout_dependency.create_call_id, dep_create_parameters, asset_file_stream_);
+                    WriteExecuteFromFile(1, offset);
+                }
+                else
+                {
+                    assert(asset_file_offsets_.find(wrapper->handle_id) != asset_file_offsets_.end());
+
+                    const int64_t offset = asset_file_offsets_[wrapper->handle_id];
+                    WriteExecuteFromFile(1, offset);
+                }
             }
         }
     });
@@ -863,75 +877,106 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
     state_table.VisitWrappers([&](vulkan_wrappers::DescriptorSetWrapper* wrapper) {
         assert(wrapper != nullptr);
 
-        // if (wrapper->dirty)
+        uint32_t n_blocks = 0;
+        int64_t  offset;
+        if (wrapper->dirty)
         {
-            wrapper->dirty = false;
+            offset = asset_file_stream_->GetOffset();
+        }
+        else
+        {
+            assert(asset_file_offsets_.find(wrapper->handle_id) != asset_file_offsets_.end());
+            offset = asset_file_offsets_[wrapper->handle_id];
+        }
 
-            // Filter duplicate calls to vkAllocateDescriptorSets for descriptor sets that were allocated by the same
-            // API call and reference the same parameter buffer.
-            if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        // Filter duplicate calls to vkAllocateDescriptorSets for descriptor sets that were allocated by the same
+        // API call and reference the same parameter buffer.
+        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        {
+            processed.insert(wrapper->create_parameters.get());
+            if (wrapper->dirty)
             {
                 // Write descriptor set creation call and add the parameter buffer to the processed set.
-                WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
-                processed.insert(wrapper->create_parameters.get());
+                WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get(), asset_file_stream_);
             }
 
-            VkWriteDescriptorSet write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
-            write.dstSet               = wrapper->handle;
+            ++n_blocks;
+        }
 
-            for (const auto& binding_entry : wrapper->bindings)
+        VkWriteDescriptorSet write = { VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET };
+        write.dstSet               = wrapper->handle;
+
+        for (const auto& binding_entry : wrapper->bindings)
+        {
+            const vulkan_state_info::DescriptorInfo* binding = &binding_entry.second;
+            bool                                     active  = false;
+
+            write.dstBinding = binding_entry.first;
+
+            for (uint32_t i = 0; i < binding->count; ++i)
             {
-                const vulkan_state_info::DescriptorInfo* binding = &binding_entry.second;
-                bool                                     active  = false;
+                VkDescriptorType descriptor_type;
+                bool             write_descriptor = CheckDescriptorStatus(binding, i, state_table, &descriptor_type);
 
-                write.dstBinding = binding_entry.first;
-
-                for (uint32_t i = 0; i < binding->count; ++i)
+                if (active != write_descriptor)
                 {
-                    VkDescriptorType descriptor_type;
-                    bool write_descriptor = CheckDescriptorStatus(binding, i, state_table, &descriptor_type);
-
-                    if (active != write_descriptor)
+                    if (!active)
                     {
-                        if (!active)
-                        {
-                            // Start of an active descriptor write range.
-                            active                = true;
-                            write.dstArrayElement = i;
-                            write.descriptorType  = descriptor_type;
-                        }
-                        else
-                        {
-                            // End of an active descriptor write range.
-                            active                = false;
-                            write.descriptorCount = i - write.dstArrayElement;
-                            WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
-                        }
-                    }
-                    else if (active && (descriptor_type != write.descriptorType))
-                    {
-                        // Mutable descriptor type change within an active write range
-                        // End current range
-                        write.descriptorCount = i - write.dstArrayElement;
-                        WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
-                        // Start new range
-                        write.descriptorType  = descriptor_type;
+                        // Start of an active descriptor write range.
+                        active                = true;
                         write.dstArrayElement = i;
+                        write.descriptorType  = descriptor_type;
+                    }
+                    else
+                    {
+                        // End of an active descriptor write range.
+                        active                = false;
+                        write.descriptorCount = i - write.dstArrayElement;
+                        if (wrapper->dirty)
+                        {
+                            WriteDescriptorUpdateCommand(
+                                wrapper->device->handle_id, binding, &write, asset_file_stream_);
+                        }
+                        ++n_blocks;
                     }
                 }
-
-                // Process final range, when last item in array contained an active write.
-                if (active)
+                else if (active && (descriptor_type != write.descriptorType))
                 {
-                    write.descriptorCount = binding->count - write.dstArrayElement;
-                    WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write);
+                    // Mutable descriptor type change within an active write range
+                    // End current range
+                    write.descriptorCount = i - write.dstArrayElement;
+                    if (wrapper->dirty)
+                    {
+                        WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write, asset_file_stream_);
+                    }
+                    ++n_blocks;
+
+                    // Start new range
+                    write.descriptorType  = descriptor_type;
+                    write.dstArrayElement = i;
                 }
+            }
+
+            // Process final range, when last item in array contained an active write.
+            if (active)
+            {
+                write.descriptorCount = binding->count - write.dstArrayElement;
+
+                if (wrapper->dirty)
+                {
+                    WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write, asset_file_stream_);
+                }
+                ++n_blocks;
             }
         }
-        // else
-        // {
 
-        // }
+        WriteExecuteFromFile(n_blocks, offset);
+
+        if (wrapper->dirty)
+        {
+            wrapper->dirty                          = false;
+            asset_file_offsets_[wrapper->handle_id] = offset;
+        }
     });
 
     // Temporary object destruction.
@@ -2470,7 +2515,8 @@ void VulkanStateWriter::WriteCommandBufferCommands(const vulkan_wrappers::Comman
 
 void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId                         device_id,
                                                      const vulkan_state_info::DescriptorInfo* binding,
-                                                     VkWriteDescriptorSet*                    write)
+                                                     VkWriteDescriptorSet*                    write,
+                                                     util::FileOutputStream*                  output_stream)
 {
     assert((binding != nullptr) && (write != nullptr));
 
@@ -2549,7 +2595,7 @@ void VulkanStateWriter::WriteDescriptorUpdateCommand(format::HandleId           
     encoder_.EncodeUInt32Value(0);
     EncodeStructArray(&encoder_, copy, 0);
 
-    WriteFunctionCall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets, &parameter_stream_);
+    WriteFunctionCall(format::ApiCallId::ApiCall_vkUpdateDescriptorSets, &parameter_stream_, output_stream);
     parameter_stream_.Clear();
 }
 

@@ -240,7 +240,8 @@ class VulkanStateWriter
 
     void WriteDescriptorUpdateCommand(format::HandleId                         device_id,
                                       const vulkan_state_info::DescriptorInfo* binding,
-                                      VkWriteDescriptorSet*                    write);
+                                      VkWriteDescriptorSet*                    write,
+                                      util::FileOutputStream*                  output_stream = nullptr);
 
     void WriteQueryPoolReset(format::HandleId                                             device_id,
                              const std::vector<const vulkan_wrappers::QueryPoolWrapper*>& query_pool_wrappers);
