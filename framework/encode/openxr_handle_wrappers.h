@@ -89,6 +89,9 @@ struct InstanceWrapper : public HandleWrapper<XrInstance>
     std::vector<SystemIdWrapper*>               child_systemids;
     std::vector<PathWrapper*>                   child_paths;
     std::vector<DebugUtilsMessengerEXTWrapper*> child_debugutilsmessengers;
+
+    std::unordered_map<VkPhysicalDevice, VkInstance>          vkphysdev_vkinstance_map;
+    std::unordered_map<PFN_vkGetInstanceProcAddr, VkInstance> vkgipa_vkinstance_map;
 };
 
 struct SpaceWrapper;

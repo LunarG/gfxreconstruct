@@ -25,13 +25,13 @@
 #if ENABLE_OPENXR_SUPPORT
 
 #include "encode/custom_openxr_api_call_encoders.h"
-
 #include "encode/custom_openxr_encoder_commands.h"
 #include "encode/parameter_encoder.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/openxr_capture_manager.h"
 #include "encode/openxr_handle_wrapper_util.h"
 #include "encode/openxr_handle_wrappers.h"
+#include "encode/vulkan_capture_manager.h"
 #include "format/api_call_id.h"
 #include "format/platform_types.h"
 #include "generated/generated_openxr_struct_handle_wrappers.h"
@@ -42,6 +42,40 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+
+XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+
+    const XrFrameEndInfo* frameEndInfo_unwrapped;
+    {
+        auto call_lock = manager->AcquireCallLock();
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, session, frameEndInfo);
+
+        auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        frameEndInfo_unwrapped    = openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
+    }
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->EndFrame(session, frameEndInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEndFrame);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
+        EncodeStructPtr(encoder, frameEndInfo);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, result, session, frameEndInfo);
+
+    // End the frame
+    manager->EndFrame();
+
+    return result;
+}
 
 XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(const XrLoaderInitInfoBaseHeaderKHR* loader_init_info)
 {
@@ -88,36 +122,255 @@ XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(const XrLoaderInitInfoBaseH
     return result;
 }
 
-XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInfo* frameEndInfo)
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(XrInstance        instance,
+                                                            XrSystemId        systemId,
+                                                            VkInstance        vkInstance,
+                                                            VkPhysicalDevice* vkPhysicalDevice)
 {
+    bool omit_output_data = false;
+
     OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-
-    const XrFrameEndInfo* frameEndInfo_unwrapped;
     {
         auto call_lock = manager->AcquireCallLock();
-        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, session, frameEndInfo);
 
-        auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-        frameEndInfo_unwrapped    = openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::Dispatch(
+            manager, instance, systemId, vkInstance, vkPhysicalDevice);
     }
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->EndFrame(session, frameEndInfo_unwrapped);
+
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsDeviceKHR(
+        instance, systemId, vkInstance, vkPhysicalDevice);
 
     auto call_lock = manager->AcquireCallLock();
 
-    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEndFrame);
+    if (result >= 0)
+    {
+        // Only create a new handle if one doesn't already exist for this Vulkan physical device
+        if (format::kNullHandleId ==
+            vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(*vkPhysicalDevice))
+        {
+            auto instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
+            vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
+                                                 vulkan_wrappers::NoParentWrapper,
+                                                 vulkan_wrappers::PhysicalDeviceWrapper>(
+                vkInstance,
+                vulkan_wrappers::NoParentWrapper::kHandleValue,
+                vkPhysicalDevice,
+                VulkanCaptureManager::GetUniqueId);
+        }
+
+        // Record the instance based on the physical device returned
+        auto instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
+        instance_wrapper->vkphysdev_vkinstance_map[*vkPhysicalDevice] = vkInstance;
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR);
     if (encoder)
     {
-        encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
-        EncodeStructPtr(encoder, frameEndInfo);
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        encoder->EncodeOpenXrAtomValue<openxr_wrappers::SystemIdWrapper>(systemId);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::InstanceWrapper>(vkInstance);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::PhysicalDeviceWrapper>(vkPhysicalDevice, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, result, session, frameEndInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::Dispatch(
+        manager, result, instance, systemId, vkInstance, vkPhysicalDevice);
 
-    // End the frame
-    manager->EndFrame();
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance                           instance,
+                                                         const XrVulkanInstanceCreateInfoKHR* createInfo,
+                                                         VkInstance*                          vulkanInstance,
+                                                         VkResult*                            vulkanResult)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(
+            manager, instance, createInfo, vulkanInstance, vulkanResult);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateVulkanInstanceKHR(
+        instance, createInfo, vulkanInstance, vulkanResult);
+
+    auto call_lock = manager->AcquireCallLock();
+
+    if (result >= 0)
+    {
+        // Only create a new handle if one doesn't already exist for this Vulkan instance
+        if (format::kNullHandleId == vulkan_wrappers::GetWrappedId<vulkan_wrappers::InstanceWrapper>(*vulkanInstance))
+        {
+            vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::NoParentWrapper,
+                                                 vulkan_wrappers::NoParentWrapper,
+                                                 vulkan_wrappers::InstanceWrapper>(
+                vulkan_wrappers::NoParentWrapper::kHandleValue,
+                vulkan_wrappers::NoParentWrapper::kHandleValue,
+                vulkanInstance,
+                VulkanCaptureManager::GetUniqueId);
+        }
+
+        // Record the instance based on the gipa returned
+        auto instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
+        instance_wrapper->vkgipa_vkinstance_map[createInfo->pfnGetInstanceProcAddr] = *vulkanInstance;
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, createInfo);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::InstanceWrapper>(vulkanInstance, omit_output_data);
+        encoder->EncodeEnumPtr(vulkanResult, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<XrInstance, vulkan_wrappers::InstanceWrapper, XrVulkanInstanceCreateInfoKHR>(
+            result, instance, vulkanInstance, createInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::Dispatch(
+        manager, result, instance, createInfo, vulkanInstance, vulkanResult);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance                         instance,
+                                                       const XrVulkanDeviceCreateInfoKHR* createInfo,
+                                                       VkDevice*                          vulkanDevice,
+                                                       VkResult*                          vulkanResult)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory*                handle_unwrap_memory = nullptr;
+    const XrVulkanDeviceCreateInfoKHR* createInfo_unwrapped = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(
+            manager, instance, createInfo, vulkanDevice, vulkanResult);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateVulkanDeviceKHR(
+        instance, createInfo_unwrapped, vulkanDevice, vulkanResult);
+
+    auto call_lock = manager->AcquireCallLock();
+
+    if (result >= 0)
+    {
+        // Record the instance based on the gipa returned
+        auto       instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
+        VkInstance vulkanInstance   = instance_wrapper->vkgipa_vkinstance_map[createInfo->pfnGetInstanceProcAddr];
+
+        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
+                                             vulkan_wrappers::NoParentWrapper,
+                                             vulkan_wrappers::DeviceWrapper>(
+            vulkanInstance,
+            vulkan_wrappers::NoParentWrapper::kHandleValue,
+            vulkanDevice,
+            VulkanCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, createInfo);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::DeviceWrapper>(vulkanDevice, omit_output_data);
+        encoder->EncodeEnumPtr(vulkanResult, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<XrInstance, vulkan_wrappers::DeviceWrapper, XrVulkanDeviceCreateInfoKHR>(
+            result, instance, vulkanDevice, createInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(
+        manager, result, instance, createInfo, vulkanDevice, vulkanResult);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance                              instance,
+                                                             const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,
+                                                             VkPhysicalDevice* vulkanPhysicalDevice)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory*                     handle_unwrap_memory = nullptr;
+    const XrVulkanGraphicsDeviceGetInfoKHR* getInfo_unwrapped    = nullptr;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::Dispatch(
+            manager, instance, getInfo, vulkanPhysicalDevice);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped    = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsDevice2KHR(
+        instance, getInfo_unwrapped, vulkanPhysicalDevice);
+
+    auto call_lock = manager->AcquireCallLock();
+
+    if (result >= 0)
+    {
+        // Only create a new handle if one doesn't already exist for this Vulkan physical device
+        if (format::kNullHandleId ==
+            vulkan_wrappers::GetWrappedId<vulkan_wrappers::PhysicalDeviceWrapper>(*vulkanPhysicalDevice))
+        {
+            vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::InstanceWrapper,
+                                                 vulkan_wrappers::NoParentWrapper,
+                                                 vulkan_wrappers::PhysicalDeviceWrapper>(
+                getInfo->vulkanInstance,
+                vulkan_wrappers::NoParentWrapper::kHandleValue,
+                vulkanPhysicalDevice,
+                VulkanCaptureManager::GetUniqueId);
+        }
+
+        // Record the instance based on the physical device returned
+        auto instance_wrapper = openxr_wrappers::GetWrapper<openxr_wrappers::InstanceWrapper>(instance);
+        instance_wrapper->vkphysdev_vkinstance_map[*vulkanPhysicalDevice] = getInfo->vulkanInstance;
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, getInfo);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::PhysicalDeviceWrapper>(vulkanPhysicalDevice, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::Dispatch(
+        manager, result, instance, getInfo, vulkanPhysicalDevice);
 
     return result;
 }

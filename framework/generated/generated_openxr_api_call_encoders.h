@@ -330,12 +330,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanDeviceExtensionsKHR(
     uint32_t*                                   bufferCountOutput,
     char*                                       buffer);
 
-XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(
-    XrInstance                                  instance,
-    XrSystemId                                  systemId,
-    VkInstance                                  vkInstance,
-    VkPhysicalDevice*                           vkPhysicalDevice);
-
 XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirementsKHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
@@ -378,23 +372,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     XrTime                                      time,
     struct timespec*                            timespecTime);
 
-
-XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(
-    XrInstance                                  instance,
-    const XrVulkanInstanceCreateInfoKHR*        createInfo,
-    VkInstance*                                 vulkanInstance,
-    VkResult*                                   vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(
-    XrInstance                                  instance,
-    const XrVulkanDeviceCreateInfoKHR*          createInfo,
-    VkDevice*                                   vulkanDevice,
-    VkResult*                                   vulkanResult);
-
-XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(
-    XrInstance                                  instance,
-    const XrVulkanGraphicsDeviceGetInfoKHR*     getInfo,
-    VkPhysicalDevice*                           vulkanPhysicalDevice);
 
 XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
     XrInstance                                  instance,
