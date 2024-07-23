@@ -1392,7 +1392,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
             if (snapshot_entry.need_staging_copy)
             {
                 VkResult result = resource_util.ReadFromBufferResource(
-                    buffer_wrapper->handle, buffer_wrapper->created_size, 0, buffer_wrapper->queue_family_index, data);
+                    buffer_wrapper->handle, buffer_wrapper->size, 0, buffer_wrapper->queue_family_index, data);
 
                 if (result == VK_SUCCESS)
                 {
@@ -1411,7 +1411,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                     result        = device_table->MapMemory(device_wrapper->handle,
                                                      memory_wrapper->handle,
                                                      buffer_wrapper->bind_offset,
-                                                     buffer_wrapper->created_size,
+                                                     buffer_wrapper->size,
                                                      0,
                                                      &map_ptr);
 
@@ -1430,7 +1430,7 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
                     InvalidateMappedMemoryRange(device_wrapper,
                                                 memory_wrapper->handle,
                                                 buffer_wrapper->bind_offset,
-                                                buffer_wrapper->created_size);
+                                                buffer_wrapper->size);
                 }
             }
 
@@ -1438,9 +1438,9 @@ void VulkanStateWriter::ProcessBufferMemory(const vulkan_wrappers::DeviceWrapper
 
             if (bytes != nullptr)
             {
-                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, buffer_wrapper->created_size);
+                GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, buffer_wrapper->size);
 
-                size_t                          data_size = static_cast<size_t>(buffer_wrapper->created_size);
+                size_t                          data_size = static_cast<size_t>(buffer_wrapper->size);
                 format::InitBufferCommandHeader upload_cmd;
 
                 upload_cmd.meta_header.block_header.type = format::kMetaDataBlock;
@@ -1761,14 +1761,14 @@ void VulkanStateWriter::WriteBufferMemoryState(const VulkanStateTable& state_tab
             snapshot_info.memory_properties = GetMemoryProperties(device_wrapper, memory_wrapper);
             snapshot_info.need_staging_copy = !IsBufferReadable(snapshot_info.memory_properties, memory_wrapper);
 
-            if ((*max_resource_size) < wrapper->created_size)
+            if ((*max_resource_size) < wrapper->size)
             {
-                (*max_resource_size) = wrapper->created_size;
+                (*max_resource_size) = wrapper->size;
             }
 
-            if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->created_size))
+            if (snapshot_info.need_staging_copy && ((*max_staging_copy_size) < wrapper->size))
             {
-                (*max_staging_copy_size) = wrapper->created_size;
+                (*max_staging_copy_size) = wrapper->size;
             }
 
             snapshot_entry.buffers.emplace_back(snapshot_info);

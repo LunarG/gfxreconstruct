@@ -1371,14 +1371,13 @@ const void* PageGuardManager::GetMappedMemory(uint64_t memory_id) const
 }
 
 void PageGuardManager::GetModifiedMemoryRegions(
-    std::unordered_map<uint64_t, PageStatusTracker::PageStatus>& memories_page_status)
+    std::unordered_map<uint64_t, PageStatusTracker::PageStatus&>& memories_page_status)
 {
     memories_page_status.clear();
 
     for (auto& entry : memory_info_)
     {
-        auto new_entry = memories_page_status.emplace(entry.first, PageStatusTracker::PageStatus());
-        entry.second.status_tracker.GetActiveWrites(new_entry.first->second);
+        auto new_entry = memories_page_status.emplace(entry.first, entry.second.status_tracker.GetActiveWrites());
     }
 }
 

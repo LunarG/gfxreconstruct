@@ -608,7 +608,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->created_size = create_info->size;
+    wrapper->size = create_info->size;
+    wrapper->size = create_info->size;
 
     // TODO: Do we need to track the queue family that the buffer is actually used with?
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))

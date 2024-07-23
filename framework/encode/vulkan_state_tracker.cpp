@@ -28,6 +28,7 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_track_struct.h"
 #include "graphics/vulkan_struct_get_pnext.h"
+#include "util/logging.h"
 #include "util/platform.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
 #include "vulkan/vulkan_core.h"
@@ -371,7 +372,7 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
     vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert(mem_wrapper != nullptr);
-    mem_wrapper->bound_assets.buffers.push_back(wrapper);
+    mem_wrapper->bound_assets.emplace(memoryOffset, wrapper);
 
     if (bind_info_pnext != nullptr)
     {
@@ -440,7 +441,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert(mem_wrapper != nullptr);
-    mem_wrapper->bound_assets.images.push_back(wrapper);
+    mem_wrapper->bound_assets.emplace(memoryOffset, wrapper);
 
     if (bind_info_pnext != nullptr)
     {
@@ -892,8 +893,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                 }
             }
         }
-
-
     }
 
     if (copies != nullptr)
@@ -2336,14 +2335,17 @@ void VulkanStateTracker::TrackCmdClearDepthStencilImage(VkCommandBuffer         
 
 void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
 {
+    util::PageGuardManager* manager = util::PageGuardManager::Get();
+    if (manager == nullptr)
+    {
+        return;
+    }
+
     vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
     assert(cmd_buf_wrapper != nullptr);
 
-    util::PageGuardManager* manager = util::PageGuardManager::Get();
-    assert(manager != nullptr);
-
-    std::unordered_map<uint64_t, util::PageStatusTracker::PageStatus> memories_page_status;
+    std::unordered_map<uint64_t, util::PageStatusTracker::PageStatus&> memories_page_status;
     manager->GetModifiedMemoryRegions(memories_page_status);
     const size_t page_size = util::platform::GetSystemPageSize();
 
@@ -2352,55 +2354,24 @@ void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
         vulkan_wrappers::DeviceMemoryWrapper* dev_mem_wrapper = state_table_.GetDeviceMemoryWrapper(entry.first);
         assert(dev_mem_wrapper != nullptr);
 
-        size_t page = 0;
-        for (auto img : dev_mem_wrapper->bound_assets.images)
+        for (auto& asset : dev_mem_wrapper->bound_assets)
         {
-            if (img->is_swapchain_image)
+            if (asset.second->dirty || !asset.second->size)
             {
                 continue;
             }
 
-            for (; page < entry.second.size(); ++page)
+            const size_t first_page = asset.first / page_size;
+            const size_t last_page  = (asset.first + asset.second->size - 1) / page_size;
+
+            assert(first_page <= last_page);
+            assert(first_page <= entry.second.size());
+
+            for (size_t page = first_page; page < entry.second.size() && page <= last_page; ++page)
             {
-                if (!entry.second[page])
+                if (entry.second[page])
                 {
-                    continue;
-                }
-
-                const size_t page_offset_start = page * page_size;
-                const size_t page_offset_end   = (page + 1) * page_size;
-
-                if ((img->bind_offset >= page_offset_start && img->bind_offset <= page_offset_end) ||
-                    ((img->bind_offset + img->size) >= page_offset_start &&
-                     (img->bind_offset + img->size) <= page_offset_end) ||
-                    (img->bind_offset <= page_offset_start && (img->bind_offset + img->size) >= page_offset_end))
-                {
-                    cmd_buf_wrapper->modified_assets.images.push_back(img);
-                    break;
-                }
-            }
-        }
-
-        page = 0;
-        for (auto buf : dev_mem_wrapper->bound_assets.buffers)
-        {
-            for (; page < entry.second.size(); ++page)
-            {
-                if (!entry.second[page])
-                {
-                    continue;
-                }
-
-                const size_t page_offset_start = page * page_size;
-                const size_t page_offset_end   = (page + 1) * page_size;
-
-                if ((buf->bind_offset >= page_offset_start && buf->bind_offset <= page_offset_end) ||
-                    ((buf->bind_offset + buf->created_size) >= page_offset_start &&
-                     (buf->bind_offset + buf->created_size) <= page_offset_end) ||
-                    (buf->bind_offset <= page_offset_start &&
-                     (buf->bind_offset + buf->created_size) >= page_offset_end))
-                {
-                    cmd_buf_wrapper->modified_assets.buffers.push_back(buf);
+                    asset.second->dirty = true;
                     break;
                 }
             }
@@ -2703,6 +2674,38 @@ void VulkanStateTracker::MarkReferencedAssetsAsDirty(VkCommandBuffer commandBuff
     {
         assert(buf);
         buf->dirty = true;
+    }
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
+{
+    if (wrapper->bind_memory_id != format::kNullHandleId)
+    {
+        vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
+            state_table_.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
+        assert(mem_wrapper != nullptr);
+
+        auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
+        if (bind_entry != mem_wrapper->bound_assets.end())
+        {
+            mem_wrapper->bound_assets.erase(bind_entry);
+        }
+    }
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
+{
+    if (wrapper->bind_memory_id != format::kNullHandleId)
+    {
+        vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
+            state_table_.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
+        assert(mem_wrapper != nullptr);
+
+        auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
+        if (bind_entry != mem_wrapper->bound_assets.end())
+        {
+            mem_wrapper->bound_assets.erase(bind_entry);
+        }
     }
 }
 

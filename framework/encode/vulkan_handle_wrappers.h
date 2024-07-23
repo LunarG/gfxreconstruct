@@ -41,6 +41,7 @@
 #include <limits>
 #include <memory>
 #include <set>
+#include <map>
 #include <unordered_map>
 #include <vector>
 
@@ -165,7 +166,13 @@ struct EventWrapper : public HandleWrapper<VkEvent>
     DeviceWrapper* device{ nullptr };
 };
 
-struct BufferWrapper : public HandleWrapper<VkBuffer>
+struct AssetWrapperBase
+{
+    VkDeviceSize size{ 0 };
+    bool         dirty{ true };
+};
+
+struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 {
     DeviceWrapper*             bind_device{ nullptr };
     const void*                bind_pnext{ nullptr };
@@ -174,16 +181,13 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
-    VkDeviceSize     created_size{ 0 };
 
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
-
-    bool dirty{ true };
 };
 
-struct ImageWrapper : public HandleWrapper<VkImage>
+struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 {
     DeviceWrapper*             bind_device{ nullptr };
     const void*                bind_pnext{ nullptr };
@@ -202,9 +206,6 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
     bool                     is_swapchain_image{ false };
     std::set<VkSwapchainKHR> parent_swapchains;
-
-    bool   dirty{ true };
-    size_t size;
 };
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
@@ -230,11 +231,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
 
-    struct
-    {
-        std::vector<ImageWrapper*>  images;
-        std::vector<BufferWrapper*> buffers;
-    } bound_assets;
+    std::map<VkDeviceSize, AssetWrapperBase*> bound_assets;
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
