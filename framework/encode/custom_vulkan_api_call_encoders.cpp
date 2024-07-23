@@ -270,7 +270,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(VkCommandBuffer  
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR>::Dispatch(
         manager, commandBuffer, descriptorUpdateTemplate, layout, set, pData);
 
-    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
+    auto encoder =
+        manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplateKHR);
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
@@ -310,7 +311,8 @@ VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplate2KHR(
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>::Dispatch(
         manager, commandBuffer, pPushDescriptorSetWithTemplateInfo);
 
-    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
+    auto encoder =
+        manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR);
     if (encoder)
     {
         encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
