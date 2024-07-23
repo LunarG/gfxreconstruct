@@ -417,7 +417,7 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     {
         std::vector<ImageWrapper*>  images;
         std::vector<BufferWrapper*> buffers;
-    } referenced_assets;
+    } modified_assets;
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
