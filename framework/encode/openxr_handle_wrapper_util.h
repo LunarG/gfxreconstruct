@@ -137,7 +137,7 @@ Wrapper* GetAtomWrapper(const typename Wrapper::HandleType& handle)
 }
 
 template <typename Wrapper>
-bool RemoveWrapper(const Wrapper* wrapper)
+bool RemoveWrapper(Wrapper* wrapper)
 {
     return openxr_state_handle_table_.RemoveWrapper(wrapper);
 }
@@ -523,6 +523,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, SessionWrapper
 
         wrapper                  = GetWrapper<SessionWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_sessions.push_back(wrapper);
     }
 }
@@ -556,6 +557,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, ActionSetWrapp
 
         wrapper                  = GetWrapper<ActionSetWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_actionsets.push_back(wrapper);
     }
 }
@@ -589,6 +591,7 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, DebugUtilsMess
 
         wrapper                  = GetWrapper<DebugUtilsMessengerEXTWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_debugutilsmessengers.push_back(wrapper);
     }
 }
@@ -679,6 +682,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceWrapper>(
 
         wrapper                  = GetWrapper<SpaceWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_spaces.push_back(wrapper);
     }
 }
@@ -712,6 +716,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SwapchainWrappe
 
         wrapper                  = GetWrapper<SwapchainWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_swapchains.push_back(wrapper);
     }
 }
@@ -745,6 +750,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughFBWr
 
         wrapper                  = GetWrapper<PassthroughFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_passthroughfbs.push_back(wrapper);
     }
 }
@@ -778,6 +784,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialAnchorMS
 
         wrapper                  = GetWrapper<SpatialAnchorMSFTWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_spatialanchormsfts.push_back(wrapper);
     }
 }
@@ -811,6 +818,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialGraphNod
 
         wrapper                  = GetWrapper<SpatialGraphNodeBindingMSFTWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_spatialgraphnodebindingmsfts.push_back(wrapper);
     }
 }
@@ -844,6 +852,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, HandTrackerEXTW
 
         wrapper                  = GetWrapper<HandTrackerEXTWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_handtrackerexts.push_back(wrapper);
     }
 }
@@ -877,6 +886,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, BodyTrackerFBWr
 
         wrapper                  = GetWrapper<BodyTrackerFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_bodytrackerfbs.push_back(wrapper);
     }
 }
@@ -910,6 +920,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SceneObserverMS
 
         wrapper                  = GetWrapper<SceneObserverMSFTWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_sceneobservermsfts.push_back(wrapper);
     }
 }
@@ -943,6 +954,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FacialTrackerHT
 
         wrapper                  = GetWrapper<FacialTrackerHTCWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_facialtrackerhtcs.push_back(wrapper);
     }
 }
@@ -976,6 +988,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FoveationProfil
 
         wrapper                  = GetWrapper<FoveationProfileFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_foveationprofilefbs.push_back(wrapper);
     }
 }
@@ -1009,6 +1022,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, TriangleMeshFBW
 
         wrapper                  = GetWrapper<TriangleMeshFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_trianglemeshfbs.push_back(wrapper);
     }
 }
@@ -1042,6 +1056,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughHTCW
 
         wrapper                  = GetWrapper<PassthroughHTCWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_passthroughhtcs.push_back(wrapper);
     }
 }
@@ -1075,6 +1090,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PassthroughLaye
 
         wrapper                  = GetWrapper<PassthroughLayerFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_passthroughlayerfbs.push_back(wrapper);
     }
 }
@@ -1108,6 +1124,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, GeometryInstanc
 
         wrapper                  = GetWrapper<GeometryInstanceFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_geometryinstancefbs.push_back(wrapper);
     }
 }
@@ -1141,6 +1158,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, MarkerDetectorM
 
         wrapper                  = GetWrapper<MarkerDetectorMLWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_markerdetectormls.push_back(wrapper);
     }
 }
@@ -1174,6 +1192,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, ExportedLocaliz
 
         wrapper                  = GetWrapper<ExportedLocalizationMapMLWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_exportedlocalizationmapmls.push_back(wrapper);
     }
 }
@@ -1207,6 +1226,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpatialAnchorSt
 
         wrapper                  = GetWrapper<SpatialAnchorStoreConnectionMSFTWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_spatialanchorstoreconnmsfts.push_back(wrapper);
     }
 }
@@ -1240,6 +1260,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, SpaceUserFBWrap
 
         wrapper                  = GetWrapper<SpaceUserFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_spaceuserfbs.push_back(wrapper);
     }
 }
@@ -1273,6 +1294,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FaceTrackerFBWr
 
         wrapper                  = GetWrapper<FaceTrackerFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_facetrackerfbs.push_back(wrapper);
     }
 }
@@ -1306,6 +1328,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, EyeTrackerFBWra
 
         wrapper                  = GetWrapper<EyeTrackerFBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_eyetrackerfbs.push_back(wrapper);
     }
 }
@@ -1339,6 +1362,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, VirtualKeyboard
 
         wrapper                  = GetWrapper<VirtualKeyboardMETAWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_virtualkeyboardmetas.push_back(wrapper);
     }
 }
@@ -1372,6 +1396,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, FaceTracker2FBW
 
         wrapper                  = GetWrapper<FaceTracker2FBWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_facetracker2fbs.push_back(wrapper);
     }
 }
@@ -1405,6 +1430,7 @@ inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, PlaneDetectorEX
 
         wrapper                  = GetWrapper<PlaneDetectorEXTWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_planedetectorexts.push_back(wrapper);
     }
 }
@@ -1434,7 +1460,8 @@ inline void CreateWrappedAtom<SessionWrapper, AsyncRequestIdFBWrapper>(XrSession
     {
         CreateWrappedAtom<AsyncRequestIdFBWrapper>(handle, get_id);
 
-        wrapper = GetAtomWrapper<AsyncRequestIdFBWrapper>(*handle);
+        wrapper                 = GetAtomWrapper<AsyncRequestIdFBWrapper>(*handle);
+        wrapper->parent_wrapper = parent_wrapper;
         parent_wrapper->child_asyncreqidfbs.push_back(wrapper);
     }
 }
@@ -1464,7 +1491,8 @@ inline void CreateWrappedAtom<SessionWrapper, RenderModelKeyFBWrapper>(XrSession
     {
         CreateWrappedAtom<RenderModelKeyFBWrapper>(handle, get_id);
 
-        wrapper = GetAtomWrapper<RenderModelKeyFBWrapper>(*handle);
+        wrapper                 = GetAtomWrapper<RenderModelKeyFBWrapper>(*handle);
+        wrapper->parent_wrapper = parent_wrapper;
         parent_wrapper->child_rendermodelkeyfbs.push_back(wrapper);
     }
 }
@@ -1494,7 +1522,8 @@ inline void CreateWrappedAtom<MarkerDetectorMLWrapper, MarkerMLWrapper>(XrMarker
     {
         CreateWrappedAtom<MarkerMLWrapper>(handle, get_id);
 
-        wrapper = GetAtomWrapper<MarkerMLWrapper>(*handle);
+        wrapper                 = GetAtomWrapper<MarkerMLWrapper>(*handle);
+        wrapper->parent_wrapper = parent_wrapper;
         parent_wrapper->child_markers.push_back(wrapper);
     }
 }
@@ -1524,7 +1553,8 @@ inline void CreateWrappedAtom<SessionWrapper, ControllerModelKeyMSFTWrapper>(XrS
     {
         CreateWrappedAtom<ControllerModelKeyMSFTWrapper>(handle, get_id);
 
-        wrapper = GetAtomWrapper<ControllerModelKeyMSFTWrapper>(*handle);
+        wrapper                 = GetAtomWrapper<ControllerModelKeyMSFTWrapper>(*handle);
+        wrapper->parent_wrapper = parent_wrapper;
         parent_wrapper->child_controllermodelkeymsfts.push_back(wrapper);
     }
 }
@@ -1558,6 +1588,7 @@ inline void CreateWrappedHandle<ActionSetWrapper, NoParentWrapper, ActionWrapper
 
         wrapper                  = GetWrapper<ActionWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_actions.push_back(wrapper);
     }
 }
@@ -1591,6 +1622,7 @@ inline void CreateWrappedHandle<SceneObserverMSFTWrapper, NoParentWrapper, Scene
 
         wrapper                  = GetWrapper<SceneMSFTWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_scenemsfts.push_back(wrapper);
     }
 }
@@ -1624,6 +1656,7 @@ inline void CreateWrappedHandle<PassthroughFBWrapper, NoParentWrapper, Passthrou
 
         wrapper                  = GetWrapper<PassthroughColorLutMETAWrapper>(*handle);
         wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
         parent_wrapper->child_passthroughcolorlutmetas.push_back(wrapper);
     }
 }
@@ -1665,6 +1698,7 @@ void DestroyWrappedHandle(typename Wrapper::HandleType handle)
     if (handle != XR_NULL_HANDLE)
     {
         auto wrapper = GetWrapper<Wrapper>(handle);
+        wrapper->DeleteFromParent();
         RemoveWrapper<Wrapper>(wrapper);
         delete wrapper;
     }
