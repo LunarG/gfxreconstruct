@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.android.asset-pack'
 
 android {
     compileSdkVersion 33
@@ -29,5 +30,11 @@ android {
         cmake {
             path "CMakeLists.txt"
         }
+    }
+
+    sourceSets {
+       main {
+           assets.srcDirs = ['assets']
+       }
     }
 }
