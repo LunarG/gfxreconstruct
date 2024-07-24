@@ -81,7 +81,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>]");
-    GFXRECON_WRITE_CONSOLE("\t\t\t[--asset-file-path] [--pbis <index1,index2>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--asset-file-path]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
 #endif
@@ -164,6 +164,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tReplay may fail if the specified device is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
     GFXRECON_WRITE_CONSOLE("  --pbi-all\t\tPrint all block information.");
+    GFXRECON_WRITE_CONSOLE("  --asset-file-path\t\tProvide an alternative path for the asset file.");
     GFXRECON_WRITE_CONSOLE(
         "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
 #if defined(WIN32)
