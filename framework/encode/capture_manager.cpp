@@ -382,17 +382,6 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     {
         GFXRECON_ASSERT(trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kUnknown);
 
-        std::string asset_file_name = CreateAssetFilename(base_filename_);
-        asset_file_stream_          = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
-        WriteAssetFileHeader();
-
-        GFXRECON_WRITE_CONSOLE("asset_file_name: %s", asset_file_name.c_str())
-
-        if (!asset_file_stream_->IsValid())
-        {
-            asset_file_stream_ = nullptr;
-        }
-
         // Override default kModeWrite capture mode.
         trim_enabled_            = true;
         trim_boundary_           = trace_settings.trim_boundary;
@@ -957,8 +946,6 @@ std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_fi
         asset_filename += std::string("_asset_file");
     }
 
-    GFXRECON_WRITE_CONSOLE(" asset_filename: %s", asset_filename.c_str())
-
     return asset_filename;
 }
 
@@ -966,6 +953,25 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 {
     bool        success          = true;
     std::string capture_filename = base_filename;
+
+    if (trim_enabled_ && asset_file_stream_.get() == nullptr)
+    {
+        std::string asset_file_name = CreateAssetFilename(base_filename_);
+        if (timestamp_filename_)
+        {
+            asset_file_name = util::filepath::GenerateTimestampedFilename(asset_file_name);
+        }
+
+        asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
+        if (asset_file_stream_->IsValid())
+        {
+            WriteAssetFileHeader();
+        }
+        else
+        {
+            asset_file_stream_ = nullptr;
+        }
+    }
 
     if (timestamp_filename_)
     {
