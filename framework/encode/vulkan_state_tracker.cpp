@@ -372,7 +372,9 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
     vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert(mem_wrapper != nullptr);
+    mem_wrapper->asset_map_lock.lock();
     mem_wrapper->bound_assets.emplace(memoryOffset, wrapper);
+    mem_wrapper->asset_map_lock.unlock();
 
     if (bind_info_pnext != nullptr)
     {
@@ -441,7 +443,9 @@ void VulkanStateTracker::TrackImageMemoryBinding(
     vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert(mem_wrapper != nullptr);
+    mem_wrapper->asset_map_lock.lock();
     mem_wrapper->bound_assets.emplace(memoryOffset, wrapper);
+    mem_wrapper->asset_map_lock.unlock();
 
     if (bind_info_pnext != nullptr)
     {
@@ -1812,11 +1816,13 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
 
         if (mem_wrapper != nullptr)
         {
+            mem_wrapper->asset_map_lock.lock();
             auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
             if (bind_entry != mem_wrapper->bound_assets.end())
             {
                 mem_wrapper->bound_assets.erase(bind_entry);
             }
+            mem_wrapper->asset_map_lock.unlock();
         }
     }
 }
@@ -1830,11 +1836,13 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
 
         if (mem_wrapper != nullptr)
         {
+            mem_wrapper->asset_map_lock.lock();
             auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
             if (bind_entry != mem_wrapper->bound_assets.end())
             {
                 mem_wrapper->bound_assets.erase(bind_entry);
             }
+            mem_wrapper->asset_map_lock.unlock();
         }
     }
 }
@@ -2390,6 +2398,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
         vulkan_wrappers::DeviceMemoryWrapper* dev_mem_wrapper = state_table_.GetDeviceMemoryWrapper(entry.first);
         assert(dev_mem_wrapper != nullptr);
 
+        dev_mem_wrapper->asset_map_lock.lock();
         for (auto& asset : dev_mem_wrapper->bound_assets)
         {
             if (asset.second->dirty || !asset.second->size)
@@ -2412,6 +2421,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
                 }
             }
         }
+        dev_mem_wrapper->asset_map_lock.unlock();
     }
 }
 

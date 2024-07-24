@@ -226,6 +226,7 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     VkDeviceAddress  address{ 0 };
 
     std::map<VkDeviceSize, AssetWrapperBase*> bound_assets;
+    std::mutex                                asset_map_lock;
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
