@@ -84,9 +84,8 @@ bool FileProcessor::Initialize(const std::string& filename)
 
     if (success)
     {
-        main_filename = filename;
-        success       = SetActiveFile(filename);
-        success       = success && ProcessFileHeader();
+        success = SetActiveFile(filename);
+        success = success && ProcessFileHeader();
     }
     else
     {
@@ -197,8 +196,7 @@ bool FileProcessor::ProcessFileHeader()
 {
     bool success = false;
 
-    assert(active_files_.find(main_filename) != active_files_.end());
-    ActiveFiles& active_file = active_files_[main_filename];
+    ActiveFiles& active_file = active_files_[file_stack_.top().filename];
 
     if (ReadBytes(&active_file.file_header, sizeof(active_file.file_header)))
     {
@@ -256,17 +254,17 @@ bool FileProcessor::ProcessFileHeader()
 
 void FileProcessor::DecrementRemainingCommands()
 {
-    assert((!file_stack.top().remaining_commands && file_stack.size() == 1) ||
-           (file_stack.top().remaining_commands && file_stack.size() > 1));
+    assert((!file_stack_.top().remaining_commands && file_stack_.size() == 1) ||
+           (file_stack_.top().remaining_commands && file_stack_.size() > 1));
 
-    if (file_stack.size() > 1)
+    if (file_stack_.size() > 1)
     {
-        assert(file_stack.top().remaining_commands);
+        assert(file_stack_.top().remaining_commands);
 
-        --file_stack.top().remaining_commands;
-        if (file_stack.top().remaining_commands == 0)
+        --file_stack_.top().remaining_commands;
+        if (file_stack_.top().remaining_commands == 0)
         {
-            file_stack.pop();
+            file_stack_.pop();
         }
     }
 }
@@ -504,7 +502,7 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    auto file_entry = active_files_.find(file_stack.top().filename);
+    auto file_entry = active_files_.find(file_stack_.top().filename);
     assert(file_entry != active_files_.end());
 
     if (util::platform::FileRead(buffer, buffer_size, file_entry->second.fd))
@@ -517,7 +515,7 @@ bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 
 bool FileProcessor::SkipBytes(size_t skip_size)
 {
-    auto file_entry = active_files_.find(file_stack.top().filename);
+    auto file_entry = active_files_.find(file_stack_.top().filename);
     assert(file_entry != active_files_.end());
 
     bool success = util::platform::FileSeek(file_entry->second.fd, skip_size, util::platform::FileSeekCurrent);
@@ -533,7 +531,7 @@ bool FileProcessor::SkipBytes(size_t skip_size)
 
 bool FileProcessor::SeekActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin)
 {
-    auto file_entry = active_files_.find(file_stack.top().filename);
+    auto file_entry = active_files_.find(file_stack_.top().filename);
     assert(file_entry != active_files_.end());
 
     bool success = util::platform::FileSeek(file_entry->second.fd, offset, origin);
@@ -549,14 +547,14 @@ bool FileProcessor::SeekActiveFile(const std::string& filename, int64_t offset, 
 
 bool FileProcessor::SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin)
 {
-    return SeekActiveFile(file_stack.top().filename, offset, origin);
+    return SeekActiveFile(file_stack_.top().filename, offset, origin);
 }
 
 bool FileProcessor::SetActiveFile(const std::string& filename)
 {
     if (active_files_.find(filename) != active_files_.end())
     {
-        file_stack.emplace(filename);
+        file_stack_.emplace(filename);
         return true;
     }
     else
@@ -569,7 +567,7 @@ bool FileProcessor::SetActiveFile(const std::string& filename, int64_t offset, u
 {
     if (active_files_.find(filename) != active_files_.end())
     {
-        file_stack.emplace(filename);
+        file_stack_.emplace(filename);
         return SeekActiveFile(filename, offset, origin);
     }
     else
@@ -580,7 +578,7 @@ bool FileProcessor::SetActiveFile(const std::string& filename, int64_t offset, u
 
 void FileProcessor::HandleBlockReadError(Error error_code, const char* error_message)
 {
-    auto file_entry = active_files_.find(file_stack.top().filename);
+    auto file_entry = active_files_.find(file_stack_.top().filename);
     assert(file_entry != active_files_.end());
 
     // Report incomplete block at end of file as a warning, other I/O errors as an error.
@@ -1970,7 +1968,7 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
 
                 SetActiveFile(filename, exec_from_file.offset, util::platform::FileSeekSet);
                 // We need to add 1 because it will be decremented right after this function returns
-                file_stack.top().remaining_commands = exec_from_file.n_blocks + 1;
+                file_stack_.top().remaining_commands = exec_from_file.n_blocks + 1;
             }
         }
 

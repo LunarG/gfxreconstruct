@@ -96,7 +96,7 @@ class FileProcessor
 
     const format::FileHeader& GetFileHeader() const
     {
-        auto file_entry = active_files_.find(file_stack.top().filename);
+        auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
         return file_entry->second.file_header;
@@ -104,7 +104,7 @@ class FileProcessor
 
     const std::vector<format::FileOptionPair>& GetFileOptions() const
     {
-        auto file_entry = active_files_.find(file_stack.top().filename);
+        auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
         return file_entry->second.file_options;
@@ -114,7 +114,7 @@ class FileProcessor
 
     uint64_t GetNumBytesRead() const
     {
-        auto file_entry = active_files_.find(file_stack.top().filename);
+        auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
         return file_entry->second.bytes_read;
@@ -124,7 +124,7 @@ class FileProcessor
 
     bool EntireFileWasProcessed() const
     {
-        auto file_entry = active_files_.find(file_stack.top().filename);
+        auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
         return (feof(file_entry->second.fd) != 0);
@@ -139,10 +139,7 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
-    void OverrideAssetFilename(const std::string &new_filename)
-    {
-      override_asset_filename_ = new_filename;
-    }
+    void OverrideAssetFilename(const std::string& new_filename) { override_asset_filename_ = new_filename; }
 
   protected:
     bool ContinueDecoding();
@@ -186,7 +183,7 @@ class FileProcessor
   protected:
     FILE* GetFileDescriptor()
     {
-        auto file_entry = active_files_.find(file_stack.top().filename);
+        auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
         return file_entry->second.fd;
@@ -205,7 +202,7 @@ class FileProcessor
 
     bool IsFileHeaderValid() const
     {
-        auto file_entry = active_files_.find(file_stack.top().filename);
+        auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
         return (file_entry->second.file_header.fourcc == GFXRECON_FOURCC);
@@ -213,7 +210,7 @@ class FileProcessor
 
     bool IsFileValid() const
     {
-        auto file_entry = active_files_.find(file_stack.top().filename);
+        auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
         return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
@@ -257,7 +254,6 @@ class FileProcessor
     };
 
     std::unordered_map<std::string, ActiveFiles> active_files_;
-    std::string                                  main_filename;
 
     struct ActiveFileContext
     {
@@ -266,7 +262,7 @@ class FileProcessor
         std::string filename;
         uint32_t    remaining_commands{ 0 };
     };
-    std::stack<ActiveFileContext> file_stack;
+    std::stack<ActiveFileContext> file_stack_;
 
     std::string override_asset_filename_;
 };
