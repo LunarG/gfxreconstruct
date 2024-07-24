@@ -248,8 +248,45 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainCreateInfo& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageBaseHeader& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+        {
+            const XrSwapchainImageOpenGLKHR& child_value = reinterpret_cast<const XrSwapchainImageOpenGLKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+        {
+            const XrSwapchainImageOpenGLESKHR& child_value = reinterpret_cast<const XrSwapchainImageOpenGLESKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+        {
+            const XrSwapchainImageVulkanKHR& child_value = reinterpret_cast<const XrSwapchainImageVulkanKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+        {
+            const XrSwapchainImageD3D11KHR& child_value = reinterpret_cast<const XrSwapchainImageD3D11KHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+        {
+            const XrSwapchainImageD3D12KHR& child_value = reinterpret_cast<const XrSwapchainImageD3D12KHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageAcquireInfo& value)
@@ -301,10 +338,57 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFrameBeginInfo& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
-    encoder->EncodeFlags64Value(value.layerFlags);
-    encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(value.space);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+        {
+            const XrCompositionLayerProjection& child_value = reinterpret_cast<const XrCompositionLayerProjection&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_QUAD:
+        {
+            const XrCompositionLayerQuad& child_value = reinterpret_cast<const XrCompositionLayerQuad&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+        {
+            const XrCompositionLayerCubeKHR& child_value = reinterpret_cast<const XrCompositionLayerCubeKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+        {
+            const XrCompositionLayerCylinderKHR& child_value = reinterpret_cast<const XrCompositionLayerCylinderKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+        {
+            const XrCompositionLayerEquirectKHR& child_value = reinterpret_cast<const XrCompositionLayerEquirectKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+        {
+            const XrCompositionLayerEquirect2KHR& child_value = reinterpret_cast<const XrCompositionLayerEquirect2KHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+        {
+            const XrCompositionLayerPassthroughHTC& child_value = reinterpret_cast<const XrCompositionLayerPassthroughHTC&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrViewLocateInfo& value)
@@ -479,8 +563,33 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHapticActionInfo& value)
 
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticBaseHeader& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_HAPTIC_VIBRATION:
+        {
+            const XrHapticVibration& child_value = reinterpret_cast<const XrHapticVibration&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+        {
+            const XrHapticAmplitudeEnvelopeVibrationFB& child_value = reinterpret_cast<const XrHapticAmplitudeEnvelopeVibrationFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+        {
+            const XrHapticPcmVibrationFB& child_value = reinterpret_cast<const XrHapticPcmVibrationFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrOffset2Di& value)
@@ -541,8 +650,147 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerQuad& value
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataBaseHeader& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+        {
+            const XrEventDataEventsLost& child_value = reinterpret_cast<const XrEventDataEventsLost&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+        {
+            const XrEventDataInstanceLossPending& child_value = reinterpret_cast<const XrEventDataInstanceLossPending&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+        {
+            const XrEventDataSessionStateChanged& child_value = reinterpret_cast<const XrEventDataSessionStateChanged&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+        {
+            const XrEventDataReferenceSpaceChangePending& child_value = reinterpret_cast<const XrEventDataReferenceSpaceChangePending&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+        {
+            const XrEventDataInteractionProfileChanged& child_value = reinterpret_cast<const XrEventDataInteractionProfileChanged&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+        {
+            const XrEventDataVisibilityMaskChangedKHR& child_value = reinterpret_cast<const XrEventDataVisibilityMaskChangedKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+        {
+            const XrEventDataPerfSettingsEXT& child_value = reinterpret_cast<const XrEventDataPerfSettingsEXT&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+        {
+            const XrEventDataMainSessionVisibilityChangedEXTX& child_value = reinterpret_cast<const XrEventDataMainSessionVisibilityChangedEXTX&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+        {
+            const XrEventDataDisplayRefreshRateChangedFB& child_value = reinterpret_cast<const XrEventDataDisplayRefreshRateChangedFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+        {
+            const XrEventDataViveTrackerConnectedHTCX& child_value = reinterpret_cast<const XrEventDataViveTrackerConnectedHTCX&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+        {
+            const XrEventDataSpatialAnchorCreateCompleteFB& child_value = reinterpret_cast<const XrEventDataSpatialAnchorCreateCompleteFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+        {
+            const XrEventDataSpaceSetStatusCompleteFB& child_value = reinterpret_cast<const XrEventDataSpaceSetStatusCompleteFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+        {
+            const XrEventDataMarkerTrackingUpdateVARJO& child_value = reinterpret_cast<const XrEventDataMarkerTrackingUpdateVARJO&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+        {
+            const XrEventDataLocalizationChangedML& child_value = reinterpret_cast<const XrEventDataLocalizationChangedML&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+        {
+            const XrEventDataSpaceQueryResultsAvailableFB& child_value = reinterpret_cast<const XrEventDataSpaceQueryResultsAvailableFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+        {
+            const XrEventDataSpaceQueryCompleteFB& child_value = reinterpret_cast<const XrEventDataSpaceQueryCompleteFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+        {
+            const XrEventDataSpaceSaveCompleteFB& child_value = reinterpret_cast<const XrEventDataSpaceSaveCompleteFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+        {
+            const XrEventDataSpaceEraseCompleteFB& child_value = reinterpret_cast<const XrEventDataSpaceEraseCompleteFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+        {
+            const XrEventDataSpaceShareCompleteFB& child_value = reinterpret_cast<const XrEventDataSpaceShareCompleteFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+        {
+            const XrEventDataSpaceListSaveCompleteFB& child_value = reinterpret_cast<const XrEventDataSpaceListSaveCompleteFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+        {
+            const XrEventDataHeadsetFitChangedML& child_value = reinterpret_cast<const XrEventDataHeadsetFitChangedML&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+        {
+            const XrEventDataEyeCalibrationChangedML& child_value = reinterpret_cast<const XrEventDataEyeCalibrationChangedML&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataEventsLost& value)
@@ -901,8 +1149,21 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerColorScaleB
 
 void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+        {
+            const XrLoaderInitInfoAndroidKHR& child_value = reinterpret_cast<const XrLoaderInitInfoAndroidKHR&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoAndroidKHR& value)
@@ -938,8 +1199,27 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirect2KH
 
 void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHeaderKHR& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+        {
+            const XrInteractionProfileDpadBindingEXT& child_value = reinterpret_cast<const XrInteractionProfileDpadBindingEXT&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+        {
+            const XrInteractionProfileAnalogThresholdVALVE& child_value = reinterpret_cast<const XrInteractionProfileAnalogThresholdVALVE&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataPerfSettingsEXT& value)
@@ -1346,8 +1626,39 @@ void EncodeStruct(ParameterEncoder* encoder, const XrAndroidSurfaceSwapchainCrea
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateBaseHeaderFB& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+        {
+            const XrSwapchainStateFoveationFB& child_value = reinterpret_cast<const XrSwapchainStateFoveationFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+        {
+            const XrSwapchainStateAndroidSurfaceDimensionsFB& child_value = reinterpret_cast<const XrSwapchainStateAndroidSurfaceDimensionsFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+        {
+            const XrSwapchainStateSamplerOpenGLESFB& child_value = reinterpret_cast<const XrSwapchainStateSamplerOpenGLESFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+        {
+            const XrSwapchainStateSamplerVulkanFB& child_value = reinterpret_cast<const XrSwapchainStateSamplerVulkanFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerSecureContentFB& value)
@@ -2340,14 +2651,46 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSceneMarkerQRCodesMSFT& val
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceQueryInfoBaseHeaderFB& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_SPACE_QUERY_INFO_FB:
+        {
+            const XrSpaceQueryInfoFB& child_value = reinterpret_cast<const XrSpaceQueryInfoFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceFilterInfoBaseHeaderFB& value)
 {
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
+    // Cast and call the appropriate encoder based on the structure type
+    switch(value.type)
+    {
+        default:
+        {
+            GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", value.type);
+            break;
+        }
+        case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+        {
+            const XrSpaceUuidFilterInfoFB& child_value = reinterpret_cast<const XrSpaceUuidFilterInfoFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+        case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+        {
+            const XrSpaceComponentFilterInfoFB& child_value = reinterpret_cast<const XrSpaceComponentFilterInfoFB&>(value);
+            EncodeStruct(encoder, child_value);
+            break;
+        }
+    }
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceQueryInfoFB& value)
