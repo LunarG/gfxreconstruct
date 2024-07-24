@@ -43,6 +43,7 @@
 #include <set>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -168,20 +169,20 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 
 struct AssetWrapperBase
 {
-    VkDeviceSize size{ 0 };
-    bool         dirty{ true };
-};
-
-struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
-{
-    DeviceWrapper*             bind_device{ nullptr };
-    const void*                bind_pnext{ nullptr };
+    DeviceWrapper*     bind_device{ nullptr };
+    const void*        bind_pnext{ nullptr };
     std::unique_ptr<uint8_t[]> bind_pnext_memory;
 
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
 
+    VkDeviceSize size{ 0 };
+    bool         dirty{ true };
+};
+
+struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
+{
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
@@ -189,13 +190,6 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 
 struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 {
-    DeviceWrapper*             bind_device{ nullptr };
-    const void*                bind_pnext{ nullptr };
-    std::unique_ptr<uint8_t[]> bind_pnext_memory;
-
-    format::HandleId         bind_memory_id{ format::kNullHandleId };
-    VkDeviceSize             bind_offset{ 0 };
-    uint32_t                 queue_family_index{ 0 };
     VkImageType              image_type{ VK_IMAGE_TYPE_2D };
     VkFormat                 format{ VK_FORMAT_UNDEFINED };
     VkExtent3D               extent{ 0, 0, 0 };
@@ -410,11 +404,7 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
     std::unordered_map<uint32_t, const DescriptorSetWrapper*>
         bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
 
-    struct
-    {
-        std::vector<ImageWrapper*>  images;
-        std::vector<BufferWrapper*> buffers;
-    } modified_assets;
+    std::unordered_set<AssetWrapperBase*> modified_assets;
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
