@@ -139,6 +139,11 @@ class FileProcessor
         block_index_to_          = block_index_to;
     }
 
+    void OverrideAssetFilename(const std::string &new_filename)
+    {
+      override_asset_filename_ = new_filename;
+    }
+
   protected:
     bool ContinueDecoding();
 
@@ -262,6 +267,8 @@ class FileProcessor
         uint32_t    remaining_commands{ 0 };
     };
     std::stack<ActiveFileContext> file_stack;
+
+    std::string override_asset_filename_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

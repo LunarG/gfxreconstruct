@@ -1949,7 +1949,15 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             filename_c_str[exec_from_file.filename_length] = '\0';
 
-            const std::string filename = std::string(filename_c_str.data());
+            std::string filename;
+            if (override_asset_filename_.empty())
+            {
+                filename = std::string(filename_c_str.data());
+            }
+            else
+            {
+                filename = override_asset_filename_;
+            }
 
             success = OpenFile(filename);
             if (success)

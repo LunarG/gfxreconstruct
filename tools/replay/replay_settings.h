@@ -43,7 +43,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
-    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs";
+    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--asset-file-path";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -81,6 +81,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfs <status> | --skip-get-fence-status <status>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--sgfr <frame-ranges> | --skip-get-fence-ranges <frame-ranges>]");
     GFXRECON_WRITE_CONSOLE("\t\t\t[--pbi-all] [--pbis <index1,index2>]");
+    GFXRECON_WRITE_CONSOLE("\t\t\t[--asset-file-path] [--pbis <index1,index2>]");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("\t\t\t[--dump-resources <submit-index,command-index,drawcall-index>]");
 #endif

@@ -1809,12 +1809,14 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
     {
         vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
             state_table_.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
-        assert(mem_wrapper != nullptr);
 
-        auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
-        if (bind_entry != mem_wrapper->bound_assets.end())
+        if (mem_wrapper != nullptr)
         {
-            mem_wrapper->bound_assets.erase(bind_entry);
+            auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
+            if (bind_entry != mem_wrapper->bound_assets.end())
+            {
+                mem_wrapper->bound_assets.erase(bind_entry);
+            }
         }
     }
 }
@@ -1825,12 +1827,14 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
     {
         vulkan_wrappers::DeviceMemoryWrapper* mem_wrapper =
             state_table_.GetDeviceMemoryWrapper(wrapper->bind_memory_id);
-        assert(mem_wrapper != nullptr);
 
-        auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
-        if (bind_entry != mem_wrapper->bound_assets.end())
+        if (mem_wrapper != nullptr)
         {
-            mem_wrapper->bound_assets.erase(bind_entry);
+            auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
+            if (bind_entry != mem_wrapper->bound_assets.end())
+            {
+                mem_wrapper->bound_assets.erase(bind_entry);
+            }
         }
     }
 }

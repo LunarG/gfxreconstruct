@@ -232,6 +232,11 @@ int main(int argc, const char** argv)
                                                   vulkan_replay_options.block_index_from,
                                                   vulkan_replay_options.block_index_to);
 
+            if (!vulkan_replay_options.asset_file_path.empty())
+            {
+                file_processor->OverrideAssetFilename(vulkan_replay_options.asset_file_path);
+            }
+
 #if defined(D3D12_SUPPORT)
             gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);
             gfxrecon::decode::Dx12ReplayConsumer dx12_replay_consumer(application, dx_replay_options);

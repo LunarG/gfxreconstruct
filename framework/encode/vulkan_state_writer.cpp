@@ -192,6 +192,11 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     marker.marker_type = format::kEndMarker;
     output_stream_->Write(&marker, sizeof(marker));
 
+    if (asset_file_stream_)
+    {
+        asset_file_stream_->Flush();
+    }
+
     // For the EndMarker meta command
     ++blocks_written_;
 
