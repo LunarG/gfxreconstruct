@@ -258,9 +258,15 @@ class BaseDecoderBodyGenerator():
                             type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
                             type = type.upper()
                             switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                            if 'OPEN_GLESFB' in switch_type:
+                            if 'OPEN_GLES' in switch_type:
                                 type = switch_type
-                                switch_type = re.sub('OPEN_GLESFB', 'OPENGL_ES_FB', type)
+                                switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
+                            elif 'OPEN_GL' in switch_type:
+                                type = switch_type
+                                switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
+                            elif 'D3_D' in switch_type:
+                                type = switch_type
+                                switch_type = re.sub('D3_D', 'D3D', type)
 
                             main_body += f'             case {switch_type}:\n'
                             child_var = self.gen_child_var_name(child)

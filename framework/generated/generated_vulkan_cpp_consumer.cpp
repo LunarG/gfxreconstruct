@@ -10558,7 +10558,7 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV(
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements)
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");

@@ -106,6 +106,10 @@ class OpenXrStructDecodersBodyGenerator(
     def endFile(self):
         """Method override."""
         self.newline()
+        code = self.generate_struct_info()
+        write(code, file=self.outFile)
+
+        self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 

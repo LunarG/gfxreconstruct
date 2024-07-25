@@ -23,6 +23,7 @@
 import re
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from collections import OrderedDict
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
@@ -76,8 +77,9 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         self.flagsType = dict()
         self.flagsTypeAlias = dict()
         self.flagEnumBitsType = dict()
+
         self.cmd_names = []
-        self.cmd_info = dict()
+        self.cmd_info = OrderedDict()
 
         self.externalStructs = ['LARGE_INTEGER', 'LUID']
 
@@ -170,6 +172,11 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
             self.cmd_names.append(cmd)
             self.cmd_info[cmd] = self.feature_cmd_params[cmd]
 
+        for struct in self.get_filtered_struct_names():
+            self.all_structs.append(struct)
+            self.all_struct_members[struct] = self.feature_struct_members[
+                struct]
+
     def is_command_buffer_cmd(self, command):
         if 'vkCmd' in command:
             return True
@@ -224,9 +231,15 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                                 type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
                                 type = type.upper()
                                 switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                                if 'OPEN_GLESFB' in switch_type:
+                                if 'OPEN_GLES' in switch_type:
                                     type = switch_type
-                                    switch_type = re.sub('OPEN_GLESFB', 'OPENGL_ES_FB', type)
+                                    switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
+                                elif 'OPEN_GL' in switch_type:
+                                    type = switch_type
+                                    switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
+                                elif 'D3_D' in switch_type:
+                                    type = switch_type
+                                    switch_type = re.sub('D3_D', 'D3D', type)
                                 body += f'            case {switch_type}:\n'
                                 body += f'                FieldToJson(args["{value.name}"],\n'
                                 body += f'                            reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({value.name}),\n'

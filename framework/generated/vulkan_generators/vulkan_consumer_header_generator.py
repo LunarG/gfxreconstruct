@@ -22,6 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys
+from collections import OrderedDict
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
@@ -77,12 +78,19 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         BaseGenerator.__init__(
             self,
             process_cmds=True,
-            process_structs=False,
+            process_structs=True,
             feature_break=True,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
+
+        self.all_cmds = list(
+        ) # Set of all command names
+        self.all_cmd_params = OrderedDict(
+        )  # Map of all cmd parameters
+        self.all_struct_aliases = OrderedDict(
+        ) # Map of struct names to aliases
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -134,26 +142,9 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        write('};', file=self.outFile)
-        self.newline()
-        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
-        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
-
-        # Finish processing in superclass
-        BaseGenerator.endFile(self)
-
-    #
-    # Indicates that the current feature has C++ code to generate.
-    def need_feature_generation(self):
-        if self.feature_cmd_params:
-            return True
-        return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
         first = True
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
+        for cmd in self.all_cmds:
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 
@@ -173,3 +164,24 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
 
             write(cmddef, file=self.outFile)
             first = False
+
+        write('};', file=self.outFile)
+        self.newline()
+        write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
+        write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
+
+        # Finish processing in superclass
+        BaseGenerator.endFile(self)
+
+    #
+    # Indicates that the current feature has C++ code to generate.
+    def need_feature_generation(self):
+        if self.feature_cmd_params:
+            return True
+        return False
+
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        for cmd in self.get_filtered_cmd_names():
+            self.all_cmds.append(cmd)
+            self.all_cmd_params[cmd] = self.feature_cmd_params[cmd]

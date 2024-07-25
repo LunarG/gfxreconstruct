@@ -22,6 +22,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from collections import OrderedDict
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
 
@@ -65,8 +66,8 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
         BaseGenerator.__init__(
             self,
             process_cmds=True,
-            process_structs=False,
-            feature_break=True,
+            process_structs=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -101,6 +102,12 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
         self.flagsTypeAlias = dict()
         self.flagEnumBitsType = dict()
 
+        self.cmd_names = []
+        self.cmd_info = OrderedDict()
+        self.all_structs = list()         # List of all struct names
+        self.all_struct_members = OrderedDict()  # Map of all struct names to lists of per-member ValueInfo
+        self.all_struct_aliases = OrderedDict()  # Map of all struct aliases
+
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -122,6 +129,35 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        first = True
+        self.newline()
+        for cmd in self.cmd_names:
+            info = self.cmd_info[cmd]
+            return_type = info[0]
+            values = info[2]
+
+            cmddef = '' if first else '\n'
+            cmddef += self.make_consumer_func_decl(
+                return_type, 'VulkanExportJsonConsumer::Process_' + cmd, values
+            ) + '\n'
+            cmddef += format_cpp_code(
+                '''
+                {{
+                    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "{0}");
+                    const JsonOptions& json_options = GetJsonOptions();
+                '''.format(cmd)
+            )
+            cmddef += '\n'
+            cmddef += self.make_consumer_func_body(return_type, cmd, values)
+            cmddef += format_cpp_code(
+                '''
+                    WriteBlockEnd();
+                }
+            ''', 1
+            )
+            write(cmddef, file=self.outFile)
+            first = False
+
         body = format_cpp_code('''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
@@ -139,7 +175,6 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
 
         # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
         # of functions and structures not to generate code for. Once the feature is implemented, the following can be
@@ -148,31 +183,14 @@ class VulkanExportJsonConsumerBodyGenerator(BaseGenerator):
             self.APICALL_BLACKLIST.remove('vkCreateRayTracingPipelinesKHR')
 
         for cmd in self.get_filtered_cmd_names():
-            if not cmd in self.customImplementationRequired:
-                info = self.feature_cmd_params[cmd]
-                return_type = info[0]
-                values = info[2]
+            if cmd in self.customImplementationRequired:
+                continue
+            self.cmd_names.append(cmd)
+            self.cmd_info[cmd] = self.feature_cmd_params[cmd]
 
-                cmddef = '' if first else '\n'
-                cmddef += self.make_consumer_func_decl(
-                    return_type, 'VulkanExportJsonConsumer::Process_' + cmd, values
-                ) + '\n'
-                cmddef += format_cpp_code('''
-                    {{
-                        nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "{0}");
-                        const JsonOptions& json_options = GetJsonOptions();
-                    '''.format(cmd)
-                )
-                cmddef += '\n'
-                cmddef += self.make_consumer_func_body(
-                    return_type, cmd, values
-                )
-                cmddef += format_cpp_code('''
-                        WriteBlockEnd();
-                    }
-                ''', 1)
-                write(cmddef, file=self.outFile)
-                first = False
+        for struct in self.get_filtered_struct_names():
+            self.all_structs.append(struct)
+            self.all_struct_members[struct] = self.feature_struct_members[struct]
 
     def is_command_buffer_cmd(self, command):
         if 'vkCmd' in command:

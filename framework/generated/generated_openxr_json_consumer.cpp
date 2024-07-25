@@ -3734,7 +3734,7 @@ void OpenXrExportJsonConsumer::Process_xrGetDeviceSampleRateFB(
     XrResult                                    returnValue,
     format::HandleId                            session,
     StructPointerDecoder<Decoded_XrHapticActionInfo>* hapticActionInfo,
-    StructPointerDecoder<Decoded_XrDevicePcmSampleRateGetInfoFB>* deviceSampleRate)
+    StructPointerDecoder<Decoded_XrDevicePcmSampleRateStateFB>* deviceSampleRate)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrGetDeviceSampleRateFB");
     const JsonOptions& json_options = GetJsonOptions();

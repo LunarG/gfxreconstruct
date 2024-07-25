@@ -68,7 +68,7 @@ class VulkanDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         BaseGenerator.__init__(
             self,
             process_cmds=True,
-            process_structs=False,
+            process_structs=True,
             feature_break=False,
             err_file=err_file,
             warn_file=warn_file,

@@ -143,10 +143,13 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
     def generate_struct_bodies(self, feature_struct_members):
         """Performs C++ code generation for the feature."""
 
-        for struct in [ key for key in feature_struct_members if not self.is_struct_black_listed(key)]:
+        for struct in [
+            key for key in feature_struct_members
+            if not self.is_struct_black_listed(key)
+        ]:
             body = '\n'
             value_name = 'value'
-            value_ref  = value_name + '.'
+            value_ref = value_name + '.'
             body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& {})\n'.format(
                 struct, value_name
             )
@@ -156,7 +159,7 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
             else:
                 body += self.make_struct_body(
                     struct, feature_struct_members[struct], value_ref
-            )
+                )
             body += '}'
             write(body, file=self.outFile)
 
@@ -169,7 +172,6 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
         body += f'{indent}// Cast and call the appropriate encoder based on the structure type\n'
         body += f'{indent}switch({value}.type)\n'
 
-         
         body += f'{indent}{{\n'
         body += f'{indent2}default:\n'
         body += f'{indent2}{{\n'
@@ -185,7 +187,7 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
             body += f'{indent3}EncodeStruct(encoder, child_value);\n'
             body += f'{indent3}break;\n'
             body += f'{indent2}}}\n'
- 
+
         body += f'{indent}}}\n'
         return body
 

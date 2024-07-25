@@ -23,13 +23,12 @@
 import sys
 from base_generator import BaseGenerator, write
 from dx12_base_generator import Dx12BaseGenerator
-from dx12_decoder_header_generator import Dx12DecoderHeaderGenerator
 from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
 from base_decoder_body_generator import BaseDecoderBodyGenerator
 
 
 class Dx12StructDecodersBodyGenerator(
-    Dx12DecoderHeaderGenerator, BaseStructDecodersBodyGenerator,
+    Dx12BaseGenerator, BaseStructDecodersBodyGenerator,
     BaseDecoderBodyGenerator
 ):
     """Generates C++ functions responsible for decoding Dx12 API calls."""
@@ -42,7 +41,7 @@ class Dx12StructDecodersBodyGenerator(
         warn_file=sys.stderr,
         diag_file=sys.stdout
     ):
-        Dx12DecoderHeaderGenerator.__init__(
+        Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings, err_file, warn_file,
             diag_file
         )
@@ -50,14 +49,13 @@ class Dx12StructDecodersBodyGenerator(
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        Dx12BaseGenerator.beginFile(self, gen_opts)
         write('#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
         self.newline()
 
         self.write_include()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
 
     def write_include(self):
         """Method override."""
@@ -77,10 +75,13 @@ class Dx12StructDecodersBodyGenerator(
     def endFile(self):
         """Method override."""
         self.newline()
+        code = self.generate_struct_info()
+        write(code, file=self.outFile)
+
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
         self.newline()
         write('#endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        Dx12BaseGenerator.endFile(self)

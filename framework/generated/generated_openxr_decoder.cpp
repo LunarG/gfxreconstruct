@@ -5026,7 +5026,7 @@ size_t OpenXrDecoder::Decode_xrGetDeviceSampleRateFB(const ApiCallInfo& call_inf
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrHapticActionInfo> hapticActionInfo;
-    StructPointerDecoder<Decoded_XrDevicePcmSampleRateGetInfoFB> deviceSampleRate;
+    StructPointerDecoder<Decoded_XrDevicePcmSampleRateStateFB> deviceSampleRate;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);

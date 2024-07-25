@@ -412,6 +412,9 @@ class BaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
+            self.all_structs = list()                               # List of all struct names
+            self.all_struct_members = OrderedDict()                # Map of all struct names to lists of per-member ValueInfo
+            self.all_struct_aliases = OrderedDict()               # Map of struct names to aliases
             self.feature_struct_members = OrderedDict()            # Map of struct names to lists of per-member ValueInfo
             self.feature_struct_aliases = OrderedDict()            # Map of struct names to aliases
             self.feature_union_members = OrderedDict()             # Map of union names to lists of per-member ValueInfo
@@ -596,6 +599,7 @@ class BaseGenerator(OutputGenerator):
                 )
             else:
                 self.feature_struct_aliases[typename] = alias
+                self.all_struct_aliases[typename] = alias
 
     def genUnion(self, typeinfo, typename, alias):
         """Method override.
@@ -1252,6 +1256,9 @@ class BaseGenerator(OutputGenerator):
         """Create a type to use for a decoded parameter, using the decoder wrapper types for pointers."""
         type_name = value.base_type
 
+        if self.process_structs and (self.is_struct(type_name) and type_name in self.all_struct_aliases):
+            type_name = self.all_struct_aliases[type_name]
+
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
             count = value.pointer_count
@@ -1398,6 +1405,8 @@ class BaseGenerator(OutputGenerator):
 
         for value in values:
             type_name = value.base_type
+            if self.process_structs and (self.is_struct(type_name) and type_name in self.all_struct_aliases):
+                type_name = self.all_struct_aliases[type_name]
 
             if is_override:
                 prefix_from_type = self.get_prefix_from_type(value.base_type)

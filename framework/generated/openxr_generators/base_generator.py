@@ -42,6 +42,7 @@ import os
 import re
 import sys
 import json
+from collections import OrderedDict
 from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
 from xrconventions import OpenXRConventions
 
@@ -341,18 +342,23 @@ class BaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
-            self.base_header_structs = dict(
-            )  # Map of base header struct names to lists of child struct names
-            self.feature_struct_members = dict(
-            )  # Map of struct names to lists of per-member ValueInfo
-            self.feature_struct_aliases = dict(
+            self.all_structs = list()  # List of all struct names
+            self.all_struct_aliases = OrderedDict(
             )  # Map of struct names to aliases
-            self.extension_structs_with_handles = dict(
+            self.all_struct_members = OrderedDict(
+            )  # Map of all struct names to lists of per-member ValueInfo
+            self.base_header_structs = OrderedDict(
+            )  # Map of base header struct names to lists of child struct names
+            self.feature_struct_members = OrderedDict(
+            )  # Map of per-feature struct names to lists of per-member ValueInfo
+            self.feature_struct_aliases = OrderedDict(
+            )  # Map of struct names to aliases
+            self.extension_structs_with_handles = OrderedDict(
             )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self.extension_structs_with_handle_ptrs = dict(
+            self.extension_structs_with_handle_ptrs = OrderedDict(
             )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
-            self.feature_cmd_params = dict(
+            self.feature_cmd_params = OrderedDict(
             )  # Map of cmd names to lists of per-parameter ValueInfo
 
         # Basetypes and their corresponding encode command type
@@ -456,10 +462,10 @@ class BaseGenerator(OutputGenerator):
 
         # Reset feature specific data sets
         if self.process_structs:
-            self.feature_struct_members = dict()
-            self.feature_struct_aliases = dict()
+            self.feature_struct_members = OrderedDict()
+            self.feature_struct_aliases = OrderedDict()
         if self.process_cmds:
-            self.feature_cmd_params = dict()
+            self.feature_cmd_params = OrderedDict()
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -554,6 +560,7 @@ class BaseGenerator(OutputGenerator):
                     self.base_header_structs[parent_name].append(typename)
             else:
                 self.feature_struct_aliases[typename] = alias
+                self.all_struct_aliases[typename] = alias
 
     def genGroup(self, groupinfo, group_name, alias):
         """Method override.
@@ -1210,6 +1217,11 @@ class BaseGenerator(OutputGenerator):
         """Create a type to use for a decoded parameter, using the decoder wrapper types for pointers."""
         type_name = value.base_type
 
+        if self.process_structs and (
+            self.is_struct(type_name) and type_name in self.all_struct_aliases
+        ):
+            type_name = self.all_struct_aliases[type_name]
+
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
             count = value.pointer_count
@@ -1354,12 +1366,24 @@ class BaseGenerator(OutputGenerator):
                 lengths.append(length_expr)
             return lengths
         else:
-            # XML does not provide lengths for all dimensions, instantiate a specialization of ArraySize2D to fetch the sizes
-            type_list = ', '.join(
-                [self.clean_type_define(v.full_type) for v in values]
-            )
-            arg_list = ', '.join([v.name for v in values])
-            return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
+            if value.base_type in self.base_header_structs.keys():
+                lengths = []
+                for length_expr in length_exprs:
+                    for v in values:
+                        length_expr = re.sub(
+                            r'\b({})\b'.format(v.name), r'{}\1'.format(prefix),
+                            length_expr
+                        )
+                    lengths.append(length_expr)
+                lengths.append('1')
+                return lengths
+            else:
+                # XML does not provide lengths for all dimensions, instantiate a specialization of ArraySize2D to fetch the sizes
+                type_list = ', '.join(
+                    [self.clean_type_define(v.full_type) for v in values]
+                )
+                arg_list = ', '.join([v.name for v in values])
+                return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
 
     def get_api_prefix(self):
         platform_type = 'Vulkan'
@@ -1430,11 +1454,6 @@ class BaseGenerator(OutputGenerator):
             args = ['encoder'] + args
             is_struct = True
             method_call = 'Encode'
-            if type_name in self.base_header_structs.keys() and value.is_array:
-                # If this is a situation with a BaseHeader base for the data and it's an
-                # array, we need to determine the type of the first element of that array
-                # and then treat the entire array as if it is of that type.
-                method_call += 'BaseHeader'
             method_call += 'Struct'
         else:
             method_call = 'encoder->Encode'

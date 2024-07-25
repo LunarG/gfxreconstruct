@@ -51,7 +51,6 @@ class OpenXrConsumer : public OpenXrConsumerBase
     OpenXrConsumer() { }
 
     virtual ~OpenXrConsumer() override { }
-
     virtual void Process_xrDestroyInstance(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
@@ -1537,7 +1536,7 @@ class OpenXrConsumer : public OpenXrConsumerBase
         XrResult                                    returnValue,
         format::HandleId                            session,
         StructPointerDecoder<Decoded_XrHapticActionInfo>* hapticActionInfo,
-        StructPointerDecoder<Decoded_XrDevicePcmSampleRateGetInfoFB>* deviceSampleRate) {}
+        StructPointerDecoder<Decoded_XrDevicePcmSampleRateStateFB>* deviceSampleRate) {}
 
     virtual void Process_xrGetPassthroughPreferencesMETA(
         const ApiCallInfo&                          call_info,

@@ -55,6 +55,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+
 struct Decoded_XrApiLayerProperties
 {
     using struct_type = XrApiLayerProperties;
@@ -265,15 +266,6 @@ struct Decoded_XrSwapchainCreateInfo
     OpenXrNextNode* next{ nullptr };
 };
 
-struct Decoded_XrSwapchainImageBaseHeader
-{
-    using struct_type = XrSwapchainImageBaseHeader;
-
-    XrSwapchainImageBaseHeader* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
-};
-
 struct Decoded_XrSwapchainImageAcquireInfo
 {
     using struct_type = XrSwapchainImageAcquireInfo;
@@ -335,16 +327,6 @@ struct Decoded_XrFrameBeginInfo
     XrFrameBeginInfo* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-};
-
-struct Decoded_XrCompositionLayerBaseHeader
-{
-    using struct_type = XrCompositionLayerBaseHeader;
-
-    XrCompositionLayerBaseHeader* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
-    format::HandleId space{ format::kNullHandleId };
 };
 
 struct Decoded_XrViewLocateInfo
@@ -554,15 +536,6 @@ struct Decoded_XrHapticActionInfo
     XrPath subactionPath;
 };
 
-struct Decoded_XrHapticBaseHeader
-{
-    using struct_type = XrHapticBaseHeader;
-
-    XrHapticBaseHeader* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
-};
-
 struct Decoded_XrOffset2Di
 {
     using struct_type = XrOffset2Di;
@@ -631,15 +604,6 @@ struct Decoded_XrCompositionLayerQuad
     Decoded_XrSwapchainSubImage* subImage{ nullptr };
     Decoded_XrPosef* pose{ nullptr };
     Decoded_XrExtent2Df* size{ nullptr };
-};
-
-struct Decoded_XrEventDataBaseHeader
-{
-    using struct_type = XrEventDataBaseHeader;
-
-    XrEventDataBaseHeader* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
 };
 
 struct Decoded_XrEventDataEventsLost
@@ -1046,15 +1010,6 @@ struct Decoded_XrCompositionLayerColorScaleBiasKHR
     Decoded_XrColor4f* colorBias{ nullptr };
 };
 
-struct Decoded_XrLoaderInitInfoBaseHeaderKHR
-{
-    using struct_type = XrLoaderInitInfoBaseHeaderKHR;
-
-    XrLoaderInitInfoBaseHeaderKHR* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
-};
-
 struct Decoded_XrLoaderInitInfoAndroidKHR
 {
     using struct_type = XrLoaderInitInfoAndroidKHR;
@@ -1077,12 +1032,6 @@ struct Decoded_XrVulkanGraphicsDeviceGetInfoKHR
     format::HandleId vulkanInstance{ format::kNullHandleId };
 };
 
-typedef Decoded_XrGraphicsBindingVulkanKHR Decoded_XrGraphicsBindingVulkan2KHR;
-
-typedef Decoded_XrSwapchainImageVulkanKHR Decoded_XrSwapchainImageVulkan2KHR;
-
-typedef Decoded_XrGraphicsRequirementsVulkanKHR Decoded_XrGraphicsRequirementsVulkan2KHR;
-
 struct Decoded_XrCompositionLayerEquirect2KHR
 {
     using struct_type = XrCompositionLayerEquirect2KHR;
@@ -1093,15 +1042,6 @@ struct Decoded_XrCompositionLayerEquirect2KHR
     format::HandleId space{ format::kNullHandleId };
     Decoded_XrSwapchainSubImage* subImage{ nullptr };
     Decoded_XrPosef* pose{ nullptr };
-};
-
-struct Decoded_XrBindingModificationBaseHeaderKHR
-{
-    using struct_type = XrBindingModificationBaseHeaderKHR;
-
-    XrBindingModificationBaseHeaderKHR* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
 };
 
 struct Decoded_XrEventDataPerfSettingsEXT
@@ -1588,15 +1528,6 @@ struct Decoded_XrAndroidSurfaceSwapchainCreateInfoFB
     using struct_type = XrAndroidSurfaceSwapchainCreateInfoFB;
 
     XrAndroidSurfaceSwapchainCreateInfoFB* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
-};
-
-struct Decoded_XrSwapchainStateBaseHeaderFB
-{
-    using struct_type = XrSwapchainStateBaseHeaderFB;
-
-    XrSwapchainStateBaseHeaderFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -2799,24 +2730,6 @@ struct Decoded_XrSceneMarkerQRCodesMSFT
     StructPointerDecoder<Decoded_XrSceneMarkerQRCodeMSFT>* qrCodes{ nullptr };
 };
 
-struct Decoded_XrSpaceQueryInfoBaseHeaderFB
-{
-    using struct_type = XrSpaceQueryInfoBaseHeaderFB;
-
-    XrSpaceQueryInfoBaseHeaderFB* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
-};
-
-struct Decoded_XrSpaceFilterInfoBaseHeaderFB
-{
-    using struct_type = XrSpaceFilterInfoBaseHeaderFB;
-
-    XrSpaceFilterInfoBaseHeaderFB* decoded_value{ nullptr };
-
-    OpenXrNextNode* next{ nullptr };
-};
-
 struct Decoded_XrSpaceQueryInfoFB
 {
     using struct_type = XrSpaceQueryInfoFB;
@@ -3294,8 +3207,6 @@ struct Decoded_XrDevicePcmSampleRateStateFB
 
     OpenXrNextNode* next{ nullptr };
 };
-
-typedef Decoded_XrDevicePcmSampleRateStateFB Decoded_XrDevicePcmSampleRateGetInfoFB;
 
 struct Decoded_XrCompositionLayerDepthTestFB
 {
@@ -4010,6 +3921,929 @@ struct Decoded_XrUserCalibrationEnableEventsInfoML
 
     OpenXrNextNode* next{ nullptr };
 };
+
+union XrSwapchainImageBaseHeaderSizeUnion
+{
+    XrSwapchainImageOpenGLKHR a;
+    XrSwapchainImageOpenGLESKHR b;
+    XrSwapchainImageVulkanKHR c;
+    XrSwapchainImageD3D11KHR d;
+    XrSwapchainImageD3D12KHR e;
+};
+
+struct Decoded_XrSwapchainImageBaseHeader
+{
+    using struct_type = XrSwapchainImageBaseHeader;
+    using union_size_type = XrSwapchainImageBaseHeaderSizeUnion;
+
+    XrSwapchainImageBaseHeader* decoded_value{ nullptr };
+
+    static Decoded_XrSwapchainImageBaseHeader* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrSwapchainImageBaseHeader* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrSwapchainImageBaseHeader>(len, initialize);
+                break;
+         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+             return_type = reinterpret_cast<Decoded_XrSwapchainImageBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrSwapchainImageOpenGLKHR>(len, initialize));
+             break;
+         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+             return_type = reinterpret_cast<Decoded_XrSwapchainImageBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrSwapchainImageOpenGLESKHR>(len, initialize));
+             break;
+         case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+             return_type = reinterpret_cast<Decoded_XrSwapchainImageBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrSwapchainImageVulkanKHR>(len, initialize));
+             break;
+         case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+             return_type = reinterpret_cast<Decoded_XrSwapchainImageBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrSwapchainImageD3D11KHR>(len, initialize));
+             break;
+         case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+             return_type = reinterpret_cast<Decoded_XrSwapchainImageBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrSwapchainImageD3D12KHR>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrSwapchainImageBaseHeader* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+         {
+                Decoded_XrSwapchainImageOpenGLKHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageOpenGLKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+         {
+                Decoded_XrSwapchainImageOpenGLESKHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageOpenGLESKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+         {
+                Decoded_XrSwapchainImageVulkanKHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageVulkanKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+         {
+                Decoded_XrSwapchainImageD3D11KHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageD3D11KHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+         {
+                Decoded_XrSwapchainImageD3D12KHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageD3D12KHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrCompositionLayerBaseHeaderSizeUnion
+{
+    XrCompositionLayerProjection a;
+    XrCompositionLayerQuad b;
+    XrCompositionLayerCubeKHR c;
+    XrCompositionLayerCylinderKHR d;
+    XrCompositionLayerEquirectKHR e;
+    XrCompositionLayerEquirect2KHR f;
+    XrCompositionLayerPassthroughHTC g;
+};
+
+struct Decoded_XrCompositionLayerBaseHeader
+{
+    using struct_type = XrCompositionLayerBaseHeader;
+    using union_size_type = XrCompositionLayerBaseHeaderSizeUnion;
+
+    XrCompositionLayerBaseHeader* decoded_value{ nullptr };
+
+    static Decoded_XrCompositionLayerBaseHeader* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrCompositionLayerBaseHeader* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrCompositionLayerBaseHeader>(len, initialize);
+                break;
+         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerProjection>(len, initialize));
+             break;
+         case XR_TYPE_COMPOSITION_LAYER_QUAD:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerQuad>(len, initialize));
+             break;
+         case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerCubeKHR>(len, initialize));
+             break;
+         case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerCylinderKHR>(len, initialize));
+             break;
+         case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerEquirectKHR>(len, initialize));
+             break;
+         case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerEquirect2KHR>(len, initialize));
+             break;
+         case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerPassthroughHTC>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrCompositionLayerBaseHeader* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+         {
+                Decoded_XrCompositionLayerProjection* local_dest = reinterpret_cast<Decoded_XrCompositionLayerProjection*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_COMPOSITION_LAYER_QUAD:
+         {
+                Decoded_XrCompositionLayerQuad* local_dest = reinterpret_cast<Decoded_XrCompositionLayerQuad*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+         {
+                Decoded_XrCompositionLayerCubeKHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerCubeKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+         {
+                Decoded_XrCompositionLayerCylinderKHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerCylinderKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+         {
+                Decoded_XrCompositionLayerEquirectKHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerEquirectKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+         {
+                Decoded_XrCompositionLayerEquirect2KHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerEquirect2KHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+         {
+                Decoded_XrCompositionLayerPassthroughHTC* local_dest = reinterpret_cast<Decoded_XrCompositionLayerPassthroughHTC*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+    format::HandleId space{ format::kNullHandleId };
+};
+
+union XrHapticBaseHeaderSizeUnion
+{
+    XrHapticVibration a;
+    XrHapticAmplitudeEnvelopeVibrationFB b;
+    XrHapticPcmVibrationFB c;
+};
+
+struct Decoded_XrHapticBaseHeader
+{
+    using struct_type = XrHapticBaseHeader;
+    using union_size_type = XrHapticBaseHeaderSizeUnion;
+
+    XrHapticBaseHeader* decoded_value{ nullptr };
+
+    static Decoded_XrHapticBaseHeader* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrHapticBaseHeader* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrHapticBaseHeader>(len, initialize);
+                break;
+         case XR_TYPE_HAPTIC_VIBRATION:
+             return_type = reinterpret_cast<Decoded_XrHapticBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrHapticVibration>(len, initialize));
+             break;
+         case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+             return_type = reinterpret_cast<Decoded_XrHapticBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrHapticAmplitudeEnvelopeVibrationFB>(len, initialize));
+             break;
+         case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+             return_type = reinterpret_cast<Decoded_XrHapticBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrHapticPcmVibrationFB>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrHapticBaseHeader* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_HAPTIC_VIBRATION:
+         {
+                Decoded_XrHapticVibration* local_dest = reinterpret_cast<Decoded_XrHapticVibration*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+         {
+                Decoded_XrHapticAmplitudeEnvelopeVibrationFB* local_dest = reinterpret_cast<Decoded_XrHapticAmplitudeEnvelopeVibrationFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+         {
+                Decoded_XrHapticPcmVibrationFB* local_dest = reinterpret_cast<Decoded_XrHapticPcmVibrationFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrEventDataBaseHeaderSizeUnion
+{
+    XrEventDataEventsLost a;
+    XrEventDataInstanceLossPending b;
+    XrEventDataSessionStateChanged c;
+    XrEventDataReferenceSpaceChangePending d;
+    XrEventDataInteractionProfileChanged e;
+    XrEventDataVisibilityMaskChangedKHR f;
+    XrEventDataPerfSettingsEXT g;
+    XrEventDataMainSessionVisibilityChangedEXTX h;
+    XrEventDataDisplayRefreshRateChangedFB i;
+    XrEventDataViveTrackerConnectedHTCX j;
+    XrEventDataSpatialAnchorCreateCompleteFB k;
+    XrEventDataSpaceSetStatusCompleteFB l;
+    XrEventDataMarkerTrackingUpdateVARJO m;
+    XrEventDataLocalizationChangedML n;
+    XrEventDataSpaceQueryResultsAvailableFB o;
+    XrEventDataSpaceQueryCompleteFB p;
+    XrEventDataSpaceSaveCompleteFB q;
+    XrEventDataSpaceEraseCompleteFB r;
+    XrEventDataSpaceShareCompleteFB s;
+    XrEventDataSpaceListSaveCompleteFB t;
+    XrEventDataHeadsetFitChangedML u;
+    XrEventDataEyeCalibrationChangedML v;
+};
+
+struct Decoded_XrEventDataBaseHeader
+{
+    using struct_type = XrEventDataBaseHeader;
+    using union_size_type = XrEventDataBaseHeaderSizeUnion;
+
+    XrEventDataBaseHeader* decoded_value{ nullptr };
+
+    static Decoded_XrEventDataBaseHeader* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrEventDataBaseHeader* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrEventDataBaseHeader>(len, initialize);
+                break;
+         case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataEventsLost>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataInstanceLossPending>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSessionStateChanged>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataReferenceSpaceChangePending>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataInteractionProfileChanged>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataVisibilityMaskChangedKHR>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataPerfSettingsEXT>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataMainSessionVisibilityChangedEXTX>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataDisplayRefreshRateChangedFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataViveTrackerConnectedHTCX>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpatialAnchorCreateCompleteFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpaceSetStatusCompleteFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataMarkerTrackingUpdateVARJO>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataLocalizationChangedML>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpaceQueryResultsAvailableFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpaceQueryCompleteFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpaceSaveCompleteFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpaceEraseCompleteFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpaceShareCompleteFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataSpaceListSaveCompleteFB>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataHeadsetFitChangedML>(len, initialize));
+             break;
+         case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+             return_type = reinterpret_cast<Decoded_XrEventDataBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrEventDataEyeCalibrationChangedML>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDataBaseHeader* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+         {
+                Decoded_XrEventDataEventsLost* local_dest = reinterpret_cast<Decoded_XrEventDataEventsLost*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+         {
+                Decoded_XrEventDataInstanceLossPending* local_dest = reinterpret_cast<Decoded_XrEventDataInstanceLossPending*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+         {
+                Decoded_XrEventDataSessionStateChanged* local_dest = reinterpret_cast<Decoded_XrEventDataSessionStateChanged*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+         {
+                Decoded_XrEventDataReferenceSpaceChangePending* local_dest = reinterpret_cast<Decoded_XrEventDataReferenceSpaceChangePending*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+         {
+                Decoded_XrEventDataInteractionProfileChanged* local_dest = reinterpret_cast<Decoded_XrEventDataInteractionProfileChanged*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+         {
+                Decoded_XrEventDataVisibilityMaskChangedKHR* local_dest = reinterpret_cast<Decoded_XrEventDataVisibilityMaskChangedKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+         {
+                Decoded_XrEventDataPerfSettingsEXT* local_dest = reinterpret_cast<Decoded_XrEventDataPerfSettingsEXT*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+         {
+                Decoded_XrEventDataMainSessionVisibilityChangedEXTX* local_dest = reinterpret_cast<Decoded_XrEventDataMainSessionVisibilityChangedEXTX*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+         {
+                Decoded_XrEventDataDisplayRefreshRateChangedFB* local_dest = reinterpret_cast<Decoded_XrEventDataDisplayRefreshRateChangedFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+         {
+                Decoded_XrEventDataViveTrackerConnectedHTCX* local_dest = reinterpret_cast<Decoded_XrEventDataViveTrackerConnectedHTCX*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+         {
+                Decoded_XrEventDataSpatialAnchorCreateCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpatialAnchorCreateCompleteFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+         {
+                Decoded_XrEventDataSpaceSetStatusCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceSetStatusCompleteFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+         {
+                Decoded_XrEventDataMarkerTrackingUpdateVARJO* local_dest = reinterpret_cast<Decoded_XrEventDataMarkerTrackingUpdateVARJO*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+         {
+                Decoded_XrEventDataLocalizationChangedML* local_dest = reinterpret_cast<Decoded_XrEventDataLocalizationChangedML*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+         {
+                Decoded_XrEventDataSpaceQueryResultsAvailableFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceQueryResultsAvailableFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+         {
+                Decoded_XrEventDataSpaceQueryCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceQueryCompleteFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+         {
+                Decoded_XrEventDataSpaceSaveCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceSaveCompleteFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+         {
+                Decoded_XrEventDataSpaceEraseCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceEraseCompleteFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+         {
+                Decoded_XrEventDataSpaceShareCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceShareCompleteFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+         {
+                Decoded_XrEventDataSpaceListSaveCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceListSaveCompleteFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+         {
+                Decoded_XrEventDataHeadsetFitChangedML* local_dest = reinterpret_cast<Decoded_XrEventDataHeadsetFitChangedML*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+         {
+                Decoded_XrEventDataEyeCalibrationChangedML* local_dest = reinterpret_cast<Decoded_XrEventDataEyeCalibrationChangedML*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrLoaderInitInfoBaseHeaderKHRSizeUnion
+{
+    XrLoaderInitInfoAndroidKHR a;
+};
+
+struct Decoded_XrLoaderInitInfoBaseHeaderKHR
+{
+    using struct_type = XrLoaderInitInfoBaseHeaderKHR;
+    using union_size_type = XrLoaderInitInfoBaseHeaderKHRSizeUnion;
+
+    XrLoaderInitInfoBaseHeaderKHR* decoded_value{ nullptr };
+
+    static Decoded_XrLoaderInitInfoBaseHeaderKHR* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrLoaderInitInfoBaseHeaderKHR* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrLoaderInitInfoBaseHeaderKHR>(len, initialize);
+                break;
+         case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+             return_type = reinterpret_cast<Decoded_XrLoaderInitInfoBaseHeaderKHR*>(DecodeAllocator::Allocate<Decoded_XrLoaderInitInfoAndroidKHR>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrLoaderInitInfoBaseHeaderKHR* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+         {
+                Decoded_XrLoaderInitInfoAndroidKHR* local_dest = reinterpret_cast<Decoded_XrLoaderInitInfoAndroidKHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrBindingModificationBaseHeaderKHRSizeUnion
+{
+    XrInteractionProfileDpadBindingEXT a;
+    XrInteractionProfileAnalogThresholdVALVE b;
+};
+
+struct Decoded_XrBindingModificationBaseHeaderKHR
+{
+    using struct_type = XrBindingModificationBaseHeaderKHR;
+    using union_size_type = XrBindingModificationBaseHeaderKHRSizeUnion;
+
+    XrBindingModificationBaseHeaderKHR* decoded_value{ nullptr };
+
+    static Decoded_XrBindingModificationBaseHeaderKHR* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrBindingModificationBaseHeaderKHR* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrBindingModificationBaseHeaderKHR>(len, initialize);
+                break;
+         case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+             return_type = reinterpret_cast<Decoded_XrBindingModificationBaseHeaderKHR*>(DecodeAllocator::Allocate<Decoded_XrInteractionProfileDpadBindingEXT>(len, initialize));
+             break;
+         case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+             return_type = reinterpret_cast<Decoded_XrBindingModificationBaseHeaderKHR*>(DecodeAllocator::Allocate<Decoded_XrInteractionProfileAnalogThresholdVALVE>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrBindingModificationBaseHeaderKHR* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+         {
+                Decoded_XrInteractionProfileDpadBindingEXT* local_dest = reinterpret_cast<Decoded_XrInteractionProfileDpadBindingEXT*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+         {
+                Decoded_XrInteractionProfileAnalogThresholdVALVE* local_dest = reinterpret_cast<Decoded_XrInteractionProfileAnalogThresholdVALVE*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrSwapchainStateBaseHeaderFBSizeUnion
+{
+    XrSwapchainStateFoveationFB a;
+    XrSwapchainStateAndroidSurfaceDimensionsFB b;
+    XrSwapchainStateSamplerOpenGLESFB c;
+    XrSwapchainStateSamplerVulkanFB d;
+};
+
+struct Decoded_XrSwapchainStateBaseHeaderFB
+{
+    using struct_type = XrSwapchainStateBaseHeaderFB;
+    using union_size_type = XrSwapchainStateBaseHeaderFBSizeUnion;
+
+    XrSwapchainStateBaseHeaderFB* decoded_value{ nullptr };
+
+    static Decoded_XrSwapchainStateBaseHeaderFB* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrSwapchainStateBaseHeaderFB* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrSwapchainStateBaseHeaderFB>(len, initialize);
+                break;
+         case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+             return_type = reinterpret_cast<Decoded_XrSwapchainStateBaseHeaderFB*>(DecodeAllocator::Allocate<Decoded_XrSwapchainStateFoveationFB>(len, initialize));
+             break;
+         case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+             return_type = reinterpret_cast<Decoded_XrSwapchainStateBaseHeaderFB*>(DecodeAllocator::Allocate<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB>(len, initialize));
+             break;
+         case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+             return_type = reinterpret_cast<Decoded_XrSwapchainStateBaseHeaderFB*>(DecodeAllocator::Allocate<Decoded_XrSwapchainStateSamplerOpenGLESFB>(len, initialize));
+             break;
+         case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+             return_type = reinterpret_cast<Decoded_XrSwapchainStateBaseHeaderFB*>(DecodeAllocator::Allocate<Decoded_XrSwapchainStateSamplerVulkanFB>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrSwapchainStateBaseHeaderFB* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+         {
+                Decoded_XrSwapchainStateFoveationFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateFoveationFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+         {
+                Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+         {
+                Decoded_XrSwapchainStateSamplerOpenGLESFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateSamplerOpenGLESFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+         {
+                Decoded_XrSwapchainStateSamplerVulkanFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateSamplerVulkanFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrSpaceQueryInfoBaseHeaderFBSizeUnion
+{
+    XrSpaceQueryInfoFB a;
+};
+
+struct Decoded_XrSpaceQueryInfoBaseHeaderFB
+{
+    using struct_type = XrSpaceQueryInfoBaseHeaderFB;
+    using union_size_type = XrSpaceQueryInfoBaseHeaderFBSizeUnion;
+
+    XrSpaceQueryInfoBaseHeaderFB* decoded_value{ nullptr };
+
+    static Decoded_XrSpaceQueryInfoBaseHeaderFB* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrSpaceQueryInfoBaseHeaderFB* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrSpaceQueryInfoBaseHeaderFB>(len, initialize);
+                break;
+         case XR_TYPE_SPACE_QUERY_INFO_FB:
+             return_type = reinterpret_cast<Decoded_XrSpaceQueryInfoBaseHeaderFB*>(DecodeAllocator::Allocate<Decoded_XrSpaceQueryInfoFB>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpaceQueryInfoBaseHeaderFB* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_SPACE_QUERY_INFO_FB:
+         {
+                Decoded_XrSpaceQueryInfoFB* local_dest = reinterpret_cast<Decoded_XrSpaceQueryInfoFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrSpaceFilterInfoBaseHeaderFBSizeUnion
+{
+    XrSpaceUuidFilterInfoFB a;
+    XrSpaceComponentFilterInfoFB b;
+};
+
+struct Decoded_XrSpaceFilterInfoBaseHeaderFB
+{
+    using struct_type = XrSpaceFilterInfoBaseHeaderFB;
+    using union_size_type = XrSpaceFilterInfoBaseHeaderFBSizeUnion;
+
+    XrSpaceFilterInfoBaseHeaderFB* decoded_value{ nullptr };
+
+    static Decoded_XrSpaceFilterInfoBaseHeaderFB* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrSpaceFilterInfoBaseHeaderFB* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrSpaceFilterInfoBaseHeaderFB>(len, initialize);
+                break;
+         case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+             return_type = reinterpret_cast<Decoded_XrSpaceFilterInfoBaseHeaderFB*>(DecodeAllocator::Allocate<Decoded_XrSpaceUuidFilterInfoFB>(len, initialize));
+             break;
+         case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+             return_type = reinterpret_cast<Decoded_XrSpaceFilterInfoBaseHeaderFB*>(DecodeAllocator::Allocate<Decoded_XrSpaceComponentFilterInfoFB>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrSpaceFilterInfoBaseHeaderFB* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+         case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+         {
+                Decoded_XrSpaceUuidFilterInfoFB* local_dest = reinterpret_cast<Decoded_XrSpaceUuidFilterInfoFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+         case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+         {
+                Decoded_XrSpaceComponentFilterInfoFB* local_dest = reinterpret_cast<Decoded_XrSpaceComponentFilterInfoFB*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+         }
+        }
+        return bytes_read;
+    }
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

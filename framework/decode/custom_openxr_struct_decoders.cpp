@@ -57,7 +57,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrFrameEn
     bytes_read +=
         ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
     wrapper->layers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>>();
-    bytes_read += wrapper->layers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->layers->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
     value->layers = wrapper->layers->GetPointer();
 
     return bytes_read;
@@ -77,7 +77,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrBinding
         (buffer + bytes_read), (buffer_size - bytes_read), &(value->bindingModificationCount));
     wrapper->bindingModifications =
         DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrBindingModificationBaseHeaderKHR*>>();
-    bytes_read += wrapper->bindingModifications->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->bindingModifications->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
     value->bindingModifications = wrapper->bindingModifications->GetPointer();
 
     return bytes_read;
@@ -101,7 +101,7 @@ DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSecondaryViewC
     bytes_read +=
         ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
     wrapper->layers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>>();
-    bytes_read += wrapper->layers->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += wrapper->layers->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
     value->layers = wrapper->layers->GetPointer();
 
     return bytes_read;

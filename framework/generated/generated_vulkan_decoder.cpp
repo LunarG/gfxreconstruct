@@ -9392,7 +9392,7 @@ size_t VulkanDecoder::Decode_vkGetAccelerationStructureMemoryRequirementsNV(cons
 
     format::HandleId device;
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV> pInfo;
-    StructPointerDecoder<Decoded_VkMemoryRequirements2KHR> pMemoryRequirements;
+    StructPointerDecoder<Decoded_VkMemoryRequirements2> pMemoryRequirements;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &device);
     bytes_read += pInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));

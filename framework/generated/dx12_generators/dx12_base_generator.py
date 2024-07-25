@@ -182,6 +182,9 @@ class Dx12BaseGenerator(BaseGenerator):
         self.dx12_prefix_strings = dx12_prefix_strings
         self.feature_method_params = dict()
         self.check_blacklist = False
+        self.all_structs = list()         # List of all struct names
+        self.all_struct_members = dict()  # Map of all struct names to lists of per-member ValueInfo
+        self.all_struct_aliases = dict()  # Map of all struct aliases
 
     def clean_type_define(self, type):
         rtn = ''

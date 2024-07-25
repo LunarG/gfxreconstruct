@@ -57,7 +57,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApiLayerProperti
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtensionProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -71,7 +70,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtensionPropert
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApplicationInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -86,7 +84,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApplicationInfo*
         FieldToJson(jdata["apiVersion"], decoded_value.apiVersion, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInstanceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -104,7 +101,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInstanceCreateIn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInstanceProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -118,7 +114,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInstanceProperti
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataBuffer* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -131,7 +126,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataBuffer*
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemGetInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -144,7 +138,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemGetInfo* d
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemGraphicsProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -157,7 +150,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemGraphicsPr
         FieldToJson(jdata["maxLayerCount"], decoded_value.maxLayerCount, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemTrackingProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -169,7 +161,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemTrackingPr
         jdata["positionTracking"] = static_cast<bool>(decoded_value.positionTracking);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -186,7 +177,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemProperties
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -200,7 +190,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionCreateInf
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector3f* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -213,7 +202,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector3f* data, 
         FieldToJson(jdata["z"], decoded_value.z, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceVelocity* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -228,7 +216,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceVelocity* d
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrQuaternionf* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -242,7 +229,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrQuaternionf* dat
         FieldToJson(jdata["w"], decoded_value.w, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPosef* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -254,7 +240,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPosef* data, con
         FieldToJson(jdata["position"], meta_struct.position, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrReferenceSpaceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -268,7 +253,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrReferenceSpaceCr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent2Df* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -280,7 +264,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent2Df* data,
         FieldToJson(jdata["height"], decoded_value.height, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionSpaceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -295,7 +278,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionSpaceCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceLocation* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -309,7 +291,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceLocation* d
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfigurationProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -323,7 +304,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfiguratio
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfigurationView* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -341,7 +321,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfiguratio
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -362,7 +341,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainCreateI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageBaseHeader* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -374,7 +352,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageBa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageAcquireInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -386,7 +363,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageAc
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageWaitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -399,7 +375,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageWa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageReleaseInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -411,7 +386,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageRe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -424,7 +398,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionBeginInfo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameWaitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -436,7 +409,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameWaitInfo* d
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameState* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -451,7 +423,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameState* data
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -463,7 +434,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameBeginInfo* 
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerBaseHeader* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -477,7 +447,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewLocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -492,7 +461,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewLocateInfo* 
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewState* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -505,7 +473,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewState* data,
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFovf* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -519,7 +486,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFovf* data, cons
         FieldToJson(jdata["angleDown"], decoded_value.angleDown, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrView* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -533,7 +499,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrView* data, cons
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionSetCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -548,7 +513,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionSetCreateI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -565,7 +529,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionCreateInfo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionSuggestedBinding* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -577,7 +540,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionSuggestedB
         HandleToJson(jdata["binding"], meta_struct.binding, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfileSuggestedBinding* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -592,7 +554,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfi
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionActionSetsAttachInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -606,7 +567,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionActionSet
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfileState* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -619,7 +579,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfi
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateGetInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -633,7 +592,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateGetIn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateBoolean* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -649,7 +607,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateBoole
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateFloat* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -665,7 +622,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateFloat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector2f* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -677,7 +633,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector2f* data, 
         FieldToJson(jdata["y"], decoded_value.y, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateVector2f* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -693,7 +648,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStateVecto
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStatePose* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -706,7 +660,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionStatePose*
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActiveActionSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -718,7 +671,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActiveActionSet*
         HandleToJson(jdata["subactionPath"], meta_struct.subactionPath, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionsSyncInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -732,7 +684,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActionsSyncInfo*
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBoundSourcesForActionEnumerateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -745,7 +696,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBoundSourcesForA
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInputSourceLocalizedNameGetInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -759,7 +709,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInputSourceLocal
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticActionInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -773,7 +722,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticActionInfo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticBaseHeader* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -785,7 +733,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticBaseHeader
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrOffset2Di* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -797,7 +744,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrOffset2Di* data,
         FieldToJson(jdata["y"], decoded_value.y, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent2Di* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -809,7 +755,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent2Di* data,
         FieldToJson(jdata["height"], decoded_value.height, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRect2Di* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -821,7 +766,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRect2Di* data, c
         FieldToJson(jdata["extent"], meta_struct.extent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainSubImage* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -834,7 +778,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainSubImag
         FieldToJson(jdata["imageArrayIndex"], decoded_value.imageArrayIndex, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerProjectionView* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -849,7 +792,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerProjection* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -865,7 +807,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerQuad* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -883,7 +824,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataBaseHeader* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -895,7 +835,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataBaseHea
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataEventsLost* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -908,7 +847,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataEventsL
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataInstanceLossPending* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -921,7 +859,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataInstanc
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSessionStateChanged* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -936,7 +873,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSession
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataReferenceSpaceChangePending* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -953,7 +889,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataReferen
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataInteractionProfileChanged* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -966,7 +901,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataInterac
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticVibration* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -981,7 +915,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticVibration*
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrOffset2Df* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -993,7 +926,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrOffset2Df* data,
         FieldToJson(jdata["y"], decoded_value.y, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRect2Df* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1005,7 +937,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRect2Df* data, c
         FieldToJson(jdata["extent"], meta_struct.extent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector4f* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1019,7 +950,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector4f* data, 
         FieldToJson(jdata["w"], decoded_value.w, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrColor4f* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1033,7 +963,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrColor4f* data, c
         FieldToJson(jdata["a"], decoded_value.a, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApiLayerNextInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1050,7 +979,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApiLayerNextInfo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApiLayerCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1066,7 +994,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApiLayerCreateIn
         FieldToJson(jdata["nextInfo"], meta_struct.nextInfo, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrNegotiateApiLayerRequest* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1083,7 +1010,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrNegotiateApiLaye
         FieldToJson(jdata["createApiLayerInstance"], to_hex_variable_width(meta_struct.createApiLayerInstance), options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerCubeKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1101,7 +1027,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInstanceCreateInfoAndroidKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1115,7 +1040,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInstanceCreateIn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerDepthInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1132,7 +1056,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanSwapchainFormatListCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1146,7 +1069,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanSwapchainF
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerCylinderKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1166,7 +1088,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerEquirectKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1186,7 +1107,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingOpenGLWin32KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1200,7 +1120,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingO
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingOpenGLXlibKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1217,7 +1136,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingO
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingOpenGLXcbKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1235,7 +1153,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingO
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingOpenGLWaylandKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1248,7 +1165,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingO
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageOpenGLKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1261,7 +1177,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageOp
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirementsOpenGLKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1275,7 +1190,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirem
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingOpenGLESAndroidKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1290,7 +1204,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingO
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageOpenGLESKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1303,7 +1216,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageOp
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirementsOpenGLESKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1317,7 +1229,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirem
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingVulkanKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1334,7 +1245,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingV
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageVulkanKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1347,7 +1257,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageVu
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirementsVulkanKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1361,7 +1270,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirem
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingD3D11KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1374,7 +1282,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingD
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageD3D11KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1387,7 +1294,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageD3
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirementsD3D11KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1401,7 +1307,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirem
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingD3D12KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1415,7 +1320,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingD
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageD3D12KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1428,7 +1332,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageD3
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirementsD3D12KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1442,7 +1345,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirem
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVisibilityMaskKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1460,7 +1362,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVisibilityMaskKH
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVisibilityMaskChangedKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1475,7 +1376,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVisibil
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerColorScaleBiasKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1489,7 +1389,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLoaderInitInfoBaseHeaderKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1501,7 +1400,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLoaderInitInfoBa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLoaderInitInfoAndroidKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1515,7 +1413,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLoaderInitInfoAn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanGraphicsDeviceGetInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1529,7 +1426,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanGraphicsDe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerEquirect2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1550,7 +1446,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBindingModificationBaseHeaderKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1562,7 +1457,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBindingModificat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataPerfSettingsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1578,7 +1472,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataPerfSet
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsObjectNameInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1593,7 +1486,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsObject
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsLabelEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1606,7 +1498,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsLabelE
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsMessengerCallbackDataEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1625,7 +1516,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsMessen
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsMessengerCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1641,7 +1531,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsMessen
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemEyeGazeInteractionPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1654,7 +1543,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemEyeGazeInt
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazeSampleTimeEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1667,7 +1555,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazeSampleTim
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionCreateInfoOverlayEXTX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1681,7 +1568,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSessionCreateInf
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataMainSessionVisibilityChangedEXTX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1695,7 +1581,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataMainSes
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1710,7 +1595,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorSpaceCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1724,7 +1608,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorSpa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerImageLayoutFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1737,7 +1620,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerAlphaBlendFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1753,7 +1635,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfigurationDepthRangeEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1769,7 +1650,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfiguratio
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingEGLMNDX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1785,7 +1665,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingE
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphNodeSpaceCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1800,7 +1679,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphNode
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphStaticNodeBindingCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1815,7 +1693,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphStat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphNodeBindingPropertiesGetInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1827,7 +1704,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphNode
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphNodeBindingPropertiesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1841,7 +1717,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialGraphNode
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemHandTrackingPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1854,7 +1729,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemHandTracki
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackerCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1868,7 +1742,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackerCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointsLocateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1882,7 +1755,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointsLocate
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointLocationEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1895,7 +1767,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointLocatio
         FieldToJson(jdata["radius"], decoded_value.radius, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointVelocityEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1908,7 +1779,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointVelocit
         FieldToJson(jdata["angularVelocity"], meta_struct.angularVelocity, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointLocationsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1923,7 +1793,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointLocatio
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointVelocitiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1937,7 +1806,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointVelocit
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemHandTrackingMeshPropertiesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1952,7 +1820,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemHandTracki
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshSpaceCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1966,7 +1833,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshSpaceCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshUpdateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1980,7 +1846,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshUpdateIn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshIndexBufferMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1994,7 +1859,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshIndexBuf
         FieldToJson(jdata["indices"], meta_struct.indices, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshVertexMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2006,7 +1870,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshVertexMS
         FieldToJson(jdata["normal"], meta_struct.normal, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshVertexBufferMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2020,7 +1883,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshVertexBu
         FieldToJson(jdata["vertices"], meta_struct.vertices, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2037,7 +1899,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandMeshMSFT* da
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandPoseTypeInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2050,7 +1911,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandPoseTypeInfo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationSessionBeginInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2064,7 +1924,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewCon
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationStateMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2078,7 +1937,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewCon
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationFrameStateMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2092,7 +1950,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewCon
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationFrameEndInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2106,7 +1963,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewCon
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationSwapchainCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2119,7 +1975,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewCon
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelKeyStateMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2132,7 +1987,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelK
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelNodePropertiesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2146,7 +2000,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelN
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelPropertiesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2161,7 +2014,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelP
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelNodeStateMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2174,7 +2026,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelN
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelStateMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2189,7 +2040,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelS
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfigurationViewFovEPIC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2203,7 +2053,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewConfiguratio
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHolographicWindowAttachmentMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2217,7 +2066,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHolographicWindo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerReprojectionInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2230,7 +2078,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerReprojectionPlaneOverrideMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2245,7 +2092,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrAndroidSurfaceSwapchainCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2258,7 +2104,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrAndroidSurfaceSw
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateBaseHeaderFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2270,7 +2115,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateBa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerSecureContentFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2283,7 +2127,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyJointLocationFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2295,7 +2138,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyJointLocatio
         FieldToJson(jdata["pose"], meta_struct.pose, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemBodyTrackingPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2308,7 +2150,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemBodyTracki
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyTrackerCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2321,7 +2162,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyTrackerCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodySkeletonJointFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2334,7 +2174,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodySkeletonJoin
         FieldToJson(jdata["pose"], meta_struct.pose, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodySkeletonFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2348,7 +2187,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodySkeletonFB* 
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyJointsLocateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2362,7 +2200,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyJointsLocate
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyJointLocationsFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2380,7 +2217,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBodyJointLocatio
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfileDpadBindingEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2401,7 +2237,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfi
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfileAnalogThresholdVALVE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2419,7 +2254,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrInteractionProfi
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointsMotionRangeInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2432,7 +2266,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandJointsMotion
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUuidMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2443,7 +2276,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUuidMSFT* data, 
         FieldToJson(jdata["bytes"], &meta_struct.bytes, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObserverCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2455,7 +2287,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObserverCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2467,7 +2298,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneCreateInfoM
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneSphereBoundMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2479,7 +2309,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneSphereBound
         FieldToJson(jdata["radius"], decoded_value.radius, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneOrientedBoxBoundMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2491,7 +2320,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneOrientedBox
         FieldToJson(jdata["extents"], meta_struct.extents, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneFrustumBoundMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2504,7 +2332,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneFrustumBoun
         FieldToJson(jdata["farDistance"], decoded_value.farDistance, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneBoundsMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2522,7 +2349,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneBoundsMSFT*
         FieldToJson(jdata["frustums"], meta_struct.frustums, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrNewSceneComputeInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2538,7 +2364,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrNewSceneComputeI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVisualMeshComputeLodInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2551,7 +2376,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVisualMeshComput
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2565,7 +2389,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentMS
         FieldToJson(jdata["updateTime"], decoded_value.updateTime, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentsMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2580,7 +2403,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentsM
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentsGetInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2593,7 +2415,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentsG
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentLocationMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2605,7 +2426,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentLo
         FieldToJson(jdata["pose"], meta_struct.pose, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentLocationsMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2619,7 +2439,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentLo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentsLocateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2635,7 +2454,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentsL
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObjectMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2646,7 +2464,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObjectMSFT*
         FieldToJson(jdata["objectType"], decoded_value.objectType, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObjectsMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2660,7 +2477,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObjectsMSFT
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentParentFilterInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2673,7 +2489,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneComponentPa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObjectTypesFilterInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2687,7 +2502,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneObjectTypes
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrScenePlaneMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2701,7 +2515,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrScenePlaneMSFT* 
         jdata["supportsIndicesUint16"] = static_cast<bool>(decoded_value.supportsIndicesUint16);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrScenePlanesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2715,7 +2528,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrScenePlanesMSFT*
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrScenePlaneAlignmentFilterInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2729,7 +2541,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrScenePlaneAlignm
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2741,7 +2552,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshMSFT* d
         jdata["supportsIndicesUint16"] = static_cast<bool>(decoded_value.supportsIndicesUint16);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2755,7 +2565,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshesMSFT*
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshBuffersGetInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2768,7 +2577,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshBuffers
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshBuffersMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2780,7 +2588,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshBuffers
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshVertexBufferMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2795,7 +2602,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshVertexB
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshIndicesUint32MSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2810,7 +2616,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshIndices
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshIndicesUint16MSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2825,7 +2630,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMeshIndices
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSerializedSceneFragmentDataGetInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2838,7 +2642,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSerializedSceneF
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDeserializeSceneFragmentMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2850,7 +2653,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDeserializeScene
         FieldToJson(jdata["buffer"], meta_struct.buffer, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneDeserializeInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2864,7 +2666,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneDeserialize
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataDisplayRefreshRateChangedFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2878,7 +2679,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataDisplay
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViveTrackerPathsHTCX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2892,7 +2692,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViveTrackerPaths
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataViveTrackerConnectedHTCX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2905,7 +2704,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataViveTra
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFacialTrackingPropertiesHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2919,7 +2717,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFacialTrac
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFacialExpressionsHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2935,7 +2732,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFacialExpression
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFacialTrackerCreateInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2948,7 +2744,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFacialTrackerCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemColorSpacePropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2961,7 +2756,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemColorSpace
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector4sFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2975,7 +2769,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVector4sFB* data
         FieldToJson(jdata["w"], decoded_value.w, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingMeshFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3002,7 +2795,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingMesh
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingScaleFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3018,7 +2810,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingScal
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingAimStateFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3036,7 +2827,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingAimS
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandCapsuleFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3049,7 +2839,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandCapsuleFB* d
         FieldToJson(jdata["joint"], decoded_value.joint, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingCapsulesStateFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3062,7 +2851,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingCaps
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemSpatialEntityPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3075,7 +2863,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemSpatialEnt
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3090,7 +2877,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceComponentStatusSetInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3105,7 +2891,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceComponentSt
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceComponentStatusFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3119,7 +2904,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceComponentSt
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUuidEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3130,7 +2914,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUuidEXT* data, c
         FieldToJson(jdata["data"], uuid_to_string(sizeof(decoded_value.data), decoded_value.data), options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpatialAnchorCreateCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3146,7 +2929,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpatial
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceSetStatusCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3164,7 +2946,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceSe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationProfileCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3176,7 +2957,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationProfile
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainCreateInfoFoveationFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3189,7 +2969,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainCreateI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateFoveationFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3203,7 +2982,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateFo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationLevelProfileCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3218,7 +2996,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationLevelPr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemKeyboardTrackingPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3231,7 +3008,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemKeyboardTr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrKeyboardTrackingDescriptionFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3245,7 +3021,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrKeyboardTracking
         FieldToJson(jdata["name"], &meta_struct.name, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrKeyboardSpaceCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3258,7 +3033,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrKeyboardSpaceCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrKeyboardTrackingQueryFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3271,7 +3045,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrKeyboardTracking
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrTriangleMeshCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3289,7 +3062,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrTriangleMeshCrea
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPassthroughPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3302,7 +3074,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPassthroug
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPassthroughProperties2FB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3315,7 +3086,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPassthroug
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3328,7 +3098,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughLayerCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3343,7 +3112,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerPassthroughFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3358,7 +3126,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGeometryInstanceCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3375,7 +3142,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGeometryInstance
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGeometryInstanceTransformFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3391,7 +3157,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGeometryInstance
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughStyleFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3405,7 +3170,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughStyle
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorMapMonoToRgbaFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3418,7 +3182,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorMapMonoToMonoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3431,7 +3194,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughBrightnessContrastSaturationFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3446,7 +3208,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughBrigh
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataPassthroughStateChangedFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3459,7 +3220,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataPassthr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelPathInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3472,7 +3232,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelPathI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3489,7 +3248,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelPrope
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelBufferFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3504,7 +3262,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelBuffe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelLoadInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3517,7 +3274,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelLoadI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemRenderModelPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3530,7 +3286,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemRenderMode
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelCapabilitiesRequestFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3543,7 +3298,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRenderModelCapab
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewLocateFoveatedRenderingVARJO* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3556,7 +3310,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewLocateFoveat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveatedViewConfigurationViewVARJO* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3569,7 +3322,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveatedViewConf
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFoveatedRenderingPropertiesVARJO* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3582,7 +3334,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFoveatedRe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerDepthTestVARJO* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3596,7 +3347,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemMarkerTrackingPropertiesVARJO* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3609,7 +3359,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemMarkerTrac
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataMarkerTrackingUpdateVARJO* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3625,7 +3374,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataMarkerT
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerSpaceCreateInfoVARJO* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3639,7 +3387,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerSpaceCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameEndInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3653,7 +3400,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameEndInfoML* 
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGlobalDimmerFrameEndInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3667,7 +3413,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGlobalDimmerFram
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCoordinateSpaceCreateInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3681,7 +3426,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCoordinateSpaceC
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemMarkerUnderstandingPropertiesML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3694,7 +3438,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemMarkerUnde
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorCreateInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3708,7 +3451,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorCr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorArucoInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3721,7 +3463,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorAr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorSizeInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3734,7 +3475,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorSi
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorAprilTagInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3747,7 +3487,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorAp
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorCustomProfileInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3765,7 +3504,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorCu
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorSnapshotInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3777,7 +3515,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorSn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorStateML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3790,7 +3527,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerDetectorSt
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerSpaceCreateInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3805,7 +3541,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMarkerSpaceCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationMapML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3820,7 +3555,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationMapM
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataLocalizationChangedML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3837,7 +3571,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataLocaliz
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationMapQueryInfoBaseHeaderML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3849,7 +3582,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationMapQ
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMapLocalizationRequestInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3862,7 +3594,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrMapLocalizationR
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationMapImportInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3876,7 +3607,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationMapI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationEnableEventsInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3889,7 +3619,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalizationEnab
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorPersistenceNameMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3900,7 +3629,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorPer
         FieldToJson(jdata["name"], &meta_struct.name, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorPersistenceInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3914,7 +3642,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorPer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3928,7 +3655,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorFro
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3942,7 +3668,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerMSFT*
         FieldToJson(jdata["size"], meta_struct.size, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkersMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3956,7 +3681,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkersMSFT
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerTypeFilterMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3970,7 +3694,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerTypeF
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerQRCodeMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3982,7 +3705,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerQRCod
         FieldToJson(jdata["version"], decoded_value.version, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerQRCodesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3996,7 +3718,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneMarkerQRCod
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryInfoBaseHeaderFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4008,7 +3729,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryInfoBa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceFilterInfoBaseHeaderFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4020,7 +3740,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceFilterInfoB
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4037,7 +3756,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryInfoFB
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceStorageLocationFilterInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4050,7 +3768,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceStorageLoca
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceUuidFilterInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4064,7 +3781,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceUuidFilterI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceComponentFilterInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4077,7 +3793,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceComponentFi
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryResultFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4089,7 +3804,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryResult
         FieldToJson(jdata["uuid"], meta_struct.uuid, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryResultsFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4104,7 +3818,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryResult
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceQueryResultsAvailableFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4117,7 +3830,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceQu
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceQueryCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4131,7 +3843,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceQu
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceSaveInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4146,7 +3857,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceSaveInfoFB*
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceEraseInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4160,7 +3870,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceEraseInfoFB
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceSaveCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4177,7 +3886,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceSa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceEraseCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4194,7 +3902,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceEr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageFoveationVulkanFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4209,7 +3916,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageFo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4223,7 +3929,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateAn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateSamplerOpenGLESFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4245,7 +3950,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateSa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateSamplerVulkanFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4268,7 +3972,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateSa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceShareInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4284,7 +3987,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceShareInfoFB
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceShareCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4298,7 +4000,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceSh
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerSpaceWarpInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4318,7 +4019,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemSpaceWarpPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4332,7 +4032,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemSpaceWarpP
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticAmplitudeEnvelopeVibrationFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4347,7 +4046,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticAmplitudeE
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent3DfFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4360,7 +4058,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent3DfFB* dat
         FieldToJson(jdata["depth"], decoded_value.depth, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrOffset3DfFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4373,7 +4070,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrOffset3DfFB* dat
         FieldToJson(jdata["z"], decoded_value.z, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRect3DfFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4385,7 +4081,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRect3DfFB* data,
         FieldToJson(jdata["extent"], meta_struct.extent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSemanticLabelsFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4400,7 +4095,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSemanticLabelsFB
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRoomLayoutFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4417,7 +4111,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRoomLayoutFB* da
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBoundary2DFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4432,7 +4125,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBoundary2DFB* da
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSemanticLabelsSupportInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4446,7 +4138,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSemanticLabelsSu
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDigitalLensControlALMALENCE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4459,7 +4150,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDigitalLensContr
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSceneCaptureCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4473,7 +4163,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSceneCa
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneCaptureRequestInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4487,7 +4176,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSceneCaptureRequ
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceContainerFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4502,7 +4190,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceContainerFB
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationEyeTrackedProfileCreateInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4515,7 +4202,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationEyeTrac
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationEyeTrackedStateMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4529,7 +4215,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationEyeTrac
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFoveationEyeTrackedPropertiesMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4542,7 +4227,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFoveationE
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFaceTrackingPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4555,7 +4239,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFaceTracki
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceTrackerCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4568,7 +4251,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceTrackerCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4581,7 +4263,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionIn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionStatusFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4593,7 +4274,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionSt
         jdata["isEyeFollowingBlendshapesValid"] = static_cast<bool>(decoded_value.isEyeFollowingBlendshapesValid);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionWeightsFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4611,7 +4291,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionWe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazeFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4624,7 +4303,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazeFB* data,
         FieldToJson(jdata["gazeConfidence"], decoded_value.gazeConfidence, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeTrackerCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4636,7 +4314,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeTrackerCreate
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazesInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4650,7 +4327,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazesInfoFB* 
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemEyeTrackingPropertiesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4663,7 +4339,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemEyeTrackin
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazesFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4677,7 +4352,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEyeGazesFB* data
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughKeyboardHandsIntensityFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4691,7 +4365,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughKeybo
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerSettingsFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4704,7 +4377,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticPcmVibrationFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4721,7 +4393,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticPcmVibrati
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDevicePcmSampleRateStateFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4734,7 +4405,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDevicePcmSampleR
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerDepthTestFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4748,7 +4418,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalDimmingFrameEndInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4761,7 +4430,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLocalDimmingFram
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughPreferencesMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4774,7 +4442,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughPrefe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemVirtualKeyboardPropertiesMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4787,7 +4454,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemVirtualKey
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardCreateInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4799,7 +4465,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardC
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardSpaceCreateInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4814,7 +4479,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardS
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardLocationInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4830,7 +4494,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardL
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardModelVisibilitySetInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4843,7 +4506,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardM
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardAnimationStateMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4857,7 +4519,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardA
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardModelAnimationStatesMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4872,7 +4533,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardM
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardTextureDataMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4889,7 +4549,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardT
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardInputInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4905,7 +4564,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardTextContextChangeInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4918,7 +4576,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVirtualKeyboardT
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtualKeyboardCommitTextMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4932,7 +4589,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtual
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtualKeyboardBackspaceMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4945,7 +4601,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtual
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtualKeyboardEnterMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4958,7 +4613,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtual
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtualKeyboardShownMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4971,7 +4625,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtual
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtualKeyboardHiddenMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4984,7 +4637,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataVirtual
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExternalCameraIntrinsicsOCULUS* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4999,7 +4651,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExternalCameraIn
         FieldToJson(jdata["imageSensorPixelResolution"], meta_struct.imageSensorPixelResolution, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExternalCameraExtrinsicsOCULUS* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5013,7 +4664,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExternalCameraEx
         FieldToJson(jdata["relativePose"], meta_struct.relativePose, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExternalCameraOCULUS* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5028,7 +4678,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExternalCameraOC
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanSwapchainCreateInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5042,7 +4691,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanSwapchainC
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPerformanceMetricsStateMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5055,7 +4703,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPerformanceMetri
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPerformanceMetricsCounterMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5071,7 +4718,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPerformanceMetri
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceListSaveInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5086,7 +4732,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceListSaveInf
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceListSaveCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5100,7 +4745,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpaceLi
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceUserCreateInfoFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5113,7 +4757,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceUserCreateI
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemHeadsetIdPropertiesMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5126,7 +4769,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemHeadsetIdP
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRecommendedLayerResolutionMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5140,7 +4782,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRecommendedLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRecommendedLayerResolutionGetInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5154,7 +4795,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrRecommendedLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorLutDataMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5166,7 +4806,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["buffer"], meta_struct.buffer, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorLutCreateInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5181,7 +4820,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorLutUpdateInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5194,7 +4832,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorMapLutMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5208,7 +4845,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorMapInterpolatedLutMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5223,7 +4859,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPassthroughColorLutPropertiesMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5236,7 +4871,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPassthroug
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceTriangleMeshGetInfoMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5248,7 +4882,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceTriangleMes
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceTriangleMeshMETA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5266,7 +4899,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceTriangleMes
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFaceTrackingProperties2FB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5280,7 +4912,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemFaceTracki
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceTrackerCreateInfo2FB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5295,7 +4926,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceTrackerCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionInfo2FB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5308,7 +4938,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionIn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionWeights2FB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5328,7 +4957,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionWe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughCreateInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5341,7 +4969,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughCreat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColorHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5354,7 +4981,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughColor
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughMeshTransformInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5374,7 +5000,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughMeshT
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerPassthroughHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5390,7 +5015,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationApplyInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5405,7 +5029,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationApplyIn
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationConfigurationHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5418,7 +5041,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationConfigu
         FieldToJson(jdata["focalCenterOffset"], meta_struct.focalCenterOffset, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationDynamicModeInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5431,7 +5053,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationDynamic
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationCustomModeInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5445,7 +5066,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFoveationCustomM
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemAnchorPropertiesHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5458,7 +5078,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemAnchorProp
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorNameHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5469,7 +5088,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorNam
         FieldToJson(jdata["name"], &meta_struct.name, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorCreateInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5484,7 +5102,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpatialAnchorCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActiveActionSetPriorityEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5496,7 +5113,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActiveActionSetP
         FieldToJson(jdata["priorityOverride"], decoded_value.priorityOverride, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActiveActionSetPrioritiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5510,7 +5126,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrActiveActionSetP
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemForceFeedbackCurlPropertiesMNDX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5523,7 +5138,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemForceFeedb
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrForceFeedbackCurlApplyLocationMNDX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5535,7 +5149,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrForceFeedbackCur
         FieldToJson(jdata["value"], decoded_value.value, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrForceFeedbackCurlApplyLocationsMNDX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5549,7 +5162,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrForceFeedbackCur
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingDataSourceInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5563,7 +5175,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingData
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingDataSourceStateEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5577,7 +5188,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandTrackingData
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPlaneDetectionPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5590,7 +5200,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemPlaneDetec
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5603,7 +5212,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent3DfEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5616,7 +5224,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent3DfEXT* da
         FieldToJson(jdata["depth"], decoded_value.depth, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorBeginInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5638,7 +5245,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorBeg
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorGetInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5652,7 +5258,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorGet
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorLocationEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5671,7 +5276,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorLoc
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorLocationsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5686,7 +5290,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorLoc
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorPolygonBufferEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5701,7 +5304,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorPol
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataUserPresenceChangedEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5715,7 +5317,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataUserPre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemUserPresencePropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5728,7 +5329,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemUserPresen
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataHeadsetFitChangedML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5742,7 +5342,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataHeadset
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataEyeCalibrationChangedML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5755,7 +5354,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataEyeCali
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUserCalibrationEnableEventsInfoML* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5768,7 +5366,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUserCalibrationE
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, const JsonOptions& options)
 {
     if (data && data->GetPointer())

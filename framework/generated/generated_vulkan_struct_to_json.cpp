@@ -59,7 +59,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SpsVui
         FieldToJson(jdata["vcl_hrd_parameters_present_flag"], decoded_value.vcl_hrd_parameters_present_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264HrdParameters* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -80,7 +79,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264HrdPar
         FieldToJson(jdata["time_offset_length"], decoded_value.time_offset_length, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SequenceParameterSetVui* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -106,7 +104,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264Sequen
         FieldToJson(jdata["pHrdParameters"], meta_struct.pHrdParameters, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SpsFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -132,7 +129,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SpsFla
         FieldToJson(jdata["vui_parameters_present_flag"], decoded_value.vui_parameters_present_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264ScalingLists* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -146,7 +142,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264Scalin
         FieldToJson(jdata["ScalingList8x8"], &meta_struct.ScalingList8x8, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264SequenceParameterSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -181,7 +176,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264Sequen
         FieldToJson(jdata["pSequenceParameterSetVui"], meta_struct.pSequenceParameterSetVui, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264PpsFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -199,7 +193,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264PpsFla
         FieldToJson(jdata["pic_scaling_matrix_present_flag"], decoded_value.pic_scaling_matrix_present_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264PictureParameterSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -220,7 +213,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH264Pictur
         FieldToJson(jdata["pScalingLists"], meta_struct.pScalingLists, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264PictureInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -236,7 +228,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264
         FieldToJson(jdata["complementary_field_pair"], decoded_value.complementary_field_pair, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264PictureInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -254,7 +245,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264
         FieldToJson(jdata["PicOrderCnt"], &meta_struct.PicOrderCnt, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264ReferenceInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -268,7 +258,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264
         FieldToJson(jdata["is_non_existing"], decoded_value.is_non_existing, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264ReferenceInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -282,7 +271,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH264
         FieldToJson(jdata["PicOrderCnt"], &meta_struct.PicOrderCnt, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264WeightTableFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -296,7 +284,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["chroma_weight_l1_flag"], decoded_value.chroma_weight_l1_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264WeightTable* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -317,7 +304,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["chroma_offset_l1"], &meta_struct.chroma_offset_l1, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264SliceHeaderFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -330,7 +316,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264PictureInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -346,7 +331,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264ReferenceInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -358,7 +342,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264ReferenceListsInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -371,7 +354,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264RefListModEntry* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -384,7 +366,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["long_term_pic_num"], decoded_value.long_term_pic_num, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264RefPicMarkingEntry* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -399,7 +380,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["max_long_term_frame_idx_plus1"], decoded_value.max_long_term_frame_idx_plus1, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264ReferenceListsInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -421,7 +401,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["pRefPicMarkingOperations"], meta_struct.pRefPicMarkingOperations, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264PictureInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -441,7 +420,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["pRefLists"], meta_struct.pRefLists, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264ReferenceInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -458,7 +436,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["temporal_id"], decoded_value.temporal_id, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264SliceHeader* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -478,7 +455,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH264
         FieldToJson(jdata["pWeightTable"], meta_struct.pWeightTable, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265ProfileTierLevelFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -493,7 +469,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265Profil
         FieldToJson(jdata["general_frame_only_constraint_flag"], decoded_value.general_frame_only_constraint_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265ProfileTierLevel* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -506,7 +481,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265Profil
         FieldToJson(jdata["general_level_idc"], decoded_value.general_level_idc, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265DecPicBufMgr* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -519,7 +493,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265DecPic
         FieldToJson(jdata["max_num_reorder_pics"], &meta_struct.max_num_reorder_pics, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SubLayerHrdParameters* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -534,7 +507,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SubLay
         FieldToJson(jdata["cbr_flag"], decoded_value.cbr_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265HrdFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -551,7 +523,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265HrdFla
         FieldToJson(jdata["low_delay_hrd_flag"], decoded_value.low_delay_hrd_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265HrdParameters* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -576,7 +547,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265HrdPar
         FieldToJson(jdata["pSubLayerHrdParametersVcl"], meta_struct.pSubLayerHrdParametersVcl, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265VpsFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -590,7 +560,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265VpsFla
         FieldToJson(jdata["vps_poc_proportional_to_timing_flag"], decoded_value.vps_poc_proportional_to_timing_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265VideoParameterSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -612,7 +581,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265VideoP
         FieldToJson(jdata["pProfileTierLevel"], meta_struct.pProfileTierLevel, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265ScalingLists* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -628,7 +596,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265Scalin
         FieldToJson(jdata["ScalingListDCCoef32x32"], &meta_struct.ScalingListDCCoef32x32, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265ShortTermRefPicSetFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -640,7 +607,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265ShortT
         FieldToJson(jdata["delta_rps_sign"], decoded_value.delta_rps_sign, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265ShortTermRefPicSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -664,7 +630,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265ShortT
         FieldToJson(jdata["delta_poc_s1_minus1"], &meta_struct.delta_poc_s1_minus1, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265LongTermRefPicsSps* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -676,7 +641,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265LongTe
         FieldToJson(jdata["lt_ref_pic_poc_lsb_sps"], &meta_struct.lt_ref_pic_poc_lsb_sps, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SpsVuiFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -704,7 +668,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SpsVui
         FieldToJson(jdata["restricted_ref_pic_lists_flag"], decoded_value.restricted_ref_pic_lists_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SequenceParameterSetVui* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -740,7 +703,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265Sequen
         FieldToJson(jdata["pHrdParameters"], meta_struct.pHrdParameters, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265PredictorPaletteEntries* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -751,7 +713,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265Predic
         FieldToJson(jdata["PredictorPaletteEntries"], &meta_struct.PredictorPaletteEntries, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SpsFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -791,7 +752,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SpsFla
         FieldToJson(jdata["intra_boundary_filtering_disabled_flag"], decoded_value.intra_boundary_filtering_disabled_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265SequenceParameterSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -840,7 +800,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265Sequen
         FieldToJson(jdata["pPredictorPaletteEntries"], meta_struct.pPredictorPaletteEntries, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265PpsFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -881,7 +840,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265PpsFla
         FieldToJson(jdata["pps_range_extension_flag"], decoded_value.pps_range_extension_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265PictureParameterSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -927,7 +885,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoH265Pictur
         FieldToJson(jdata["pPredictorPaletteEntries"], meta_struct.pPredictorPaletteEntries, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265PictureInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -941,7 +898,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265
         FieldToJson(jdata["short_term_ref_pic_set_sps_flag"], decoded_value.short_term_ref_pic_set_sps_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265PictureInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -962,7 +918,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265
         FieldToJson(jdata["RefPicSetLtCurr"], &meta_struct.RefPicSetLtCurr, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265ReferenceInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -974,7 +929,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265
         FieldToJson(jdata["unused_for_reference"], decoded_value.unused_for_reference, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265ReferenceInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -986,7 +940,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeH265
         FieldToJson(jdata["PicOrderCntVal"], decoded_value.PicOrderCntVal, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265WeightTableFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1000,7 +953,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["chroma_weight_l1_flag"], decoded_value.chroma_weight_l1_flag, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265WeightTable* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1021,7 +973,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["delta_chroma_offset_l1"], &meta_struct.delta_chroma_offset_l1, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265LongTermRefPics* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1038,7 +989,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["delta_poc_msb_cycle_lt"], &meta_struct.delta_poc_msb_cycle_lt, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265SliceSegmentHeaderFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1061,7 +1011,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265SliceSegmentHeader* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1086,7 +1035,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["pWeightTable"], meta_struct.pWeightTable, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265ReferenceListsInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1099,7 +1047,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265ReferenceListsInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1116,7 +1063,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["list_entry_l1"], &meta_struct.list_entry_l1, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265PictureInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1136,7 +1082,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265PictureInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1158,7 +1103,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["pLongTermRefPics"], meta_struct.pLongTermRefPics, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265ReferenceInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1171,7 +1115,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265ReferenceInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1185,7 +1128,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoEncodeH265
         FieldToJson(jdata["TemporalId"], decoded_value.TemporalId, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1ColorConfigFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1200,7 +1142,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1ColorCo
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1ColorConfig* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1219,7 +1160,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1ColorCo
         FieldToJson(jdata["chroma_sample_position"], decoded_value.chroma_sample_position, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TimingInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1231,7 +1171,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TimingI
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TimingInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1245,7 +1184,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TimingI
         FieldToJson(jdata["num_ticks_per_picture_minus_1"], decoded_value.num_ticks_per_picture_minus_1, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1SequenceHeaderFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1275,7 +1213,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1Sequenc
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1SequenceHeader* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1299,7 +1236,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1Sequenc
         FieldToJson(jdata["pTimingInfo"], meta_struct.pTimingInfo, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1LoopFilterFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1312,7 +1248,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1LoopFil
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1LoopFilter* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1329,7 +1264,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1LoopFil
         FieldToJson(jdata["loop_filter_mode_deltas"], &meta_struct.loop_filter_mode_deltas, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1QuantizationFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1342,7 +1276,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1Quantiz
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1Quantization* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1362,7 +1295,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1Quantiz
         FieldToJson(jdata["qm_v"], decoded_value.qm_v, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1Segmentation* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1374,7 +1306,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1Segment
         FieldToJson(jdata["FeatureData"], &meta_struct.FeatureData, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TileInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1386,7 +1317,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TileInf
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TileInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1406,7 +1336,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1TileInf
         FieldToJson(jdata["pHeightInSbsMinus1"], meta_struct.pHeightInSbsMinus1, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1CDEF* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1422,7 +1351,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1CDEF* d
         FieldToJson(jdata["cdef_uv_sec_strength"], &meta_struct.cdef_uv_sec_strength, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1LoopRestoration* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1434,7 +1362,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1LoopRes
         FieldToJson(jdata["LoopRestorationSize"], &meta_struct.LoopRestorationSize, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1GlobalMotion* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1446,7 +1373,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1GlobalM
         FieldToJson(jdata["gm_params"], &meta_struct.gm_params, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1FilmGrainFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1461,7 +1387,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1FilmGra
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1FilmGrain* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1496,7 +1421,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoAV1FilmGra
         FieldToJson(jdata["cr_offset"], decoded_value.cr_offset, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1PictureInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1536,7 +1460,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1P
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1PictureInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1570,7 +1493,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1P
         FieldToJson(jdata["pFilmGrain"], meta_struct.pFilmGrain, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1ReferenceInfoFlags* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1583,7 +1505,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1R
         FieldToJson(jdata["reserved"], decoded_value.reserved, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1ReferenceInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1598,7 +1519,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_StdVideoDecodeAV1R
         FieldToJson(jdata["SavedOrderHints"], &meta_struct.SavedOrderHints, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExtent2D* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1610,7 +1530,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExtent2D* data, 
         FieldToJson(jdata["height"], decoded_value.height, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExtent3D* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1623,7 +1542,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExtent3D* data, 
         FieldToJson(jdata["depth"], decoded_value.depth, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOffset2D* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1635,7 +1553,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOffset2D* data, 
         FieldToJson(jdata["y"], decoded_value.y, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOffset3D* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1648,7 +1565,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOffset3D* data, 
         FieldToJson(jdata["z"], decoded_value.z, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRect2D* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1660,7 +1576,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRect2D* data, co
         FieldToJson(jdata["extent"], meta_struct.extent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarrier* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1679,7 +1594,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDispatchIndirectCommand* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1692,7 +1606,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDispatchIndirect
         FieldToJson(jdata["z"], decoded_value.z, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawIndexedIndirectCommand* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1707,7 +1620,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawIndexedIndir
         FieldToJson(jdata["firstInstance"], decoded_value.firstInstance, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawIndirectCommand* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1721,7 +1633,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawIndirectComm
         FieldToJson(jdata["firstInstance"], decoded_value.firstInstance, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresourceRange* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1736,7 +1647,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource
         FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryBarrier* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1756,7 +1666,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryBarri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryBarrier* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1770,7 +1679,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryBarrier* d
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCacheHeaderVersionOne* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1785,7 +1693,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCacheHea
         FieldToJson(jdata["pipelineCacheUUID"], uuid_to_string(sizeof(decoded_value.pipelineCacheUUID), decoded_value.pipelineCacheUUID), options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAllocationCallbacks* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1801,7 +1708,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAllocationCallba
         FieldToJson(jdata["pfnInternalFree"], to_hex_variable_width(meta_struct.pfnInternalFree), options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkApplicationInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1818,7 +1724,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkApplicationInfo*
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFormatProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1831,7 +1736,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFormatProperties
         FieldToJson(VkFormatFeatureFlags_t(),jdata["bufferFeatures"], decoded_value.bufferFeatures, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1846,7 +1750,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatPrope
         FieldToJson(jdata["maxResourceSize"], decoded_value.maxResourceSize, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkInstanceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1864,7 +1767,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkInstanceCreateIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryHeap* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1876,7 +1778,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryHeap* data
         FieldToJson(VkMemoryHeapFlags_t(),jdata["flags"], decoded_value.flags, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryType* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1888,7 +1789,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryType* data
         FieldToJson(jdata["heapIndex"], decoded_value.heapIndex, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1953,7 +1853,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFe
         jdata["inheritedQueries"] = static_cast<bool>(decoded_value.inheritedQueries);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLimits* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2069,7 +1968,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLi
         FieldToJson(jdata["nonCoherentAtomSize"], decoded_value.nonCoherentAtomSize, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMemoryProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2083,7 +1981,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["memoryHeaps"], meta_struct.memoryHeaps, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSparseProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2098,7 +1995,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSp
         jdata["residencyNonResidentStrict"] = static_cast<bool>(decoded_value.residencyNonResidentStrict);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2117,7 +2013,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["sparseProperties"], meta_struct.sparseProperties, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2131,7 +2026,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyPrope
         FieldToJson(jdata["minImageTransferGranularity"], meta_struct.minImageTransferGranularity, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2147,7 +2041,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueCreat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2167,7 +2060,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceCreateInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExtensionProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2179,7 +2071,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExtensionPropert
         FieldToJson(jdata["specVersion"], decoded_value.specVersion, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2193,7 +2084,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerProperties*
         FieldToJson(jdata["description"], &meta_struct.description, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubmitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2212,7 +2102,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubmitInfo* data
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMappedMemoryRange* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2227,7 +2116,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMappedMemoryRang
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryAllocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2241,7 +2129,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryAllocateIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryRequirements* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2254,7 +2141,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryRequiremen
         FieldToJson(jdata["memoryTypeBits"], decoded_value.memoryTypeBits, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseMemoryBind* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2269,7 +2155,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseMemoryBind
         FieldToJson(VkSparseMemoryBindFlags_t(),jdata["flags"], decoded_value.flags, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseBufferMemoryBindInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2282,7 +2167,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseBufferMemo
         FieldToJson(jdata["pBinds"], meta_struct.pBinds, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageOpaqueMemoryBindInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2295,7 +2179,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageOpaqu
         FieldToJson(jdata["pBinds"], meta_struct.pBinds, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2308,7 +2191,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource
         FieldToJson(jdata["arrayLayer"], decoded_value.arrayLayer, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryBind* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2324,7 +2206,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemor
         FieldToJson(VkSparseMemoryBindFlags_t(),jdata["flags"], decoded_value.flags, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryBindInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2337,7 +2218,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemor
         FieldToJson(jdata["pBinds"], meta_struct.pBinds, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindSparseInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2359,7 +2239,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindSparseInfo* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageFormatProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2372,7 +2251,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageForma
         FieldToJson(VkSparseImageFormatFlags_t(),jdata["flags"], decoded_value.flags, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryRequirements* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2387,7 +2265,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemor
         FieldToJson(jdata["imageMipTailStride"], decoded_value.imageMipTailStride, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFenceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2400,7 +2277,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFenceCreateInfo*
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2413,7 +2289,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreCreateI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkEventCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2426,7 +2301,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkEventCreateInfo*
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2442,7 +2316,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolCreateI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2460,7 +2333,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCreateInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferViewCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2477,7 +2349,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferViewCreate
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2502,7 +2373,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCreateInfo*
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceLayout* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2517,7 +2387,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceLayou
         FieldToJson(jdata["depthPitch"], decoded_value.depthPitch, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComponentMapping* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2531,7 +2400,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComponentMapping
         FieldToJson(jdata["a"], decoded_value.a, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2549,7 +2417,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewCreateI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSpecializationMapEntry* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2562,7 +2429,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSpecializationMa
         FieldToJson(jdata["size"], decoded_value.size, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSpecializationInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2576,7 +2442,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSpecializationIn
         FieldToJson(jdata["pData"], meta_struct.pData, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineShaderStageCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2593,7 +2458,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineShaderSt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputePipelineCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2610,7 +2474,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputePipelineC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindingDescription* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2623,7 +2486,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindi
         FieldToJson(jdata["inputRate"], decoded_value.inputRate, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputAttributeDescription* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2637,7 +2499,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputAttri
         FieldToJson(jdata["offset"], decoded_value.offset, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineVertexInputStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2654,7 +2515,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineVertexIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineInputAssemblyStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2669,7 +2529,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineInputAss
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineTessellationStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2683,7 +2542,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineTessella
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewport* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2699,7 +2557,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewport* data, 
         FieldToJson(jdata["maxDepth"], decoded_value.maxDepth, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2716,7 +2573,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewport
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2739,7 +2595,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasteriz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineMultisampleStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2758,7 +2613,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineMultisam
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStencilOpState* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2775,7 +2629,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStencilOpState* 
         FieldToJson(jdata["reference"], decoded_value.reference, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDepthStencilStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2797,7 +2650,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDepthSte
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorBlendAttachmentState* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2815,7 +2667,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorBle
         FieldToJson(VkColorComponentFlags_t(),jdata["colorWriteMask"], decoded_value.colorWriteMask, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorBlendStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2833,7 +2684,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorBle
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDynamicStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2848,7 +2698,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDynamicS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsPipelineCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2877,7 +2726,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsPipeline
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushConstantRange* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2890,7 +2738,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushConstantRang
         FieldToJson(jdata["size"], decoded_value.size, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineLayoutCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2907,7 +2754,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineLayoutCr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2935,7 +2781,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCreateInf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyDescriptorSet* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2954,7 +2799,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyDescriptorSe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorBufferInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2967,7 +2811,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorBuffer
         FieldToJson(jdata["range"], decoded_value.range, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorPoolSize* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2979,7 +2822,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorPoolSi
         FieldToJson(jdata["descriptorCount"], decoded_value.descriptorCount, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorPoolCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2995,7 +2837,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorPoolCr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetAllocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3010,7 +2851,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetAll
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLayoutBinding* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3025,7 +2865,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLay
         HandleToJson(jdata["pImmutableSamplers"], &meta_struct.pImmutableSamplers, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLayoutCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3040,7 +2879,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLay
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentDescription* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3059,7 +2897,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentDescri
         FieldToJson(jdata["finalLayout"], decoded_value.finalLayout, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentReference* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3071,7 +2908,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentRefere
         FieldToJson(jdata["layout"], decoded_value.layout, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3090,7 +2926,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferCreat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescription* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3110,7 +2945,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescripti
         FieldToJson(jdata["pPreserveAttachments"], meta_struct.pPreserveAttachments, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDependency* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3127,7 +2961,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDependenc
         FieldToJson(VkDependencyFlags_t(),jdata["dependencyFlags"], decoded_value.dependencyFlags, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3146,7 +2979,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreate
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandPoolCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3160,7 +2992,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandPoolCreat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferAllocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3175,7 +3006,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferAll
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInheritanceInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3193,7 +3023,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3207,7 +3036,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferBeg
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCopy* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3220,7 +3048,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCopy* data
         FieldToJson(jdata["size"], decoded_value.size, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresourceLayers* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3234,7 +3061,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource
         FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferImageCopy* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3250,7 +3076,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferImageCopy*
         FieldToJson(jdata["imageExtent"], meta_struct.imageExtent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearDepthStencilValue* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3262,7 +3087,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearDepthStenci
         FieldToJson(jdata["stencil"], decoded_value.stencil, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearAttachment* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3275,7 +3099,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearAttachment*
         FieldToJson(jdata["clearValue"], meta_struct.clearValue, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearRect* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3288,7 +3111,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkClearRect* data,
         FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageBlit* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3302,7 +3124,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageBlit* data,
         FieldToJson(jdata["dstOffsets"], meta_struct.dstOffsets, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCopy* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3317,7 +3138,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCopy* data,
         FieldToJson(jdata["extent"], meta_struct.extent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageResolve* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3332,7 +3152,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageResolve* da
         FieldToJson(jdata["extent"], meta_struct.extent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3349,7 +3168,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassBeginI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSubgroupProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3365,7 +3183,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindBufferMemoryInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3380,7 +3197,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindBufferMemory
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImageMemoryInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3395,7 +3211,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImageMemoryI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevice16BitStorageFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3411,7 +3226,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevice16
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryDedicatedRequirements* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3425,7 +3239,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryDedicatedR
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryDedicatedAllocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3439,7 +3252,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryDedicatedA
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryAllocateFlagsInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3453,7 +3265,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryAllocateFl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupRenderPassBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3468,7 +3279,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupRende
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupCommandBufferBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3481,7 +3291,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupComma
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupSubmitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3499,7 +3308,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupSubmi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupBindSparseInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3513,7 +3321,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupBindS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindBufferMemoryDeviceGroupInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3527,7 +3334,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindBufferMemory
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImageMemoryDeviceGroupInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3543,7 +3349,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImageMemoryD
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGroupProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3558,7 +3363,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupDeviceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3572,7 +3376,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupDevic
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryRequirementsInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3585,7 +3388,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryRequ
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryRequirementsInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3598,7 +3400,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryRequi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSparseMemoryRequirementsInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3611,7 +3412,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSparseMemor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryRequirements2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3624,7 +3424,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryRequiremen
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemoryRequirements2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3637,7 +3436,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageMemor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFeatures2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3650,7 +3448,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceProperties2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3663,7 +3460,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFormatProperties2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3676,7 +3472,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFormatProperties
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatProperties2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3689,7 +3484,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatPrope
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageFormatInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3706,7 +3500,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyProperties2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3719,7 +3512,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyPrope
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMemoryProperties2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3732,7 +3524,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageFormatProperties2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3745,7 +3536,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSparseImageForma
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSparseImageFormatInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3762,7 +3552,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSp
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePointClippingProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3775,7 +3564,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkInputAttachmentAspectReference* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3788,7 +3576,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkInputAttachmentA
         FieldToJson(VkImageAspectFlags_t(),jdata["aspectMask"], decoded_value.aspectMask, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassInputAttachmentAspectCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3802,7 +3589,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassInputA
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewUsageCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3815,7 +3601,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewUsageCr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineTessellationDomainOriginStateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3828,7 +3613,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineTessella
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassMultiviewCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3846,7 +3630,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassMultiv
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiviewFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3861,7 +3644,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiviewProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3875,7 +3657,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVariablePointersFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3889,7 +3670,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceProtectedMemoryFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3902,7 +3682,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceProtectedMemoryProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3915,7 +3694,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3930,7 +3708,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueInfo2
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkProtectedSubmitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3943,7 +3720,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkProtectedSubmitI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConversionCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3963,7 +3739,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConv
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConversionInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3976,7 +3751,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConv
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImagePlaneMemoryInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -3989,7 +3763,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImagePlaneMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImagePlaneMemoryRequirementsInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4002,7 +3775,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImagePlaneMemory
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSamplerYcbcrConversionFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4015,7 +3787,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConversionImageFormatProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4028,7 +3799,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConv
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorUpdateTemplateEntry* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4044,7 +3814,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorUpdate
         FieldToJson(jdata["stride"], decoded_value.stride, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorUpdateTemplateCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4064,7 +3833,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorUpdate
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4077,7 +3845,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryPr
         FieldToJson(VkExternalMemoryHandleTypeFlags_t(),jdata["compatibleHandleTypes"], decoded_value.compatibleHandleTypes, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalImageFormatInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4090,7 +3857,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalImageFormatProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4103,7 +3869,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalImageFor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalBufferInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4118,7 +3883,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalBufferProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4131,7 +3895,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalBufferPr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIDProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4148,7 +3911,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceID
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryImageCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4161,7 +3923,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryBufferCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4174,7 +3935,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryBu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryAllocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4187,7 +3947,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryAllo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalFenceInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4200,7 +3959,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalFenceProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4215,7 +3973,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalFencePro
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportFenceCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4228,7 +3985,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportFenceCreat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportSemaphoreCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4241,7 +3997,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportSemaphoreC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalSemaphoreInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4254,7 +4009,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalSemaphoreProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4269,7 +4023,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalSemaphor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance3Properties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4283,7 +4036,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLayoutSupport* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4296,7 +4048,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLay
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderDrawParametersFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4309,7 +4060,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan11Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4333,7 +4083,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan11Properties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4360,7 +4109,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan12Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4419,7 +4167,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConformanceVersion* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4433,7 +4180,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConformanceVersi
         FieldToJson(jdata["patch"], decoded_value.patch, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan12Properties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4497,7 +4243,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatListCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4511,7 +4256,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageFormatListC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentDescription2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4532,7 +4276,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentDescri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentReference2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4547,7 +4290,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentRefere
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescription2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4570,7 +4312,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescripti
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDependency2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4590,7 +4331,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDependenc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreateInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4611,7 +4351,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreate
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4624,7 +4363,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassBeginInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassEndInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4636,7 +4374,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassEndInfo* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevice8BitStorageFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4651,7 +4388,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevice8B
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDriverProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4667,7 +4403,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderAtomicInt64Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4681,7 +4416,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderFloat16Int8Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4695,7 +4429,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFloatControlsProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4724,7 +4457,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLayoutBindingFlagsCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4738,7 +4470,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLay
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorIndexingFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4770,7 +4501,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorIndexingProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4805,7 +4535,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetVariableDescriptorCountAllocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4819,7 +4548,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetVar
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetVariableDescriptorCountLayoutSupport* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4832,7 +4560,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetVar
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescriptionDepthStencilResolve* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4847,7 +4574,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassDescripti
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDepthStencilResolveProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4863,7 +4589,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceScalarBlockLayoutFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4876,7 +4601,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageStencilUsageCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4889,7 +4613,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageStencilUsag
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerReductionModeCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4902,7 +4625,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerReduction
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSamplerFilterMinmaxProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4916,7 +4638,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkanMemoryModelFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4931,7 +4652,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImagelessFramebufferFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4944,7 +4664,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferAttachmentImageInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4963,7 +4682,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferAttac
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferAttachmentsCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4977,7 +4695,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferAttac
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassAttachmentBeginInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4991,7 +4708,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassAttach
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceUniformBufferStandardLayoutFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5004,7 +4720,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceUn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5017,7 +4732,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5030,7 +4744,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentReferenceStencilLayout* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5043,7 +4756,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentRefere
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentDescriptionStencilLayout* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5057,7 +4769,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentDescri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceHostQueryResetFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5070,7 +4781,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceHo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTimelineSemaphoreFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5083,7 +4793,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTimelineSemaphoreProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5096,7 +4805,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreTypeCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5110,7 +4818,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreTypeCre
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTimelineSemaphoreSubmitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5126,7 +4833,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTimelineSemaphor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreWaitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5142,7 +4848,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreWaitInf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreSignalInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5156,7 +4861,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreSignalI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBufferDeviceAddressFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5171,7 +4875,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferDeviceAddressInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5184,7 +4887,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferDeviceAddr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferOpaqueCaptureAddressCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5197,7 +4899,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferOpaqueCapt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryOpaqueCaptureAddressAllocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5210,7 +4911,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryOpaqueCapt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryOpaqueCaptureAddressInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5223,7 +4923,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryOpaq
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan13Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5250,7 +4949,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVulkan13Properties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5307,7 +5005,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreationFeedback* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5319,7 +5016,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreation
         FieldToJson(jdata["duration"], decoded_value.duration, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreationFeedbackCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5334,7 +5030,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreation
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderTerminateInvocationFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5347,7 +5042,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceToolProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5364,7 +5058,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderDemoteToHelperInvocationFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5377,7 +5070,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePrivateDataFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5390,7 +5082,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDevicePrivateDataCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5403,7 +5094,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDevicePrivateDat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPrivateDataSlotCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5416,7 +5106,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPrivateDataSlotC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineCreationCacheControlFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5429,7 +5118,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryBarrier2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5445,7 +5133,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryBarrier2* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarrier2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5466,7 +5153,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferMemoryBarr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryBarrier2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5488,7 +5174,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageMemoryBarri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDependencyInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5507,7 +5192,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDependencyInfo* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreSubmitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5523,7 +5207,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreSubmitI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferSubmitInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5537,7 +5220,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferSub
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubmitInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5556,7 +5238,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubmitInfo2* dat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSynchronization2Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5569,7 +5250,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSy
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5582,7 +5262,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceZe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageRobustnessFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5595,7 +5274,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCopy2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5610,7 +5288,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferCopy2* dat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyBufferInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5626,7 +5303,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyBufferInfo2*
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCopy2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5643,7 +5319,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCopy2* data
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5661,7 +5336,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageInfo2* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferImageCopy2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5679,7 +5353,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferImageCopy2
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyBufferToImageInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5696,7 +5369,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyBufferToImag
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToBufferInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5713,7 +5385,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToBuffe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageBlit2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5729,7 +5400,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageBlit2* data
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBlitImageInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5748,7 +5418,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBlitImageInfo2* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageResolve2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5765,7 +5434,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageResolve2* d
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkResolveImageInfo2* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5783,7 +5451,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkResolveImageInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSubgroupSizeControlFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5797,7 +5464,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSubgroupSizeControlProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5813,7 +5479,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineShaderStageRequiredSubgroupSizeCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5826,7 +5491,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineShaderSt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInlineUniformBlockFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5840,7 +5504,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInlineUniformBlockProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5857,7 +5520,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorSetInlineUniformBlock* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5871,7 +5533,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorPoolInlineUniformBlockCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5884,7 +5545,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorPoolIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTextureCompressionASTCHDRFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5897,7 +5557,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingAttachmentInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5917,7 +5576,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingAttachm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5937,7 +5595,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingInfo* d
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRenderingCreateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5954,7 +5611,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRenderin
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDynamicRenderingFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5967,7 +5623,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDy
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInheritanceRenderingInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5986,7 +5641,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderIntegerDotProductFeatures* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5999,7 +5653,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderIntegerDotProductProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6041,7 +5694,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTexelBufferAlignmentProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6057,7 +5709,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFormatProperties3* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6072,7 +5723,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFormatProperties
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance4Features* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6085,7 +5735,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance4Properties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6098,7 +5747,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceBufferMemoryRequirements* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6111,7 +5759,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceBufferMemo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceImageMemoryRequirements* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6125,7 +5772,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceImageMemor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6145,7 +5791,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilit
         FieldToJson(VkImageUsageFlags_t(),jdata["supportedUsageFlags"], decoded_value.supportedUsageFlags, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFormatKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6157,7 +5802,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFormatKHR
         FieldToJson(jdata["colorSpace"], decoded_value.colorSpace, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6185,7 +5829,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainCreateI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6203,7 +5846,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentInfoKHR* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSwapchainCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6216,7 +5858,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSwapchainCr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImageMemorySwapchainInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6230,7 +5871,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindImageMemoryS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAcquireNextImageInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6247,7 +5887,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAcquireNextImage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupPresentCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6261,7 +5900,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupPrese
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupPresentInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6276,7 +5914,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupPrese
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupSwapchainCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6289,7 +5926,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceGroupSwapc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModeParametersKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6301,7 +5937,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModeParam
         FieldToJson(jdata["refreshRate"], decoded_value.refreshRate, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModeCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6315,7 +5950,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModeCreat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModePropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6327,7 +5961,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModePrope
         FieldToJson(jdata["parameters"], meta_struct.parameters, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6346,7 +5979,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneCapa
         FieldToJson(jdata["maxDstExtent"], meta_struct.maxDstExtent, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlanePropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6358,7 +5990,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneProp
         FieldToJson(jdata["currentStackIndex"], decoded_value.currentStackIndex, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6375,7 +6006,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPropertie
         jdata["persistentContent"] = static_cast<bool>(decoded_value.persistentContent);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplaySurfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6395,7 +6025,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplaySurfaceCr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPresentInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6410,7 +6039,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPresentIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXlibSurfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6425,7 +6053,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXlibSurfaceCreat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXcbSurfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6440,7 +6067,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXcbSurfaceCreate
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWaylandSurfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6455,7 +6081,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWaylandSurfaceCr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidSurfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6469,7 +6094,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidSurfaceCr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWin32SurfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6484,7 +6108,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWin32SurfaceCrea
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyQueryResultStatusPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6497,7 +6120,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyQuery
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyVideoPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6510,7 +6132,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyVideo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoProfileInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6526,7 +6147,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoProfileInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoProfileListInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6540,7 +6160,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoProfileList
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6561,7 +6180,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoCapabilitie
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVideoFormatInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6574,7 +6192,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoFormatPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6592,7 +6209,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoFormatPrope
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoPictureResourceInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6608,7 +6224,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoPictureReso
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoReferenceSlotInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6622,7 +6237,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoReferenceSl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionMemoryRequirementsKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6636,7 +6250,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionMemo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindVideoSessionMemoryInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6652,7 +6265,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindVideoSession
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6673,7 +6285,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionCrea
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionParametersCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6688,7 +6299,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionPara
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionParametersUpdateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6701,7 +6311,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoSessionPara
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoBeginCodingInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6718,7 +6327,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoBeginCoding
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEndCodingInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6731,7 +6339,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEndCodingIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoCodingControlInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6744,7 +6351,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoCodingContr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6757,7 +6363,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeCapab
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeUsageInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6770,7 +6375,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeUsage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6790,7 +6394,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeInfoK
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264CapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6815,7 +6418,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264C
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264QpKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6828,7 +6430,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264Q
         FieldToJson(jdata["qpB"], decoded_value.qpB, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264QualityLevelPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6849,7 +6450,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264Q
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264SessionCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6863,7 +6463,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264SessionParametersAddInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6879,7 +6478,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264SessionParametersCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6894,7 +6492,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264SessionParametersGetInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6910,7 +6507,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264SessionParametersFeedbackInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6924,7 +6520,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264NaluSliceInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6938,7 +6533,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264N
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264PictureInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6954,7 +6548,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264DpbSlotInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6967,7 +6560,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264D
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264ProfileInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6980,7 +6572,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264RateControlInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -6997,7 +6588,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264R
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264FrameSizeKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7010,7 +6600,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264F
         FieldToJson(jdata["frameBSize"], decoded_value.frameBSize, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264RateControlLayerInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7028,7 +6617,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264R
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264GopRemainingFrameInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7044,7 +6632,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH264G
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265CapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7072,7 +6659,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265C
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265SessionCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7086,7 +6672,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265QpKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7099,7 +6684,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265Q
         FieldToJson(jdata["qpB"], decoded_value.qpB, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265QualityLevelPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7119,7 +6703,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265Q
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265SessionParametersAddInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7137,7 +6720,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265SessionParametersCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7153,7 +6735,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265SessionParametersGetInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7171,7 +6752,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265SessionParametersFeedbackInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7186,7 +6766,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265NaluSliceSegmentInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7200,7 +6779,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265N
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265PictureInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7215,7 +6793,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265DpbSlotInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7228,7 +6805,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265D
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265ProfileInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7241,7 +6817,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265RateControlInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7258,7 +6833,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265R
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265FrameSizeKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7271,7 +6845,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265F
         FieldToJson(jdata["frameBSize"], decoded_value.frameBSize, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265RateControlLayerInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7289,7 +6862,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265R
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265GopRemainingFrameInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7305,7 +6877,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeH265G
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264ProfileInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7319,7 +6890,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264CapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7333,7 +6903,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264C
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264SessionParametersAddInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7349,7 +6918,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264SessionParametersCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7364,7 +6932,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264PictureInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7379,7 +6946,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264DpbSlotInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7392,7 +6958,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH264D
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingFragmentShadingRateAttachmentInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7407,7 +6972,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingFragmen
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingFragmentDensityMapAttachmentInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7421,7 +6985,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingFragmen
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentSampleCountInfoAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7436,7 +6999,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentSample
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiviewPerViewAttributesInfoNVX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7450,7 +7012,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiviewPerView
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7465,7 +7026,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryWin3
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7480,7 +7040,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryWin3
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryWin32HandlePropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7493,7 +7052,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryWin32Handl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7507,7 +7065,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetWin32Ha
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryFdInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7521,7 +7078,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryFdIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryFdPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7534,7 +7090,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryFdProperti
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetFdInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7548,7 +7103,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetFdInfoK
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWin32KeyedMutexAcquireReleaseInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7567,7 +7121,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWin32KeyedMutexA
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportSemaphoreWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7584,7 +7137,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportSemaphoreW
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportSemaphoreWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7599,7 +7151,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportSemaphoreW
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkD3D12FenceSubmitInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7615,7 +7166,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkD3D12FenceSubmit
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreGetWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7629,7 +7179,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreGetWin3
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportSemaphoreFdInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7645,7 +7194,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportSemaphoreF
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreGetFdInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7659,7 +7207,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreGetFdIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePushDescriptorPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7672,7 +7219,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRectLayerKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7685,7 +7231,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRectLayerKHR* da
         FieldToJson(jdata["layer"], decoded_value.layer, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentRegionKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7697,7 +7242,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentRegionKHR
         FieldToJson(jdata["pRectangles"], meta_struct.pRectangles, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentRegionsKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7711,7 +7255,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentRegionsKH
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSharedPresentSurfaceCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7724,7 +7267,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSharedPresentSur
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportFenceWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7741,7 +7283,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportFenceWin32
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportFenceWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7756,7 +7297,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportFenceWin32
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFenceGetWin32HandleInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7770,7 +7310,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFenceGetWin32Han
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportFenceFdInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7786,7 +7325,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportFenceFdInf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFenceGetFdInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7800,7 +7338,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFenceGetFdInfoKH
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePerformanceQueryFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7814,7 +7351,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePerformanceQueryPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7827,7 +7363,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceCounterKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7843,7 +7378,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceCount
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceCounterDescriptionKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7859,7 +7393,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceCount
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolPerformanceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7874,7 +7407,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolPerform
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAcquireProfilingLockInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7888,7 +7420,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAcquireProfiling
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceQuerySubmitInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7901,7 +7432,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceQuery
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSurfaceInfo2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7914,7 +7444,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilities2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7927,7 +7456,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilit
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFormat2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7940,7 +7468,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFormat2KH
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayProperties2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7953,7 +7480,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPropertie
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneProperties2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7966,7 +7492,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneProp
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModeProperties2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7979,7 +7504,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayModePrope
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneInfo2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -7993,7 +7517,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneCapabilities2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8006,7 +7529,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPlaneCapa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePortabilitySubsetFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8033,7 +7555,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePortabilitySubsetPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8046,7 +7567,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderClockFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8060,7 +7580,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265ProfileInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8073,7 +7592,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265CapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8086,7 +7604,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265C
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265SessionParametersAddInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8104,7 +7621,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265SessionParametersCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8120,7 +7636,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265S
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265PictureInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8135,7 +7650,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265P
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265DpbSlotInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8148,7 +7662,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeH265D
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueGlobalPriorityCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8161,7 +7674,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueGloba
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8174,7 +7686,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyGlobalPriorityPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8188,7 +7699,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyGloba
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFragmentShadingRateAttachmentInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8202,7 +7712,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFragmentShadingR
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineFragmentShadingRateStateCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8216,7 +7725,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineFragment
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShadingRateFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8231,7 +7739,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShadingRatePropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8260,7 +7767,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShadingRateKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8274,7 +7780,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDynamicRenderingLocalReadFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8287,7 +7792,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDy
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingAttachmentLocationInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8301,7 +7805,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingAttachm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingInputAttachmentIndexInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8317,7 +7820,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingInputAt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderQuadControlFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8330,7 +7832,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceProtectedCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8343,7 +7844,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceProtected
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePresentWaitFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8356,7 +7856,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8369,7 +7868,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8382,7 +7880,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineInfoKHR*
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutablePropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8398,7 +7895,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutab
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutableInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8412,7 +7908,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutab
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutableInternalRepresentationKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8429,7 +7924,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineExecutab
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryMapInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8445,7 +7939,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryMapInfoKHR
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryUnmapInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8459,7 +7952,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryUnmapInfoK
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineLibraryCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8473,7 +7965,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineLibraryC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentIdKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8487,7 +7978,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentIdKHR* da
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePresentIdFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8500,7 +7990,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8521,7 +8010,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeInfoK
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeCapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8540,7 +8028,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeCapab
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolVideoEncodeFeedbackCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8553,7 +8040,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolVideoEn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeUsageInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8568,7 +8054,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeUsage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeRateControlLayerInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8584,7 +8069,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeRateC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeRateControlInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8602,7 +8086,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeRateC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVideoEncodeQualityLevelInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8616,7 +8099,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeQualityLevelPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8630,7 +8112,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeQuali
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeQualityLevelInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8643,7 +8124,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeQuali
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeSessionParametersGetInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8656,7 +8136,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeSessi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeSessionParametersFeedbackInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8669,7 +8148,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoEncodeSessi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyCheckpointProperties2NV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8682,7 +8160,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyCheck
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCheckpointData2NV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8696,7 +8173,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCheckpointData2N
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8709,7 +8185,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShaderBarycentricPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8722,7 +8197,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8735,7 +8209,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8751,7 +8224,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceWo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8765,7 +8237,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTraceRaysIndirectCommand2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8789,7 +8260,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTraceRaysIndirec
         FieldToJson(jdata["depth"], decoded_value.depth, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSubgroupRotateFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8803,7 +8273,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderMaximalReconvergenceFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8816,7 +8285,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance5FeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8829,7 +8297,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance5PropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8847,7 +8314,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingAreaInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8864,7 +8330,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderingAreaInf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8877,7 +8342,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageSubresource
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceImageSubresourceInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8891,7 +8355,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceImageSubre
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceLayout2KHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8904,7 +8367,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceLayou
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreateFlags2CreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8917,7 +8379,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCreateFl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferUsageFlags2CreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8930,7 +8391,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferUsageFlags
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8943,7 +8403,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCooperativeMatrixPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8964,7 +8423,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCooperativeMatri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8978,7 +8436,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -8991,7 +8448,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1ProfileInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9005,7 +8461,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1Pr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1CapabilitiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9018,7 +8473,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1Ca
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1SessionParametersCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9031,7 +8485,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1Se
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1PictureInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9049,7 +8502,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1Pi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1DpbSlotInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9062,7 +8514,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoDecodeAV1Dp
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVideoMaintenance1FeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9075,7 +8526,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoInlineQueryInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9090,7 +8540,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVideoInlineQuery
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9104,7 +8553,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindingDivisorDescriptionKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9116,7 +8564,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindi
         FieldToJson(jdata["divisor"], decoded_value.divisor, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineVertexInputDivisorStateCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9130,7 +8577,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineVertexIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVertexAttributeDivisorFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9144,7 +8590,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderFloatControls2FeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9157,7 +8602,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIndexTypeUint8FeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9170,7 +8614,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLineRasterizationFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9188,7 +8631,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLineRasterizationPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9201,7 +8643,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationLineStateCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9217,7 +8658,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasteriz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCalibratedTimestampInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9230,7 +8670,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCalibratedTimest
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderExpectAssumeFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9243,7 +8682,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance6FeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9256,7 +8694,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance6PropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9271,7 +8708,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindMemoryStatusKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9284,7 +8720,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindMemoryStatus
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDescriptorSetsInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9303,7 +8738,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDescriptorSe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushConstantsInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9320,7 +8754,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushConstantsInf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSetInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9337,7 +8770,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetDescriptorBufferOffsetsInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9355,7 +8787,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetDescriptorBuf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9370,7 +8801,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDescriptorBu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9383,7 +8813,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance7FeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9396,7 +8825,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMaintenance7PropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9416,7 +8844,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLayeredApiPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9432,7 +8859,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLayeredApiPropertiesListKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9446,7 +8872,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLayeredApiVulkanPropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9459,7 +8884,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugReportCallbackCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9474,7 +8898,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugReportCallb
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationStateRasterizationOrderAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9487,7 +8910,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasteriz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjectNameInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9502,7 +8924,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjec
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjectTagInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9519,7 +8940,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerObjec
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerMarkerInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9533,7 +8953,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugMarkerMarke
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDedicatedAllocationImageCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9546,7 +8965,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDedicatedAllocat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDedicatedAllocationBufferCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9559,7 +8977,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDedicatedAllocat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDedicatedAllocationMemoryAllocateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9573,7 +8990,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDedicatedAllocat
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTransformFeedbackFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9587,7 +9003,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTransformFeedbackPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9609,7 +9024,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationStateStreamCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9623,7 +9037,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasteriz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewHandleInfoNVX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9638,7 +9051,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewHandleI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewAddressPropertiesNVX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9652,7 +9064,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewAddress
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTextureLODGatherFormatPropertiesAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9665,7 +9076,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTextureLODGather
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderResourceUsageAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9680,7 +9090,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderResourceUs
         FieldToJson(jdata["scratchMemUsageInBytes"], decoded_value.scratchMemUsageInBytes, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderStatisticsInfoAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9697,7 +9106,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderStatistics
         FieldToJson(jdata["computeWorkGroupSize"], &meta_struct.computeWorkGroupSize, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStreamDescriptorSurfaceCreateInfoGGP* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9711,7 +9119,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStreamDescriptor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCornerSampledImageFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9724,7 +9131,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalImageFormatPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9738,7 +9144,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalImageFor
         FieldToJson(VkExternalMemoryHandleTypeFlagsNV_t(),jdata["compatibleHandleTypes"], decoded_value.compatibleHandleTypes, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryImageCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9751,7 +9156,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryAllocateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9764,7 +9168,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryAllo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryWin32HandleInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9778,7 +9181,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryWin3
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryWin32HandleInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9792,7 +9194,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExportMemoryWin3
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWin32KeyedMutexAcquireReleaseInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9811,7 +9212,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWin32KeyedMutexA
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkValidationFlagsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9825,7 +9225,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkValidationFlagsE
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViSurfaceCreateInfoNN* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9839,7 +9238,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViSurfaceCreateI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewASTCDecodeModeEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9852,7 +9250,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewASTCDec
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceASTCDecodeFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9865,7 +9262,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineRobustnessFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9878,7 +9274,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineRobustnessPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9894,7 +9289,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRobustnessCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9910,7 +9304,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRobustne
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConditionalRenderingBeginInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9925,7 +9318,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkConditionalRende
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceConditionalRenderingFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9939,7 +9331,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInheritanceConditionalRenderingInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9952,7 +9343,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewportWScalingNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9964,7 +9354,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewportWScaling
         FieldToJson(jdata["ycoeff"], decoded_value.ycoeff, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportWScalingStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -9979,7 +9368,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewport
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilities2EXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10002,7 +9390,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilit
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPowerInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10015,7 +9402,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayPowerInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceEventInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10028,7 +9414,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceEventInfoE
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayEventInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10041,7 +9426,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayEventInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainCounterCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10054,7 +9438,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainCounter
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRefreshCycleDurationGOOGLE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10065,7 +9448,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRefreshCycleDura
         FieldToJson(jdata["refreshDuration"], decoded_value.refreshDuration, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPastPresentationTimingGOOGLE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10080,7 +9462,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPastPresentation
         FieldToJson(jdata["presentMargin"], decoded_value.presentMargin, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentTimeGOOGLE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10092,7 +9473,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentTimeGOOGL
         FieldToJson(jdata["desiredPresentTime"], decoded_value.desiredPresentTime, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentTimesInfoGOOGLE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10106,7 +9486,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentTimesInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiviewPerViewAttributesPropertiesNVX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10119,7 +9498,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewportSwizzleNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10133,7 +9511,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkViewportSwizzleN
         FieldToJson(jdata["w"], decoded_value.w, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportSwizzleStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10148,7 +9525,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewport
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDiscardRectanglePropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10161,7 +9537,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDiscardRectangleStateCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10177,7 +9552,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineDiscardR
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceConservativeRasterizationPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10198,7 +9572,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationConservativeStateCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10213,7 +9586,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasteriz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDepthClipEnableFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10226,7 +9598,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationDepthClipStateCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10240,7 +9611,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasteriz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXYColorEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10252,7 +9622,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkXYColorEXT* data
         FieldToJson(jdata["y"], decoded_value.y, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHdrMetadataEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10272,7 +9641,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHdrMetadataEXT* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRelaxedLineRasterizationFeaturesIMG* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10285,7 +9653,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIOSSurfaceCreateInfoMVK* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10299,7 +9666,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIOSSurfaceCreate
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMacOSSurfaceCreateInfoMVK* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10313,7 +9679,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMacOSSurfaceCrea
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsLabelEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10327,7 +9692,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsLabelE
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsObjectNameInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10342,7 +9706,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsObject
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsMessengerCallbackDataEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10364,7 +9727,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsMessen
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsMessengerCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10381,7 +9743,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsMessen
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsObjectTagInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10398,7 +9759,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDebugUtilsObject
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareBufferUsageANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10411,7 +9771,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareB
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareBufferPropertiesANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10425,7 +9784,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareB
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareBufferFormatPropertiesANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10445,7 +9803,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareB
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportAndroidHardwareBufferInfoANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10458,7 +9815,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportAndroidHar
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetAndroidHardwareBufferInfoANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10471,7 +9827,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetAndroid
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalFormatANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10484,7 +9839,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalFormatAN
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareBufferFormatProperties2ANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10504,7 +9858,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareB
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSampleLocationEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10516,7 +9869,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSampleLocationEX
         FieldToJson(jdata["y"], decoded_value.y, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSampleLocationsInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10532,7 +9884,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSampleLocationsI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentSampleLocationsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10544,7 +9895,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAttachmentSample
         FieldToJson(jdata["sampleLocationsInfo"], meta_struct.sampleLocationsInfo, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassSampleLocationsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10556,7 +9906,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassSampleLoc
         FieldToJson(jdata["sampleLocationsInfo"], meta_struct.sampleLocationsInfo, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSampleLocationsBeginInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10572,7 +9921,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSample
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineSampleLocationsStateCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10586,7 +9934,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineSampleLo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSampleLocationsPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10603,7 +9950,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultisamplePropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10616,7 +9962,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultisamplePrope
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10629,7 +9974,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10647,7 +9991,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorBlendAdvancedStateCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10662,7 +10005,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorBle
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCoverageToColorStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10677,7 +10019,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCoverage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCoverageModulationStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10694,7 +10035,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCoverage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSMBuiltinsPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10708,7 +10048,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderSMBuiltinsFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10721,7 +10060,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifierPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10734,7 +10072,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifie
         FieldToJson(VkFormatFeatureFlags_t(),jdata["drmFormatModifierTilingFeatures"], decoded_value.drmFormatModifierTilingFeatures, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifierPropertiesListEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10748,7 +10085,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifie
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageDrmFormatModifierInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10764,7 +10100,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageDrmFormatModifierListCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10778,7 +10113,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageDrmFormatMo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageDrmFormatModifierExplicitCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10793,7 +10127,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageDrmFormatMo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageDrmFormatModifierPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10806,7 +10139,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageDrmFormatMo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifierProperties2EXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10819,7 +10151,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifie
         FieldToJson(VkFormatFeatureFlags2_t(),jdata["drmFormatModifierTilingFeatures"], decoded_value.drmFormatModifierTilingFeatures, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifierPropertiesList2EXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10833,7 +10164,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrmFormatModifie
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkValidationCacheCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10848,7 +10178,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkValidationCacheC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderModuleValidationCacheCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10861,7 +10190,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderModuleVali
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShadingRatePaletteNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10873,7 +10201,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShadingRatePalet
         FieldToJson(jdata["pShadingRatePaletteEntries"], meta_struct.pShadingRatePaletteEntries, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportShadingRateImageStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10888,7 +10215,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewport
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShadingRateImageFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10902,7 +10228,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShadingRateImagePropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10917,7 +10242,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCoarseSampleLocationNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10930,7 +10254,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCoarseSampleLoca
         FieldToJson(jdata["sample"], decoded_value.sample, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCoarseSampleOrderCustomNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10944,7 +10267,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCoarseSampleOrde
         FieldToJson(jdata["pSampleLocations"], meta_struct.pSampleLocations, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportCoarseSampleOrderStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10959,7 +10281,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewport
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingShaderGroupCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10976,7 +10297,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingShader
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingPipelineCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -10997,7 +10317,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingPipeli
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryTrianglesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11020,7 +10339,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryTriangle
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryAABBNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11036,7 +10354,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryAABBNV* 
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryDataNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11048,7 +10365,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryDataNV* 
         FieldToJson(jdata["aabbs"], meta_struct.aabbs, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11063,7 +10379,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeometryNV* data
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11080,7 +10395,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11094,7 +10408,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindAccelerationStructureMemoryInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11111,7 +10424,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindAcceleration
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorSetAccelerationStructureNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11125,7 +10437,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureMemoryRequirementsInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11139,7 +10450,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11159,7 +10469,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTransformMatrixKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11170,7 +10479,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTransformMatrixK
         FieldToJson(jdata["matrix"], &meta_struct.matrix, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAabbPositionsKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11186,7 +10494,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAabbPositionsKHR
         FieldToJson(jdata["maxZ"], decoded_value.maxZ, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureInstanceKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11202,7 +10509,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["accelerationStructureReference"], decoded_value.accelerationStructureReference, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRepresentativeFragmentTestFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11215,7 +10521,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRepresentativeFragmentTestStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11228,7 +10533,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRepresen
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageViewImageFormatInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11241,7 +10545,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFilterCubicImageViewImageFormatPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11255,7 +10558,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFilterCubicImage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryHostPointerInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11269,7 +10571,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryHost
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryHostPointerPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11282,7 +10583,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryHostPointe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalMemoryHostPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11295,7 +10595,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCompilerControlCreateInfoAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11308,7 +10607,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCompiler
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderCorePropertiesAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11334,7 +10632,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryOverallocationCreateInfoAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11347,7 +10644,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryOver
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVertexAttributeDivisorPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11360,7 +10656,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentFrameTokenGGP* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11373,7 +10668,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPresentFrameToke
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11387,7 +10681,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMeshShaderFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11401,7 +10694,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMeshShaderPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11426,7 +10718,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawMeshTasksIndirectCommandNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11438,7 +10729,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawMeshTasksInd
         FieldToJson(jdata["firstTask"], decoded_value.firstTask, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderImageFootprintFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11451,7 +10741,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportExclusiveScissorStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11465,7 +10754,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewport
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExclusiveScissorFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11478,7 +10766,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyCheckpointPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11491,7 +10778,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueueFamilyCheck
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCheckpointDataNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11505,7 +10791,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCheckpointDataNV
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderIntegerFunctions2FeaturesINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11518,7 +10803,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkInitializePerformanceApiInfoINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11531,7 +10815,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkInitializePerfor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolPerformanceQueryCreateInfoINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11544,7 +10827,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryPoolPerform
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceMarkerInfoINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11557,7 +10839,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceMarke
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceStreamMarkerInfoINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11570,7 +10851,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceStrea
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceOverrideInfoINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11585,7 +10865,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceOverr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceConfigurationAcquireInfoINTEL* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11598,7 +10877,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPerformanceConfi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePCIBusInfoPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11614,7 +10892,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayNativeHdrSurfaceCapabilitiesAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11627,7 +10904,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDisplayNativeHdr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainDisplayNativeHdrCreateInfoAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11640,7 +10916,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainDisplay
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImagePipeSurfaceCreateInfoFUCHSIA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11654,7 +10929,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImagePipeSurface
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMetalSurfaceCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11668,7 +10942,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMetalSurfaceCrea
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11683,7 +10956,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11698,7 +10970,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassFragmentDensityMapCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11711,7 +10982,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassFragme
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderCoreProperties2AMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11725,7 +10995,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCoherentMemoryFeaturesAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11738,7 +11007,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11752,7 +11020,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMemoryBudgetPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11766,7 +11033,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMemoryPriorityFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11779,7 +11045,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryPriorityAllocateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11792,7 +11057,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryPriorityAl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDedicatedAllocationImageAliasingFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11805,7 +11069,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBufferDeviceAddressFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11820,7 +11083,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferDeviceAddressCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11833,7 +11095,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBufferDeviceAddr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkValidationFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11849,7 +11110,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkValidationFeatur
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCooperativeMatrixPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11869,7 +11129,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCooperativeMatri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11883,7 +11142,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11896,7 +11154,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCoverageReductionModeFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11909,7 +11166,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCoverageReductionStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11923,7 +11179,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineCoverage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferMixedSamplesCombinationNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11939,7 +11194,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFramebufferMixed
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11954,7 +11208,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYcbcrImageArraysFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11967,7 +11220,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceProvokingVertexFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11981,7 +11233,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceProvokingVertexPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -11995,7 +11246,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasterizationProvokingVertexStateCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12008,7 +11258,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineRasteriz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFullScreenExclusiveInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12021,7 +11270,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFullScree
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilitiesFullScreenExclusiveEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12034,7 +11282,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilit
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFullScreenExclusiveWin32InfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12047,7 +11294,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceFullScree
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHeadlessSurfaceCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12060,7 +11306,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHeadlessSurfaceC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderAtomicFloatFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12084,7 +11329,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedDynamicStateFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12097,7 +11341,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceHostImageCopyFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12110,7 +11353,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceHo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceHostImageCopyPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12128,7 +11370,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceHo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryToImageCopyEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12146,7 +11387,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryToImageCop
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageToMemoryCopyEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12164,7 +11404,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageToMemoryCop
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImageInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12181,7 +11420,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToImag
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToMemoryInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12198,7 +11436,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToMemor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToImageInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12217,7 +11454,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyImageToImage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHostImageLayoutTransitionInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12233,7 +11469,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHostImageLayoutT
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceHostMemcpySizeEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12246,7 +11481,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubresourceHostM
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHostImageCopyDevicePerformanceQueryEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12260,7 +11494,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkHostImageCopyDev
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMapMemoryPlacedFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12275,7 +11508,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMapMemoryPlacedPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12288,7 +11520,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryMapPlacedInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12301,7 +11532,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryMapPlacedI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderAtomicFloat2FeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12325,7 +11555,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfacePresentModeEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12338,7 +11567,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfacePresentMo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfacePresentScalingCapabilitiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12355,7 +11583,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfacePresentSc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfacePresentModeCompatibilityEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12369,7 +11596,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfacePresentMo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12382,7 +11608,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSw
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentFenceInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12396,7 +11621,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresent
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentModesCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12410,7 +11634,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresent
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentModeInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12424,7 +11647,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresent
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentScalingCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12439,7 +11661,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresent
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkReleaseSwapchainImagesInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12454,7 +11675,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkReleaseSwapchain
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12475,7 +11695,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12488,7 +11707,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsShaderGroupCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12504,7 +11722,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsShaderGr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsPipelineShaderGroupsCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12520,7 +11737,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsPipeline
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindShaderGroupIndirectCommandNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12531,7 +11747,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindShaderGroupI
         FieldToJson(jdata["groupIndex"], decoded_value.groupIndex, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindIndexBufferIndirectCommandNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12544,7 +11759,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindIndexBufferI
         FieldToJson(jdata["indexType"], decoded_value.indexType, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindVertexBufferIndirectCommandNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12557,7 +11771,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindVertexBuffer
         FieldToJson(jdata["stride"], decoded_value.stride, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetStateFlagsIndirectCommandNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12568,7 +11781,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetStateFlagsInd
         FieldToJson(jdata["data"], decoded_value.data, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsStreamNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12580,7 +11792,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommands
         FieldToJson(jdata["offset"], decoded_value.offset, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12605,7 +11816,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommands
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12623,7 +11833,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommands
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12648,7 +11857,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommand
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsMemoryRequirementsInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12664,7 +11872,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommand
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInheritedViewportScissorFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12677,7 +11884,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInheritanceViewportScissorInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12692,7 +11898,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12705,7 +11910,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassTransformBeginInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12718,7 +11922,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassTransf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInheritanceRenderPassTransformInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12732,7 +11935,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCommandBufferInh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDepthBiasControlFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12748,7 +11950,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDepthBiasInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12763,7 +11964,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDepthBiasInfoEXT
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDepthBiasRepresentationInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12777,7 +11977,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDepthBiasReprese
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDeviceMemoryReportFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12790,7 +11989,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryReportCallbackDataEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12809,7 +12007,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceMemoryRepo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceDeviceMemoryReportCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12824,7 +12021,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceDeviceMemo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRobustness2FeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12839,7 +12035,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRobustness2PropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12853,7 +12048,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCustomBorderColorCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12867,7 +12061,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCustomBor
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCustomBorderColorPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12880,7 +12073,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCustomBorderColorFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12894,7 +12086,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePresentBarrierFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12907,7 +12098,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilitiesPresentBarrierNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12920,7 +12110,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSurfaceCapabilit
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresentBarrierCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12933,7 +12122,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainPresent
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDiagnosticsConfigFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12946,7 +12134,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceDiagnosticsConfigCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12959,7 +12146,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceDiagnostic
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryLowLatencySupportNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12972,7 +12158,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkQueryLowLatencyS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12985,7 +12170,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGraphicsPipelineLibraryPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -12999,7 +12183,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceGr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsPipelineLibraryCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13012,7 +12195,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGraphicsPipeline
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderEarlyAndLateFragmentTestsFeaturesAMD* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13025,7 +12207,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13040,7 +12221,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentShadingRateEnumsPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13053,7 +12233,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineFragmentShadingRateEnumStateCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13068,7 +12247,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineFragment
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryMotionTrianglesDataNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13081,7 +12259,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureMotionInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13095,7 +12272,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureMatrixMotionInstanceNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13112,7 +12288,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["accelerationStructureReference"], decoded_value.accelerationStructureReference, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSRTDataNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13138,7 +12313,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSRTDataNV* data,
         FieldToJson(jdata["tz"], decoded_value.tz, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureSRTMotionInstanceNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13155,7 +12329,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["accelerationStructureReference"], decoded_value.accelerationStructureReference, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingMotionBlurFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13169,7 +12342,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13182,7 +12354,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMap2FeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13195,7 +12366,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMap2PropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13211,7 +12381,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyCommandTransformInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13224,7 +12393,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyCommandTrans
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageCompressionControlFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13237,7 +12405,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCompressionControlEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13252,7 +12419,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCompression
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCompressionPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13266,7 +12432,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageCompression
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13279,7 +12444,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevice4444FormatsFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13293,7 +12457,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevice44
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFaultFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13307,7 +12470,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultCountsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13322,7 +12484,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultCount
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultAddressInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13335,7 +12496,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultAddre
         FieldToJson(jdata["addressPrecision"], decoded_value.addressPrecision, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultVendorInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13348,7 +12508,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultVendo
         FieldToJson(jdata["vendorFaultData"], decoded_value.vendorFaultData, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13364,7 +12523,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultInfoE
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultVendorBinaryHeaderVersionOneEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13385,7 +12543,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceFaultVendo
         FieldToJson(jdata["apiVersion"], decoded_value.apiVersion, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13400,7 +12557,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13413,7 +12569,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRG
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectFBSurfaceCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13428,7 +12583,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectFBSurfaceC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13441,7 +12595,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMutableDescriptorTypeListEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13453,7 +12606,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMutableDescripto
         FieldToJson(jdata["pDescriptorTypes"], meta_struct.pDescriptorTypes, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMutableDescriptorTypeCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13467,7 +12619,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMutableDescripto
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13480,7 +12631,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceVe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindingDescription2EXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13496,7 +12646,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputBindi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputAttributeDescription2EXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13512,7 +12661,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkVertexInputAttri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDrmPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13530,7 +12678,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAddressBindingReportFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13543,7 +12690,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAd
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceAddressBindingCallbackDataEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13559,7 +12705,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceAddressBin
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDepthClipControlFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13572,7 +12717,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportDepthClipControlCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13585,7 +12729,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewport
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13599,7 +12742,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryZirconHandleInfoFUCHSIA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13613,7 +12755,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportMemoryZirc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryZirconHandlePropertiesFUCHSIA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13626,7 +12767,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryZirconHand
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetZirconHandleInfoFUCHSIA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13640,7 +12780,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetZirconH
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportSemaphoreZirconHandleInfoFUCHSIA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13656,7 +12795,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImportSemaphoreZ
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreGetZirconHandleInfoFUCHSIA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13670,7 +12808,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSemaphoreGetZirc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceInvocationMaskFeaturesHUAWEI* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13683,7 +12820,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetRemoteAddressInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13697,7 +12833,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMemoryGetRemoteA
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalMemoryRDMAFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13710,7 +12845,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFrameBoundaryFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13723,7 +12857,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFrameBoundaryEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13744,7 +12877,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkFrameBoundaryEXT
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13757,7 +12889,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassResolvePerformanceQueryEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13770,7 +12901,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassResolvePe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultisampledRenderToSingleSampledInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13784,7 +12914,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultisampledRend
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedDynamicState2FeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13799,7 +12928,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkScreenSurfaceCreateInfoQNX* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13814,7 +12942,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkScreenSurfaceCre
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceColorWriteEnableFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13827,7 +12954,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorWriteCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13841,7 +12967,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineColorWri
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13856,7 +12981,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageViewMinLodFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13869,7 +12993,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewMinLodCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13882,7 +13005,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewMinLodC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiDrawFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13895,7 +13017,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiDrawPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13908,7 +13029,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiDrawInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13920,7 +13040,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiDrawInfoEXT
         FieldToJson(jdata["vertexCount"], decoded_value.vertexCount, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiDrawIndexedInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13933,7 +13052,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiDrawIndexed
         FieldToJson(jdata["vertexOffset"], decoded_value.vertexOffset, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImage2DViewOf3DFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13947,7 +13065,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderTileImageFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13962,7 +13079,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderTileImagePropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13977,7 +13093,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapUsageEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -13990,7 +13105,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapUsageEXT
         FieldToJson(jdata["format"], decoded_value.format, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapBuildInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14013,7 +13127,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapBuildInf
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14031,7 +13144,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapCreateIn
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOpacityMicromapFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14046,7 +13158,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOp
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOpacityMicromapPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14060,7 +13171,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOp
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapVersionInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14073,7 +13183,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapVersionI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMicromapToMemoryInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14088,7 +13197,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMicromapToMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToMicromapInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14103,7 +13211,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToMicr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMicromapInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14118,7 +13225,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMicromapInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapBuildSizesInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14133,7 +13239,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapBuildSiz
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureTrianglesOpacityMicromapEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14153,7 +13258,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapTriangleEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14166,7 +13270,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMicromapTriangle
         FieldToJson(jdata["format"], decoded_value.format, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDisplacementMicromapFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14179,7 +13282,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDisplacementMicromapPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14192,7 +13294,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureTrianglesDisplacementMicromapNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14220,7 +13321,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceClusterCullingShaderFeaturesHUAWEI* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14234,7 +13334,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceClusterCullingShaderPropertiesHUAWEI* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14250,7 +13349,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceClusterCullingShaderVrsFeaturesHUAWEI* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14263,7 +13361,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCl
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBorderColorSwizzleFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14277,7 +13374,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceBo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerBorderColorComponentMappingCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14291,7 +13387,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerBorderCol
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14304,7 +13399,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderCorePropertiesARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14319,7 +13413,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueShaderCoreControlCreateInfoARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14332,7 +13425,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDeviceQueueShade
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSchedulingControlsFeaturesARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14345,7 +13437,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSchedulingControlsPropertiesARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14358,7 +13449,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageSlicedViewOf3DFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14371,7 +13461,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewSlicedCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14385,7 +13474,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewSlicedC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorSetHostMappingFeaturesVALVE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14398,7 +13486,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetBindingReferenceVALVE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14412,7 +13499,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetBin
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLayoutHostMappingInfoVALVE* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14426,7 +13512,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDescriptorSetLay
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDepthClampZeroOneFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14439,7 +13524,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14452,7 +13536,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRenderPassStripedFeaturesARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14465,7 +13548,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRenderPassStripedPropertiesARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14479,7 +13561,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripeInfoARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14492,7 +13573,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripeBeginInfoARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14506,7 +13586,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripeSubmitInfoARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14520,7 +13599,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassStripe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14533,7 +13611,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFragmentDensityMapOffsetPropertiesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14546,7 +13623,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassFragmentDensityMapOffsetEndInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14560,7 +13636,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSubpassFragmentD
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsComputeFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14575,7 +13650,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputePipelineIndirectBufferInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14590,7 +13664,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkComputePipelineI
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineIndirectDeviceAddressInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14604,7 +13677,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineIndirect
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindPipelineIndirectCommandNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14615,7 +13687,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindPipelineIndi
         FieldToJson(jdata["pipelineAddress"], to_hex_variable_width(decoded_value.pipelineAddress), options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLinearColorAttachmentFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14628,7 +13699,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageCompressionControlSwapchainFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14641,7 +13711,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewSampleWeightCreateInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14656,7 +13725,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageViewSampleW
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessingFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14671,7 +13739,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessingPropertiesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14687,7 +13754,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNestedCommandBufferFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14702,7 +13768,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNestedCommandBufferPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14715,7 +13780,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceNe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryAcquireUnmodifiedEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14728,7 +13792,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkExternalMemoryAc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedDynamicState3FeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14771,7 +13834,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedDynamicState3PropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14784,7 +13846,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkColorBlendEquationEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14800,7 +13861,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkColorBlendEquati
         FieldToJson(jdata["alphaBlendOp"], decoded_value.alphaBlendOp, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkColorBlendAdvancedEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14815,7 +13875,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkColorBlendAdvanc
         jdata["clampResults"] = static_cast<bool>(decoded_value.clampResults);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14828,7 +13887,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreationControlEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14841,7 +13899,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreati
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreationFeedbackInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14852,7 +13909,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreati
         FieldToJson(jdata["postMergeSubpassCount"], decoded_value.postMergeSubpassCount, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreationFeedbackCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14865,7 +13921,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassCreati
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSubpassFeedbackInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14878,7 +13933,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSubpas
         FieldToJson(jdata["postMergeIndex"], decoded_value.postMergeIndex, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSubpassFeedbackCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14891,7 +13945,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRenderPassSubpas
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectDriverLoadingInfoLUNARG* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14905,7 +13958,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectDriverLoad
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectDriverLoadingListLUNARG* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14920,7 +13972,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDirectDriverLoad
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderModuleIdentifierFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14933,7 +13984,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderModuleIdentifierPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14946,7 +13996,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineShaderStageModuleIdentifierCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14960,7 +14009,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineShaderSt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderModuleIdentifierEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14974,7 +14022,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderModuleIden
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOpticalFlowFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -14987,7 +14034,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOp
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOpticalFlowPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15010,7 +14056,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceOp
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowImageFormatInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15023,7 +14068,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowImage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowImageFormatPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15036,7 +14080,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowImage
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowSessionCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15057,7 +14100,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowSessi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowSessionCreatePrivateDataInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15072,7 +14114,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowSessi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowExecuteInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15087,7 +14128,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOpticalFlowExecu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLegacyDitheringFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15100,7 +14140,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineProtectedAccessFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15113,7 +14152,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalFormatResolveFeaturesANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15126,7 +14164,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15141,7 +14178,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15154,7 +14190,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAndroidHardwareB
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15167,7 +14202,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15181,7 +14215,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15205,7 +14238,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderCreateInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15218,7 +14250,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTilePropertiesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15233,7 +14264,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTilePropertiesQC
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAmigoProfilingFeaturesSEC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15246,7 +14276,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAmigoProfilingSubmitInfoSEC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15260,7 +14289,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAmigoProfilingSu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiviewPerViewViewportsFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15273,7 +14301,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15286,7 +14313,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15299,7 +14325,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15312,7 +14337,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15327,7 +14351,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceEx
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15340,7 +14363,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15353,7 +14375,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15368,7 +14389,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingEXT*
         FieldToJson(jdata["pValues"], meta_struct.pValues, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingsCreateInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15382,7 +14402,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLayerSettingsCre
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15395,7 +14414,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15410,7 +14428,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15423,7 +14440,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePi
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15436,7 +14452,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDy
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySleepModeInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15451,7 +14466,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySleepMode
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySleepInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15465,7 +14479,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySleepInfo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetLatencyMarkerInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15479,7 +14492,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetLatencyMarker
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencyTimingsFrameReportNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15505,7 +14517,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencyTimingsFr
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGetLatencyMarkerInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15519,7 +14530,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGetLatencyMarker
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySubmissionPresentIdNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15532,7 +14542,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySubmissio
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainLatencyCreateInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15545,7 +14554,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSwapchainLatency
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOutOfBandQueueTypeInfoNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15558,7 +14566,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkOutOfBandQueueTy
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySurfaceCapabilitiesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15572,7 +14579,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkLatencySurfaceCa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15585,7 +14591,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiviewPerViewRenderAreasRenderPassBeginInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15599,7 +14604,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkMultiviewPerView
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePerStageDescriptorSetFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15613,7 +14617,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDevicePe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessing2FeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15626,7 +14629,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageProcessing2PropertiesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15639,7 +14641,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerBlockMatchWindowCreateInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15653,7 +14654,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerBlockMatc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCubicWeightsFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15666,7 +14666,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCubicWeightsCreateInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15679,7 +14678,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerCubicWeig
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBlitImageCubicWeightsInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15692,7 +14690,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBlitImageCubicWe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYcbcrDegammaFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15705,7 +14702,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceYc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConversionYcbcrDegammaCreateInfoQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15719,7 +14715,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSamplerYcbcrConv
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCubicClampFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15732,7 +14727,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceCu
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAttachmentFeedbackLoopDynamicStateFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15745,7 +14739,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAt
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLayeredDriverPropertiesMSFT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15758,7 +14751,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceLa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15771,7 +14763,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15784,7 +14775,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15797,7 +14787,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15810,7 +14799,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceSh
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15823,7 +14811,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15836,7 +14823,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageAlignmentControlPropertiesMESA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15849,7 +14835,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceIm
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageAlignmentControlCreateInfoMESA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15862,7 +14847,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageAlignmentCo
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildRangeInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15876,7 +14860,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["transformOffset"], decoded_value.transformOffset, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15895,7 +14878,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryAabbsDataKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15909,7 +14891,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureGeometryInstancesDataKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15923,7 +14904,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildGeometryInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15944,7 +14924,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15962,7 +14941,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorSetAccelerationStructureKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15976,7 +14954,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteDescriptorS
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAccelerationStructureFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -15993,7 +14970,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAccelerationStructurePropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16013,7 +14989,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceAc
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureDeviceAddressInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16026,7 +15001,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureVersionInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16039,7 +15013,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyAccelerationStructureToMemoryInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16054,7 +15027,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyAcceleration
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToAccelerationStructureInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16069,7 +15041,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyMemoryToAcce
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyAccelerationStructureInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16084,7 +15055,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkCopyAcceleration
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStructureBuildSizesInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16099,7 +15069,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkAccelerationStru
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingShaderGroupCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16117,7 +15086,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingShader
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingPipelineInterfaceCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16131,7 +15099,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingPipeli
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingPipelineCreateInfoKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16155,7 +15122,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkRayTracingPipeli
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingPipelineFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16172,7 +15138,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayTracingPipelinePropertiesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16192,7 +15157,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStridedDeviceAddressRegionKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16205,7 +15169,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkStridedDeviceAdd
         FieldToJson(jdata["size"], decoded_value.size, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTraceRaysIndirectCommandKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16218,7 +15181,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkTraceRaysIndirec
         FieldToJson(jdata["depth"], decoded_value.depth, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRayQueryFeaturesKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16231,7 +15193,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMeshShaderFeaturesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16248,7 +15209,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMeshShaderPropertiesEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16288,7 +15248,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceMe
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawMeshTasksIndirectCommandEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16301,7 +15260,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawMeshTasksInd
         FieldToJson(jdata["groupCountZ"], decoded_value.groupCountZ, options);
     }
 }
-
 void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const JsonOptions& options)
 {
     if (data && data->GetPointer())

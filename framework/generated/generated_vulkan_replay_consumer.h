@@ -52,6 +52,146 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
 
     virtual ~VulkanReplayConsumer() override { }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     virtual void Process_vkCreateInstance(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -3009,7 +3149,7 @@ class VulkanReplayConsumer : public VulkanReplayConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-        StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements) override;
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
 
     virtual void Process_vkBindAccelerationStructureMemoryNV(
         const ApiCallInfo&                          call_info,

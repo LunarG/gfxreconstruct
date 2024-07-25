@@ -30,29 +30,35 @@ from copy import deepcopy
 class BaseStructDecodersBodyGenerator():
     """Base class for generating struct docoder body code."""
 
-    def generate_feature(self):
+    def generate_struct_info(self):
         """Performs C++ code generation for the feature."""
-        first = True
-        for struct in self.get_filtered_struct_names():
-            body = '' if first else '\n'
+        body = '\n'
+        for struct in self.all_structs:
+            typename = struct
+            if struct in self.all_struct_aliases:
+                typename = self.all_struct_aliases[struct]
             body += 'size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_{}* wrapper)\n'.format(
-                struct
+                typename
             )
             body += '{\n'
             body += '    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));\n'
             body += '\n'
             body += '    size_t bytes_read = 0;\n'
-            body += '    {}* value = wrapper->decoded_value;\n'.format(struct)
+            body += '    {}* value = wrapper->decoded_value;\n'.format(typename)
             body += '\n'
             body += self.make_decode_struct_body(
-                struct, self.feature_struct_members[struct]
+                typename, self.all_struct_members[typename]
             )
             body += '\n'
             body += '    return bytes_read;\n'
-            body += '}'
+            body += '}\n\n'
+        return body
 
-            write(body, file=self.outFile)
-            first = False
+    def generate_feature(self):
+        """Performs C++ code generation for the feature."""
+        for struct in self.get_filtered_struct_names():
+            self.all_structs.append(struct)
+            self.all_struct_members[struct] = self.feature_struct_members[struct]
 
     def make_decode_struct_body(self, name, values):
         """Generate C++ code for the decoder method body."""
@@ -127,56 +133,16 @@ class BaseStructDecodersBodyGenerator():
 
                 if value.base_type in self.base_header_structs.keys():
                     if value.pointer_count == 1:
-                        main_body += f'    switch (wrapper->{value.name}->GetPointer()->type)\n'
-                        main_body += '    {\n'
-                        main_body += '        default:\n'
-                        main_body += '            wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
-                            value.name, self.make_decoded_param_type(value)
-                        )
+                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));\n'
 
-                        if is_static_array:
-                            array_dimension = ''
-                            # The pointer decoder will write directly to the struct member's memory.
-                            main_body += '            wrapper->{name}->SetExternalMemory({}value->{name}, {arraylen});\n'.format(
-                                array_dimension,
-                                name=value.name,
-                                arraylen=value.array_capacity
-                            )
-                        main_body += '            bytes_read += wrapper->{}->Decode({});\n'.format(
-                            value.name, buffer_args
-                        )
-                        main_body += '            break;\n'
-                        for child in self.base_header_structs[value.base_type]:
-                            type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
-                            type = type.upper()
-                            switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                            if 'OPEN_GLESFB' in switch_type:
-                                type = switch_type
-                                switch_type = re.sub('OPEN_GLESFB', 'OPENGL_ES_FB', type)
-
-                            new_value = deepcopy(value)
-                            new_value.base_type = child
-                            decode_type = self.make_decoded_param_type(new_value)
-                            var_name = value.name + '_' + child.lower()
-                            preamble += f'    {decode_type}* {var_name};\n'
-
-                            main_body += f'        case {switch_type}:\n'
-                            main_body += '            {} = DecodeAllocator::Allocate<{}>();\n'.format(
-                                var_name, decode_type
-                            )
-                            main_body += '            bytes_read += {}->Decode({});\n'.format(
-                                var_name, buffer_args
-                            )
-                            main_body += '            wrapper->{} = std::move(reinterpret_cast<StructPointerDecoder<Decoded_{}>*>({}));\n'.format(
-                                value.name, value.base_type, var_name
-                            )
-                            main_body += '            break;\n'
-                        main_body += '    }\n'
                     else:
-                        # TODO: Doesn't currently support arrays of pointers
-                        main_body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
-                            value.name, self.make_decoded_param_type(value)
-                        )
+                        main_body += '\n'
+                        main_body += '    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first\n'
+                        main_body += '    // and then read the array attributes so we can jump right in to decoding the contents\n'
+                        main_body += f'    wrapper->{value.name} = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_{value.base_type}*>>();\n'
+                        main_body += f'    bytes_read += wrapper->{value.name}->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));\n'
+                        main_body += f'    value->{value.name} = wrapper->{value.name}->GetPointer();\n'
+
                 else:
                     if is_struct:
                         main_body += '    wrapper->{} = DecodeAllocator::Allocate<{}>();\n'.format(
@@ -261,9 +227,15 @@ class BaseStructDecodersBodyGenerator():
                         type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
                         type = type.upper()
                         switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                        if 'OPEN_GLESFB' in switch_type:
+                        if 'OPEN_GLES' in switch_type:
                             type = switch_type
-                            switch_type = re.sub('OPEN_GLESFB', 'OPENGL_ES_FB', type)
+                            switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
+                        elif 'OPEN_GL' in switch_type:
+                            type = switch_type
+                            switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
+                        elif 'D3_D' in switch_type:
+                            type = switch_type
+                            switch_type = re.sub('D3_D', 'D3D', type)
 
                         new_value = deepcopy(value)
                         new_value.base_type = child

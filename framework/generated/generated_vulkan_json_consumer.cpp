@@ -7313,7 +7313,7 @@ void VulkanExportJsonConsumer::Process_vkGetAccelerationStructureMemoryRequireme
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements)
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "vkGetAccelerationStructureMemoryRequirementsNV");
     const JsonOptions& json_options = GetJsonOptions();

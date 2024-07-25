@@ -87,39 +87,6 @@ class OpenXrBaseHeaderStructEncodersHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        body = '\n'
-        body += 'template <typename T>\n'
-        body += 'void EncodeBaseHeaderStructArray(ParameterEncoder* encoder, const T* value, size_t len, bool omit_data = false, bool omit_addr = false)\n'
-        body += '{\n'
-        body += '    if (value == nullptr)\n'
-        body += '    {\n'
-        body += '        return EncodeStructArray(encoder, value, len, omit_data, omit_addr);\n'
-        body += '    }\n'
-        body += '    switch (value->type)\n'
-        body += '    {\n'
-        body += '        default:\n'
-        body += '        {\n'
-        body += '            GFXRECON_LOG_WARNING("EncodeBaseHeaderStructArray: unrecognized Base Header child structure type %d", value->type);\n'
-        body += '            break;\n'
-        body += '        }\n'
-        for child_list in self.base_header_structs:
-            for child in self.base_header_structs[child_list]:
-                struct_type_name = self.struct_type_enums[child]
-                body += f'        case {struct_type_name}:\n'
-                body += '        {\n'
-                body += f'            const {child}* child_value = reinterpret_cast<const {child}*>(value);\n'
-                body += f'            EncodeStructArray<{child}>(\n'
-                body += '                encoder,\n'
-                body += '                child_value,\n'
-                body += '                len,\n'
-                body += '                omit_data,\n'
-                body += '                omit_addr);\n'
-                body += '            break;\n'
-                body += '        }\n'
-        body += '    }\n'
-        body += '}\n'
-        write(body, file=self.outFile)
-
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

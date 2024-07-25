@@ -2961,7 +2961,7 @@ class VulkanCppConsumer : public VulkanCppConsumerBase
         const ApiCallInfo&                          call_info,
         format::HandleId                            device,
         StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-        StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements) override;
+        StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements) override;
 
     virtual void Process_vkGetRayTracingShaderGroupHandlesKHR(
         const ApiCallInfo&                          call_info,

@@ -7325,7 +7325,7 @@ void VulkanReplayConsumer::Process_vkGetAccelerationStructureMemoryRequirementsN
     const ApiCallInfo&                          call_info,
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkAccelerationStructureMemoryRequirementsInfoNV>* pInfo,
-    StructPointerDecoder<Decoded_VkMemoryRequirements2KHR>* pMemoryRequirements)
+    StructPointerDecoder<Decoded_VkMemoryRequirements2>* pMemoryRequirements)
 {
     VkDevice in_device = MapHandle<VulkanDeviceInfo>(device, &CommonObjectInfoTable::GetVkDeviceInfo);
     const VkAccelerationStructureMemoryRequirementsInfoNV* in_pInfo = pInfo->GetPointer();

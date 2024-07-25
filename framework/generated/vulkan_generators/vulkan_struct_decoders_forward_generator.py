@@ -86,6 +86,28 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for struct in self.all_structs:
+            if struct in self.all_struct_aliases:
+                write('struct Decoded_{};'.format(self.all_struct_aliases[struct]), file=self.outFile)
+            else:
+                write('struct Decoded_{};'.format(struct), file=self.outFile)
+
+        self.newline()
+
+        for struct in self.all_structs:
+            if struct in self.all_struct_aliases:
+                write(
+                    'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
+                    .format(self.all_struct_aliases[struct]),
+                    file=self.outFile
+                )
+            else:
+                write(
+                    'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
+                    .format(struct),
+                    file=self.outFile
+                )
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -102,13 +124,4 @@ class VulkanStructDecodersForwardGenerator(BaseGenerator):
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
         for struct in self.get_filtered_struct_names():
-            write('struct Decoded_{};'.format(struct), file=self.outFile)
-
-        self.newline()
-
-        for struct in self.get_filtered_struct_names():
-            write(
-                'size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_{}* wrapper);'
-                .format(struct),
-                file=self.outFile
-            )
+            self.all_structs.append(struct)

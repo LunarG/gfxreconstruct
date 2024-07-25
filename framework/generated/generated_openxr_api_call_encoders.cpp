@@ -943,7 +943,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSwapchainImages(
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SwapchainWrapper>(swapchain);
         encoder->EncodeUInt32Value(imageCapacityInput);
         encoder->EncodeUInt32Ptr(imageCountOutput, omit_output_data);
-        EncodeBaseHeaderStructArray(encoder, images, imageCapacityInput, omit_output_data);
+        EncodeStructArray(encoder, images, imageCapacityInput, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }

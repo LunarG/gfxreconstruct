@@ -68,7 +68,7 @@ class VulkanStructDecodersHeaderGenerator(
             self,
             process_cmds=False,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -105,6 +105,10 @@ class VulkanStructDecodersHeaderGenerator(
 
     def endFile(self):
         """Method override."""
+        self.newline()
+        code = self.generate_struct_info()
+        write(code, file=self.outFile)
+
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

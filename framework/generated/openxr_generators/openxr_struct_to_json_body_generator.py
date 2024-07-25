@@ -65,7 +65,7 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
             self,
             process_cmds=False,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -75,6 +75,11 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
         self.flagsType = dict()
         self.flagsTypeAlias = dict()
         self.flagEnumBitsType = dict()
+
+        self.all_structs = list()  # List of all struct names
+        self.all_struct_members = OrderedDict(
+        )  # Map of all struct names to lists of per-member ValueInfo
+        self.all_struct_aliases = OrderedDict()  # Map of all struct aliases
 
     # Method override
     def beginFile(self, genOpts):
@@ -99,7 +104,33 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
 
     # Method override
     def endFile(self):
-        body = '''
+        body = ''
+        for struct in self.all_structs:
+            typename = struct
+            if struct in self.all_struct_aliases:
+                typename = self.all_struct_aliases[struct]
+
+            body += '''
+                void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
+                {{
+                    if (data && data->decoded_value)
+                    {{
+                        const {0}& decoded_value = *data->decoded_value;
+                        const Decoded_{0}& meta_struct = *data;
+
+                '''.format(typename)
+            body += self.makeStructBody(
+                struct, self.all_struct_members[struct]
+            )
+            body += remove_leading_empty_lines(
+                '''
+                    }
+                }
+                '''
+            )
+            body = remove_trailing_newlines(indent_cpp_code(body))
+
+        body += '''
             void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, const JsonOptions& options)
             {
                 if (data && data->GetPointer())
@@ -138,26 +169,85 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generate_feature(self):
         for struct in self.get_filtered_struct_names():
-            body = '''
-                void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
-                {{
-                    if (data && data->decoded_value)
-                    {{
-                        const {0}& decoded_value = *data->decoded_value;
-                        const Decoded_{0}& meta_struct = *data;
+            self.all_structs.append(struct)
+            self.all_struct_members[struct] = self.feature_struct_members[
+                struct]
 
-                '''.format(struct)
-            body += self.makeStructBody(
-                struct, self.feature_struct_members[struct]
-            )
-            body += remove_leading_empty_lines(
-                '''
-                    }
-                }
-                '''
-            )
-            body = remove_trailing_newlines(indent_cpp_code(body))
-            write(body, file=self.outFile)
+    def handle_base_header_type(self, var_type, var_name, is_array):
+        to_json = ''
+        body = ''
+        if is_array:
+            # If this is a situation with a BaseHeader base for the data and it's an
+            # array, we need to determine the type of the first element of that array
+            # and then treat the entire array as if it is of that type.
+            to_json = 'BaseHeaderFieldToJson(args["{0}"], {0}, json_options)'
+        else:
+            # Otherwise, we need to go through and actually decode the appropriate
+            # type of the struct pointed at by the base header struct pointer.
+            body += f'    switch ({var_name}->GetPointer()->type)\n'
+            body += '    {\n'
+            body += '        default:\n'
+            body += f'            FieldToJson(args["{var_name}"], {var_name}, json_options);\n'
+            body += '            break;\n'
+            for child in self.base_header_structs[var_type]:
+                type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
+                type = type.upper()
+                switch_type = re.sub('XR_', 'XR_TYPE_', type)
+                if 'OPEN_GLES' in switch_type:
+                    type = switch_type
+                    switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
+                elif 'OPEN_GL' in switch_type:
+                    type = switch_type
+                    switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
+                elif 'D3_D' in switch_type:
+                    type = switch_type
+                    switch_type = re.sub('D3_D', 'D3D', type)
+                body += f'        case {switch_type}:\n'
+                body += f'            FieldToJson(args["{var_name}"],\n'
+                body += f'                        reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({var_name}),\n'
+                body += '                        json_options);\n'
+                body += '            break;\n'
+            body += '    }\n'
+
+        return to_json, body
+
+    def handle_base_header_type(self, var_type, var_name, is_array):
+        to_json = ''
+        body = ''
+        if is_array:
+            # If this is a situation with a BaseHeader base for the data and it's an
+            # array, we need to determine the type of the first element of that array
+            # and then treat the entire array as if it is of that type.
+            to_json = 'BaseHeaderFieldToJson(args["{0}"], {0}, json_options)'
+        else:
+            # Otherwise, we need to go through and actually decode the appropriate
+            # type of the struct pointed at by the base header struct pointer.
+            body += f'    switch ({var_name}->GetPointer()->type)\n'
+            body += '    {\n'
+            body += '        default:\n'
+            body += f'            FieldToJson(args["{var_name}"], {var_name}, json_options);\n'
+            body += '            break;\n'
+            for child in self.base_header_structs[var_type]:
+                type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
+                type = type.upper()
+                switch_type = re.sub('XR_', 'XR_TYPE_', type)
+                if 'OPEN_GLES' in switch_type:
+                    type = switch_type
+                    switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
+                elif 'OPEN_GL' in switch_type:
+                    type = switch_type
+                    switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
+                elif 'D3_D' in switch_type:
+                    type = switch_type
+                    switch_type = re.sub('D3_D', 'D3D', type)
+                body += f'        case {switch_type}:\n'
+                body += f'            FieldToJson(args["{var_name}"],\n'
+                body += f'                        reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({var_name}),\n'
+                body += '                        json_options);\n'
+                body += '            break;\n'
+            body += '    }\n'
+
+        return to_json, body
 
     #
     # Command definition
@@ -166,25 +256,31 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
         has_next = False
         for value in values:
             type_name = self.make_decoded_param_type(value)
-            flagsEnumType = value.base_type
 
             if value.name == 'next':
                 # move pnext to be the last member
                 has_next = True
                 continue
 
+            value_type = value.base_type
+            if self.process_structs and (
+                self.is_struct(value.base_type)
+                and value.base_type in self.all_struct_aliases
+            ):
+                value_type = self.all_struct_aliases[value.base_type]
+            flagsEnumType = value_type
+
             # Default to getting the data from the native OpenXr struct:
             to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
 
-            if value.base_type.startswith('PFN_') or 'userData' in value.name:
+            if value_type.startswith('PFN_') or 'userData' in value.name:
                 to_json = 'FieldToJson(jdata["{0}"], to_hex_variable_width(meta_struct.{0}), options)'
             elif value.is_pointer:
                 if 'String' in type_name:
                     to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                elif self.is_handle(value.base_type
-                                    ) or self.is_atom(value.base_type):
+                elif self.is_handle(value_type) or self.is_atom(value_type):
                     to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                elif 'XrBool32' == value.base_type:
+                elif 'XrBool32' == value_type:
                     to_json = 'Bool32ToJson(jdata["{0}"], &meta_struct.{0})'
                 else:
                     to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
@@ -194,12 +290,18 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
                         to_json = 'FieldToJson(jdata["{0}"], uuid_to_string(sizeof(decoded_value.{0}), decoded_value.{0}), options)'
                     elif 'String' in type_name:
                         to_json = 'FieldToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_handle(value.base_type
-                                        ) or self.is_atom(value.base_type):
+                    elif self.is_handle(value_type
+                                        ) or self.is_atom(value_type):
                         to_json = 'HandleToJson(jdata["{0}"], &meta_struct.{0}, options)'
-                    elif self.is_struct(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif 'XrBool32' == value.base_type:
+                    elif self.is_struct(value_type):
+                        if value.base_type in self.base_header_structs.keys():
+                            to_json, local_body = self.handle_base_header_type(
+                                value_type, value.name, value.is_array
+                            )
+                            body += local_body
+                        else:
+                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                    elif 'XrBool32' == value_type:
                         # Currently unused:
                         to_json = 'Bool32ToJson(jdata["{0}"], &meta_struct.{0})'
                     elif not value.is_dynamic:
@@ -207,24 +309,26 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
                     else:
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                 else:
-                    if self.is_handle(value.base_type
-                                      ) or self.is_atom(value.base_type):
+                    if self.is_handle(value_type) or self.is_atom(value_type):
                         to_json = 'HandleToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif self.is_struct(value.base_type):
-                        to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
-                    elif self.is_flags(value.base_type):
-                        if value.base_type in self.flagsTypeAlias:
-                            flagsEnumType = self.flagsTypeAlias[value.base_type
-                                                                ]
+                    elif self.is_struct(value_type):
+                        if value.base_type in self.base_header_structs.keys():
+                            to_json, local_body = self.handle_base_header_type(
+                                value_type, value.name, value.is_array
+                            )
+                            body += local_body
+                        else:
+                            to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
+                    elif self.is_flags(value_type):
+                        if value_type in self.flagsTypeAlias:
+                            flagsEnumType = self.flagsTypeAlias[value_type]
                         to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
-                    elif self.is_enum(value.base_type):
+                    elif self.is_enum(value_type):
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
-                    elif 'XrBool32' == value.base_type:
+                    elif 'XrBool32' == value_type:
                         to_json = 'jdata["{0}"] = static_cast<bool>(decoded_value.{0})'
 
-            to_json = to_json.format(
-                value.name, value.base_type, flagsEnumType
-            )
+            to_json = to_json.format(value.name, value_type, flagsEnumType)
             body += '        {0};\n'.format(to_json)
         # Save next as last member
         if has_next:
