@@ -25,6 +25,8 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/decoder_util.h"
 
+#include "util/marking_layers.h"
+
 #include <array>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -64,9 +66,11 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainKHR(VkResult                    
     modified_create_info.imageUsage =
         modified_create_info.imageUsage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 
+    util::MarkingLayersUtil::instance().BeginInjected(device_info);
     VkResult result = instance_table_->GetPhysicalDeviceSurfaceCapabilitiesKHR(
         physical_device, create_info->surface, &surfCapabilities);
     GFXRECON_ASSERT(result == VK_SUCCESS);
+    util::MarkingLayersUtil::instance().EndInjected(device_info);
 
     if (modified_create_info.minImageCount < surfCapabilities.minImageCount)
     {
@@ -97,6 +101,7 @@ void VulkanVirtualSwapchain::CleanSwapchainResourceData(const DeviceInfo*       
 
     if ((device_info != nullptr) && (swapchain_info != nullptr))
     {
+        util::MarkingLayersUtil::instance().BeginInjected(device_info);
         device    = device_info->handle;
         swapchain = swapchain_info->handle;
 
@@ -137,6 +142,7 @@ void VulkanVirtualSwapchain::CleanSwapchainResourceData(const DeviceInfo*       
             }
 
             swapchain_resources_.erase(swapchain);
+            util::MarkingLayersUtil::instance().EndInjected(device_info);
         }
     }
 }
@@ -187,9 +193,11 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
     uint32_t                             property_count     = 0;
     std::vector<VkQueueFamilyProperties> props;
 
+    util::MarkingLayersUtil::instance().BeginInjected(device_info);
     instance_table_->GetPhysicalDeviceQueueFamilyProperties(device_info->parent, &property_count, nullptr);
     props.resize(property_count);
     instance_table_->GetPhysicalDeviceQueueFamilyProperties(device_info->parent, &property_count, props.data());
+    util::MarkingLayersUtil::instance().EndInjected(device_info);
 
     for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
     {
@@ -236,7 +244,9 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                           swapchain_info->capture_id);
     }
 
+    util::MarkingLayersUtil::instance().BeginInjected(device_info);
     initial_copy_queue = GetDeviceQueue(device_table_, device_info, copy_queue_family_index, 0);
+    util::MarkingLayersUtil::instance().EndInjected(device_info);
     if (initial_copy_queue == VK_NULL_HANDLE)
     {
         GFXRECON_LOG_ERROR("Virtual swapchain failed getting device queue %d to create initial virtual swapchain "
@@ -249,6 +259,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
     auto& swapchain_resources = swapchain_resources_[swapchain];
     if (!offscreen)
     {
+        util::MarkingLayersUtil::instance().BeginInjected(device_info);
         for (uint32_t queue_family_index = 0; queue_family_index < property_count; ++queue_family_index)
         {
             if (swapchain_resources->copy_cmd_data.find(queue_family_index) == swapchain_resources->copy_cmd_data.end())
@@ -364,6 +375,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                 }
             }
         }
+        util::MarkingLayersUtil::instance().EndInjected(device_info);
     }
 
     uint32_t virtual_swapchain_count = static_cast<uint32_t>(swapchain_resources->virtual_swapchain_images.size());
@@ -425,6 +437,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
 
         if (!offscreen)
         {
+            util::MarkingLayersUtil::instance().BeginInjected(device_info);
             VkCommandBufferBeginInfo begin_info = { VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
             begin_info.pNext                    = nullptr;
             begin_info.flags                    = 0;
@@ -518,6 +531,7 @@ VkResult VulkanVirtualSwapchain::CreateSwapchainResourceData(const DeviceInfo*  
                     swapchain_info->capture_id);
                 return result;
             }
+            util::MarkingLayersUtil::instance().EndInjected(device_info);
         }
     }
 
@@ -734,6 +748,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     // QueuePresent to QueueX, but waiting on SemB before it executes.  And that is assuming that
     // the buffer image is even accessible on both Queues!
 
+    util::MarkingLayersUtil::instance().BeginInjected(queue_info);
+
     for (uint32_t i = 0; i < swapchainCount; ++i)
     {
         const auto* swapchain_info      = swapchain_infos[i];
@@ -900,6 +916,8 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
         }
     }
 
+    util::MarkingLayersUtil::instance().EndInjected(queue_info);
+
     VkPresentInfoKHR modified_present_info   = *present_info;
     modified_present_info.waitSemaphoreCount = static_cast<uint32_t>(present_wait_semaphores.size());
     modified_present_info.pWaitSemaphores    = present_wait_semaphores.data();
@@ -992,7 +1010,7 @@ VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const DeviceInfo*  
 {
     // TODO: This is the same code used in VulkanReplayConsumerBase::CreateSwapchainImage, which
     // should be moved to a shared graphics utility function.
-
+    util::MarkingLayersUtil::instance().BeginInjected(device_info);
     VulkanResourceAllocator* allocator = device_info->allocator.get();
     assert(allocator != nullptr);
 
@@ -1053,6 +1071,7 @@ VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const DeviceInfo*  
             image.image = VK_NULL_HANDLE;
         }
     }
+    util::MarkingLayersUtil::instance().EndInjected(device_info);
     return result;
 }
 
