@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -27,6 +28,7 @@
 #include "util/defines.h"
 
 #ifdef WIN32
+#include <d3d11.h>
 #include <d3d12.h>
 #include <dxgi1_5.h>
 #endif
@@ -54,6 +56,17 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_BUILD_RAYTRACING_ACCELE
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_BEGINNING_ACCESS& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_RENDER_PASS_ENDING_ACCESS& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFER_SRV& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SHADER_RESOURCE_VIEW_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFER_RTV& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_VIEW_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_DEPTH_STENCIL_VIEW_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_UNORDERED_ACCESS_VIEW_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_COLOR& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_PROTECTION_FLAGS& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC& value);
 
 // Platform types.
 void EncodeStruct(ParameterEncoder* encoder, const LARGE_INTEGER& value);
