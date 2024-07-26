@@ -522,9 +522,13 @@ void Dx12ReplayConsumer::Process_IDXGIObject_GetPrivateData(
             Name,
             pDataSize,
             pData);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(* pDataSize->GetPointer());
+        }
         auto replay_result = reinterpret_cast<IDXGIObject*>(replay_object->object)->GetPrivateData(*Name.decoded_value,
                                                                                                    pDataSize->GetPointer(),
-                                                                                                   pData->GetPointer());
+                                                                                                   pData->GetOutputPointer());
         CheckReplayResult("IDXGIObject_GetPrivateData", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIObject_GetPrivateData>::Dispatch(
             this,
@@ -699,7 +703,11 @@ void Dx12ReplayConsumer::Process_IDXGIResource_GetEvictionPriority(
             call_info,
             replay_object,
             pEvictionPriority);
-        auto replay_result = reinterpret_cast<IDXGIResource*>(replay_object->object)->GetEvictionPriority(pEvictionPriority->GetPointer());
+        if(!pEvictionPriority->IsNull())
+        {
+            pEvictionPriority->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIResource*>(replay_object->object)->GetEvictionPriority(pEvictionPriority->GetOutputPointer());
         CheckReplayResult("IDXGIResource_GetEvictionPriority", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIResource_GetEvictionPriority>::Dispatch(
             this,
@@ -775,7 +783,11 @@ void Dx12ReplayConsumer::Process_IDXGISurface_GetDesc(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGISurface*>(replay_object->object)->GetDesc(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISurface*>(replay_object->object)->GetDesc(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGISurface_GetDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISurface_GetDesc>::Dispatch(
             this,
@@ -801,7 +813,11 @@ void Dx12ReplayConsumer::Process_IDXGISurface_Map(
             replay_object,
             pLockedRect,
             MapFlags);
-        auto replay_result = reinterpret_cast<IDXGISurface*>(replay_object->object)->Map(pLockedRect->GetPointer(),
+        if(!pLockedRect->IsNull())
+        {
+            pLockedRect->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISurface*>(replay_object->object)->Map(pLockedRect->GetOutputPointer(),
                                                                                          MapFlags);
         CheckReplayResult("IDXGISurface_Map", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISurface_Map>::Dispatch(
@@ -942,7 +958,11 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_GetDesc(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGIAdapter*>(replay_object->object)->GetDesc(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIAdapter*>(replay_object->object)->GetDesc(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter_GetDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter_GetDesc>::Dispatch(
             this,
@@ -968,8 +988,12 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter_CheckInterfaceSupport(
             replay_object,
             InterfaceName,
             pUMDVersion);
+        if(!pUMDVersion->IsNull())
+        {
+            pUMDVersion->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIAdapter*>(replay_object->object)->CheckInterfaceSupport(*InterfaceName.decoded_value,
-                                                                                                           pUMDVersion->GetPointer());
+                                                                                                           pUMDVersion->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter_CheckInterfaceSupport", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter_CheckInterfaceSupport>::Dispatch(
             this,
@@ -994,7 +1018,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDesc(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetDesc(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetDesc(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIOutput_GetDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDesc>::Dispatch(
             this,
@@ -1024,10 +1052,14 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetDisplayModeList(
             Flags,
             pNumModes,
             pDesc);
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(* pNumModes->GetPointer());
+        }
         auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetDisplayModeList(EnumFormat,
                                                                                                        Flags,
                                                                                                        pNumModes->GetPointer(),
-                                                                                                       pDesc->GetPointer());
+                                                                                                       pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIOutput_GetDisplayModeList", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetDisplayModeList>::Dispatch(
             this,
@@ -1058,9 +1090,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_FindClosestMatchingMode(
             pModeToMatch,
             pClosestMatch,
             pConcernedDevice);
+        if(!pClosestMatch->IsNull())
+        {
+            pClosestMatch->AllocateOutputData(1);
+        }
         auto in_pConcernedDevice = MapObject<IUnknown>(pConcernedDevice);
         auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->FindClosestMatchingMode(pModeToMatch->GetPointer(),
-                                                                                                            pClosestMatch->GetPointer(),
+                                                                                                            pClosestMatch->GetOutputPointer(),
                                                                                                             in_pConcernedDevice);
         CheckReplayResult("IDXGIOutput_FindClosestMatchingMode", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput_FindClosestMatchingMode>::Dispatch(
@@ -1156,7 +1192,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControlCapabilities(
             call_info,
             replay_object,
             pGammaCaps);
-        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetGammaControlCapabilities(pGammaCaps->GetPointer());
+        if(!pGammaCaps->IsNull())
+        {
+            pGammaCaps->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetGammaControlCapabilities(pGammaCaps->GetOutputPointer());
         CheckReplayResult("IDXGIOutput_GetGammaControlCapabilities", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControlCapabilities>::Dispatch(
             this,
@@ -1204,7 +1244,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetGammaControl(
             call_info,
             replay_object,
             pArray);
-        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetGammaControl(pArray->GetPointer());
+        if(!pArray->IsNull())
+        {
+            pArray->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetGammaControl(pArray->GetOutputPointer());
         CheckReplayResult("IDXGIOutput_GetGammaControl", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetGammaControl>::Dispatch(
             this,
@@ -1278,7 +1322,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutput_GetFrameStatistics(
             call_info,
             replay_object,
             pStats);
-        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetFrameStatistics(pStats->GetPointer());
+        if(!pStats->IsNull())
+        {
+            pStats->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIOutput*>(replay_object->object)->GetFrameStatistics(pStats->GetOutputPointer());
         CheckReplayResult("IDXGIOutput_GetFrameStatistics", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput_GetFrameStatistics>::Dispatch(
             this,
@@ -1406,10 +1454,14 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFullscreenState(
             replay_object,
             pFullscreen,
             ppTarget);
+        if(!pFullscreen->IsNull())
+        {
+            pFullscreen->AllocateOutputData(1);
+        }
         if(!ppTarget->IsNull()) ppTarget->SetHandleLength(1);
         auto out_p_ppTarget    = ppTarget->GetPointer();
         auto out_hp_ppTarget   = ppTarget->GetHandlePointer();
-        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetFullscreenState(pFullscreen->GetPointer(),
+        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetFullscreenState(pFullscreen->GetOutputPointer(),
                                                                                                           out_hp_ppTarget);
         if (SUCCEEDED(replay_result))
         {
@@ -1439,7 +1491,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetDesc(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetDesc(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetDesc(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain_GetDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetDesc>::Dispatch(
             this,
@@ -1560,7 +1616,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetFrameStatistics(
             call_info,
             replay_object,
             pStats);
-        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetFrameStatistics(pStats->GetPointer());
+        if(!pStats->IsNull())
+        {
+            pStats->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetFrameStatistics(pStats->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain_GetFrameStatistics", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetFrameStatistics>::Dispatch(
             this,
@@ -1584,7 +1644,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain_GetLastPresentCount(
             call_info,
             replay_object,
             pLastPresentCount);
-        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetLastPresentCount(pLastPresentCount->GetPointer());
+        if(!pLastPresentCount->IsNull())
+        {
+            pLastPresentCount->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain*>(replay_object->object)->GetLastPresentCount(pLastPresentCount->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain_GetLastPresentCount", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain_GetLastPresentCount>::Dispatch(
             this,
@@ -1864,8 +1928,12 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_QueryResourceResidency(
             pResidencyStatus,
             NumResources);
         auto in_ppResources = MapObjects<IUnknown>(ppResources, NumResources);
+        if(!pResidencyStatus->IsNull())
+        {
+            pResidencyStatus->AllocateOutputData(NumResources);
+        }
         auto replay_result = reinterpret_cast<IDXGIDevice*>(replay_object->object)->QueryResourceResidency(in_ppResources,
-                                                                                                           pResidencyStatus->GetPointer(),
+                                                                                                           pResidencyStatus->GetOutputPointer(),
                                                                                                            NumResources);
         CheckReplayResult("IDXGIDevice_QueryResourceResidency", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDevice_QueryResourceResidency>::Dispatch(
@@ -1916,7 +1984,11 @@ void Dx12ReplayConsumer::Process_IDXGIDevice_GetGPUThreadPriority(
             call_info,
             replay_object,
             pPriority);
-        auto replay_result = reinterpret_cast<IDXGIDevice*>(replay_object->object)->GetGPUThreadPriority(pPriority->GetPointer());
+        if(!pPriority->IsNull())
+        {
+            pPriority->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIDevice*>(replay_object->object)->GetGPUThreadPriority(pPriority->GetOutputPointer());
         CheckReplayResult("IDXGIDevice_GetGPUThreadPriority", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDevice_GetGPUThreadPriority>::Dispatch(
             this,
@@ -1995,7 +2067,11 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter1_GetDesc1(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGIAdapter1*>(replay_object->object)->GetDesc1(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIAdapter1*>(replay_object->object)->GetDesc1(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter1_GetDesc1", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter1_GetDesc1>::Dispatch(
             this,
@@ -2043,7 +2119,11 @@ void Dx12ReplayConsumer::Process_IDXGIDevice1_GetMaximumFrameLatency(
             call_info,
             replay_object,
             pMaxLatency);
-        auto replay_result = reinterpret_cast<IDXGIDevice1*>(replay_object->object)->GetMaximumFrameLatency(pMaxLatency->GetPointer());
+        if(!pMaxLatency->IsNull())
+        {
+            pMaxLatency->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIDevice1*>(replay_object->object)->GetMaximumFrameLatency(pMaxLatency->GetOutputPointer());
         CheckReplayResult("IDXGIDevice1_GetMaximumFrameLatency", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDevice1_GetMaximumFrameLatency>::Dispatch(
             this,
@@ -2108,7 +2188,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetDesc(
             call_info,
             replay_object,
             pDesc);
-        reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->GetDesc(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->GetDesc(pDesc->GetOutputPointer());
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetDesc>::Dispatch(
             this,
             call_info,
@@ -2135,11 +2219,15 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_AcquireNextFrame(
             TimeoutInMilliseconds,
             pFrameInfo,
             ppDesktopResource);
+        if(!pFrameInfo->IsNull())
+        {
+            pFrameInfo->AllocateOutputData(1);
+        }
         if(!ppDesktopResource->IsNull()) ppDesktopResource->SetHandleLength(1);
         auto out_p_ppDesktopResource    = ppDesktopResource->GetPointer();
         auto out_hp_ppDesktopResource   = ppDesktopResource->GetHandlePointer();
         auto replay_result = reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->AcquireNextFrame(TimeoutInMilliseconds,
-                                                                                                                pFrameInfo->GetPointer(),
+                                                                                                                pFrameInfo->GetOutputPointer(),
                                                                                                                 out_hp_ppDesktopResource);
         if (SUCCEEDED(replay_result))
         {
@@ -2174,9 +2262,17 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameDirtyRects(
             DirtyRectsBufferSize,
             pDirtyRectsBuffer,
             pDirtyRectsBufferSizeRequired);
+        if(!pDirtyRectsBuffer->IsNull())
+        {
+            pDirtyRectsBuffer->AllocateOutputData(DirtyRectsBufferSize/sizeof tagRECT);
+        }
+        if(!pDirtyRectsBufferSizeRequired->IsNull())
+        {
+            pDirtyRectsBufferSizeRequired->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->GetFrameDirtyRects(DirtyRectsBufferSize,
-                                                                                                                  pDirtyRectsBuffer->GetPointer(),
-                                                                                                                  pDirtyRectsBufferSizeRequired->GetPointer());
+                                                                                                                  pDirtyRectsBuffer->GetOutputPointer(),
+                                                                                                                  pDirtyRectsBufferSizeRequired->GetOutputPointer());
         CheckReplayResult("IDXGIOutputDuplication_GetFrameDirtyRects", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameDirtyRects>::Dispatch(
             this,
@@ -2206,9 +2302,17 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFrameMoveRects(
             MoveRectsBufferSize,
             pMoveRectBuffer,
             pMoveRectsBufferSizeRequired);
+        if(!pMoveRectBuffer->IsNull())
+        {
+            pMoveRectBuffer->AllocateOutputData(MoveRectsBufferSize/sizeof DXGI_OUTDUPL_MOVE_RECT);
+        }
+        if(!pMoveRectsBufferSizeRequired->IsNull())
+        {
+            pMoveRectsBufferSizeRequired->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->GetFrameMoveRects(MoveRectsBufferSize,
-                                                                                                                 pMoveRectBuffer->GetPointer(),
-                                                                                                                 pMoveRectsBufferSizeRequired->GetPointer());
+                                                                                                                 pMoveRectBuffer->GetOutputPointer(),
+                                                                                                                 pMoveRectsBufferSizeRequired->GetOutputPointer());
         CheckReplayResult("IDXGIOutputDuplication_GetFrameMoveRects", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFrameMoveRects>::Dispatch(
             this,
@@ -2240,10 +2344,22 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_GetFramePointerShape(
             pPointerShapeBuffer,
             pPointerShapeBufferSizeRequired,
             pPointerShapeInfo);
+        if(!pPointerShapeBuffer->IsNull())
+        {
+            pPointerShapeBuffer->AllocateOutputData(PointerShapeBufferSize);
+        }
+        if(!pPointerShapeBufferSizeRequired->IsNull())
+        {
+            pPointerShapeBufferSizeRequired->AllocateOutputData(1);
+        }
+        if(!pPointerShapeInfo->IsNull())
+        {
+            pPointerShapeInfo->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->GetFramePointerShape(PointerShapeBufferSize,
-                                                                                                                    pPointerShapeBuffer->GetPointer(),
-                                                                                                                    pPointerShapeBufferSizeRequired->GetPointer(),
-                                                                                                                    pPointerShapeInfo->GetPointer());
+                                                                                                                    pPointerShapeBuffer->GetOutputPointer(),
+                                                                                                                    pPointerShapeBufferSizeRequired->GetOutputPointer(),
+                                                                                                                    pPointerShapeInfo->GetOutputPointer());
         CheckReplayResult("IDXGIOutputDuplication_GetFramePointerShape", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_GetFramePointerShape>::Dispatch(
             this,
@@ -2270,7 +2386,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutputDuplication_MapDesktopSurface(
             call_info,
             replay_object,
             pLockedRect);
-        auto replay_result = reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->MapDesktopSurface(pLockedRect->GetPointer());
+        if(!pLockedRect->IsNull())
+        {
+            pLockedRect->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIOutputDuplication*>(replay_object->object)->MapDesktopSurface(pLockedRect->GetOutputPointer());
         CheckReplayResult("IDXGIOutputDuplication_MapDesktopSurface", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutputDuplication_MapDesktopSurface>::Dispatch(
             this,
@@ -2343,9 +2463,13 @@ void Dx12ReplayConsumer::Process_IDXGISurface2_GetResource(
         if(!ppParentResource->IsNull()) ppParentResource->SetHandleLength(1);
         auto out_p_ppParentResource    = ppParentResource->GetPointer();
         auto out_hp_ppParentResource   = ppParentResource->GetHandlePointer();
+        if(!pSubresourceIndex->IsNull())
+        {
+            pSubresourceIndex->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGISurface2*>(replay_object->object)->GetResource(*riid.decoded_value,
                                                                                                   out_hp_ppParentResource,
-                                                                                                  pSubresourceIndex->GetPointer());
+                                                                                                  pSubresourceIndex->GetOutputPointer());
         if (SUCCEEDED(replay_result))
         {
             AddObject(out_p_ppParentResource, out_hp_ppParentResource, format::ApiCall_IDXGISurface2_GetResource);
@@ -2491,9 +2615,13 @@ void Dx12ReplayConsumer::Process_IDXGIDevice2_ReclaimResources(
             ppResources,
             pDiscarded);
         auto in_ppResources = MapObjects<IDXGIResource>(ppResources, NumResources);
+        if(!pDiscarded->IsNull())
+        {
+            pDiscarded->AllocateOutputData(NumResources);
+        }
         auto replay_result = reinterpret_cast<IDXGIDevice2*>(replay_object->object)->ReclaimResources(NumResources,
                                                                                                       in_ppResources,
-                                                                                                      pDiscarded->GetPointer());
+                                                                                                      pDiscarded->GetOutputPointer());
         CheckReplayResult("IDXGIDevice2_ReclaimResources", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDevice2_ReclaimResources>::Dispatch(
             this,
@@ -2544,7 +2672,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetDesc1(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetDesc1(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetDesc1(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain1_GetDesc1", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetDesc1>::Dispatch(
             this,
@@ -2568,7 +2700,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetFullscreenDesc(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetFullscreenDesc(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetFullscreenDesc(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain1_GetFullscreenDesc", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetFullscreenDesc>::Dispatch(
             this,
@@ -2767,7 +2903,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetBackgroundColor(
             call_info,
             replay_object,
             pColor);
-        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetBackgroundColor(pColor->GetPointer());
+        if(!pColor->IsNull())
+        {
+            pColor->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetBackgroundColor(pColor->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain1_GetBackgroundColor", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetBackgroundColor>::Dispatch(
             this,
@@ -2815,7 +2955,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain1_GetRotation(
             call_info,
             replay_object,
             pRotation);
-        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetRotation(pRotation->GetPointer());
+        if(!pRotation->IsNull())
+        {
+            pRotation->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain1*>(replay_object->object)->GetRotation(pRotation->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain1_GetRotation", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain1_GetRotation>::Dispatch(
             this,
@@ -2969,8 +3113,12 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_GetSharedResourceAdapterLuid(
             hResource,
             pLuid);
         auto in_hResource = static_cast<HANDLE>(PreProcessExternalObject(hResource, format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid, "IDXGIFactory2_GetSharedResourceAdapterLuid"));
+        if(!pLuid->IsNull())
+        {
+            pLuid->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIFactory2*>(replay_object->object)->GetSharedResourceAdapterLuid(in_hResource,
-                                                                                                                   pLuid->GetPointer());
+                                                                                                                   pLuid->GetOutputPointer());
         CheckReplayResult("IDXGIFactory2_GetSharedResourceAdapterLuid", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_GetSharedResourceAdapterLuid>::Dispatch(
             this,
@@ -3000,9 +3148,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusWindow(
             wMsg,
             pdwCookie);
         auto in_WindowHandle = static_cast<HWND>(PreProcessExternalObject(WindowHandle, format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow, "IDXGIFactory2_RegisterStereoStatusWindow"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIFactory2*>(replay_object->object)->RegisterStereoStatusWindow(in_WindowHandle,
                                                                                                                  wMsg,
-                                                                                                                 pdwCookie->GetPointer());
+                                                                                                                 pdwCookie->GetOutputPointer());
         CheckReplayResult("IDXGIFactory2_RegisterStereoStatusWindow", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusWindow>::Dispatch(
             this,
@@ -3031,8 +3183,12 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterStereoStatusEvent(
             hEvent,
             pdwCookie);
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent, "IDXGIFactory2_RegisterStereoStatusEvent"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIFactory2*>(replay_object->object)->RegisterStereoStatusEvent(in_hEvent,
-                                                                                                                pdwCookie->GetPointer());
+                                                                                                                pdwCookie->GetOutputPointer());
         CheckReplayResult("IDXGIFactory2_RegisterStereoStatusEvent", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterStereoStatusEvent>::Dispatch(
             this,
@@ -3084,9 +3240,13 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusWindow(
             wMsg,
             pdwCookie);
         auto in_WindowHandle = static_cast<HWND>(PreProcessExternalObject(WindowHandle, format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow, "IDXGIFactory2_RegisterOcclusionStatusWindow"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIFactory2*>(replay_object->object)->RegisterOcclusionStatusWindow(in_WindowHandle,
                                                                                                                     wMsg,
-                                                                                                                    pdwCookie->GetPointer());
+                                                                                                                    pdwCookie->GetOutputPointer());
         CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusWindow", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusWindow>::Dispatch(
             this,
@@ -3115,8 +3275,12 @@ void Dx12ReplayConsumer::Process_IDXGIFactory2_RegisterOcclusionStatusEvent(
             hEvent,
             pdwCookie);
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent, "IDXGIFactory2_RegisterOcclusionStatusEvent"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIFactory2*>(replay_object->object)->RegisterOcclusionStatusEvent(in_hEvent,
-                                                                                                                   pdwCookie->GetPointer());
+                                                                                                                   pdwCookie->GetOutputPointer());
         CheckReplayResult("IDXGIFactory2_RegisterOcclusionStatusEvent", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory2_RegisterOcclusionStatusEvent>::Dispatch(
             this,
@@ -3210,7 +3374,11 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter2_GetDesc2(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGIAdapter2*>(replay_object->object)->GetDesc2(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIAdapter2*>(replay_object->object)->GetDesc2(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter2_GetDesc2", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter2_GetDesc2>::Dispatch(
             this,
@@ -3240,10 +3408,14 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_GetDisplayModeList1(
             Flags,
             pNumModes,
             pDesc);
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(* pNumModes->GetPointer());
+        }
         auto replay_result = reinterpret_cast<IDXGIOutput1*>(replay_object->object)->GetDisplayModeList1(EnumFormat,
                                                                                                          Flags,
                                                                                                          pNumModes->GetPointer(),
-                                                                                                         pDesc->GetPointer());
+                                                                                                         pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIOutput1_GetDisplayModeList1", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_GetDisplayModeList1>::Dispatch(
             this,
@@ -3274,9 +3446,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput1_FindClosestMatchingMode1(
             pModeToMatch,
             pClosestMatch,
             pConcernedDevice);
+        if(!pClosestMatch->IsNull())
+        {
+            pClosestMatch->AllocateOutputData(1);
+        }
         auto in_pConcernedDevice = MapObject<IUnknown>(pConcernedDevice);
         auto replay_result = reinterpret_cast<IDXGIOutput1*>(replay_object->object)->FindClosestMatchingMode1(pModeToMatch->GetPointer(),
-                                                                                                              pClosestMatch->GetPointer(),
+                                                                                                              pClosestMatch->GetOutputPointer(),
                                                                                                               in_pConcernedDevice);
         CheckReplayResult("IDXGIOutput1_FindClosestMatchingMode1", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput1_FindClosestMatchingMode1>::Dispatch(
@@ -3413,8 +3589,16 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetSourceSize(
             replay_object,
             pWidth,
             pHeight);
-        auto replay_result = reinterpret_cast<IDXGISwapChain2*>(replay_object->object)->GetSourceSize(pWidth->GetPointer(),
-                                                                                                      pHeight->GetPointer());
+        if(!pWidth->IsNull())
+        {
+            pWidth->AllocateOutputData(1);
+        }
+        if(!pHeight->IsNull())
+        {
+            pHeight->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain2*>(replay_object->object)->GetSourceSize(pWidth->GetOutputPointer(),
+                                                                                                      pHeight->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain2_GetSourceSize", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetSourceSize>::Dispatch(
             this,
@@ -3463,7 +3647,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMaximumFrameLatency(
             call_info,
             replay_object,
             pMaxLatency);
-        auto replay_result = reinterpret_cast<IDXGISwapChain2*>(replay_object->object)->GetMaximumFrameLatency(pMaxLatency->GetPointer());
+        if(!pMaxLatency->IsNull())
+        {
+            pMaxLatency->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain2*>(replay_object->object)->GetMaximumFrameLatency(pMaxLatency->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain2_GetMaximumFrameLatency", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMaximumFrameLatency>::Dispatch(
             this,
@@ -3531,7 +3719,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain2_GetMatrixTransform(
             call_info,
             replay_object,
             pMatrix);
-        auto replay_result = reinterpret_cast<IDXGISwapChain2*>(replay_object->object)->GetMatrixTransform(pMatrix->GetPointer());
+        if(!pMatrix->IsNull())
+        {
+            pMatrix->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChain2*>(replay_object->object)->GetMatrixTransform(pMatrix->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain2_GetMatrixTransform", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain2_GetMatrixTransform>::Dispatch(
             this,
@@ -3703,7 +3895,11 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetSourceRect(
             call_info,
             replay_object,
             pRect);
-        auto replay_result = reinterpret_cast<IDXGIDecodeSwapChain*>(replay_object->object)->GetSourceRect(pRect->GetPointer());
+        if(!pRect->IsNull())
+        {
+            pRect->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIDecodeSwapChain*>(replay_object->object)->GetSourceRect(pRect->GetOutputPointer());
         CheckReplayResult("IDXGIDecodeSwapChain_GetSourceRect", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetSourceRect>::Dispatch(
             this,
@@ -3727,7 +3923,11 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetTargetRect(
             call_info,
             replay_object,
             pRect);
-        auto replay_result = reinterpret_cast<IDXGIDecodeSwapChain*>(replay_object->object)->GetTargetRect(pRect->GetPointer());
+        if(!pRect->IsNull())
+        {
+            pRect->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIDecodeSwapChain*>(replay_object->object)->GetTargetRect(pRect->GetOutputPointer());
         CheckReplayResult("IDXGIDecodeSwapChain_GetTargetRect", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetTargetRect>::Dispatch(
             this,
@@ -3753,8 +3953,16 @@ void Dx12ReplayConsumer::Process_IDXGIDecodeSwapChain_GetDestSize(
             replay_object,
             pWidth,
             pHeight);
-        auto replay_result = reinterpret_cast<IDXGIDecodeSwapChain*>(replay_object->object)->GetDestSize(pWidth->GetPointer(),
-                                                                                                         pHeight->GetPointer());
+        if(!pWidth->IsNull())
+        {
+            pWidth->AllocateOutputData(1);
+        }
+        if(!pHeight->IsNull())
+        {
+            pHeight->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIDecodeSwapChain*>(replay_object->object)->GetDestSize(pWidth->GetOutputPointer(),
+                                                                                                         pHeight->GetOutputPointer());
         CheckReplayResult("IDXGIDecodeSwapChain_GetDestSize", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDecodeSwapChain_GetDestSize>::Dispatch(
             this,
@@ -3928,7 +4136,11 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_GetFrameStatisticsMedia(
             call_info,
             replay_object,
             pStats);
-        auto replay_result = reinterpret_cast<IDXGISwapChainMedia*>(replay_object->object)->GetFrameStatisticsMedia(pStats->GetPointer());
+        if(!pStats->IsNull())
+        {
+            pStats->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGISwapChainMedia*>(replay_object->object)->GetFrameStatisticsMedia(pStats->GetOutputPointer());
         CheckReplayResult("IDXGISwapChainMedia_GetFrameStatisticsMedia", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_GetFrameStatisticsMedia>::Dispatch(
             this,
@@ -3980,9 +4192,17 @@ void Dx12ReplayConsumer::Process_IDXGISwapChainMedia_CheckPresentDurationSupport
             DesiredPresentDuration,
             pClosestSmallerPresentDuration,
             pClosestLargerPresentDuration);
+        if(!pClosestSmallerPresentDuration->IsNull())
+        {
+            pClosestSmallerPresentDuration->AllocateOutputData(1);
+        }
+        if(!pClosestLargerPresentDuration->IsNull())
+        {
+            pClosestLargerPresentDuration->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGISwapChainMedia*>(replay_object->object)->CheckPresentDurationSupport(DesiredPresentDuration,
-                                                                                                                        pClosestSmallerPresentDuration->GetPointer(),
-                                                                                                                        pClosestLargerPresentDuration->GetPointer());
+                                                                                                                        pClosestSmallerPresentDuration->GetOutputPointer(),
+                                                                                                                        pClosestLargerPresentDuration->GetOutputPointer());
         CheckReplayResult("IDXGISwapChainMedia_CheckPresentDurationSupport", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChainMedia_CheckPresentDurationSupport>::Dispatch(
             this,
@@ -4013,9 +4233,13 @@ void Dx12ReplayConsumer::Process_IDXGIOutput3_CheckOverlaySupport(
             pConcernedDevice,
             pFlags);
         auto in_pConcernedDevice = MapObject<IUnknown>(pConcernedDevice);
+        if(!pFlags->IsNull())
+        {
+            pFlags->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIOutput3*>(replay_object->object)->CheckOverlaySupport(EnumFormat,
                                                                                                          in_pConcernedDevice,
-                                                                                                         pFlags->GetPointer());
+                                                                                                         pFlags->GetOutputPointer());
         CheckReplayResult("IDXGIOutput3_CheckOverlaySupport", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput3_CheckOverlaySupport>::Dispatch(
             this,
@@ -4063,8 +4287,12 @@ void Dx12ReplayConsumer::Process_IDXGISwapChain3_CheckColorSpaceSupport(
             replay_object,
             ColorSpace,
             pColorSpaceSupport);
+        if(!pColorSpaceSupport->IsNull())
+        {
+            pColorSpaceSupport->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGISwapChain3*>(replay_object->object)->CheckColorSpaceSupport(ColorSpace,
-                                                                                                               pColorSpaceSupport->GetPointer());
+                                                                                                               pColorSpaceSupport->GetOutputPointer());
         CheckReplayResult("IDXGISwapChain3_CheckColorSpaceSupport", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGISwapChain3_CheckColorSpaceSupport>::Dispatch(
             this,
@@ -4171,10 +4399,14 @@ void Dx12ReplayConsumer::Process_IDXGIOutput4_CheckOverlayColorSpaceSupport(
             pConcernedDevice,
             pFlags);
         auto in_pConcernedDevice = MapObject<IUnknown>(pConcernedDevice);
+        if(!pFlags->IsNull())
+        {
+            pFlags->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIOutput4*>(replay_object->object)->CheckOverlayColorSpaceSupport(Format,
                                                                                                                    ColorSpace,
                                                                                                                    in_pConcernedDevice,
-                                                                                                                   pFlags->GetPointer());
+                                                                                                                   pFlags->GetOutputPointer());
         CheckReplayResult("IDXGIOutput4_CheckOverlayColorSpaceSupport", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput4_CheckOverlayColorSpaceSupport>::Dispatch(
             this,
@@ -4278,8 +4510,12 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterHardwareContentProtection
             hEvent,
             pdwCookie);
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent, "IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIAdapter3*>(replay_object->object)->RegisterHardwareContentProtectionTeardownStatusEvent(in_hEvent,
-                                                                                                                                           pdwCookie->GetPointer());
+                                                                                                                                           pdwCookie->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterHardwareContentProtectionTeardownStatusEvent>::Dispatch(
             this,
@@ -4330,9 +4566,13 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_QueryVideoMemoryInfo(
             NodeIndex,
             MemorySegmentGroup,
             pVideoMemoryInfo);
+        if(!pVideoMemoryInfo->IsNull())
+        {
+            pVideoMemoryInfo->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIAdapter3*>(replay_object->object)->QueryVideoMemoryInfo(NodeIndex,
                                                                                                            MemorySegmentGroup,
-                                                                                                           pVideoMemoryInfo->GetPointer());
+                                                                                                           pVideoMemoryInfo->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter3_QueryVideoMemoryInfo", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_QueryVideoMemoryInfo>::Dispatch(
             this,
@@ -4393,8 +4633,12 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNo
             hEvent,
             pdwCookie);
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent, "IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIAdapter3*>(replay_object->object)->RegisterVideoMemoryBudgetChangeNotificationEvent(in_hEvent,
-                                                                                                                                       pdwCookie->GetPointer());
+                                                                                                                                       pdwCookie->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter3_RegisterVideoMemoryBudgetChangeNotificationEvent>::Dispatch(
             this,
@@ -4563,9 +4807,13 @@ void Dx12ReplayConsumer::Process_IDXGIDevice4_ReclaimResources1(
             ppResources,
             pResults);
         auto in_ppResources = MapObjects<IDXGIResource>(ppResources, NumResources);
+        if(!pResults->IsNull())
+        {
+            pResults->AllocateOutputData(NumResources);
+        }
         auto replay_result = reinterpret_cast<IDXGIDevice4*>(replay_object->object)->ReclaimResources1(NumResources,
                                                                                                        in_ppResources,
-                                                                                                       pResults->GetPointer());
+                                                                                                       pResults->GetOutputPointer());
         CheckReplayResult("IDXGIDevice4_ReclaimResources1", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIDevice4_ReclaimResources1>::Dispatch(
             this,
@@ -4591,7 +4839,11 @@ void Dx12ReplayConsumer::Process_IDXGIAdapter4_GetDesc3(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGIAdapter4*>(replay_object->object)->GetDesc3(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIAdapter4*>(replay_object->object)->GetDesc3(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIAdapter4_GetDesc3", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIAdapter4_GetDesc3>::Dispatch(
             this,
@@ -4615,7 +4867,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutput6_GetDesc1(
             call_info,
             replay_object,
             pDesc);
-        auto replay_result = reinterpret_cast<IDXGIOutput6*>(replay_object->object)->GetDesc1(pDesc->GetPointer());
+        if(!pDesc->IsNull())
+        {
+            pDesc->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIOutput6*>(replay_object->object)->GetDesc1(pDesc->GetOutputPointer());
         CheckReplayResult("IDXGIOutput6_GetDesc1", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput6_GetDesc1>::Dispatch(
             this,
@@ -4639,7 +4895,11 @@ void Dx12ReplayConsumer::Process_IDXGIOutput6_CheckHardwareCompositionSupport(
             call_info,
             replay_object,
             pFlags);
-        auto replay_result = reinterpret_cast<IDXGIOutput6*>(replay_object->object)->CheckHardwareCompositionSupport(pFlags->GetPointer());
+        if(!pFlags->IsNull())
+        {
+            pFlags->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<IDXGIOutput6*>(replay_object->object)->CheckHardwareCompositionSupport(pFlags->GetOutputPointer());
         CheckReplayResult("IDXGIOutput6_CheckHardwareCompositionSupport", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIOutput6_CheckHardwareCompositionSupport>::Dispatch(
             this,
@@ -4709,8 +4969,12 @@ void Dx12ReplayConsumer::Process_IDXGIFactory7_RegisterAdaptersChangedEvent(
             hEvent,
             pdwCookie);
         auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent, "IDXGIFactory7_RegisterAdaptersChangedEvent"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<IDXGIFactory7*>(replay_object->object)->RegisterAdaptersChangedEvent(in_hEvent,
-                                                                                                                   pdwCookie->GetPointer());
+                                                                                                                   pdwCookie->GetOutputPointer());
         CheckReplayResult("IDXGIFactory7_RegisterAdaptersChangedEvent", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_IDXGIFactory7_RegisterAdaptersChangedEvent>::Dispatch(
             this,
@@ -4763,9 +5027,13 @@ void Dx12ReplayConsumer::Process_ID3D12Object_GetPrivateData(
             guid,
             pDataSize,
             pData);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(* pDataSize->GetPointer());
+        }
         auto replay_result = reinterpret_cast<ID3D12Object*>(replay_object->object)->GetPrivateData(*guid.decoded_value,
                                                                                                     pDataSize->GetPointer(),
-                                                                                                    pData->GetPointer());
+                                                                                                    pData->GetOutputPointer());
         CheckReplayResult("ID3D12Object_GetPrivateData", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Object_GetPrivateData>::Dispatch(
             this,
@@ -4935,7 +5203,11 @@ void Dx12ReplayConsumer::Process_ID3D12VersionedRootSignatureDeserializer_GetRoo
             replay_object,
             convertToVersion,
             ppDesc);
-        auto in_ppDesc    = ppDesc->GetPointer();
+        if(!ppDesc->IsNull())
+        {
+            ppDesc->AllocateOutputData(1);
+        }
+        auto in_ppDesc    = ppDesc->GetOutputPointer();
         auto replay_result = reinterpret_cast<ID3D12VersionedRootSignatureDeserializer*>(replay_object->object)->GetRootSignatureDescAtVersion(convertToVersion,
                                                                                                                                                const_cast<const D3D12_VERSIONED_ROOT_SIGNATURE_DESC**>(&in_ppDesc));
         CheckReplayResult("ID3D12VersionedRootSignatureDeserializer_GetRootSignatureDescAtVersion", return_value, replay_result);
@@ -5152,8 +5424,16 @@ void Dx12ReplayConsumer::Process_ID3D12Resource_GetHeapProperties(
             replay_object,
             pHeapProperties,
             pHeapFlags);
-        auto replay_result = reinterpret_cast<ID3D12Resource*>(replay_object->object)->GetHeapProperties(pHeapProperties->GetPointer(),
-                                                                                                         pHeapFlags->GetPointer());
+        if(!pHeapProperties->IsNull())
+        {
+            pHeapProperties->AllocateOutputData(1);
+        }
+        if(!pHeapFlags->IsNull())
+        {
+            pHeapFlags->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D12Resource*>(replay_object->object)->GetHeapProperties(pHeapProperties->GetOutputPointer(),
+                                                                                                         pHeapFlags->GetOutputPointer());
         CheckReplayResult("ID3D12Resource_GetHeapProperties", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Resource_GetHeapProperties>::Dispatch(
             this,
@@ -8079,7 +8359,11 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetTimestampFrequency(
             call_info,
             replay_object,
             pFrequency);
-        auto replay_result = reinterpret_cast<ID3D12CommandQueue*>(replay_object->object)->GetTimestampFrequency(pFrequency->GetPointer());
+        if(!pFrequency->IsNull())
+        {
+            pFrequency->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D12CommandQueue*>(replay_object->object)->GetTimestampFrequency(pFrequency->GetOutputPointer());
         CheckReplayResult("ID3D12CommandQueue_GetTimestampFrequency", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetTimestampFrequency>::Dispatch(
             this,
@@ -8105,8 +8389,16 @@ void Dx12ReplayConsumer::Process_ID3D12CommandQueue_GetClockCalibration(
             replay_object,
             pGpuTimestamp,
             pCpuTimestamp);
-        auto replay_result = reinterpret_cast<ID3D12CommandQueue*>(replay_object->object)->GetClockCalibration(pGpuTimestamp->GetPointer(),
-                                                                                                               pCpuTimestamp->GetPointer());
+        if(!pGpuTimestamp->IsNull())
+        {
+            pGpuTimestamp->AllocateOutputData(1);
+        }
+        if(!pCpuTimestamp->IsNull())
+        {
+            pCpuTimestamp->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D12CommandQueue*>(replay_object->object)->GetClockCalibration(pGpuTimestamp->GetOutputPointer(),
+                                                                                                               pCpuTimestamp->GetOutputPointer());
         CheckReplayResult("ID3D12CommandQueue_GetClockCalibration", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12CommandQueue_GetClockCalibration>::Dispatch(
             this,
@@ -9308,14 +9600,30 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetCopyableFootprints(
             pNumRows,
             pRowSizeInBytes,
             pTotalBytes);
+        if(!pLayouts->IsNull())
+        {
+            pLayouts->AllocateOutputData(NumSubresources);
+        }
+        if(!pNumRows->IsNull())
+        {
+            pNumRows->AllocateOutputData(NumSubresources);
+        }
+        if(!pRowSizeInBytes->IsNull())
+        {
+            pRowSizeInBytes->AllocateOutputData(NumSubresources);
+        }
+        if(!pTotalBytes->IsNull())
+        {
+            pTotalBytes->AllocateOutputData(1);
+        }
         reinterpret_cast<ID3D12Device*>(replay_object->object)->GetCopyableFootprints(pResourceDesc->GetPointer(),
                                                                                       FirstSubresource,
                                                                                       NumSubresources,
                                                                                       BaseOffset,
-                                                                                      pLayouts->GetPointer(),
-                                                                                      pNumRows->GetPointer(),
-                                                                                      pRowSizeInBytes->GetPointer(),
-                                                                                      pTotalBytes->GetPointer());
+                                                                                      pLayouts->GetOutputPointer(),
+                                                                                      pNumRows->GetOutputPointer(),
+                                                                                      pRowSizeInBytes->GetOutputPointer(),
+                                                                                      pTotalBytes->GetOutputPointer());
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetCopyableFootprints>::Dispatch(
             this,
             call_info,
@@ -9466,13 +9774,29 @@ void Dx12ReplayConsumer::Process_ID3D12Device_GetResourceTiling(
             FirstSubresourceTilingToGet,
             pSubresourceTilingsForNonPackedMips);
         auto in_pTiledResource = MapObject<ID3D12Resource>(pTiledResource);
+        if(!pNumTilesForEntireResource->IsNull())
+        {
+            pNumTilesForEntireResource->AllocateOutputData(1);
+        }
+        if(!pPackedMipDesc->IsNull())
+        {
+            pPackedMipDesc->AllocateOutputData(1);
+        }
+        if(!pStandardTileShapeForNonPackedMips->IsNull())
+        {
+            pStandardTileShapeForNonPackedMips->AllocateOutputData(1);
+        }
+        if(!pSubresourceTilingsForNonPackedMips->IsNull())
+        {
+            pSubresourceTilingsForNonPackedMips->AllocateOutputData(* pNumSubresourceTilings->GetPointer());
+        }
         reinterpret_cast<ID3D12Device*>(replay_object->object)->GetResourceTiling(in_pTiledResource,
-                                                                                  pNumTilesForEntireResource->GetPointer(),
-                                                                                  pPackedMipDesc->GetPointer(),
-                                                                                  pStandardTileShapeForNonPackedMips->GetPointer(),
+                                                                                  pNumTilesForEntireResource->GetOutputPointer(),
+                                                                                  pPackedMipDesc->GetOutputPointer(),
+                                                                                  pStandardTileShapeForNonPackedMips->GetOutputPointer(),
                                                                                   pNumSubresourceTilings->GetPointer(),
                                                                                   FirstSubresourceTilingToGet,
-                                                                                  pSubresourceTilingsForNonPackedMips->GetPointer());
+                                                                                  pSubresourceTilingsForNonPackedMips->GetOutputPointer());
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device_GetResourceTiling>::Dispatch(
             this,
             call_info,
@@ -9664,7 +9988,11 @@ void Dx12ReplayConsumer::Process_ID3D12PipelineLibrary_Serialize(
             replay_object,
             pData,
             DataSizeInBytes);
-        auto replay_result = reinterpret_cast<ID3D12PipelineLibrary*>(replay_object->object)->Serialize(pData->GetPointer(),
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(DataSizeInBytes);
+        }
+        auto replay_result = reinterpret_cast<ID3D12PipelineLibrary*>(replay_object->object)->Serialize(pData->GetOutputPointer(),
                                                                                                         DataSizeInBytes);
         CheckReplayResult("ID3D12PipelineLibrary_Serialize", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12PipelineLibrary_Serialize>::Dispatch(
@@ -10354,10 +10682,14 @@ void Dx12ReplayConsumer::Process_ID3D12Device4_GetResourceAllocationInfo1(
             numResourceDescs,
             pResourceDescs,
             pResourceAllocationInfo1);
+        if(!pResourceAllocationInfo1->IsNull())
+        {
+            pResourceAllocationInfo1->AllocateOutputData(numResourceDescs);
+        }
         auto replay_result = reinterpret_cast<ID3D12Device4*>(replay_object->object)->GetResourceAllocationInfo1(visibleMask,
                                                                                                                  numResourceDescs,
                                                                                                                  pResourceDescs->GetPointer(),
-                                                                                                                 pResourceAllocationInfo1->GetPointer());
+                                                                                                                 pResourceAllocationInfo1->GetOutputPointer());
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device4_GetResourceAllocationInfo1>::Dispatch(
             this,
             call_info,
@@ -10704,8 +11036,12 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommands(
             replay_object,
             pNumMetaCommands,
             pDescs);
+        if(!pDescs->IsNull())
+        {
+            pDescs->AllocateOutputData(* pNumMetaCommands->GetPointer());
+        }
         auto replay_result = reinterpret_cast<ID3D12Device5*>(replay_object->object)->EnumerateMetaCommands(pNumMetaCommands->GetPointer(),
-                                                                                                            pDescs->GetPointer());
+                                                                                                            pDescs->GetOutputPointer());
         CheckReplayResult("ID3D12Device5_EnumerateMetaCommands", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommands>::Dispatch(
             this,
@@ -10738,11 +11074,19 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_EnumerateMetaCommandParameters(
             pTotalStructureSizeInBytes,
             pParameterCount,
             pParameterDescs);
+        if(!pTotalStructureSizeInBytes->IsNull())
+        {
+            pTotalStructureSizeInBytes->AllocateOutputData(1);
+        }
+        if(!pParameterDescs->IsNull())
+        {
+            pParameterDescs->AllocateOutputData(* pParameterCount->GetPointer());
+        }
         auto replay_result = reinterpret_cast<ID3D12Device5*>(replay_object->object)->EnumerateMetaCommandParameters(*CommandId.decoded_value,
                                                                                                                      Stage,
-                                                                                                                     pTotalStructureSizeInBytes->GetPointer(),
+                                                                                                                     pTotalStructureSizeInBytes->GetOutputPointer(),
                                                                                                                      pParameterCount->GetPointer(),
-                                                                                                                     pParameterDescs->GetPointer());
+                                                                                                                     pParameterDescs->GetOutputPointer());
         CheckReplayResult("ID3D12Device5_EnumerateMetaCommandParameters", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device5_EnumerateMetaCommandParameters>::Dispatch(
             this,
@@ -10865,6 +11209,10 @@ void Dx12ReplayConsumer::Process_ID3D12Device5_GetRaytracingAccelerationStructur
             pDesc,
             pInfo);
         MapStructObjects(pDesc->GetMetaStructPointer(), GetObjectInfoTable(), GetGpuVaTable());
+        if(!pInfo->IsNull())
+        {
+            pInfo->AllocateOutputData(1);
+        }
         OverrideGetRaytracingAccelerationStructurePrebuildInfo(replay_object,
                                                                pDesc,
                                                                pInfo);
@@ -11031,7 +11379,11 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData_GetAutoBreadcru
             call_info,
             replay_object,
             pOutput);
-        auto replay_result = reinterpret_cast<ID3D12DeviceRemovedExtendedData*>(replay_object->object)->GetAutoBreadcrumbsOutput(pOutput->GetPointer());
+        if(!pOutput->IsNull())
+        {
+            pOutput->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D12DeviceRemovedExtendedData*>(replay_object->object)->GetAutoBreadcrumbsOutput(pOutput->GetOutputPointer());
         if (SUCCEEDED(replay_result))
         {
             AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
@@ -11084,7 +11436,11 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceRemovedExtendedData1_GetAutoBreadcr
             call_info,
             replay_object,
             pOutput);
-        auto replay_result = reinterpret_cast<ID3D12DeviceRemovedExtendedData1*>(replay_object->object)->GetAutoBreadcrumbsOutput1(pOutput->GetPointer());
+        if(!pOutput->IsNull())
+        {
+            pOutput->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D12DeviceRemovedExtendedData1*>(replay_object->object)->GetAutoBreadcrumbsOutput1(pOutput->GetOutputPointer());
         if (SUCCEEDED(replay_result))
         {
             AddStructObjects(pOutput, pOutput->GetPointer(), GetObjectInfoTable());
@@ -11197,10 +11553,14 @@ void Dx12ReplayConsumer::Process_ID3D12Device6_SetBackgroundProcessingMode(
             hEventToSignalUponCompletion,
             pbFurtherMeasurementsDesired);
         auto in_hEventToSignalUponCompletion = static_cast<HANDLE>(PreProcessExternalObject(hEventToSignalUponCompletion, format::ApiCallId::ApiCall_ID3D12Device6_SetBackgroundProcessingMode, "ID3D12Device6_SetBackgroundProcessingMode"));
+        if(!pbFurtherMeasurementsDesired->IsNull())
+        {
+            pbFurtherMeasurementsDesired->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<ID3D12Device6*>(replay_object->object)->SetBackgroundProcessingMode(Mode,
                                                                                                                   MeasurementsAction,
                                                                                                                   in_hEventToSignalUponCompletion,
-                                                                                                                  pbFurtherMeasurementsDesired->GetPointer());
+                                                                                                                  pbFurtherMeasurementsDesired->GetOutputPointer());
         CheckReplayResult("ID3D12Device6_SetBackgroundProcessingMode", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device6_SetBackgroundProcessingMode>::Dispatch(
             this,
@@ -11339,10 +11699,14 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_GetResourceAllocationInfo2(
             numResourceDescs,
             pResourceDescs,
             pResourceAllocationInfo1);
+        if(!pResourceAllocationInfo1->IsNull())
+        {
+            pResourceAllocationInfo1->AllocateOutputData(numResourceDescs);
+        }
         auto replay_result = reinterpret_cast<ID3D12Device8*>(replay_object->object)->GetResourceAllocationInfo2(visibleMask,
                                                                                                                  numResourceDescs,
                                                                                                                  pResourceDescs->GetPointer(),
-                                                                                                                 pResourceAllocationInfo1->GetPointer());
+                                                                                                                 pResourceAllocationInfo1->GetOutputPointer());
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device8_GetResourceAllocationInfo2>::Dispatch(
             this,
             call_info,
@@ -11536,14 +11900,30 @@ void Dx12ReplayConsumer::Process_ID3D12Device8_GetCopyableFootprints1(
             pNumRows,
             pRowSizeInBytes,
             pTotalBytes);
+        if(!pLayouts->IsNull())
+        {
+            pLayouts->AllocateOutputData(NumSubresources);
+        }
+        if(!pNumRows->IsNull())
+        {
+            pNumRows->AllocateOutputData(NumSubresources);
+        }
+        if(!pRowSizeInBytes->IsNull())
+        {
+            pRowSizeInBytes->AllocateOutputData(NumSubresources);
+        }
+        if(!pTotalBytes->IsNull())
+        {
+            pTotalBytes->AllocateOutputData(1);
+        }
         reinterpret_cast<ID3D12Device8*>(replay_object->object)->GetCopyableFootprints1(pResourceDesc->GetPointer(),
                                                                                         FirstSubresource,
                                                                                         NumSubresources,
                                                                                         BaseOffset,
-                                                                                        pLayouts->GetPointer(),
-                                                                                        pNumRows->GetPointer(),
-                                                                                        pRowSizeInBytes->GetPointer(),
-                                                                                        pTotalBytes->GetPointer());
+                                                                                        pLayouts->GetOutputPointer(),
+                                                                                        pNumRows->GetOutputPointer(),
+                                                                                        pRowSizeInBytes->GetOutputPointer(),
+                                                                                        pTotalBytes->GetOutputPointer());
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device8_GetCopyableFootprints1>::Dispatch(
             this,
             call_info,
@@ -12059,9 +12439,13 @@ void Dx12ReplayConsumer::Process_ID3D12ShaderCacheSession_FindValue(
             KeySize,
             pValue,
             pValueSize);
+        if(!pValue->IsNull())
+        {
+            pValue->AllocateOutputData(* pValueSize->GetPointer());
+        }
         auto replay_result = reinterpret_cast<ID3D12ShaderCacheSession*>(replay_object->object)->FindValue(pKey->GetPointer(),
                                                                                                            KeySize,
-                                                                                                           pValue->GetPointer(),
+                                                                                                           pValue->GetOutputPointer(),
                                                                                                            pValueSize->GetPointer());
         CheckReplayResult("ID3D12ShaderCacheSession_FindValue", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12ShaderCacheSession_FindValue>::Dispatch(
@@ -12514,12 +12898,16 @@ void Dx12ReplayConsumer::Process_ID3D12Device12_GetResourceAllocationInfo3(
             pNumCastableFormats,
             ppCastableFormats,
             pResourceAllocationInfo1);
+        if(!pResourceAllocationInfo1->IsNull())
+        {
+            pResourceAllocationInfo1->AllocateOutputData(numResourceDescs);
+        }
         auto replay_result = reinterpret_cast<ID3D12Device12*>(replay_object->object)->GetResourceAllocationInfo3(visibleMask,
                                                                                                                   numResourceDescs,
                                                                                                                   pResourceDescs->GetPointer(),
                                                                                                                   pNumCastableFormats->GetPointer(),
                                                                                                                   ppCastableFormats->GetPointer(),
-                                                                                                                  pResourceAllocationInfo1->GetPointer());
+                                                                                                                  pResourceAllocationInfo1->GetOutputPointer());
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12Device12_GetResourceAllocationInfo3>::Dispatch(
             this,
             call_info,
@@ -12588,9 +12976,13 @@ void Dx12ReplayConsumer::Process_ID3D12VirtualizationGuestDevice_CreateFenceFd(
             FenceValue,
             pFenceFd);
         auto in_pFence = MapObject<ID3D12Fence>(pFence);
+        if(!pFenceFd->IsNull())
+        {
+            pFenceFd->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<ID3D12VirtualizationGuestDevice*>(replay_object->object)->CreateFenceFd(in_pFence,
                                                                                                                       FenceValue,
-                                                                                                                      pFenceFd->GetPointer());
+                                                                                                                      pFenceFd->GetOutputPointer());
         CheckReplayResult("ID3D12VirtualizationGuestDevice_CreateFenceFd", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12VirtualizationGuestDevice_CreateFenceFd>::Dispatch(
             this,
@@ -12977,7 +13369,11 @@ void Dx12ReplayConsumer::Process_ID3D12DeviceConfiguration_GetEnabledExperimenta
             replay_object,
             pGuids,
             NumGuids);
-        auto replay_result = reinterpret_cast<ID3D12DeviceConfiguration*>(replay_object->object)->GetEnabledExperimentalFeatures(pGuids->GetPointer(),
+        if(!pGuids->IsNull())
+        {
+            pGuids->AllocateOutputData(NumGuids);
+        }
+        auto replay_result = reinterpret_cast<ID3D12DeviceConfiguration*>(replay_object->object)->GetEnabledExperimentalFeatures(pGuids->GetOutputPointer(),
                                                                                                                                  NumGuids);
         CheckReplayResult("ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DeviceConfiguration_GetEnabledExperimentalFeatures>::Dispatch(
@@ -13446,9 +13842,13 @@ void Dx12ReplayConsumer::Process_ID3DDestructionNotifier_RegisterDestructionCall
             pData,
             pCallbackID);
         auto in_pData = PreProcessExternalObject(pData, format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback, "ID3DDestructionNotifier_RegisterDestructionCallback");
+        if(!pCallbackID->IsNull())
+        {
+            pCallbackID->AllocateOutputData(1);
+        }
         auto replay_result = reinterpret_cast<ID3DDestructionNotifier*>(replay_object->object)->RegisterDestructionCallback(reinterpret_cast<PFN_DESTRUCTION_CALLBACK>(callbackFn),
                                                                                                                             in_pData,
-                                                                                                                            pCallbackID->GetPointer());
+                                                                                                                            pCallbackID->GetOutputPointer());
         CheckReplayResult("ID3DDestructionNotifier_RegisterDestructionCallback", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3DDestructionNotifier_RegisterDestructionCallback>::Dispatch(
             this,
@@ -13767,8 +14167,12 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice1_GetDebugParameter(
             Type,
             pData,
             DataSize);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(DataSize);
+        }
         auto replay_result = reinterpret_cast<ID3D12DebugDevice1*>(replay_object->object)->GetDebugParameter(Type,
-                                                                                                             pData->GetPointer(),
+                                                                                                             pData->GetOutputPointer(),
                                                                                                              DataSize);
         CheckReplayResult("ID3D12DebugDevice1_GetDebugParameter", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DebugDevice1_GetDebugParameter>::Dispatch(
@@ -13923,8 +14327,12 @@ void Dx12ReplayConsumer::Process_ID3D12DebugDevice2_GetDebugParameter(
             Type,
             pData,
             DataSize);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(DataSize);
+        }
         auto replay_result = reinterpret_cast<ID3D12DebugDevice2*>(replay_object->object)->GetDebugParameter(Type,
-                                                                                                             pData->GetPointer(),
+                                                                                                             pData->GetOutputPointer(),
                                                                                                              DataSize);
         CheckReplayResult("ID3D12DebugDevice2_GetDebugParameter", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DebugDevice2_GetDebugParameter>::Dispatch(
@@ -14113,8 +14521,12 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList1_GetDebugParameter(
             Type,
             pData,
             DataSize);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(DataSize);
+        }
         auto replay_result = reinterpret_cast<ID3D12DebugCommandList1*>(replay_object->object)->GetDebugParameter(Type,
-                                                                                                                  pData->GetPointer(),
+                                                                                                                  pData->GetOutputPointer(),
                                                                                                                   DataSize);
         CheckReplayResult("ID3D12DebugCommandList1_GetDebugParameter", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList1_GetDebugParameter>::Dispatch(
@@ -14253,8 +14665,12 @@ void Dx12ReplayConsumer::Process_ID3D12DebugCommandList2_GetDebugParameter(
             Type,
             pData,
             DataSize);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(DataSize);
+        }
         auto replay_result = reinterpret_cast<ID3D12DebugCommandList2*>(replay_object->object)->GetDebugParameter(Type,
-                                                                                                                  pData->GetPointer(),
+                                                                                                                  pData->GetOutputPointer(),
                                                                                                                   DataSize);
         CheckReplayResult("ID3D12DebugCommandList2_GetDebugParameter", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12DebugCommandList2_GetDebugParameter>::Dispatch(
@@ -14519,8 +14935,12 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetMessage(
             MessageIndex,
             pMessage,
             pMessageByteLength);
+        if(!pMessage->IsNull())
+        {
+            pMessage->AllocateOutputData(* pMessageByteLength->GetPointer());
+        }
         auto replay_result = reinterpret_cast<ID3D12InfoQueue*>(replay_object->object)->GetMessage(MessageIndex,
-                                                                                                   pMessage->GetPointer(),
+                                                                                                   pMessage->GetOutputPointer(),
                                                                                                    pMessageByteLength->GetPointer());
         CheckReplayResult("ID3D12InfoQueue_GetMessage", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetMessage>::Dispatch(
@@ -14693,7 +15113,11 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetStorageFilter(
             replay_object,
             pFilter,
             pFilterByteLength);
-        auto replay_result = reinterpret_cast<ID3D12InfoQueue*>(replay_object->object)->GetStorageFilter(pFilter->GetPointer(),
+        if(!pFilter->IsNull())
+        {
+            pFilter->AllocateOutputData(* pFilterByteLength->GetPointer());
+        }
+        auto replay_result = reinterpret_cast<ID3D12InfoQueue*>(replay_object->object)->GetStorageFilter(pFilter->GetOutputPointer(),
                                                                                                          pFilterByteLength->GetPointer());
         CheckReplayResult("ID3D12InfoQueue_GetStorageFilter", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetStorageFilter>::Dispatch(
@@ -14869,7 +15293,11 @@ void Dx12ReplayConsumer::Process_ID3D12InfoQueue_GetRetrievalFilter(
             replay_object,
             pFilter,
             pFilterByteLength);
-        auto replay_result = reinterpret_cast<ID3D12InfoQueue*>(replay_object->object)->GetRetrievalFilter(pFilter->GetPointer(),
+        if(!pFilter->IsNull())
+        {
+            pFilter->AllocateOutputData(* pFilterByteLength->GetPointer());
+        }
+        auto replay_result = reinterpret_cast<ID3D12InfoQueue*>(replay_object->object)->GetRetrievalFilter(pFilter->GetOutputPointer(),
                                                                                                            pFilterByteLength->GetPointer());
         CheckReplayResult("ID3D12InfoQueue_GetRetrievalFilter", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D12InfoQueue_GetRetrievalFilter>::Dispatch(

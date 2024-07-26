@@ -347,7 +347,17 @@ class Dx12ReplayConsumerBodyGenerator(
                         )
                     arg_list.append('*{}.decoded_value'.format(value.name))
             else:
-                if not is_output:
+                if is_output:
+                    length = '1'
+                    if value.array_length:
+                        if isinstance(value.array_length, str) and value.array_length[0] == '*':
+                            length = value.array_length + '->GetPointer()'
+                        else:
+                            length = value.array_length
+                    code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
+                        value.name, value.name, length
+                    )
+                else:
                     map_func = self.MAP_STRUCT_TYPE.get(value.base_type)
                     if map_func:
                         if value.is_array:
@@ -380,15 +390,22 @@ class Dx12ReplayConsumerBodyGenerator(
 
                 elif value.pointer_count > 0 or value.is_array:
                     if is_struct and value.pointer_count == 2 and value.is_const:
-                        code += '    auto in_{0}    = {0}->GetPointer();\n'\
-                            .format(value.name)
+                        if is_output:
+                            code += '    auto in_{0}    = {0}->GetOutputPointer();\n'\
+                                .format(value.name)
+                        else:
+                            code += '    auto in_{0}    = {0}->GetPointer();\n'\
+                                .format(value.name)
                         arg_list.append(
                             'const_cast<const {}**>(&in_{})'.format(
                                 value.base_type, value.name
                             )
                         )
                     else:
-                        arg_list.append(value.name + '->GetPointer()')
+                        if is_output:
+                            arg_list.append(value.name + '->GetOutputPointer()')
+                        else:
+                            arg_list.append(value.name + '->GetPointer()')
 
                 else:
                     if is_struct:
