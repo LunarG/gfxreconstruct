@@ -60,6 +60,17 @@ class Dx12ReplayConsumerBodyGenerator(
 
     REPLAY_OVERRIDES = {}
 
+    # API calls with variable length array semantics, with an inout pointer
+    # to an array size that retrieves the expected size of the array when the
+    # pointer to the array is null, but do not have the array pointer labeled
+    # with the 'opt' SAL marking. For these functions, we assume that 'opt' was
+    # accidentally omitted and that the function should be treated as if the
+    # 'opt' were present.
+    EXTRA_VARIABLE_LENGTH_ARRAYS = {
+        'IDXGIObject_GetPrivateData': ['pData'],
+        'ID3D12ShaderCacheSession_FindValue': ['pValue']
+    }
+
     def __init__(
         self,
         source_dict,
@@ -174,6 +185,8 @@ class Dx12ReplayConsumerBodyGenerator(
         add_object_list = []
         set_resource_dimension_layout_list = []
         struct_add_object_list = []
+        pre_call_expr_list = []
+        post_call_expr_list = []
         post_extenal_object_list = []
 
         is_override = name in self.REPLAY_OVERRIDES
@@ -205,6 +218,18 @@ class Dx12ReplayConsumerBodyGenerator(
         code = code[:-1]
         code += ");\n"
 
+        # Generate a dictionary of variable length array size parameter info to be used with
+        # storing and retrieving the array sizes returned by API calls that return the expected
+        # size of the array when the array parameter is null.
+        variable_array_lengths = {}
+        for value in values:
+            if self.is_variable_length_array(name, value):
+                base_length_name = value.array_length.replace('* ', '')
+                variable_array_lengths[base_length_name] = {
+                    'array_value': value,
+                    'length_value': self.find_value(base_length_name, values)
+                }
+
         for value in values:
             is_class = self.is_class(value)
             is_extenal_object = (
@@ -212,12 +237,33 @@ class Dx12ReplayConsumerBodyGenerator(
             ) and not value.is_array
             is_output = self.is_output(value)
             is_struct = self.is_struct(value.base_type)
+            is_variable_length_array = self.is_variable_length_array(
+                name, value
+            )
 
-            if is_output and value.base_type in self.structs_with_objects:
-                struct_add_object_list.append(
-                    'AddStructObjects({0}, {0}->GetPointer(), GetObjectInfoTable());\n'
-                    .format(value.name)
-                )
+            if is_output:
+                if value.base_type in self.structs_with_objects:
+                    struct_add_object_list.append(
+                        'AddStructObjects({0}, {0}->GetPointer(), GetObjectInfoTable());\n'
+                        .format(value.name)
+                    )
+                elif is_variable_length_array:
+                    # This is an optional output array with an array size parameter that is
+                    # also a pointer. This array parameter may adhere to a pattern that, when
+                    # it is null, the API call will return the expected input array size in
+                    # the value pointed to by the array size parameter. In this case, we can
+                    # store the value returned here and use it to allocate an array of this
+                    # stored size on the next call when the array pointer is not null.
+                    if is_object:
+                        post_call_expr_list.append(
+                            self.make_variable_length_array_post_expr(
+                                name, value
+                            )
+                        )
+                    else:
+                        print(
+                            "ERROR: Variable length output array size tracking is not implemented for function calls."
+                        )
 
             if is_class:
                 if is_output:
@@ -348,21 +394,43 @@ class Dx12ReplayConsumerBodyGenerator(
                     arg_list.append('*{}.decoded_value'.format(value.name))
             else:
                 if is_output:
-                    length = '1'
-                    # The _result_bytebuffer_ annotation indicates that the parameter is a pointer to a
-                    # pointer to a buffer allocated by the runtime/driver. For this case, only the single
-                    # pointer to the output buffer needs to be allocated.
-                    if value.array_length and (
-                        not '_result_bytebuffer_' in value.full_type
-                    ):
-                        if isinstance(value.array_length,
-                                      str) and value.array_length[0] == '*':
-                            length = value.array_length + '->GetPointer()'
-                        else:
-                            length = value.array_length
-                    code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
-                        value.name, value.name, length
-                    )
+                    if is_variable_length_array:
+                        length = value.array_length.replace('* ', '')
+                        # Ensure that the array's output data initialization expression is written to the
+                        # file after the size parameter is initialized, storing the expression string now
+                        # and appending it to the code string immediately before generating the API call,
+                        # after all other parameters have been processed.
+                        pre_call_expr_list.append(
+                            '    if(!{}->IsNull() && !{}->IsNull())\n    {{\n        {}->AllocateOutputData({}->GetOutputPointer());\n    }}\n'
+                            .format(
+                                value.name, length, value.name,
+                                value.array_length.replace(' ', '')
+                            )
+                        )
+                    elif value.name in variable_array_lengths:
+                        code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData(1, {});\n    }}\n'.format(
+                            value.name, value.name,
+                            self.make_variable_length_array_get_count_call(
+                                return_type, name,
+                                **variable_array_lengths[value.name]
+                            )
+                        )
+                    else:
+                        length = '1'
+                        # The _result_bytebuffer_ annotation indicates that the parameter is a pointer to a
+                        # pointer to a buffer allocated by the runtime/driver. For this case, only the single
+                        # pointer to the output buffer needs to be allocated.
+                        if value.array_length and (
+                            not '_result_bytebuffer_' in value.full_type
+                        ):
+                            if isinstance(value.array_length, str
+                                          ) and value.array_length[0] == '*':
+                                length = value.array_length + '->GetPointer()'
+                            else:
+                                length = value.array_length
+                        code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
+                            value.name, value.name, length
+                        )
                 else:
                     map_func = self.MAP_STRUCT_TYPE.get(value.base_type)
                     if map_func:
@@ -431,6 +499,9 @@ class Dx12ReplayConsumerBodyGenerator(
 
                     else:
                         arg_list.append(value.name)
+
+        for e in pre_call_expr_list:
+            code += e
 
         indent_length = len(code)
         code += '    '
@@ -508,6 +579,9 @@ class Dx12ReplayConsumerBodyGenerator(
                 "    }\n"
             )
            
+        for e in post_call_expr_list:
+            code += '    {}'.format(e)
+
         if len(add_object_list) or len(struct_add_object_list):
             scope_indent = '    '
             if return_type == 'HRESULT':
@@ -547,6 +621,55 @@ class Dx12ReplayConsumerBodyGenerator(
         for e in post_extenal_object_list:
             code += '    {}'.format(e)
         return code
+
+    def find_value(self, name, values):
+        for value in values:
+            if value.name == name:
+                return value
+
+    def is_variable_length_array(self, name, value):
+        return value.is_array and value.array_length and isinstance(
+            value.array_length, str
+        ) and value.array_length.startswith('*') and (
+            ('_opt_' in value.full_type) or (
+                (name in self.EXTRA_VARIABLE_LENGTH_ARRAYS) and
+                (value.name in self.EXTRA_VARIABLE_LENGTH_ARRAYS[name])
+            )
+        )
+
+    def get_variable_length_array_index_id(self, name):
+        class_name = name[:name.find('_')][1:].replace('DXGI', 'Dxgi')
+        method_name = name[name.find('_') + 1:]
+        index_id = 'VariableLengthArrayIndices::k{}Array{}'.format(
+            class_name, method_name
+        )
+        return index_id
+
+    def make_variable_length_array_post_expr(self, name, value):
+        """Generate expressions to store the result of the count query for an array containing a variable number of values."""
+        index_id = self.get_variable_length_array_index_id(name)
+
+        length_name = value.array_length
+        base_length_name = length_name.replace('* ', '')
+        return 'if ({}->IsNull() && !{}->IsNull()) {{ SetOutputArrayCount(object_id, {}, {}->GetOutputPointer()); }}\n'.format(
+            value.name, base_length_name, index_id,
+            length_name.replace(' ', '')
+        )
+
+    def make_variable_length_array_get_count_call(
+        self, return_type, name, array_value, length_value
+    ):
+        """Generate expression to call a function that retrieves the count of an array containing a variable number of values."""
+        return_value = 'S_OK'
+        if (return_type == 'HRESULT'):
+            return_value = 'return_value'
+
+        index_id = self.get_variable_length_array_index_id(name)
+
+        return 'GetOutputArrayCount("{}", {}, object_id, {}, {}, {})'.format(
+            name.replace('_', '::'), return_value, index_id, length_value.name,
+            array_value.name
+        )
 
     def __load_replay_overrides(self, filename):
         overrides = json.loads(open(filename, 'r').read())
