@@ -29,6 +29,7 @@
 #include "decode/metadata_consumer_base.h"
 #include "decode/marker_consumer_base.h"
 #include "decode/api_decoder.h"
+#include "decode/dx_feature_data_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "format/api_call_id.h"
@@ -61,20 +62,18 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void ProcessDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header) {}
 
-    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
-                                                          HRESULT          original_result,
-                                                          D3D12_FEATURE    feature,
-                                                          const void*      capture_feature_data,
-                                                          void*            replay_feature_data,
-                                                          UINT             feature_data_size)
+    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId      object_id,
+                                                          HRESULT               original_result,
+                                                          D3D12_FEATURE         feature,
+                                                          DxFeatureDataDecoder* feature_data,
+                                                          UINT                  feature_data_size)
     {}
 
-    virtual void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
-                                                           HRESULT          original_result,
-                                                           DXGI_FEATURE     feature,
-                                                           const void*      capture_feature_data,
-                                                           void*            replay_feature_data,
-                                                           UINT             feature_data_size)
+    virtual void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId      object_id,
+                                                           HRESULT               original_result,
+                                                           DXGI_FEATURE          feature,
+                                                           DxFeatureDataDecoder* feature_data,
+                                                           UINT                  feature_data_size)
     {}
 
     virtual void Process_ID3D12Resource_WriteToSubresource(format::HandleId                         object_id,
@@ -93,13 +92,12 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                               const uint8_t*                       parameters_data)
     {}
 
-    virtual void Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo& call_info,
-                                                          format::HandleId   object_id,
-                                                          HRESULT            return_value,
-                                                          D3D11_FEATURE      feature,
-                                                          const void*        capture_feature_data,
-                                                          void*              replay_feature_data,
-                                                          UINT               feature_data_size)
+    virtual void Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo&    call_info,
+                                                          format::HandleId      object_id,
+                                                          HRESULT               return_value,
+                                                          D3D11_FEATURE         feature,
+                                                          DxFeatureDataDecoder* feature_data,
+                                                          UINT                  feature_data_size)
     {}
 
     virtual void Process_ID3D11Device_CreateBuffer(const ApiCallInfo&                                    call_info,

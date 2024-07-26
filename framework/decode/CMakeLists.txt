@@ -67,6 +67,7 @@ target_sources(gfxrecon_decode
                     ${CMAKE_CURRENT_LIST_DIR}/info_consumer.h
                     ${CMAKE_CURRENT_LIST_DIR}/info_decoder.h
                     ${CMAKE_CURRENT_LIST_DIR}/info_decoder.cpp
+                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx_feature_data_decoder.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx_replay_options.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_options.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_object_info.h>

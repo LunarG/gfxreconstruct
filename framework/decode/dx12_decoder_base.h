@@ -26,6 +26,7 @@
 #define GFXRECON_DECODE_DX12_DECODER_BASE_H
 
 #include "decode/api_decoder.h"
+#include "decode/dx_feature_data_decoder.h"
 #include "decode/struct_pointer_decoder.h"
 #include "generated/generated_dx12_consumer.h"
 #include "decoder_util.h"
@@ -238,9 +239,9 @@ class Dx12DecoderBase : public ApiDecoder
     {
         size_t bytes_read = 0;
 
-        StructPointerDecoder<T> feature_data;
-        UINT                    feature_data_size;
-        HRESULT                 return_value;
+        DxFeatureDataStructPointerDecoder<T> feature_data;
+        UINT                                 feature_data_size;
+        HRESULT                              return_value;
 
         bytes_read += feature_data.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
         bytes_read += ValueDecoder::DecodeUInt32Value(
@@ -248,16 +249,10 @@ class Dx12DecoderBase : public ApiDecoder
         bytes_read +=
             ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
-        auto* capture_data = feature_data.GetPointer();
-        if (capture_data != nullptr)
-        {
-            feature_data.AllocateOutputData(1, *capture_data);
-        }
-
         for (auto consumer : GetConsumers())
         {
             consumer->Process_ID3D12Device_CheckFeatureSupport(
-                object_id, return_value, feature, capture_data, feature_data.GetOutputPointer(), feature_data_size);
+                object_id, return_value, feature, &feature_data, feature_data_size);
         }
 
         return bytes_read;
@@ -272,9 +267,9 @@ class Dx12DecoderBase : public ApiDecoder
     {
         size_t bytes_read = 0;
 
-        StructPointerDecoder<T> feature_data;
-        UINT                    feature_data_size;
-        HRESULT                 return_value;
+        DxFeatureDataStructPointerDecoder<T> feature_data;
+        UINT                                 feature_data_size;
+        HRESULT                              return_value;
 
         bytes_read += feature_data.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
         bytes_read += ValueDecoder::DecodeUInt32Value(
@@ -282,21 +277,10 @@ class Dx12DecoderBase : public ApiDecoder
         bytes_read +=
             ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
-        auto* capture_data = feature_data.GetPointer();
-        if (capture_data != nullptr)
-        {
-            feature_data.AllocateOutputData(1, *capture_data);
-        }
-
         for (auto consumer : GetConsumers())
         {
-            consumer->Process_ID3D11Device_CheckFeatureSupport(call_info,
-                                                               object_id,
-                                                               return_value,
-                                                               feature,
-                                                               capture_data,
-                                                               feature_data.GetOutputPointer(),
-                                                               feature_data_size);
+            consumer->Process_ID3D11Device_CheckFeatureSupport(
+                call_info, object_id, return_value, feature, &feature_data, feature_data_size);
         }
 
         return bytes_read;

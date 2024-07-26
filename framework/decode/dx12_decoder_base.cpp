@@ -582,14 +582,21 @@ size_t Dx12DecoderBase::Decode_IDXGIFactory5_CheckFeatureSupport(format::HandleI
             bytes_read += ValueDecoder::DecodeInt32Value(
                 (parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
+            // NOTE: This value should have been encoded as a pointer, but because it was not we can emulate a buffer
+            // containing an encoded pointer, which can then be processed with a PointerDecoder.
+            int32_t pointer_buffer[] = {
+                format::PointerAttributes::kIsSingle |
+                    format::PointerAttributes::kHasData, // Flags for non-null single value encoding with no address.
+                allow_tearing
+            };
+
+            DxFeatureDataPointerDecoder<int32_t> feature_data;
+            feature_data.DecodeInt32(reinterpret_cast<uint8_t*>(pointer_buffer), sizeof(pointer_buffer));
+
             for (auto consumer : GetConsumers())
             {
-                consumer->Process_IDXGIFactory5_CheckFeatureSupport(object_id,
-                                                                    return_value,
-                                                                    feature,
-                                                                    static_cast<void*>(&allow_tearing),
-                                                                    static_cast<void*>(&allow_tearing),
-                                                                    feature_data_size);
+                consumer->Process_IDXGIFactory5_CheckFeatureSupport(
+                    object_id, return_value, feature, &feature_data, feature_data_size);
             }
         }
         break;

@@ -3826,38 +3826,48 @@ void Dx12ReplayConsumerBase::InitializeScreenshotHandler()
         std::make_unique<ScreenshotHandlerBase>(options_.screenshot_format, options_.screenshot_ranges);
 }
 
-void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
-                                                                      HRESULT          original_result,
-                                                                      D3D12_FEATURE    feature,
-                                                                      const void*      capture_feature_data,
-                                                                      void*            replay_feature_data,
-                                                                      UINT             feature_data_size)
+void Dx12ReplayConsumerBase::Process_ID3D12Device_CheckFeatureSupport(format::HandleId      object_id,
+                                                                      HRESULT               original_result,
+                                                                      D3D12_FEATURE         feature,
+                                                                      DxFeatureDataDecoder* feature_data,
+                                                                      UINT                  feature_data_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+    GFXRECON_ASSERT(feature_data != nullptr);
 
     auto replay_object = MapObject<ID3D12Device>(object_id);
 
-    if ((replay_object != nullptr) && (replay_feature_data != nullptr))
+    if (!feature_data->IsNull())
     {
-        auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
+        feature_data->AllocateOutputData(1);
+    }
+
+    if (replay_object != nullptr)
+    {
+        auto replay_result =
+            replay_object->CheckFeatureSupport(feature, feature_data->GetOutputPointer(), feature_data_size);
         CheckReplayResult("ID3D12Device::CheckFeatureSupport", original_result, replay_result);
     }
 }
 
-void Dx12ReplayConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
-                                                                       HRESULT          original_result,
-                                                                       DXGI_FEATURE     feature,
-                                                                       const void*      capture_feature_data,
-                                                                       void*            replay_feature_data,
-                                                                       UINT             feature_data_size)
+void Dx12ReplayConsumerBase::Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId      object_id,
+                                                                       HRESULT               original_result,
+                                                                       DXGI_FEATURE          feature,
+                                                                       DxFeatureDataDecoder* feature_data,
+                                                                       UINT                  feature_data_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+    GFXRECON_ASSERT(feature_data != nullptr);
 
     auto replay_object = MapObject<IDXGIFactory5>(object_id);
 
-    if ((replay_object != nullptr) && (replay_feature_data != nullptr))
+    if (!feature_data->IsNull())
     {
-        auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
+        feature_data->AllocateOutputData(1);
+    }
+
+    if (replay_object != nullptr)
+    {
+        auto replay_result =
+            replay_object->CheckFeatureSupport(feature, feature_data->GetOutputPointer(), feature_data_size);
         CheckReplayResult("IDXGIFactory5::CheckFeatureSupport", original_result, replay_result);
     }
 }
@@ -3879,21 +3889,26 @@ void Dx12ReplayConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::H
     }
 }
 
-void Dx12ReplayConsumerBase::Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo& call_info,
-                                                                      format::HandleId   object_id,
-                                                                      HRESULT            return_value,
-                                                                      D3D11_FEATURE      feature,
-                                                                      const void*        capture_feature_data,
-                                                                      void*              replay_feature_data,
-                                                                      UINT               feature_data_size)
+void Dx12ReplayConsumerBase::Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo&    call_info,
+                                                                      format::HandleId      object_id,
+                                                                      HRESULT               return_value,
+                                                                      D3D11_FEATURE         feature,
+                                                                      DxFeatureDataDecoder* feature_data,
+                                                                      UINT                  feature_data_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+    GFXRECON_ASSERT(feature_data != nullptr);
 
     auto replay_object = MapObject<ID3D11Device>(object_id);
 
-    if ((replay_object != nullptr) && (replay_feature_data != nullptr))
+    if (!feature_data->IsNull())
     {
-        auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
+        feature_data->AllocateOutputData(1);
+    }
+
+    if (replay_object != nullptr)
+    {
+        auto replay_result =
+            replay_object->CheckFeatureSupport(feature, feature_data->GetOutputPointer(), feature_data_size);
         CheckReplayResult("ID3D11Device::CheckFeatureSupport", return_value, replay_result);
     }
 }
