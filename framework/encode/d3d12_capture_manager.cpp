@@ -179,48 +179,80 @@ void D3D12CaptureManager::WriteTrackedState(util::FileOutputStream* file_stream,
     state_tracker_->WriteState(&state_writer, GetCurrentFrame());
 }
 
-void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
-                                                    IUnknown*               command_queue,
-                                                    uint32_t                image_count,
-                                                    DXGI_SWAP_EFFECT        swap_effect)
+void D3D12CaptureManager::InitializeSwapChainInfo(IDXGISwapChain_Wrapper* wrapper,
+                                                  IUnknown*               unknown,
+                                                  uint32_t                buffer_count,
+                                                  DXGI_SWAP_EFFECT        swap_effect)
 {
-    // We only expect to process the DXGI_SWAP_EFFECT_FLIP_* effects with DX12.
-    if ((swap_effect != DXGI_SWAP_EFFECT_DISCARD) && (swap_effect != DXGI_SWAP_EFFECT_SEQUENTIAL))
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    auto info = wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info != nullptr);
+
+    info->buffer_count = buffer_count;
+    info->swap_effect  = swap_effect;
+
+    if (unknown != nullptr)
     {
-        assert(wrapper != nullptr);
-
-        auto info = wrapper->GetObjectInfo();
-        assert(info != nullptr);
-        if (command_queue != nullptr)
+        // Attempt to retrieve an ID3D12CommandQueue interface from the IUnknown interface.
+        HRESULT hr = unknown->QueryInterface(IID_PPV_ARGS(&info->command_queue));
+        if (SUCCEEDED(hr))
         {
-            info->command_queue_id = GetDx12WrappedId<IUnknown>(command_queue);
-
-            // Get the ID3D12CommandQueue from the IUnknown queue object.
-            HRESULT hr = command_queue->QueryInterface(IID_PPV_ARGS(&info->command_queue));
-            if (FAILED(hr))
+            info->command_queue_id = GetDx12WrappedId<IUnknown>(unknown);
+        }
+        else
+        {
+            // Attempt to retrieve an ID3D11Device interface from the IUnknown interface.
+            hr = unknown->QueryInterface(IID_PPV_ARGS(&info->device));
+            if (SUCCEEDED(hr))
             {
-                GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
-                                     "argument to CreateSwapChain.");
+                info->device_id = GetDx12WrappedId<IUnknown>(unknown);
             }
         }
+    }
 
-        if (info->child_images.empty())
+    AcquireSwapChainImages(wrapper, info.get(), buffer_count);
+}
+
+void D3D12CaptureManager::AcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
+                                                 IDXGISwapChainInfo*     info,
+                                                 uint32_t                image_count)
+{
+    GFXRECON_ASSERT((wrapper != nullptr) && (info != nullptr));
+
+    if (info->child_images.empty())
+    {
+        auto acquirable_image_count = image_count;
+
+        // Only the image at index 0 can be retrieved when using DXGI_SWAP_EFFECT_DISCARD. With D3D11,
+        // DXGI_SWAP_EFFECT_FLIP_DISCARD has the same index 0 limitation as DXGI_SWAP_EFFECT_DISCARD. For this case, the
+        // image only needs to be acquired once after swap chain creation or buffer resize.
+        if ((info->swap_effect == DXGI_SWAP_EFFECT_DISCARD) ||
+            ((info->device_id != format::kNullHandleId) && (info->swap_effect == DXGI_SWAP_EFFECT_FLIP_DISCARD)))
         {
-            auto swap_chain = wrapper->GetWrappedObjectAs<IDXGISwapChain>();
-            info->child_images.resize(image_count);
-            info->swap_effect = swap_effect;
+            acquirable_image_count = 1;
+        }
 
-            if (IsCaptureModeTrack())
-            {
-                // TODO: In VK version, this thing is done in InitializeGroupObjectState,
-                //       This might need to be removed to InitializeGroupObjectState when it's ready.
-                info->image_acquired_info.resize(image_count);
-            }
+        info->child_images.resize(acquirable_image_count);
 
-            for (uint32_t i = 0; i < image_count; ++i)
+        if (IsCaptureModeTrack())
+        {
+            // TODO: In VK version, this thing is done in InitializeGroupObjectState,
+            //       This might need to be removed to InitializeGroupObjectState when it's ready.
+            info->image_acquired_info.resize(acquirable_image_count);
+        }
+
+        auto swap_chain = wrapper->GetWrappedObjectAs<IDXGISwapChain>();
+        GFXRECON_ASSERT(swap_chain != nullptr);
+
+        for (uint32_t i = 0; i < acquirable_image_count; ++i)
+        {
+            auto result = E_FAIL;
+
+            if (info->command_queue_id != format::kNullHandleId)
             {
                 ID3D12Resource* resource = nullptr;
-                auto            result   = swap_chain->GetBuffer(i, IID_PPV_ARGS(&resource));
+                result                   = swap_chain->GetBuffer(i, IID_PPV_ARGS(&resource));
                 if (SUCCEEDED(result))
                 {
                     WrapID3D12Resource(IID_PPV_ARGS(&resource), nullptr);
@@ -235,19 +267,43 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
                     // state.
                     InitializeSwapChainBufferResourceInfo(wrapper, resource_wrapper, D3D12_RESOURCE_STATE_PRESENT);
                 }
+            }
+            else if (info->device_id != format::kNullHandleId)
+            {
+                ID3D11Texture2D* texture2d = nullptr;
+                result                     = swap_chain->GetBuffer(i, IID_PPV_ARGS(&texture2d));
+                if (SUCCEEDED(result))
+                {
+                    // Retrieve the desc struct from the unwrapped object so that the API call is not recorded.
+                    auto desc = D3D11_TEXTURE2D_DESC{};
+                    texture2d->GetDesc(&desc);
+
+                    WrapID3D11Texture2D(IID_PPV_ARGS(&texture2d), nullptr);
+
+                    // Convert the application reference to an internal-only reference to avoid altering the
+                    // application reference count by only holding an internal reference to the wrapped texture.
+                    ID3D11Texture2D_Wrapper* texture2d_wrapper = reinterpret_cast<ID3D11Texture2D_Wrapper*>(texture2d);
+                    texture2d_wrapper->MakeRefInternal();
+                    info->child_images[i] = texture2d_wrapper;
+
+                    // Initialize members of ID3D11Texture2DInfo for texture2d_wrapper in order to track swap chain
+                    // buffer state and assist with capturing mapped memory writes.
+                    InitializeID3D11Texture2DInfo(texture2d_wrapper, &desc);
+                }
+            }
+
+            if (FAILED(result))
+            {
+                if (result == E_NOINTERFACE)
+                {
+                    GFXRECON_LOG_WARNING("IDXGISwapChain::GetBuffer() returned E_NOINTERFACE when called with "
+                                         "IID_ID3D12Resource and IID_ID3D11Texture2D, ensure that the captured "
+                                         "application is using the Direct3D API");
+                }
                 else
                 {
-                    if (result == E_NOINTERFACE)
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "IDXGISwapChain::GetBuffer() returned E_NOINTERFACE when called with IID_ID3D12Resource, "
-                            "ensure that the captured application is using the D3D12 API");
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_WARNING(
-                            "IDXGISwapChain::GetBuffer() failed when attempting to pre-acquire swapchain images");
-                    }
+                    GFXRECON_LOG_WARNING(
+                        "IDXGISwapChain::GetBuffer() failed when attempting to pre-acquire swap chain images");
                 }
             }
         }
@@ -280,17 +336,15 @@ void D3D12CaptureManager::ResizeSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
         auto info = wrapper->GetObjectInfo();
         GFXRECON_ASSERT(info != nullptr);
 
-        // If ResizeBuffers is called with buffer_count == 0, the number of swapchain buffers doesn't change, so read it
-        // from the DXGI_SWAP_CHAIN_DESC.
+        // If ResizeBuffers is called with buffer_count == 0, the number of swap chain buffers doesn't change, so use
+        // the value stored at swap chain creation.
         UINT final_buffer_count = buffer_count;
         if (final_buffer_count == 0)
         {
-            DXGI_SWAP_CHAIN_DESC swapchain_desc;
-            wrapper->GetWrappedObjectAs<IDXGISwapChain>()->GetDesc(&swapchain_desc);
-            final_buffer_count = swapchain_desc.BufferCount;
+            final_buffer_count = info->buffer_count;
         }
 
-        PreAcquireSwapChainImages(wrapper, nullptr, final_buffer_count, info->swap_effect);
+        AcquireSwapChainImages(wrapper, info.get(), final_buffer_count);
 
         if (IsCaptureModeTrack())
         {
@@ -523,7 +577,7 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
+        InitializeSwapChainInfo(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
@@ -547,7 +601,7 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForHwnd(
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
+        InitializeSwapChainInfo(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
@@ -568,7 +622,7 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForCoreWindow
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
+        InitializeSwapChainInfo(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
@@ -587,7 +641,7 @@ void D3D12CaptureManager::PostProcess_IDXGIFactory2_CreateSwapChainForCompositio
     {
         auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain1_Wrapper*>(*swap_chain);
 
-        PreAcquireSwapChainImages(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
+        InitializeSwapChainInfo(swap_chain_wrapper, device, desc->BufferCount, desc->SwapEffect);
     }
 }
 
@@ -3082,6 +3136,20 @@ void D3D12CaptureManager::FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapp
     }
 }
 
+void D3D12CaptureManager::InitializeID3D11Texture2DInfo(ID3D11Texture2D_Wrapper*    wrapper,
+                                                        const D3D11_TEXTURE2D_DESC* desc)
+{
+    GFXRECON_ASSERT((wrapper != nullptr) && (desc != nullptr));
+    auto info                 = wrapper->GetObjectInfo();
+    info->dimension           = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+    info->format              = desc->Format;
+    info->width               = desc->Width;
+    info->height              = desc->Height;
+    info->depth_or_array_size = desc->ArraySize;
+    info->mip_levels          = desc->MipLevels;
+    info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
+}
+
 void D3D12CaptureManager::PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
                                                                 HRESULT                       result,
                                                                 const D3D11_BUFFER_DESC*      desc,
@@ -3135,14 +3203,7 @@ void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture2D(ID3D11Device_
 
     if (SUCCEEDED(result) && (texture2D != nullptr) && (*texture2D != nullptr))
     {
-        auto info                 = reinterpret_cast<ID3D11Texture2D_Wrapper*>(*texture2D)->GetObjectInfo();
-        info->dimension           = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
-        info->format              = desc->Format;
-        info->width               = desc->Width;
-        info->height              = desc->Height;
-        info->depth_or_array_size = desc->ArraySize;
-        info->mip_levels          = desc->MipLevels;
-        info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
+        InitializeID3D11Texture2DInfo(reinterpret_cast<ID3D11Texture2D_Wrapper*>(*texture2D), desc);
     }
 }
 

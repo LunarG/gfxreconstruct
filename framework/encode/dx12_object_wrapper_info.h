@@ -237,12 +237,24 @@ struct IDXGISwapChainMediaInfo : public DxgiWrapperInfo
 
 struct IDXGISwapChainInfo : public DxgiWrapperInfo
 {
-    format::HandleId command_queue_id{ format::kNullHandleId };
-    DXGI_SWAP_EFFECT swap_effect{};
     // Members for general wrapper support.
-    std::vector<ID3D12Resource_Wrapper*> child_images;
+    uint32_t         buffer_count{ 0 };
+    DXGI_SWAP_EFFECT swap_effect{};
 
+    // Child images requiring an internal reference to prevent the wrapper from being destroyed if the application
+    // releases its reference to the image before it is done using it, which it assumes to be a safe thing to do because
+    // the swap chain is assumed to hold an internal reference to the image that keeps it active. This is either an
+    // ID3D12Resource_Wrapper or an ID3D11Texture2D_Wrapper, stored as the common IUnknown_Wrapper base class type as we
+    // only need to support reference release operations.
+    std::vector<IUnknown_Wrapper*> child_images;
+
+    // D3D12 command queue specified at swap chain creation.
+    format::HandleId                         command_queue_id{ format::kNullHandleId };
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{ nullptr };
+
+    // D3D11 device specified at swap chain creation.
+    format::HandleId                   device_id{ format::kNullHandleId };
+    graphics::dx12::ID3D11DeviceComPtr device{ nullptr };
 
     // Members for trimming state tracking.
     uint32_t                         current_back_buffer_index{ std::numeric_limits<uint32_t>::max() };

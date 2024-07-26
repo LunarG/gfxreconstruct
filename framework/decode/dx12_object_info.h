@@ -247,6 +247,7 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
     uint32_t init_buffer_index{ 0 };
     Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
     uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
+    DXGI_SWAP_EFFECT swap_effect{}; ///< Swap effect, which determines the number of buffers that can be pre-acquired.
 
     std::vector<format::HandleId>
         image_ids; ///< HandleIds of swapchain image info entries to be kept in the info table while the swapchain is
@@ -254,7 +255,10 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
 
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{
         nullptr
-    }; ///< The command queue that was used to create the swapchain.
+    }; ///< The command queue that was used to create the swapchain for d3d12.
+    graphics::dx12::ID3D11DeviceComPtr device{
+        nullptr
+    };                           ///< The device that was used to create the swapchain for d3d11.
     bool is_fullscreen{ false }; ///< Swapchain full screen flag.
 };
 

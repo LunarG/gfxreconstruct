@@ -1037,10 +1037,12 @@ class D3D12CaptureManager : public ApiCaptureManager
                              util::ThreadData*       thread_data) override
     {}
 
-    void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
-                                   IUnknown*               command_queue,
-                                   uint32_t                image_count,
-                                   DXGI_SWAP_EFFECT        swap_effect);
+    void InitializeSwapChainInfo(IDXGISwapChain_Wrapper* wrapper,
+                                 IUnknown*               unknown,
+                                 uint32_t                buffer_count,
+                                 DXGI_SWAP_EFFECT        swap_effect);
+
+    void AcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper, IDXGISwapChainInfo* info, uint32_t image_count);
 
     void ReleaseSwapChainImages(IDXGISwapChain_Wrapper* wrapper);
 
@@ -1085,8 +1087,9 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                     UINT                                                   flags);
     std::shared_ptr<ID3D11ResourceInfo> GetResourceInfo(ID3D11Resource_Wrapper* wrapper);
     void                                FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapper);
-    void                                AddViewResourceRef(ID3D11ViewInfo* info, ID3D11Resource* resource);
-    void                                ReleaseViewResourceRef(ID3D11ViewInfo* info);
+    void InitializeID3D11Texture2DInfo(ID3D11Texture2D_Wrapper* wrapper, const D3D11_TEXTURE2D_DESC* desc);
+    void AddViewResourceRef(ID3D11ViewInfo* info, ID3D11Resource* resource);
+    void ReleaseViewResourceRef(ID3D11ViewInfo* info);
 
     static D3D12CaptureManager*       singleton_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.

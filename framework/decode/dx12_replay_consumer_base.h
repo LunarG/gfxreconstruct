@@ -1290,13 +1290,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                            DxObjectInfo*                                                  restrict_to_output_info,
                            HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
 
-    void SetSwapchainInfo(DxObjectInfo* info,
-                          Window*       window,
-                          uint64_t      hwnd_id,
-                          HWND          hwnd,
-                          uint32_t      image_count,
-                          IUnknown*     queue_iunknown,
-                          bool          windowed);
+    void SetSwapchainInfo(DxObjectInfo*    info,
+                          Window*          window,
+                          uint64_t         hwnd_id,
+                          HWND             hwnd,
+                          DXGI_SWAP_EFFECT swap_effect,
+                          uint32_t         image_count,
+                          IUnknown*        queue_iunknown,
+                          bool             windowed);
 
     void ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count, uint32_t width, uint32_t height);
 

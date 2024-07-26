@@ -1119,8 +1119,14 @@ Dx12ReplayConsumerBase::OverrideCreateSwapChain(DxObjectInfo*                   
                     hwnd_id = meta_info->OutputWindow;
                 }
 
-                SetSwapchainInfo(
-                    object_info, window, hwnd_id, hwnd, desc_pointer->BufferCount, device, desc_pointer->Windowed);
+                SetSwapchainInfo(object_info,
+                                 window,
+                                 hwnd_id,
+                                 hwnd,
+                                 desc_pointer->SwapEffect,
+                                 desc_pointer->BufferCount,
+                                 device,
+                                 desc_pointer->Windowed);
             }
             else
             {
@@ -2973,6 +2979,7 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
                                  window,
                                  hwnd_id,
                                  hwnd,
+                                 desc_pointer->SwapEffect,
                                  desc_pointer->BufferCount,
                                  device,
                                  (full_screen_desc_ptr == nullptr));
@@ -2996,13 +3003,14 @@ HRESULT Dx12ReplayConsumerBase::CreateSwapChainForHwnd(
     return result;
 }
 
-void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
-                                              Window*       window,
-                                              uint64_t      hwnd_id,
-                                              HWND          hwnd,
-                                              uint32_t      image_count,
-                                              IUnknown*     queue_iunknown,
-                                              bool          windowed)
+void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo*    info,
+                                              Window*          window,
+                                              uint64_t         hwnd_id,
+                                              HWND             hwnd,
+                                              DXGI_SWAP_EFFECT swap_effect,
+                                              uint32_t         image_count,
+                                              IUnknown*        queue_iunknown,
+                                              bool             windowed)
 {
     if (window != nullptr)
     {
@@ -3010,32 +3018,38 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
         {
             assert(info->extra_info == nullptr);
 
-            auto swapchain_info     = std::make_unique<DxgiSwapchainInfo>();
-            swapchain_info->window  = window;
-            swapchain_info->hwnd_id = hwnd_id;
-            swapchain_info->image_ids.resize(image_count);
+            auto swapchain_info           = std::make_unique<DxgiSwapchainInfo>();
+            swapchain_info->window        = window;
+            swapchain_info->hwnd_id       = hwnd_id;
+            swapchain_info->swap_effect   = swap_effect;
             swapchain_info->is_fullscreen = !windowed;
-            std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
+            // TODO: Add a method for obtaining the appropriate object from IUnknown without using QueryInterface, so it
+            // is not recorded by recapture for trimming. The device or queue could be stored in a separate data
+            // structure that avoids the call.
             HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
             if (FAILED(hr))
             {
-                // If this is a D3D11 device, failure is expected.
-                // TODO: Add a method for checking for a device type that allows the query to be skipped, so it is not recorded by recapture for trimming.
-                //       The device pointers or queues could be stored in a separate data structure that avoids making uncaptured QueryInterface calls.
-                ID3D11Device* device = nullptr;
-                hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&device));
+                hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->device));
                 if (FAILED(hr))
                 {
-                    GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
-                                         "argument to CreateSwapChain.");
+                    GFXRECON_LOG_WARNING("Failed to get an ID3D12CommandQueue interface or ID3D11Device interface "
+                                         "from the IUnknown* device argument to CreateSwapChain.");
                 }
-                else
-                {
-                    device->Release();
-                }
-
             }
+
+            if ((swap_effect == DXGI_SWAP_EFFECT_DISCARD) ||
+                (swapchain_info->device && (swap_effect == DXGI_SWAP_EFFECT_FLIP_DISCARD)))
+            {
+                // For these swap effect cases, only the image at index 0 can be acquired.
+                swapchain_info->image_ids.resize(1);
+            }
+            else
+            {
+                swapchain_info->image_ids.resize(image_count);
+            }
+
+            std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
             info->extra_info = std::move(swapchain_info);
 
@@ -3069,7 +3083,17 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
         // Clear the old info entries from the object info table and reset the swapchain info's image count.
         ReleaseSwapchainImages(swapchain_info);
 
-        swapchain_info->image_ids.resize(buffer_count);
+        if ((swapchain_info->swap_effect == DXGI_SWAP_EFFECT_DISCARD) ||
+            (swapchain_info->device && (swapchain_info->swap_effect == DXGI_SWAP_EFFECT_FLIP_DISCARD)))
+        {
+            // For these swap effect cases, only the image at index 0 can be acquired.
+            swapchain_info->image_ids.resize(1);
+        }
+        else
+        {
+            swapchain_info->image_ids.resize(buffer_count);
+        }
+
         std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
         // Resize the swapchain's window.
