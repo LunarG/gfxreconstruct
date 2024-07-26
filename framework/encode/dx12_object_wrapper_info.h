@@ -45,10 +45,11 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
 struct IUnknown_Wrapper;
+class IDXGISwapChain_Wrapper;
 class ID3D12Resource_Wrapper;
 class ID3D12Device_Wrapper;
 class ID3D12Heap_Wrapper;
-class IDXGISwapChain_Wrapper;
+class ID3D11Resource_Wrapper;
 
 struct GUID_Hash
 {
@@ -603,6 +604,13 @@ struct ID3D11ResourceInfo : public DxWrapperInfo
     std::unordered_map<uint64_t, std::unique_ptr<MappedSubresource[]>> mapped_subresources;
 };
 
+// Parent class for D3D11 view info.
+struct ID3D11ViewInfo : public DxWrapperInfo
+{
+    // Resource associated to the view, which requires an internal reference.
+    ID3D11Resource_Wrapper* resource{ nullptr };
+};
+
 struct ID3D11BufferInfo : public ID3D11ResourceInfo
 {};
 
@@ -615,16 +623,16 @@ struct ID3D11Texture2DInfo : public ID3D11ResourceInfo
 struct ID3D11Texture3DInfo : public ID3D11ResourceInfo
 {};
 
-struct ID3D11ShaderResourceViewInfo : public DxWrapperInfo
+struct ID3D11ShaderResourceViewInfo : public ID3D11ViewInfo
 {};
 
-struct ID3D11RenderTargetViewInfo : public DxWrapperInfo
+struct ID3D11RenderTargetViewInfo : public ID3D11ViewInfo
 {};
 
-struct ID3D11DepthStencilViewInfo : public DxWrapperInfo
+struct ID3D11DepthStencilViewInfo : public ID3D11ViewInfo
 {};
 
-struct ID3D11UnorderedAccessViewInfo : public DxWrapperInfo
+struct ID3D11UnorderedAccessViewInfo : public ID3D11ViewInfo
 {};
 
 struct ID3D11VertexShaderInfo : public DxWrapperInfo

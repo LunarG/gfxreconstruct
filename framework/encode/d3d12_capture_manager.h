@@ -906,6 +906,56 @@ class D3D12CaptureManager : public ApiCaptureManager
                                               ID3D11Resource*              resource,
                                               UINT                         subresource);
 
+    void PostProcess_ID3D11Device_CreateShaderResourceView(ID3D11Device_Wrapper*                  wrapper,
+                                                           HRESULT                                result,
+                                                           ID3D11Resource*                        resource,
+                                                           const D3D11_SHADER_RESOURCE_VIEW_DESC* desc,
+                                                           ID3D11ShaderResourceView**             srview);
+
+    void PostProcess_ID3D11Device_CreateShaderResourceView1(ID3D11Device3_Wrapper*                  wrapper,
+                                                            HRESULT                                 result,
+                                                            ID3D11Resource*                         resource,
+                                                            const D3D11_SHADER_RESOURCE_VIEW_DESC1* desc1,
+                                                            ID3D11ShaderResourceView1**             srview1);
+
+    void PostProcess_ID3D11Device_CreateUnorderedAccessView(ID3D11Device_Wrapper*                   wrapper,
+                                                            HRESULT                                 result,
+                                                            ID3D11Resource*                         resource,
+                                                            const D3D11_UNORDERED_ACCESS_VIEW_DESC* desc,
+                                                            ID3D11UnorderedAccessView**             uaview);
+
+    void PostProcess_ID3D11Device_CreateUnorderedAccessView1(ID3D11Device3_Wrapper*                   wrapper,
+                                                             HRESULT                                  result,
+                                                             ID3D11Resource*                          resource,
+                                                             const D3D11_UNORDERED_ACCESS_VIEW_DESC1* desc1,
+                                                             ID3D11UnorderedAccessView1**             uaview1);
+
+    void PostProcess_ID3D11Device_CreateRenderTargetView(ID3D11Device_Wrapper*                wrapper,
+                                                         HRESULT                              result,
+                                                         ID3D11Resource*                      resource,
+                                                         const D3D11_RENDER_TARGET_VIEW_DESC* desc,
+                                                         ID3D11RenderTargetView**             rtview);
+
+    void PostProcess_ID3D11Device_CreateRenderTargetView1(ID3D11Device3_Wrapper*                wrapper,
+                                                          HRESULT                               result,
+                                                          ID3D11Resource*                       resource,
+                                                          const D3D11_RENDER_TARGET_VIEW_DESC1* desc1,
+                                                          ID3D11RenderTargetView1**             rtview1);
+
+    void PostProcess_ID3D11Device_CreateDepthStencilView(ID3D11Device_Wrapper*                wrapper,
+                                                         HRESULT                              result,
+                                                         ID3D11Resource*                      resource,
+                                                         const D3D11_DEPTH_STENCIL_VIEW_DESC* desc,
+                                                         ID3D11DepthStencilView**             depth_stencil_view);
+
+    void Destroy_ID3D11ShaderResourceView(ID3D11ShaderResourceView_Wrapper* wrapper);
+
+    void Destroy_ID3D11RenderTargetView(ID3D11RenderTargetView_Wrapper* wrapper);
+
+    void Destroy_ID3D11UnorderedAccessView(ID3D11UnorderedAccessView_Wrapper* wrapper);
+
+    void Destroy_ID3D11DepthStencilView(ID3D11DepthStencilView_Wrapper* wrapper);
+
     void WriteDxgiAdapterInfo();
 
     bool IsAccelerationStructureResource(format::HandleId id);
@@ -1035,6 +1085,8 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                     UINT                                                   flags);
     std::shared_ptr<ID3D11ResourceInfo> GetResourceInfo(ID3D11Resource_Wrapper* wrapper);
     void                                FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapper);
+    void                                AddViewResourceRef(ID3D11ViewInfo* info, ID3D11Resource* resource);
+    void                                ReleaseViewResourceRef(ID3D11ViewInfo* info);
 
     static D3D12CaptureManager*       singleton_;
     std::set<ID3D12Resource_Wrapper*> mapped_resources_; ///< Track mapped resources for unassisted tracking mode.

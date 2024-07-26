@@ -3431,6 +3431,163 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
     }
 }
 
+void D3D12CaptureManager::AddViewResourceRef(ID3D11ViewInfo* info, ID3D11Resource* resource)
+{
+    GFXRECON_ASSERT((info != nullptr) && (resource != nullptr));
+    auto resource_wrapper = reinterpret_cast<ID3D11Resource_Wrapper*>(resource);
+    resource_wrapper->AddRefInternal();
+    info->resource = resource_wrapper;
+}
+
+void D3D12CaptureManager::ReleaseViewResourceRef(ID3D11ViewInfo* info)
+{
+    GFXRECON_ASSERT((info != nullptr) && (info->resource != nullptr));
+    info->resource->ReleaseRefInternal();
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateShaderResourceView(ID3D11Device_Wrapper* wrapper,
+                                                                            HRESULT               result,
+                                                                            ID3D11Resource*       resource,
+                                                                            const D3D11_SHADER_RESOURCE_VIEW_DESC* desc,
+                                                                            ID3D11ShaderResourceView** srview)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+
+    if (SUCCEEDED(result) && (srview != nullptr) && (*srview != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D11ShaderResourceView_Wrapper*>(*srview)->GetObjectInfo();
+        AddViewResourceRef(info.get(), resource);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateShaderResourceView1(
+    ID3D11Device3_Wrapper*                  wrapper,
+    HRESULT                                 result,
+    ID3D11Resource*                         resource,
+    const D3D11_SHADER_RESOURCE_VIEW_DESC1* desc1,
+    ID3D11ShaderResourceView1**             srview1)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(desc1);
+
+    if (SUCCEEDED(result) && (srview1 != nullptr) && (*srview1 != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D11ShaderResourceView1_Wrapper*>(*srview1)->GetObjectInfo();
+        AddViewResourceRef(info.get(), resource);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateUnorderedAccessView(
+    ID3D11Device_Wrapper*                   wrapper,
+    HRESULT                                 result,
+    ID3D11Resource*                         resource,
+    const D3D11_UNORDERED_ACCESS_VIEW_DESC* desc,
+    ID3D11UnorderedAccessView**             uaview)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+
+    if (SUCCEEDED(result) && (uaview != nullptr) && (*uaview != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D11UnorderedAccessView_Wrapper*>(*uaview)->GetObjectInfo();
+        AddViewResourceRef(info.get(), resource);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateUnorderedAccessView1(
+    ID3D11Device3_Wrapper*                   wrapper,
+    HRESULT                                  result,
+    ID3D11Resource*                          resource,
+    const D3D11_UNORDERED_ACCESS_VIEW_DESC1* desc1,
+    ID3D11UnorderedAccessView1**             uaview1)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(desc1);
+
+    if (SUCCEEDED(result) && (uaview1 != nullptr) && (*uaview1 != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D11UnorderedAccessView1_Wrapper*>(*uaview1)->GetObjectInfo();
+        AddViewResourceRef(info.get(), resource);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateRenderTargetView(ID3D11Device_Wrapper*                wrapper,
+                                                                          HRESULT                              result,
+                                                                          ID3D11Resource*                      resource,
+                                                                          const D3D11_RENDER_TARGET_VIEW_DESC* desc,
+                                                                          ID3D11RenderTargetView**             rtview)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+
+    if (SUCCEEDED(result) && (rtview != nullptr) && (*rtview != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D11RenderTargetView_Wrapper*>(*rtview)->GetObjectInfo();
+        AddViewResourceRef(info.get(), resource);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateRenderTargetView1(ID3D11Device3_Wrapper* wrapper,
+                                                                           HRESULT                result,
+                                                                           ID3D11Resource*        resource,
+                                                                           const D3D11_RENDER_TARGET_VIEW_DESC1* desc1,
+                                                                           ID3D11RenderTargetView1** rtview1)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(desc1);
+
+    if (SUCCEEDED(result) && (rtview1 != nullptr) && (*rtview1 != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D11RenderTargetView1_Wrapper*>(*rtview1)->GetObjectInfo();
+        AddViewResourceRef(info.get(), resource);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateDepthStencilView(ID3D11Device_Wrapper*                wrapper,
+                                                                          HRESULT                              result,
+                                                                          ID3D11Resource*                      resource,
+                                                                          const D3D11_DEPTH_STENCIL_VIEW_DESC* desc,
+                                                                          ID3D11DepthStencilView** depth_stencil_view)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(desc);
+
+    if (SUCCEEDED(result) && (depth_stencil_view != nullptr) && (*depth_stencil_view != nullptr))
+    {
+        auto info = reinterpret_cast<ID3D11DepthStencilView_Wrapper*>(*depth_stencil_view)->GetObjectInfo();
+        AddViewResourceRef(info.get(), resource);
+    }
+}
+
+void D3D12CaptureManager::Destroy_ID3D11ShaderResourceView(ID3D11ShaderResourceView_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    ReleaseViewResourceRef(info.get());
+}
+
+void D3D12CaptureManager::Destroy_ID3D11RenderTargetView(ID3D11RenderTargetView_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    ReleaseViewResourceRef(info.get());
+}
+
+void D3D12CaptureManager::Destroy_ID3D11UnorderedAccessView(ID3D11UnorderedAccessView_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    ReleaseViewResourceRef(info.get());
+}
+
+void D3D12CaptureManager::Destroy_ID3D11DepthStencilView(ID3D11DepthStencilView_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+    auto info = wrapper->GetObjectInfo();
+    ReleaseViewResourceRef(info.get());
+}
+
 void D3D12CaptureManager::WriteDx12DriverInfo()
 {
     if (IsCaptureModeWrite())
