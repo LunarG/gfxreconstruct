@@ -13989,29 +13989,6 @@ void Encode_ID3D11Device_CheckCounter(
     }
 }
 
-void Encode_ID3D11Device_CheckFeatureSupport(
-    ID3D11Device_Wrapper* wrapper,
-    HRESULT return_value,
-    D3D11_FEATURE Feature,
-    void* pFeatureSupportData,
-    UINT FeatureSupportDataSize)
-{
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D11Device_CheckFeatureSupport, wrapper->GetCaptureId());
-    if(encoder)
-    {
-        bool omit_output_data = false;
-        if (return_value != S_OK)
-        {
-            omit_output_data = true;
-        }
-        encoder->EncodeEnumValue(Feature);
-        encoder->EncodeVoidArray(pFeatureSupportData, FeatureSupportDataSize, omit_output_data);
-        encoder->EncodeUInt32Value(FeatureSupportDataSize);
-        encoder->EncodeInt32Value(return_value);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
-    }
-}
-
 void Encode_ID3D11Device_GetPrivateData(
     ID3D11Device_Wrapper* wrapper,
     HRESULT return_value,

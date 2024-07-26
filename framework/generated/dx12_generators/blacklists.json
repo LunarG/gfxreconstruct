@@ -13,6 +13,7 @@
       "WriteToSubresource"
     ],
     "ID3D11Device": [
+      "CheckFeatureSupport",
       "CreateBuffer",
       "CreateTexture1D",
       "CreateTexture2D",

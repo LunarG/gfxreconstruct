@@ -12345,28 +12345,6 @@ void Dx12JsonConsumer::Process_ID3D11Device_CheckCounter(
     writer_->WriteBlockEnd();
 }
 
-void Dx12JsonConsumer::Process_ID3D11Device_CheckFeatureSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        D3D11_FEATURE Feature,
-        PointerDecoder<uint8_t>* pFeatureSupportData,
-        UINT FeatureSupportDataSize)
-{
-    using namespace gfxrecon::util;
-
-    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device", object_id, "CheckFeatureSupport");
-    const JsonOptions& options = writer_->GetOptions();
-    HresultToJson(method[format::kNameReturn], return_value, options);
-    nlohmann::ordered_json& args = method[format::kNameArgs];
-    {
-        FieldToJson(args["Feature"], Feature, options);
-        FieldToJson(args["pFeatureSupportData"], pFeatureSupportData, options);
-        FieldToJson(args["FeatureSupportDataSize"], FeatureSupportDataSize, options);
-    }
-    writer_->WriteBlockEnd();
-}
-
 void Dx12JsonConsumer::Process_ID3D11Device_GetPrivateData(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

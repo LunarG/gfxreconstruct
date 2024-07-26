@@ -210,6 +210,24 @@ void Encode_ID3D11DeviceContext_UpdateSubresource(ID3D11DeviceContext_Wrapper* w
     }
 }
 
+void Encode_ID3D11Device_CheckFeatureSupport(ID3D11Device_Wrapper* wrapper,
+                                             HRESULT               return_value,
+                                             D3D11_FEATURE         Feature,
+                                             void*                 pFeatureSupportData,
+                                             UINT                  FeatureSupportDataSize)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D11Device_CheckFeatureSupport, wrapper->GetCaptureId());
+    if (encoder)
+    {
+        encoder->EncodeEnumValue(Feature);
+        EncodeD3D11FeatureStruct(encoder, pFeatureSupportData, Feature);
+        encoder->EncodeUInt32Value(FeatureSupportDataSize);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
 void Encode_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
                                       HRESULT                       return_value,
                                       const D3D11_BUFFER_DESC*      pDesc,

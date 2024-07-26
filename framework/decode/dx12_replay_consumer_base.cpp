@@ -3869,6 +3869,25 @@ void Dx12ReplayConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::H
     }
 }
 
+void Dx12ReplayConsumerBase::Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo& call_info,
+                                                                      format::HandleId   object_id,
+                                                                      HRESULT            return_value,
+                                                                      D3D11_FEATURE      feature,
+                                                                      const void*        capture_feature_data,
+                                                                      void*              replay_feature_data,
+                                                                      UINT               feature_data_size)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(capture_feature_data);
+
+    auto replay_object = MapObject<ID3D11Device>(object_id);
+
+    if ((replay_object != nullptr) && (replay_feature_data != nullptr))
+    {
+        auto replay_result = replay_object->CheckFeatureSupport(feature, replay_feature_data, feature_data_size);
+        CheckReplayResult("ID3D11Device::CheckFeatureSupport", return_value, replay_result);
+    }
+}
+
 void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateBuffer(
     const ApiCallInfo&                                    call_info,
     format::HandleId                                      object_id,

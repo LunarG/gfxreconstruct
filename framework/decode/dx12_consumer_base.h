@@ -93,6 +93,15 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                               const uint8_t*                       parameters_data)
     {}
 
+    virtual void Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo& call_info,
+                                                          format::HandleId   object_id,
+                                                          HRESULT            return_value,
+                                                          D3D11_FEATURE      feature,
+                                                          const void*        capture_feature_data,
+                                                          void*              replay_feature_data,
+                                                          UINT               feature_data_size)
+    {}
+
     virtual void Process_ID3D11Device_CreateBuffer(const ApiCallInfo&                                    call_info,
                                                    format::HandleId                                      object_id,
                                                    HRESULT                                               return_value,

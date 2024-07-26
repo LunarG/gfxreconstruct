@@ -22177,44 +22177,6 @@ void Dx12ReplayConsumer::Process_ID3D11Device_CheckCounter(
     }
 }
 
-void Dx12ReplayConsumer::Process_ID3D11Device_CheckFeatureSupport(
-    const ApiCallInfo&                          call_info,
-    format::HandleId                            object_id,
-    HRESULT                                     return_value,
-    D3D11_FEATURE                               Feature,
-    PointerDecoder<uint8_t>*                    pFeatureSupportData,
-    UINT                                        FeatureSupportDataSize)
-{
-    auto replay_object = GetObjectInfo(object_id);
-    if ((replay_object != nullptr) && (replay_object->object != nullptr))
-    {
-        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Device_CheckFeatureSupport>::Dispatch(
-            this,
-            call_info,
-            replay_object,
-            Feature,
-            pFeatureSupportData,
-            FeatureSupportDataSize);
-        if(!pFeatureSupportData->IsNull())
-        {
-            pFeatureSupportData->AllocateOutputData(FeatureSupportDataSize);
-        }
-        auto replay_result = reinterpret_cast<ID3D11Device*>(replay_object->object)->CheckFeatureSupport(Feature,
-                                                                                                         pFeatureSupportData->GetOutputPointer(),
-                                                                                                         FeatureSupportDataSize);
-        CheckReplayResult("ID3D11Device_CheckFeatureSupport", return_value, replay_result);
-        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device_CheckFeatureSupport>::Dispatch(
-            this,
-            call_info,
-            replay_object,
-            return_value,
-            replay_result,
-            Feature,
-            pFeatureSupportData,
-            FeatureSupportDataSize);
-    }
-}
-
 void Dx12ReplayConsumer::Process_ID3D11Device_GetPrivateData(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,

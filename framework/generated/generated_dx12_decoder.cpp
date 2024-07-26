@@ -1933,9 +1933,6 @@ void Dx12Decoder::DecodeMethodCall(format::ApiCallId  call_id,
     case format::ApiCallId::ApiCall_ID3D11Device_CheckCounter:
         Decode_ID3D11Device_CheckCounter(object_id, call_info, parameter_buffer, buffer_size);
         break;
-    case format::ApiCallId::ApiCall_ID3D11Device_CheckFeatureSupport:
-        Decode_ID3D11Device_CheckFeatureSupport(object_id, call_info, parameter_buffer, buffer_size);
-        break;
     case format::ApiCallId::ApiCall_ID3D11Device_GetPrivateData:
         Decode_ID3D11Device_GetPrivateData(object_id, call_info, parameter_buffer, buffer_size);
         break;
@@ -15554,28 +15551,6 @@ size_t Dx12Decoder::Decode_ID3D11Device_CheckCounter(format::HandleId object_id,
     for (auto consumer : GetConsumers())
     {
         consumer->Process_ID3D11Device_CheckCounter(call_info, object_id, return_value, &pDesc, &pType, &pActiveCounters, &szName, &pNameLength, &szUnits, &pUnitsLength, &szDescription, &pDescriptionLength);
-    }
-
-    return bytes_read;
-}
-
-size_t Dx12Decoder::Decode_ID3D11Device_CheckFeatureSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
-{
-    size_t bytes_read = 0;
-
-    D3D11_FEATURE Feature;
-    PointerDecoder<uint8_t> pFeatureSupportData;
-    UINT FeatureSupportDataSize;
-    HRESULT return_value;
-
-    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &Feature);
-    bytes_read += pFeatureSupportData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &FeatureSupportDataSize);
-    bytes_read += ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
-
-    for (auto consumer : GetConsumers())
-    {
-        consumer->Process_ID3D11Device_CheckFeatureSupport(call_info, object_id, return_value, Feature, &pFeatureSupportData, FeatureSupportDataSize);
     }
 
     return bytes_read;

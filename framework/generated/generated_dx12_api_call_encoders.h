@@ -4552,13 +4552,6 @@ void Encode_ID3D11Device_CheckCounter(
     LPSTR szDescription,
     UINT* pDescriptionLength);
 
-void Encode_ID3D11Device_CheckFeatureSupport(
-    ID3D11Device_Wrapper* wrapper,
-    HRESULT return_value,
-    D3D11_FEATURE Feature,
-    void* pFeatureSupportData,
-    UINT FeatureSupportDataSize);
-
 void Encode_ID3D11Device_GetPrivateData(
     ID3D11Device_Wrapper* wrapper,
     HRESULT return_value,

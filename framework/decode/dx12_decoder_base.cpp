@@ -635,6 +635,113 @@ size_t Dx12DecoderBase::Decode_ID3D12Resource_WriteToSubresource(format::HandleI
     return bytes_read;
 }
 
+size_t Dx12DecoderBase::Decode_ID3D11Device_CheckFeatureSupport(format::HandleId   object_id,
+                                                                const ApiCallInfo& call_info,
+                                                                const uint8_t*     parameter_buffer,
+                                                                size_t             buffer_size)
+{
+    size_t        bytes_read = 0;
+    D3D11_FEATURE feature{};
+
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &feature);
+
+    switch (feature)
+    {
+        case D3D11_FEATURE_THREADING:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_THREADING>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_DOUBLES:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_DOUBLES>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_FORMAT_SUPPORT:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_FORMAT_SUPPORT2:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT2>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_ARCHITECTURE_INFO:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_ARCHITECTURE_INFO>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D9_OPTIONS:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D9_SHADOW_SUPPORT:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS1:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS1>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D9_SIMPLE_INSTANCING_SUPPORT:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_MARKER_SUPPORT:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_MARKER_SUPPORT>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D9_OPTIONS1:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS1>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS2:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS2>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS3:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS3>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS4:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_SHADER_CACHE:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_SHADER_CACHE>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS5:
+            bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS5>(
+                call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+            break;
+        // TODO: This requires code generated from the 10.0.22000.194 Windows SDK
+        // case D3D11_FEATURE_DISPLAYABLE:
+        //    bytes_read += DecodeCheckD3D11FeatureSupport<Decoded_D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT>(
+        //        call_info, object_id, feature, (parameter_buffer + bytes_read), (buffer_size - bytes_read));
+        //    break;
+        default:
+            GFXRECON_LOG_FATAL("Failed to decode ID3D11Device::CheckFeatureSupport pFeatureData parameter with "
+                               "unrecognized D3D11_FEATURE type %d",
+                               feature);
+            break;
+    }
+
+    return bytes_read;
+}
+
 size_t Dx12DecoderBase::Decode_ID3D11Device_CreateBuffer(format::HandleId   object_id,
                                                          const ApiCallInfo& call_info,
                                                          const uint8_t*     parameter_buffer,
@@ -923,6 +1030,9 @@ void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource:
             Decode_ID3D12Resource_WriteToSubresource(object_id, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11Device_CheckFeatureSupport:
+            Decode_ID3D11Device_CheckFeatureSupport(object_id, call_info, parameter_buffer, buffer_size);
             break;
         case format::ApiCallId::ApiCall_ID3D11Device_CreateBuffer:
             Decode_ID3D11Device_CreateBuffer(object_id, call_info, parameter_buffer, buffer_size);

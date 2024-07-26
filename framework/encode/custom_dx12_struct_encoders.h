@@ -81,6 +81,7 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_OBJECT_DESC& valu
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_STATE_SUBOBJECT& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_GENERIC_PROGRAM_DESC& value);
+void EncodeD3D11FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D11_FEATURE feature);
 void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature);
 void EncodeDXGIFeatureStruct(ParameterEncoder* encoder, void* feature_data, DXGI_FEATURE feature);
 void EncodeStruct(ParameterEncoder* encoder, const D3D12_BARRIER_GROUP& value);

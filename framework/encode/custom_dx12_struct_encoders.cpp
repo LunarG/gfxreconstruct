@@ -946,6 +946,83 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D12_PIPELINE_STATE_STREAM_D
     }
 }
 
+void EncodeD3D11FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D11_FEATURE feature)
+{
+    switch (feature)
+    {
+        case D3D11_FEATURE_THREADING:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_THREADING*>(feature_data));
+            break;
+        case D3D11_FEATURE_DOUBLES:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_DOUBLES*>(feature_data));
+            break;
+        case D3D11_FEATURE_FORMAT_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_FORMAT_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_FORMAT_SUPPORT2:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_FORMAT_SUPPORT2*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS*>(feature_data));
+            break;
+        case D3D11_FEATURE_ARCHITECTURE_INFO:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_ARCHITECTURE_INFO*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_OPTIONS:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D9_OPTIONS*>(feature_data));
+            break;
+        case D3D11_FEATURE_SHADER_MIN_PRECISION_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_SHADOW_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS1:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS1*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_SIMPLE_INSTANCING_SUPPORT:
+            EncodeStructPtr(encoder,
+                            reinterpret_cast<D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_MARKER_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_MARKER_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D9_OPTIONS1:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D9_OPTIONS1*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS2:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS2*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS3:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS3*>(feature_data));
+            break;
+        case D3D11_FEATURE_GPU_VIRTUAL_ADDRESS_SUPPORT:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS4:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS4*>(feature_data));
+            break;
+        case D3D11_FEATURE_SHADER_CACHE:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_SHADER_CACHE*>(feature_data));
+            break;
+        case D3D11_FEATURE_D3D11_OPTIONS5:
+            EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_D3D11_OPTIONS5*>(feature_data));
+            break;
+        // TODO: This requires code generated from the 10.0.22000.194 Windows SDK
+        // case D3D11_FEATURE_DISPLAYABLE:
+        //    EncodeStructPtr(encoder, reinterpret_cast<D3D11_FEATURE_DATA_DISPLAYABLE*>(feature_data));
+        //    break;
+        default:
+            GFXRECON_LOG_WARNING("Failed to encode ID3D11Device::CheckFeatureSupport pFeatureData parameter with "
+                                 "unrecognized D3D11_FEATURE type %d",
+                                 feature);
+            break;
+    }
+}
+
 void EncodeD3D12FeatureStruct(ParameterEncoder* encoder, void* feature_data, D3D12_FEATURE feature)
 {
     switch (feature)

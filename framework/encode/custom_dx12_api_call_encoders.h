@@ -64,6 +64,12 @@ void Encode_ID3D11DeviceContext_UpdateSubresource(ID3D11DeviceContext_Wrapper* w
                                                   UINT                         SrcRowPitch,
                                                   UINT                         SrcDepthPitch);
 
+void Encode_ID3D11Device_CheckFeatureSupport(ID3D11Device_Wrapper* wrapper,
+                                             HRESULT               return_value,
+                                             D3D11_FEATURE         Feature,
+                                             void*                 pFeatureSupportData,
+                                             UINT                  FeatureSupportDataSize);
+
 void Encode_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
                                       HRESULT                       return_value,
                                       const D3D11_BUFFER_DESC*      pDesc,

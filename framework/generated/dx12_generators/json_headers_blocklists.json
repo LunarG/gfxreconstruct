@@ -14,6 +14,9 @@
       "Comment: WriteToSubresource is needed because codegen gives pSrcData as the wrong type and because the manual signature in the base class defining it doesn't match what correct codegen would produce.",
       "WriteToSubresource"
     ],
+    "ID3D11Device": [
+      "CheckFeatureSupport"
+    ],
     "ID3D11Device3": [
       "WriteToSubresource"
     ],

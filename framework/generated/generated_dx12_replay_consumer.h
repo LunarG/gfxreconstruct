@@ -4404,14 +4404,6 @@ class Dx12ReplayConsumer : public Dx12ReplayConsumerBase
         StringDecoder* szDescription,
         PointerDecoder<UINT>* pDescriptionLength) override;
 
-    virtual void Process_ID3D11Device_CheckFeatureSupport(
-        const ApiCallInfo& call_info,
-        format::HandleId object_id,
-        HRESULT return_value,
-        D3D11_FEATURE Feature,
-        PointerDecoder<uint8_t>* pFeatureSupportData,
-        UINT FeatureSupportDataSize) override;
-
     virtual void Process_ID3D11Device_GetPrivateData(
         const ApiCallInfo& call_info,
         format::HandleId object_id,
