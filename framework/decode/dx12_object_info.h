@@ -80,7 +80,20 @@ enum class VariableLengthArrayIndices : uint32_t
     kD3D12InfoQueueArrayGetMessage,
     kD3D12InfoQueueArrayGetStorageFilter,
     kD3D12InfoQueueArrayGetRetrievalFilter,
-    kD3D12ShaderCacheSessionArrayFindValue
+    kD3D12ShaderCacheSessionArrayFindValue,
+    kD3D11DeviceChildArrayGetPrivateData,
+    kD3D11ClassInstanceArrayGetInstanceName,
+    kD3D11ClassInstanceArrayGetTypeName,
+    kD3D11DeviceContextArrayPSGetShader,
+    kD3D11DeviceContextArrayVSGetShader,
+    kD3D11DeviceContextArrayGSGetShader,
+    kD3D11DeviceContextArrayRSGetViewports,
+    kD3D11DeviceContextArrayRSGetScissorRects,
+    kD3D11DeviceContextArrayHSGetShader,
+    kD3D11DeviceContextArrayDSGetShader,
+    kD3D11DeviceContextArrayCSGetShader,
+    kD3D11DeviceArrayCheckCounter,
+    kD3D11DeviceArrayGetPrivateData
 };
 
 //
