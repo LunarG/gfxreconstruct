@@ -3155,6 +3155,48 @@ void D3D12CaptureManager::InitializeID3D11Texture2DInfo(ID3D11Texture2D_Wrapper*
     info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
 }
 
+void D3D12CaptureManager::PostProcess_D3D11CreateDeviceAndSwapChain(HRESULT                     result,
+                                                                    IDXGIAdapter*               adapter,
+                                                                    D3D_DRIVER_TYPE             driver_type,
+                                                                    HMODULE                     software,
+                                                                    UINT                        flags,
+                                                                    const D3D_FEATURE_LEVEL*    feature_levels,
+                                                                    UINT                        num_feature_levels,
+                                                                    UINT                        sdk_version,
+                                                                    const DXGI_SWAP_CHAIN_DESC* swap_chain_desc,
+                                                                    IDXGISwapChain**            swap_chain,
+                                                                    ID3D11Device**              device,
+                                                                    D3D_FEATURE_LEVEL*          feature_level,
+                                                                    ID3D11DeviceContext**       immediate_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(adapter);
+    GFXRECON_UNREFERENCED_PARAMETER(driver_type);
+    GFXRECON_UNREFERENCED_PARAMETER(software);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+    GFXRECON_UNREFERENCED_PARAMETER(feature_levels);
+    GFXRECON_UNREFERENCED_PARAMETER(num_feature_levels);
+    GFXRECON_UNREFERENCED_PARAMETER(sdk_version);
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(feature_level);
+    GFXRECON_UNREFERENCED_PARAMETER(immediate_context);
+
+    if (SUCCEEDED(result) && (swap_chain_desc != nullptr) && (swap_chain != nullptr) && ((*swap_chain) != nullptr))
+    {
+        auto swap_chain_wrapper = reinterpret_cast<IDXGISwapChain_Wrapper*>(*swap_chain);
+
+        if (device != nullptr)
+        {
+            InitializeSwapChainInfo(
+                swap_chain_wrapper, *device, swap_chain_desc->BufferCount, swap_chain_desc->SwapEffect);
+        }
+        else
+        {
+            InitializeSwapChainInfo(
+                swap_chain_wrapper, nullptr, swap_chain_desc->BufferCount, swap_chain_desc->SwapEffect);
+        }
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
                                                                 HRESULT                       result,
                                                                 const D3D11_BUFFER_DESC*      desc,

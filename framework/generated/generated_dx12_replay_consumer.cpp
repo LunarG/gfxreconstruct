@@ -475,38 +475,47 @@ void Dx12ReplayConsumer::Process_D3D11CreateDeviceAndSwapChain(
         ppDevice,
         pFeatureLevel,
         ppImmediateContext);
-    auto in_pAdapter = MapObject<IDXGIAdapter>(pAdapter);
-    auto in_Software = static_cast<HMODULE>(PreProcessExternalObject(Software, format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain, "D3D11CreateDeviceAndSwapChain"));
-    if(!ppSwapChain->IsNull()) ppSwapChain->SetHandleLength(1);
-    auto out_p_ppSwapChain    = ppSwapChain->GetPointer();
-    auto out_hp_ppSwapChain   = ppSwapChain->GetHandlePointer();
-    if(!ppDevice->IsNull()) ppDevice->SetHandleLength(1);
-    auto out_p_ppDevice    = ppDevice->GetPointer();
-    auto out_hp_ppDevice   = ppDevice->GetHandlePointer();
+    auto in_pAdapter = GetObjectInfo(pAdapter);
+    DxObjectInfo object_info_ppSwapChain{};
+    if(!ppSwapChain->IsNull())
+    {
+        ppSwapChain->SetHandleLength(1);
+        ppSwapChain->SetConsumerData(0, &object_info_ppSwapChain);
+    }
+    DxObjectInfo object_info_ppDevice{};
+    if(!ppDevice->IsNull())
+    {
+        ppDevice->SetHandleLength(1);
+        ppDevice->SetConsumerData(0, &object_info_ppDevice);
+    }
     if(!pFeatureLevel->IsNull())
     {
         pFeatureLevel->AllocateOutputData(1);
     }
-    if(!ppImmediateContext->IsNull()) ppImmediateContext->SetHandleLength(1);
-    auto out_p_ppImmediateContext    = ppImmediateContext->GetPointer();
-    auto out_hp_ppImmediateContext   = ppImmediateContext->GetHandlePointer();
-    auto replay_result = D3D11CreateDeviceAndSwapChain(in_pAdapter,
-                                                       DriverType,
-                                                       in_Software,
-                                                       Flags,
-                                                       pFeatureLevels->GetPointer(),
-                                                       FeatureLevels,
-                                                       SDKVersion,
-                                                       pSwapChainDesc->GetPointer(),
-                                                       out_hp_ppSwapChain,
-                                                       out_hp_ppDevice,
-                                                       pFeatureLevel->GetOutputPointer(),
-                                                       out_hp_ppImmediateContext);
+    DxObjectInfo object_info_ppImmediateContext{};
+    if(!ppImmediateContext->IsNull())
+    {
+        ppImmediateContext->SetHandleLength(1);
+        ppImmediateContext->SetConsumerData(0, &object_info_ppImmediateContext);
+    }
+    auto replay_result = OverrideD3D11CreateDeviceAndSwapChain(return_value,
+                                                               in_pAdapter,
+                                                               DriverType,
+                                                               Software,
+                                                               Flags,
+                                                               pFeatureLevels,
+                                                               FeatureLevels,
+                                                               SDKVersion,
+                                                               pSwapChainDesc,
+                                                               ppSwapChain,
+                                                               ppDevice,
+                                                               pFeatureLevel,
+                                                               ppImmediateContext);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppSwapChain, out_hp_ppSwapChain, format::ApiCall_D3D11CreateDeviceAndSwapChain);
-        AddObject(out_p_ppDevice, out_hp_ppDevice, format::ApiCall_D3D11CreateDeviceAndSwapChain);
-        AddObject(out_p_ppImmediateContext, out_hp_ppImmediateContext, format::ApiCall_D3D11CreateDeviceAndSwapChain);
+        AddObject(ppSwapChain->GetPointer(), ppSwapChain->GetHandlePointer(), std::move(object_info_ppSwapChain), format::ApiCall_D3D11CreateDeviceAndSwapChain);
+        AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), std::move(object_info_ppDevice), format::ApiCall_D3D11CreateDeviceAndSwapChain);
+        AddObject(ppImmediateContext->GetPointer(), ppImmediateContext->GetHandlePointer(), std::move(object_info_ppImmediateContext), format::ApiCall_D3D11CreateDeviceAndSwapChain);
     }
     CheckReplayResult("D3D11CreateDeviceAndSwapChain", return_value, replay_result);
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain>::Dispatch(

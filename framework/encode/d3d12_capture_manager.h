@@ -850,6 +850,20 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory);
 
+    void PostProcess_D3D11CreateDeviceAndSwapChain(HRESULT                     result,
+                                                   IDXGIAdapter*               adapter,
+                                                   D3D_DRIVER_TYPE             driver_type,
+                                                   HMODULE                     software,
+                                                   UINT                        flags,
+                                                   const D3D_FEATURE_LEVEL*    feature_levels,
+                                                   UINT                        num_feature_levels,
+                                                   UINT                        sdk_version,
+                                                   const DXGI_SWAP_CHAIN_DESC* swap_chain_desc,
+                                                   IDXGISwapChain**            swap_chain,
+                                                   ID3D11Device**              device,
+                                                   D3D_FEATURE_LEVEL*          feature_level,
+                                                   ID3D11DeviceContext**       immediate_context);
+
     void PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
                                                HRESULT                       result,
                                                const D3D11_BUFFER_DESC*      desc,

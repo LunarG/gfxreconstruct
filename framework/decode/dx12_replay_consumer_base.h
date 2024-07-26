@@ -587,6 +587,20 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                    Decoded_GUID                 riid,
                                                    HandlePointerDecoder<void*>* device);
 
+    HRESULT OverrideD3D11CreateDeviceAndSwapChain(HRESULT                            original_result,
+                                                  DxObjectInfo*                      adapter_info,
+                                                  D3D_DRIVER_TYPE                    driver_type,
+                                                  uint64_t                           software,
+                                                  UINT                               flags,
+                                                  PointerDecoder<D3D_FEATURE_LEVEL>* feature_levels,
+                                                  UINT                               num_feature_levels,
+                                                  UINT                               sdk_version,
+                                                  StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* swapchain_desc,
+                                                  HandlePointerDecoder<IDXGISwapChain*>*              swapchain,
+                                                  HandlePointerDecoder<ID3D11Device*>*                device,
+                                                  PointerDecoder<D3D_FEATURE_LEVEL>*                  feature_level,
+                                                  HandlePointerDecoder<ID3D11DeviceContext*>* immediate_context);
+
     void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header);
 
     void InitCommandQueueExtraInfo(ID3D12Device* device, HandlePointerDecoder<void*>* command_queue_decoder);

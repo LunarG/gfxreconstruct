@@ -1303,6 +1303,137 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12DeviceFactoryCreateDevice(DxObjectI
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDeviceAndSwapChain(
+    HRESULT                                             original_result,
+    DxObjectInfo*                                       adapter_info,
+    D3D_DRIVER_TYPE                                     driver_type,
+    uint64_t                                            software,
+    UINT                                                flags,
+    PointerDecoder<D3D_FEATURE_LEVEL>*                  feature_levels,
+    UINT                                                num_feature_levels,
+    UINT                                                sdk_version,
+    StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* swapchain_desc,
+    HandlePointerDecoder<IDXGISwapChain*>*              swapchain,
+    HandlePointerDecoder<ID3D11Device*>*                device,
+    PointerDecoder<D3D_FEATURE_LEVEL>*                  feature_level,
+    HandlePointerDecoder<ID3D11DeviceContext*>*         immediate_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((feature_levels != nullptr) && (swapchain_desc != nullptr) && (swapchain != nullptr) &&
+                    (device != nullptr) && (feature_level != nullptr) && (immediate_context != nullptr));
+
+    auto    swapchain_desc_pointer = swapchain_desc->GetPointer();
+    HRESULT result                 = E_FAIL;
+    Window* window                 = nullptr;
+    auto    wsi_context            = application_ ? application_->GetWsiContext("", true) : nullptr;
+    auto    window_factory         = wsi_context ? wsi_context->GetWindowFactory() : nullptr;
+
+    if (swapchain_desc_pointer != nullptr)
+    {
+        // If a swap chain is being created, create a window for the swap chain.
+        if (window_factory != nullptr)
+        {
+            ReplaceWindowedResolution(swapchain_desc_pointer->BufferDesc.Width,
+                                      swapchain_desc_pointer->BufferDesc.Height);
+            window = window_factory->Create(options_.window_topleft_x,
+                                            options_.window_topleft_y,
+                                            swapchain_desc_pointer->BufferDesc.Width,
+                                            swapchain_desc_pointer->BufferDesc.Height);
+        }
+
+        if (window != nullptr)
+        {
+            HWND hwnd{};
+            if (window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
+            {
+                swapchain_desc_pointer->OutputWindow = hwnd;
+            }
+            else
+            {
+                GFXRECON_LOG_FATAL("Failed to retrieve handle from window.");
+                window_factory->Destroy(window);
+            }
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Failed to create a window. Replay cannot continue.");
+        }
+    }
+
+    IDXGIAdapter* adapter = nullptr;
+    if (render_adapter_ == nullptr)
+    {
+        if (adapter_info != nullptr)
+        {
+            adapter = static_cast<IDXGIAdapter*>(adapter_info->object);
+        }
+    }
+    else
+    {
+        adapter = render_adapter_;
+    }
+
+    auto in_Software = static_cast<HMODULE>(PreProcessExternalObject(
+        software, format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain, "D3D11CreateDeviceAndSwapChain"));
+
+    auto swapchain_pointer         = swapchain->GetHandlePointer();
+    auto device_pointer            = device->GetHandlePointer();
+    auto immediate_context_pointer = immediate_context->GetHandlePointer();
+
+    if (options_.enable_validation_layer)
+    {
+        flags |= D3D11_CREATE_DEVICE_DEBUG;
+    }
+
+    result = D3D11CreateDeviceAndSwapChain(adapter,
+                                           driver_type,
+                                           in_Software,
+                                           flags,
+                                           feature_levels->GetPointer(),
+                                           num_feature_levels,
+                                           sdk_version,
+                                           swapchain_desc_pointer,
+                                           swapchain_pointer,
+                                           device_pointer,
+                                           feature_level->GetOutputPointer(),
+                                           immediate_context_pointer);
+
+    if (SUCCEEDED(result))
+    {
+        if (swapchain_desc_pointer != nullptr)
+        {
+            auto     object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
+            auto     meta_info   = swapchain_desc->GetMetaStructPointer();
+            uint64_t hwnd_id     = 0;
+
+            if (meta_info != nullptr)
+            {
+                hwnd_id = meta_info->OutputWindow;
+            }
+
+            SetSwapchainInfo(object_info,
+                             window,
+                             hwnd_id,
+                             swapchain_desc_pointer->OutputWindow,
+                             swapchain_desc_pointer->SwapEffect,
+                             swapchain_desc_pointer->BufferCount,
+                             device_pointer ? *device_pointer : nullptr,
+                             swapchain_desc_pointer->Windowed);
+        }
+    }
+    else
+    {
+        if (window != nullptr)
+        {
+            GFXRECON_ASSERT(window_factory != nullptr);
+            window_factory->Destroy(window);
+        }
+    }
+
+    return result;
+}
+
 void Dx12ReplayConsumerBase::ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header)
 {
     // Only check this if the block is not of a software adapter
@@ -3024,17 +3155,20 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo*    info,
             swapchain_info->swap_effect   = swap_effect;
             swapchain_info->is_fullscreen = !windowed;
 
-            // TODO: Add a method for obtaining the appropriate object from IUnknown without using QueryInterface, so it
-            // is not recorded by recapture for trimming. The device or queue could be stored in a separate data
-            // structure that avoids the call.
-            HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
-            if (FAILED(hr))
+            if (queue_iunknown != nullptr)
             {
-                hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->device));
+                // TODO: Add a method for obtaining the appropriate object from IUnknown without using QueryInterface,
+                // so it is not recorded by recapture for trimming. The device or queue could be stored in a separate
+                // data structure that avoids the call.
+                HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
                 if (FAILED(hr))
                 {
-                    GFXRECON_LOG_WARNING("Failed to get an ID3D12CommandQueue interface or ID3D11Device interface "
-                                         "from the IUnknown* device argument to CreateSwapChain.");
+                    hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->device));
+                    if (FAILED(hr))
+                    {
+                        GFXRECON_LOG_WARNING("Failed to get an ID3D12CommandQueue interface or ID3D11Device interface "
+                                             "from the IUnknown* device argument to CreateSwapChain.");
+                    }
                 }
             }
 
