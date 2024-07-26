@@ -3146,7 +3146,7 @@ void D3D12CaptureManager::InitializeID3D11Texture2DInfo(ID3D11Texture2D_Wrapper*
     info->width               = desc->Width;
     info->height              = desc->Height;
     info->depth_or_array_size = desc->ArraySize;
-    info->mip_levels          = desc->MipLevels;
+    info->mip_levels          = graphics::dx12::GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height);
     info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
 }
 
@@ -3186,7 +3186,7 @@ void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture1D(ID3D11Device_
         info->format              = desc->Format;
         info->width               = desc->Width;
         info->depth_or_array_size = desc->ArraySize;
-        info->mip_levels          = desc->MipLevels;
+        info->mip_levels          = graphics::dx12::GetNumMipLevels(desc->MipLevels, desc->Width);
         info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
     }
 }
@@ -3225,7 +3225,7 @@ void D3D12CaptureManager::PostProcess_ID3D11Device3_CreateTexture2D1(ID3D11Devic
         info->width               = desc1->Width;
         info->height              = desc1->Height;
         info->depth_or_array_size = desc1->ArraySize;
-        info->mip_levels          = desc1->MipLevels;
+        info->mip_levels          = graphics::dx12::GetNumMipLevels(desc1->MipLevels, desc1->Width, desc1->Height);
         info->num_subresources    = graphics::dx12::GetNumSubresources(desc1);
     }
 }
@@ -3248,7 +3248,7 @@ void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture3D(ID3D11Device_
         info->width               = desc->Width;
         info->height              = desc->Height;
         info->depth_or_array_size = desc->Depth;
-        info->mip_levels          = desc->MipLevels;
+        info->mip_levels = graphics::dx12::GetNumMipLevels(desc->MipLevels, desc->Width, desc->Height, desc->Depth);
         info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
     }
 }
@@ -3271,7 +3271,7 @@ void D3D12CaptureManager::PostProcess_ID3D11Device3_CreateTexture3D1(ID3D11Devic
         info->width               = desc1->Width;
         info->height              = desc1->Height;
         info->depth_or_array_size = desc1->Depth;
-        info->mip_levels          = desc1->MipLevels;
+        info->mip_levels = graphics::dx12::GetNumMipLevels(desc1->MipLevels, desc1->Width, desc1->Height, desc1->Depth);
         info->num_subresources    = graphics::dx12::GetNumSubresources(desc1);
     }
 }

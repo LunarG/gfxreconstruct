@@ -358,6 +358,8 @@ uint64_t GetCompressedSubresourcePixelByteSize(DXGI_FORMAT format);
 
 uint64_t GetPixelByteSize(DXGI_FORMAT format);
 
+uint32_t GetNumMipLevels(uint32_t mip_levels, uint32_t width, uint32_t height = 0, uint32_t depth = 0);
+
 uint32_t GetNumSubresources(const D3D11_TEXTURE1D_DESC* desc);
 
 uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC* desc);
