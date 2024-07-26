@@ -414,24 +414,51 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     template <typename T>
+    void SetDebugObjectName(T object, const format::HandleId p_id, format::ApiCallId call_id)
+    {
+        GFXRECON_ASSERT(object != nullptr);
+        const std::wstring constructed_name = ConstructObjectName(p_id, call_id);
+
+        HRESULT res = object->SetPrivateData(WKPDID_D3DDebugObjectNameW,
+                                             static_cast<uint32_t>(constructed_name.length() * sizeof(wchar_t)),
+                                             constructed_name.c_str());
+        GFXRECON_ASSERT(SUCCEEDED(res));
+    }
+
+    template <typename T>
     void SetObjectName(const format::HandleId* p_id, T** pp_object, format::ApiCallId call_id)
     {
         if ((p_id != nullptr) && (pp_object != nullptr) && (*pp_object != nullptr))
         {
-            // Restrict ID3D12Object name overriding to D3D12 create calls
-            if (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_D3D12)
+            // Restrict ID3D12Object name overriding to D3D11 and D3D12 create calls
+            auto api_family = format::GetApiCallFamily(call_id);
+            if (api_family == format::ApiFamilyId::ApiFamily_D3D12)
             {
                 IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
 
                 graphics::dx12::ID3D12ObjectComPtr object;
 
                 // See if this is a D3D12Object
-                if (SUCCEEDED(iunknown->QueryInterface(IID_ID3D12Object, reinterpret_cast<void**>(&object))))
+                if (SUCCEEDED(iunknown->QueryInterface(IID_PPV_ARGS(&object))))
                 {
-                    const std::wstring constructed_name = ConstructObjectName(*p_id, call_id);
+                    SetDebugObjectName(object, *p_id, call_id);
+                }
+            }
+            else if (api_family == format::ApiFamilyId::ApiFamily_D3D11)
+            {
+                IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
 
-                    HRESULT res = object->SetName(constructed_name.c_str());
-                    GFXRECON_ASSERT(res == S_OK);
+                graphics::dx12::ID3D11DeviceChildComPtr device_child;
+                graphics::dx12::ID3D11DeviceComPtr      device;
+
+                // See if this is a ID3D11DeviceChild or ID3D11Device.
+                if (SUCCEEDED(iunknown->QueryInterface(IID_PPV_ARGS(&device_child))))
+                {
+                    SetDebugObjectName(device_child, *p_id, call_id);
+                }
+                else if (SUCCEEDED(iunknown->QueryInterface(IID_PPV_ARGS(&device))))
+                {
+                    SetDebugObjectName(device, *p_id, call_id);
                 }
             }
         }

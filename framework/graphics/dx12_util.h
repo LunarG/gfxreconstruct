@@ -112,6 +112,7 @@ typedef _com_ptr_t<
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D11Device, &__uuidof(ID3D11Device)>>               ID3D11DeviceComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D11DeviceChild, &__uuidof(ID3D11DeviceChild)>>     ID3D11DeviceChildComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D11DeviceContext, &__uuidof(ID3D11DeviceContext)>> ID3D11DeviceContextComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D11Texture2D, &__uuidof(ID3D11Texture2D)>>         ID3D11Texture2DComPtr;
 
