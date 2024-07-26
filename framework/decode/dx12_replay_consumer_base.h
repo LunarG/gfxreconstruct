@@ -1258,13 +1258,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
   private:
     struct MappedMemoryEntry
     {
-        void*            data_pointer{ 0 };
-        format::HandleId resource_id{ format::kNullHandleId };
-        format::HandleId device_context_id{ format::kNullHandleId };
-        uint32_t         capture_row_pitch_{ 0 };
-        uint32_t         capture_slice_pitch_{ 0 };
-        uint32_t         replay_row_pitch_{ 0 };
-        uint32_t         replay_slice_pitch_{ 0 };
+        void*              data_pointer{ 0 };
+        format::HandleId   resource_id{ format::kNullHandleId };
+        D3D11ResourceInfo* resource_info{ nullptr };
+        uint32_t           capture_row_pitch_{ 0 };
+        uint32_t           capture_slice_pitch_{ 0 };
+        uint32_t           replay_row_pitch_{ 0 };
+        uint32_t           replay_slice_pitch_{ 0 };
     };
 
     struct ResourceInitInfo

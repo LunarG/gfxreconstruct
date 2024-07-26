@@ -298,12 +298,76 @@ void Dx12ReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id,
 
     if (entry != mapped_memory_.end())
     {
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, offset);
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-        auto copy_size      = static_cast<size_t>(size);
-        auto mapped_pointer = static_cast<uint8_t*>(entry->second.data_pointer) + offset;
+        auto& mapped_memory_entry = entry->second;
+        auto  copy_offset         = static_cast<size_t>(offset);
+        auto  copy_size           = static_cast<size_t>(size);
+        auto  mapped_pointer      = static_cast<uint8_t*>(mapped_memory_entry.data_pointer) + copy_offset;
 
-        util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+        if (mapped_memory_entry.resource_info == nullptr)
+        {
+            // This is a DX12 resource.
+            util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+        }
+        else
+        {
+            // This is a DX11 resource that may require row or depth pitch adjustments.
+            auto resource_info      = mapped_memory_entry.resource_info;
+            auto alignment_mismatch = false;
+
+            GFXRECON_ASSERT(resource_info->dimension != D3D11_RESOURCE_DIMENSION_UNKNOWN);
+
+            // Only texture alignments need to be checked.
+            if (((resource_info->dimension != D3D11_RESOURCE_DIMENSION_BUFFER) &&
+                 (mapped_memory_entry.capture_row_pitch_ != mapped_memory_entry.replay_row_pitch_)) ||
+                ((resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE3D) &&
+                 (mapped_memory_entry.capture_slice_pitch_ != mapped_memory_entry.replay_slice_pitch_)))
+            {
+                alignment_mismatch = true;
+            }
+
+            if (!alignment_mismatch)
+            {
+                util::platform::MemoryCopy(mapped_pointer, copy_size, data, copy_size);
+            }
+            else
+            {
+                const uint8_t* src = static_cast<const uint8_t*>(data);
+                uint8_t*       dst = static_cast<uint8_t*>(mapped_memory_entry.data_pointer);
+
+                if (resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE1D)
+                {
+                    graphics::dx12::CopyAlignedTexture1D(src,
+                                                         dst,
+                                                         mapped_memory_entry.capture_row_pitch_,
+                                                         mapped_memory_entry.replay_row_pitch_,
+                                                         copy_offset,
+                                                         copy_size);
+                }
+                else if (resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE2D)
+                {
+                    graphics::dx12::CopyAlignedTexture2D(src,
+                                                         dst,
+                                                         mapped_memory_entry.capture_row_pitch_,
+                                                         mapped_memory_entry.replay_row_pitch_,
+                                                         copy_offset,
+                                                         copy_size);
+                }
+                else if (resource_info->dimension == D3D11_RESOURCE_DIMENSION_TEXTURE3D)
+                {
+                    graphics::dx12::CopyAlignedTexture3D(src,
+                                                         dst,
+                                                         mapped_memory_entry.capture_row_pitch_,
+                                                         mapped_memory_entry.replay_row_pitch_,
+                                                         mapped_memory_entry.capture_slice_pitch_,
+                                                         mapped_memory_entry.replay_slice_pitch_,
+                                                         copy_offset,
+                                                         copy_size);
+                }
+            }
+        }
 
         ApplyFillMemoryResourceValueCommand(offset, size, data, static_cast<uint8_t*>(entry->second.data_pointer));
 
@@ -3807,7 +3871,14 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateBuffer(
 
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppBuffer, out_hp_ppBuffer, format::ApiCall_ID3D11Device_CreateBuffer);
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_BUFFER;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(
+                out_p_ppBuffer, out_hp_ppBuffer, std::move(object_info), format::ApiCall_ID3D11Device_CreateBuffer);
         }
 
         CheckReplayResult("ID3D11Device_CreateBuffer", return_value, replay_result);
@@ -3837,7 +3908,16 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture1D(
 
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppTexture1D, out_hp_ppTexture1D, format::ApiCall_ID3D11Device_CreateTexture1D);
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE1D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture1D,
+                      out_hp_ppTexture1D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device_CreateTexture1D);
         }
 
         CheckReplayResult("ID3D11Device_CreateTexture1D", return_value, replay_result);
@@ -3867,7 +3947,16 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture2D(
 
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppTexture2D, out_hp_ppTexture2D, format::ApiCall_ID3D11Device_CreateTexture2D);
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture2D,
+                      out_hp_ppTexture2D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device_CreateTexture2D);
         }
 
         CheckReplayResult("ID3D11Device_CreateTexture2D", return_value, replay_result);
@@ -3897,7 +3986,16 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture3D(
 
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppTexture3D, out_hp_ppTexture3D, format::ApiCall_ID3D11Device_CreateTexture3D);
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture3D,
+                      out_hp_ppTexture3D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device_CreateTexture3D);
         }
 
         CheckReplayResult("ID3D11Device_CreateTexture3D", return_value, replay_result);
@@ -3968,7 +4066,16 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture2D1(
 
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppTexture2D, out_hp_ppTexture2D, format::ApiCall_ID3D11Device3_CreateTexture2D1);
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture2D,
+                      out_hp_ppTexture2D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device3_CreateTexture2D1);
         }
 
         CheckReplayResult("ID3D11Device3_CreateTexture2D1", return_value, replay_result);
@@ -3998,7 +4105,16 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture3D1(
 
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppTexture3D, out_hp_ppTexture3D, format::ApiCall_ID3D11Device3_CreateTexture3D1);
+            auto object_info   = DxObjectInfo{};
+            auto resource_info = std::make_unique<D3D11ResourceInfo>();
+
+            resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
+            object_info.extra_info   = std::move(resource_info);
+
+            AddObject(out_p_ppTexture3D,
+                      out_hp_ppTexture3D,
+                      std::move(object_info),
+                      format::ApiCall_ID3D11Device3_CreateTexture3D1);
         }
 
         CheckReplayResult("ID3D11Device3_CreateTexture3D1", return_value, replay_result);
@@ -4946,32 +5062,18 @@ HRESULT Dx12ReplayConsumerBase::OverrideDeviceContextMap(
         if (SUCCEEDED(result) && (id_pointer != nullptr) && (id_pointer->pData != format::kNullHandleId) &&
             (replay_data_pointer->pData != nullptr))
         {
-            if (resource_object_info->extra_info == nullptr)
-            {
-                // Create resource info record on first use.
-                resource_object_info->extra_info = std::make_unique<D3D11ResourceInfo>();
-            }
+            GFXRECON_ASSERT(resource_object_info->extra_info != nullptr);
 
             auto  resource_info   = GetExtraInfo<D3D11ResourceInfo>(resource_object_info);
             auto& memory_info     = resource_info->mapped_memory_info[subresource][replay_object_info->capture_id];
             memory_info.memory_id = id_pointer->pData;
             ++(memory_info.count);
 
-            mapped_memory_[id_pointer->pData] = { replay_data_pointer->pData,       resource_object_info->capture_id,
-                                                  replay_object_info->capture_id,   capture_data_pointer->RowPitch,
-                                                  capture_data_pointer->DepthPitch, replay_data_pointer->RowPitch,
-                                                  replay_data_pointer->DepthPitch };
-        }
-    }
-    else
-    {
-        if (SUCCEEDED(result) && (id_pointer == nullptr))
-        {
-            if (resource_object_info->extra_info == nullptr)
-            {
-                // Create resource info record on first use.
-                resource_object_info->extra_info = std::make_unique<D3D11ResourceInfo>();
-            }
+            mapped_memory_[id_pointer->pData] = {
+                replay_data_pointer->pData,     resource_object_info->capture_id, resource_info,
+                capture_data_pointer->RowPitch, capture_data_pointer->DepthPitch, replay_data_pointer->RowPitch,
+                replay_data_pointer->DepthPitch
+            };
         }
     }
 

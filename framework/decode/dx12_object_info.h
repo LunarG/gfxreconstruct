@@ -489,6 +489,7 @@ struct D3D11ResourceInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "ID3D11Resource";
     D3D11ResourceInfo() : DxObjectExtraInfo(kType) {}
 
+    D3D11_RESOURCE_DIMENSION dimension{ D3D11_RESOURCE_DIMENSION_UNKNOWN };
     std::unordered_map<uint32_t, std::unordered_map<format::HandleId, MappedMemoryInfo>>
         mapped_memory_info; ///< Map subresource index to per-context mapped memory info.
 };

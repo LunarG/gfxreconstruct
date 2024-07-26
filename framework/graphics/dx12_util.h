@@ -412,6 +412,21 @@ uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
                                      uint32_t                 src_row_pitch,
                                      uint32_t                 src_depth_pitch);
 
+void CopyAlignedTexture1D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size);
+
+void CopyAlignedTexture2D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size);
+
+void CopyAlignedTexture3D(const uint8_t* src,
+                          uint8_t*       dst,
+                          uint32_t       src_row_pitch,
+                          uint32_t       dst_row_pitch,
+                          uint32_t       src_depth_pitch,
+                          uint32_t       dst_depth_pitch,
+                          size_t         offset,
+                          size_t         size);
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

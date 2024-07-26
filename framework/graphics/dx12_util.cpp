@@ -1714,6 +1714,155 @@ uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
     return data_size;
 }
 
+void CopyAlignedTexture1D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size)
+{
+    uint32_t copy_width = std::min(src_row_pitch, dst_row_pitch);
+
+    // The copy offset would only be less than the copy width if the captured data was only from the padding at the
+    // end of the row and the replay row pitch was smaller than the capture row pitch.
+    if (offset < dst_row_pitch)
+    {
+        // If the data only represents a partial single row, determined by
+        // copy_width > first_slice_size, limit the copy size to the remaining data size.
+        auto copy_row_size = std::min(static_cast<size_t>(copy_width - offset), size);
+        dst += offset;
+        util::platform::MemoryCopy(dst, copy_row_size, src, copy_row_size);
+    }
+}
+
+void CopyAlignedTexture2D(
+    const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size)
+{
+    uint32_t copy_width = std::min(src_row_pitch, dst_row_pitch);
+
+    auto current_size     = size;
+    auto first_row        = static_cast<uint32_t>(offset / src_row_pitch);
+    auto first_row_offset = static_cast<uint32_t>(offset % src_row_pitch);
+
+    dst += first_row * dst_row_pitch;
+
+    if (first_row_offset != 0)
+    {
+        // The copy offset would only be less than the copy width if the captured data was only from the padding at the
+        // end of the row and the replay row pitch was smaller than the capture row pitch.
+        if (first_row_offset < dst_row_pitch)
+        {
+            // Copy the first partial row. If the data only represents a partial single row, determined by
+            // copy_width - first_row_offset > current_size, limit the copy size to the remaining data size.
+            auto copy_row_size = std::min(static_cast<size_t>(copy_width - first_row_offset), current_size);
+            dst += first_row_offset;
+            util::platform::MemoryCopy(dst, copy_row_size, src, copy_row_size);
+
+            // Advance data pointer to the start of the next row.
+            dst += dst_row_pitch - first_row_offset;
+        }
+        else
+        {
+            dst += dst_row_pitch;
+        }
+
+        // Adjust the current data size based on the capture width of the current row, or the remaining data size if all
+        // of the data fits into a partial first row.
+        auto first_row_size = src_row_pitch - first_row_offset;
+        current_size -= std::min(static_cast<size_t>(first_row_size), current_size);
+
+        // Advance data pointer to the start of the next row.
+        src += first_row_size;
+    }
+
+    // Compute the total number of complete rows remining for the resource and determine if the
+    // data contains a final partial row.
+    if (current_size != 0)
+    {
+        auto total_rows         = static_cast<uint32_t>(current_size / src_row_pitch);
+        auto remaining_row_size = static_cast<uint32_t>(current_size % src_row_pitch);
+
+        // Process complete rows.
+        for (uint32_t j = 0; j < total_rows; ++j)
+        {
+            util::platform::MemoryCopy(dst, copy_width, src, copy_width);
+
+            src += src_row_pitch;
+            dst += dst_row_pitch;
+        }
+
+        // Process final partial row.
+        if (remaining_row_size != 0)
+        {
+            auto copy_row_size = std::min(remaining_row_size, copy_width);
+            util::platform::MemoryCopy(dst, copy_row_size, src, copy_row_size);
+        }
+    }
+}
+
+void CopyAlignedTexture3D(const uint8_t* src,
+                          uint8_t*       dst,
+                          uint32_t       src_row_pitch,
+                          uint32_t       dst_row_pitch,
+                          uint32_t       src_depth_pitch,
+                          uint32_t       dst_depth_pitch,
+                          size_t         offset,
+                          size_t         size)
+{
+    uint32_t copy_depth = std::min(src_depth_pitch, dst_depth_pitch);
+
+    auto current_size       = size;
+    auto first_slice        = static_cast<uint32_t>(offset / src_depth_pitch);
+    auto first_slice_offset = static_cast<uint32_t>(offset % src_depth_pitch);
+
+    dst += first_slice * dst_depth_pitch;
+
+    if (first_slice_offset != 0)
+    {
+        // The copy offset would only be less than the copy width if the captured data was only from the padding at the
+        // end of the slice and the replay depth pitch was smaller than the capture depth pitch.
+        if (first_slice_offset < dst_depth_pitch)
+        {
+            // Copy the first partial slice. If the data only represents a partial single slice, determined by
+            // first_slice_size > current_size, limit the copy size to the remaining data size.
+            CopyAlignedTexture2D(src,
+                                 dst,
+                                 src_row_pitch,
+                                 dst_row_pitch,
+                                 first_slice_offset,
+                                 std::min(static_cast<size_t>(copy_depth - first_slice_offset), current_size));
+        }
+
+        // Adjust the current data size based on the capture depth of the current slice, or the remaining data size if
+        // all of the data fits into a partial first slice.
+        auto first_slice_size = src_depth_pitch - first_slice_offset;
+        current_size -= std::min(static_cast<size_t>(first_slice_size), current_size);
+
+        // Advance data pointers to the start of the next slice.
+        src += first_slice_size;
+        dst += dst_depth_pitch;
+    }
+
+    // Compute the total number of complete rows remining for the resource and determine if the
+    // data contains a final partial row.
+    if (current_size != 0)
+    {
+        auto total_slices         = static_cast<uint32_t>(current_size / src_depth_pitch);
+        auto remaining_slice_size = static_cast<uint32_t>(current_size % src_depth_pitch);
+
+        // Process complete slices.
+        for (uint32_t j = 0; j < total_slices; ++j)
+        {
+            CopyAlignedTexture2D(src, dst, src_row_pitch, dst_row_pitch, 0, copy_depth);
+
+            src += src_depth_pitch;
+            dst += dst_depth_pitch;
+        }
+
+        // Process final partial slice.
+        if (remaining_slice_size != 0)
+        {
+            CopyAlignedTexture2D(src, dst, src_row_pitch, dst_row_pitch, 0, std::min(remaining_slice_size, copy_depth));
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(dx12)
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
