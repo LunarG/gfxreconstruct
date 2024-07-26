@@ -283,6 +283,12 @@ class Dx12BaseGenerator():
             'InstanceContributionToHitGroupIndex', ':24'
         ],
         ['D3D12_RAYTRACING_INSTANCE_DESC', 'Flags', ':8'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'Usage', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'RGB_Range', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'YCbCr_Matrix', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'YCbCr_xvYCC', ':1'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'Nominal_Range', ':2'],
+        ['D3D11_VIDEO_PROCESSOR_COLOR_SPACE', 'Reserved', ':26'],
     ]
 
     # Dictionary for structs with members that contain objects that must be
