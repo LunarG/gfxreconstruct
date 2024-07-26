@@ -900,6 +900,17 @@ void* Dx12ReplayConsumerBase::PreProcessExternalObject(uint64_t          object_
             }
             break;
         }
+        case format::ApiCallId::ApiCall_D3D11CreateDevice:
+        case format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain:
+            if (object_id != format::kNullHandleId)
+            {
+                // Return null for the custom software module parameter.
+                // TODO: This may also require a change to the D3D_DRIVER_TYPE.
+                GFXRECON_LOG_WARNING("The captured application called %s with a handle to a custom software module, "
+                                     "which will be ignored for replay.",
+                                     call_name)
+            }
+            break;
         default:
             GFXRECON_LOG_WARNING("Skipping object handle mapping for unsupported external object type processed by %s",
                                  call_name);
@@ -3006,12 +3017,24 @@ void Dx12ReplayConsumerBase::SetSwapchainInfo(DxObjectInfo* info,
             swapchain_info->is_fullscreen = !windowed;
             std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
-            // Get the ID3D12CommandQueue from the IUnknown queue object.
             HRESULT hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&swapchain_info->command_queue));
             if (FAILED(hr))
             {
-                GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
-                                     "argument to CreateSwapChain.");
+                // If this is a D3D11 device, failure is expected.
+                // TODO: Add a method for checking for a device type that allows the query to be skipped, so it is not recorded by recapture for trimming.
+                //       The device pointers or queues could be stored in a separate data structure that avoids making uncaptured QueryInterface calls.
+                ID3D11Device* device = nullptr;
+                hr = queue_iunknown->QueryInterface(IID_PPV_ARGS(&device));
+                if (FAILED(hr))
+                {
+                    GFXRECON_LOG_WARNING("Failed to get the ID3D12CommandQueue interface from the IUnknown* device "
+                                         "argument to CreateSwapChain.");
+                }
+                else
+                {
+                    device->Release();
+                }
+
             }
 
             info->extra_info = std::move(swapchain_info);
