@@ -2008,6 +2008,102 @@ struct D3D11_UNORDERED_ACCESS_VIEW_DESC
     };
 };
 
+struct D3D11_TEX2D_SRV1
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+    UINT PlaneSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_SRV1
+{
+    UINT MostDetailedMip;
+    UINT MipLevels;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+    UINT PlaneSlice;
+};
+
+struct D3D11_SHADER_RESOURCE_VIEW_DESC1
+{
+    DXGI_FORMAT         Format;
+    D3D11_SRV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_SRV        Buffer;
+        D3D11_TEX1D_SRV         Texture1D;
+        D3D11_TEX1D_ARRAY_SRV   Texture1DArray;
+        D3D11_TEX2D_SRV1        Texture2D;
+        D3D11_TEX2D_ARRAY_SRV1  Texture2DArray;
+        D3D11_TEX2DMS_SRV       Texture2DMS;
+        D3D11_TEX2DMS_ARRAY_SRV Texture2DMSArray;
+        D3D11_TEX3D_SRV         Texture3D;
+        D3D11_TEXCUBE_SRV       TextureCube;
+        D3D11_TEXCUBE_ARRAY_SRV TextureCubeArray;
+        D3D11_BUFFEREX_SRV      BufferEx;
+    };
+};
+
+struct D3D11_TEX2D_RTV1
+{
+    UINT MipSlice;
+    UINT PlaneSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_RTV1
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+    UINT PlaneSlice;
+};
+
+struct D3D11_RENDER_TARGET_VIEW_DESC1
+{
+    DXGI_FORMAT         Format;
+    D3D11_RTV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_RTV        Buffer;
+        D3D11_TEX1D_RTV         Texture1D;
+        D3D11_TEX1D_ARRAY_RTV   Texture1DArray;
+        D3D11_TEX2D_RTV1        Texture2D;
+        D3D11_TEX2D_ARRAY_RTV1  Texture2DArray;
+        D3D11_TEX2DMS_RTV       Texture2DMS;
+        D3D11_TEX2DMS_ARRAY_RTV Texture2DMSArray;
+        D3D11_TEX3D_RTV         Texture3D;
+    };
+};
+
+struct D3D11_TEX2D_UAV1
+{
+    UINT MipSlice;
+    UINT PlaneSlice;
+};
+
+struct D3D11_TEX2D_ARRAY_UAV1
+{
+    UINT MipSlice;
+    UINT FirstArraySlice;
+    UINT ArraySize;
+    UINT PlaneSlice;
+};
+
+struct D3D11_UNORDERED_ACCESS_VIEW_DESC1
+{
+    DXGI_FORMAT         Format;
+    D3D11_UAV_DIMENSION ViewDimension;
+    union
+    {
+        D3D11_BUFFER_UAV       Buffer;
+        D3D11_TEX1D_UAV        Texture1D;
+        D3D11_TEX1D_ARRAY_UAV  Texture1DArray;
+        D3D11_TEX2D_UAV1       Texture2D;
+        D3D11_TEX2D_ARRAY_UAV1 Texture2DArray;
+        D3D11_TEX3D_UAV        Texture3D;
+    };
+};
+
 struct D3D11_VIDEO_COLOR_RGBA
 {
     float R;

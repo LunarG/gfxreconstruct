@@ -174,12 +174,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11DepthStencilState, AddEntry<ID3D11DepthStencilState_Wrapper, ParentWrapper> },
     { IID_ID3D11Buffer, AddEntry<ID3D11Buffer_Wrapper, ParentWrapper> },
     { IID_ID3D11Texture1D, AddEntry<ID3D11Texture1D_Wrapper, ParentWrapper> },
-    { IID_ID3D11Texture2D, AddEntry<ID3D11Texture2D_Wrapper, ParentWrapper> },
-    { IID_ID3D11Texture3D, AddEntry<ID3D11Texture3D_Wrapper, ParentWrapper> },
-    { IID_ID3D11ShaderResourceView, AddEntry<ID3D11ShaderResourceView_Wrapper, ParentWrapper> },
-    { IID_ID3D11RenderTargetView, AddEntry<ID3D11RenderTargetView_Wrapper, ParentWrapper> },
     { IID_ID3D11DepthStencilView, AddEntry<ID3D11DepthStencilView_Wrapper, ParentWrapper> },
-    { IID_ID3D11UnorderedAccessView, AddEntry<ID3D11UnorderedAccessView_Wrapper, ParentWrapper> },
     { IID_ID3D11VertexShader, AddEntry<ID3D11VertexShader_Wrapper, ParentWrapper> },
     { IID_ID3D11HullShader, AddEntry<ID3D11HullShader_Wrapper, ParentWrapper> },
     { IID_ID3D11DomainShader, AddEntry<ID3D11DomainShader_Wrapper, ParentWrapper> },
@@ -202,8 +197,6 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11VideoProcessorOutputView, AddEntry<ID3D11VideoProcessorOutputView_Wrapper, ParentWrapper> },
     { IID_ID3D11BlendState, AddEntry<ID3D11BlendState_Wrapper, ParentWrapper> },
     { IID_ID3D11BlendState1, AddEntry<ID3D11BlendState_Wrapper, ParentWrapper> },
-    { IID_ID3D11RasterizerState, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
-    { IID_ID3D11RasterizerState1, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
     { IID_ID3DDeviceContextState, AddEntry<ID3DDeviceContextState_Wrapper, ParentWrapper> },
     { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
     { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
@@ -212,12 +205,31 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11VideoProcessorEnumerator, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper, ParentWrapper> },
     { IID_ID3D11VideoProcessorEnumerator1, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper, ParentWrapper> },
     { IID_ID3DUserDefinedAnnotation, AddEntry<ID3DUserDefinedAnnotation_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture2D, AddEntry<ID3D11Texture2D_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture2D1, AddEntry<ID3D11Texture2D_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture3D, AddEntry<ID3D11Texture3D_Wrapper, ParentWrapper> },
+    { IID_ID3D11Texture3D1, AddEntry<ID3D11Texture3D_Wrapper, ParentWrapper> },
+    { IID_ID3D11RasterizerState, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
+    { IID_ID3D11RasterizerState1, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
+    { IID_ID3D11RasterizerState2, AddEntry<ID3D11RasterizerState_Wrapper, ParentWrapper> },
+    { IID_ID3D11ShaderResourceView, AddEntry<ID3D11ShaderResourceView_Wrapper, ParentWrapper> },
+    { IID_ID3D11ShaderResourceView1, AddEntry<ID3D11ShaderResourceView_Wrapper, ParentWrapper> },
+    { IID_ID3D11RenderTargetView, AddEntry<ID3D11RenderTargetView_Wrapper, ParentWrapper> },
+    { IID_ID3D11RenderTargetView1, AddEntry<ID3D11RenderTargetView_Wrapper, ParentWrapper> },
+    { IID_ID3D11UnorderedAccessView, AddEntry<ID3D11UnorderedAccessView_Wrapper, ParentWrapper> },
+    { IID_ID3D11UnorderedAccessView1, AddEntry<ID3D11UnorderedAccessView_Wrapper, ParentWrapper> },
+    { IID_ID3D11Query, AddEntry<ID3D11Query_Wrapper, ParentWrapper> },
+    { IID_ID3D11Query1, AddEntry<ID3D11Query_Wrapper, ParentWrapper> },
+    { IID_ID3D11Fence, AddEntry<ID3D11Fence_Wrapper, ParentWrapper> },
     { IID_ID3D11DeviceContext, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
     { IID_ID3D11DeviceContext1, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
     { IID_ID3D11DeviceContext2, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11DeviceContext3, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11DeviceContext4, AddEntry<ID3D11DeviceContext_Wrapper, ParentWrapper> },
     { IID_ID3D11Device, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
     { IID_ID3D11Device1, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
     { IID_ID3D11Device2, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device3, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper, ParentWrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper, ParentWrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper, ParentWrapper> },
@@ -366,12 +378,7 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11DepthStencilState, AddEntry<ID3D11DepthStencilState_Wrapper> },
     { IID_ID3D11Buffer, AddEntry<ID3D11Buffer_Wrapper> },
     { IID_ID3D11Texture1D, AddEntry<ID3D11Texture1D_Wrapper> },
-    { IID_ID3D11Texture2D, AddEntry<ID3D11Texture2D_Wrapper> },
-    { IID_ID3D11Texture3D, AddEntry<ID3D11Texture3D_Wrapper> },
-    { IID_ID3D11ShaderResourceView, AddEntry<ID3D11ShaderResourceView_Wrapper> },
-    { IID_ID3D11RenderTargetView, AddEntry<ID3D11RenderTargetView_Wrapper> },
     { IID_ID3D11DepthStencilView, AddEntry<ID3D11DepthStencilView_Wrapper> },
-    { IID_ID3D11UnorderedAccessView, AddEntry<ID3D11UnorderedAccessView_Wrapper> },
     { IID_ID3D11VertexShader, AddEntry<ID3D11VertexShader_Wrapper> },
     { IID_ID3D11HullShader, AddEntry<ID3D11HullShader_Wrapper> },
     { IID_ID3D11DomainShader, AddEntry<ID3D11DomainShader_Wrapper> },
@@ -394,8 +401,6 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11VideoProcessorOutputView, AddEntry<ID3D11VideoProcessorOutputView_Wrapper> },
     { IID_ID3D11BlendState, AddEntry<ID3D11BlendState_Wrapper> },
     { IID_ID3D11BlendState1, AddEntry<ID3D11BlendState_Wrapper> },
-    { IID_ID3D11RasterizerState, AddEntry<ID3D11RasterizerState_Wrapper> },
-    { IID_ID3D11RasterizerState1, AddEntry<ID3D11RasterizerState_Wrapper> },
     { IID_ID3DDeviceContextState, AddEntry<ID3DDeviceContextState_Wrapper> },
     { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper> },
     { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper> },
@@ -404,12 +409,31 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11VideoProcessorEnumerator, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper> },
     { IID_ID3D11VideoProcessorEnumerator1, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper> },
     { IID_ID3DUserDefinedAnnotation, AddEntry<ID3DUserDefinedAnnotation_Wrapper> },
+    { IID_ID3D11Texture2D, AddEntry<ID3D11Texture2D_Wrapper> },
+    { IID_ID3D11Texture2D1, AddEntry<ID3D11Texture2D_Wrapper> },
+    { IID_ID3D11Texture3D, AddEntry<ID3D11Texture3D_Wrapper> },
+    { IID_ID3D11Texture3D1, AddEntry<ID3D11Texture3D_Wrapper> },
+    { IID_ID3D11RasterizerState, AddEntry<ID3D11RasterizerState_Wrapper> },
+    { IID_ID3D11RasterizerState1, AddEntry<ID3D11RasterizerState_Wrapper> },
+    { IID_ID3D11RasterizerState2, AddEntry<ID3D11RasterizerState_Wrapper> },
+    { IID_ID3D11ShaderResourceView, AddEntry<ID3D11ShaderResourceView_Wrapper> },
+    { IID_ID3D11ShaderResourceView1, AddEntry<ID3D11ShaderResourceView_Wrapper> },
+    { IID_ID3D11RenderTargetView, AddEntry<ID3D11RenderTargetView_Wrapper> },
+    { IID_ID3D11RenderTargetView1, AddEntry<ID3D11RenderTargetView_Wrapper> },
+    { IID_ID3D11UnorderedAccessView, AddEntry<ID3D11UnorderedAccessView_Wrapper> },
+    { IID_ID3D11UnorderedAccessView1, AddEntry<ID3D11UnorderedAccessView_Wrapper> },
+    { IID_ID3D11Query, AddEntry<ID3D11Query_Wrapper> },
+    { IID_ID3D11Query1, AddEntry<ID3D11Query_Wrapper> },
+    { IID_ID3D11Fence, AddEntry<ID3D11Fence_Wrapper> },
     { IID_ID3D11DeviceContext, AddEntry<ID3D11DeviceContext_Wrapper> },
     { IID_ID3D11DeviceContext1, AddEntry<ID3D11DeviceContext_Wrapper> },
     { IID_ID3D11DeviceContext2, AddEntry<ID3D11DeviceContext_Wrapper> },
+    { IID_ID3D11DeviceContext3, AddEntry<ID3D11DeviceContext_Wrapper> },
+    { IID_ID3D11DeviceContext4, AddEntry<ID3D11DeviceContext_Wrapper> },
     { IID_ID3D11Device, AddEntry<ID3D11Device_Wrapper> },
     { IID_ID3D11Device1, AddEntry<ID3D11Device_Wrapper> },
     { IID_ID3D11Device2, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device3, AddEntry<ID3D11Device_Wrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper> },
@@ -972,34 +996,9 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D11Texture1D_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
-    if(riid == IID_ID3D11Texture2D)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11Texture2D_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11Texture3D)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11Texture3D_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11ShaderResourceView)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11ShaderResourceView_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11RenderTargetView)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11RenderTargetView_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
     if(riid == IID_ID3D11DepthStencilView)
     {
         auto* new_wrapper = reinterpret_cast<ID3D11DepthStencilView_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11UnorderedAccessView)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11UnorderedAccessView_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D11VertexShader)
@@ -1112,16 +1111,6 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D11BlendState_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
-    if(riid == IID_ID3D11RasterizerState)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11RasterizerState1)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
     if(riid == IID_ID3DDeviceContextState)
     {
         auto* new_wrapper = reinterpret_cast<ID3DDeviceContextState_Wrapper*>(wrapper);
@@ -1162,6 +1151,86 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3DUserDefinedAnnotation_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D11Texture2D)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture2D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture2D1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture2D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture3D)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture3D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Texture3D1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Texture3D_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RasterizerState)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RasterizerState1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RasterizerState2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RasterizerState_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11ShaderResourceView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11ShaderResourceView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11ShaderResourceView1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11ShaderResourceView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RenderTargetView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RenderTargetView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11RenderTargetView1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11RenderTargetView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11UnorderedAccessView)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11UnorderedAccessView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11UnorderedAccessView1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11UnorderedAccessView_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Query)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Query_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Query1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Query_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Fence)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Fence_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D11DeviceContext)
     {
         auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
@@ -1177,6 +1246,16 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
+    if(riid == IID_ID3D11DeviceContext3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11DeviceContext4)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
     if(riid == IID_ID3D11Device)
     {
         auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
@@ -1188,6 +1267,11 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_ID3D11Device2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device3)
     {
         auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();

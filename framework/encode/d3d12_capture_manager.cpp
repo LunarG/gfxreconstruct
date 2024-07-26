@@ -3115,6 +3115,29 @@ void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture2D(ID3D11Device_
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D11Device3_CreateTexture2D1(ID3D11Device_Wrapper*         wrapper,
+                                                                     HRESULT                       result,
+                                                                     const D3D11_TEXTURE2D_DESC1*  desc1,
+                                                                     const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                                     ID3D11Texture2D1**            texture2D)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_data);
+    GFXRECON_ASSERT(desc1 != nullptr);
+
+    if (SUCCEEDED(result) && (texture2D != nullptr) && (*texture2D != nullptr))
+    {
+        auto info                 = reinterpret_cast<ID3D11Texture2D_Wrapper*>(*texture2D)->GetObjectInfo();
+        info->dimension           = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+        info->format              = desc1->Format;
+        info->width               = desc1->Width;
+        info->height              = desc1->Height;
+        info->depth_or_array_size = desc1->ArraySize;
+        info->mip_levels          = desc1->MipLevels;
+        info->num_subresources    = graphics::dx12::GetNumSubresources(desc1);
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture3D(ID3D11Device_Wrapper*         wrapper,
                                                                    HRESULT                       result,
                                                                    const D3D11_TEXTURE3D_DESC*   desc,
@@ -3135,6 +3158,29 @@ void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture3D(ID3D11Device_
         info->depth_or_array_size = desc->Depth;
         info->mip_levels          = desc->MipLevels;
         info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device3_CreateTexture3D1(ID3D11Device_Wrapper*         wrapper,
+                                                                     HRESULT                       result,
+                                                                     const D3D11_TEXTURE3D_DESC1*  desc1,
+                                                                     const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                                     ID3D11Texture3D1**            texture3D)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_data);
+    GFXRECON_ASSERT(desc1 != nullptr);
+
+    if (SUCCEEDED(result) && (texture3D != nullptr) && (*texture3D != nullptr))
+    {
+        auto info                 = reinterpret_cast<ID3D11Texture3D_Wrapper*>(*texture3D)->GetObjectInfo();
+        info->dimension           = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
+        info->format              = desc1->Format;
+        info->width               = desc1->Width;
+        info->height              = desc1->Height;
+        info->depth_or_array_size = desc1->Depth;
+        info->mip_levels          = desc1->MipLevels;
+        info->num_subresources    = graphics::dx12::GetNumSubresources(desc1);
     }
 }
 

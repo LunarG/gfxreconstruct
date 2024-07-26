@@ -332,5 +332,35 @@ void Dx12JsonConsumerBase::Process_ID3D11DeviceContext1_UpdateSubresource1(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumerBase::Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo& call_info,
+                                                                    format::HandleId   object_id,
+                                                                    format::HandleId   pDstResource,
+                                                                    UINT               DstSubresource,
+                                                                    StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                    PointerDecoder<uint8_t>*                 pSrcData,
+                                                                    UINT SrcRowPitch,
+                                                                    UINT SrcDepthPitch)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method =
+        writer_->WriteApiCallStart(call_info, "ID3D11Device3", object_id, "WriteToSubresource");
+    const JsonOptions&      options = writer_->GetOptions();
+    nlohmann::ordered_json& args    = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDstResource"], pDstResource, options);
+        FieldToJson(args["DstSubresource"], DstSubresource, options);
+        FieldToJson(args["pDstBox"], pDstBox, options);
+        RepresentBinaryFile(*writer_,
+                            args["pSrcData"],
+                            "ID3D11Device3_WriteToSubresource.bin",
+                            pSrcData->GetLength(),
+                            pSrcData->GetPointer());
+        FieldToJson(args["SrcRowPitch"], SrcRowPitch, options);
+        FieldToJson(args["SrcDepthPitch"], SrcDepthPitch, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -868,11 +868,23 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                   const D3D11_SUBRESOURCE_DATA* initial_data,
                                                   ID3D11Texture2D**             texture2D);
 
+    void PostProcess_ID3D11Device3_CreateTexture2D1(ID3D11Device_Wrapper*         wrapper,
+                                                    HRESULT                       result,
+                                                    const D3D11_TEXTURE2D_DESC1*  desc1,
+                                                    const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                    ID3D11Texture2D1**            texture2D);
+
     void PostProcess_ID3D11Device_CreateTexture3D(ID3D11Device_Wrapper*         wrapper,
                                                   HRESULT                       result,
                                                   const D3D11_TEXTURE3D_DESC*   desc,
                                                   const D3D11_SUBRESOURCE_DATA* initial_data,
                                                   ID3D11Texture3D**             texture3D);
+
+    void PostProcess_ID3D11Device3_CreateTexture3D1(ID3D11Device_Wrapper*         wrapper,
+                                                    HRESULT                       result,
+                                                    const D3D11_TEXTURE3D_DESC1*  desc1,
+                                                    const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                    ID3D11Texture3D1**            texture3D);
 
     void PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContext_Wrapper* wrapper,
                                              HRESULT                      result,

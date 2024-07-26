@@ -876,12 +876,32 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateTextu
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture2D1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device3_CreateTexture2D1(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateTexture3D>
 {
     template <typename... Args>
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D11Device_CreateTexture3D(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture3D1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device3_CreateTexture3D1(args...);
     }
 };
 

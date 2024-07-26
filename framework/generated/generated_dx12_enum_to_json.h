@@ -2536,6 +2536,42 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILE_COPY_FLA
     FieldToJson(jdata, *pEnum, options);
 }
 
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONTEXT_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONTEXT_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TEXTURE_LAYOUT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TEXTURE_LAYOUT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONSERVATIVE_RASTERIZATION_MODE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONSERVATIVE_RASTERIZATION_MODE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FENCE_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FENCE_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, const DXGI_RESIDENCY value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);

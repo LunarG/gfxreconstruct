@@ -601,6 +601,117 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D11_UNORDERED_ACCESS_VIEW_D
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SHADER_RESOURCE_VIEW_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_SRV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            EncodeStruct(encoder, value.TextureCube);
+            break;
+        case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            EncodeStruct(encoder, value.TextureCubeArray);
+            break;
+        case D3D11_SRV_DIMENSION_BUFFEREX:
+            EncodeStruct(encoder, value.BufferEx);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_VIEW_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_RTV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            EncodeStruct(encoder, value.Texture2DMS);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            EncodeStruct(encoder, value.Texture2DMSArray);
+            break;
+        case D3D11_RTV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_UNORDERED_ACCESS_VIEW_DESC1& value)
+{
+    encoder->EncodeEnumValue(value.Format);
+    encoder->EncodeEnumValue(value.ViewDimension);
+
+    switch (value.ViewDimension)
+    {
+        case D3D11_UAV_DIMENSION_BUFFER:
+            EncodeStruct(encoder, value.Buffer);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1D:
+            EncodeStruct(encoder, value.Texture1D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+            EncodeStruct(encoder, value.Texture1DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2D:
+            EncodeStruct(encoder, value.Texture2D);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+            EncodeStruct(encoder, value.Texture2DArray);
+            break;
+        case D3D11_UAV_DIMENSION_TEXTURE3D:
+            EncodeStruct(encoder, value.Texture3D);
+            break;
+        default:
+            break;
+    }
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_COLOR& value)
 {
     EncodeStruct(encoder, value.RGBA);

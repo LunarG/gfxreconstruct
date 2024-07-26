@@ -1453,6 +1453,18 @@ uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC* desc)
     return desc->MipLevels;
 }
 
+uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC1* desc)
+{
+    GFXRECON_ASSERT(desc != nullptr);
+    return desc->MipLevels * desc->ArraySize;
+}
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC1* desc)
+{
+    GFXRECON_ASSERT(desc != nullptr);
+    return desc->MipLevels;
+}
+
 uint32_t GetSubresourceDimension(uint32_t dimension, uint32_t mip_levels, uint32_t subresource)
 {
     auto mip_level = subresource % mip_levels;
@@ -1474,6 +1486,20 @@ uint64_t GetSubresourceSize(const D3D11_TEXTURE2D_DESC* desc, const D3D11_SUBRES
 }
 
 uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
+{
+    GFXRECON_ASSERT(data != nullptr);
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetSubresourceSizeTex3D(desc->Depth, desc->MipLevels, data->SysMemSlicePitch, subresource);
+}
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE2D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
+{
+    GFXRECON_ASSERT(data != nullptr);
+    GFXRECON_ASSERT(desc != nullptr);
+    return GetSubresourceSizeTex2D(desc->Format, desc->Height, desc->MipLevels, data->SysMemPitch, subresource);
+}
+
+uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource)
 {
     GFXRECON_ASSERT(data != nullptr);
     GFXRECON_ASSERT(desc != nullptr);

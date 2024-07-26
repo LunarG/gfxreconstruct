@@ -3731,6 +3731,85 @@ void Dx12ReplayConsumerBase::Process_ID3D11DeviceContext1_UpdateSubresource1(
     }
 }
 
+void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture2D1(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>*  pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Texture2D1*>*              ppTexture2D)
+{
+    auto replay_object = MapObject<ID3D11Device3>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppTexture2D->IsNull())
+        {
+            ppTexture2D->SetHandleLength(1);
+        }
+
+        auto out_p_ppTexture2D  = ppTexture2D->GetPointer();
+        auto out_hp_ppTexture2D = ppTexture2D->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateTexture2D1(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture2D);
+
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppTexture2D, out_hp_ppTexture2D, format::ApiCall_ID3D11Device3_CreateTexture2D1);
+        }
+
+        CheckReplayResult("ID3D11Device3_CreateTexture2D1", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture3D1(
+    const ApiCallInfo&                                    call_info,
+    format::HandleId                                      object_id,
+    HRESULT                                               return_value,
+    StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>*  pDesc,
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+    HandlePointerDecoder<ID3D11Texture3D1*>*              ppTexture3D)
+{
+    auto replay_object = MapObject<ID3D11Device3>(object_id);
+    if (replay_object != nullptr)
+    {
+        if (!ppTexture3D->IsNull())
+        {
+            ppTexture3D->SetHandleLength(1);
+        }
+
+        auto out_p_ppTexture3D  = ppTexture3D->GetPointer();
+        auto out_hp_ppTexture3D = ppTexture3D->GetHandlePointer();
+        auto replay_result =
+            replay_object->CreateTexture3D1(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture3D);
+
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppTexture3D, out_hp_ppTexture3D, format::ApiCall_ID3D11Device3_CreateTexture3D1);
+        }
+
+        CheckReplayResult("ID3D11Device3_CreateTexture3D1", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo& call_info,
+                                                                      format::HandleId   object_id,
+                                                                      format::HandleId   pDstResource,
+                                                                      UINT               DstSubresource,
+                                                                      StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                      PointerDecoder<uint8_t>*                 pSrcData,
+                                                                      UINT SrcRowPitch,
+                                                                      UINT SrcDepthPitch)
+{
+    auto replay_object = MapObject<ID3D11Device3>(object_id);
+    if (replay_object != nullptr)
+    {
+        auto in_pDstResource = MapObject<ID3D11Resource>(pDstResource);
+        auto in_pSrcData     = pSrcData->GetPointer();
+        replay_object->WriteToSubresource(
+            in_pDstResource, DstSubresource, pDstBox->GetPointer(), in_pSrcData, SrcRowPitch, SrcDepthPitch);
+    }
+}
+
 IDXGIAdapter* Dx12ReplayConsumerBase::GetAdapter()
 {
     IDXGIAdapter* adapter_found = render_adapter_;
@@ -4754,6 +4833,24 @@ HRESULT Dx12ReplayConsumerBase::OverrideDeviceContextGetData(DxObjectInfo*      
     }
 
     return result;
+}
+
+void Dx12ReplayConsumerBase::OverrideDevice3ReadFromSubresource(DxObjectInfo* replay_object_info,
+                                                                uint64_t      dst_data,
+                                                                UINT          dst_row_pitch,
+                                                                UINT          dst_depth_pitch,
+                                                                DxObjectInfo* src_resource,
+                                                                UINT          src_subresource,
+                                                                StructPointerDecoder<Decoded_D3D11_BOX>* src_box)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(replay_object_info);
+    GFXRECON_UNREFERENCED_PARAMETER(dst_data);
+    GFXRECON_UNREFERENCED_PARAMETER(dst_row_pitch);
+    GFXRECON_UNREFERENCED_PARAMETER(dst_depth_pitch);
+    GFXRECON_UNREFERENCED_PARAMETER(src_subresource);
+    GFXRECON_UNREFERENCED_PARAMETER(src_box);
+
+    // TODO: Implement function
 }
 
 void Dx12ReplayConsumerBase::WaitForCommandListExecution(D3D12CommandQueueInfo* queue_info, uint64_t value)

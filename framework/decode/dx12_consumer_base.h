@@ -35,6 +35,7 @@
 
 #include <d3d12.h>
 #include <d3d11.h>
+#include <d3d11_3.h>
 #include <dxgi1_5.h>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -146,6 +147,34 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                                                  UINT                                     SrcRowPitch,
                                                                  UINT                                     SrcDepthPitch,
                                                                  UINT                                     CopyFlags)
+    {}
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture2D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture2D1*>*              ppTexture2D)
+    {}
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture3D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture3D1*>*              ppTexture3D)
+    {}
+
+    virtual void Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo&                       call_info,
+                                                          format::HandleId                         object_id,
+                                                          format::HandleId                         pDstResource,
+                                                          UINT                                     DstSubresource,
+                                                          StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                          PointerDecoder<uint8_t>*                 pSrcData,
+                                                          UINT                                     SrcRowPitch,
+                                                          UINT                                     SrcDepthPitch)
     {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }

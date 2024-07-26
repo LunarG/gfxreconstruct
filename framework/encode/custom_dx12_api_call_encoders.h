@@ -97,6 +97,26 @@ void Encode_ID3D11DeviceContext1_UpdateSubresource1(ID3D11DeviceContext1_Wrapper
                                                     UINT                          SrcDepthPitch,
                                                     UINT                          CopyFlags);
 
+void Encode_ID3D11Device3_CreateTexture2D1(ID3D11Device3_Wrapper*        wrapper,
+                                           HRESULT                       return_value,
+                                           const D3D11_TEXTURE2D_DESC1*  pDesc1,
+                                           const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                           ID3D11Texture2D1**            ppTexture2D);
+
+void Encode_ID3D11Device3_CreateTexture3D1(ID3D11Device3_Wrapper*        wrapper,
+                                           HRESULT                       return_value,
+                                           const D3D11_TEXTURE3D_DESC1*  pDesc1,
+                                           const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                           ID3D11Texture3D1**            ppTexture3D);
+
+void Encode_ID3D11Device3_WriteToSubresource(ID3D11Device3_Wrapper* wrapper,
+                                             ID3D11Resource*        pDstResource,
+                                             UINT                   DstSubresource,
+                                             const D3D11_BOX*       pDstBox,
+                                             const void*            pSrcData,
+                                             UINT                   SrcRowPitch,
+                                             UINT                   SrcDepthPitch);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

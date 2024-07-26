@@ -303,6 +303,21 @@ class Dx12DecoderBase : public ApiDecoder
                                                           const uint8_t*     parameter_buffer,
                                                           size_t             buffer_size);
 
+    size_t Decode_ID3D11Device3_CreateTexture2D1(format::HandleId   object_id,
+                                                 const ApiCallInfo& call_info,
+                                                 const uint8_t*     parameter_buffer,
+                                                 size_t             buffer_size);
+
+    size_t Decode_ID3D11Device3_CreateTexture3D1(format::HandleId   object_id,
+                                                 const ApiCallInfo& call_info,
+                                                 const uint8_t*     parameter_buffer,
+                                                 size_t             buffer_size);
+
+    size_t Decode_ID3D11Device3_WriteToSubresource(format::HandleId   object_id,
+                                                   const ApiCallInfo& call_info,
+                                                   const uint8_t*     parameter_buffer,
+                                                   size_t             buffer_size);
+
   private:
     std::vector<Dx12Consumer*> consumers_;
 };

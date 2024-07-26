@@ -451,6 +451,52 @@ struct Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC
     Decoded_D3D11_TEX2DMS_ARRAY_DSV* Texture2DMSArray{ nullptr };
 };
 
+struct Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1
+{
+    using struct_type = D3D11_SHADER_RESOURCE_VIEW_DESC1;
+
+    D3D11_SHADER_RESOURCE_VIEW_DESC1* decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_SRV*         Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_SRV*          Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_SRV*    Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_SRV1*         Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_SRV1*   Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX2DMS_SRV*        Texture2DMS{ nullptr };
+    Decoded_D3D11_TEX2DMS_ARRAY_SRV*  Texture2DMSArray{ nullptr };
+    Decoded_D3D11_TEX3D_SRV*          Texture3D{ nullptr };
+    Decoded_D3D11_TEXCUBE_SRV*        TextureCube{ nullptr };
+    Decoded_D3D11_TEXCUBE_ARRAY_SRV*  TextureCubeArray{ nullptr };
+    Decoded_D3D11_BUFFEREX_SRV*       BufferEx{ nullptr };
+};
+
+struct Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1
+{
+    using struct_type = D3D11_UNORDERED_ACCESS_VIEW_DESC1;
+
+    D3D11_UNORDERED_ACCESS_VIEW_DESC1* decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_UAV*          Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_UAV*           Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_UAV*     Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_UAV1*          Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_UAV1*    Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX3D_UAV*           Texture3D{ nullptr };
+};
+
+struct Decoded_D3D11_RENDER_TARGET_VIEW_DESC1
+{
+    using struct_type = D3D11_RENDER_TARGET_VIEW_DESC1;
+
+    D3D11_RENDER_TARGET_VIEW_DESC1*  decoded_value{ nullptr };
+    Decoded_D3D11_BUFFER_RTV*        Buffer{ nullptr };
+    Decoded_D3D11_TEX1D_RTV*         Texture1D{ nullptr };
+    Decoded_D3D11_TEX1D_ARRAY_RTV*   Texture1DArray{ nullptr };
+    Decoded_D3D11_TEX2D_RTV1*        Texture2D{ nullptr };
+    Decoded_D3D11_TEX2D_ARRAY_RTV1*  Texture2DArray{ nullptr };
+    Decoded_D3D11_TEX2DMS_RTV*       Texture2DMS{ nullptr };
+    Decoded_D3D11_TEX2DMS_ARRAY_RTV* Texture2DMSArray{ nullptr };
+    Decoded_D3D11_TEX3D_RTV*         Texture3D{ nullptr };
+};
+
 struct Decoded_D3D11_VIDEO_COLOR
 {
     using struct_type = D3D11_VIDEO_COLOR;

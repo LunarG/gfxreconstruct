@@ -18,6 +18,11 @@
       "CreateTexture2D",
       "CreateTexture3D"
     ],
+    "ID3D11Device3": [
+      "CreateTexture2D1",
+      "CreateTexture3D1",
+      "WriteToSubresource"
+    ],
     "ID3D11DeviceContext": [
       "UpdateSubresource"
     ],
@@ -61,6 +66,9 @@
     "D3D11_RENDER_TARGET_VIEW_DESC",
     "D3D11_DEPTH_STENCIL_VIEW_DESC",
     "D3D11_UNORDERED_ACCESS_VIEW_DESC",
+    "D3D11_SHADER_RESOURCE_VIEW_DESC1",
+    "D3D11_RENDER_TARGET_VIEW_DESC1",
+    "D3D11_UNORDERED_ACCESS_VIEW_DESC1",
     "D3D11_VIDEO_COLOR",
     "D3D11_AUTHENTICATED_PROTECTION_FLAGS",
     "D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC",

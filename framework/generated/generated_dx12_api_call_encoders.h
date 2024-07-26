@@ -35,6 +35,7 @@
 #include <d3d11.h>
 #include <d3d11_1.h>
 #include <d3d11_2.h>
+#include <d3d11_3.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -5091,6 +5092,155 @@ void Encode_ID3D11Device2_CheckMultisampleQualityLevels1(
     UINT SampleCount,
     UINT Flags,
     UINT* pNumQualityLevels);
+
+
+/*
+** This part is generated from d3d11_3.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEXTURE2D_DESC1& value);
+
+void Encode_ID3D11Texture2D1_GetDesc1(
+    ID3D11Texture2D1_Wrapper* wrapper,
+    D3D11_TEXTURE2D_DESC1* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEXTURE3D_DESC1& value);
+
+void Encode_ID3D11Texture3D1_GetDesc1(
+    ID3D11Texture3D1_Wrapper* wrapper,
+    D3D11_TEXTURE3D_DESC1* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RASTERIZER_DESC2& value);
+
+void Encode_ID3D11RasterizerState2_GetDesc2(
+    ID3D11RasterizerState2_Wrapper* wrapper,
+    D3D11_RASTERIZER_DESC2* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_SRV1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_SRV1& value);
+
+void Encode_ID3D11ShaderResourceView1_GetDesc1(
+    ID3D11ShaderResourceView1_Wrapper* wrapper,
+    D3D11_SHADER_RESOURCE_VIEW_DESC1* pDesc1);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_RTV1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_RTV1& value);
+
+void Encode_ID3D11RenderTargetView1_GetDesc1(
+    ID3D11RenderTargetView1_Wrapper* wrapper,
+    D3D11_RENDER_TARGET_VIEW_DESC1* pDesc1);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_UAV1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_UAV1& value);
+
+void Encode_ID3D11UnorderedAccessView1_GetDesc1(
+    ID3D11UnorderedAccessView1_Wrapper* wrapper,
+    D3D11_UNORDERED_ACCESS_VIEW_DESC1* pDesc1);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_QUERY_DESC1& value);
+
+void Encode_ID3D11Query1_GetDesc1(
+    ID3D11Query1_Wrapper* wrapper,
+    D3D11_QUERY_DESC1* pDesc1);
+
+void Encode_ID3D11DeviceContext3_Flush1(
+    ID3D11DeviceContext3_Wrapper* wrapper,
+    D3D11_CONTEXT_TYPE ContextType,
+    HANDLE hEvent);
+
+void Encode_ID3D11DeviceContext3_SetHardwareProtectionState(
+    ID3D11DeviceContext3_Wrapper* wrapper,
+    BOOL HwProtectionEnable);
+
+void Encode_ID3D11DeviceContext3_GetHardwareProtectionState(
+    ID3D11DeviceContext3_Wrapper* wrapper,
+    BOOL* pHwProtectionEnable);
+
+void Encode_ID3D11Fence_CreateSharedHandle(
+    ID3D11Fence_Wrapper* wrapper,
+    HRESULT return_value,
+    const SECURITY_ATTRIBUTES* pAttributes,
+    DWORD dwAccess,
+    LPCWSTR lpName,
+    HANDLE* pHandle);
+
+void Encode_ID3D11Fence_GetCompletedValue(
+    ID3D11Fence_Wrapper* wrapper,
+    UINT64 return_value);
+
+void Encode_ID3D11Fence_SetEventOnCompletion(
+    ID3D11Fence_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT64 Value,
+    HANDLE hEvent);
+
+void Encode_ID3D11DeviceContext4_Signal(
+    ID3D11DeviceContext4_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Fence* pFence,
+    UINT64 Value);
+
+void Encode_ID3D11DeviceContext4_Wait(
+    ID3D11DeviceContext4_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Fence* pFence,
+    UINT64 Value);
+
+void Encode_ID3D11Device3_CreateRasterizerState2(
+    ID3D11Device3_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_RASTERIZER_DESC2* pRasterizerDesc,
+    ID3D11RasterizerState2** ppRasterizerState);
+
+void Encode_ID3D11Device3_CreateShaderResourceView1(
+    ID3D11Device3_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_SHADER_RESOURCE_VIEW_DESC1* pDesc1,
+    ID3D11ShaderResourceView1** ppSRView1);
+
+void Encode_ID3D11Device3_CreateUnorderedAccessView1(
+    ID3D11Device3_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_UNORDERED_ACCESS_VIEW_DESC1* pDesc1,
+    ID3D11UnorderedAccessView1** ppUAView1);
+
+void Encode_ID3D11Device3_CreateRenderTargetView1(
+    ID3D11Device3_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_RENDER_TARGET_VIEW_DESC1* pDesc1,
+    ID3D11RenderTargetView1** ppRTView1);
+
+void Encode_ID3D11Device3_CreateQuery1(
+    ID3D11Device3_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_QUERY_DESC1* pQueryDesc1,
+    ID3D11Query1** ppQuery1);
+
+void Encode_ID3D11Device3_GetImmediateContext3(
+    ID3D11Device3_Wrapper* wrapper,
+    ID3D11DeviceContext3** ppImmediateContext);
+
+void Encode_ID3D11Device3_CreateDeferredContext3(
+    ID3D11Device3_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT ContextFlags,
+    ID3D11DeviceContext3** ppDeferredContext);
+
+void Encode_ID3D11Device3_ReadFromSubresource(
+    ID3D11Device3_Wrapper* wrapper,
+    void* pDstData,
+    UINT DstRowPitch,
+    UINT DstDepthPitch,
+    ID3D11Resource* pSrcResource,
+    UINT SrcSubresource,
+    const D3D11_BOX* pSrcBox);
 
 
 /*

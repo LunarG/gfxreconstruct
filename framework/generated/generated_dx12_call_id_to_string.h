@@ -2144,6 +2144,84 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D11Device2_CheckMultisampleQualityLevels1:
         out = L"ID3D11Device2_CheckMultisampleQualityLevels1";
         break;
+    case format::ApiCallId::ApiCall_ID3D11Texture2D1_GetDesc1:
+        out = L"ID3D11Texture2D1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Texture3D1_GetDesc1:
+        out = L"ID3D11Texture3D1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11RasterizerState2_GetDesc2:
+        out = L"ID3D11RasterizerState2_GetDesc2";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11ShaderResourceView1_GetDesc1:
+        out = L"ID3D11ShaderResourceView1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11RenderTargetView1_GetDesc1:
+        out = L"ID3D11RenderTargetView1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11UnorderedAccessView1_GetDesc1:
+        out = L"ID3D11UnorderedAccessView1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Query1_GetDesc1:
+        out = L"ID3D11Query1_GetDesc1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext3_Flush1:
+        out = L"ID3D11DeviceContext3_Flush1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext3_SetHardwareProtectionState:
+        out = L"ID3D11DeviceContext3_SetHardwareProtectionState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext3_GetHardwareProtectionState:
+        out = L"ID3D11DeviceContext3_GetHardwareProtectionState";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Fence_CreateSharedHandle:
+        out = L"ID3D11Fence_CreateSharedHandle";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Fence_GetCompletedValue:
+        out = L"ID3D11Fence_GetCompletedValue";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Fence_SetEventOnCompletion:
+        out = L"ID3D11Fence_SetEventOnCompletion";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext4_Signal:
+        out = L"ID3D11DeviceContext4_Signal";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11DeviceContext4_Wait:
+        out = L"ID3D11DeviceContext4_Wait";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture2D1:
+        out = L"ID3D11Device3_CreateTexture2D1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture3D1:
+        out = L"ID3D11Device3_CreateTexture3D1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateRasterizerState2:
+        out = L"ID3D11Device3_CreateRasterizerState2";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateShaderResourceView1:
+        out = L"ID3D11Device3_CreateShaderResourceView1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateUnorderedAccessView1:
+        out = L"ID3D11Device3_CreateUnorderedAccessView1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateRenderTargetView1:
+        out = L"ID3D11Device3_CreateRenderTargetView1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateQuery1:
+        out = L"ID3D11Device3_CreateQuery1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_GetImmediateContext3:
+        out = L"ID3D11Device3_GetImmediateContext3";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_CreateDeferredContext3:
+        out = L"ID3D11Device3_CreateDeferredContext3";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_WriteToSubresource:
+        out = L"ID3D11Device3_WriteToSubresource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device3_ReadFromSubresource:
+        out = L"ID3D11Device3_ReadFromSubresource";
+        break;
     case format::ApiCallId::ApiCall_CreateDXGIFactory:
         out = L"CreateDXGIFactory";
         break;

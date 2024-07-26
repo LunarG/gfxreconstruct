@@ -651,6 +651,9 @@ struct ID3D11InputLayoutInfo : public DxWrapperInfo
 struct ID3D11SamplerStateInfo : public DxWrapperInfo
 {};
 
+struct ID3D11QueryInfo : public DxWrapperInfo
+{};
+
 struct ID3D11PredicateInfo : public DxWrapperInfo
 {};
 
@@ -703,6 +706,12 @@ struct ID3D11DeviceInfo : public DxWrapperInfo
 {};
 
 struct ID3DDeviceContextStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11FenceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11MultithreadInfo : public DxWrapperInfo
 {};
 
 struct ID3DUserDefinedAnnotationInfo : public DxWrapperInfo

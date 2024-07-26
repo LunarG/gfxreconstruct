@@ -321,6 +321,31 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                                  UINT                                     SrcDepthPitch,
                                                                  UINT CopyFlags) override;
 
+    virtual void
+    Process_ID3D11Device3_CreateTexture2D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture2D1*>*              ppTexture2D) override;
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture3D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture3D1*>*              ppTexture3D) override;
+
+    virtual void Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo&                       call_info,
+                                                          format::HandleId                         object_id,
+                                                          format::HandleId                         pDstResource,
+                                                          UINT                                     DstSubresource,
+                                                          StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                          PointerDecoder<uint8_t>*                 pSrcData,
+                                                          UINT                                     SrcRowPitch,
+                                                          UINT SrcDepthPitch) override;
+
     template <typename T>
     T* MapObject(const format::HandleId id)
     {
@@ -1096,6 +1121,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          PointerDecoder<uint8_t>* data,
                                          UINT                     data_size,
                                          UINT                     get_data_flags);
+
+    void OverrideDevice3ReadFromSubresource(DxObjectInfo*                            replay_object_info,
+                                            uint64_t                                 dst_data,
+                                            UINT                                     dst_row_pitch,
+                                            UINT                                     dst_depth_pitch,
+                                            DxObjectInfo*                            src_resource,
+                                            UINT                                     src_subresource,
+                                            StructPointerDecoder<Decoded_D3D11_BOX>* src_box);
 
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 

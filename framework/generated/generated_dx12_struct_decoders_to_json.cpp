@@ -6682,6 +6682,339 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_PACKED_MIP_D
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEXTURE2D_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEXTURE2D_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEXTURE2D_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Width"], decoded_value.Width, options);
+        FieldToJson(jdata["Height"], decoded_value.Height, options);
+        FieldToJson(jdata["MipLevels"], decoded_value.MipLevels, options);
+        FieldToJson(jdata["ArraySize"], decoded_value.ArraySize, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["SampleDesc"], meta_struct.SampleDesc, options);
+        FieldToJson(jdata["Usage"], decoded_value.Usage, options);
+        FieldToJson(jdata["BindFlags"], decoded_value.BindFlags, options);
+        FieldToJson(jdata["CPUAccessFlags"], decoded_value.CPUAccessFlags, options);
+        FieldToJson(jdata["MiscFlags"], decoded_value.MiscFlags, options);
+        FieldToJson(jdata["TextureLayout"], decoded_value.TextureLayout, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEXTURE3D_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEXTURE3D_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEXTURE3D_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Width"], decoded_value.Width, options);
+        FieldToJson(jdata["Height"], decoded_value.Height, options);
+        FieldToJson(jdata["Depth"], decoded_value.Depth, options);
+        FieldToJson(jdata["MipLevels"], decoded_value.MipLevels, options);
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["Usage"], decoded_value.Usage, options);
+        FieldToJson(jdata["BindFlags"], decoded_value.BindFlags, options);
+        FieldToJson(jdata["CPUAccessFlags"], decoded_value.CPUAccessFlags, options);
+        FieldToJson(jdata["MiscFlags"], decoded_value.MiscFlags, options);
+        FieldToJson(jdata["TextureLayout"], decoded_value.TextureLayout, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RASTERIZER_DESC2* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_RASTERIZER_DESC2& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_RASTERIZER_DESC2& meta_struct = *data;
+        FieldToJson(jdata["FillMode"], decoded_value.FillMode, options);
+        FieldToJson(jdata["CullMode"], decoded_value.CullMode, options);
+        Bool32ToJson(jdata["FrontCounterClockwise"], decoded_value.FrontCounterClockwise, options);
+        FieldToJson(jdata["DepthBias"], decoded_value.DepthBias, options);
+        FieldToJson(jdata["DepthBiasClamp"], decoded_value.DepthBiasClamp, options);
+        FieldToJson(jdata["SlopeScaledDepthBias"], decoded_value.SlopeScaledDepthBias, options);
+        Bool32ToJson(jdata["DepthClipEnable"], decoded_value.DepthClipEnable, options);
+        Bool32ToJson(jdata["ScissorEnable"], decoded_value.ScissorEnable, options);
+        Bool32ToJson(jdata["MultisampleEnable"], decoded_value.MultisampleEnable, options);
+        Bool32ToJson(jdata["AntialiasedLineEnable"], decoded_value.AntialiasedLineEnable, options);
+        FieldToJson(jdata["ForcedSampleCount"], decoded_value.ForcedSampleCount, options);
+        FieldToJson(jdata["ConservativeRaster"], decoded_value.ConservativeRaster, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_SRV1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEX2D_SRV1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEX2D_SRV1& meta_struct = *data;
+        FieldToJson(jdata["MostDetailedMip"], decoded_value.MostDetailedMip, options);
+        FieldToJson(jdata["MipLevels"], decoded_value.MipLevels, options);
+        FieldToJson(jdata["PlaneSlice"], decoded_value.PlaneSlice, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_ARRAY_SRV1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEX2D_ARRAY_SRV1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEX2D_ARRAY_SRV1& meta_struct = *data;
+        FieldToJson(jdata["MostDetailedMip"], decoded_value.MostDetailedMip, options);
+        FieldToJson(jdata["MipLevels"], decoded_value.MipLevels, options);
+        FieldToJson(jdata["FirstArraySlice"], decoded_value.FirstArraySlice, options);
+        FieldToJson(jdata["ArraySize"], decoded_value.ArraySize, options);
+        FieldToJson(jdata["PlaneSlice"], decoded_value.PlaneSlice, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_SHADER_RESOURCE_VIEW_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["ViewDimension"], decoded_value.ViewDimension, options);
+        switch (decoded_value.ViewDimension)
+        {
+            case D3D11_SRV_DIMENSION_BUFFER:
+            {
+                FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURE1D:
+            {
+                FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURE2D:
+            {
+                FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+            {
+                FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURE3D:
+            {
+                FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURECUBE:
+            {
+                FieldToJson(jdata["TextureCube"], meta_struct.TextureCube, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+            {
+                FieldToJson(jdata["TextureCubeArray"], meta_struct.TextureCubeArray, options);
+                break;
+            }
+            case D3D11_SRV_DIMENSION_BUFFEREX:
+            {
+                FieldToJson(jdata["BufferEx"], meta_struct.BufferEx, options);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_RTV1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEX2D_RTV1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEX2D_RTV1& meta_struct = *data;
+        FieldToJson(jdata["MipSlice"], decoded_value.MipSlice, options);
+        FieldToJson(jdata["PlaneSlice"], decoded_value.PlaneSlice, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_ARRAY_RTV1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEX2D_ARRAY_RTV1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEX2D_ARRAY_RTV1& meta_struct = *data;
+        FieldToJson(jdata["MipSlice"], decoded_value.MipSlice, options);
+        FieldToJson(jdata["FirstArraySlice"], decoded_value.FirstArraySlice, options);
+        FieldToJson(jdata["ArraySize"], decoded_value.ArraySize, options);
+        FieldToJson(jdata["PlaneSlice"], decoded_value.PlaneSlice, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RENDER_TARGET_VIEW_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_RENDER_TARGET_VIEW_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_RENDER_TARGET_VIEW_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["ViewDimension"], decoded_value.ViewDimension, options);
+        switch (decoded_value.ViewDimension)
+        {
+            case D3D11_RTV_DIMENSION_BUFFER:
+            {
+                FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                break;
+            }
+            case D3D11_RTV_DIMENSION_TEXTURE1D:
+            {
+                FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                break;
+            }
+            case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                break;
+            }
+            case D3D11_RTV_DIMENSION_TEXTURE2D:
+            {
+                FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                break;
+            }
+            case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                break;
+            }
+            case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
+                break;
+            }
+            case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+            {
+                FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
+                break;
+            }
+            case D3D11_RTV_DIMENSION_TEXTURE3D:
+            {
+                FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_UAV1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEX2D_UAV1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEX2D_UAV1& meta_struct = *data;
+        FieldToJson(jdata["MipSlice"], decoded_value.MipSlice, options);
+        FieldToJson(jdata["PlaneSlice"], decoded_value.PlaneSlice, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_ARRAY_UAV1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_TEX2D_ARRAY_UAV1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_TEX2D_ARRAY_UAV1& meta_struct = *data;
+        FieldToJson(jdata["MipSlice"], decoded_value.MipSlice, options);
+        FieldToJson(jdata["FirstArraySlice"], decoded_value.FirstArraySlice, options);
+        FieldToJson(jdata["ArraySize"], decoded_value.ArraySize, options);
+        FieldToJson(jdata["PlaneSlice"], decoded_value.PlaneSlice, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_UNORDERED_ACCESS_VIEW_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Format"], decoded_value.Format, options);
+        FieldToJson(jdata["ViewDimension"], decoded_value.ViewDimension, options);
+        switch (decoded_value.ViewDimension)
+        {
+            case D3D11_DSV_DIMENSION_TEXTURE1D:
+            {
+                FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                break;
+            }
+            case D3D11_DSV_DIMENSION_TEXTURE1DARRAY:
+            {
+                FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                break;
+            }
+            case D3D11_DSV_DIMENSION_TEXTURE2D:
+            {
+                FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                break;
+            }
+            case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+            {
+                FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                break;
+            }
+            case D3D11_DSV_DIMENSION_TEXTURE2DMS:
+            {
+                FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_QUERY_DESC1* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_QUERY_DESC1& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_QUERY_DESC1& meta_struct = *data;
+        FieldToJson(jdata["Query"], decoded_value.Query, options);
+        FieldToJson(jdata["MiscFlags"], decoded_value.MiscFlags, options);
+        FieldToJson(jdata["ContextType"], decoded_value.ContextType, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* data, const JsonOptions& options)
 {
     using namespace util;

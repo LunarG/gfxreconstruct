@@ -110,6 +110,15 @@ class Dx12JsonConsumerBase : public Dx12Consumer
                                                                  UINT                                     SrcDepthPitch,
                                                                  UINT CopyFlags) override;
 
+    virtual void Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo&                       call_info,
+                                                          format::HandleId                         object_id,
+                                                          format::HandleId                         pDstResource,
+                                                          UINT                                     DstSubresource,
+                                                          StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                          PointerDecoder<uint8_t>*                 pSrcData,
+                                                          UINT                                     SrcRowPitch,
+                                                          UINT SrcDepthPitch) override;
+
     /// @}
   protected:
     JsonWriter* writer_{ nullptr };

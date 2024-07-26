@@ -5018,6 +5018,172 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         PointerDecoder<UINT>* pNumQualityLevels) override;
 
 /*
+** This part is generated from d3d11_3.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_ID3D11Texture2D1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>* pDesc) override;
+
+    virtual void Process_ID3D11Texture3D1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>* pDesc) override;
+
+    virtual void Process_ID3D11RasterizerState2_GetDesc2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_RASTERIZER_DESC2>* pDesc) override;
+
+    virtual void Process_ID3D11ShaderResourceView1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1>* pDesc1) override;
+
+    virtual void Process_ID3D11RenderTargetView1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_RENDER_TARGET_VIEW_DESC1>* pDesc1) override;
+
+    virtual void Process_ID3D11UnorderedAccessView1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1>* pDesc1) override;
+
+    virtual void Process_ID3D11Query1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_QUERY_DESC1>* pDesc1) override;
+
+    virtual void Process_ID3D11DeviceContext3_Flush1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D11_CONTEXT_TYPE ContextType,
+        uint64_t hEvent) override;
+
+    virtual void Process_ID3D11DeviceContext3_SetHardwareProtectionState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL HwProtectionEnable) override;
+
+    virtual void Process_ID3D11DeviceContext3_GetHardwareProtectionState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        PointerDecoder<BOOL>* pHwProtectionEnable) override;
+
+    virtual void Process_ID3D11Fence_CreateSharedHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded__SECURITY_ATTRIBUTES>* pAttributes,
+        DWORD dwAccess,
+        WStringDecoder* lpName,
+        PointerDecoder<uint64_t, void*>* pHandle) override;
+
+    virtual void Process_ID3D11Fence_GetCompletedValue(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT64 return_value) override;
+
+    virtual void Process_ID3D11Fence_SetEventOnCompletion(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT64 Value,
+        uint64_t hEvent) override;
+
+    virtual void Process_ID3D11DeviceContext4_Signal(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pFence,
+        UINT64 Value) override;
+
+    virtual void Process_ID3D11DeviceContext4_Wait(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pFence,
+        UINT64 Value) override;
+
+    virtual void Process_ID3D11Device3_CreateTexture2D1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>* pDesc1,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture2D1*>* ppTexture2D) override;
+
+    virtual void Process_ID3D11Device3_CreateTexture3D1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>* pDesc1,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture3D1*>* ppTexture3D) override;
+
+    virtual void Process_ID3D11Device3_CreateRasterizerState2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_RASTERIZER_DESC2>* pRasterizerDesc,
+        HandlePointerDecoder<ID3D11RasterizerState2*>* ppRasterizerState) override;
+
+    virtual void Process_ID3D11Device3_CreateShaderResourceView1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC1>* pDesc1,
+        HandlePointerDecoder<ID3D11ShaderResourceView1*>* ppSRView1) override;
+
+    virtual void Process_ID3D11Device3_CreateUnorderedAccessView1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1>* pDesc1,
+        HandlePointerDecoder<ID3D11UnorderedAccessView1*>* ppUAView1) override;
+
+    virtual void Process_ID3D11Device3_CreateRenderTargetView1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_RENDER_TARGET_VIEW_DESC1>* pDesc1,
+        HandlePointerDecoder<ID3D11RenderTargetView1*>* ppRTView1) override;
+
+    virtual void Process_ID3D11Device3_CreateQuery1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_QUERY_DESC1>* pQueryDesc1,
+        HandlePointerDecoder<ID3D11Query1*>* ppQuery1) override;
+
+    virtual void Process_ID3D11Device3_GetImmediateContext3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11DeviceContext3*>* ppImmediateContext) override;
+
+    virtual void Process_ID3D11Device3_CreateDeferredContext3(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT ContextFlags,
+        HandlePointerDecoder<ID3D11DeviceContext3*>* ppDeferredContext) override;
+
+    virtual void Process_ID3D11Device3_ReadFromSubresource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        uint64_t pDstData,
+        UINT DstRowPitch,
+        UINT DstDepthPitch,
+        format::HandleId pSrcResource,
+        UINT SrcSubresource,
+        StructPointerDecoder<Decoded_D3D11_BOX>* pSrcBox) override;
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

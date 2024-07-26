@@ -130,6 +130,9 @@
       "Map": "OverrideDeviceContextMap",
       "Unmap": "OverrideDeviceContextUnmap"
     },
+    "ID3D11Device3": {
+      "ReadFromSubresource": "OverrideDevice3ReadFromSubresource"
+    },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"
     },

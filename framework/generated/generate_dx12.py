@@ -69,6 +69,7 @@ WINDOWS_SDK_SOURCE_LIST = [
     'um\\d3d11.h',
     'um\\d3d11_1.h',
     'um\\d3d11_2.h',
+    'um\\d3d11_3.h',
     'shared\\dxgi.h',
     'shared\\dxgi1_2.h',
     'shared\\dxgi1_3.h',

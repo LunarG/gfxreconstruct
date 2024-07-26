@@ -5570,6 +5570,52 @@ std::string ToString(const D3D11_TILE_COPY_FLAG value)
     return ret;
 }
 
+std::string ToString(const D3D11_CONTEXT_TYPE value)
+{
+    const char* ret = "Unhandled D3D11_CONTEXT_TYPE";
+    switch (value) {
+        case D3D11_CONTEXT_TYPE_ALL: ret = "D3D11_CONTEXT_TYPE_ALL"; break;
+        case D3D11_CONTEXT_TYPE_3D: ret = "D3D11_CONTEXT_TYPE_3D"; break;
+        case D3D11_CONTEXT_TYPE_COMPUTE: ret = "D3D11_CONTEXT_TYPE_COMPUTE"; break;
+        case D3D11_CONTEXT_TYPE_COPY: ret = "D3D11_CONTEXT_TYPE_COPY"; break;
+        case D3D11_CONTEXT_TYPE_VIDEO: ret = "D3D11_CONTEXT_TYPE_VIDEO"; break;
+    }
+    return ret;
+}
+
+std::string ToString(const D3D11_TEXTURE_LAYOUT value)
+{
+    const char* ret = "Unhandled D3D11_TEXTURE_LAYOUT";
+    switch (value) {
+        case D3D11_TEXTURE_LAYOUT_UNDEFINED: ret = "D3D11_TEXTURE_LAYOUT_UNDEFINED"; break;
+        case D3D11_TEXTURE_LAYOUT_ROW_MAJOR: ret = "D3D11_TEXTURE_LAYOUT_ROW_MAJOR"; break;
+        case D3D11_TEXTURE_LAYOUT_64K_STANDARD_SWIZZLE: ret = "D3D11_TEXTURE_LAYOUT_64K_STANDARD_SWIZZLE"; break;
+    }
+    return ret;
+}
+
+std::string ToString(const D3D11_CONSERVATIVE_RASTERIZATION_MODE value)
+{
+    const char* ret = "Unhandled D3D11_CONSERVATIVE_RASTERIZATION_MODE";
+    switch (value) {
+        case D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF: ret = "D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF"; break;
+        case D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON: ret = "D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON"; break;
+    }
+    return ret;
+}
+
+std::string ToString(const D3D11_FENCE_FLAG value)
+{
+    const char* ret = "Unhandled D3D11_FENCE_FLAG";
+    switch (value) {
+        case D3D11_FENCE_FLAG_NONE: ret = "D3D11_FENCE_FLAG_NONE"; break;
+        case D3D11_FENCE_FLAG_SHARED: ret = "D3D11_FENCE_FLAG_SHARED"; break;
+        case D3D11_FENCE_FLAG_SHARED_CROSS_ADAPTER: ret = "D3D11_FENCE_FLAG_SHARED_CROSS_ADAPTER"; break;
+        case D3D11_FENCE_FLAG_NON_MONITORED: ret = "D3D11_FENCE_FLAG_NON_MONITORED"; break;
+    }
+    return ret;
+}
+
 std::string ToString(const DXGI_RESIDENCY value)
 {
     const char* ret = "Unhandled DXGI_RESIDENCY";
@@ -6162,6 +6208,17 @@ std::string ToString(const IID& iid)
     if (iid == IID_ID3DUserDefinedAnnotation) return "IID_ID3DUserDefinedAnnotation";
     if (iid == IID_ID3D11DeviceContext2) return "IID_ID3D11DeviceContext2";
     if (iid == IID_ID3D11Device2) return "IID_ID3D11Device2";
+    if (iid == IID_ID3D11Texture2D1) return "IID_ID3D11Texture2D1";
+    if (iid == IID_ID3D11Texture3D1) return "IID_ID3D11Texture3D1";
+    if (iid == IID_ID3D11RasterizerState2) return "IID_ID3D11RasterizerState2";
+    if (iid == IID_ID3D11ShaderResourceView1) return "IID_ID3D11ShaderResourceView1";
+    if (iid == IID_ID3D11RenderTargetView1) return "IID_ID3D11RenderTargetView1";
+    if (iid == IID_ID3D11UnorderedAccessView1) return "IID_ID3D11UnorderedAccessView1";
+    if (iid == IID_ID3D11Query1) return "IID_ID3D11Query1";
+    if (iid == IID_ID3D11DeviceContext3) return "IID_ID3D11DeviceContext3";
+    if (iid == IID_ID3D11Fence) return "IID_ID3D11Fence";
+    if (iid == IID_ID3D11DeviceContext4) return "IID_ID3D11DeviceContext4";
+    if (iid == IID_ID3D11Device3) return "IID_ID3D11Device3";
     if (iid == IID_IDXGIObject) return "IID_IDXGIObject";
     if (iid == IID_IDXGIDeviceSubObject) return "IID_IDXGIDeviceSubObject";
     if (iid == IID_IDXGIResource) return "IID_IDXGIResource";

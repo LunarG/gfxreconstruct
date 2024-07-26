@@ -346,5 +346,91 @@ void Encode_ID3D11DeviceContext1_UpdateSubresource1(ID3D11DeviceContext1_Wrapper
     }
 }
 
+void Encode_ID3D11Device3_CreateTexture2D1(ID3D11Device3_Wrapper*        wrapper,
+                                           HRESULT                       return_value,
+                                           const D3D11_TEXTURE2D_DESC1*  pDesc1,
+                                           const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                           ID3D11Texture2D1**            ppTexture2D)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture2D1, wrapper->GetCaptureId());
+    if (encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pDesc1);
+        EncodeD3D11SubresourceDataPtr(encoder, pDesc1, pInitialData);
+        encoder->EncodeObjectPtr(ppTexture2D, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(
+            return_value, IID_ID3D11Texture2D1, reinterpret_cast<void**>(ppTexture2D), wrapper);
+    }
+}
+
+void Encode_ID3D11Device3_CreateTexture3D1(ID3D11Device3_Wrapper*        wrapper,
+                                           HRESULT                       return_value,
+                                           const D3D11_TEXTURE3D_DESC1*  pDesc1,
+                                           const D3D11_SUBRESOURCE_DATA* pInitialData,
+                                           ID3D11Texture3D1**            ppTexture3D)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D11Device3_CreateTexture3D1, wrapper->GetCaptureId());
+    if (encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStructPtr(encoder, pDesc1);
+        EncodeD3D11SubresourceDataPtr(encoder, pDesc1, pInitialData);
+        encoder->EncodeObjectPtr(ppTexture3D, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(
+            return_value, IID_ID3D11Texture3D1, reinterpret_cast<void**>(ppTexture3D), wrapper);
+    }
+}
+
+void Encode_ID3D11Device3_WriteToSubresource(ID3D11Device3_Wrapper* wrapper,
+                                             ID3D11Resource*        pDstResource,
+                                             UINT                   DstSubresource,
+                                             const D3D11_BOX*       pDstBox,
+                                             const void*            pSrcData,
+                                             UINT                   SrcRowPitch,
+                                             UINT                   SrcDepthPitch)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D11Device3_WriteToSubresource, wrapper->GetCaptureId());
+    if (encoder)
+    {
+        encoder->EncodeObjectValue(pDstResource);
+        encoder->EncodeUInt32Value(DstSubresource);
+        EncodeStructPtr(encoder, pDstBox);
+
+        auto resource_wrapper = reinterpret_cast<ID3D11Resource_Wrapper*>(pDstResource);
+        auto info             = GetResourceInfo(resource_wrapper);
+        auto size             = graphics::dx12::GetSubresourceWriteDataSize(info->dimension,
+                                                                info->format,
+                                                                info->width,
+                                                                info->height,
+                                                                info->depth_or_array_size,
+                                                                info->mip_levels,
+                                                                DstSubresource,
+                                                                pDstBox,
+                                                                SrcRowPitch,
+                                                                SrcDepthPitch);
+        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
+
+        encoder->EncodeVoidArray(pSrcData, static_cast<size_t>(size));
+
+        encoder->EncodeUInt32Value(SrcRowPitch);
+        encoder->EncodeUInt32Value(SrcDepthPitch);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

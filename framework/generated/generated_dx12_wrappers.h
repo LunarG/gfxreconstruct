@@ -39,6 +39,7 @@
 #include <d3d11.h>
 #include <d3d11_1.h>
 #include <d3d11_2.h>
+#include <d3d11_3.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -3620,9 +3621,24 @@ class ID3D11Query_Wrapper : public ID3D11Asynchronous_Wrapper
   public:
     ID3D11Query_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Query_Wrapper*>(u); });
 
+    ~ID3D11Query_Wrapper();
+
+    static ID3D11Query_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D11QueryInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D11QueryInfo> GetObjectInfo() { return info_; }
+
     virtual void STDMETHODCALLTYPE GetDesc(
         D3D11_QUERY_DESC* pDesc);
 
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D11Query_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D11QueryInfo> info_;
 };
 
 class ID3D11Predicate_Wrapper : public ID3D11Query_Wrapper
@@ -5704,6 +5720,211 @@ class ID3D11Device2_Wrapper : public ID3D11Device1_Wrapper
         UINT SampleCount,
         UINT Flags,
         UINT* pNumQualityLevels);
+
+};
+
+
+/*
+** This part is generated from d3d11_3.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+class ID3D11Texture2D1_Wrapper : public ID3D11Texture2D_Wrapper
+{
+  public:
+    ID3D11Texture2D1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Texture2D1_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE GetDesc1(
+        D3D11_TEXTURE2D_DESC1* pDesc);
+
+};
+
+class ID3D11Texture3D1_Wrapper : public ID3D11Texture3D_Wrapper
+{
+  public:
+    ID3D11Texture3D1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Texture3D1_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE GetDesc1(
+        D3D11_TEXTURE3D_DESC1* pDesc);
+
+};
+
+class ID3D11RasterizerState2_Wrapper : public ID3D11RasterizerState1_Wrapper
+{
+  public:
+    ID3D11RasterizerState2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11RasterizerState2_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE GetDesc2(
+        D3D11_RASTERIZER_DESC2* pDesc);
+
+};
+
+class ID3D11ShaderResourceView1_Wrapper : public ID3D11ShaderResourceView_Wrapper
+{
+  public:
+    ID3D11ShaderResourceView1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11ShaderResourceView1_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE GetDesc1(
+        D3D11_SHADER_RESOURCE_VIEW_DESC1* pDesc1);
+
+};
+
+class ID3D11RenderTargetView1_Wrapper : public ID3D11RenderTargetView_Wrapper
+{
+  public:
+    ID3D11RenderTargetView1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11RenderTargetView1_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE GetDesc1(
+        D3D11_RENDER_TARGET_VIEW_DESC1* pDesc1);
+
+};
+
+class ID3D11UnorderedAccessView1_Wrapper : public ID3D11UnorderedAccessView_Wrapper
+{
+  public:
+    ID3D11UnorderedAccessView1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11UnorderedAccessView1_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE GetDesc1(
+        D3D11_UNORDERED_ACCESS_VIEW_DESC1* pDesc1);
+
+};
+
+class ID3D11Query1_Wrapper : public ID3D11Query_Wrapper
+{
+  public:
+    ID3D11Query1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Query1_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE GetDesc1(
+        D3D11_QUERY_DESC1* pDesc1);
+
+};
+
+class ID3D11DeviceContext3_Wrapper : public ID3D11DeviceContext2_Wrapper
+{
+  public:
+    ID3D11DeviceContext3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11DeviceContext3_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE Flush1(
+        D3D11_CONTEXT_TYPE ContextType,
+        HANDLE hEvent);
+
+    virtual void STDMETHODCALLTYPE SetHardwareProtectionState(
+        BOOL HwProtectionEnable);
+
+    virtual void STDMETHODCALLTYPE GetHardwareProtectionState(
+        BOOL* pHwProtectionEnable);
+
+};
+
+class ID3D11Fence_Wrapper : public ID3D11DeviceChild_Wrapper
+{
+  public:
+    ID3D11Fence_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Fence_Wrapper*>(u); });
+
+    ~ID3D11Fence_Wrapper();
+
+    static ID3D11Fence_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D11FenceInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D11FenceInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE CreateSharedHandle(
+        const SECURITY_ATTRIBUTES* pAttributes,
+        DWORD dwAccess,
+        LPCWSTR lpName,
+        HANDLE* pHandle);
+
+    virtual UINT64 STDMETHODCALLTYPE GetCompletedValue();
+
+    virtual HRESULT STDMETHODCALLTYPE SetEventOnCompletion(
+        UINT64 Value,
+        HANDLE hEvent);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D11Fence_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D11FenceInfo> info_;
+};
+
+class ID3D11DeviceContext4_Wrapper : public ID3D11DeviceContext3_Wrapper
+{
+  public:
+    ID3D11DeviceContext4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11DeviceContext4_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE Signal(
+        ID3D11Fence* pFence,
+        UINT64 Value);
+
+    virtual HRESULT STDMETHODCALLTYPE Wait(
+        ID3D11Fence* pFence,
+        UINT64 Value);
+
+};
+
+class ID3D11Device3_Wrapper : public ID3D11Device2_Wrapper
+{
+  public:
+    ID3D11Device3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Device3_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CreateTexture2D1(
+        const D3D11_TEXTURE2D_DESC1* pDesc1,
+        const D3D11_SUBRESOURCE_DATA* pInitialData,
+        ID3D11Texture2D1** ppTexture2D);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateTexture3D1(
+        const D3D11_TEXTURE3D_DESC1* pDesc1,
+        const D3D11_SUBRESOURCE_DATA* pInitialData,
+        ID3D11Texture3D1** ppTexture3D);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateRasterizerState2(
+        const D3D11_RASTERIZER_DESC2* pRasterizerDesc,
+        ID3D11RasterizerState2** ppRasterizerState);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateShaderResourceView1(
+        ID3D11Resource* pResource,
+        const D3D11_SHADER_RESOURCE_VIEW_DESC1* pDesc1,
+        ID3D11ShaderResourceView1** ppSRView1);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateUnorderedAccessView1(
+        ID3D11Resource* pResource,
+        const D3D11_UNORDERED_ACCESS_VIEW_DESC1* pDesc1,
+        ID3D11UnorderedAccessView1** ppUAView1);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateRenderTargetView1(
+        ID3D11Resource* pResource,
+        const D3D11_RENDER_TARGET_VIEW_DESC1* pDesc1,
+        ID3D11RenderTargetView1** ppRTView1);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateQuery1(
+        const D3D11_QUERY_DESC1* pQueryDesc1,
+        ID3D11Query1** ppQuery1);
+
+    virtual void STDMETHODCALLTYPE GetImmediateContext3(
+        ID3D11DeviceContext3** ppImmediateContext);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateDeferredContext3(
+        UINT ContextFlags,
+        ID3D11DeviceContext3** ppDeferredContext);
+
+    virtual void STDMETHODCALLTYPE WriteToSubresource(
+        ID3D11Resource* pDstResource,
+        UINT DstSubresource,
+        const D3D11_BOX* pDstBox,
+        const void* pSrcData,
+        UINT SrcRowPitch,
+        UINT SrcDepthPitch);
+
+    virtual void STDMETHODCALLTYPE ReadFromSubresource(
+        void* pDstData,
+        UINT DstRowPitch,
+        UINT DstDepthPitch,
+        ID3D11Resource* pSrcResource,
+        UINT SrcSubresource,
+        const D3D11_BOX* pSrcBox);
 
 };
 

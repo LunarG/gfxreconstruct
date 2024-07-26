@@ -29,6 +29,7 @@
 
 #ifdef WIN32
 #include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3d12.h>
 #include <dxgi1_5.h>
 #endif
@@ -62,6 +63,9 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFER_RTV& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_VIEW_DESC& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_DEPTH_STENCIL_VIEW_DESC& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_UNORDERED_ACCESS_VIEW_DESC& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SHADER_RESOURCE_VIEW_DESC1& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_VIEW_DESC1& value);
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_UNORDERED_ACCESS_VIEW_DESC1& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_COLOR& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_PROTECTION_FLAGS& value);
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC& value);

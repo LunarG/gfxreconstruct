@@ -38,6 +38,7 @@
 #include <d3d11.h>
 #include <d3d11_1.h>
 #include <d3d11_2.h>
+#include <d3d11_3.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -3180,6 +3181,78 @@ struct Decoded_D3D11_PACKED_MIP_DESC
     using struct_type = D3D11_PACKED_MIP_DESC;
 
     D3D11_PACKED_MIP_DESC* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEXTURE2D_DESC1
+{
+    using struct_type = D3D11_TEXTURE2D_DESC1;
+
+    D3D11_TEXTURE2D_DESC1* decoded_value{ nullptr };
+
+    Decoded_DXGI_SAMPLE_DESC* SampleDesc{ nullptr };
+};
+
+struct Decoded_D3D11_TEXTURE3D_DESC1
+{
+    using struct_type = D3D11_TEXTURE3D_DESC1;
+
+    D3D11_TEXTURE3D_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_RASTERIZER_DESC2
+{
+    using struct_type = D3D11_RASTERIZER_DESC2;
+
+    D3D11_RASTERIZER_DESC2* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_SRV1
+{
+    using struct_type = D3D11_TEX2D_SRV1;
+
+    D3D11_TEX2D_SRV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_SRV1
+{
+    using struct_type = D3D11_TEX2D_ARRAY_SRV1;
+
+    D3D11_TEX2D_ARRAY_SRV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_RTV1
+{
+    using struct_type = D3D11_TEX2D_RTV1;
+
+    D3D11_TEX2D_RTV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_RTV1
+{
+    using struct_type = D3D11_TEX2D_ARRAY_RTV1;
+
+    D3D11_TEX2D_ARRAY_RTV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_UAV1
+{
+    using struct_type = D3D11_TEX2D_UAV1;
+
+    D3D11_TEX2D_UAV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_TEX2D_ARRAY_UAV1
+{
+    using struct_type = D3D11_TEX2D_ARRAY_UAV1;
+
+    D3D11_TEX2D_ARRAY_UAV1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_QUERY_DESC1
+{
+    using struct_type = D3D11_QUERY_DESC1;
+
+    D3D11_QUERY_DESC1* decoded_value{ nullptr };
 };
 
 struct Decoded_DXGI_FRAME_STATISTICS

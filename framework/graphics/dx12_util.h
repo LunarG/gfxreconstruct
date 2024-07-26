@@ -41,6 +41,7 @@
 #ifdef WIN32
 #include <comdef.h>
 #include <d3d11.h>
+#include <d3d11_3.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
 #endif
@@ -362,6 +363,10 @@ uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC* desc);
 
 uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC* desc);
 
+uint32_t GetNumSubresources(const D3D11_TEXTURE2D_DESC1* desc);
+
+uint32_t GetNumSubresources(const D3D11_TEXTURE3D_DESC1* desc);
+
 uint32_t GetSubresourceDimension(uint32_t dimension, uint32_t mip_levels, uint32_t subresource);
 
 uint64_t GetSubresourceSize(const D3D11_TEXTURE1D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
@@ -369,6 +374,12 @@ uint64_t GetSubresourceSize(const D3D11_TEXTURE1D_DESC* desc, const D3D11_SUBRES
 uint64_t GetSubresourceSize(const D3D11_TEXTURE2D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
 
 uint64_t GetSubresourceSize(const D3D11_TEXTURE3D_DESC* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
+
+uint64_t
+GetSubresourceSize(const D3D11_TEXTURE2D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
+
+uint64_t
+GetSubresourceSize(const D3D11_TEXTURE3D_DESC1* desc, const D3D11_SUBRESOURCE_DATA* data, uint32_t subresource);
 
 uint64_t GetSubresourceSize(D3D11_RESOURCE_DIMENSION type,
                             DXGI_FORMAT              format,
