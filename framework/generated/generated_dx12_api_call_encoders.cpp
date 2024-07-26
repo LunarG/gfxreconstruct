@@ -215,7 +215,7 @@ void Encode_IDXGIObject_GetPrivateData(
         }
         EncodeStruct(encoder, Name);
         encoder->EncodeUInt32Ptr(pDataSize, omit_output_data);
-        encoder->EncodeVoidArray(pData, * pDataSize, omit_output_data);
+        encoder->EncodeVoidArray(pData, (pDataSize != nullptr) ? *pDataSize : 0, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
@@ -3850,7 +3850,7 @@ void Encode_ID3D12Object_GetPrivateData(
         }
         EncodeStruct(encoder, guid);
         encoder->EncodeUInt32Ptr(pDataSize, omit_output_data);
-        encoder->EncodeVoidArray(pData, * pDataSize, omit_output_data);
+        encoder->EncodeVoidArray(pData, (pDataSize != nullptr) ? *pDataSize : 0, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();
     }
@@ -9076,7 +9076,7 @@ void Encode_ID3D12ShaderCacheSession_FindValue(
         }
         encoder->EncodeVoidArray(pKey, KeySize);
         encoder->EncodeUInt32Value(KeySize);
-        encoder->EncodeVoidArray(pValue, * pValueSize, omit_output_data);
+        encoder->EncodeVoidArray(pValue, (pValueSize != nullptr) ? *pValueSize : 0, omit_output_data);
         encoder->EncodeUInt32Ptr(pValueSize, omit_output_data);
         encoder->EncodeInt32Value(return_value);
         D3D12CaptureManager::Get()->EndMethodCallCapture();

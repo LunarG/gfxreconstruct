@@ -425,7 +425,10 @@ class Dx12ReplayConsumerBodyGenerator(
                         ):
                             if isinstance(value.array_length, str
                                           ) and value.array_length[0] == '*':
-                                length = value.array_length + '->GetPointer()'
+                                length = '!{}->IsNull() ? {}->GetPointer() : 0'.format(
+                                    value.array_length.replace('* ', ''),
+                                    value.array_length.replace(' ', '')
+                                )
                             else:
                                 length = value.array_length
                         code += '    if(!{}->IsNull())\n    {{\n        {}->AllocateOutputData({});\n    }}\n'.format(
