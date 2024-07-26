@@ -212,7 +212,7 @@ class PointerDecoder : public PointerDecoderBase
             }
             else
             {
-                // The external memory cacpacity is not large enough to contain the full decoded array.
+                // The external memory capacity is not large enough to contain the full decoded array.
                 ValueDecoder::DecodeArrayFrom<SrcT>(buffer, buffer_size, data_, capacity_);
 
                 GFXRECON_LOG_WARNING("Pointer decoder's external memory capacity (%" PRIuPTR
@@ -236,7 +236,7 @@ class PointerDecoder : public PointerDecoderBase
     size_t capacity_; ///< Size of external memory allocation referenced by #data_ when #is_memory_external_ is true.
     bool   is_memory_external_; ///< Indicates that the memory referenced by #data_ is an external allocation.
 
-    /// Optional memory allocated for output pramaters when retrieving data from a function call. Allows both the data
+    /// Optional memory allocated for output parameters when retrieving data from a function call. Allows both the data
     /// read from the file and the data retrieved from an API call to exist simultaneously, allowing the values to be
     /// compared.
     OutputT* output_data_{ nullptr };
