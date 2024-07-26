@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -78,10 +79,26 @@ def dx12_is_property_namestack(name_stack):
                 r = True
     return r
 
-
 CppHeaderParser.is_method_namestack = dx12_is_method_namestack
 CppHeaderParser.is_property_namestack = dx12_is_property_namestack
 
+original_evaluate_class_stack = CppHeader._evaluate_class_stack
+original_finalize = CppHeader.finalize
+
+
+def dx12_evaluate_class_stack(self):
+    # Initialize base class' anon union counter on first use.
+    if self.anon_union_counter < self.anon_union_count:
+        self.anon_union_counter = self.anon_union_count
+    original_evaluate_class_stack(self)
+
+def dx12_finalize(self):
+    # Before post-parsing cleanup, store anon union counter for initializing other Dx12CppHeader objects.
+    self.anon_union_count = self.anon_union_counter
+    original_finalize(self)
+
+CppHeader._evaluate_class_stack = dx12_evaluate_class_stack
+CppHeader.finalize = dx12_finalize
 
 class Dx12CppClass():
     """This struct is simliar to CppHeaderParser.CppClass. In order to add data into CppHeader manually."""
@@ -94,12 +111,13 @@ class Dx12CppClass():
 
 class Dx12CppHeader(CppHeader):
 
-    def __init__(self, header_file_name, encoding=None, **kwargs):
+    def __init__(self, header_file_name, anon_union_count=0, encoding=None, **kwargs):
         """Method override.
            Custom CppHeader implementation to modify the content of the
            header file to remove D3D12 specific syntax before parsing
            with the CppHeader base class.
         """
+        self.anon_union_count = anon_union_count
         source = ''
         with open(header_file_name, 'r') as fd:
             source = self.preprocess_file(fd.readlines())

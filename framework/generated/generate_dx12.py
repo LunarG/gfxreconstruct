@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021-2023 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -119,6 +120,11 @@ if __name__ == '__main__':
     from gencode import GenCode
     from dx12_generators.dx12_CppHeaderParser import Dx12CppHeader, Dx12CppClass
 
+    # CppHeaderParser objects generate a unique name for anonymous unions using a counter that starts from 0. To ensure
+    # that union names are globally unique, we need each Dx12CppHeader object to initialize its internal counter with a
+    # cumulative count.
+    anon_union_counter = 0
+
     header_dict = {}
     # Deal with DX12 first, and then DXGI. It will include <dxgiformat.h> before include dxgi headers.
     # If include dxgi headers first, it will use WindowsSDK's dxgiformat.h, instead of AgilitySDK's.
@@ -128,15 +134,18 @@ if __name__ == '__main__':
         source_file = os.path.join(SCRIPT_DIR, '..', '..', 'external', 'AgilitySDK', 'include', source)
 
         print('Parsing', source_file)
-        header_dict[source[source.find('\\') + 1:]] = Dx12CppHeader(source_file)
+        header = Dx12CppHeader(source_file, anon_union_counter)
+        anon_union_counter = header.anon_union_count
+        header_dict[source[source.find('\\') + 1:]] = header
 
     for source in WINDOWS_SDK_SOURCE_LIST:
         source_file = os.path.join(
             WINDOWS_SDK_DIR + 'Include\\' + WINDOWS_SDK_VERSION, source
         )
         print('Parsing', source_file)
-        header_dict[source[source.find('\\') + 1:]
-                    ] = Dx12CppHeader(source_file)
+        header = Dx12CppHeader(source_file, anon_union_counter)
+        anon_union_counter = header.anon_union_count
+        header_dict[source[source.find('\\') + 1:]] = header
 
     for source in WINAPI_SOURCE_LIST:
         source_file = os.path.join(
