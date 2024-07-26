@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -39,6 +40,7 @@ const char kCaptureDllName[]            = "d3d12_capture.dll";
 const char kCaptureDllInitProcName[]    = "InitializeDxgiCapture";
 const char kCaptureDllDestroyProcName[] = "ReleaseDxgiCapture";
 
+static HINSTANCE                                                               dll_instance;
 static gfxrecon::encode::DxDllInitializer<gfxrecon::encode::DxgiDispatchTable> dll_initializer;
 
 inline const gfxrecon::encode::DxgiDispatchTable& GetDispatchTable()
@@ -77,7 +79,8 @@ static bool Initialize()
         std::unique_lock<std::mutex> initialization_lock(initialization_mutex);
         if (initialized == false)
         {
-            std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
+            std::string module_path =
+                gfxrecon::encode::SetupCaptureModule(dll_instance, kSystemDllName, kSystemDllNameRenamed, nullptr);
 
             initialized = dll_initializer.Initialize(
                 module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadDxgiCaptureProcs);
@@ -159,6 +162,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     switch (fdwReason)
     {
+        case DLL_PROCESS_ATTACH:
+            dll_instance = hinstDLL;
+            break;
         case DLL_PROCESS_DETACH:
             // Only cleanup if the process is not exiting.
             if (lpvReserved == nullptr)

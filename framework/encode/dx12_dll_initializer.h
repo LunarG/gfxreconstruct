@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -34,42 +35,26 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-const char kDx12RedistRuntime[] = "D3D12Core.dll";
-
-bool FoundRenamedCaptureModule(const std::string& renamed_module)
+bool FoundRenamedCaptureModule(HMODULE dll_module, const std::string& renamed_module)
 {
     char        module_name[MAX_PATH] = {};
-    int         path_size             = GetModuleFileNameA(nullptr, module_name, MAX_PATH);
+    int         path_size             = GetModuleFileNameA(dll_module, module_name, MAX_PATH);
     size_t      separator_pos         = std::string(module_name).find_last_of(util::filepath::kPathSep);
-    std::string exe_root              = std::string(module_name).substr(0, separator_pos);
-    std::string legacy_path           = exe_root + util::filepath::kPathSep + renamed_module;
+    std::string module_root           = std::string(module_name).substr(0, separator_pos);
+    std::string legacy_path           = module_root + util::filepath::kPathSep + renamed_module;
 
     return util::filepath::Exists(legacy_path);
 }
 
 std::string GetWindowsModuleRoot()
 {
-    std::string windows_module_root = "";
+    std::string windows_module_root;
 
-    // Get actual Windows folder
-    char     win_dir[MAX_PATH]  = {};
-    uint32_t windows_dir_result = GetWindowsDirectory(win_dir, MAX_PATH);
-
-    if (windows_dir_result != 0)
+    // Get actual System folder.
+    char system_path[MAX_PATH] = {};
+    if (SUCCEEDED(SHGetFolderPath(nullptr, CSIDL_SYSTEM, nullptr, 0, system_path)))
     {
-        windows_module_root = std::string(win_dir) + util::filepath::kPathSep + std::string("System32");
-
-        // Check if app is 32-bit
-        BOOL process_32_bit = FALSE;
-        BOOL found_bitness  = IsWow64Process(GetCurrentProcess(), &process_32_bit);
-
-        if (found_bitness != 0)
-        {
-            if (process_32_bit == TRUE)
-            {
-                windows_module_root = std::string(win_dir) + util::filepath::kPathSep + std::string("SysWOW64");
-            }
-        }
+        windows_module_root = system_path;
     }
 
     return windows_module_root;
@@ -113,7 +98,7 @@ bool UpdateModule(const std::string& src, const std::string& dst)
     return module_up_to_date;
 }
 
-std::string PrepGfxrRuntimesFolder(const std::string& windows_module_root)
+std::string PrepGfxrRuntimesFolder(const std::string& windows_module_root, const char* redist_runtime_name)
 {
     std::string gfxr_runtimes_root = "";
 
@@ -157,12 +142,12 @@ std::string PrepGfxrRuntimesFolder(const std::string& windows_module_root)
         }
 
         // Once created "\AppData\Roaming\GFXReconstruct\dx-runtimes" copy in the current in-box D3D12 runtime
-        if (gfxr_runtimes_root.empty() == false)
+        if ((redist_runtime_name != nullptr) && (gfxr_runtimes_root.empty() == false))
         {
             std::string redist_runtime_path_src =
-                windows_module_root + util::filepath::kPathSep + std::string(kDx12RedistRuntime);
+                windows_module_root + util::filepath::kPathSep + std::string(redist_runtime_name);
             std::string redist_runtime_path_dst =
-                gfxr_runtimes_root + util::filepath::kPathSep + std::string(kDx12RedistRuntime);
+                gfxr_runtimes_root + util::filepath::kPathSep + std::string(redist_runtime_name);
 
             UpdateModule(redist_runtime_path_src, redist_runtime_path_dst);
         }
@@ -171,13 +156,16 @@ std::string PrepGfxrRuntimesFolder(const std::string& windows_module_root)
     return gfxr_runtimes_root;
 }
 
-std::string SetupCaptureModule(const std::string& dll_name, const std::string& dll_name_renamed)
+std::string SetupCaptureModule(HMODULE            dll_module,
+                               const std::string& dll_name,
+                               const std::string& dll_name_renamed,
+                               const char*        redist_runtime_name)
 {
     // First assume we are starting with the "legacy" method with renamed capture binaries
     std::string module_path = dll_name_renamed;
 
     // If the renamed DLLs are not found beside the app executable, then setup for reading from "\AppData\Roaming"
-    if (FoundRenamedCaptureModule(dll_name_renamed) == false)
+    if (FoundRenamedCaptureModule(dll_module, dll_name_renamed) == false)
     {
         std::string windows_module_root = GetWindowsModuleRoot();
 
@@ -185,7 +173,7 @@ std::string SetupCaptureModule(const std::string& dll_name, const std::string& d
         if (windows_module_root.empty() == false)
         {
             // Make sure the roaming folder is present and ready
-            std::string gfxr_user_roaming_root = PrepGfxrRuntimesFolder(windows_module_root);
+            std::string gfxr_user_roaming_root = PrepGfxrRuntimesFolder(windows_module_root, redist_runtime_name);
 
             if (gfxr_user_roaming_root.empty() == false)
             {

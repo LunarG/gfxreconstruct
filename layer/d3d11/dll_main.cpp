@@ -40,6 +40,7 @@ const char kCaptureDllName[]            = "d3d12_capture.dll";
 const char kCaptureDllInitProcName[]    = "InitializeD3D11Capture";
 const char kCaptureDllDestroyProcName[] = "ReleaseD3D11Capture";
 
+static HINSTANCE                                                                dll_instance;
 static gfxrecon::encode::DxDllInitializer<gfxrecon::encode::D3D11DispatchTable> dll_initializer;
 
 inline const gfxrecon::encode::D3D11DispatchTable& GetDispatchTable()
@@ -73,7 +74,8 @@ static bool Initialize()
         std::unique_lock<std::mutex> initialization_lock(initialization_mutex);
         if (initialized == false)
         {
-            std::string module_path = gfxrecon::encode::SetupCaptureModule(kSystemDllName, kSystemDllNameRenamed);
+            std::string module_path =
+                gfxrecon::encode::SetupCaptureModule(dll_instance, kSystemDllName, kSystemDllNameRenamed, nullptr);
 
             initialized = dll_initializer.Initialize(
                 module_path.c_str(), kCaptureDllName, kCaptureDllInitProcName, LoadD3D11CaptureProcs);
@@ -193,6 +195,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
     switch (fdwReason)
     {
+        case DLL_PROCESS_ATTACH:
+            dll_instance = hinstDLL;
+            break;
         case DLL_PROCESS_DETACH:
             // Only cleanup if the process is not exiting.
             if (lpvReserved == nullptr)
