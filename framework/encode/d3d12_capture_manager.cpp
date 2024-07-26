@@ -42,38 +42,6 @@ static constexpr char kDx12RuntimeName[] = "D3D12Core.dll";
 D3D12CaptureManager*  D3D12CaptureManager::singleton_  = nullptr;
 thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 
-static auto GetResourceInfo(ID3D11Resource_Wrapper* wrapper)
-{
-    auto info           = std::shared_ptr<ID3D11ResourceInfo>{};
-    auto dimension      = D3D11_RESOURCE_DIMENSION{};
-    auto wrapped_object = wrapper->GetWrappedObjectAs<ID3D11Resource>();
-
-    wrapped_object->GetType(&dimension);
-
-    switch (dimension)
-    {
-        case D3D11_RESOURCE_DIMENSION_BUFFER:
-            info = static_cast<ID3D11Buffer_Wrapper*>(wrapper)->GetObjectInfo();
-            break;
-        case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
-            info = static_cast<ID3D11Texture1D_Wrapper*>(wrapper)->GetObjectInfo();
-            break;
-        case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
-            info = static_cast<ID3D11Texture2D_Wrapper*>(wrapper)->GetObjectInfo();
-            break;
-        case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
-            info = static_cast<ID3D11Texture3D_Wrapper*>(wrapper)->GetObjectInfo();
-            break;
-        default:
-            GFXRECON_LOG_ERROR("Mapped ID3D11Resource object with capture ID = %" PRIx64
-                               " has type of D3D11_RESOURCE_DIMENSION_UNKNOWN ",
-                               wrapper->GetCaptureId());
-            break;
-    }
-
-    return info;
-}
-
 D3D12CaptureManager::D3D12CaptureManager() :
     ApiCaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
     debug_layer_enabled_(false), debug_device_lost_enabled_(false),
@@ -3051,6 +3019,69 @@ void D3D12CaptureManager::PostProcess_CreateDXGIFactory2(HRESULT result, UINT Fl
     graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
 }
 
+std::shared_ptr<ID3D11ResourceInfo> D3D12CaptureManager::GetResourceInfo(ID3D11Resource_Wrapper* wrapper)
+{
+    auto info           = std::shared_ptr<ID3D11ResourceInfo>{};
+    auto dimension      = D3D11_RESOURCE_DIMENSION{};
+    auto wrapped_object = wrapper->GetWrappedObjectAs<ID3D11Resource>();
+
+    wrapped_object->GetType(&dimension);
+
+    switch (dimension)
+    {
+        case D3D11_RESOURCE_DIMENSION_BUFFER:
+            info = static_cast<ID3D11Buffer_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+            info = static_cast<ID3D11Texture1D_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
+            info = static_cast<ID3D11Texture2D_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
+            info = static_cast<ID3D11Texture3D_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        default:
+            GFXRECON_LOG_ERROR("Mapped ID3D11Resource object with capture ID = %" PRIx64
+                               " has type of D3D11_RESOURCE_DIMENSION_UNKNOWN ",
+                               wrapper->GetCaptureId());
+            break;
+    }
+
+    return info;
+}
+
+void D3D12CaptureManager::FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapper)
+{
+    if ((wrapper != nullptr) && (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard))
+    {
+        auto info = GetResourceInfo(wrapper);
+        if (info != nullptr)
+        {
+            util::PageGuardManager* manager = util::PageGuardManager::Get();
+            assert(manager != nullptr);
+
+            for (auto& context_entry : info->mapped_subresources)
+            {
+                for (auto i = 0u; i < info->num_subresources; ++i)
+                {
+                    auto& mapped_subresource = context_entry.second[i];
+
+                    if (mapped_subresource.data != nullptr)
+                    {
+                        manager->RemoveTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data));
+                    }
+
+                    if (mapped_subresource.shadow_allocation != util::PageGuardManager::kNullShadowHandle)
+                    {
+                        manager->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void D3D12CaptureManager::PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
                                                                 HRESULT                       result,
                                                                 const D3D11_BUFFER_DESC*      desc,
@@ -3184,6 +3215,26 @@ void D3D12CaptureManager::PostProcess_ID3D11Device3_CreateTexture3D1(ID3D11Devic
     }
 }
 
+void D3D12CaptureManager::Destroy_ID3D11Buffer(ID3D11Buffer_Wrapper* wrapper)
+{
+    FreeMappedResourceMemory(wrapper);
+}
+
+void D3D12CaptureManager::Destroy_ID3D11Texture1D(ID3D11Texture1D_Wrapper* wrapper)
+{
+    FreeMappedResourceMemory(wrapper);
+}
+
+void D3D12CaptureManager::Destroy_ID3D11Texture2D(ID3D11Texture2D_Wrapper* wrapper)
+{
+    FreeMappedResourceMemory(wrapper);
+}
+
+void D3D12CaptureManager::Destroy_ID3D11Texture3D(ID3D11Texture3D_Wrapper* wrapper)
+{
+    FreeMappedResourceMemory(wrapper);
+}
+
 void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContext_Wrapper* wrapper,
                                                               HRESULT                      result,
                                                               ID3D11Resource*              resource,
@@ -3253,16 +3304,12 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_size);
                         auto size = static_cast<size_t>(subresource_size);
 
-                        if (IsPageGuardMemoryModeExternal())
-                        {
-                            GFXRECON_LOG_INFO_ONCE(
-                                "Ignoring GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY for D3D11 capture. Write "
-                                "watch is not supported for D3D11 resources.")
-                        }
-
-                        if (IsPageGuardMemoryModeShadowPersistent() &&
+                        if (((map_type == D3D11_MAP_WRITE_DISCARD) || (map_type == D3D11_MAP_WRITE_NO_OVERWRITE)) &&
                             (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
                         {
+                            // When mapped for discard, the previous content of the memory does not need to be preserved
+                            // and a persistent allocation can be created to skip allocating and copying each time the
+                            // discarded memory is mapped.
                             mapped_subresource.shadow_allocation = manager->AllocatePersistentShadowMemory(size);
                         }
 

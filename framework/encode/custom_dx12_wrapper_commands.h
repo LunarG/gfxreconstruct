@@ -906,6 +906,30 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateText
 };
 
 template <>
+inline void CustomWrapperDestroyCall<ID3D11Buffer_Wrapper>(ID3D11Buffer_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Buffer(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11Texture1D_Wrapper>(ID3D11Texture1D_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Texture1D(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11Texture2D_Wrapper>(ID3D11Texture2D_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Texture2D(wrapper);
+}
+
+template <>
+inline void CustomWrapperDestroyCall<ID3D11Texture3D_Wrapper>(ID3D11Texture3D_Wrapper* wrapper)
+{
+    D3D12CaptureManager::Get()->Destroy_ID3D11Texture3D(wrapper);
+}
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Map>
 {
     template <typename... Args>
