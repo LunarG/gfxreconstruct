@@ -3,6 +3,7 @@
     "CreateDXGIFactory2": "OverrideCreateDXGIFactory2",
     "D3D12CreateDevice": "OverrideD3D12CreateDevice",
     "D3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary": "OverrideD3D12CreateVersionedRootSignatureDeserializerFromSubobjectInLibrary",
+    "D3D11CreateDevice": "OverrideD3D11CreateDevice",
     "D3D11CreateDeviceAndSwapChain": "OverrideD3D11CreateDeviceAndSwapChain"
   },
   "classmethods": {

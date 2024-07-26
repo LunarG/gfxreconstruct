@@ -3155,6 +3155,66 @@ void D3D12CaptureManager::InitializeID3D11Texture2DInfo(ID3D11Texture2D_Wrapper*
     info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
 }
 
+HRESULT D3D12CaptureManager::OverrideD3D11CreateDevice(IDXGIAdapter*            adapter,
+                                                       D3D_DRIVER_TYPE          driver_type,
+                                                       HMODULE                  software,
+                                                       UINT                     flags,
+                                                       const D3D_FEATURE_LEVEL* feature_levels,
+                                                       UINT                     num_feature_levels,
+                                                       UINT                     sdk_version,
+                                                       ID3D11Device**           device,
+                                                       D3D_FEATURE_LEVEL*       feature_level,
+                                                       ID3D11DeviceContext**    immediate_context)
+{
+    if (GetDebugLayerSetting())
+    {
+        flags |= D3D11_CREATE_DEVICE_DEBUG;
+    }
+
+    return d3d11_dispatch_table_.D3D11CreateDevice(adapter,
+                                                   driver_type,
+                                                   software,
+                                                   flags,
+                                                   feature_levels,
+                                                   num_feature_levels,
+                                                   sdk_version,
+                                                   device,
+                                                   feature_level,
+                                                   immediate_context);
+}
+
+HRESULT D3D12CaptureManager::OverrideD3D11CreateDeviceAndSwapChain(IDXGIAdapter*               adapter,
+                                                                   D3D_DRIVER_TYPE             driver_type,
+                                                                   HMODULE                     software,
+                                                                   UINT                        flags,
+                                                                   const D3D_FEATURE_LEVEL*    feature_levels,
+                                                                   UINT                        num_feature_levels,
+                                                                   UINT                        sdk_version,
+                                                                   const DXGI_SWAP_CHAIN_DESC* swap_chain_desc,
+                                                                   IDXGISwapChain**            swap_chain,
+                                                                   ID3D11Device**              device,
+                                                                   D3D_FEATURE_LEVEL*          feature_level,
+                                                                   ID3D11DeviceContext**       immediate_context)
+{
+    if (GetDebugLayerSetting())
+    {
+        flags |= D3D11_CREATE_DEVICE_DEBUG;
+    }
+
+    return d3d11_dispatch_table_.D3D11CreateDeviceAndSwapChain(adapter,
+                                                               driver_type,
+                                                               software,
+                                                               flags,
+                                                               feature_levels,
+                                                               num_feature_levels,
+                                                               sdk_version,
+                                                               swap_chain_desc,
+                                                               swap_chain,
+                                                               device,
+                                                               feature_level,
+                                                               immediate_context);
+}
+
 void D3D12CaptureManager::PostProcess_D3D11CreateDeviceAndSwapChain(HRESULT                     result,
                                                                     IDXGIAdapter*               adapter,
                                                                     D3D_DRIVER_TYPE             driver_type,

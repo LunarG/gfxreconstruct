@@ -1303,6 +1303,50 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D12DeviceFactoryCreateDevice(DxObjectI
     return replay_result;
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDevice(HRESULT                              original_result,
+                                                          DxObjectInfo*                        adapter_info,
+                                                          D3D_DRIVER_TYPE                      driver_type,
+                                                          uint64_t                             software,
+                                                          UINT                                 flags,
+                                                          PointerDecoder<D3D_FEATURE_LEVEL>*   feature_levels,
+                                                          UINT                                 num_feature_levels,
+                                                          UINT                                 sdk_version,
+                                                          HandlePointerDecoder<ID3D11Device*>* device,
+                                                          PointerDecoder<D3D_FEATURE_LEVEL>*   feature_level,
+                                                          HandlePointerDecoder<ID3D11DeviceContext*>* immediate_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((feature_levels != nullptr) && (device != nullptr) && (feature_level != nullptr) &&
+                    (immediate_context != nullptr));
+
+    auto adapter = reinterpret_cast<IDXGIAdapter*>(GetCreateDeviceAdapter(adapter_info));
+
+    auto in_Software = static_cast<HMODULE>(
+        PreProcessExternalObject(software, format::ApiCallId::ApiCall_D3D11CreateDevice, "D3D11CreateDevice"));
+
+    auto device_pointer            = device->GetHandlePointer();
+    auto immediate_context_pointer = immediate_context->GetHandlePointer();
+
+    if (options_.enable_validation_layer)
+    {
+        flags |= D3D11_CREATE_DEVICE_DEBUG;
+    }
+
+    auto result = D3D11CreateDevice(adapter,
+                                    driver_type,
+                                    in_Software,
+                                    flags,
+                                    feature_levels->GetPointer(),
+                                    num_feature_levels,
+                                    sdk_version,
+                                    device_pointer,
+                                    feature_level->GetOutputPointer(),
+                                    immediate_context_pointer);
+
+    return result;
+}
+
 HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDeviceAndSwapChain(
     HRESULT                                             original_result,
     DxObjectInfo*                                       adapter_info,
@@ -1361,18 +1405,7 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDeviceAndSwapChain(
         }
     }
 
-    IDXGIAdapter* adapter = nullptr;
-    if (render_adapter_ == nullptr)
-    {
-        if (adapter_info != nullptr)
-        {
-            adapter = static_cast<IDXGIAdapter*>(adapter_info->object);
-        }
-    }
-    else
-    {
-        adapter = render_adapter_;
-    }
+    auto adapter = reinterpret_cast<IDXGIAdapter*>(GetCreateDeviceAdapter(adapter_info));
 
     auto in_Software = static_cast<HMODULE>(PreProcessExternalObject(
         software, format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain, "D3D11CreateDeviceAndSwapChain"));

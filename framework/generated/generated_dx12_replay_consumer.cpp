@@ -399,32 +399,38 @@ void Dx12ReplayConsumer::Process_D3D11CreateDevice(
         ppDevice,
         pFeatureLevel,
         ppImmediateContext);
-    auto in_pAdapter = MapObject<IDXGIAdapter>(pAdapter);
-    auto in_Software = static_cast<HMODULE>(PreProcessExternalObject(Software, format::ApiCallId::ApiCall_D3D11CreateDevice, "D3D11CreateDevice"));
-    if(!ppDevice->IsNull()) ppDevice->SetHandleLength(1);
-    auto out_p_ppDevice    = ppDevice->GetPointer();
-    auto out_hp_ppDevice   = ppDevice->GetHandlePointer();
+    auto in_pAdapter = GetObjectInfo(pAdapter);
+    DxObjectInfo object_info_ppDevice{};
+    if(!ppDevice->IsNull())
+    {
+        ppDevice->SetHandleLength(1);
+        ppDevice->SetConsumerData(0, &object_info_ppDevice);
+    }
     if(!pFeatureLevel->IsNull())
     {
         pFeatureLevel->AllocateOutputData(1);
     }
-    if(!ppImmediateContext->IsNull()) ppImmediateContext->SetHandleLength(1);
-    auto out_p_ppImmediateContext    = ppImmediateContext->GetPointer();
-    auto out_hp_ppImmediateContext   = ppImmediateContext->GetHandlePointer();
-    auto replay_result = D3D11CreateDevice(in_pAdapter,
-                                           DriverType,
-                                           in_Software,
-                                           Flags,
-                                           pFeatureLevels->GetPointer(),
-                                           FeatureLevels,
-                                           SDKVersion,
-                                           out_hp_ppDevice,
-                                           pFeatureLevel->GetOutputPointer(),
-                                           out_hp_ppImmediateContext);
+    DxObjectInfo object_info_ppImmediateContext{};
+    if(!ppImmediateContext->IsNull())
+    {
+        ppImmediateContext->SetHandleLength(1);
+        ppImmediateContext->SetConsumerData(0, &object_info_ppImmediateContext);
+    }
+    auto replay_result = OverrideD3D11CreateDevice(return_value,
+                                                   in_pAdapter,
+                                                   DriverType,
+                                                   Software,
+                                                   Flags,
+                                                   pFeatureLevels,
+                                                   FeatureLevels,
+                                                   SDKVersion,
+                                                   ppDevice,
+                                                   pFeatureLevel,
+                                                   ppImmediateContext);
     if (SUCCEEDED(replay_result))
     {
-        AddObject(out_p_ppDevice, out_hp_ppDevice, format::ApiCall_D3D11CreateDevice);
-        AddObject(out_p_ppImmediateContext, out_hp_ppImmediateContext, format::ApiCall_D3D11CreateDevice);
+        AddObject(ppDevice->GetPointer(), ppDevice->GetHandlePointer(), std::move(object_info_ppDevice), format::ApiCall_D3D11CreateDevice);
+        AddObject(ppImmediateContext->GetPointer(), ppImmediateContext->GetHandlePointer(), std::move(object_info_ppImmediateContext), format::ApiCall_D3D11CreateDevice);
     }
     CheckReplayResult("D3D11CreateDevice", return_value, replay_result);
     CustomReplayPostCall<format::ApiCallId::ApiCall_D3D11CreateDevice>::Dispatch(
