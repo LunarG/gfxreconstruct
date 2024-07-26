@@ -4721,6 +4721,41 @@ void Dx12ReplayConsumerBase::OverrideDeviceContextUnmap(DxObjectInfo* replay_obj
     replay_object->Unmap(resource_object, subresource);
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideDeviceContextGetData(DxObjectInfo*            replay_object_info,
+                                                             HRESULT                  original_result,
+                                                             DxObjectInfo*            async_object_info,
+                                                             PointerDecoder<uint8_t>* data,
+                                                             UINT                     data_size,
+                                                             UINT                     get_data_flags)
+
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+           (async_object_info != nullptr) && (async_object_info->object != nullptr) && (data != nullptr));
+
+    auto replay_data_pointer = data->GetOutputPointer();
+    auto replay_object       = static_cast<ID3D11DeviceContext*>(replay_object_info->object);
+    auto async_object        = static_cast<ID3D11Asynchronous*>(async_object_info->object);
+
+    // Loop on success codes such as S_FALSE when S_OK was captured, to ensure that replay
+    // does not advance before an event is complete.
+    // If you find this loop to be infinite, consider adding a limit in the same way
+    // it is done for the Vulkan GetEventStatus and GetQueryPoolResults overrides.
+    auto result = S_FALSE;
+    do
+    {
+        result = replay_object->GetData(async_object, replay_data_pointer, data_size, get_data_flags);
+    } while ((original_result == S_OK) && (result == S_FALSE));
+
+    if ((result == S_OK) && (original_result == S_FALSE))
+    {
+        // Silence warnings that replay returned S_OK (event complete), when capture returned S_FALSE (event not
+        // complete), by returning the value of original_result.
+        return S_FALSE;
+    }
+
+    return result;
+}
+
 void Dx12ReplayConsumerBase::WaitForCommandListExecution(D3D12CommandQueueInfo* queue_info, uint64_t value)
 {
     GFXRECON_ASSERT(queue_info->sync_fence != nullptr);

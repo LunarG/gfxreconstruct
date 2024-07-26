@@ -126,6 +126,7 @@
       "DispatchGraph": "OverrideDispatchGraph"
     },    
     "ID3D11DeviceContext": {
+      "GetData": "OverrideDeviceContextGetData",
       "Map": "OverrideDeviceContextMap",
       "Unmap": "OverrideDeviceContextUnmap"
     },

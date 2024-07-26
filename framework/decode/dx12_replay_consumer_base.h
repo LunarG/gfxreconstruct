@@ -1090,6 +1090,13 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     void
     OverrideDeviceContextUnmap(DxObjectInfo* replay_object_info, DxObjectInfo* resource_object_info, UINT subresource);
 
+    HRESULT OverrideDeviceContextGetData(DxObjectInfo*            replay_object_info,
+                                         HRESULT                  original_result,
+                                         DxObjectInfo*            async_object_info,
+                                         PointerDecoder<uint8_t>* data,
+                                         UINT                     data_size,
+                                         UINT                     get_data_flags);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }

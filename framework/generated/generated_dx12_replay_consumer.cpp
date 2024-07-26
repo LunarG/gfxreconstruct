@@ -14643,15 +14643,17 @@ void Dx12ReplayConsumer::Process_ID3D11DeviceContext_GetData(
             pData,
             DataSize,
             GetDataFlags);
-        auto in_pAsync = MapObject<ID3D11Asynchronous>(pAsync);
+        auto in_pAsync = GetObjectInfo(pAsync);
         if(!pData->IsNull())
         {
             pData->AllocateOutputData(DataSize);
         }
-        auto replay_result = reinterpret_cast<ID3D11DeviceContext*>(replay_object->object)->GetData(in_pAsync,
-                                                                                                    pData->GetOutputPointer(),
-                                                                                                    DataSize,
-                                                                                                    GetDataFlags);
+        auto replay_result = OverrideDeviceContextGetData(replay_object,
+                                                          return_value,
+                                                          in_pAsync,
+                                                          pData,
+                                                          DataSize,
+                                                          GetDataFlags);
         CheckReplayResult("ID3D11DeviceContext_GetData", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_GetData>::Dispatch(
             this,
