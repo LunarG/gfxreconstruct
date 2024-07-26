@@ -36,6 +36,9 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -187,6 +190,35 @@ void UnwrapStructObjects(D3D12_BUFFER_BARRIER* value, HandleUnwrapMemory* unwrap
     if (value != nullptr)
     {
         value->pResource = GetWrappedObject<ID3D12Resource>(value->pResource);
+    }
+}
+
+void UnwrapStructObjects(D3D11_VIDEO_DECODER_EXTENSION* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->ppResourceList = UnwrapObjects<ID3D11Resource>(value->ppResourceList, value->ResourceCount, unwrap_memory);
+    }
+}
+
+void UnwrapStructObjects(D3D11_VIDEO_PROCESSOR_STREAM* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->ppPastSurfaces = UnwrapObjects<ID3D11VideoProcessorInputView>(value->ppPastSurfaces, value->PastFrames, unwrap_memory);
+        value->pInputSurface = GetWrappedObject<ID3D11VideoProcessorInputView>(value->pInputSurface);
+        value->ppFutureSurfaces = UnwrapObjects<ID3D11VideoProcessorInputView>(value->ppFutureSurfaces, value->FutureFrames, unwrap_memory);
+        value->ppPastSurfacesRight = UnwrapObjects<ID3D11VideoProcessorInputView>(value->ppPastSurfacesRight, value->PastFrames, unwrap_memory);
+        value->pInputSurfaceRight = GetWrappedObject<ID3D11VideoProcessorInputView>(value->pInputSurfaceRight);
+        value->ppFutureSurfacesRight = UnwrapObjects<ID3D11VideoProcessorInputView>(value->ppFutureSurfacesRight, value->FutureFrames, unwrap_memory);
+    }
+}
+
+void UnwrapStructObjects(D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->pCryptoSession = GetWrappedObject<ID3D11CryptoSession>(value->pCryptoSession);
     }
 }
 

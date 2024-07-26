@@ -315,6 +315,154 @@ struct Decoded_D3D12_DEBUG_COMMAND_LIST_GPU_BASED_VALIDATION_SETTINGS;
 struct Decoded_D3D12_MESSAGE;
 struct Decoded_D3D12_INFO_QUEUE_FILTER_DESC;
 struct Decoded_D3D12_INFO_QUEUE_FILTER;
+struct Decoded_D3D11_INPUT_ELEMENT_DESC;
+struct Decoded_D3D11_SO_DECLARATION_ENTRY;
+struct Decoded_D3D11_VIEWPORT;
+struct Decoded_D3D11_DRAW_INSTANCED_INDIRECT_ARGS;
+struct Decoded_D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS;
+struct Decoded_D3D11_BOX;
+struct Decoded_D3D11_DEPTH_STENCILOP_DESC;
+struct Decoded_D3D11_DEPTH_STENCIL_DESC;
+struct Decoded_D3D11_RENDER_TARGET_BLEND_DESC;
+struct Decoded_D3D11_BLEND_DESC;
+struct Decoded_D3D11_RASTERIZER_DESC;
+struct Decoded_D3D11_SUBRESOURCE_DATA;
+struct Decoded_D3D11_MAPPED_SUBRESOURCE;
+struct Decoded_D3D11_BUFFER_DESC;
+struct Decoded_D3D11_TEXTURE1D_DESC;
+struct Decoded_D3D11_TEXTURE2D_DESC;
+struct Decoded_D3D11_TEXTURE3D_DESC;
+struct Decoded_D3D11_BUFFER_SRV;
+struct Decoded_D3D11_BUFFEREX_SRV;
+struct Decoded_D3D11_TEX1D_SRV;
+struct Decoded_D3D11_TEX1D_ARRAY_SRV;
+struct Decoded_D3D11_TEX2D_SRV;
+struct Decoded_D3D11_TEX2D_ARRAY_SRV;
+struct Decoded_D3D11_TEX3D_SRV;
+struct Decoded_D3D11_TEXCUBE_SRV;
+struct Decoded_D3D11_TEXCUBE_ARRAY_SRV;
+struct Decoded_D3D11_TEX2DMS_SRV;
+struct Decoded_D3D11_TEX2DMS_ARRAY_SRV;
+struct Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC;
+struct Decoded_D3D11_BUFFER_RTV;
+struct Decoded_D3D11_TEX1D_RTV;
+struct Decoded_D3D11_TEX1D_ARRAY_RTV;
+struct Decoded_D3D11_TEX2D_RTV;
+struct Decoded_D3D11_TEX2DMS_RTV;
+struct Decoded_D3D11_TEX2D_ARRAY_RTV;
+struct Decoded_D3D11_TEX2DMS_ARRAY_RTV;
+struct Decoded_D3D11_TEX3D_RTV;
+struct Decoded_D3D11_RENDER_TARGET_VIEW_DESC;
+struct Decoded_D3D11_TEX1D_DSV;
+struct Decoded_D3D11_TEX1D_ARRAY_DSV;
+struct Decoded_D3D11_TEX2D_DSV;
+struct Decoded_D3D11_TEX2D_ARRAY_DSV;
+struct Decoded_D3D11_TEX2DMS_DSV;
+struct Decoded_D3D11_TEX2DMS_ARRAY_DSV;
+struct Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC;
+struct Decoded_D3D11_BUFFER_UAV;
+struct Decoded_D3D11_TEX1D_UAV;
+struct Decoded_D3D11_TEX1D_ARRAY_UAV;
+struct Decoded_D3D11_TEX2D_UAV;
+struct Decoded_D3D11_TEX2D_ARRAY_UAV;
+struct Decoded_D3D11_TEX3D_UAV;
+struct Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC;
+struct Decoded_D3D11_SAMPLER_DESC;
+struct Decoded_D3D11_QUERY_DESC;
+struct Decoded_D3D11_QUERY_DATA_TIMESTAMP_DISJOINT;
+struct Decoded_D3D11_QUERY_DATA_PIPELINE_STATISTICS;
+struct Decoded_D3D11_QUERY_DATA_SO_STATISTICS;
+struct Decoded_D3D11_COUNTER_DESC;
+struct Decoded_D3D11_COUNTER_INFO;
+struct Decoded_D3D11_CLASS_INSTANCE_DESC;
+struct Decoded_D3D11_FEATURE_DATA_THREADING;
+struct Decoded_D3D11_FEATURE_DATA_DOUBLES;
+struct Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT;
+struct Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT2;
+struct Decoded_D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS;
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS;
+struct Decoded_D3D11_FEATURE_DATA_ARCHITECTURE_INFO;
+struct Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS;
+struct Decoded_D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT;
+struct Decoded_D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT;
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS1;
+struct Decoded_D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT;
+struct Decoded_D3D11_FEATURE_DATA_MARKER_SUPPORT;
+struct Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS1;
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS2;
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS3;
+struct Decoded_D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT;
+struct Decoded_D3D11_FEATURE_DATA_SHADER_CACHE;
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS5;
+struct Decoded_CD3D11_VIDEO_DEFAULT;
+struct Decoded_D3D11_VIDEO_DECODER_DESC;
+struct Decoded_D3D11_VIDEO_DECODER_CONFIG;
+struct Decoded_D3D11_AES_CTR_IV;
+struct Decoded_D3D11_ENCRYPTED_BLOCK_INFO;
+struct Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC;
+struct Decoded_D3D11_VIDEO_DECODER_EXTENSION;
+struct Decoded_D3D11_VIDEO_PROCESSOR_CAPS;
+struct Decoded_D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS;
+struct Decoded_D3D11_VIDEO_CONTENT_PROTECTION_CAPS;
+struct Decoded_D3D11_VIDEO_PROCESSOR_CUSTOM_RATE;
+struct Decoded_D3D11_VIDEO_PROCESSOR_FILTER_RANGE;
+struct Decoded_D3D11_VIDEO_PROCESSOR_CONTENT_DESC;
+struct Decoded_D3D11_VIDEO_COLOR_RGBA;
+struct Decoded_D3D11_VIDEO_COLOR_YCbCrA;
+struct Decoded_D3D11_VIDEO_COLOR;
+struct Decoded_D3D11_VIDEO_PROCESSOR_COLOR_SPACE;
+struct Decoded_D3D11_VIDEO_PROCESSOR_STREAM;
+struct Decoded_D3D11_OMAC;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_PROTECTION_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CHANNEL_TYPE_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_DEVICE_HANDLE_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_COUNT_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_UNRESTRICTED_PROTECTED_SHARED_RESOURCE_COUNT_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_COUNT_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_QUERY_CURRENT_ACCESSIBILITY_ENCRYPTION_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_OUTPUT;
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_INITIALIZE_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_PROTECTION_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_CRYPTO_SESSION_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_SHARED_RESOURCE_INPUT;
+struct Decoded_D3D11_AUTHENTICATED_CONFIGURE_ACCESSIBLE_ENCRYPTION_INPUT;
+struct Decoded_D3D11_TEX2D_VDOV;
+struct Decoded_D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC;
+struct Decoded_D3D11_TEX2D_VPIV;
+struct Decoded_D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC;
+struct Decoded_D3D11_TEX2D_VPOV;
+struct Decoded_D3D11_TEX2D_ARRAY_VPOV;
+struct Decoded_D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC;
+struct Decoded_D3D11_RENDER_TARGET_BLEND_DESC1;
+struct Decoded_D3D11_BLEND_DESC1;
+struct Decoded_D3D11_RASTERIZER_DESC1;
+struct Decoded_D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK;
+struct Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC1;
+struct Decoded_D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION;
+struct Decoded_D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT;
+struct Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA;
+struct Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA;
+struct Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA;
+struct Decoded_D3D11_VIDEO_SAMPLE_DESC;
+struct Decoded_D3D11_TILED_RESOURCE_COORDINATE;
+struct Decoded_D3D11_TILE_REGION_SIZE;
+struct Decoded_D3D11_SUBRESOURCE_TILING;
+struct Decoded_D3D11_TILE_SHAPE;
+struct Decoded_D3D11_PACKED_MIP_DESC;
 struct Decoded_DXGI_FRAME_STATISTICS;
 struct Decoded_DXGI_MAPPED_RECT;
 struct Decoded_DXGI_ADAPTER_DESC;
@@ -355,6 +503,7 @@ struct Decoded_DXGI_JPEG_QUANTIZATION_TABLE;
 struct Decoded_GUID;
 struct Decoded_tagRECT;
 struct Decoded_tagPOINT;
+struct Decoded_tagSIZE;
 struct Decoded__SECURITY_ATTRIBUTES;
 struct Decoded_LARGE_INTEGER;
 
@@ -863,6 +1012,292 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INF
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_INFO_QUEUE_FILTER* wrapper);
 
 /*
+** This part is generated from d3d11.h in Windows SDK: 10.0.20348.0
+**
+*/
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_INPUT_ELEMENT_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SO_DECLARATION_ENTRY* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIEWPORT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_DRAW_INSTANCED_INDIRECT_ARGS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BOX* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_DEPTH_STENCILOP_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_DEPTH_STENCIL_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RENDER_TARGET_BLEND_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BLEND_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RASTERIZER_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_MAPPED_SUBRESOURCE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFER_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEXTURE1D_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEXTURE2D_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEXTURE3D_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFEREX_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_ARRAY_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_ARRAY_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX3D_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEXCUBE_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEXCUBE_ARRAY_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2DMS_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2DMS_ARRAY_SRV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_RTV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_ARRAY_RTV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_RTV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2DMS_RTV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_ARRAY_RTV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2DMS_ARRAY_RTV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX3D_RTV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_DSV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_ARRAY_DSV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_DSV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_ARRAY_DSV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2DMS_DSV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2DMS_ARRAY_DSV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFER_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX1D_ARRAY_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_ARRAY_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX3D_UAV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SAMPLER_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_QUERY_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_QUERY_DATA_TIMESTAMP_DISJOINT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_QUERY_DATA_PIPELINE_STATISTICS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_QUERY_DATA_SO_STATISTICS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_COUNTER_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_COUNTER_INFO* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_CLASS_INSTANCE_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_THREADING* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_DOUBLES* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_FORMAT_SUPPORT2* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_ARCHITECTURE_INFO* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS1* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_MARKER_SUPPORT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D9_OPTIONS1* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS2* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS3* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_SHADER_CACHE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS5* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_CD3D11_VIDEO_DEFAULT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_CONFIG* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AES_CTR_IV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_ENCRYPTED_BLOCK_INFO* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_EXTENSION* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_CAPS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_CONTENT_PROTECTION_CAPS* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_CUSTOM_RATE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_FILTER_RANGE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_CONTENT_DESC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_COLOR_RGBA* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_COLOR_YCbCrA* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_COLOR_SPACE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_STREAM* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_OMAC* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_PROTECTION_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_CHANNEL_TYPE_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_DEVICE_HANDLE_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_COUNT_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_UNRESTRICTED_PROTECTED_SHARED_RESOURCE_COUNT_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_COUNT_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_QUERY_CURRENT_ACCESSIBILITY_ENCRYPTION_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_CONFIGURE_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_CONFIGURE_OUTPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_CONFIGURE_INITIALIZE_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_CONFIGURE_PROTECTION_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_CONFIGURE_CRYPTO_SESSION_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_CONFIGURE_SHARED_RESOURCE_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_AUTHENTICATED_CONFIGURE_ACCESSIBLE_ENCRYPTION_INPUT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_VDOV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_VPIV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_VPOV* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TEX2D_ARRAY_VPOV* wrapper);
+
+/*
+** This part is generated from d3d11_1.h in Windows SDK: 10.0.20348.0
+**
+*/
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RENDER_TARGET_BLEND_DESC1* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BLEND_DESC1* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RASTERIZER_DESC1* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC1* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_SAMPLE_DESC* wrapper);
+
+/*
+** This part is generated from d3d11_2.h in Windows SDK: 10.0.20348.0
+**
+*/
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TILED_RESOURCE_COORDINATE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TILE_REGION_SIZE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SUBRESOURCE_TILING* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_TILE_SHAPE* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_PACKED_MIP_DESC* wrapper);
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
@@ -981,6 +1416,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_GUID* wra
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagRECT* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagPOINT* wrapper);
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_tagSIZE* wrapper);
 
 /*
 ** This part is generated from minwinbase.h in Windows SDK: 10.0.20348.0

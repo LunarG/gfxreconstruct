@@ -32,6 +32,9 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -2698,6 +2701,2399 @@ void Encode_ID3D12InfoQueue1_UnregisterMessageCallback(
 
 
 /*
+** This part is generated from d3d11.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_D3D11CreateDevice(
+    HRESULT return_value,
+    IDXGIAdapter* pAdapter,
+    D3D_DRIVER_TYPE DriverType,
+    HMODULE Software,
+    UINT Flags,
+    const D3D_FEATURE_LEVEL* pFeatureLevels,
+    UINT FeatureLevels,
+    UINT SDKVersion,
+    ID3D11Device** ppDevice,
+    D3D_FEATURE_LEVEL* pFeatureLevel,
+    ID3D11DeviceContext** ppImmediateContext);
+
+void Encode_D3D11CreateDeviceAndSwapChain(
+    HRESULT return_value,
+    IDXGIAdapter* pAdapter,
+    D3D_DRIVER_TYPE DriverType,
+    HMODULE Software,
+    UINT Flags,
+    const D3D_FEATURE_LEVEL* pFeatureLevels,
+    UINT FeatureLevels,
+    UINT SDKVersion,
+    const DXGI_SWAP_CHAIN_DESC* pSwapChainDesc,
+    IDXGISwapChain** ppSwapChain,
+    ID3D11Device** ppDevice,
+    D3D_FEATURE_LEVEL* pFeatureLevel,
+    ID3D11DeviceContext** ppImmediateContext);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_INPUT_ELEMENT_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SO_DECLARATION_ENTRY& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIEWPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_DRAW_INSTANCED_INDIRECT_ARGS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BOX& value);
+
+void Encode_ID3D11DeviceChild_GetDevice(
+    ID3D11DeviceChild_Wrapper* wrapper,
+    ID3D11Device** ppDevice);
+
+void Encode_ID3D11DeviceChild_GetPrivateData(
+    ID3D11DeviceChild_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    UINT* pDataSize,
+    void* pData);
+
+void Encode_ID3D11DeviceChild_SetPrivateData(
+    ID3D11DeviceChild_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    UINT DataSize,
+    const void* pData);
+
+void Encode_ID3D11DeviceChild_SetPrivateDataInterface(
+    ID3D11DeviceChild_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    const IUnknown* pData);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_DEPTH_STENCILOP_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_DEPTH_STENCIL_DESC& value);
+
+void Encode_ID3D11DepthStencilState_GetDesc(
+    ID3D11DepthStencilState_Wrapper* wrapper,
+    D3D11_DEPTH_STENCIL_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_BLEND_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BLEND_DESC& value);
+
+void Encode_ID3D11BlendState_GetDesc(
+    ID3D11BlendState_Wrapper* wrapper,
+    D3D11_BLEND_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RASTERIZER_DESC& value);
+
+void Encode_ID3D11RasterizerState_GetDesc(
+    ID3D11RasterizerState_Wrapper* wrapper,
+    D3D11_RASTERIZER_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_MAPPED_SUBRESOURCE& value);
+
+void Encode_ID3D11Resource_GetType(
+    ID3D11Resource_Wrapper* wrapper,
+    D3D11_RESOURCE_DIMENSION* pResourceDimension);
+
+void Encode_ID3D11Resource_SetEvictionPriority(
+    ID3D11Resource_Wrapper* wrapper,
+    UINT EvictionPriority);
+
+void Encode_ID3D11Resource_GetEvictionPriority(
+    ID3D11Resource_Wrapper* wrapper,
+    UINT return_value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFER_DESC& value);
+
+void Encode_ID3D11Buffer_GetDesc(
+    ID3D11Buffer_Wrapper* wrapper,
+    D3D11_BUFFER_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEXTURE1D_DESC& value);
+
+void Encode_ID3D11Texture1D_GetDesc(
+    ID3D11Texture1D_Wrapper* wrapper,
+    D3D11_TEXTURE1D_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEXTURE2D_DESC& value);
+
+void Encode_ID3D11Texture2D_GetDesc(
+    ID3D11Texture2D_Wrapper* wrapper,
+    D3D11_TEXTURE2D_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEXTURE3D_DESC& value);
+
+void Encode_ID3D11Texture3D_GetDesc(
+    ID3D11Texture3D_Wrapper* wrapper,
+    D3D11_TEXTURE3D_DESC* pDesc);
+
+void Encode_ID3D11View_GetResource(
+    ID3D11View_Wrapper* wrapper,
+    ID3D11Resource** ppResource);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFEREX_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_ARRAY_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX3D_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEXCUBE_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEXCUBE_ARRAY_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2DMS_SRV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2DMS_ARRAY_SRV& value);
+
+void Encode_ID3D11ShaderResourceView_GetDesc(
+    ID3D11ShaderResourceView_Wrapper* wrapper,
+    D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_RTV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_ARRAY_RTV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_RTV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2DMS_RTV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_RTV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2DMS_ARRAY_RTV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX3D_RTV& value);
+
+void Encode_ID3D11RenderTargetView_GetDesc(
+    ID3D11RenderTargetView_Wrapper* wrapper,
+    D3D11_RENDER_TARGET_VIEW_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_DSV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_ARRAY_DSV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_DSV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_DSV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2DMS_DSV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2DMS_ARRAY_DSV& value);
+
+void Encode_ID3D11DepthStencilView_GetDesc(
+    ID3D11DepthStencilView_Wrapper* wrapper,
+    D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BUFFER_UAV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_UAV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX1D_ARRAY_UAV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_UAV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_UAV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX3D_UAV& value);
+
+void Encode_ID3D11UnorderedAccessView_GetDesc(
+    ID3D11UnorderedAccessView_Wrapper* wrapper,
+    D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SAMPLER_DESC& value);
+
+void Encode_ID3D11SamplerState_GetDesc(
+    ID3D11SamplerState_Wrapper* wrapper,
+    D3D11_SAMPLER_DESC* pDesc);
+
+void Encode_ID3D11Asynchronous_GetDataSize(
+    ID3D11Asynchronous_Wrapper* wrapper,
+    UINT return_value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_QUERY_DESC& value);
+
+void Encode_ID3D11Query_GetDesc(
+    ID3D11Query_Wrapper* wrapper,
+    D3D11_QUERY_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_QUERY_DATA_TIMESTAMP_DISJOINT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_QUERY_DATA_PIPELINE_STATISTICS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_QUERY_DATA_SO_STATISTICS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_COUNTER_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_COUNTER_INFO& value);
+
+void Encode_ID3D11Counter_GetDesc(
+    ID3D11Counter_Wrapper* wrapper,
+    D3D11_COUNTER_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_CLASS_INSTANCE_DESC& value);
+
+void Encode_ID3D11ClassInstance_GetClassLinkage(
+    ID3D11ClassInstance_Wrapper* wrapper,
+    ID3D11ClassLinkage** ppLinkage);
+
+void Encode_ID3D11ClassInstance_GetDesc(
+    ID3D11ClassInstance_Wrapper* wrapper,
+    D3D11_CLASS_INSTANCE_DESC* pDesc);
+
+void Encode_ID3D11ClassInstance_GetInstanceName(
+    ID3D11ClassInstance_Wrapper* wrapper,
+    LPSTR pInstanceName,
+    SIZE_T* pBufferLength);
+
+void Encode_ID3D11ClassInstance_GetTypeName(
+    ID3D11ClassInstance_Wrapper* wrapper,
+    LPSTR pTypeName,
+    SIZE_T* pBufferLength);
+
+void Encode_ID3D11ClassLinkage_GetClassInstance(
+    ID3D11ClassLinkage_Wrapper* wrapper,
+    HRESULT return_value,
+    LPCSTR pClassInstanceName,
+    UINT InstanceIndex,
+    ID3D11ClassInstance** ppInstance);
+
+void Encode_ID3D11ClassLinkage_CreateClassInstance(
+    ID3D11ClassLinkage_Wrapper* wrapper,
+    HRESULT return_value,
+    LPCSTR pClassTypeName,
+    UINT ConstantBufferOffset,
+    UINT ConstantVectorOffset,
+    UINT TextureOffset,
+    UINT SamplerOffset,
+    ID3D11ClassInstance** ppInstance);
+
+void Encode_ID3D11CommandList_GetContextFlags(
+    ID3D11CommandList_Wrapper* wrapper,
+    UINT return_value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_THREADING& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_DOUBLES& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_FORMAT_SUPPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_FORMAT_SUPPORT2& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTIONS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_ARCHITECTURE_INFO& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D9_OPTIONS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D9_SHADOW_SUPPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_SHADER_MIN_PRECISION_SUPPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTIONS1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D9_SIMPLE_INSTANCING_SUPPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_MARKER_SUPPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D9_OPTIONS1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTIONS2& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTIONS3& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_GPU_VIRTUAL_ADDRESS_SUPPORT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_SHADER_CACHE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTIONS5& value);
+
+void Encode_ID3D11DeviceContext_VSSetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_PSSetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView* const* ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_PSSetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11PixelShader* pPixelShader,
+    ID3D11ClassInstance* const* ppClassInstances,
+    UINT NumClassInstances);
+
+void Encode_ID3D11DeviceContext_PSSetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState* const* ppSamplers);
+
+void Encode_ID3D11DeviceContext_VSSetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11VertexShader* pVertexShader,
+    ID3D11ClassInstance* const* ppClassInstances,
+    UINT NumClassInstances);
+
+void Encode_ID3D11DeviceContext_DrawIndexed(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT IndexCount,
+    UINT StartIndexLocation,
+    INT BaseVertexLocation);
+
+void Encode_ID3D11DeviceContext_Draw(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT VertexCount,
+    UINT StartVertexLocation);
+
+void Encode_ID3D11DeviceContext_Map(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    UINT Subresource,
+    D3D11_MAP MapType,
+    UINT MapFlags,
+    D3D11_MAPPED_SUBRESOURCE* pMappedResource);
+
+void Encode_ID3D11DeviceContext_Unmap(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Resource* pResource,
+    UINT Subresource);
+
+void Encode_ID3D11DeviceContext_PSSetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_IASetInputLayout(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11InputLayout* pInputLayout);
+
+void Encode_ID3D11DeviceContext_IASetVertexBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppVertexBuffers,
+    const UINT* pStrides,
+    const UINT* pOffsets);
+
+void Encode_ID3D11DeviceContext_IASetIndexBuffer(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Buffer* pIndexBuffer,
+    DXGI_FORMAT Format,
+    UINT Offset);
+
+void Encode_ID3D11DeviceContext_DrawIndexedInstanced(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT IndexCountPerInstance,
+    UINT InstanceCount,
+    UINT StartIndexLocation,
+    INT BaseVertexLocation,
+    UINT StartInstanceLocation);
+
+void Encode_ID3D11DeviceContext_DrawInstanced(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT VertexCountPerInstance,
+    UINT InstanceCount,
+    UINT StartVertexLocation,
+    UINT StartInstanceLocation);
+
+void Encode_ID3D11DeviceContext_GSSetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_GSSetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11GeometryShader* pShader,
+    ID3D11ClassInstance* const* ppClassInstances,
+    UINT NumClassInstances);
+
+void Encode_ID3D11DeviceContext_IASetPrimitiveTopology(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    D3D11_PRIMITIVE_TOPOLOGY Topology);
+
+void Encode_ID3D11DeviceContext_VSSetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView* const* ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_VSSetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState* const* ppSamplers);
+
+void Encode_ID3D11DeviceContext_Begin(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Asynchronous* pAsync);
+
+void Encode_ID3D11DeviceContext_End(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Asynchronous* pAsync);
+
+void Encode_ID3D11DeviceContext_GetData(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Asynchronous* pAsync,
+    void* pData,
+    UINT DataSize,
+    UINT GetDataFlags);
+
+void Encode_ID3D11DeviceContext_SetPredication(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Predicate* pPredicate,
+    BOOL PredicateValue);
+
+void Encode_ID3D11DeviceContext_GSSetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView* const* ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_GSSetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState* const* ppSamplers);
+
+void Encode_ID3D11DeviceContext_OMSetRenderTargets(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumViews,
+    ID3D11RenderTargetView* const* ppRenderTargetViews,
+    ID3D11DepthStencilView* pDepthStencilView);
+
+void Encode_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumRTVs,
+    ID3D11RenderTargetView* const* ppRenderTargetViews,
+    ID3D11DepthStencilView* pDepthStencilView,
+    UINT UAVStartSlot,
+    UINT NumUAVs,
+    ID3D11UnorderedAccessView* const* ppUnorderedAccessViews,
+    const UINT* pUAVInitialCounts);
+
+void Encode_ID3D11DeviceContext_OMSetBlendState(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11BlendState* pBlendState,
+    const FLOAT BlendFactor [4],
+    UINT SampleMask);
+
+void Encode_ID3D11DeviceContext_OMSetDepthStencilState(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11DepthStencilState* pDepthStencilState,
+    UINT StencilRef);
+
+void Encode_ID3D11DeviceContext_SOSetTargets(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppSOTargets,
+    const UINT* pOffsets);
+
+void Encode_ID3D11DeviceContext_DrawAuto(
+    ID3D11DeviceContext_Wrapper* wrapper);
+
+void Encode_ID3D11DeviceContext_DrawIndexedInstancedIndirect(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Buffer* pBufferForArgs,
+    UINT AlignedByteOffsetForArgs);
+
+void Encode_ID3D11DeviceContext_DrawInstancedIndirect(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Buffer* pBufferForArgs,
+    UINT AlignedByteOffsetForArgs);
+
+void Encode_ID3D11DeviceContext_Dispatch(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT ThreadGroupCountX,
+    UINT ThreadGroupCountY,
+    UINT ThreadGroupCountZ);
+
+void Encode_ID3D11DeviceContext_DispatchIndirect(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Buffer* pBufferForArgs,
+    UINT AlignedByteOffsetForArgs);
+
+void Encode_ID3D11DeviceContext_RSSetState(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11RasterizerState* pRasterizerState);
+
+void Encode_ID3D11DeviceContext_RSSetViewports(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumViewports,
+    const D3D11_VIEWPORT* pViewports);
+
+void Encode_ID3D11DeviceContext_RSSetScissorRects(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumRects,
+    const D3D11_RECT* pRects);
+
+void Encode_ID3D11DeviceContext_CopySubresourceRegion(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Resource* pDstResource,
+    UINT DstSubresource,
+    UINT DstX,
+    UINT DstY,
+    UINT DstZ,
+    ID3D11Resource* pSrcResource,
+    UINT SrcSubresource,
+    const D3D11_BOX* pSrcBox);
+
+void Encode_ID3D11DeviceContext_CopyResource(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Resource* pDstResource,
+    ID3D11Resource* pSrcResource);
+
+void Encode_ID3D11DeviceContext_CopyStructureCount(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Buffer* pDstBuffer,
+    UINT DstAlignedByteOffset,
+    ID3D11UnorderedAccessView* pSrcView);
+
+void Encode_ID3D11DeviceContext_ClearRenderTargetView(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11RenderTargetView* pRenderTargetView,
+    const FLOAT ColorRGBA [4]);
+
+void Encode_ID3D11DeviceContext_ClearUnorderedAccessViewUint(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11UnorderedAccessView* pUnorderedAccessView,
+    const UINT Values [4]);
+
+void Encode_ID3D11DeviceContext_ClearUnorderedAccessViewFloat(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11UnorderedAccessView* pUnorderedAccessView,
+    const FLOAT Values [4]);
+
+void Encode_ID3D11DeviceContext_ClearDepthStencilView(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11DepthStencilView* pDepthStencilView,
+    UINT ClearFlags,
+    FLOAT Depth,
+    UINT8 Stencil);
+
+void Encode_ID3D11DeviceContext_GenerateMips(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11ShaderResourceView* pShaderResourceView);
+
+void Encode_ID3D11DeviceContext_SetResourceMinLOD(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Resource* pResource,
+    FLOAT MinLOD);
+
+void Encode_ID3D11DeviceContext_GetResourceMinLOD(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    FLOAT return_value,
+    ID3D11Resource* pResource);
+
+void Encode_ID3D11DeviceContext_ResolveSubresource(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Resource* pDstResource,
+    UINT DstSubresource,
+    ID3D11Resource* pSrcResource,
+    UINT SrcSubresource,
+    DXGI_FORMAT Format);
+
+void Encode_ID3D11DeviceContext_ExecuteCommandList(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11CommandList* pCommandList,
+    BOOL RestoreContextState);
+
+void Encode_ID3D11DeviceContext_HSSetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView* const* ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_HSSetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11HullShader* pHullShader,
+    ID3D11ClassInstance* const* ppClassInstances,
+    UINT NumClassInstances);
+
+void Encode_ID3D11DeviceContext_HSSetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState* const* ppSamplers);
+
+void Encode_ID3D11DeviceContext_HSSetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_DSSetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView* const* ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_DSSetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11DomainShader* pDomainShader,
+    ID3D11ClassInstance* const* ppClassInstances,
+    UINT NumClassInstances);
+
+void Encode_ID3D11DeviceContext_DSSetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState* const* ppSamplers);
+
+void Encode_ID3D11DeviceContext_DSSetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_CSSetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView* const* ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_CSSetUnorderedAccessViews(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumUAVs,
+    ID3D11UnorderedAccessView* const* ppUnorderedAccessViews,
+    const UINT* pUAVInitialCounts);
+
+void Encode_ID3D11DeviceContext_CSSetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11ComputeShader* pComputeShader,
+    ID3D11ClassInstance* const* ppClassInstances,
+    UINT NumClassInstances);
+
+void Encode_ID3D11DeviceContext_CSSetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState* const* ppSamplers);
+
+void Encode_ID3D11DeviceContext_CSSetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_VSGetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_PSGetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView** ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_PSGetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11PixelShader** ppPixelShader,
+    ID3D11ClassInstance** ppClassInstances,
+    UINT* pNumClassInstances);
+
+void Encode_ID3D11DeviceContext_PSGetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState** ppSamplers);
+
+void Encode_ID3D11DeviceContext_VSGetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11VertexShader** ppVertexShader,
+    ID3D11ClassInstance** ppClassInstances,
+    UINT* pNumClassInstances);
+
+void Encode_ID3D11DeviceContext_PSGetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_IAGetInputLayout(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11InputLayout** ppInputLayout);
+
+void Encode_ID3D11DeviceContext_IAGetVertexBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppVertexBuffers,
+    UINT* pStrides,
+    UINT* pOffsets);
+
+void Encode_ID3D11DeviceContext_IAGetIndexBuffer(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Buffer** pIndexBuffer,
+    DXGI_FORMAT* Format,
+    UINT* Offset);
+
+void Encode_ID3D11DeviceContext_GSGetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_GSGetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11GeometryShader** ppGeometryShader,
+    ID3D11ClassInstance** ppClassInstances,
+    UINT* pNumClassInstances);
+
+void Encode_ID3D11DeviceContext_IAGetPrimitiveTopology(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    D3D11_PRIMITIVE_TOPOLOGY* pTopology);
+
+void Encode_ID3D11DeviceContext_VSGetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView** ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_VSGetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState** ppSamplers);
+
+void Encode_ID3D11DeviceContext_GetPredication(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11Predicate** ppPredicate,
+    BOOL* pPredicateValue);
+
+void Encode_ID3D11DeviceContext_GSGetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView** ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_GSGetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState** ppSamplers);
+
+void Encode_ID3D11DeviceContext_OMGetRenderTargets(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumViews,
+    ID3D11RenderTargetView** ppRenderTargetViews,
+    ID3D11DepthStencilView** ppDepthStencilView);
+
+void Encode_ID3D11DeviceContext_OMGetRenderTargetsAndUnorderedAccessViews(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumRTVs,
+    ID3D11RenderTargetView** ppRenderTargetViews,
+    ID3D11DepthStencilView** ppDepthStencilView,
+    UINT UAVStartSlot,
+    UINT NumUAVs,
+    ID3D11UnorderedAccessView** ppUnorderedAccessViews);
+
+void Encode_ID3D11DeviceContext_OMGetBlendState(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11BlendState** ppBlendState,
+    FLOAT BlendFactor [4],
+    UINT* pSampleMask);
+
+void Encode_ID3D11DeviceContext_OMGetDepthStencilState(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11DepthStencilState** ppDepthStencilState,
+    UINT* pStencilRef);
+
+void Encode_ID3D11DeviceContext_SOGetTargets(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT NumBuffers,
+    ID3D11Buffer** ppSOTargets);
+
+void Encode_ID3D11DeviceContext_RSGetState(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11RasterizerState** ppRasterizerState);
+
+void Encode_ID3D11DeviceContext_RSGetViewports(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT* pNumViewports,
+    D3D11_VIEWPORT* pViewports);
+
+void Encode_ID3D11DeviceContext_RSGetScissorRects(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT* pNumRects,
+    D3D11_RECT* pRects);
+
+void Encode_ID3D11DeviceContext_HSGetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView** ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_HSGetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11HullShader** ppHullShader,
+    ID3D11ClassInstance** ppClassInstances,
+    UINT* pNumClassInstances);
+
+void Encode_ID3D11DeviceContext_HSGetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState** ppSamplers);
+
+void Encode_ID3D11DeviceContext_HSGetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_DSGetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView** ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_DSGetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11DomainShader** ppDomainShader,
+    ID3D11ClassInstance** ppClassInstances,
+    UINT* pNumClassInstances);
+
+void Encode_ID3D11DeviceContext_DSGetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState** ppSamplers);
+
+void Encode_ID3D11DeviceContext_DSGetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_CSGetShaderResources(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumViews,
+    ID3D11ShaderResourceView** ppShaderResourceViews);
+
+void Encode_ID3D11DeviceContext_CSGetUnorderedAccessViews(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumUAVs,
+    ID3D11UnorderedAccessView** ppUnorderedAccessViews);
+
+void Encode_ID3D11DeviceContext_CSGetShader(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    ID3D11ComputeShader** ppComputeShader,
+    ID3D11ClassInstance** ppClassInstances,
+    UINT* pNumClassInstances);
+
+void Encode_ID3D11DeviceContext_CSGetSamplers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumSamplers,
+    ID3D11SamplerState** ppSamplers);
+
+void Encode_ID3D11DeviceContext_CSGetConstantBuffers(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers);
+
+void Encode_ID3D11DeviceContext_ClearState(
+    ID3D11DeviceContext_Wrapper* wrapper);
+
+void Encode_ID3D11DeviceContext_Flush(
+    ID3D11DeviceContext_Wrapper* wrapper);
+
+void Encode_ID3D11DeviceContext_GetType(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    D3D11_DEVICE_CONTEXT_TYPE return_value);
+
+void Encode_ID3D11DeviceContext_GetContextFlags(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    UINT return_value);
+
+void Encode_ID3D11DeviceContext_FinishCommandList(
+    ID3D11DeviceContext_Wrapper* wrapper,
+    HRESULT return_value,
+    BOOL RestoreDeferredContextState,
+    ID3D11CommandList** ppCommandList);
+
+void EncodeStruct(ParameterEncoder* encoder, const CD3D11_VIDEO_DEFAULT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_CONFIG& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AES_CTR_IV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_ENCRYPTED_BLOCK_INFO& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_BUFFER_DESC& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_EXTENSION& value);
+
+void Encode_ID3D11VideoDecoder_GetCreationParameters(
+    ID3D11VideoDecoder_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D11_VIDEO_DECODER_DESC* pVideoDesc,
+    D3D11_VIDEO_DECODER_CONFIG* pConfig);
+
+void Encode_ID3D11VideoDecoder_GetDriverHandle(
+    ID3D11VideoDecoder_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE* pDriverHandle);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_CAPS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_CONTENT_PROTECTION_CAPS& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_CUSTOM_RATE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_FILTER_RANGE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_CONTENT_DESC& value);
+
+void Encode_ID3D11VideoProcessorEnumerator_GetVideoProcessorContentDesc(
+    ID3D11VideoProcessorEnumerator_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D11_VIDEO_PROCESSOR_CONTENT_DESC* pContentDesc);
+
+void Encode_ID3D11VideoProcessorEnumerator_CheckVideoProcessorFormat(
+    ID3D11VideoProcessorEnumerator_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT Format,
+    UINT* pFlags);
+
+void Encode_ID3D11VideoProcessorEnumerator_GetVideoProcessorCaps(
+    ID3D11VideoProcessorEnumerator_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D11_VIDEO_PROCESSOR_CAPS* pCaps);
+
+void Encode_ID3D11VideoProcessorEnumerator_GetVideoProcessorRateConversionCaps(
+    ID3D11VideoProcessorEnumerator_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT TypeIndex,
+    D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS* pCaps);
+
+void Encode_ID3D11VideoProcessorEnumerator_GetVideoProcessorCustomRate(
+    ID3D11VideoProcessorEnumerator_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT TypeIndex,
+    UINT CustomRateIndex,
+    D3D11_VIDEO_PROCESSOR_CUSTOM_RATE* pRate);
+
+void Encode_ID3D11VideoProcessorEnumerator_GetVideoProcessorFilterRange(
+    ID3D11VideoProcessorEnumerator_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D11_VIDEO_PROCESSOR_FILTER Filter,
+    D3D11_VIDEO_PROCESSOR_FILTER_RANGE* pRange);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_COLOR_RGBA& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_COLOR_YCbCrA& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_COLOR_SPACE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_STREAM& value);
+
+void Encode_ID3D11VideoProcessor_GetContentDesc(
+    ID3D11VideoProcessor_Wrapper* wrapper,
+    D3D11_VIDEO_PROCESSOR_CONTENT_DESC* pDesc);
+
+void Encode_ID3D11VideoProcessor_GetRateConversionCaps(
+    ID3D11VideoProcessor_Wrapper* wrapper,
+    D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS* pCaps);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_OMAC& value);
+
+void Encode_ID3D11AuthenticatedChannel_GetCertificateSize(
+    ID3D11AuthenticatedChannel_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pCertificateSize);
+
+void Encode_ID3D11AuthenticatedChannel_GetCertificate(
+    ID3D11AuthenticatedChannel_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT CertificateSize,
+    BYTE* pCertificate);
+
+void Encode_ID3D11AuthenticatedChannel_GetChannelHandle(
+    ID3D11AuthenticatedChannel_Wrapper* wrapper,
+    HANDLE* pChannelHandle);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_PROTECTION_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_CHANNEL_TYPE_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_DEVICE_HANDLE_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_CRYPTO_SESSION_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_COUNT_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_RESTRICTED_SHARED_RESOURCE_PROCESS_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_UNRESTRICTED_PROTECTED_SHARED_RESOURCE_COUNT_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_COUNT_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_OUTPUT_ID_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_COUNT_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_ACCESSIBILITY_ENCRYPTION_GUID_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_QUERY_CURRENT_ACCESSIBILITY_ENCRYPTION_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_CONFIGURE_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_CONFIGURE_OUTPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_CONFIGURE_INITIALIZE_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_CONFIGURE_PROTECTION_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_CONFIGURE_CRYPTO_SESSION_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_CONFIGURE_SHARED_RESOURCE_INPUT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_AUTHENTICATED_CONFIGURE_ACCESSIBLE_ENCRYPTION_INPUT& value);
+
+void Encode_ID3D11CryptoSession_GetCryptoType(
+    ID3D11CryptoSession_Wrapper* wrapper,
+    GUID* pCryptoType);
+
+void Encode_ID3D11CryptoSession_GetDecoderProfile(
+    ID3D11CryptoSession_Wrapper* wrapper,
+    GUID* pDecoderProfile);
+
+void Encode_ID3D11CryptoSession_GetCertificateSize(
+    ID3D11CryptoSession_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT* pCertificateSize);
+
+void Encode_ID3D11CryptoSession_GetCertificate(
+    ID3D11CryptoSession_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT CertificateSize,
+    BYTE* pCertificate);
+
+void Encode_ID3D11CryptoSession_GetCryptoSessionHandle(
+    ID3D11CryptoSession_Wrapper* wrapper,
+    HANDLE* pCryptoSessionHandle);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_VDOV& value);
+
+void Encode_ID3D11VideoDecoderOutputView_GetDesc(
+    ID3D11VideoDecoderOutputView_Wrapper* wrapper,
+    D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_VPIV& value);
+
+void Encode_ID3D11VideoProcessorInputView_GetDesc(
+    ID3D11VideoProcessorInputView_Wrapper* wrapper,
+    D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_VPOV& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TEX2D_ARRAY_VPOV& value);
+
+void Encode_ID3D11VideoProcessorOutputView_GetDesc(
+    ID3D11VideoProcessorOutputView_Wrapper* wrapper,
+    D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC* pDesc);
+
+void Encode_ID3D11VideoContext_GetDecoderBuffer(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    D3D11_VIDEO_DECODER_BUFFER_TYPE Type,
+    UINT* pBufferSize,
+    void** ppBuffer);
+
+void Encode_ID3D11VideoContext_ReleaseDecoderBuffer(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    D3D11_VIDEO_DECODER_BUFFER_TYPE Type);
+
+void Encode_ID3D11VideoContext_DecoderBeginFrame(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    ID3D11VideoDecoderOutputView* pView,
+    UINT ContentKeySize,
+    const void* pContentKey);
+
+void Encode_ID3D11VideoContext_DecoderEndFrame(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder);
+
+void Encode_ID3D11VideoContext_SubmitDecoderBuffers(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    UINT NumBuffers,
+    const D3D11_VIDEO_DECODER_BUFFER_DESC* pBufferDesc);
+
+void Encode_ID3D11VideoContext_DecoderExtension(
+    ID3D11VideoContext_Wrapper* wrapper,
+    APP_DEPRECATED_HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    const D3D11_VIDEO_DECODER_EXTENSION* pExtensionData);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetOutputTargetRect(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL Enable,
+    const RECT* pRect);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetOutputBackgroundColor(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL YCbCr,
+    const D3D11_VIDEO_COLOR* pColor);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetOutputColorSpace(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    const D3D11_VIDEO_PROCESSOR_COLOR_SPACE* pColorSpace);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetOutputAlphaFillMode(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    D3D11_VIDEO_PROCESSOR_ALPHA_FILL_MODE AlphaFillMode,
+    UINT StreamIndex);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetOutputConstriction(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL Enable,
+    SIZE Size);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetOutputStereoMode(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL Enable);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetOutputExtension(
+    ID3D11VideoContext_Wrapper* wrapper,
+    APP_DEPRECATED_HRESULT return_value,
+    ID3D11VideoProcessor* pVideoProcessor,
+    const GUID* pExtensionGuid,
+    UINT DataSize,
+    void* pData);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetOutputTargetRect(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL* Enabled,
+    RECT* pRect);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetOutputBackgroundColor(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL* pYCbCr,
+    D3D11_VIDEO_COLOR* pColor);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetOutputColorSpace(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    D3D11_VIDEO_PROCESSOR_COLOR_SPACE* pColorSpace);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetOutputAlphaFillMode(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    D3D11_VIDEO_PROCESSOR_ALPHA_FILL_MODE* pAlphaFillMode,
+    UINT* pStreamIndex);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetOutputConstriction(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL* pEnabled,
+    SIZE* pSize);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetOutputStereoMode(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL* pEnabled);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetOutputExtension(
+    ID3D11VideoContext_Wrapper* wrapper,
+    APP_DEPRECATED_HRESULT return_value,
+    ID3D11VideoProcessor* pVideoProcessor,
+    const GUID* pExtensionGuid,
+    UINT DataSize,
+    void* pData);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamFrameFormat(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    D3D11_VIDEO_FRAME_FORMAT FrameFormat);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamColorSpace(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    const D3D11_VIDEO_PROCESSOR_COLOR_SPACE* pColorSpace);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamOutputRate(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    D3D11_VIDEO_PROCESSOR_OUTPUT_RATE OutputRate,
+    BOOL RepeatFrame,
+    const DXGI_RATIONAL* pCustomRate);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamSourceRect(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    const RECT* pRect);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamDestRect(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    const RECT* pRect);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamAlpha(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    FLOAT Alpha);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamPalette(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    UINT Count,
+    const UINT* pEntries);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamPixelAspectRatio(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    const DXGI_RATIONAL* pSourceAspectRatio,
+    const DXGI_RATIONAL* pDestinationAspectRatio);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamLumaKey(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    FLOAT Lower,
+    FLOAT Upper);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamStereoFormat(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    D3D11_VIDEO_PROCESSOR_STEREO_FORMAT Format,
+    BOOL LeftViewFrame0,
+    BOOL BaseViewFrame0,
+    D3D11_VIDEO_PROCESSOR_STEREO_FLIP_MODE FlipMode,
+    int MonoOffset);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamAutoProcessingMode(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamFilter(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    D3D11_VIDEO_PROCESSOR_FILTER Filter,
+    BOOL Enable,
+    int Level);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamExtension(
+    ID3D11VideoContext_Wrapper* wrapper,
+    APP_DEPRECATED_HRESULT return_value,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    const GUID* pExtensionGuid,
+    UINT DataSize,
+    void* pData);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamFrameFormat(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    D3D11_VIDEO_FRAME_FORMAT* pFrameFormat);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamColorSpace(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    D3D11_VIDEO_PROCESSOR_COLOR_SPACE* pColorSpace);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamOutputRate(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    D3D11_VIDEO_PROCESSOR_OUTPUT_RATE* pOutputRate,
+    BOOL* pRepeatFrame,
+    DXGI_RATIONAL* pCustomRate);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamSourceRect(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnabled,
+    RECT* pRect);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamDestRect(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnabled,
+    RECT* pRect);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamAlpha(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnabled,
+    FLOAT* pAlpha);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamPalette(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    UINT Count,
+    UINT* pEntries);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamPixelAspectRatio(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnabled,
+    DXGI_RATIONAL* pSourceAspectRatio,
+    DXGI_RATIONAL* pDestinationAspectRatio);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamLumaKey(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnabled,
+    FLOAT* pLower,
+    FLOAT* pUpper);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamStereoFormat(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnable,
+    D3D11_VIDEO_PROCESSOR_STEREO_FORMAT* pFormat,
+    BOOL* pLeftViewFrame0,
+    BOOL* pBaseViewFrame0,
+    D3D11_VIDEO_PROCESSOR_STEREO_FLIP_MODE* pFlipMode,
+    int* MonoOffset);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamAutoProcessingMode(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnabled);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamFilter(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    D3D11_VIDEO_PROCESSOR_FILTER Filter,
+    BOOL* pEnabled,
+    int* pLevel);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamExtension(
+    ID3D11VideoContext_Wrapper* wrapper,
+    APP_DEPRECATED_HRESULT return_value,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    const GUID* pExtensionGuid,
+    UINT DataSize,
+    void* pData);
+
+void Encode_ID3D11VideoContext_VideoProcessorBlt(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoProcessor* pVideoProcessor,
+    ID3D11VideoProcessorOutputView* pView,
+    UINT OutputFrame,
+    UINT StreamCount,
+    const D3D11_VIDEO_PROCESSOR_STREAM* pStreams);
+
+void Encode_ID3D11VideoContext_NegotiateCryptoSessionKeyExchange(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11CryptoSession* pCryptoSession,
+    UINT DataSize,
+    void* pData);
+
+void Encode_ID3D11VideoContext_EncryptionBlt(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11CryptoSession* pCryptoSession,
+    ID3D11Texture2D* pSrcSurface,
+    ID3D11Texture2D* pDstSurface,
+    UINT IVSize,
+    void* pIV);
+
+void Encode_ID3D11VideoContext_DecryptionBlt(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11CryptoSession* pCryptoSession,
+    ID3D11Texture2D* pSrcSurface,
+    ID3D11Texture2D* pDstSurface,
+    D3D11_ENCRYPTED_BLOCK_INFO* pEncryptedBlockInfo,
+    UINT ContentKeySize,
+    const void* pContentKey,
+    UINT IVSize,
+    void* pIV);
+
+void Encode_ID3D11VideoContext_StartSessionKeyRefresh(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11CryptoSession* pCryptoSession,
+    UINT RandomNumberSize,
+    void* pRandomNumber);
+
+void Encode_ID3D11VideoContext_FinishSessionKeyRefresh(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11CryptoSession* pCryptoSession);
+
+void Encode_ID3D11VideoContext_GetEncryptionBltKey(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11CryptoSession* pCryptoSession,
+    UINT KeySize,
+    void* pReadbackKey);
+
+void Encode_ID3D11VideoContext_NegotiateAuthenticatedChannelKeyExchange(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11AuthenticatedChannel* pChannel,
+    UINT DataSize,
+    void* pData);
+
+void Encode_ID3D11VideoContext_QueryAuthenticatedChannel(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11AuthenticatedChannel* pChannel,
+    UINT InputSize,
+    const void* pInput,
+    UINT OutputSize,
+    void* pOutput);
+
+void Encode_ID3D11VideoContext_ConfigureAuthenticatedChannel(
+    ID3D11VideoContext_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11AuthenticatedChannel* pChannel,
+    UINT InputSize,
+    const void* pInput,
+    D3D11_AUTHENTICATED_CONFIGURE_OUTPUT* pOutput);
+
+void Encode_ID3D11VideoContext_VideoProcessorSetStreamRotation(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    D3D11_VIDEO_PROCESSOR_ROTATION Rotation);
+
+void Encode_ID3D11VideoContext_VideoProcessorGetStreamRotation(
+    ID3D11VideoContext_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnable,
+    D3D11_VIDEO_PROCESSOR_ROTATION* pRotation);
+
+void Encode_ID3D11VideoDevice_CreateVideoDecoder(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_VIDEO_DECODER_DESC* pVideoDesc,
+    const D3D11_VIDEO_DECODER_CONFIG* pConfig,
+    ID3D11VideoDecoder** ppDecoder);
+
+void Encode_ID3D11VideoDevice_CreateVideoProcessor(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoProcessorEnumerator* pEnum,
+    UINT RateConversionIndex,
+    ID3D11VideoProcessor** ppVideoProcessor);
+
+void Encode_ID3D11VideoDevice_CreateAuthenticatedChannel(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D11_AUTHENTICATED_CHANNEL_TYPE ChannelType,
+    ID3D11AuthenticatedChannel** ppAuthenticatedChannel);
+
+void Encode_ID3D11VideoDevice_CreateCryptoSession(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const GUID* pCryptoType,
+    const GUID* pDecoderProfile,
+    const GUID* pKeyExchangeType,
+    ID3D11CryptoSession** ppCryptoSession);
+
+void Encode_ID3D11VideoDevice_CreateVideoDecoderOutputView(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC* pDesc,
+    ID3D11VideoDecoderOutputView** ppVDOVView);
+
+void Encode_ID3D11VideoDevice_CreateVideoProcessorInputView(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    ID3D11VideoProcessorEnumerator* pEnum,
+    const D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC* pDesc,
+    ID3D11VideoProcessorInputView** ppVPIView);
+
+void Encode_ID3D11VideoDevice_CreateVideoProcessorOutputView(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    ID3D11VideoProcessorEnumerator* pEnum,
+    const D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC* pDesc,
+    ID3D11VideoProcessorOutputView** ppVPOView);
+
+void Encode_ID3D11VideoDevice_CreateVideoProcessorEnumerator(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_VIDEO_PROCESSOR_CONTENT_DESC* pDesc,
+    ID3D11VideoProcessorEnumerator** ppEnum);
+
+void Encode_ID3D11VideoDevice_GetVideoDecoderProfileCount(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    UINT return_value);
+
+void Encode_ID3D11VideoDevice_GetVideoDecoderProfile(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Index,
+    GUID* pDecoderProfile);
+
+void Encode_ID3D11VideoDevice_CheckVideoDecoderFormat(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const GUID* pDecoderProfile,
+    DXGI_FORMAT Format,
+    BOOL* pSupported);
+
+void Encode_ID3D11VideoDevice_GetVideoDecoderConfigCount(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_VIDEO_DECODER_DESC* pDesc,
+    UINT* pCount);
+
+void Encode_ID3D11VideoDevice_GetVideoDecoderConfig(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_VIDEO_DECODER_DESC* pDesc,
+    UINT Index,
+    D3D11_VIDEO_DECODER_CONFIG* pConfig);
+
+void Encode_ID3D11VideoDevice_GetContentProtectionCaps(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const GUID* pCryptoType,
+    const GUID* pDecoderProfile,
+    D3D11_VIDEO_CONTENT_PROTECTION_CAPS* pCaps);
+
+void Encode_ID3D11VideoDevice_CheckCryptoKeyExchange(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    const GUID* pCryptoType,
+    const GUID* pDecoderProfile,
+    UINT Index,
+    GUID* pKeyExchangeType);
+
+void Encode_ID3D11VideoDevice_SetPrivateData(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    UINT DataSize,
+    const void* pData);
+
+void Encode_ID3D11VideoDevice_SetPrivateDataInterface(
+    ID3D11VideoDevice_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    const IUnknown* pData);
+
+void Encode_ID3D11Device_CreateShaderResourceView(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_SHADER_RESOURCE_VIEW_DESC* pDesc,
+    ID3D11ShaderResourceView** ppSRView);
+
+void Encode_ID3D11Device_CreateUnorderedAccessView(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_UNORDERED_ACCESS_VIEW_DESC* pDesc,
+    ID3D11UnorderedAccessView** ppUAView);
+
+void Encode_ID3D11Device_CreateRenderTargetView(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_RENDER_TARGET_VIEW_DESC* pDesc,
+    ID3D11RenderTargetView** ppRTView);
+
+void Encode_ID3D11Device_CreateDepthStencilView(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource,
+    const D3D11_DEPTH_STENCIL_VIEW_DESC* pDesc,
+    ID3D11DepthStencilView** ppDepthStencilView);
+
+void Encode_ID3D11Device_CreateInputLayout(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_INPUT_ELEMENT_DESC* pInputElementDescs,
+    UINT NumElements,
+    const void* pShaderBytecodeWithInputSignature,
+    SIZE_T BytecodeLength,
+    ID3D11InputLayout** ppInputLayout);
+
+void Encode_ID3D11Device_CreateVertexShader(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pShaderBytecode,
+    SIZE_T BytecodeLength,
+    ID3D11ClassLinkage* pClassLinkage,
+    ID3D11VertexShader** ppVertexShader);
+
+void Encode_ID3D11Device_CreateGeometryShader(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pShaderBytecode,
+    SIZE_T BytecodeLength,
+    ID3D11ClassLinkage* pClassLinkage,
+    ID3D11GeometryShader** ppGeometryShader);
+
+void Encode_ID3D11Device_CreateGeometryShaderWithStreamOutput(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pShaderBytecode,
+    SIZE_T BytecodeLength,
+    const D3D11_SO_DECLARATION_ENTRY* pSODeclaration,
+    UINT NumEntries,
+    const UINT* pBufferStrides,
+    UINT NumStrides,
+    UINT RasterizedStream,
+    ID3D11ClassLinkage* pClassLinkage,
+    ID3D11GeometryShader** ppGeometryShader);
+
+void Encode_ID3D11Device_CreatePixelShader(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pShaderBytecode,
+    SIZE_T BytecodeLength,
+    ID3D11ClassLinkage* pClassLinkage,
+    ID3D11PixelShader** ppPixelShader);
+
+void Encode_ID3D11Device_CreateHullShader(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pShaderBytecode,
+    SIZE_T BytecodeLength,
+    ID3D11ClassLinkage* pClassLinkage,
+    ID3D11HullShader** ppHullShader);
+
+void Encode_ID3D11Device_CreateDomainShader(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pShaderBytecode,
+    SIZE_T BytecodeLength,
+    ID3D11ClassLinkage* pClassLinkage,
+    ID3D11DomainShader** ppDomainShader);
+
+void Encode_ID3D11Device_CreateComputeShader(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const void* pShaderBytecode,
+    SIZE_T BytecodeLength,
+    ID3D11ClassLinkage* pClassLinkage,
+    ID3D11ComputeShader** ppComputeShader);
+
+void Encode_ID3D11Device_CreateClassLinkage(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11ClassLinkage** ppLinkage);
+
+void Encode_ID3D11Device_CreateBlendState(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_BLEND_DESC* pBlendStateDesc,
+    ID3D11BlendState** ppBlendState);
+
+void Encode_ID3D11Device_CreateDepthStencilState(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_DEPTH_STENCIL_DESC* pDepthStencilDesc,
+    ID3D11DepthStencilState** ppDepthStencilState);
+
+void Encode_ID3D11Device_CreateRasterizerState(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_RASTERIZER_DESC* pRasterizerDesc,
+    ID3D11RasterizerState** ppRasterizerState);
+
+void Encode_ID3D11Device_CreateSamplerState(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_SAMPLER_DESC* pSamplerDesc,
+    ID3D11SamplerState** ppSamplerState);
+
+void Encode_ID3D11Device_CreateQuery(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_QUERY_DESC* pQueryDesc,
+    ID3D11Query** ppQuery);
+
+void Encode_ID3D11Device_CreatePredicate(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_QUERY_DESC* pPredicateDesc,
+    ID3D11Predicate** ppPredicate);
+
+void Encode_ID3D11Device_CreateCounter(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_COUNTER_DESC* pCounterDesc,
+    ID3D11Counter** ppCounter);
+
+void Encode_ID3D11Device_CreateDeferredContext(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT ContextFlags,
+    ID3D11DeviceContext** ppDeferredContext);
+
+void Encode_ID3D11Device_OpenSharedResource(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hResource,
+    REFIID ReturnedInterface,
+    void** ppResource);
+
+void Encode_ID3D11Device_CheckFormatSupport(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT Format,
+    UINT* pFormatSupport);
+
+void Encode_ID3D11Device_CheckMultisampleQualityLevels(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT Format,
+    UINT SampleCount,
+    UINT* pNumQualityLevels);
+
+void Encode_ID3D11Device_CheckCounterInfo(
+    ID3D11Device_Wrapper* wrapper,
+    D3D11_COUNTER_INFO* pCounterInfo);
+
+void Encode_ID3D11Device_CheckCounter(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_COUNTER_DESC* pDesc,
+    D3D11_COUNTER_TYPE* pType,
+    UINT* pActiveCounters,
+    LPSTR szName,
+    UINT* pNameLength,
+    LPSTR szUnits,
+    UINT* pUnitsLength,
+    LPSTR szDescription,
+    UINT* pDescriptionLength);
+
+void Encode_ID3D11Device_CheckFeatureSupport(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D11_FEATURE Feature,
+    void* pFeatureSupportData,
+    UINT FeatureSupportDataSize);
+
+void Encode_ID3D11Device_GetPrivateData(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    UINT* pDataSize,
+    void* pData);
+
+void Encode_ID3D11Device_SetPrivateData(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    UINT DataSize,
+    const void* pData);
+
+void Encode_ID3D11Device_SetPrivateDataInterface(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    REFGUID guid,
+    const IUnknown* pData);
+
+void Encode_ID3D11Device_GetFeatureLevel(
+    ID3D11Device_Wrapper* wrapper,
+    D3D_FEATURE_LEVEL return_value);
+
+void Encode_ID3D11Device_GetCreationFlags(
+    ID3D11Device_Wrapper* wrapper,
+    UINT return_value);
+
+void Encode_ID3D11Device_GetDeviceRemovedReason(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value);
+
+void Encode_ID3D11Device_GetImmediateContext(
+    ID3D11Device_Wrapper* wrapper,
+    ID3D11DeviceContext** ppImmediateContext);
+
+void Encode_ID3D11Device_SetExceptionMode(
+    ID3D11Device_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT RaiseFlags);
+
+void Encode_ID3D11Device_GetExceptionMode(
+    ID3D11Device_Wrapper* wrapper,
+    UINT return_value);
+
+
+/*
+** This part is generated from d3d11_1.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RENDER_TARGET_BLEND_DESC1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_BLEND_DESC1& value);
+
+void Encode_ID3D11BlendState1_GetDesc1(
+    ID3D11BlendState1_Wrapper* wrapper,
+    D3D11_BLEND_DESC1* pDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RASTERIZER_DESC1& value);
+
+void Encode_ID3D11RasterizerState1_GetDesc1(
+    ID3D11RasterizerState1_Wrapper* wrapper,
+    D3D11_RASTERIZER_DESC1* pDesc);
+
+void Encode_ID3D11DeviceContext1_CopySubresourceRegion1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    ID3D11Resource* pDstResource,
+    UINT DstSubresource,
+    UINT DstX,
+    UINT DstY,
+    UINT DstZ,
+    ID3D11Resource* pSrcResource,
+    UINT SrcSubresource,
+    const D3D11_BOX* pSrcBox,
+    UINT CopyFlags);
+
+void Encode_ID3D11DeviceContext1_DiscardResource(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    ID3D11Resource* pResource);
+
+void Encode_ID3D11DeviceContext1_DiscardView(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    ID3D11View* pResourceView);
+
+void Encode_ID3D11DeviceContext1_VSSetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers,
+    const UINT* pFirstConstant,
+    const UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_HSSetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers,
+    const UINT* pFirstConstant,
+    const UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_DSSetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers,
+    const UINT* pFirstConstant,
+    const UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_GSSetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers,
+    const UINT* pFirstConstant,
+    const UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_PSSetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers,
+    const UINT* pFirstConstant,
+    const UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_CSSetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer* const* ppConstantBuffers,
+    const UINT* pFirstConstant,
+    const UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_VSGetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers,
+    UINT* pFirstConstant,
+    UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_HSGetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers,
+    UINT* pFirstConstant,
+    UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_DSGetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers,
+    UINT* pFirstConstant,
+    UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_GSGetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers,
+    UINT* pFirstConstant,
+    UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_PSGetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers,
+    UINT* pFirstConstant,
+    UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_CSGetConstantBuffers1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    UINT StartSlot,
+    UINT NumBuffers,
+    ID3D11Buffer** ppConstantBuffers,
+    UINT* pFirstConstant,
+    UINT* pNumConstants);
+
+void Encode_ID3D11DeviceContext1_SwapDeviceContextState(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    ID3DDeviceContextState* pState,
+    ID3DDeviceContextState** ppPreviousState);
+
+void Encode_ID3D11DeviceContext1_ClearView(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    ID3D11View* pView,
+    const FLOAT Color [4],
+    const D3D11_RECT* pRect,
+    UINT NumRects);
+
+void Encode_ID3D11DeviceContext1_DiscardView1(
+    ID3D11DeviceContext1_Wrapper* wrapper,
+    ID3D11View* pResourceView,
+    const D3D11_RECT* pRects,
+    UINT NumRects);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_BUFFER_DESC1& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_KEY_EXCHANGE_HW_PROTECTION_INPUT_DATA& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_KEY_EXCHANGE_HW_PROTECTION_OUTPUT_DATA& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_KEY_EXCHANGE_HW_PROTECTION_DATA& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_SAMPLE_DESC& value);
+
+void Encode_ID3D11VideoContext1_SubmitDecoderBuffers1(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    UINT NumBuffers,
+    const D3D11_VIDEO_DECODER_BUFFER_DESC1* pBufferDesc);
+
+void Encode_ID3D11VideoContext1_GetDataForNewHardwareKey(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11CryptoSession* pCryptoSession,
+    UINT PrivateInputSize,
+    const void* pPrivatInputData,
+    UINT64* pPrivateOutputData);
+
+void Encode_ID3D11VideoContext1_CheckCryptoSessionStatus(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11CryptoSession* pCryptoSession,
+    D3D11_CRYPTO_SESSION_STATUS* pStatus);
+
+void Encode_ID3D11VideoContext1_DecoderEnableDownsampling(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    DXGI_COLOR_SPACE_TYPE InputColorSpace,
+    const D3D11_VIDEO_SAMPLE_DESC* pOutputDesc,
+    UINT ReferenceFrameCount);
+
+void Encode_ID3D11VideoContext1_DecoderUpdateDownsampling(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    const D3D11_VIDEO_SAMPLE_DESC* pOutputDesc);
+
+void Encode_ID3D11VideoContext1_VideoProcessorSetOutputColorSpace1(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    DXGI_COLOR_SPACE_TYPE ColorSpace);
+
+void Encode_ID3D11VideoContext1_VideoProcessorSetOutputShaderUsage(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL ShaderUsage);
+
+void Encode_ID3D11VideoContext1_VideoProcessorGetOutputColorSpace1(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    DXGI_COLOR_SPACE_TYPE* pColorSpace);
+
+void Encode_ID3D11VideoContext1_VideoProcessorGetOutputShaderUsage(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    BOOL* pShaderUsage);
+
+void Encode_ID3D11VideoContext1_VideoProcessorSetStreamColorSpace1(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    DXGI_COLOR_SPACE_TYPE ColorSpace);
+
+void Encode_ID3D11VideoContext1_VideoProcessorSetStreamMirror(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL Enable,
+    BOOL FlipHorizontal,
+    BOOL FlipVertical);
+
+void Encode_ID3D11VideoContext1_VideoProcessorGetStreamColorSpace1(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    DXGI_COLOR_SPACE_TYPE* pColorSpace);
+
+void Encode_ID3D11VideoContext1_VideoProcessorGetStreamMirror(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    BOOL* pEnable,
+    BOOL* pFlipHorizontal,
+    BOOL* pFlipVertical);
+
+void Encode_ID3D11VideoContext1_VideoProcessorGetBehaviorHints(
+    ID3D11VideoContext1_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT OutputWidth,
+    UINT OutputHeight,
+    DXGI_FORMAT OutputFormat,
+    UINT StreamCount,
+    const D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT* pStreams,
+    UINT* pBehaviorHints);
+
+void Encode_ID3D11VideoDevice1_GetCryptoSessionPrivateDataSize(
+    ID3D11VideoDevice1_Wrapper* wrapper,
+    HRESULT return_value,
+    const GUID* pCryptoType,
+    const GUID* pDecoderProfile,
+    const GUID* pKeyExchangeType,
+    UINT* pPrivateInputSize,
+    UINT* pPrivateOutputSize);
+
+void Encode_ID3D11VideoDevice1_GetVideoDecoderCaps(
+    ID3D11VideoDevice1_Wrapper* wrapper,
+    HRESULT return_value,
+    const GUID* pDecoderProfile,
+    UINT SampleWidth,
+    UINT SampleHeight,
+    const DXGI_RATIONAL* pFrameRate,
+    UINT BitRate,
+    const GUID* pCryptoType,
+    UINT* pDecoderCaps);
+
+void Encode_ID3D11VideoDevice1_CheckVideoDecoderDownsampling(
+    ID3D11VideoDevice1_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_VIDEO_DECODER_DESC* pInputDesc,
+    DXGI_COLOR_SPACE_TYPE InputColorSpace,
+    const D3D11_VIDEO_DECODER_CONFIG* pInputConfig,
+    const DXGI_RATIONAL* pFrameRate,
+    const D3D11_VIDEO_SAMPLE_DESC* pOutputDesc,
+    BOOL* pSupported,
+    BOOL* pRealTimeHint);
+
+void Encode_ID3D11VideoDevice1_RecommendVideoDecoderDownsampleParameters(
+    ID3D11VideoDevice1_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_VIDEO_DECODER_DESC* pInputDesc,
+    DXGI_COLOR_SPACE_TYPE InputColorSpace,
+    const D3D11_VIDEO_DECODER_CONFIG* pInputConfig,
+    const DXGI_RATIONAL* pFrameRate,
+    D3D11_VIDEO_SAMPLE_DESC* pRecommendedOutputDesc);
+
+void Encode_ID3D11VideoProcessorEnumerator1_CheckVideoProcessorFormatConversion(
+    ID3D11VideoProcessorEnumerator1_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT InputFormat,
+    DXGI_COLOR_SPACE_TYPE InputColorSpace,
+    DXGI_FORMAT OutputFormat,
+    DXGI_COLOR_SPACE_TYPE OutputColorSpace,
+    BOOL* pSupported);
+
+void Encode_ID3D11Device1_GetImmediateContext1(
+    ID3D11Device1_Wrapper* wrapper,
+    ID3D11DeviceContext1** ppImmediateContext);
+
+void Encode_ID3D11Device1_CreateDeferredContext1(
+    ID3D11Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT ContextFlags,
+    ID3D11DeviceContext1** ppDeferredContext);
+
+void Encode_ID3D11Device1_CreateBlendState1(
+    ID3D11Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_BLEND_DESC1* pBlendStateDesc,
+    ID3D11BlendState1** ppBlendState);
+
+void Encode_ID3D11Device1_CreateRasterizerState1(
+    ID3D11Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    const D3D11_RASTERIZER_DESC1* pRasterizerDesc,
+    ID3D11RasterizerState1** ppRasterizerState);
+
+void Encode_ID3D11Device1_CreateDeviceContextState(
+    ID3D11Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT Flags,
+    const D3D_FEATURE_LEVEL* pFeatureLevels,
+    UINT FeatureLevels,
+    UINT SDKVersion,
+    REFIID EmulatedInterface,
+    D3D_FEATURE_LEVEL* pChosenFeatureLevel,
+    ID3DDeviceContextState** ppContextState);
+
+void Encode_ID3D11Device1_OpenSharedResource1(
+    ID3D11Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hResource,
+    REFIID returnedInterface,
+    void** ppResource);
+
+void Encode_ID3D11Device1_OpenSharedResourceByName(
+    ID3D11Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    LPCWSTR lpName,
+    DWORD dwDesiredAccess,
+    REFIID returnedInterface,
+    void** ppResource);
+
+void Encode_ID3DUserDefinedAnnotation_BeginEvent(
+    ID3DUserDefinedAnnotation_Wrapper* wrapper,
+    INT return_value,
+    LPCWSTR Name);
+
+void Encode_ID3DUserDefinedAnnotation_EndEvent(
+    ID3DUserDefinedAnnotation_Wrapper* wrapper,
+    INT return_value);
+
+void Encode_ID3DUserDefinedAnnotation_SetMarker(
+    ID3DUserDefinedAnnotation_Wrapper* wrapper,
+    LPCWSTR Name);
+
+void Encode_ID3DUserDefinedAnnotation_GetStatus(
+    ID3DUserDefinedAnnotation_Wrapper* wrapper,
+    BOOL return_value);
+
+
+/*
+** This part is generated from d3d11_2.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TILED_RESOURCE_COORDINATE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TILE_REGION_SIZE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_SUBRESOURCE_TILING& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_TILE_SHAPE& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_PACKED_MIP_DESC& value);
+
+void Encode_ID3D11DeviceContext2_UpdateTileMappings(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pTiledResource,
+    UINT NumTiledResourceRegions,
+    const D3D11_TILED_RESOURCE_COORDINATE* pTiledResourceRegionStartCoordinates,
+    const D3D11_TILE_REGION_SIZE* pTiledResourceRegionSizes,
+    ID3D11Buffer* pTilePool,
+    UINT NumRanges,
+    const UINT* pRangeFlags,
+    const UINT* pTilePoolStartOffsets,
+    const UINT* pRangeTileCounts,
+    UINT Flags);
+
+void Encode_ID3D11DeviceContext2_CopyTileMappings(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pDestTiledResource,
+    const D3D11_TILED_RESOURCE_COORDINATE* pDestRegionStartCoordinate,
+    ID3D11Resource* pSourceTiledResource,
+    const D3D11_TILED_RESOURCE_COORDINATE* pSourceRegionStartCoordinate,
+    const D3D11_TILE_REGION_SIZE* pTileRegionSize,
+    UINT Flags);
+
+void Encode_ID3D11DeviceContext2_CopyTiles(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    ID3D11Resource* pTiledResource,
+    const D3D11_TILED_RESOURCE_COORDINATE* pTileRegionStartCoordinate,
+    const D3D11_TILE_REGION_SIZE* pTileRegionSize,
+    ID3D11Buffer* pBuffer,
+    UINT64 BufferStartOffsetInBytes,
+    UINT Flags);
+
+void Encode_ID3D11DeviceContext2_UpdateTiles(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    ID3D11Resource* pDestTiledResource,
+    const D3D11_TILED_RESOURCE_COORDINATE* pDestTileRegionStartCoordinate,
+    const D3D11_TILE_REGION_SIZE* pDestTileRegionSize,
+    const void* pSourceTileData,
+    UINT Flags);
+
+void Encode_ID3D11DeviceContext2_ResizeTilePool(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Buffer* pTilePool,
+    UINT64 NewSizeInBytes);
+
+void Encode_ID3D11DeviceContext2_TiledResourceBarrier(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    ID3D11DeviceChild* pTiledResourceOrViewAccessBeforeBarrier,
+    ID3D11DeviceChild* pTiledResourceOrViewAccessAfterBarrier);
+
+void Encode_ID3D11DeviceContext2_IsAnnotationEnabled(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    BOOL return_value);
+
+void Encode_ID3D11DeviceContext2_SetMarkerInt(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    LPCWSTR pLabel,
+    INT Data);
+
+void Encode_ID3D11DeviceContext2_BeginEventInt(
+    ID3D11DeviceContext2_Wrapper* wrapper,
+    LPCWSTR pLabel,
+    INT Data);
+
+void Encode_ID3D11DeviceContext2_EndEvent(
+    ID3D11DeviceContext2_Wrapper* wrapper);
+
+void Encode_ID3D11Device2_GetImmediateContext2(
+    ID3D11Device2_Wrapper* wrapper,
+    ID3D11DeviceContext2** ppImmediateContext);
+
+void Encode_ID3D11Device2_CreateDeferredContext2(
+    ID3D11Device2_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT ContextFlags,
+    ID3D11DeviceContext2** ppDeferredContext);
+
+void Encode_ID3D11Device2_GetResourceTiling(
+    ID3D11Device2_Wrapper* wrapper,
+    ID3D11Resource* pTiledResource,
+    UINT* pNumTilesForEntireResource,
+    D3D11_PACKED_MIP_DESC* pPackedMipDesc,
+    D3D11_TILE_SHAPE* pStandardTileShapeForNonPackedMips,
+    UINT* pNumSubresourceTilings,
+    UINT FirstSubresourceTilingToGet,
+    D3D11_SUBRESOURCE_TILING* pSubresourceTilingsForNonPackedMips);
+
+void Encode_ID3D11Device2_CheckMultisampleQualityLevels1(
+    ID3D11Device2_Wrapper* wrapper,
+    HRESULT return_value,
+    DXGI_FORMAT Format,
+    UINT SampleCount,
+    UINT Flags,
+    UINT* pNumQualityLevels);
+
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
@@ -3731,6 +6127,8 @@ void EncodeStruct(ParameterEncoder* encoder, const GUID& value);
 void EncodeStruct(ParameterEncoder* encoder, const tagRECT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const tagPOINT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const tagSIZE& value);
 
 
 /*

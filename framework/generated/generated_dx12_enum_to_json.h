@@ -1807,6 +1807,735 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D12_MESSAGE_CALLB
     FieldToJson(jdata, *pEnum, options);
 }
 
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_INPUT_CLASSIFICATION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_INPUT_CLASSIFICATION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILL_MODE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILL_MODE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CULL_MODE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CULL_MODE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RESOURCE_DIMENSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RESOURCE_DIMENSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DSV_DIMENSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DSV_DIMENSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RTV_DIMENSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RTV_DIMENSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_UAV_DIMENSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_UAV_DIMENSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_USAGE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_USAGE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BIND_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BIND_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CPU_ACCESS_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CPU_ACCESS_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RESOURCE_MISC_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RESOURCE_MISC_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_MAP value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_MAP* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_MAP_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_MAP_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RAISE_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_RAISE_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CLEAR_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CLEAR_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COMPARISON_FUNC value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COMPARISON_FUNC* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DEPTH_WRITE_MASK value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DEPTH_WRITE_MASK* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_STENCIL_OP value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_STENCIL_OP* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BLEND value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BLEND* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BLEND_OP value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BLEND_OP* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COLOR_WRITE_ENABLE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COLOR_WRITE_ENABLE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TEXTURECUBE_FACE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TEXTURECUBE_FACE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BUFFEREX_SRV_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BUFFEREX_SRV_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DSV_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DSV_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BUFFER_UAV_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BUFFER_UAV_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILTER value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILTER* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILTER_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILTER_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILTER_REDUCTION_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FILTER_REDUCTION_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TEXTURE_ADDRESS_MODE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TEXTURE_ADDRESS_MODE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FORMAT_SUPPORT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FORMAT_SUPPORT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FORMAT_SUPPORT2 value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FORMAT_SUPPORT2* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_ASYNC_GETDATA_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_ASYNC_GETDATA_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_QUERY value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_QUERY* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_QUERY_MISC_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_QUERY_MISC_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COUNTER value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COUNTER* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COUNTER_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COUNTER_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_STANDARD_MULTISAMPLE_QUALITY_LEVELS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_STANDARD_MULTISAMPLE_QUALITY_LEVELS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DEVICE_CONTEXT_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_DEVICE_CONTEXT_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FEATURE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FEATURE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_SHADER_MIN_PRECISION_SUPPORT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_SHADER_MIN_PRECISION_SUPPORT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILED_RESOURCES_TIER value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILED_RESOURCES_TIER* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONSERVATIVE_RASTERIZATION_TIER value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONSERVATIVE_RASTERIZATION_TIER* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_SHADER_CACHE_SUPPORT_FLAGS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_SHADER_CACHE_SUPPORT_FLAGS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_SHARED_RESOURCE_TIER value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_SHARED_RESOURCE_TIER* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_BUFFER_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_BUFFER_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FORMAT_SUPPORT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FORMAT_SUPPORT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_DEVICE_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_DEVICE_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FEATURE_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FEATURE_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FILTER_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FILTER_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FORMAT_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FORMAT_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_AUTO_STREAM_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_AUTO_STREAM_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_STEREO_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_STEREO_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_PROCESSOR_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_PROCESSOR_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_ITELECINE_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_ITELECINE_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONTENT_PROTECTION_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CONTENT_PROTECTION_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FILTER value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_FILTER* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_FRAME_FORMAT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_FRAME_FORMAT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_USAGE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_USAGE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_NOMINAL_RANGE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_ALPHA_FILL_MODE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_ALPHA_FILL_MODE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_OUTPUT_RATE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_OUTPUT_RATE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_STEREO_FORMAT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_STEREO_FORMAT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_STEREO_FLIP_MODE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_STEREO_FLIP_MODE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_ROTATION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_ROTATION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_AUTHENTICATED_CHANNEL_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_AUTHENTICATED_CHANNEL_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_AUTHENTICATED_PROCESS_IDENTIFIER_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_AUTHENTICATED_PROCESS_IDENTIFIER_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BUS_TYPE value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_BUS_TYPE* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VDOV_DIMENSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VDOV_DIMENSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VPIV_DIMENSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VPIV_DIMENSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VPOV_DIMENSION value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VPOV_DIMENSION* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CREATE_DEVICE_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CREATE_DEVICE_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COPY_FLAGS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_COPY_FLAGS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_LOGIC_OP value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_LOGIC_OP* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_1_CREATE_DEVICE_CONTEXT_STATE_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_1_CREATE_DEVICE_CONTEXT_STATE_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_CAPS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_CAPS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINTS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_PROCESSOR_BEHAVIOR_HINTS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CRYPTO_SESSION_STATUS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CRYPTO_SESSION_STATUS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILE_MAPPING_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILE_MAPPING_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILE_RANGE_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILE_RANGE_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CHECK_MULTISAMPLE_QUALITY_LEVELS_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CHECK_MULTISAMPLE_QUALITY_LEVELS_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILE_COPY_FLAG value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_TILE_COPY_FLAG* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, const DXGI_RESIDENCY value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
@@ -2876,6 +3605,84 @@ inline void FieldToJson_D3D12_MESSAGE_CALLBACK_FLAGS(nlohmann::ordered_json& jda
     else
     {
         representation = ToString_D3D12_MESSAGE_CALLBACK_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_FORMAT_SUPPORT(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_FORMAT_SUPPORT(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_FORMAT_SUPPORT2(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_FORMAT_SUPPORT2(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_SHADER_MIN_PRECISION_SUPPORT(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_SHADER_MIN_PRECISION_SUPPORT(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_SHADER_CACHE_SUPPORT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_SHADER_CACHE_SUPPORT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_COPY_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_COPY_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_CRYPTO_SESSION_STATUS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_CRYPTO_SESSION_STATUS(flags);
     }
     FieldToJson(jdata, representation, options);
 }

@@ -34,6 +34,9 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -89,6 +92,12 @@ void WrapStruct(const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* value)
 void WrapStruct(const D3D12_TEXTURE_BARRIER* value);
 
 void WrapStruct(const D3D12_BUFFER_BARRIER* value);
+
+void WrapStruct(const D3D11_VIDEO_DECODER_EXTENSION* value);
+
+void WrapStruct(const D3D11_VIDEO_PROCESSOR_STREAM* value);
+
+void WrapStruct(const D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* value);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

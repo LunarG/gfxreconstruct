@@ -35,6 +35,9 @@
 #include <d3d12.h>
 #include <d3dcommon.h>
 #include <d3d12sdklayers.h>
+#include <d3d11.h>
+#include <d3d11_1.h>
+#include <d3d11_2.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -82,6 +85,12 @@ void UnwrapStructObjects(D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* value, HandleUnwr
 void UnwrapStructObjects(D3D12_TEXTURE_BARRIER* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructObjects(D3D12_BUFFER_BARRIER* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructObjects(D3D11_VIDEO_DECODER_EXTENSION* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructObjects(D3D11_VIDEO_PROCESSOR_STREAM* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructObjects(D3D11_VIDEO_DECODER_BEGIN_FRAME_CRYPTO_SESSION* value, HandleUnwrapMemory* unwrap_memory);
 
 template <typename T>
 T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)

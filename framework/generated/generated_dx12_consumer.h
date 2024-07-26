@@ -2542,6 +2542,2454 @@ class Dx12Consumer : public Dx12ConsumerBase
         DWORD CallbackCookie){}
 
 /*
+** This part is generated from d3d11.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_D3D11CreateDevice(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        format::HandleId pAdapter,
+        D3D_DRIVER_TYPE DriverType,
+        uint64_t Software,
+        UINT Flags,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pFeatureLevels,
+        UINT FeatureLevels,
+        UINT SDKVersion,
+        HandlePointerDecoder<ID3D11Device*>* ppDevice,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pFeatureLevel,
+        HandlePointerDecoder<ID3D11DeviceContext*>* ppImmediateContext){}
+
+    virtual void Process_D3D11CreateDeviceAndSwapChain(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        format::HandleId pAdapter,
+        D3D_DRIVER_TYPE DriverType,
+        uint64_t Software,
+        UINT Flags,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pFeatureLevels,
+        UINT FeatureLevels,
+        UINT SDKVersion,
+        StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* pSwapChainDesc,
+        HandlePointerDecoder<IDXGISwapChain*>* ppSwapChain,
+        HandlePointerDecoder<ID3D11Device*>* ppDevice,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pFeatureLevel,
+        HandlePointerDecoder<ID3D11DeviceContext*>* ppImmediateContext){}
+
+    virtual void Process_ID3D11DeviceChild_GetDevice(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Device*>* ppDevice){}
+
+    virtual void Process_ID3D11DeviceChild_GetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        PointerDecoder<UINT>* pDataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11DeviceChild_SetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11DeviceChild_SetPrivateDataInterface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        format::HandleId pData){}
+
+    virtual void Process_ID3D11DepthStencilState_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_DEPTH_STENCIL_DESC>* pDesc){}
+
+    virtual void Process_ID3D11BlendState_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_BLEND_DESC>* pDesc){}
+
+    virtual void Process_ID3D11RasterizerState_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_RASTERIZER_DESC>* pDesc){}
+
+    virtual void Process_ID3D11Resource_GetType(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        PointerDecoder<D3D11_RESOURCE_DIMENSION>* pResourceDimension){}
+
+    virtual void Process_ID3D11Resource_SetEvictionPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT EvictionPriority){}
+
+    virtual void Process_ID3D11Resource_GetEvictionPriority(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value){}
+
+    virtual void Process_ID3D11Buffer_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>* pDesc){}
+
+    virtual void Process_ID3D11Texture1D_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>* pDesc){}
+
+    virtual void Process_ID3D11Texture2D_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>* pDesc){}
+
+    virtual void Process_ID3D11Texture3D_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>* pDesc){}
+
+    virtual void Process_ID3D11View_GetResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Resource*>* ppResource){}
+
+    virtual void Process_ID3D11ShaderResourceView_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC>* pDesc){}
+
+    virtual void Process_ID3D11RenderTargetView_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_RENDER_TARGET_VIEW_DESC>* pDesc){}
+
+    virtual void Process_ID3D11DepthStencilView_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC>* pDesc){}
+
+    virtual void Process_ID3D11UnorderedAccessView_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC>* pDesc){}
+
+    virtual void Process_ID3D11SamplerState_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_SAMPLER_DESC>* pDesc){}
+
+    virtual void Process_ID3D11Asynchronous_GetDataSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value){}
+
+    virtual void Process_ID3D11Query_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_QUERY_DESC>* pDesc){}
+
+    virtual void Process_ID3D11Counter_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_COUNTER_DESC>* pDesc){}
+
+    virtual void Process_ID3D11ClassInstance_GetClassLinkage(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11ClassLinkage*>* ppLinkage){}
+
+    virtual void Process_ID3D11ClassInstance_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_CLASS_INSTANCE_DESC>* pDesc){}
+
+    virtual void Process_ID3D11ClassInstance_GetInstanceName(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StringDecoder* pInstanceName,
+        PointerDecoder<SIZE_T>* pBufferLength){}
+
+    virtual void Process_ID3D11ClassInstance_GetTypeName(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StringDecoder* pTypeName,
+        PointerDecoder<SIZE_T>* pBufferLength){}
+
+    virtual void Process_ID3D11ClassLinkage_GetClassInstance(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StringDecoder* pClassInstanceName,
+        UINT InstanceIndex,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppInstance){}
+
+    virtual void Process_ID3D11ClassLinkage_CreateClassInstance(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StringDecoder* pClassTypeName,
+        UINT ConstantBufferOffset,
+        UINT ConstantVectorOffset,
+        UINT TextureOffset,
+        UINT SamplerOffset,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppInstance){}
+
+    virtual void Process_ID3D11CommandList_GetContextFlags(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value){}
+
+    virtual void Process_ID3D11DeviceContext_VSSetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_PSSetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_PSSetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pPixelShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        UINT NumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_PSSetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_VSSetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVertexShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        UINT NumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_DrawIndexed(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT IndexCount,
+        UINT StartIndexLocation,
+        INT BaseVertexLocation){}
+
+    virtual void Process_ID3D11DeviceContext_Draw(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT VertexCount,
+        UINT StartVertexLocation){}
+
+    virtual void Process_ID3D11DeviceContext_Map(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        UINT Subresource,
+        D3D11_MAP MapType,
+        UINT MapFlags,
+        StructPointerDecoder<Decoded_D3D11_MAPPED_SUBRESOURCE>* pMappedResource){}
+
+    virtual void Process_ID3D11DeviceContext_Unmap(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResource,
+        UINT Subresource){}
+
+    virtual void Process_ID3D11DeviceContext_PSSetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_IASetInputLayout(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pInputLayout){}
+
+    virtual void Process_ID3D11DeviceContext_IASetVertexBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppVertexBuffers,
+        PointerDecoder<UINT>* pStrides,
+        PointerDecoder<UINT>* pOffsets){}
+
+    virtual void Process_ID3D11DeviceContext_IASetIndexBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pIndexBuffer,
+        DXGI_FORMAT Format,
+        UINT Offset){}
+
+    virtual void Process_ID3D11DeviceContext_DrawIndexedInstanced(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT IndexCountPerInstance,
+        UINT InstanceCount,
+        UINT StartIndexLocation,
+        INT BaseVertexLocation,
+        UINT StartInstanceLocation){}
+
+    virtual void Process_ID3D11DeviceContext_DrawInstanced(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT VertexCountPerInstance,
+        UINT InstanceCount,
+        UINT StartVertexLocation,
+        UINT StartInstanceLocation){}
+
+    virtual void Process_ID3D11DeviceContext_GSSetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_GSSetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        UINT NumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_IASetPrimitiveTopology(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D_PRIMITIVE_TOPOLOGY Topology){}
+
+    virtual void Process_ID3D11DeviceContext_VSSetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_VSSetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_Begin(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pAsync){}
+
+    virtual void Process_ID3D11DeviceContext_End(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pAsync){}
+
+    virtual void Process_ID3D11DeviceContext_GetData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pAsync,
+        PointerDecoder<uint8_t>* pData,
+        UINT DataSize,
+        UINT GetDataFlags){}
+
+    virtual void Process_ID3D11DeviceContext_SetPredication(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pPredicate,
+        BOOL PredicateValue){}
+
+    virtual void Process_ID3D11DeviceContext_GSSetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_GSSetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_OMSetRenderTargets(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
+        format::HandleId pDepthStencilView){}
+
+    virtual void Process_ID3D11DeviceContext_OMSetRenderTargetsAndUnorderedAccessViews(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumRTVs,
+        HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
+        format::HandleId pDepthStencilView,
+        UINT UAVStartSlot,
+        UINT NumUAVs,
+        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
+        PointerDecoder<UINT>* pUAVInitialCounts){}
+
+    virtual void Process_ID3D11DeviceContext_OMSetBlendState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pBlendState,
+        PointerDecoder<FLOAT> BlendFactor [4],
+        UINT SampleMask){}
+
+    virtual void Process_ID3D11DeviceContext_OMSetDepthStencilState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDepthStencilState,
+        UINT StencilRef){}
+
+    virtual void Process_ID3D11DeviceContext_SOSetTargets(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppSOTargets,
+        PointerDecoder<UINT>* pOffsets){}
+
+    virtual void Process_ID3D11DeviceContext_DrawAuto(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id){}
+
+    virtual void Process_ID3D11DeviceContext_DrawIndexedInstancedIndirect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pBufferForArgs,
+        UINT AlignedByteOffsetForArgs){}
+
+    virtual void Process_ID3D11DeviceContext_DrawInstancedIndirect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pBufferForArgs,
+        UINT AlignedByteOffsetForArgs){}
+
+    virtual void Process_ID3D11DeviceContext_Dispatch(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT ThreadGroupCountX,
+        UINT ThreadGroupCountY,
+        UINT ThreadGroupCountZ){}
+
+    virtual void Process_ID3D11DeviceContext_DispatchIndirect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pBufferForArgs,
+        UINT AlignedByteOffsetForArgs){}
+
+    virtual void Process_ID3D11DeviceContext_RSSetState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pRasterizerState){}
+
+    virtual void Process_ID3D11DeviceContext_RSSetViewports(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumViewports,
+        StructPointerDecoder<Decoded_D3D11_VIEWPORT>* pViewports){}
+
+    virtual void Process_ID3D11DeviceContext_RSSetScissorRects(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumRects,
+        StructPointerDecoder<Decoded_tagRECT>* pRects){}
+
+    virtual void Process_ID3D11DeviceContext_CopySubresourceRegion(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDstResource,
+        UINT DstSubresource,
+        UINT DstX,
+        UINT DstY,
+        UINT DstZ,
+        format::HandleId pSrcResource,
+        UINT SrcSubresource,
+        StructPointerDecoder<Decoded_D3D11_BOX>* pSrcBox){}
+
+    virtual void Process_ID3D11DeviceContext_CopyResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDstResource,
+        format::HandleId pSrcResource){}
+
+    virtual void Process_ID3D11DeviceContext_CopyStructureCount(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDstBuffer,
+        UINT DstAlignedByteOffset,
+        format::HandleId pSrcView){}
+
+    virtual void Process_ID3D11DeviceContext_ClearRenderTargetView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pRenderTargetView,
+        PointerDecoder<FLOAT> ColorRGBA [4]){}
+
+    virtual void Process_ID3D11DeviceContext_ClearUnorderedAccessViewUint(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pUnorderedAccessView,
+        PointerDecoder<UINT> Values [4]){}
+
+    virtual void Process_ID3D11DeviceContext_ClearUnorderedAccessViewFloat(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pUnorderedAccessView,
+        PointerDecoder<FLOAT> Values [4]){}
+
+    virtual void Process_ID3D11DeviceContext_ClearDepthStencilView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDepthStencilView,
+        UINT ClearFlags,
+        FLOAT Depth,
+        UINT8 Stencil){}
+
+    virtual void Process_ID3D11DeviceContext_GenerateMips(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pShaderResourceView){}
+
+    virtual void Process_ID3D11DeviceContext_SetResourceMinLOD(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResource,
+        FLOAT MinLOD){}
+
+    virtual void Process_ID3D11DeviceContext_GetResourceMinLOD(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        FLOAT return_value,
+        format::HandleId pResource){}
+
+    virtual void Process_ID3D11DeviceContext_ResolveSubresource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDstResource,
+        UINT DstSubresource,
+        format::HandleId pSrcResource,
+        UINT SrcSubresource,
+        DXGI_FORMAT Format){}
+
+    virtual void Process_ID3D11DeviceContext_ExecuteCommandList(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pCommandList,
+        BOOL RestoreContextState){}
+
+    virtual void Process_ID3D11DeviceContext_HSSetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_HSSetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pHullShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        UINT NumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_HSSetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_HSSetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_DSSetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_DSSetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDomainShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        UINT NumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_DSSetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_DSSetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_CSSetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_CSSetUnorderedAccessViews(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumUAVs,
+        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews,
+        PointerDecoder<UINT>* pUAVInitialCounts){}
+
+    virtual void Process_ID3D11DeviceContext_CSSetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pComputeShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        UINT NumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_CSSetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_CSSetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_VSGetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_PSGetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_PSGetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11PixelShader*>* ppPixelShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        PointerDecoder<UINT>* pNumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_PSGetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_VSGetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11VertexShader*>* ppVertexShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        PointerDecoder<UINT>* pNumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_PSGetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_IAGetInputLayout(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11InputLayout*>* ppInputLayout){}
+
+    virtual void Process_ID3D11DeviceContext_IAGetVertexBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppVertexBuffers,
+        PointerDecoder<UINT>* pStrides,
+        PointerDecoder<UINT>* pOffsets){}
+
+    virtual void Process_ID3D11DeviceContext_IAGetIndexBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Buffer*>* pIndexBuffer,
+        PointerDecoder<DXGI_FORMAT>* Format,
+        PointerDecoder<UINT>* Offset){}
+
+    virtual void Process_ID3D11DeviceContext_GSGetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_GSGetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11GeometryShader*>* ppGeometryShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        PointerDecoder<UINT>* pNumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_IAGetPrimitiveTopology(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        PointerDecoder<D3D_PRIMITIVE_TOPOLOGY>* pTopology){}
+
+    virtual void Process_ID3D11DeviceContext_VSGetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_VSGetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_GetPredication(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Predicate*>* ppPredicate,
+        PointerDecoder<BOOL>* pPredicateValue){}
+
+    virtual void Process_ID3D11DeviceContext_GSGetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_GSGetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_OMGetRenderTargets(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
+        HandlePointerDecoder<ID3D11DepthStencilView*>* ppDepthStencilView){}
+
+    virtual void Process_ID3D11DeviceContext_OMGetRenderTargetsAndUnorderedAccessViews(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumRTVs,
+        HandlePointerDecoder<ID3D11RenderTargetView*>* ppRenderTargetViews,
+        HandlePointerDecoder<ID3D11DepthStencilView*>* ppDepthStencilView,
+        UINT UAVStartSlot,
+        UINT NumUAVs,
+        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews){}
+
+    virtual void Process_ID3D11DeviceContext_OMGetBlendState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11BlendState*>* ppBlendState,
+        PointerDecoder<FLOAT> BlendFactor [4],
+        PointerDecoder<UINT>* pSampleMask){}
+
+    virtual void Process_ID3D11DeviceContext_OMGetDepthStencilState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11DepthStencilState*>* ppDepthStencilState,
+        PointerDecoder<UINT>* pStencilRef){}
+
+    virtual void Process_ID3D11DeviceContext_SOGetTargets(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppSOTargets){}
+
+    virtual void Process_ID3D11DeviceContext_RSGetState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11RasterizerState*>* ppRasterizerState){}
+
+    virtual void Process_ID3D11DeviceContext_RSGetViewports(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        PointerDecoder<UINT>* pNumViewports,
+        StructPointerDecoder<Decoded_D3D11_VIEWPORT>* pViewports){}
+
+    virtual void Process_ID3D11DeviceContext_RSGetScissorRects(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        PointerDecoder<UINT>* pNumRects,
+        StructPointerDecoder<Decoded_tagRECT>* pRects){}
+
+    virtual void Process_ID3D11DeviceContext_HSGetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_HSGetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11HullShader*>* ppHullShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        PointerDecoder<UINT>* pNumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_HSGetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_HSGetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_DSGetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_DSGetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11DomainShader*>* ppDomainShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        PointerDecoder<UINT>* pNumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_DSGetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_DSGetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_CSGetShaderResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumViews,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppShaderResourceViews){}
+
+    virtual void Process_ID3D11DeviceContext_CSGetUnorderedAccessViews(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumUAVs,
+        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUnorderedAccessViews){}
+
+    virtual void Process_ID3D11DeviceContext_CSGetShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11ComputeShader*>* ppComputeShader,
+        HandlePointerDecoder<ID3D11ClassInstance*>* ppClassInstances,
+        PointerDecoder<UINT>* pNumClassInstances){}
+
+    virtual void Process_ID3D11DeviceContext_CSGetSamplers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumSamplers,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplers){}
+
+    virtual void Process_ID3D11DeviceContext_CSGetConstantBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers){}
+
+    virtual void Process_ID3D11DeviceContext_ClearState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id){}
+
+    virtual void Process_ID3D11DeviceContext_Flush(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id){}
+
+    virtual void Process_ID3D11DeviceContext_GetType(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D11_DEVICE_CONTEXT_TYPE return_value){}
+
+    virtual void Process_ID3D11DeviceContext_GetContextFlags(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value){}
+
+    virtual void Process_ID3D11DeviceContext_FinishCommandList(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        BOOL RestoreDeferredContextState,
+        HandlePointerDecoder<ID3D11CommandList*>* ppCommandList){}
+
+    virtual void Process_ID3D11VideoDecoder_GetCreationParameters(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_DESC>* pVideoDesc,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_CONFIG>* pConfig){}
+
+    virtual void Process_ID3D11VideoDecoder_GetDriverHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint64_t, void*>* pDriverHandle){}
+
+    virtual void Process_ID3D11VideoProcessorEnumerator_GetVideoProcessorContentDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_CONTENT_DESC>* pContentDesc){}
+
+    virtual void Process_ID3D11VideoProcessorEnumerator_CheckVideoProcessorFormat(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT Format,
+        PointerDecoder<UINT>* pFlags){}
+
+    virtual void Process_ID3D11VideoProcessorEnumerator_GetVideoProcessorCaps(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_CAPS>* pCaps){}
+
+    virtual void Process_ID3D11VideoProcessorEnumerator_GetVideoProcessorRateConversionCaps(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT TypeIndex,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS>* pCaps){}
+
+    virtual void Process_ID3D11VideoProcessorEnumerator_GetVideoProcessorCustomRate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT TypeIndex,
+        UINT CustomRateIndex,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_CUSTOM_RATE>* pRate){}
+
+    virtual void Process_ID3D11VideoProcessorEnumerator_GetVideoProcessorFilterRange(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D11_VIDEO_PROCESSOR_FILTER Filter,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_FILTER_RANGE>* pRange){}
+
+    virtual void Process_ID3D11VideoProcessor_GetContentDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_CONTENT_DESC>* pDesc){}
+
+    virtual void Process_ID3D11VideoProcessor_GetRateConversionCaps(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_RATE_CONVERSION_CAPS>* pCaps){}
+
+    virtual void Process_ID3D11AuthenticatedChannel_GetCertificateSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pCertificateSize){}
+
+    virtual void Process_ID3D11AuthenticatedChannel_GetCertificate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT CertificateSize,
+        PointerDecoder<BYTE>* pCertificate){}
+
+    virtual void Process_ID3D11AuthenticatedChannel_GetChannelHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        PointerDecoder<uint64_t, void*>* pChannelHandle){}
+
+    virtual void Process_ID3D11CryptoSession_GetCryptoType(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_GUID>* pCryptoType){}
+
+    virtual void Process_ID3D11CryptoSession_GetDecoderProfile(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile){}
+
+    virtual void Process_ID3D11CryptoSession_GetCertificateSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<UINT>* pCertificateSize){}
+
+    virtual void Process_ID3D11CryptoSession_GetCertificate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT CertificateSize,
+        PointerDecoder<BYTE>* pCertificate){}
+
+    virtual void Process_ID3D11CryptoSession_GetCryptoSessionHandle(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        PointerDecoder<uint64_t, void*>* pCryptoSessionHandle){}
+
+    virtual void Process_ID3D11VideoDecoderOutputView_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC>* pDesc){}
+
+    virtual void Process_ID3D11VideoProcessorInputView_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC>* pDesc){}
+
+    virtual void Process_ID3D11VideoProcessorOutputView_GetDesc(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC>* pDesc){}
+
+    virtual void Process_ID3D11VideoContext_GetDecoderBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        D3D11_VIDEO_DECODER_BUFFER_TYPE Type,
+        PointerDecoder<UINT>* pBufferSize,
+        PointerDecoder<uint8_t, void*>* ppBuffer){}
+
+    virtual void Process_ID3D11VideoContext_ReleaseDecoderBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        D3D11_VIDEO_DECODER_BUFFER_TYPE Type){}
+
+    virtual void Process_ID3D11VideoContext_DecoderBeginFrame(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        format::HandleId pView,
+        UINT ContentKeySize,
+        PointerDecoder<uint8_t>* pContentKey){}
+
+    virtual void Process_ID3D11VideoContext_DecoderEndFrame(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder){}
+
+    virtual void Process_ID3D11VideoContext_SubmitDecoderBuffers(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        UINT NumBuffers,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC>* pBufferDesc){}
+
+    virtual void Process_ID3D11VideoContext_DecoderExtension(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_EXTENSION>* pExtensionData){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetOutputTargetRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        BOOL Enable,
+        StructPointerDecoder<Decoded_tagRECT>* pRect){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetOutputBackgroundColor(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        BOOL YCbCr,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_COLOR>* pColor){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetOutputColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_COLOR_SPACE>* pColorSpace){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetOutputAlphaFillMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        D3D11_VIDEO_PROCESSOR_ALPHA_FILL_MODE AlphaFillMode,
+        UINT StreamIndex){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetOutputConstriction(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        BOOL Enable,
+        Decoded_tagSIZE Size){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetOutputStereoMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        BOOL Enable){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetOutputExtension(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pVideoProcessor,
+        StructPointerDecoder<Decoded_GUID>* pExtensionGuid,
+        UINT DataSize,
+        uint64_t pData){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetOutputTargetRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<BOOL>* Enabled,
+        StructPointerDecoder<Decoded_tagRECT>* pRect){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetOutputBackgroundColor(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<BOOL>* pYCbCr,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_COLOR>* pColor){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetOutputColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_COLOR_SPACE>* pColorSpace){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetOutputAlphaFillMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<D3D11_VIDEO_PROCESSOR_ALPHA_FILL_MODE>* pAlphaFillMode,
+        PointerDecoder<UINT>* pStreamIndex){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetOutputConstriction(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<BOOL>* pEnabled,
+        StructPointerDecoder<Decoded_tagSIZE>* pSize){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetOutputStereoMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<BOOL>* pEnabled){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetOutputExtension(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pVideoProcessor,
+        StructPointerDecoder<Decoded_GUID>* pExtensionGuid,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamFrameFormat(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        D3D11_VIDEO_FRAME_FORMAT FrameFormat){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_COLOR_SPACE>* pColorSpace){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamOutputRate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        D3D11_VIDEO_PROCESSOR_OUTPUT_RATE OutputRate,
+        BOOL RepeatFrame,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pCustomRate){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamSourceRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        StructPointerDecoder<Decoded_tagRECT>* pRect){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamDestRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        StructPointerDecoder<Decoded_tagRECT>* pRect){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamAlpha(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        FLOAT Alpha){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamPalette(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        UINT Count,
+        PointerDecoder<UINT>* pEntries){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamPixelAspectRatio(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pSourceAspectRatio,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pDestinationAspectRatio){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamLumaKey(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        FLOAT Lower,
+        FLOAT Upper){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamStereoFormat(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        D3D11_VIDEO_PROCESSOR_STEREO_FORMAT Format,
+        BOOL LeftViewFrame0,
+        BOOL BaseViewFrame0,
+        D3D11_VIDEO_PROCESSOR_STEREO_FLIP_MODE FlipMode,
+        int MonoOffset){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamAutoProcessingMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamFilter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        D3D11_VIDEO_PROCESSOR_FILTER Filter,
+        BOOL Enable,
+        int Level){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamExtension(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        StructPointerDecoder<Decoded_GUID>* pExtensionGuid,
+        UINT DataSize,
+        uint64_t pData){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamFrameFormat(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<D3D11_VIDEO_FRAME_FORMAT>* pFrameFormat){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamColorSpace(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_COLOR_SPACE>* pColorSpace){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamOutputRate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<D3D11_VIDEO_PROCESSOR_OUTPUT_RATE>* pOutputRate,
+        PointerDecoder<BOOL>* pRepeatFrame,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pCustomRate){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamSourceRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnabled,
+        StructPointerDecoder<Decoded_tagRECT>* pRect){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamDestRect(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnabled,
+        StructPointerDecoder<Decoded_tagRECT>* pRect){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamAlpha(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnabled,
+        PointerDecoder<FLOAT>* pAlpha){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamPalette(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        UINT Count,
+        PointerDecoder<UINT>* pEntries){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamPixelAspectRatio(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnabled,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pSourceAspectRatio,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pDestinationAspectRatio){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamLumaKey(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnabled,
+        PointerDecoder<FLOAT>* pLower,
+        PointerDecoder<FLOAT>* pUpper){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamStereoFormat(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnable,
+        PointerDecoder<D3D11_VIDEO_PROCESSOR_STEREO_FORMAT>* pFormat,
+        PointerDecoder<BOOL>* pLeftViewFrame0,
+        PointerDecoder<BOOL>* pBaseViewFrame0,
+        PointerDecoder<D3D11_VIDEO_PROCESSOR_STEREO_FLIP_MODE>* pFlipMode,
+        PointerDecoder<int>* MonoOffset){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamAutoProcessingMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnabled){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamFilter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        D3D11_VIDEO_PROCESSOR_FILTER Filter,
+        PointerDecoder<BOOL>* pEnabled,
+        PointerDecoder<int>* pLevel){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamExtension(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        StructPointerDecoder<Decoded_GUID>* pExtensionGuid,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorBlt(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pVideoProcessor,
+        format::HandleId pView,
+        UINT OutputFrame,
+        UINT StreamCount,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_STREAM>* pStreams){}
+
+    virtual void Process_ID3D11VideoContext_NegotiateCryptoSessionKeyExchange(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pCryptoSession,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11VideoContext_EncryptionBlt(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pCryptoSession,
+        format::HandleId pSrcSurface,
+        format::HandleId pDstSurface,
+        UINT IVSize,
+        PointerDecoder<uint8_t>* pIV){}
+
+    virtual void Process_ID3D11VideoContext_DecryptionBlt(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pCryptoSession,
+        format::HandleId pSrcSurface,
+        format::HandleId pDstSurface,
+        StructPointerDecoder<Decoded_D3D11_ENCRYPTED_BLOCK_INFO>* pEncryptedBlockInfo,
+        UINT ContentKeySize,
+        PointerDecoder<uint8_t>* pContentKey,
+        UINT IVSize,
+        PointerDecoder<uint8_t>* pIV){}
+
+    virtual void Process_ID3D11VideoContext_StartSessionKeyRefresh(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pCryptoSession,
+        UINT RandomNumberSize,
+        PointerDecoder<uint8_t>* pRandomNumber){}
+
+    virtual void Process_ID3D11VideoContext_FinishSessionKeyRefresh(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pCryptoSession){}
+
+    virtual void Process_ID3D11VideoContext_GetEncryptionBltKey(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pCryptoSession,
+        UINT KeySize,
+        PointerDecoder<uint8_t>* pReadbackKey){}
+
+    virtual void Process_ID3D11VideoContext_NegotiateAuthenticatedChannelKeyExchange(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pChannel,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11VideoContext_QueryAuthenticatedChannel(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pChannel,
+        UINT InputSize,
+        PointerDecoder<uint8_t>* pInput,
+        UINT OutputSize,
+        PointerDecoder<uint8_t>* pOutput){}
+
+    virtual void Process_ID3D11VideoContext_ConfigureAuthenticatedChannel(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pChannel,
+        UINT InputSize,
+        PointerDecoder<uint8_t>* pInput,
+        StructPointerDecoder<Decoded_D3D11_AUTHENTICATED_CONFIGURE_OUTPUT>* pOutput){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorSetStreamRotation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        D3D11_VIDEO_PROCESSOR_ROTATION Rotation){}
+
+    virtual void Process_ID3D11VideoContext_VideoProcessorGetStreamRotation(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnable,
+        PointerDecoder<D3D11_VIDEO_PROCESSOR_ROTATION>* pRotation){}
+
+    virtual void Process_ID3D11VideoDevice_CreateVideoDecoder(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_DESC>* pVideoDesc,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_CONFIG>* pConfig,
+        HandlePointerDecoder<ID3D11VideoDecoder*>* ppDecoder){}
+
+    virtual void Process_ID3D11VideoDevice_CreateVideoProcessor(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pEnum,
+        UINT RateConversionIndex,
+        HandlePointerDecoder<ID3D11VideoProcessor*>* ppVideoProcessor){}
+
+    virtual void Process_ID3D11VideoDevice_CreateAuthenticatedChannel(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D11_AUTHENTICATED_CHANNEL_TYPE ChannelType,
+        HandlePointerDecoder<ID3D11AuthenticatedChannel*>* ppAuthenticatedChannel){}
+
+    virtual void Process_ID3D11VideoDevice_CreateCryptoSession(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_GUID>* pCryptoType,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile,
+        StructPointerDecoder<Decoded_GUID>* pKeyExchangeType,
+        HandlePointerDecoder<ID3D11CryptoSession*>* ppCryptoSession){}
+
+    virtual void Process_ID3D11VideoDevice_CreateVideoDecoderOutputView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11VideoDecoderOutputView*>* ppVDOVView){}
+
+    virtual void Process_ID3D11VideoDevice_CreateVideoProcessorInputView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        format::HandleId pEnum,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11VideoProcessorInputView*>* ppVPIView){}
+
+    virtual void Process_ID3D11VideoDevice_CreateVideoProcessorOutputView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        format::HandleId pEnum,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11VideoProcessorOutputView*>* ppVPOView){}
+
+    virtual void Process_ID3D11VideoDevice_CreateVideoProcessorEnumerator(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_CONTENT_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11VideoProcessorEnumerator*>* ppEnum){}
+
+    virtual void Process_ID3D11VideoDevice_GetVideoDecoderProfileCount(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value){}
+
+    virtual void Process_ID3D11VideoDevice_GetVideoDecoderProfile(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Index,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile){}
+
+    virtual void Process_ID3D11VideoDevice_CheckVideoDecoderFormat(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile,
+        DXGI_FORMAT Format,
+        PointerDecoder<BOOL>* pSupported){}
+
+    virtual void Process_ID3D11VideoDevice_GetVideoDecoderConfigCount(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_DESC>* pDesc,
+        PointerDecoder<UINT>* pCount){}
+
+    virtual void Process_ID3D11VideoDevice_GetVideoDecoderConfig(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_DESC>* pDesc,
+        UINT Index,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_CONFIG>* pConfig){}
+
+    virtual void Process_ID3D11VideoDevice_GetContentProtectionCaps(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_GUID>* pCryptoType,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_CONTENT_PROTECTION_CAPS>* pCaps){}
+
+    virtual void Process_ID3D11VideoDevice_CheckCryptoKeyExchange(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_GUID>* pCryptoType,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile,
+        UINT Index,
+        StructPointerDecoder<Decoded_GUID>* pKeyExchangeType){}
+
+    virtual void Process_ID3D11VideoDevice_SetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11VideoDevice_SetPrivateDataInterface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        format::HandleId pData){}
+
+    virtual void Process_ID3D11Device_CreateShaderResourceView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11ShaderResourceView*>* ppSRView){}
+
+    virtual void Process_ID3D11Device_CreateUnorderedAccessView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11UnorderedAccessView*>* ppUAView){}
+
+    virtual void Process_ID3D11Device_CreateRenderTargetView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_RENDER_TARGET_VIEW_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11RenderTargetView*>* ppRTView){}
+
+    virtual void Process_ID3D11Device_CreateDepthStencilView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource,
+        StructPointerDecoder<Decoded_D3D11_DEPTH_STENCIL_VIEW_DESC>* pDesc,
+        HandlePointerDecoder<ID3D11DepthStencilView*>* ppDepthStencilView){}
+
+    virtual void Process_ID3D11Device_CreateInputLayout(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_INPUT_ELEMENT_DESC>* pInputElementDescs,
+        UINT NumElements,
+        PointerDecoder<uint8_t>* pShaderBytecodeWithInputSignature,
+        SIZE_T BytecodeLength,
+        HandlePointerDecoder<ID3D11InputLayout*>* ppInputLayout){}
+
+    virtual void Process_ID3D11Device_CreateVertexShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pShaderBytecode,
+        SIZE_T BytecodeLength,
+        format::HandleId pClassLinkage,
+        HandlePointerDecoder<ID3D11VertexShader*>* ppVertexShader){}
+
+    virtual void Process_ID3D11Device_CreateGeometryShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pShaderBytecode,
+        SIZE_T BytecodeLength,
+        format::HandleId pClassLinkage,
+        HandlePointerDecoder<ID3D11GeometryShader*>* ppGeometryShader){}
+
+    virtual void Process_ID3D11Device_CreateGeometryShaderWithStreamOutput(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pShaderBytecode,
+        SIZE_T BytecodeLength,
+        StructPointerDecoder<Decoded_D3D11_SO_DECLARATION_ENTRY>* pSODeclaration,
+        UINT NumEntries,
+        PointerDecoder<UINT>* pBufferStrides,
+        UINT NumStrides,
+        UINT RasterizedStream,
+        format::HandleId pClassLinkage,
+        HandlePointerDecoder<ID3D11GeometryShader*>* ppGeometryShader){}
+
+    virtual void Process_ID3D11Device_CreatePixelShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pShaderBytecode,
+        SIZE_T BytecodeLength,
+        format::HandleId pClassLinkage,
+        HandlePointerDecoder<ID3D11PixelShader*>* ppPixelShader){}
+
+    virtual void Process_ID3D11Device_CreateHullShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pShaderBytecode,
+        SIZE_T BytecodeLength,
+        format::HandleId pClassLinkage,
+        HandlePointerDecoder<ID3D11HullShader*>* ppHullShader){}
+
+    virtual void Process_ID3D11Device_CreateDomainShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pShaderBytecode,
+        SIZE_T BytecodeLength,
+        format::HandleId pClassLinkage,
+        HandlePointerDecoder<ID3D11DomainShader*>* ppDomainShader){}
+
+    virtual void Process_ID3D11Device_CreateComputeShader(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        PointerDecoder<uint8_t>* pShaderBytecode,
+        SIZE_T BytecodeLength,
+        format::HandleId pClassLinkage,
+        HandlePointerDecoder<ID3D11ComputeShader*>* ppComputeShader){}
+
+    virtual void Process_ID3D11Device_CreateClassLinkage(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        HandlePointerDecoder<ID3D11ClassLinkage*>* ppLinkage){}
+
+    virtual void Process_ID3D11Device_CreateBlendState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_BLEND_DESC>* pBlendStateDesc,
+        HandlePointerDecoder<ID3D11BlendState*>* ppBlendState){}
+
+    virtual void Process_ID3D11Device_CreateDepthStencilState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_DEPTH_STENCIL_DESC>* pDepthStencilDesc,
+        HandlePointerDecoder<ID3D11DepthStencilState*>* ppDepthStencilState){}
+
+    virtual void Process_ID3D11Device_CreateRasterizerState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_RASTERIZER_DESC>* pRasterizerDesc,
+        HandlePointerDecoder<ID3D11RasterizerState*>* ppRasterizerState){}
+
+    virtual void Process_ID3D11Device_CreateSamplerState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_SAMPLER_DESC>* pSamplerDesc,
+        HandlePointerDecoder<ID3D11SamplerState*>* ppSamplerState){}
+
+    virtual void Process_ID3D11Device_CreateQuery(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_QUERY_DESC>* pQueryDesc,
+        HandlePointerDecoder<ID3D11Query*>* ppQuery){}
+
+    virtual void Process_ID3D11Device_CreatePredicate(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_QUERY_DESC>* pPredicateDesc,
+        HandlePointerDecoder<ID3D11Predicate*>* ppPredicate){}
+
+    virtual void Process_ID3D11Device_CreateCounter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_COUNTER_DESC>* pCounterDesc,
+        HandlePointerDecoder<ID3D11Counter*>* ppCounter){}
+
+    virtual void Process_ID3D11Device_CreateDeferredContext(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT ContextFlags,
+        HandlePointerDecoder<ID3D11DeviceContext*>* ppDeferredContext){}
+
+    virtual void Process_ID3D11Device_OpenSharedResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hResource,
+        Decoded_GUID ReturnedInterface,
+        HandlePointerDecoder<void*>* ppResource){}
+
+    virtual void Process_ID3D11Device_CheckFormatSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT Format,
+        PointerDecoder<UINT>* pFormatSupport){}
+
+    virtual void Process_ID3D11Device_CheckMultisampleQualityLevels(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT Format,
+        UINT SampleCount,
+        PointerDecoder<UINT>* pNumQualityLevels){}
+
+    virtual void Process_ID3D11Device_CheckCounterInfo(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_COUNTER_INFO>* pCounterInfo){}
+
+    virtual void Process_ID3D11Device_CheckCounter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_COUNTER_DESC>* pDesc,
+        PointerDecoder<D3D11_COUNTER_TYPE>* pType,
+        PointerDecoder<UINT>* pActiveCounters,
+        StringDecoder* szName,
+        PointerDecoder<UINT>* pNameLength,
+        StringDecoder* szUnits,
+        PointerDecoder<UINT>* pUnitsLength,
+        StringDecoder* szDescription,
+        PointerDecoder<UINT>* pDescriptionLength){}
+
+    virtual void Process_ID3D11Device_CheckFeatureSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D11_FEATURE Feature,
+        PointerDecoder<uint8_t>* pFeatureSupportData,
+        UINT FeatureSupportDataSize){}
+
+    virtual void Process_ID3D11Device_GetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        PointerDecoder<UINT>* pDataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11Device_SetPrivateData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11Device_SetPrivateDataInterface(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID guid,
+        format::HandleId pData){}
+
+    virtual void Process_ID3D11Device_GetFeatureLevel(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        D3D_FEATURE_LEVEL return_value){}
+
+    virtual void Process_ID3D11Device_GetCreationFlags(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value){}
+
+    virtual void Process_ID3D11Device_GetDeviceRemovedReason(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value){}
+
+    virtual void Process_ID3D11Device_GetImmediateContext(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11DeviceContext*>* ppImmediateContext){}
+
+    virtual void Process_ID3D11Device_SetExceptionMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT RaiseFlags){}
+
+    virtual void Process_ID3D11Device_GetExceptionMode(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT return_value){}
+
+/*
+** This part is generated from d3d11_1.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_ID3D11BlendState1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_BLEND_DESC1>* pDesc){}
+
+    virtual void Process_ID3D11RasterizerState1_GetDesc1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        StructPointerDecoder<Decoded_D3D11_RASTERIZER_DESC1>* pDesc){}
+
+    virtual void Process_ID3D11DeviceContext1_CopySubresourceRegion1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDstResource,
+        UINT DstSubresource,
+        UINT DstX,
+        UINT DstY,
+        UINT DstZ,
+        format::HandleId pSrcResource,
+        UINT SrcSubresource,
+        StructPointerDecoder<Decoded_D3D11_BOX>* pSrcBox,
+        UINT CopyFlags){}
+
+    virtual void Process_ID3D11DeviceContext1_DiscardResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResource){}
+
+    virtual void Process_ID3D11DeviceContext1_DiscardView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResourceView){}
+
+    virtual void Process_ID3D11DeviceContext1_VSSetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_HSSetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_DSSetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_GSSetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_PSSetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_CSSetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_VSGetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_HSGetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_DSGetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_GSGetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_PSGetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_CSGetConstantBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        UINT StartSlot,
+        UINT NumBuffers,
+        HandlePointerDecoder<ID3D11Buffer*>* ppConstantBuffers,
+        PointerDecoder<UINT>* pFirstConstant,
+        PointerDecoder<UINT>* pNumConstants){}
+
+    virtual void Process_ID3D11DeviceContext1_SwapDeviceContextState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pState,
+        HandlePointerDecoder<ID3DDeviceContextState*>* ppPreviousState){}
+
+    virtual void Process_ID3D11DeviceContext1_ClearView(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pView,
+        PointerDecoder<FLOAT> Color [4],
+        StructPointerDecoder<Decoded_tagRECT>* pRect,
+        UINT NumRects){}
+
+    virtual void Process_ID3D11DeviceContext1_DiscardView1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pResourceView,
+        StructPointerDecoder<Decoded_tagRECT>* pRects,
+        UINT NumRects){}
+
+    virtual void Process_ID3D11VideoContext1_SubmitDecoderBuffers1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        UINT NumBuffers,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC1>* pBufferDesc){}
+
+    virtual void Process_ID3D11VideoContext1_GetDataForNewHardwareKey(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pCryptoSession,
+        UINT PrivateInputSize,
+        PointerDecoder<uint8_t>* pPrivatInputData,
+        PointerDecoder<UINT64>* pPrivateOutputData){}
+
+    virtual void Process_ID3D11VideoContext1_CheckCryptoSessionStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pCryptoSession,
+        PointerDecoder<D3D11_CRYPTO_SESSION_STATUS>* pStatus){}
+
+    virtual void Process_ID3D11VideoContext1_DecoderEnableDownsampling(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        DXGI_COLOR_SPACE_TYPE InputColorSpace,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_SAMPLE_DESC>* pOutputDesc,
+        UINT ReferenceFrameCount){}
+
+    virtual void Process_ID3D11VideoContext1_DecoderUpdateDownsampling(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_SAMPLE_DESC>* pOutputDesc){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorSetOutputColorSpace1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        DXGI_COLOR_SPACE_TYPE ColorSpace){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorSetOutputShaderUsage(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        BOOL ShaderUsage){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorGetOutputColorSpace1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<DXGI_COLOR_SPACE_TYPE>* pColorSpace){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorGetOutputShaderUsage(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<BOOL>* pShaderUsage){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorSetStreamColorSpace1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        DXGI_COLOR_SPACE_TYPE ColorSpace){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorSetStreamMirror(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        BOOL Enable,
+        BOOL FlipHorizontal,
+        BOOL FlipVertical){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorGetStreamColorSpace1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<DXGI_COLOR_SPACE_TYPE>* pColorSpace){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorGetStreamMirror(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<BOOL>* pEnable,
+        PointerDecoder<BOOL>* pFlipHorizontal,
+        PointerDecoder<BOOL>* pFlipVertical){}
+
+    virtual void Process_ID3D11VideoContext1_VideoProcessorGetBehaviorHints(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pVideoProcessor,
+        UINT OutputWidth,
+        UINT OutputHeight,
+        DXGI_FORMAT OutputFormat,
+        UINT StreamCount,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_PROCESSOR_STREAM_BEHAVIOR_HINT>* pStreams,
+        PointerDecoder<UINT>* pBehaviorHints){}
+
+    virtual void Process_ID3D11VideoDevice1_GetCryptoSessionPrivateDataSize(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_GUID>* pCryptoType,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile,
+        StructPointerDecoder<Decoded_GUID>* pKeyExchangeType,
+        PointerDecoder<UINT>* pPrivateInputSize,
+        PointerDecoder<UINT>* pPrivateOutputSize){}
+
+    virtual void Process_ID3D11VideoDevice1_GetVideoDecoderCaps(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_GUID>* pDecoderProfile,
+        UINT SampleWidth,
+        UINT SampleHeight,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pFrameRate,
+        UINT BitRate,
+        StructPointerDecoder<Decoded_GUID>* pCryptoType,
+        PointerDecoder<UINT>* pDecoderCaps){}
+
+    virtual void Process_ID3D11VideoDevice1_CheckVideoDecoderDownsampling(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_DESC>* pInputDesc,
+        DXGI_COLOR_SPACE_TYPE InputColorSpace,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_CONFIG>* pInputConfig,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pFrameRate,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_SAMPLE_DESC>* pOutputDesc,
+        PointerDecoder<BOOL>* pSupported,
+        PointerDecoder<BOOL>* pRealTimeHint){}
+
+    virtual void Process_ID3D11VideoDevice1_RecommendVideoDecoderDownsampleParameters(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_DESC>* pInputDesc,
+        DXGI_COLOR_SPACE_TYPE InputColorSpace,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_CONFIG>* pInputConfig,
+        StructPointerDecoder<Decoded_DXGI_RATIONAL>* pFrameRate,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_SAMPLE_DESC>* pRecommendedOutputDesc){}
+
+    virtual void Process_ID3D11VideoProcessorEnumerator1_CheckVideoProcessorFormatConversion(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT InputFormat,
+        DXGI_COLOR_SPACE_TYPE InputColorSpace,
+        DXGI_FORMAT OutputFormat,
+        DXGI_COLOR_SPACE_TYPE OutputColorSpace,
+        PointerDecoder<BOOL>* pSupported){}
+
+    virtual void Process_ID3D11Device1_GetImmediateContext1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11DeviceContext1*>* ppImmediateContext){}
+
+    virtual void Process_ID3D11Device1_CreateDeferredContext1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT ContextFlags,
+        HandlePointerDecoder<ID3D11DeviceContext1*>* ppDeferredContext){}
+
+    virtual void Process_ID3D11Device1_CreateBlendState1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_BLEND_DESC1>* pBlendStateDesc,
+        HandlePointerDecoder<ID3D11BlendState1*>* ppBlendState){}
+
+    virtual void Process_ID3D11Device1_CreateRasterizerState1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_RASTERIZER_DESC1>* pRasterizerDesc,
+        HandlePointerDecoder<ID3D11RasterizerState1*>* ppRasterizerState){}
+
+    virtual void Process_ID3D11Device1_CreateDeviceContextState(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT Flags,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pFeatureLevels,
+        UINT FeatureLevels,
+        UINT SDKVersion,
+        Decoded_GUID EmulatedInterface,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pChosenFeatureLevel,
+        HandlePointerDecoder<ID3DDeviceContextState*>* ppContextState){}
+
+    virtual void Process_ID3D11Device1_OpenSharedResource1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hResource,
+        Decoded_GUID returnedInterface,
+        HandlePointerDecoder<void*>* ppResource){}
+
+    virtual void Process_ID3D11Device1_OpenSharedResourceByName(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        WStringDecoder* lpName,
+        DWORD dwDesiredAccess,
+        Decoded_GUID returnedInterface,
+        HandlePointerDecoder<void*>* ppResource){}
+
+    virtual void Process_ID3DUserDefinedAnnotation_BeginEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        INT return_value,
+        WStringDecoder* Name){}
+
+    virtual void Process_ID3DUserDefinedAnnotation_EndEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        INT return_value){}
+
+    virtual void Process_ID3DUserDefinedAnnotation_SetMarker(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        WStringDecoder* Name){}
+
+    virtual void Process_ID3DUserDefinedAnnotation_GetStatus(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value){}
+
+/*
+** This part is generated from d3d11_2.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_ID3D11DeviceContext2_UpdateTileMappings(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pTiledResource,
+        UINT NumTiledResourceRegions,
+        StructPointerDecoder<Decoded_D3D11_TILED_RESOURCE_COORDINATE>* pTiledResourceRegionStartCoordinates,
+        StructPointerDecoder<Decoded_D3D11_TILE_REGION_SIZE>* pTiledResourceRegionSizes,
+        format::HandleId pTilePool,
+        UINT NumRanges,
+        PointerDecoder<UINT>* pRangeFlags,
+        PointerDecoder<UINT>* pTilePoolStartOffsets,
+        PointerDecoder<UINT>* pRangeTileCounts,
+        UINT Flags){}
+
+    virtual void Process_ID3D11DeviceContext2_CopyTileMappings(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDestTiledResource,
+        StructPointerDecoder<Decoded_D3D11_TILED_RESOURCE_COORDINATE>* pDestRegionStartCoordinate,
+        format::HandleId pSourceTiledResource,
+        StructPointerDecoder<Decoded_D3D11_TILED_RESOURCE_COORDINATE>* pSourceRegionStartCoordinate,
+        StructPointerDecoder<Decoded_D3D11_TILE_REGION_SIZE>* pTileRegionSize,
+        UINT Flags){}
+
+    virtual void Process_ID3D11DeviceContext2_CopyTiles(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pTiledResource,
+        StructPointerDecoder<Decoded_D3D11_TILED_RESOURCE_COORDINATE>* pTileRegionStartCoordinate,
+        StructPointerDecoder<Decoded_D3D11_TILE_REGION_SIZE>* pTileRegionSize,
+        format::HandleId pBuffer,
+        UINT64 BufferStartOffsetInBytes,
+        UINT Flags){}
+
+    virtual void Process_ID3D11DeviceContext2_UpdateTiles(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pDestTiledResource,
+        StructPointerDecoder<Decoded_D3D11_TILED_RESOURCE_COORDINATE>* pDestTileRegionStartCoordinate,
+        StructPointerDecoder<Decoded_D3D11_TILE_REGION_SIZE>* pDestTileRegionSize,
+        uint64_t pSourceTileData,
+        UINT Flags){}
+
+    virtual void Process_ID3D11DeviceContext2_ResizeTilePool(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pTilePool,
+        UINT64 NewSizeInBytes){}
+
+    virtual void Process_ID3D11DeviceContext2_TiledResourceBarrier(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pTiledResourceOrViewAccessBeforeBarrier,
+        format::HandleId pTiledResourceOrViewAccessAfterBarrier){}
+
+    virtual void Process_ID3D11DeviceContext2_IsAnnotationEnabled(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value){}
+
+    virtual void Process_ID3D11DeviceContext2_SetMarkerInt(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        WStringDecoder* pLabel,
+        INT Data){}
+
+    virtual void Process_ID3D11DeviceContext2_BeginEventInt(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        WStringDecoder* pLabel,
+        INT Data){}
+
+    virtual void Process_ID3D11DeviceContext2_EndEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id){}
+
+    virtual void Process_ID3D11Device2_GetImmediateContext2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11DeviceContext2*>* ppImmediateContext){}
+
+    virtual void Process_ID3D11Device2_CreateDeferredContext2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT ContextFlags,
+        HandlePointerDecoder<ID3D11DeviceContext2*>* ppDeferredContext){}
+
+    virtual void Process_ID3D11Device2_GetResourceTiling(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pTiledResource,
+        PointerDecoder<UINT>* pNumTilesForEntireResource,
+        StructPointerDecoder<Decoded_D3D11_PACKED_MIP_DESC>* pPackedMipDesc,
+        StructPointerDecoder<Decoded_D3D11_TILE_SHAPE>* pStandardTileShapeForNonPackedMips,
+        PointerDecoder<UINT>* pNumSubresourceTilings,
+        UINT FirstSubresourceTilingToGet,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_TILING>* pSubresourceTilingsForNonPackedMips){}
+
+    virtual void Process_ID3D11Device2_CheckMultisampleQualityLevels1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        DXGI_FORMAT Format,
+        UINT SampleCount,
+        UINT Flags,
+        PointerDecoder<UINT>* pNumQualityLevels){}
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */
