@@ -1155,7 +1155,7 @@ class D3D12CaptureManager : public ApiCaptureManager
     uint64_t GetResourceSizeInBytes(ID3D12Device_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC* desc);
     uint64_t GetResourceSizeInBytes(ID3D12Device8_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC1* desc);
     void     UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain);
-    void     ProcessMappedMemory();
+    void     ProcessMappedMemory(format::ApiFamilyId api_family);
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();

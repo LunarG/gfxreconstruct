@@ -70,7 +70,8 @@ class Dx12DecoderBase : public ApiDecoder
     virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) override
     {
         format::ApiFamilyId api = format::GetMetaDataApi(meta_data_id);
-        return (api == format::ApiFamilyId::ApiFamily_Dxgi) || (api == format::ApiFamilyId::ApiFamily_D3D12);
+        return (api == format::ApiFamilyId::ApiFamily_Dxgi) || (api == format::ApiFamilyId::ApiFamily_D3D12) ||
+               (api == format::ApiFamilyId::ApiFamily_D3D11);
     }
 
     virtual void DecodeFunctionCall(format::ApiCallId  call_id,

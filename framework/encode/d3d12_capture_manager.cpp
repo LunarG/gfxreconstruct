@@ -565,20 +565,22 @@ uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device8_Wrapper*     
     return graphics::dx12::GetResourceSizeInBytes(device, desc);
 }
 
-void D3D12CaptureManager::ProcessMappedMemory()
+void D3D12CaptureManager::ProcessMappedMemory(format::ApiFamilyId api_family)
 {
     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
         assert(manager != nullptr);
 
-        manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+        manager->ProcessMemoryEntries([this, api_family](
+                                          uint64_t memory_id, void* start_address, size_t offset, size_t size) {
             if (RvAnnotationActive() == true)
             {
                 resource_value_annotator_->ScanForGPUVA(
                     memory_id, reinterpret_cast<uint8_t*>(start_address) + offset, size, offset);
             }
-            WriteFillMemoryCmd(memory_id, offset, size, start_address);
+
+            WriteFillMemoryCmd(api_family, memory_id, offset, size, start_address);
         });
     }
     else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
@@ -605,8 +607,11 @@ void D3D12CaptureManager::ProcessMappedMemory()
                                                                 size,
                                                                 0);
                     }
-                    WriteFillMemoryCmd(
-                        reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
+                    WriteFillMemoryCmd(api_family,
+                                       reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                       0,
+                                       size,
+                                       mapped_subresource.data);
                 }
             }
         }
@@ -1886,7 +1891,7 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
     GFXRECON_UNREFERENCED_PARAMETER(num_lists);
     GFXRECON_UNREFERENCED_PARAMETER(lists);
 
-    ProcessMappedMemory();
+    ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D12);
 
     // Split commandlist is for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
     // queue_submit_count_.
@@ -3637,7 +3642,8 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                             manager->ProcessMemoryEntry(
                                 mapped_subresource.tracker_id,
                                 [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                    WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                    WriteFillMemoryCmd(
+                                        format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
                                 });
 
                             // Update the memory ID and pointer that will be written to the capture file with the
@@ -3696,7 +3702,8 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
                             manager->ProcessMemoryEntry(
                                 mapped_subresource.tracker_id,
                                 [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                    WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                    WriteFillMemoryCmd(
+                                        format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
                                 });
 
                             // Persistent allocations created for D3D11_MAP_DISCARD and D3D11_MAP_NO_OVERWRITE will stay
@@ -3716,7 +3723,8 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
                             uint64_t offset = 0;
                             uint64_t size   = info->subresource_sizes[subresource];
 
-                            WriteFillMemoryCmd(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                            WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_D3D11,
+                                               reinterpret_cast<uint64_t>(mapped_subresource.data),
                                                offset,
                                                size,
                                                mapped_subresource.data);
@@ -3756,7 +3764,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Dispatch(ID3D11DeviceCo
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3770,7 +3778,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DispatchIndirect(ID3D11
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3784,7 +3792,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Draw(ID3D11DeviceContex
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3794,7 +3802,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawAuto(ID3D11DeviceCo
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3810,7 +3818,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexed(ID3D11Devic
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3830,7 +3838,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(ID
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3843,7 +3851,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexedInstancedInd
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3861,7 +3869,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawInstanced(ID3D11Dev
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 
@@ -3875,7 +3883,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawInstancedIndirect(I
 
     if (GetEnableD3D11MapWorkaroundSetting())
     {
-        ProcessMappedMemory();
+        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
     }
 }
 

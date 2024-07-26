@@ -235,6 +235,14 @@ class ApiCaptureManager
     }
     void WriteToFile(const void* data, size_t size) { common_manager_->WriteToFile(data, size); }
 
+    // TODO: Temporary function to allow D3D12 and D3D11 API IDs to be written from the same process, needed until
+    // D3D11, D3D12, and DXGI can each have their own separate API capture managers within the same process.
+    void WriteFillMemoryCmd(
+        format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data)
+    {
+        common_manager_->WriteFillMemoryCmd(api_family, memory_id, offset, size, data);
+    }
+
     template <size_t N>
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
     {
