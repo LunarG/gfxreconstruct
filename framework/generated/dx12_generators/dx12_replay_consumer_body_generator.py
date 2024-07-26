@@ -502,18 +502,22 @@ class Dx12ReplayConsumerBodyGenerator(
                 "    }\n"
             )
            
-        if return_type == 'HRESULT':
-            if len(add_object_list) or len(struct_add_object_list):
-                code += ("    if (SUCCEEDED(replay_result))\n" "    {\n")
-                for e in add_object_list:
+        if len(add_object_list) or len(struct_add_object_list):
+            scope_indent = '    '
+            if return_type == 'HRESULT':
+                code += "    if (SUCCEEDED(replay_result))\n    {\n"
+                scope_indent += '    '
+            for e in add_object_list:
+                code += scope_indent + '{}'.format(e)
+            for e in struct_add_object_list:
+                code += scope_indent + '{}'.format(e)
+            if is_resource_creation_methods:
+                for e in set_resource_dimension_layout_list:
                     code += '        {}'.format(e)
-                for e in struct_add_object_list:
-                    code += '        {}'.format(e)
-                if is_resource_creation_methods:
-                    for e in set_resource_dimension_layout_list:
-                        code += '        {}'.format(e)
+            if return_type == 'HRESULT':
                 code += "    }\n"
 
+        if return_type == 'HRESULT':
             code += (
                 '    CheckReplayResult("{}", return_value, replay_result);\n'.
                 format(name)
