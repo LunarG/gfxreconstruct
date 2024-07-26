@@ -21,22 +21,25 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import re
 from CppHeaderParser import CppHeader, CppHeaderParser
 
 SAL_TOKENS = [
     '__in_ecount', '__in_ecount_opt', '__RPC__deref_out',
     '__RPC__deref_out_opt', '__RPC__in', '_Always_', '_COM_Outptr_',
-    '_COM_Outptr_opt_', '_COM_Outptr_opt_result_maybenull_',
-    '_Field_size_bytes_full_', '_Field_size_bytes_full_opt_',
-    '_Field_size_full_', '_Field_size_full_opt_', '_Field_z_', '_In_',
-    '_In_opt_', '_In_range_', '_In_reads_', '_In_reads_bytes_',
-    '_In_reads_bytes_opt_', '_In_reads_opt_', '_In_z_', '_Inout_',
-    '_Inout_opt_', '_Inout_updates_bytes_', '_Out_', '_Out_opt_',
-    '_Out_writes_', '_Out_writes_all_', '_Out_writes_all_opt_',
-    '_Out_writes_bytes_', '_Out_writes_bytes_opt_', '_Out_writes_bytes_to_',
-    '_Out_writes_opt_', '_Out_writes_to_opt_',
-    '_Outptr_opt_result_bytebuffer_', '_Field_size_', '_In_opt_count_',
-    '_In_count_'
+    '_COM_Outptr_opt_', '_COM_Outptr_opt_result_maybenull_', '_Field_size_',
+    '_Field_size_opt_', '_Field_size_bytes_full_',
+    '_Field_size_bytes_full_opt_', '_Field_size_full_',
+    '_Field_size_full_opt_', '_Field_z_', '_In_', '_In_count_', '_In_opt_',
+    '_In_opt_count_', '_In_opt_bytecount_', '_In_range_', '_In_reads_',
+    '_In_reads_bytes_', '_In_reads_bytes_opt_', '_In_reads_opt_', '_In_z_',
+    '_Inout_', '_Inout_opt_', '_Inout_opt_bytecount_', '_Inout_updates_bytes_',
+    '_Out_', '_Out_opt_', '_Out_writes_', '_Out_writes_all_',
+    '_Out_writes_all_opt_', '_Out_writes_bytes_', '_Out_writes_bytes_opt_',
+    '_Out_writes_bytes_to_', '_Out_writes_opt_', '_Out_writes_to_opt_',
+    '_Outptr_', '_Outptr_result_maybenull_', '_Outptr_result_bytebuffer_','_Outptr_opt_',
+    '_Outptr_opt_result_maybenull_', '_Outptr_opt_result_bytebuffer_',
+    '__MIDL___MIDL_itf_d3d11_0000_0034_0001'
 ]
 
 original_warning_print = CppHeaderParser.warning_print
@@ -124,9 +127,10 @@ class Dx12CppHeader(CppHeader):
         CppHeader.__init__(self, source, "string", encoding, **kwargs)
 
     def preprocess_file(self, lines):
-        """Preprocess header file to remove MIDL macros and CINTERACE declarations."""
+        """Preprocess header file to remove MIDL macros, CINTERACE declarations, _Inexpressible tags, and D3D11 helper declarations."""
         source = ''
         interface_scope = 0
+        helper_scope = False
         ignore_lines = False
         enum_scope = False
         retval_param = False
@@ -135,21 +139,37 @@ class Dx12CppHeader(CppHeader):
 
             if 'DEFINE_ENUM_FLAG_OPERATORS(' in line:
                 continue
-            
+
             if interface_scope == 0:
                 source += line
-                enum_scope = line.startswith('typedef enum ')
-                if (line.startswith('#if') and ('!defined(CINTERFACE)' in line)) or enum_scope:
+
+                if line.startswith('typedef enum '):
+                    enum_scope = True
+                elif line.startswith('#if') and (
+                    '!defined( D3D11_NO_HELPERS )' in line
+                ):
+                    helper_scope = True
+                    ignore_lines = True
+
+                if (
+                    line.startswith('#if') and
+                    ('!defined(CINTERFACE)' in line)
+                ) or enum_scope or helper_scope:
                     interface_scope = 1
             else:
                 if enum_scope:
                     if line.find(', *') != -1:
                         interface_scope = 0
                         ignore_lines = False
+                elif helper_scope:
+                    if line.startswith('#endif'):
+                        interface_scope = 0
+                        helper_scope = False
+                        ignore_lines = False
                 else:
                     if line.startswith('#if'):
                         interface_scope += 1
-                        
+
                         if 'defined(_MSC_VER) || !defined(_WIN32)' in line:
                             retval_param = True
 
@@ -192,5 +212,15 @@ class Dx12CppHeader(CppHeader):
                         new_line = new_line.replace(
                             'END_INTERFACE', '//END_INTERFACE'
                         )
+
+                        if '_Inexpressible_' in new_line:
+                            # Some expressions specified with the _Inexpressible_ SAL token are causing the parser
+                            # to merge the current parameter declaration with the following parameter declaration
+                            # (eg. pDesc->MipLevels). Add quotes to unquoted expressions to avoid the parsing error
+                            # while preserving the original data.
+                            new_line = re.sub(
+                                r'_Inexpressible_\(([^")]+)\)',
+                                '_Inexpressible_("\\1")', new_line
+                            )
                     source += new_line
         return source

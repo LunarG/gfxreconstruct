@@ -66,6 +66,9 @@ GENERATE_TARGETS = [
 ]
 
 WINDOWS_SDK_SOURCE_LIST = [
+    'um\\d3d11.h',
+    'um\\d3d11_1.h',
+    'um\\d3d11_2.h',
     'shared\\dxgi.h',
     'shared\\dxgi1_2.h',
     'shared\\dxgi1_3.h',
@@ -87,7 +90,7 @@ AGILITY_SDK_SOURCE_LIST = [
 WINAPI_SOURCE_LIST = [
     ['um\\Unknwnbase.h', ['IUnknown']],
     ['shared\\guiddef.h', ['GUID']],
-    ['shared\\windef.h', ['tagRECT', 'tagPOINT']],
+    ['shared\\windef.h', ['tagRECT', 'tagPOINT', 'tagSIZE']],
     ['um\\minwinbase.h', ['_SECURITY_ATTRIBUTES']],
 ]
 
