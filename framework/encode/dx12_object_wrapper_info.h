@@ -112,6 +112,7 @@ struct DxgiWrapperInfo : public DxWrapperInfo
 struct MappedSubresource
 {
     void*     data{ nullptr };
+    uint64_t  tracker_id{ 0 };
     uintptr_t shadow_allocation{ util::PageGuardManager::kNullShadowHandle };
     int32_t   map_count{ 0 };
 };

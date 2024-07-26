@@ -2,6 +2,7 @@
 ** Copyright (c) 2016 Advanced Micro Devices, Inc. All rights reserved.
 ** Copyright (c) 2015-2020 Valve Corporation
 ** Copyright (c) 2015-2020 LunarG, Inc.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -110,7 +111,7 @@ class PageGuardManager
 
     bool UseSeparateRead() const { return enable_separate_read_; }
 
-    bool GetTrackedMemory(uint64_t memory_id, void** memory);
+    bool GetTrackedMemory(uint64_t tracker_key, void** memory);
 
     // The use_write_watch parameter is ignored on all platforms except Windows, and is ignored on Windows if
     // shadow_memory is true.
@@ -124,7 +125,8 @@ class PageGuardManager
     // allocation will be created.  Unless copy-on-map is disabled, the content of the mapped_range portion of
     // mapped_memory will be copied to the shadow allocation.  The shadow allocation will be freed by
     // RemoveTrackedMemory.
-    void* AddTrackedMemory(uint64_t  memory_id,
+    void* AddTrackedMemory(uint64_t  tracker_key,
+                           uint64_t  memory_id,
                            void*     mapped_memory,
                            size_t    mapped_offset,
                            size_t    mapped_range,
@@ -132,9 +134,33 @@ class PageGuardManager
                            bool      use_shadow_memory,
                            bool      use_write_watch);
 
-    void RemoveTrackedMemory(uint64_t memory_id);
+    // Convenience function for APIs that do not require separate tracked memory key and memory ID values.
+    void* AddTrackedMemory(uint64_t  memory_id,
+                           void*     mapped_memory,
+                           size_t    mapped_offset,
+                           size_t    mapped_range,
+                           uintptr_t shadow_memory_handle,
+                           bool      use_shadow_memory,
+                           bool      use_write_watch)
+    {
+        return AddTrackedMemory(memory_id,
+                                memory_id,
+                                mapped_memory,
+                                mapped_offset,
+                                mapped_range,
+                                shadow_memory_handle,
+                                use_shadow_memory,
+                                use_write_watch);
+    }
 
-    void ProcessMemoryEntry(uint64_t memory_id, const ModifiedMemoryFunc& handle_modified);
+    void RemoveTrackedMemory(uint64_t tracker_key);
+
+    // Replace the memory ID and memory allocation for the specified entry, optionally retrieving the pointer to the
+    // shadow memory. Primarily intended for updating mapped memory info associated with persistent shadow memory
+    // allocations.
+    bool UpdateTrackedMemory(uint64_t tracker_key, uint64_t memory_id, void* mapped_memory, void** shadow_memory);
+
+    void ProcessMemoryEntry(uint64_t tracker_key, const ModifiedMemoryFunc& handle_modified);
 
     void ProcessMemoryEntries(const ModifiedMemoryFunc& handle_modified);
 
@@ -159,7 +185,8 @@ class PageGuardManager
 
     struct MemoryInfo
     {
-        MemoryInfo(void*       mm,
+        MemoryInfo(uint64_t    mi,
+                   void*       mm,
                    size_t      mr,
                    void*       sm,
                    size_t      sr,
@@ -172,9 +199,9 @@ class PageGuardManager
                    bool        ww,
                    bool        os) :
             status_tracker(tp),
-            mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr), aligned_address(aa),
-            aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa), end_address(ea),
-            use_write_watch(ww), is_modified(false), own_shadow_memory(os)
+            memory_id(mi), mapped_memory(mm), mapped_range(mr), shadow_memory(sm), shadow_range(sr),
+            aligned_address(aa), aligned_offset(ao), total_pages(tp), last_segment_size(lss), start_address(sa),
+            end_address(ea), use_write_watch(ww), is_modified(false), own_shadow_memory(os)
         {
 #if defined(WIN32)
             if (shadow_memory == nullptr)
@@ -186,10 +213,11 @@ class PageGuardManager
 
         PageStatusTracker status_tracker;
 
-        void*  mapped_memory;  // Pointer to mapped memory to be tracked.
-        size_t mapped_range;   // Size of the mapped memory range.
-        void*  shadow_memory;  // Shadow memory for mapped memory types that cannot be tracked by guard pages.
-        size_t shadow_range;   // Size of the shadow memory allocation, which is the mapped memory size adjusted to be a
+        uint64_t memory_id;     // ID of the mapped memory to be tracked.
+        void*    mapped_memory; // Pointer to mapped memory to be tracked.
+        size_t   mapped_range;  // Size of the mapped memory range.
+        void*    shadow_memory; // Shadow memory for mapped memory types that cannot be tracked by guard pages.
+        size_t   shadow_range; // Size of the shadow memory allocation, which is the mapped memory size adjusted to be a
                                // multiple of system page size.
         void* aligned_address; // Mapped memory pointer aligned to start of page when shadow memory is disabled, or
                                // shadow memory pointer when enabled.
@@ -254,9 +282,8 @@ class PageGuardManager
     bool   FindMemory(void* address, MemoryInfo** watched_memory_info);
     bool   SetMemoryProtection(void* protect_address, size_t protect_size, uint32_t protect_mask);
     void   LoadActiveWriteStates(MemoryInfo* memory_info);
-    void   ProcessEntry(uint64_t memory_id, MemoryInfo* memory_info, const ModifiedMemoryFunc& handle_modified);
-    void   ProcessActiveRange(uint64_t                  memory_id,
-                              MemoryInfo*               memory_info,
+    void   ProcessEntry(MemoryInfo* memory_info, const ModifiedMemoryFunc& handle_modified);
+    void   ProcessActiveRange(MemoryInfo*               memory_info,
                               size_t                    start_index,
                               size_t                    end_index,
                               const ModifiedMemoryFunc& handle_modified);

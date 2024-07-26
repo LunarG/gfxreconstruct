@@ -3121,6 +3121,68 @@ std::shared_ptr<ID3D11ResourceInfo> D3D12CaptureManager::GetResourceInfo(ID3D11R
     return info;
 }
 
+void* D3D12CaptureManager::AllocateMappedResourceMemory(util::PageGuardManager* manager,
+                                                        MappedSubresource&      mapped_subresource,
+                                                        size_t                  size)
+{
+    // Ensure that the mapped subresource has a unique ID for tracking.
+    if (mapped_subresource.tracker_id == 0)
+    {
+        // This function should only be called when mapped_memory_lock_ is locked, so no need for additional
+        // synchronization around the ID calculation.
+        static uint64_t subresource_id = 0;
+        mapped_subresource.tracker_id  = ++subresource_id;
+    }
+
+    return manager->AddTrackedMemory(mapped_subresource.tracker_id,
+                                     reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                     mapped_subresource.data,
+                                     0,
+                                     size,
+                                     mapped_subresource.shadow_allocation,
+                                     true,
+                                     false);
+}
+
+void* D3D12CaptureManager::GetMappedResourceMemory(util::PageGuardManager*  manager,
+                                                   const MappedSubresource& mapped_subresource)
+{
+    GFXRECON_ASSERT(mapped_subresource.tracker_id != 0);
+
+    // If the get fails, return the original pointer returned by Map.
+    auto shadow_memory = mapped_subresource.data;
+    auto found         = manager->GetTrackedMemory(mapped_subresource.tracker_id, &shadow_memory);
+
+    if (!found)
+    {
+        GFXRECON_LOG_ERROR("Failed to find tracked memory object for a previously mapped resource.")
+    }
+
+    return shadow_memory;
+}
+
+void* D3D12CaptureManager::UpdateDiscardedResourceMemory(util::PageGuardManager*  manager,
+                                                         const MappedSubresource& mapped_subresource)
+{
+    // Update the memory ID that will be written to the capture file with the address of the
+    // new mapped allocation returned for D3D11_MAP_DISCARD.
+    GFXRECON_ASSERT(mapped_subresource.tracker_id != 0);
+
+    // If the update fails, return the original pointer returned by Map.
+    auto shadow_memory = mapped_subresource.data;
+    auto found         = manager->UpdateTrackedMemory(mapped_subresource.tracker_id,
+                                              reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                              mapped_subresource.data,
+                                              &shadow_memory);
+
+    if (!found)
+    {
+        GFXRECON_LOG_ERROR("Failed to update the memory ID for a mapped resource.");
+    }
+
+    return shadow_memory;
+}
+
 void D3D12CaptureManager::FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapper)
 {
     if ((wrapper != nullptr) && (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard))
@@ -3137,14 +3199,17 @@ void D3D12CaptureManager::FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapp
                 {
                     auto& mapped_subresource = context_entry.second[i];
 
-                    if (mapped_subresource.data != nullptr)
-                    {
-                        manager->RemoveTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data));
-                    }
-
                     if (mapped_subresource.shadow_allocation != util::PageGuardManager::kNullShadowHandle)
                     {
+                        // The resource was assigned a persistent memory allocation and left in the memory tracker until
+                        // it was released.
+                        manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
                         manager->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
+                    }
+                    else if (mapped_subresource.data != nullptr)
+                    {
+                        // The resource was not unmapped before being released.
+                        manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
                     }
                 }
             }
@@ -3483,25 +3548,66 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_size);
                         auto size = static_cast<size_t>(subresource_size);
 
-                        if (((map_type == D3D11_MAP_WRITE_DISCARD) || (map_type == D3D11_MAP_WRITE_NO_OVERWRITE)) &&
-                            (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                        if ((map_type == D3D11_MAP_WRITE_DISCARD) || (map_type == D3D11_MAP_WRITE_NO_OVERWRITE))
                         {
-                            // When mapped for discard, the previous content of the memory does not need to be preserved
-                            // and a persistent allocation can be created to skip allocating and copying each time the
-                            // discarded memory is mapped.
-                            mapped_subresource.shadow_allocation = manager->AllocatePersistentShadowMemory(size);
-                        }
+                            if (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle)
+                            {
+                                if ((mapped_subresource.tracker_id != 0) && (map_type == D3D11_MAP_WRITE_NO_OVERWRITE))
+                                {
+                                    // If a resource has previously been mapped with D3D11_MAP_WRITE or
+                                    // D3D11_MAP_READ_WRITE, its current content will not be copied to the persistent
+                                    // memory allocation, possibly producing an invalid result if the current content is
+                                    // expected to be preserved.
+                                    GFXRECON_LOG_WARNING_ONCE("A mapped resource that has previously been mapped with "
+                                                              "D3D11_MAP_WRITE or D3D11_MAP_READ_WRITE has been mapped "
+                                                              "with D3D11_MAP_WRITE_NO_OVERWRITE. This case "
+                                                              "is unexpected and may not be handled correctly.");
+                                }
 
-                        // Return the pointer provided by the pageguard manager, which may be a pointer to shadow
-                        // memory, not the mapped memory.
-                        mapped_subresource_data->pData =
-                            manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                                      mapped_subresource.data,
-                                                      0,
-                                                      size,
-                                                      mapped_subresource.shadow_allocation,
-                                                      true,
-                                                      false);
+                                // When mapped for discard, the previous content of the memory does not need to be
+                                // preserved and a persistent allocation can be created to skip allocating and
+                                // copying each time the discarded memory is mapped.
+                                mapped_subresource.shadow_allocation = manager->AllocatePersistentShadowMemory(size);
+
+                                mapped_subresource_data->pData =
+                                    AllocateMappedResourceMemory(manager, mapped_subresource, size);
+                            }
+                            else
+                            {
+                                // Update the memory ID and pointer that will be written to the capture file with the
+                                // address of the new mapped allocation. This is done for both the
+                                // D3D11_MAP_WRITE_DISCARD and D3D11_MAP_WRITE_NO_OVERWRITE cases because some drivers
+                                // will return a different allocation for the NO_OVERWRITE case.
+                                mapped_subresource_data->pData =
+                                    UpdateDiscardedResourceMemory(manager, mapped_subresource);
+                            }
+                        }
+                        else
+                        {
+                            // The D3D11_MAP_WRITE and D3D11_MAP_READ_WRITE cases use standard memory tracking
+                            // where an entry for the mapped memory will be added to the memory tracker at Map and
+                            // removed at Unmap, the memory tracker will allocate the shadow memory, and the content of
+                            // the memory returned by Map will be copied to the shadow memory.
+                            if (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle)
+                            {
+                                mapped_subresource_data->pData =
+                                    AllocateMappedResourceMemory(manager, mapped_subresource, size);
+                            }
+                            else
+                            {
+                                GFXRECON_LOG_WARNING_ONCE("A mapped resource that has previously been assigned a "
+                                                          "persistent memory allocation has been mapped with "
+                                                          "D3D11_MAP_WRITE or D3D11_MAP_READ_WRITE. This case "
+                                                          "is unexpected and may not be handled correctly.");
+
+                                // When a resource has previously been mapped with D3D11_MAP_WRITE_DISCARD or
+                                // D3D11_MAP_WRITE_NO_OVERWRITE and has been assigned a persistent memory allocation,
+                                // its entry will remain in the memory tracker until it is released. Retrieve the
+                                // existing shadow memory pointer to return to the caller. If the caller specified
+                                // D3D11_MAP_READ_WRITE, the content of the shadow memory may not be valid for reading.
+                                mapped_subresource_data->pData = GetMappedResourceMemory(manager, mapped_subresource);
+                            }
+                        }
                     }
                 }
                 else
@@ -3527,37 +3633,20 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                                 "ever unmapping. This may lead to rendering corruption or other issues, "
                                 "which can be avoided by enabling GFXRECON_D3D11_MAP_WORKAROUND");
 
-                            // Process any dirty pages that may still be pending on the old allocation and then remove
-                            // it from memory tracking.
-                            auto old_memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
+                            // Process any dirty pages that may be pending on the current memory ID before updating it.
                             manager->ProcessMemoryEntry(
-                                old_memory_id,
+                                mapped_subresource.tracker_id,
                                 [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
                                     WriteFillMemoryCmd(memory_id, offset, size, start_address);
                                 });
 
-                            manager->RemoveTrackedMemory(old_memory_id);
-
-                            // Update resource info and add a new entry for the new allocation.
-                            mapped_subresource.data = mapped_subresource_data->pData;
-                            mapped_subresource_data->pData =
-                                manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                                          mapped_subresource.data,
-                                                          0,
-                                                          static_cast<size_t>(info->subresource_sizes[subresource]),
-                                                          mapped_subresource.shadow_allocation,
-                                                          true,
-                                                          false);
+                            // Update the memory ID and pointer that will be written to the capture file with the
+                            // address of the new mapped allocation.
+                            mapped_subresource_data->pData = UpdateDiscardedResourceMemory(manager, mapped_subresource);
                         }
                         else
                         {
-                            auto found = manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                                                   &mapped_subresource_data->pData);
-                            if (!found)
-                            {
-                                GFXRECON_LOG_ERROR(
-                                    "Failed to find tracked memory object for a previously mapped resource.")
-                            }
+                            mapped_subresource_data->pData = GetMappedResourceMemory(manager, mapped_subresource);
                         }
                     }
                 }
@@ -3604,14 +3693,23 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
                             util::PageGuardManager* manager = util::PageGuardManager::Get();
                             assert(manager != nullptr);
 
-                            auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
-
                             manager->ProcessMemoryEntry(
-                                memory_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                mapped_subresource.tracker_id,
+                                [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
                                     WriteFillMemoryCmd(memory_id, offset, size, start_address);
                                 });
 
-                            manager->RemoveTrackedMemory(memory_id);
+                            // Persistent allocations created for D3D11_MAP_DISCARD and D3D11_MAP_NO_OVERWRITE will stay
+                            // in the memory tracker until the resource is destroyed. For legal Map/Unmap usage, where
+                            // memory is mapped and unmapped between draw/dispatch calls, this reduces capture overhead
+                            // by eliminating frequent add/remove operations from the page guard manager. For illegal
+                            // Map/Unmap usage, where an application continues to write to memory after Unmap, this
+                            // allows those writes to be detected.
+                            if (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle)
+                            {
+                                manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
+                                mapped_subresource.tracker_id = 0;
+                            }
                         }
                         else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
                         {
