@@ -349,6 +349,75 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
+    template <typename T>
+    void AddObjects(
+        const format::HandleId* p_ids, size_t ids_len, T** pp_objects, size_t objects_len, format::ApiCallId call_id)
+    {
+        if ((p_ids != nullptr) && (pp_objects != nullptr))
+        {
+            size_t len = objects_len;
+            if (ids_len < objects_len)
+            {
+                len = ids_len;
+
+                // More objects were retrieved at replay than were retrieved at capture. The additional objects do not
+                // have IDs and cannot be added to the object table. Release the objects to avoid leaking.
+                for (auto i = ids_len; i < objects_len; ++i)
+                {
+                    reinterpret_cast<IUnknown*>(pp_objects[i])->Release();
+                }
+            }
+
+            for (size_t i = 0; i < len; ++i)
+            {
+                object_mapping::AddObject(&p_ids[i], &pp_objects[i], &object_info_table_);
+
+                if (options_.override_object_names)
+                {
+                    SetObjectName(&p_ids[i], &pp_objects[i], call_id);
+                }
+            }
+        }
+    }
+
+    template <typename T>
+    void AddObjects(const format::HandleId* p_ids,
+                    size_t                  ids_len,
+                    T**                     pp_objects,
+                    size_t                  objects_len,
+                    std::vector<T>&&        initial_infos,
+                    format::ApiCallId       call_id)
+    {
+        if ((p_ids != nullptr) && (pp_objects != nullptr))
+        {
+            size_t len = objects_len;
+            if (ids_len < objects_len)
+            {
+                len = ids_len;
+
+                // More objects were retrieved at replay than were retrieved at capture. The additional objects do not
+                // have IDs and cannot be added to the object table. Release the objects to avoid leaking.
+                for (auto i = ids_len; i < objects_len; ++i)
+                {
+                    reinterpret_cast<IUnknown*>(pp_objects[i])->Release();
+                }
+            }
+
+            assert(len <= initial_infos.size());
+
+            for (size_t i = 0; i < len; ++i)
+            {
+                auto info_iter = std::next(initial_infos.begin(), i);
+                object_mapping::AddObject(&p_ids[i], &pp_objects[i], std::move(*info_iter), &object_info_table_);
+
+                if (options_.override_object_names)
+                {
+                    SetObjectName(&p_ids[i], &pp_objects[i], call_id);
+                }
+            }
+        }
+    }
+
     void CheckReplayResult(const char* call_name, HRESULT capture_result, HRESULT replay_result);
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
