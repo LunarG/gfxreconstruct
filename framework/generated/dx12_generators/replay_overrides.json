@@ -125,6 +125,10 @@
       "SetProgram": "OverrideSetProgram",
       "DispatchGraph": "OverrideDispatchGraph"
     },    
+    "ID3D11DeviceContext": {
+      "Map": "OverrideDeviceContextMap",
+      "Unmap": "OverrideDeviceContextUnmap"
+    },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"
     },

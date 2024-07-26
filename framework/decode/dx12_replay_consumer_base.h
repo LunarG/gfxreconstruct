@@ -1079,6 +1079,17 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                     PointerDecoder<uint8_t>* parameters_data,
                                     SIZE_T                   parameters_data_sizeinbytes);
 
+    HRESULT OverrideDeviceContextMap(DxObjectInfo*                                           replay_object_info,
+                                     HRESULT                                                 return_value,
+                                     DxObjectInfo*                                           resource_object_info,
+                                     UINT                                                    subresource,
+                                     D3D11_MAP                                               map_type,
+                                     UINT                                                    map_flags,
+                                     StructPointerDecoder<Decoded_D3D11_MAPPED_SUBRESOURCE>* mapped_resource);
+
+    void
+    OverrideDeviceContextUnmap(DxObjectInfo* replay_object_info, DxObjectInfo* resource_object_info, UINT subresource);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -1183,6 +1194,11 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     {
         void*            data_pointer{ 0 };
         format::HandleId resource_id{ format::kNullHandleId };
+        format::HandleId device_context_id{ format::kNullHandleId };
+        uint32_t         capture_row_pitch_{ 0 };
+        uint32_t         capture_slice_pitch_{ 0 };
+        uint32_t         replay_row_pitch_{ 0 };
+        uint32_t         replay_slice_pitch_{ 0 };
     };
 
     struct ResourceInitInfo

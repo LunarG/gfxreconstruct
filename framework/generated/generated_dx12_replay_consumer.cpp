@@ -14179,16 +14179,18 @@ void Dx12ReplayConsumer::Process_ID3D11DeviceContext_Map(
             MapType,
             MapFlags,
             pMappedResource);
-        auto in_pResource = MapObject<ID3D11Resource>(pResource);
+        auto in_pResource = GetObjectInfo(pResource);
         if(!pMappedResource->IsNull())
         {
             pMappedResource->AllocateOutputData(1);
         }
-        auto replay_result = reinterpret_cast<ID3D11DeviceContext*>(replay_object->object)->Map(in_pResource,
-                                                                                                Subresource,
-                                                                                                MapType,
-                                                                                                MapFlags,
-                                                                                                pMappedResource->GetOutputPointer());
+        auto replay_result = OverrideDeviceContextMap(replay_object,
+                                                      return_value,
+                                                      in_pResource,
+                                                      Subresource,
+                                                      MapType,
+                                                      MapFlags,
+                                                      pMappedResource);
         CheckReplayResult("ID3D11DeviceContext_Map", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Map>::Dispatch(
             this,
@@ -14219,9 +14221,10 @@ void Dx12ReplayConsumer::Process_ID3D11DeviceContext_Unmap(
             replay_object,
             pResource,
             Subresource);
-        auto in_pResource = MapObject<ID3D11Resource>(pResource);
-        reinterpret_cast<ID3D11DeviceContext*>(replay_object->object)->Unmap(in_pResource,
-                                                                             Subresource);
+        auto in_pResource = GetObjectInfo(pResource);
+        OverrideDeviceContextUnmap(replay_object,
+                                   in_pResource,
+                                   Subresource);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Unmap>::Dispatch(
             this,
             call_info,

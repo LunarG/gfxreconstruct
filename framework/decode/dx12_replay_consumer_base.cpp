@@ -4628,6 +4628,99 @@ void Dx12ReplayConsumerBase::OverrideIASetVertexBuffers(
     }
 }
 
+HRESULT Dx12ReplayConsumerBase::OverrideDeviceContextMap(
+    DxObjectInfo*                                           replay_object_info,
+    HRESULT                                                 return_value,
+    DxObjectInfo*                                           resource_object_info,
+    UINT                                                    subresource,
+    D3D11_MAP                                               map_type,
+    UINT                                                    map_flags,
+    StructPointerDecoder<Decoded_D3D11_MAPPED_SUBRESOURCE>* mapped_resource)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+           (resource_object_info != nullptr) && (resource_object_info->object != nullptr) &&
+           (mapped_resource != nullptr));
+
+    auto id_pointer           = mapped_resource->GetMetaStructPointer();
+    auto capture_data_pointer = mapped_resource->GetPointer();
+    auto replay_data_pointer  = mapped_resource->GetOutputPointer();
+    auto replay_object        = static_cast<ID3D11DeviceContext*>(replay_object_info->object);
+    auto resource_object      = static_cast<ID3D11Resource*>(resource_object_info->object);
+
+    auto result = replay_object->Map(resource_object, subresource, map_type, map_flags, replay_data_pointer);
+    if (replay_data_pointer != nullptr)
+    {
+        if (SUCCEEDED(result) && (id_pointer != nullptr) && (id_pointer->pData != format::kNullHandleId) &&
+            (replay_data_pointer->pData != nullptr))
+        {
+            if (resource_object_info->extra_info == nullptr)
+            {
+                // Create resource info record on first use.
+                resource_object_info->extra_info = std::make_unique<D3D11ResourceInfo>();
+            }
+
+            auto  resource_info   = GetExtraInfo<D3D11ResourceInfo>(resource_object_info);
+            auto& memory_info     = resource_info->mapped_memory_info[subresource][replay_object_info->capture_id];
+            memory_info.memory_id = id_pointer->pData;
+            ++(memory_info.count);
+
+            mapped_memory_[id_pointer->pData] = { replay_data_pointer->pData,       resource_object_info->capture_id,
+                                                  replay_object_info->capture_id,   capture_data_pointer->RowPitch,
+                                                  capture_data_pointer->DepthPitch, replay_data_pointer->RowPitch,
+                                                  replay_data_pointer->DepthPitch };
+        }
+    }
+    else
+    {
+        if (SUCCEEDED(result) && (id_pointer == nullptr))
+        {
+            if (resource_object_info->extra_info == nullptr)
+            {
+                // Create resource info record on first use.
+                resource_object_info->extra_info = std::make_unique<D3D11ResourceInfo>();
+            }
+        }
+    }
+
+    return result;
+}
+
+void Dx12ReplayConsumerBase::OverrideDeviceContextUnmap(DxObjectInfo* replay_object_info,
+                                                        DxObjectInfo* resource_object_info,
+                                                        UINT          subresource)
+{
+    assert((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+           (resource_object_info != nullptr) && (resource_object_info->object != nullptr));
+
+    auto replay_object   = static_cast<ID3D11DeviceContext*>(replay_object_info->object);
+    auto resource_object = static_cast<ID3D11Resource*>(resource_object_info->object);
+
+    auto resource_info = GetExtraInfo<D3D11ResourceInfo>(resource_object_info);
+    if (resource_info != nullptr)
+    {
+        auto subresource_entry = resource_info->mapped_memory_info.find(subresource);
+        if (subresource_entry != resource_info->mapped_memory_info.end())
+        {
+            auto device_context_entry = subresource_entry->second.find(replay_object_info->capture_id);
+            if (device_context_entry != subresource_entry->second.end())
+            {
+                auto& memory_info = device_context_entry->second;
+
+                assert(memory_info.count > 0);
+
+                --(memory_info.count);
+                if (memory_info.count == 0)
+                {
+                    mapped_memory_.erase(memory_info.memory_id);
+                    subresource_entry->second.erase(device_context_entry);
+                }
+            }
+        }
+    }
+
+    replay_object->Unmap(resource_object, subresource);
+}
+
 void Dx12ReplayConsumerBase::WaitForCommandListExecution(D3D12CommandQueueInfo* queue_info, uint64_t value)
 {
     GFXRECON_ASSERT(queue_info->sync_fence != nullptr);

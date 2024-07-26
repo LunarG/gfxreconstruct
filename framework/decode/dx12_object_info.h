@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -63,7 +64,8 @@ enum class DxObjectInfoType : uint32_t
     kID3D12CommandSignatureInfo,
     kID3D12CommandListInfo,
     kID3D12RootSignatureInfo,
-    kID3D12StateObjectInfo
+    kID3D12StateObjectInfo,
+    kID3D11ResourceInfo
 };
 
 //
@@ -475,6 +477,16 @@ struct D3D12StateObjectInfo : DxObjectExtraInfo
 
     std::map<std::wstring, format::HandleId>                              export_name_lrs_map;
     std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map;
+};
+
+struct D3D11ResourceInfo : DxObjectExtraInfo
+{
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D11ResourceInfo;
+    static constexpr char             kObjectType[] = "ID3D11Resource";
+    D3D11ResourceInfo() : DxObjectExtraInfo(kType) {}
+
+    std::unordered_map<uint32_t, std::unordered_map<format::HandleId, MappedMemoryInfo>>
+        mapped_memory_info; ///< Map subresource index to per-context mapped memory info.
 };
 
 GFXRECON_END_NAMESPACE(decode)
