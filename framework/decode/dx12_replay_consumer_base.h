@@ -38,6 +38,7 @@
 #include "graphics/dx12_gpu_va_map.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_image_renderer.h"
+#include "graphics/dx11_image_renderer.h"
 #include "decode/screenshot_handler_base.h"
 #include "graphics/fps_info.h"
 #include "graphics/dx12_util.h"
@@ -1394,7 +1395,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                   uint8_t*                           parameters_data,
                                   uint8_t                            parameters_data_sizeinbytes);
 
-    std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
+    std::unique_ptr<graphics::DX11ImageRenderer>          frame_buffer_renderer11_;
+    std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer12_;
     Dx12ObjectInfoTable                                   object_info_table_;
     std::shared_ptr<application::Application>             application_;
     std::unordered_set<Window*>                           active_windows_;

@@ -45,7 +45,8 @@ thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
 D3D12CaptureManager::D3D12CaptureManager() :
     ApiCaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
     debug_layer_enabled_(false), debug_device_lost_enabled_(false),
-    track_enable_debug_layer_object_id_(format::kNullHandleId), frame_buffer_renderer_(nullptr)
+    track_enable_debug_layer_object_id_(format::kNullHandleId), frame_buffer_renderer12_(nullptr),
+    frame_buffer_renderer11_(nullptr)
 {}
 
 bool D3D12CaptureManager::CreateInstance()
@@ -713,9 +714,18 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
         if (swapchain_info->command_queue)
         {
             auto swapchain = swapchain_wrapper->GetWrappedObjectAs<IDXGISwapChain>();
-
-            gfxrecon::graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
+            gfxrecon::graphics::dx12::TakeScreenshot(frame_buffer_renderer12_,
                                                      swapchain_info->command_queue,
+                                                     swapchain,
+                                                     GetCurrentFrame(),
+                                                     common_manager_->GetScreenshotPrefix(),
+                                                     common_manager_->GetScreenshotFormat());
+        }
+        else if (swapchain_info->device)
+        {
+            auto swapchain = swapchain_wrapper->GetWrappedObjectAs<IDXGISwapChain>();
+            gfxrecon::graphics::dx12::TakeScreenshot(frame_buffer_renderer11_,
+                                                     swapchain_info->device,
                                                      swapchain,
                                                      GetCurrentFrame(),
                                                      common_manager_->GetScreenshotPrefix(),
@@ -723,8 +733,9 @@ void D3D12CaptureManager::PrePresent(IDXGISwapChain_Wrapper* swapchain_wrapper)
         }
         else
         {
-            GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue associated with the presented swap chain. "
-                               "GFXReconstruct is unable to take a screenshot.");
+            GFXRECON_LOG_ERROR(
+                "Failed to get the ID3D12CommandQueue or ID3D11Device associated with the presented swap chain. "
+                "GFXReconstruct is unable to take a screenshot.");
         }
     }
 }

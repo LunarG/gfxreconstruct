@@ -76,8 +76,9 @@ void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
 
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                const DxReplayOptions&                    options) :
-    application_(application), options_(options), current_message_length_(0), info_queue_(nullptr),
-    resource_data_util_(nullptr), frame_buffer_renderer_(nullptr), debug_layer_enabled_(false),
+    application_(application),
+    options_(options), current_message_length_(0), info_queue_(nullptr), resource_data_util_(nullptr),
+    frame_buffer_renderer12_(nullptr), frame_buffer_renderer11_(nullptr), debug_layer_enabled_(false),
     set_auto_breadcrumbs_enablement_(false), set_breadcrumb_context_enablement_(false),
     set_page_fault_enablement_(false), loading_trim_state_(false), fps_info_(nullptr), frame_end_marker_count_(0)
 {
@@ -1051,18 +1052,37 @@ void Dx12ReplayConsumerBase::PrePresent(DxObjectInfo* swapchain_object_info, UIN
             auto swapchain            = static_cast<IDXGISwapChain*>(swapchain_object_info->object);
             auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_object_info);
 
-            if (swapchain_extra_info && swapchain_extra_info->command_queue)
+            if (swapchain_extra_info)
             {
-                graphics::dx12::TakeScreenshot(frame_buffer_renderer_,
-                                               swapchain_extra_info->command_queue,
-                                               swapchain,
-                                               screenshot_handler_->GetCurrentFrame(),
-                                               screenshot_file_prefix_,
-                                               screenshot_format_);
+                if (swapchain_extra_info->command_queue)
+                {
+                    graphics::dx12::TakeScreenshot(frame_buffer_renderer12_,
+                                                   swapchain_extra_info->command_queue,
+                                                   swapchain,
+                                                   screenshot_handler_->GetCurrentFrame(),
+                                                   screenshot_file_prefix_,
+                                                   screenshot_format_);
+                }
+                else if (swapchain_extra_info->device)
+                {
+                    graphics::dx12::TakeScreenshot(frame_buffer_renderer11_,
+                                                   swapchain_extra_info->device,
+                                                   swapchain,
+                                                   screenshot_handler_->GetCurrentFrame(),
+                                                   screenshot_file_prefix_,
+                                                   screenshot_format_);
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue or ID3D11Device associated with the "
+                                       "presented swap chain. "
+                                       "GFXReconstruct is unable to take a screenshot.");
+                }
             }
             else
             {
-                GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue associated with the presented swap chain. "
+                GFXRECON_LOG_ERROR("Failed to get the ID3D12CommandQueue or ID3D11Device associated with the "
+                                   "presented swap chain. "
                                    "GFXReconstruct is unable to take a screenshot.");
             }
         }
@@ -1447,7 +1467,8 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDeviceAndSwapChain(
             window = window_factory->Create(options_.window_topleft_x,
                                             options_.window_topleft_y,
                                             swapchain_desc_pointer->BufferDesc.Width,
-                                            swapchain_desc_pointer->BufferDesc.Height);
+                                            swapchain_desc_pointer->BufferDesc.Height,
+                                            options_.force_windowed || options_.force_windowed_origin);
         }
 
         if (window != nullptr)

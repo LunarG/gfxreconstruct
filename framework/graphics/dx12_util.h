@@ -31,9 +31,7 @@
 #include "util/logging.h"
 #include "util/options.h"
 #include "util/platform.h"
-#ifdef WIN32
-#include "graphics/dx12_image_renderer.h"
-#else
+#ifndef WIN32
 #include "format/platform_types.h"
 #endif
 #include "format/format.h"
@@ -56,9 +54,14 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
+
+class DX11ImageRenderer;
+class DX12ImageRenderer;
+
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
 #ifdef WIN32
+typedef _com_ptr_t<_com_IIID<IDXGISwapChain, &__uuidof(IDXGISwapChain)>>   IDXGISwapChainComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
 
 typedef _com_ptr_t<_com_IIID<ID3D12DescriptorHeap, &__uuidof(ID3D12DescriptorHeap)>>     ID3D12DescriptorHeapComPtr;
@@ -103,7 +106,10 @@ typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
                                                                      ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
-typedef _com_ptr_t<_com_IIID<ID3D11Device, &__uuidof(ID3D11Device)>> ID3D11DeviceComPtr;
+
+typedef _com_ptr_t<_com_IIID<ID3D11Device, &__uuidof(ID3D11Device)>>               ID3D11DeviceComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D11DeviceContext, &__uuidof(ID3D11DeviceContext)>> ID3D11DeviceContextComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D11Texture2D, &__uuidof(ID3D11Texture2D)>>         ID3D11Texture2DComPtr;
 
 #if defined(GFXRECON_DXC_SUPPORT)
 typedef _com_ptr_t<_com_IIID<IDxcUtils, &__uuidof(IDxcUtils)>> IDxcUtilsComPtr;
@@ -176,6 +182,13 @@ UINT GetTexturePitch(UINT64 width);
 // Take a screenshot
 void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                                     queue,
+                    IDXGISwapChain*                                         swapchain,
+                    uint32_t                                                frame_num,
+                    const std::string&                                      filename_prefix,
+                    gfxrecon::util::ScreenshotFormat                        screenshot_format);
+
+void TakeScreenshot(std::unique_ptr<gfxrecon::graphics::DX11ImageRenderer>& image_renderer,
+                    ID3D11Device*                                           device,
                     IDXGISwapChain*                                         swapchain,
                     uint32_t                                                frame_num,
                     const std::string&                                      filename_prefix,

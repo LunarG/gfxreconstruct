@@ -21,15 +21,15 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_DX12_IMAGE_RENDERER_H
-#define GFXRECON_DECODE_DX12_IMAGE_RENDERER_H
+#ifndef GFXRECON_DECODE_DX11_IMAGE_RENDERER_H
+#define GFXRECON_DECODE_DX11_IMAGE_RENDERER_H
 
 #include "graphics/dx_image_renderer.h"
 #include "graphics/dx12_util.h"
 #include "util/defines.h"
 
 #ifdef WIN32
-#include <d3d12.h>
+#include <d3d11.h>
 #endif
 
 #include <memory>
@@ -40,85 +40,78 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
 //-----------------------------------------------------------------------------
 /// A structure containing ImageRenderer initialization info.
 //-----------------------------------------------------------------------------
-struct DX12ImageRendererConfig
+struct DX11ImageRendererConfig
 {
-    dx12::ID3D12DeviceComPtr       device;    ///< The device that the Image Renderer will use.
-    dx12::ID3D12CommandQueueComPtr cmd_queue; ///< The CommandQueue that the Image Renderer will use.
+    dx12::ID3D11DeviceComPtr        device;  ///< The device that the Image Renderer will use.
+    dx12::ID3D11DeviceContextComPtr context; ///< The DeviceContext that the Image Renderer will use.
 };
 
 //-----------------------------------------------------------------------------
-/// An Image Renderer used to capture the DX12 Render Target of the
+/// An Image Renderer used to capture the DX11 Render Target of the
 /// instrumented application.
 //-----------------------------------------------------------------------------
-class DX12ImageRenderer : public DXImageRenderer
+class DX11ImageRenderer : public DXImageRenderer
 {
   public:
     //-----------------------------------------------------------------------------
-    /// Statically create a DX12ImageRenderer.
+    /// Statically create a DX11ImageRenderer.
     /// \param config A structure containing all of the necessary initialization
     ///               info.
-    /// \returns A new DX12ImageRenderer instance.
+    /// \returns A new DX11ImageRenderer instance.
     //-----------------------------------------------------------------------------
-    static std::unique_ptr<DX12ImageRenderer> Create(const DX12ImageRendererConfig& config);
+    static std::unique_ptr<DX11ImageRenderer> Create(const DX11ImageRendererConfig& config);
 
     //-----------------------------------------------------------------------------
     /// Destructor.
     //-----------------------------------------------------------------------------
-    virtual ~DX12ImageRenderer() override;
+    virtual ~DX11ImageRenderer() override;
 
-    HRESULT RetrieveImageData(
-        CpuImage& img_out, uint32_t width, uint32_t height, uint32_t pitch, DXGI_FORMAT format, bool convert_to_bgra);
+    HRESULT
+    RetrieveImageData(CpuImage& img_out, uint32_t width, uint32_t height, DXGI_FORMAT format, bool convert_to_bgra);
 
     //-----------------------------------------------------------------------------
-    /// Convert a DX12 resource to a CPU-visible linear buffer of pixels.
+    /// Convert a DX11 resource to a CPU-visible linear buffer of pixels.
     /// The data is filled in a user-provided CpuImage struct retrieved with
     /// #RetrieveImageData.
     /// \param res The Render Target resource to capture image data for.
     /// \param width The width of the image data.
     /// \param height The height of the image data.
-    /// \param pitch The row pitch of the image data.
-    /// \param format The image format for the output image data.
     /// \returns The result code of the capture operation.
     //-----------------------------------------------------------------------------
     HRESULT
-    CaptureImage(ID3D12Resource*       res,
-                 D3D12_RESOURCE_STATES prev_state,
-                 uint32_t              width,
-                 uint32_t              height,
-                 uint32_t              pitch,
-                 DXGI_FORMAT           format);
+    CaptureImage(ID3D11Texture2D* res, uint32_t sample_count, uint32_t width, uint32_t height, DXGI_FORMAT format);
 
   private:
     //-----------------------------------------------------------------------------
     /// Constructor.
     //-----------------------------------------------------------------------------
-    DX12ImageRenderer();
+    DX11ImageRenderer();
 
     //-----------------------------------------------------------------------------
     /// Initialize all members needed by this rendering class.
     /// \param config A structure containing all of the necessary initialization
     /// info. \returns The result code for the initialization step.
     //-----------------------------------------------------------------------------
-    HRESULT Init(const DX12ImageRendererConfig& config);
+    HRESULT Init(const DX11ImageRendererConfig& config);
 
-    HRESULT CreateStagingResource(uint32_t buffer_byte_size);
+    HRESULT CreateStagingResource(uint32_t width, uint32_t height, DXGI_FORMAT format);
 
-    void WaitCmdListFinish();
+    HRESULT CreateResolveResource(uint32_t width, uint32_t height, DXGI_FORMAT format);
 
   private:
-    DX12ImageRendererConfig config_; ///< The structure containing all configuration info for this Image Renderer.
-    dx12::ID3D12CommandAllocatorComPtr cmd_allocator_; ///< The command allocator used to make a copy the Render Target.
-    dx12::ID3D12GraphicsCommandListComPtr
-                               cmd_list_; ///< The command list that will do the work of copying the Render Target data.
-    dx12::ID3D12FenceComPtr    fence_;    ///< Fence used to indicate completed Render Target capture.
-    HANDLE                     fence_event_; ///< Handle to the event that indicates completed Render Target capture.
-    uint64_t                   fence_value_; ///< The value to watch for in the next fence wait.
-    dx12::ID3D12ResourceComPtr staging_;
-    uint32_t                   staging_resource_size_;
-    std::list<DXGI_FORMAT>     issued_warning_list_;
+    DX11ImageRendererConfig     config_; ///< The structure containing all configuration info for this Image Renderer.
+    dx12::ID3D11Texture2DComPtr staging_;
+    DXGI_FORMAT                 staging_resource_format_;
+    uint32_t                    staging_resource_width_;
+    uint32_t                    staging_resource_height_;
+    dx12::ID3D11Texture2DComPtr resolve_;
+    DXGI_FORMAT                 resolve_resource_format_;
+    uint32_t                    resolve_resource_width_;
+    uint32_t                    resolve_resource_height_;
+    std::list<DXGI_FORMAT>      issued_warning_list_;
 };
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
-#endif // GFXRECON_DECODE_DX12_IMAGE_RENDERER_H
+#endif // GFXRECON_DECODE_DX11_IMAGE_RENDERER_H

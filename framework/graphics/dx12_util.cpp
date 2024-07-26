@@ -25,6 +25,8 @@
 #if defined(D3D12_SUPPORT)
 #include "graphics/dx12_util.h"
 
+#include "graphics/dx11_image_renderer.h"
+#include "graphics/dx12_image_renderer.h"
 #include "util/image_writer.h"
 #include "util/logging.h"
 
@@ -196,6 +198,58 @@ UINT GetTexturePitch(UINT64 width)
            D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
 }
 
+template <typename T>
+static T GetCurrentBackBuffer(IDXGISwapChain* swapchain)
+{
+    GFXRECON_ASSERT(swapchain != nullptr);
+
+    auto buffer     = T{};
+    auto swapchain3 = IDXGISwapChain3ComPtr{};
+    auto hr         = swapchain->QueryInterface(IID_PPV_ARGS(&swapchain3));
+
+    if (SUCCEEDED(hr))
+    {
+        const int backbuffer_idx = swapchain3->GetCurrentBackBufferIndex();
+        swapchain->GetBuffer(backbuffer_idx, IID_PPV_ARGS(&buffer));
+    }
+
+    return buffer;
+}
+
+static void WriteImageFile(const std::string&               filename_prefix,
+                           uint32_t                         frame_num,
+                           gfxrecon::util::ScreenshotFormat screenshot_format,
+                           uint32_t                         width,
+                           uint32_t                         height,
+                           uint32_t                         pitch,
+                           size_t                           size,
+                           const void*                      data)
+{
+    std::string filename = filename_prefix;
+    filename += "_frame_";
+    filename += std::to_string(frame_num);
+
+    switch (screenshot_format)
+    {
+        default:
+            GFXRECON_LOG_ERROR("Screenshot format invalid! Expected BMP or PNG, falling back to BMP.");
+            // Intentional fall-through
+        case gfxrecon::util::ScreenshotFormat::kBmp:
+            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, data, pitch))
+            {
+                GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
+            }
+            break;
+        case gfxrecon::util::ScreenshotFormat::kPng:
+            if (!util::imagewriter::WritePngImage(
+                    filename + ".png", width, height, data, pitch, util::imagewriter::kFormat_RGBA))
+            {
+                GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
+            }
+            break;
+    }
+}
+
 void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                           queue,
                     IDXGISwapChain*                               swapchain,
@@ -203,105 +257,116 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                     const std::string&                            filename_prefix,
                     gfxrecon::util::ScreenshotFormat              screenshot_format)
 {
-    if (queue != nullptr && swapchain != nullptr)
+    if (queue == nullptr || swapchain == nullptr)
     {
-        Microsoft::WRL::ComPtr<IDXGISwapChain3> swapchain3   = nullptr;
-        Microsoft::WRL::ComPtr<IDXGISwapChain>  swapChainCom = swapchain;
+        return;
+    }
 
-        HRESULT hr = swapChainCom.As(&swapchain3);
-
-        if (hr == S_OK)
+    auto frame_buffer_resource = GetCurrentBackBuffer<ID3D12ResourceComPtr>(swapchain);
+    if (frame_buffer_resource)
+    {
+        if (image_renderer == nullptr)
         {
-            const int backbuffer_idx = swapchain3->GetCurrentBackBufferIndex();
+            auto parent_device = dx12::ID3D12DeviceComPtr{};
+            auto hr            = queue->GetDevice(IID_PPV_ARGS(&parent_device));
 
-            Microsoft::WRL::ComPtr<ID3D12Resource> frame_buffer_resource = nullptr;
-            hr                                                           = swapchain->GetBuffer(backbuffer_idx,
-                                      __uuidof(ID3D12Resource),
-                                      reinterpret_cast<void**>(frame_buffer_resource.GetAddressOf()));
-
-            if (hr == S_OK)
+            if (SUCCEEDED(hr))
             {
-                if (image_renderer == nullptr)
+                gfxrecon::graphics::DX12ImageRendererConfig renderer_config;
+                renderer_config.cmd_queue = queue;
+                renderer_config.device    = parent_device;
+
+                image_renderer = gfxrecon::graphics::DX12ImageRenderer::Create(renderer_config);
+            }
+        }
+
+        if (image_renderer != nullptr)
+        {
+            auto fb_desc = frame_buffer_resource->GetDesc();
+            auto pitch   = GetTexturePitch(fb_desc.Width);
+
+            HRESULT capture_result = image_renderer->CaptureImage(frame_buffer_resource.GetInterfacePtr(),
+                                                                  D3D12_RESOURCE_STATE_PRESENT,
+                                                                  static_cast<uint32_t>(fb_desc.Width),
+                                                                  fb_desc.Height,
+                                                                  static_cast<uint32_t>(pitch),
+                                                                  fb_desc.Format);
+
+            if (SUCCEEDED(capture_result))
+            {
+                bool convert_to_bgra = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
+                auto captured_image  = graphics::CpuImage{};
+                capture_result       = image_renderer->RetrieveImageData(captured_image,
+                                                                   static_cast<uint32_t>(fb_desc.Width),
+                                                                   fb_desc.Height,
+                                                                   static_cast<uint32_t>(pitch),
+                                                                   fb_desc.Format,
+                                                                   convert_to_bgra);
+
+                if (SUCCEEDED(capture_result))
                 {
-                    Microsoft::WRL::ComPtr<ID3D12Device> parent_device = nullptr;
-                    hr                                                 = queue->GetDevice(IID_PPV_ARGS(&parent_device));
-
-                    if (hr == S_OK)
-                    {
-                        gfxrecon::graphics::DX12ImageRendererConfig renderer_config;
-                        renderer_config.cmd_queue = queue;
-                        renderer_config.device    = parent_device.Get();
-
-                        image_renderer = gfxrecon::graphics::DX12ImageRenderer::Create(renderer_config);
-                    }
+                    WriteImageFile(filename_prefix,
+                                   frame_num,
+                                   screenshot_format,
+                                   captured_image.width,
+                                   captured_image.height,
+                                   captured_image.pitch,
+                                   std::size(captured_image.data),
+                                   std::data(captured_image.data));
                 }
+            }
+        }
+    }
+}
 
-                if (image_renderer != nullptr)
+void TakeScreenshot(std::unique_ptr<graphics::DX11ImageRenderer>& image_renderer,
+                    ID3D11Device*                                 device,
+                    IDXGISwapChain*                               swapchain,
+                    uint32_t                                      frame_num,
+                    const std::string&                            filename_prefix,
+                    gfxrecon::util::ScreenshotFormat              screenshot_format)
+{
+    if (device != nullptr && swapchain != nullptr)
+    {
+        auto frame_buffer_resource = GetCurrentBackBuffer<ID3D11Texture2DComPtr>(swapchain);
+        if (frame_buffer_resource)
+        {
+            if (image_renderer == nullptr)
+            {
+                auto device_context = dx12::ID3D11DeviceContextComPtr{};
+                device->GetImmediateContext(&device_context);
+
+                gfxrecon::graphics::DX11ImageRendererConfig renderer_config;
+                renderer_config.device  = device;
+                renderer_config.context = device_context;
+
+                image_renderer = gfxrecon::graphics::DX11ImageRenderer::Create(renderer_config);
+            }
+
+            if (image_renderer != nullptr)
+            {
+                auto fb_desc = D3D11_TEXTURE2D_DESC{};
+                frame_buffer_resource->GetDesc(&fb_desc);
+                HRESULT capture_result = image_renderer->CaptureImage(
+                    frame_buffer_resource, fb_desc.SampleDesc.Count, fb_desc.Width, fb_desc.Height, fb_desc.Format);
+
+                if (SUCCEEDED(capture_result))
                 {
-                    D3D12_RESOURCE_DESC fb_desc = frame_buffer_resource->GetDesc();
+                    bool               convert_to_bgra = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
+                    graphics::CpuImage captured_image  = {};
+                    capture_result                     = image_renderer->RetrieveImageData(
+                        captured_image, fb_desc.Width, fb_desc.Height, fb_desc.Format, convert_to_bgra);
 
-                    auto pitch = GetTexturePitch(fb_desc.Width);
-
-                    graphics::CpuImage captured_image = {};
-
-                    HRESULT capture_result = image_renderer->CaptureImage(frame_buffer_resource.Get(),
-                                                                          D3D12_RESOURCE_STATE_PRESENT,
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          fb_desc.Height,
-                                                                          static_cast<unsigned int>(pitch),
-                                                                          fb_desc.Format);
-
-                    if (capture_result == S_OK)
+                    if (SUCCEEDED(capture_result))
                     {
-                        bool convert_to_bgra  = (screenshot_format == gfxrecon::util::ScreenshotFormat::kBmp);
-                        auto buffer_byte_size = pitch * fb_desc.Height;
-                        capture_result        = image_renderer->RetrieveImageData(&captured_image,
-                                                                           static_cast<unsigned int>(fb_desc.Width),
-                                                                           fb_desc.Height,
-                                                                           static_cast<unsigned int>(pitch),
-                                                                           fb_desc.Format,
-                                                                           convert_to_bgra);
-
-                        if (capture_result == S_OK)
-                        {
-                            std::string filename = filename_prefix;
-
-                            filename += "_frame_";
-                            filename += std::to_string(frame_num);
-
-                            switch (screenshot_format)
-                            {
-                                default:
-                                    GFXRECON_LOG_ERROR(
-                                        "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
-                                    // Intentional fall-through
-                                case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch)))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write BMP file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                                case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImage(filename + ".png",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch),
-                                                                          util::imagewriter::kFormat_RGBA))
-                                    {
-                                        GFXRECON_LOG_ERROR(
-                                            "Screenshot could not be created: failed to write PNG file %s",
-                                            filename.c_str());
-                                    }
-                                    break;
-                            }
-                        }
+                        WriteImageFile(filename_prefix,
+                                       frame_num,
+                                       screenshot_format,
+                                       captured_image.width,
+                                       captured_image.height,
+                                       captured_image.pitch,
+                                       std::size(captured_image.data),
+                                       std::data(captured_image.data));
                     }
                 }
             }

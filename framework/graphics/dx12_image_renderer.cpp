@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2021 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -27,11 +28,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
-//-----------------------------------------------------------------------------
-/// Statically create a DX12ImageRenderer.
-/// \param config A structure containing all of the necessary initialization
-/// info. \returns A new DX12ImageRenderer instance.
-//-----------------------------------------------------------------------------
 std::unique_ptr<DX12ImageRenderer> DX12ImageRenderer::Create(const DX12ImageRendererConfig& config)
 {
     std::unique_ptr<DX12ImageRenderer> out(new DX12ImageRenderer());
@@ -44,54 +40,6 @@ std::unique_ptr<DX12ImageRenderer> DX12ImageRenderer::Create(const DX12ImageRend
         }
     }
     return std::move(out);
-}
-
-void DX12ImageRenderer::ConvertR8G8B8A8ToB8G8R8A8(std::vector<char>& data, UINT width, UINT height, UINT pitch)
-{
-    uint32_t* pixel;
-    uint32_t  r16, g16, b16, a16, b8g8r8a8;
-    for (UINT j = 0; j < height; j++)
-    {
-        for (UINT i = 0; i < width; i++)
-        {
-            pixel = (uint32_t*)((uint8_t*)&data[0] + i * 4 + j * pitch);
-
-            r16      = ((*pixel >> 0U) & 0xFFU);
-            g16      = ((*pixel >> 8U) & 0xFFU);
-            b16      = ((*pixel >> 16U) & 0xFFU);
-            a16      = ((*pixel >> 24U) & 0xFFU);
-            b8g8r8a8 = ((b16 << 0U) & 0xFFU) | ((g16 << 8U) & 0xFF00U) | ((r16 << 16U) & 0xFF0000U) |
-                       ((a16 << 24U) & 0xFF000000);
-            *pixel = b8g8r8a8;
-        }
-    }
-}
-
-void DX12ImageRenderer::ConvertR10G10B10A2ToB8G8R8A8(std::vector<char>& data, UINT width, UINT height, UINT pitch)
-{
-    GFXRECON_LOG_INFO_ONCE("Converting image data form R10G10B10A2 to B8G8R8A8. Image RGB data will be truncated to 8 "
-                           "bits and alpha data will be set to 0xFF.");
-
-    uint32_t* pixel;
-    uint32_t  r16, g16, b16, a16, b8g8r8a8;
-    for (UINT j = 0; j < height; j++)
-    {
-        for (UINT i = 0; i < width; i++)
-        {
-            pixel = (uint32_t*)((uint8_t*)&data[0] + i * 4 + j * pitch);
-
-            r16 = ((*pixel >> 0U) & 0x3FFU) << 6U;
-            g16 = ((*pixel >> 10U) & 0x3FFU) << 6U;
-            b16 = ((*pixel >> 20U) & 0x3FFU) << 6U;
-
-            // Ignore 2-bit alpha, generate opaque image data.
-            a16 = 0xFFFFU;
-
-            // This truncates 10bit RGB channels to 8 bits.
-            b8g8r8a8 = ((b16 >> 8U) << 0U) | ((g16 >> 8U) << 8U) | ((r16 >> 8U) << 16U) | ((a16 >> 8U) << 24U);
-            *pixel   = b8g8r8a8;
-        }
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -113,29 +61,24 @@ DX12ImageRenderer::~DX12ImageRenderer()
     }
 }
 
-//-----------------------------------------------------------------------------
-/// Initialize all members needed by this rendering class.
-/// \param config A structure containing all of the necessary initialization
-/// info. \returns The result code for the initialization step.
-//-----------------------------------------------------------------------------
 HRESULT DX12ImageRenderer::Init(const DX12ImageRendererConfig& config)
 {
-    config_ = std::make_unique<DX12ImageRendererConfig>(config);
+    config_ = config;
     // Create command allocator
     HRESULT result =
-        config_->device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&cmd_allocator_));
+        config_.device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&cmd_allocator_));
 
     // Create command list
     if (result == S_OK)
     {
-        result = config_->device->CreateCommandList(
-            0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_allocator_.Get(), nullptr, IID_PPV_ARGS(&cmd_list_));
+        result = config_.device->CreateCommandList(
+            0, D3D12_COMMAND_LIST_TYPE_DIRECT, cmd_allocator_, nullptr, IID_PPV_ARGS(&cmd_list_));
     }
 
     // Create synchronization objects
     if (result == S_OK)
     {
-        result       = config_->device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
+        result       = config_.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
         fence_value_ = 1;
 
         // Create an event handle to use for frame synchronization
@@ -152,35 +95,22 @@ HRESULT DX12ImageRenderer::Init(const DX12ImageRendererConfig& config)
     return result;
 }
 
-//-----------------------------------------------------------------------------
-/// Convert a DX12 resource to a CPU-visible linear buffer of pixels.
-/// The data is filled in a user - provided CpuImage struct.
-/// IMPORTANT : Memory inside pImgOut is allocated on behalf of the caller, so
-/// it is their responsibility to free it. \param pRes The Render Target
-/// resource to capture image data for. \param prevState The previous state that
-/// has been set on the resource. \param newWidth The width of the output image
-/// data. \param newHeight The height of the output image data. \param format
-/// The image format for the output image data. \param pImgOut A pointer to the
-/// structure containing all capture image data. \param bFlipX Option used to
-/// flip the image horizontally. \param bFlipY Option used to flip the image
-/// vertically. \returns The result code of the capture operation.
-//-----------------------------------------------------------------------------
-
-HRESULT DX12ImageRenderer::CaptureImage(
-    ID3D12Resource* res, D3D12_RESOURCE_STATES prev_state, UINT width, UINT height, UINT pitch, DXGI_FORMAT format)
+HRESULT DX12ImageRenderer::CaptureImage(ID3D12Resource*       res,
+                                        D3D12_RESOURCE_STATES prev_state,
+                                        uint32_t              width,
+                                        uint32_t              height,
+                                        uint32_t              pitch,
+                                        DXGI_FORMAT           format)
 {
     HRESULT result = E_FAIL;
 
     if ((res != nullptr) && (width > 0) && (height > 0))
     {
-        auto desc = res->GetDesc();
-        // Create temp assets used in this capture
-
         result = cmd_allocator_->Reset();
 
         if (result == S_OK)
         {
-            result = cmd_list_->Reset(cmd_allocator_.Get(), nullptr);
+            result = cmd_list_->Reset(cmd_allocator_, nullptr);
         }
 
         // Render work
@@ -202,11 +132,11 @@ HRESULT DX12ImageRenderer::CaptureImage(
 
             if (result == S_OK)
             {
-                D3D12_TEXTURE_COPY_LOCATION dst_location = { staging_.Get(), D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT };
-                dst_location.PlacedFootprint.Footprint.Width    = width;
-                dst_location.PlacedFootprint.Footprint.Height   = height;
-                dst_location.PlacedFootprint.Footprint.Depth    = 1;
-                dst_location.PlacedFootprint.Footprint.Format   = format;
+                D3D12_TEXTURE_COPY_LOCATION dst_location      = { staging_, D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT };
+                dst_location.PlacedFootprint.Footprint.Width  = width;
+                dst_location.PlacedFootprint.Footprint.Height = height;
+                dst_location.PlacedFootprint.Footprint.Depth  = 1;
+                dst_location.PlacedFootprint.Footprint.Format = format;
                 dst_location.PlacedFootprint.Footprint.RowPitch = pitch;
                 dst_location.PlacedFootprint.Offset             = 0;
 
@@ -223,8 +153,8 @@ HRESULT DX12ImageRenderer::CaptureImage(
 
                 // Execute the command list
                 result                                = cmd_list_->Close();
-                ID3D12CommandList* pp_command_lists[] = { cmd_list_.Get() };
-                config_->cmd_queue->ExecuteCommandLists(_countof(pp_command_lists), pp_command_lists);
+                ID3D12CommandList* pp_command_lists[] = { cmd_list_ };
+                config_.cmd_queue->ExecuteCommandLists(_countof(pp_command_lists), pp_command_lists);
                 WaitCmdListFinish();
             }
         }
@@ -233,7 +163,7 @@ HRESULT DX12ImageRenderer::CaptureImage(
     return result;
 }
 
-HRESULT DX12ImageRenderer::CreateStagingResource(unsigned int buffer_byte_size)
+HRESULT DX12ImageRenderer::CreateStagingResource(uint32_t buffer_byte_size)
 {
     D3D12_HEAP_PROPERTIES props{};
     props.Type                 = D3D12_HEAP_TYPE_READBACK;
@@ -255,7 +185,7 @@ HRESULT DX12ImageRenderer::CreateStagingResource(unsigned int buffer_byte_size)
     descriptor.Layout             = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
     descriptor.Flags              = D3D12_RESOURCE_FLAG_NONE;
 
-    auto result = config_->device->CreateCommittedResource(
+    auto result = config_.device->CreateCommittedResource(
         &props, D3D12_HEAP_FLAG_NONE, &descriptor, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&staging_));
     if (result == S_OK)
     {
@@ -267,11 +197,11 @@ HRESULT DX12ImageRenderer::CreateStagingResource(unsigned int buffer_byte_size)
 void DX12ImageRenderer::WaitCmdListFinish()
 {
     // Signal and increment the fence value
-    const UINT64 fence_v = fence_value_;
-    HRESULT      result  = config_->cmd_queue->Signal(fence_.Get(), fence_v);
+    const uint64_t fence_v = fence_value_;
+    HRESULT        result  = config_.cmd_queue->Signal(fence_, fence_v);
     fence_value_++;
 
-    const UINT64 fenceCompletedVal = fence_->GetCompletedValue();
+    const uint64_t fenceCompletedVal = fence_->GetCompletedValue();
 
     // Wait until the previous frame is finished
     if (fenceCompletedVal < fence_v)
@@ -283,7 +213,7 @@ void DX12ImageRenderer::WaitCmdListFinish()
 
 HRESULT
 DX12ImageRenderer::RetrieveImageData(
-    CpuImage* img_out, UINT width, UINT height, UINT pitch, DXGI_FORMAT format, bool convert_to_bgra)
+    CpuImage& img_out, uint32_t width, uint32_t height, uint32_t pitch, DXGI_FORMAT format, bool convert_to_bgra)
 {
     void*       uav_data   = nullptr;
     D3D12_RANGE read_range = { 0, 0 };
@@ -292,34 +222,25 @@ DX12ImageRenderer::RetrieveImageData(
 
     if (result == S_OK)
     {
-        const UINT total_bytes = pitch * height;
+        const uint32_t total_bytes = pitch * height;
 
-        img_out->pitch  = pitch;
-        img_out->width  = width;
-        img_out->height = height;
-        img_out->data.resize(total_bytes);
-        memcpy(&img_out->data[0], uav_data, total_bytes);
+        img_out.pitch  = pitch;
+        img_out.width  = width;
+        img_out.height = height;
+        img_out.data.resize(total_bytes);
 
-        bool is_bgr8 = B8G8R8.find(format) != B8G8R8.end();
-        bool is_rgb8 = R8G8B8A8.find(format) != R8G8B8A8.end();
-        bool is_r10g10b10a2 = R10G10B10A2.find(format) != R10G10B10A2.end();
+        auto success = CopyImageData(std::data(img_out.data),
+                                     reinterpret_cast<const uint8_t*>(uav_data),
+                                     total_bytes,
+                                     width,
+                                     height,
+                                     pitch,
+                                     format,
+                                     convert_to_bgra);
 
-        bool swap_red_blue = (convert_to_bgra && is_rgb8) || (!convert_to_bgra && is_bgr8);
-
-        if (swap_red_blue)
+        if (!success)
         {
-            ConvertR8G8B8A8ToB8G8R8A8(img_out->data, width, height, pitch);
-        }
-        else if (is_r10g10b10a2)
-        {
-            ConvertR10G10B10A2ToB8G8R8A8(img_out->data, width, height, pitch);
-            if (!convert_to_bgra)
-            {
-                ConvertR8G8B8A8ToB8G8R8A8(img_out->data, width, height, pitch);
-            }
-        }
-        else if (!(is_bgr8 || is_rgb8 || is_r10g10b10a2))
-        {
+            // Only report errors once per format.
             auto entry = std::find(issued_warning_list_.begin(), issued_warning_list_.end(), format);
             if (entry == issued_warning_list_.end())
             {
@@ -327,8 +248,10 @@ DX12ImageRenderer::RetrieveImageData(
                 GFXRECON_LOG_ERROR("DX12ImageRenderer does not support %d DXGI_FORMAT", format);
             }
         }
+
         staging_->Unmap(0, nullptr);
     }
+
     return result;
 }
 

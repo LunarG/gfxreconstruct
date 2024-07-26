@@ -38,6 +38,7 @@
 #include "encode/dxgi_dispatch_table.h"
 #include "encode/dx12_rv_annotator.h"
 #include "generated/generated_dx12_wrappers.h"
+#include "graphics/dx11_image_renderer.h"
 #include "graphics/dx12_image_renderer.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -1189,7 +1190,8 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     std::unique_ptr<Dx12StateTracker> state_tracker_;
 
-    std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer_;
+    std::unique_ptr<graphics::DX12ImageRenderer> frame_buffer_renderer12_;
+    std::unique_ptr<graphics::DX11ImageRenderer> frame_buffer_renderer11_;
 
     graphics::dx12::ActiveAdapterMap adapters_;
 
