@@ -1,7 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -30,6 +30,7 @@
 #include "util/defines.h"
 #include "util/memory_output_stream.h"
 #include "util/page_guard_manager.h"
+#include "util/write_watch_tracker.h"
 
 #include <d3d12.h>
 #include <dxgi.h>
@@ -590,6 +591,13 @@ struct AgsContextInfo : public DxWrapperInfo
 struct AgsDeviceInfo : public DxWrapperInfo
 {};
 
+struct ID3D11DeviceContextInfo : public DxWrapperInfo
+{
+    bool                                     is_deferred{ false };
+    bool                                     needs_update_subresource_adjustment{ false };
+    std::unique_ptr<util::WriteWatchTracker> deferred_tracker;
+};
+
 struct ID3D11DepthStencilStateInfo : public DxWrapperInfo
 {};
 
@@ -598,6 +606,16 @@ struct ID3D11BlendStateInfo : public DxWrapperInfo
 
 struct ID3D11RasterizerStateInfo : public DxWrapperInfo
 {};
+
+struct ResourceTrackingInfo
+{
+    // Subresource sizes to be calculated/used when resource is mapped. Mapped resource RowPitch and DepthPitch values
+    // have been found to be different for the same resource mapped by different contexts (immediate or deferred), so
+    // the sizes are calculated per-context.
+    std::unique_ptr<uint64_t[]>              subresource_sizes;
+    std::unique_ptr<MappedSubresource[]>     mapped_subresources;
+    std::shared_ptr<ID3D11DeviceContextInfo> mapped_context;
+};
 
 // Parent class for D3D11 buffer and texture resource info.
 struct ID3D11ResourceInfo : public DxWrapperInfo
@@ -608,13 +626,10 @@ struct ID3D11ResourceInfo : public DxWrapperInfo
     uint32_t                 height{ 0 };
     uint32_t                 depth_or_array_size{ 0 };
     uint32_t                 mip_levels{ 0 };
-
-    // Subresources sizes to be calculated/used when resource is mapped.
-    size_t                      num_subresources{ 0 };
-    std::unique_ptr<uint64_t[]> subresource_sizes;
+    size_t                   num_subresources{ 0 };
 
     // Map ID3D11DeviceContext ID to mapped subresource info.
-    std::unordered_map<uint64_t, std::unique_ptr<MappedSubresource[]>> mapped_subresources;
+    std::unordered_map<format::HandleId, ResourceTrackingInfo> mapped_info;
 };
 
 // Parent class for D3D11 view info.
@@ -689,12 +704,6 @@ struct ID3D11ClassLinkageInfo : public DxWrapperInfo
 
 struct ID3D11CommandListInfo : public DxWrapperInfo
 {};
-
-struct ID3D11DeviceContextInfo : public DxWrapperInfo
-{
-    bool is_deferred{ false };
-    bool needs_update_subresource_adjustment{ false };
-};
 
 struct ID3D11VideoDecoderInfo : public DxWrapperInfo
 {};

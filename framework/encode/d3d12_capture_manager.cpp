@@ -2,7 +2,7 @@
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
-** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
+** Copyright (c) 2023-2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -3161,6 +3161,26 @@ void* D3D12CaptureManager::AllocateMappedResourceMemory(util::PageGuardManager* 
                                      false);
 }
 
+void* D3D12CaptureManager::AllocateMappedResourceMemoryDeferred(util::WriteWatchTracker* deferred_tracker,
+                                                                MappedSubresource&       mapped_subresource,
+                                                                size_t                   size)
+{
+    // Ensure that the mapped subresource has a unique ID for tracking.
+    if (mapped_subresource.tracker_id == 0)
+    {
+        // This function should only be called when mapped_memory_lock_ is locked, so no need for additional
+        // synchronization around the ID calculation.
+        static uint64_t subresource_id = 0;
+        mapped_subresource.tracker_id  = ++subresource_id;
+    }
+
+    return deferred_tracker->AddTrackedMemory(mapped_subresource.tracker_id,
+                                              reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                              mapped_subresource.data,
+                                              size,
+                                              mapped_subresource.shadow_allocation);
+}
+
 void* D3D12CaptureManager::GetMappedResourceMemory(util::PageGuardManager*  manager,
                                                    const MappedSubresource& mapped_subresource)
 {
@@ -3200,36 +3220,264 @@ void* D3D12CaptureManager::UpdateDiscardedResourceMemory(util::PageGuardManager*
     return shadow_memory;
 }
 
+void* D3D12CaptureManager::UpdateDiscardedResourceMemoryDeferred(util::WriteWatchTracker* deferred_tracker,
+                                                                 const MappedSubresource& mapped_subresource)
+{
+    // Update the memory ID that will be written to the capture file with the address of the
+    // new mapped allocation returned for D3D11_MAP_DISCARD.
+    GFXRECON_ASSERT(mapped_subresource.tracker_id != 0);
+
+    // If the update fails, return the original pointer returned by Map.
+    auto shadow_memory = mapped_subresource.data;
+    auto found         = deferred_tracker->UpdateTrackedMemory(mapped_subresource.tracker_id,
+                                                       reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                       mapped_subresource.data,
+                                                       &shadow_memory);
+
+    if (!found)
+    {
+        GFXRECON_LOG_ERROR("Failed to update the memory ID for a mapped resource.");
+    }
+
+    return shadow_memory;
+}
+
 void D3D12CaptureManager::FreeMappedResourceMemory(ID3D11Resource_Wrapper* wrapper)
 {
     if ((wrapper != nullptr) && (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard))
     {
-        auto info = GetResourceInfo(wrapper);
-        if (info != nullptr)
+        auto resource_info = GetResourceInfo(wrapper);
+        if (resource_info != nullptr)
         {
-            util::PageGuardManager* manager = util::PageGuardManager::Get();
-            assert(manager != nullptr);
-
-            for (auto& context_entry : info->mapped_subresources)
+            for (auto& mapped_info_entry : resource_info->mapped_info)
             {
-                for (auto i = 0u; i < info->num_subresources; ++i)
-                {
-                    auto& mapped_subresource = context_entry.second[i];
+                auto& mapped_info         = mapped_info_entry.second;
+                auto& mapped_subresources = mapped_info.mapped_subresources;
+                auto& context_info        = mapped_info.mapped_context;
+                GFXRECON_ASSERT(context_info != nullptr);
 
-                    if (mapped_subresource.shadow_allocation != util::PageGuardManager::kNullShadowHandle)
+                if (!context_info->is_deferred)
+                {
+                    auto manager = util::PageGuardManager::Get();
+                    GFXRECON_ASSERT(manager != nullptr);
+
+                    for (auto i = 0u; i < resource_info->num_subresources; ++i)
                     {
-                        // The resource was assigned a persistent memory allocation and left in the memory tracker until
-                        // it was released.
-                        manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
-                        manager->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
+                        auto& mapped_subresource = mapped_subresources[i];
+
+                        if (mapped_subresource.shadow_allocation != util::PageGuardManager::kNullShadowHandle)
+                        {
+                            // The resource was assigned a persistent memory allocation and left in the memory
+                            // tracker until it was released.
+                            manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
+                            manager->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
+                        }
+                        else if (mapped_subresource.data != nullptr)
+                        {
+                            // The resource was not unmapped before being released.
+                            manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
+                        }
                     }
-                    else if (mapped_subresource.data != nullptr)
+                }
+                else
+                {
+                    auto& tracker = context_info->deferred_tracker;
+                    GFXRECON_ASSERT(tracker != nullptr);
+
+                    for (auto i = 0u; i < resource_info->num_subresources; ++i)
                     {
-                        // The resource was not unmapped before being released.
-                        manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
+                        auto& mapped_subresource = mapped_subresources[i];
+
+                        GFXRECON_ASSERT(mapped_subresource.shadow_allocation !=
+                                        util::PageGuardManager::kNullShadowHandle);
+
+                        tracker->RemoveTrackedMemory(mapped_subresource.tracker_id);
+                        tracker->FreePersistentShadowMemory(mapped_subresource.shadow_allocation);
                     }
                 }
             }
+        }
+    }
+}
+
+void D3D12CaptureManager::ProcessMapDiscardNoOverwriteUnmapped(format::HandleId                          context_id,
+                                                               std::shared_ptr<ID3D11DeviceContextInfo>& context_info,
+                                                               std::shared_ptr<ID3D11ResourceInfo>&      resource_info,
+                                                               MappedSubresource&        mapped_subresource,
+                                                               D3D11_MAP                 map_type,
+                                                               D3D11_MAPPED_SUBRESOURCE* mapped_subresource_data,
+                                                               size_t                    size)
+{
+    GFXRECON_ASSERT(context_info != nullptr);
+
+    if (!context_info->is_deferred)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        if (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle)
+        {
+            if ((mapped_subresource.tracker_id != 0) && (map_type == D3D11_MAP_WRITE_NO_OVERWRITE))
+            {
+                // If a resource has previously been mapped with D3D11_MAP_WRITE or
+                // D3D11_MAP_READ_WRITE, its current content will not be copied to the persistent
+                // memory allocation, possibly producing an invalid result if the current content is
+                // expected to be preserved.
+                GFXRECON_LOG_WARNING_ONCE("A mapped resource that has previously been mapped with "
+                                          "D3D11_MAP_WRITE or D3D11_MAP_READ_WRITE has been mapped "
+                                          "with D3D11_MAP_WRITE_NO_OVERWRITE. This case "
+                                          "is unexpected and may not be handled correctly.");
+            }
+
+            // When mapped for discard, the previous content of the memory does not need to be
+            // preserved and a persistent allocation can be created to skip allocating and
+            // copying each time the discarded memory is mapped.
+            mapped_subresource.shadow_allocation = manager->AllocatePersistentShadowMemory(size);
+
+            mapped_subresource_data->pData = AllocateMappedResourceMemory(manager, mapped_subresource, size);
+        }
+        else
+        {
+            // Update the memory ID and pointer that will be written to the capture file with the
+            // address of the new mapped allocation. This is done for both the D3D11_MAP_WRITE_DISCARD and
+            // D3D11_MAP_WRITE_NO_OVERWRITE cases because some drivers will return a different allocation for the
+            // NO_OVERWRITE case.
+            mapped_subresource_data->pData = UpdateDiscardedResourceMemory(manager, mapped_subresource);
+        }
+    }
+    else
+    {
+        if (mapped_subresource.shadow_allocation == util::WriteWatchTracker::kNullShadowHandle)
+        {
+            if ((mapped_subresource.tracker_id != 0) && (map_type == D3D11_MAP_WRITE_NO_OVERWRITE))
+            {
+                // If a resource has previously been mapped with D3D11_MAP_WRITE or
+                // D3D11_MAP_READ_WRITE, its current content will not be copied to the persistent
+                // memory allocation, possibly producing an invalid result if the current content is
+                // expected to be preserved.
+                GFXRECON_LOG_WARNING_ONCE("A mapped resource that has previously been mapped with "
+                                          "D3D11_MAP_WRITE or D3D11_MAP_READ_WRITE has been mapped "
+                                          "with D3D11_MAP_WRITE_NO_OVERWRITE. This case "
+                                          "is unexpected and may not be handled correctly.");
+            }
+
+            if (context_info->deferred_tracker == nullptr)
+            {
+                context_info->deferred_tracker = std::make_unique<util::WriteWatchTracker>();
+            }
+
+            auto& deferred_tracker = context_info->deferred_tracker;
+
+            // When mapped for discard, the previous content of the memory does not need to be
+            // preserved and a persistent allocation can be created to skip allocating and
+            // copying each time the discarded memory is mapped.
+            mapped_subresource.shadow_allocation = deferred_tracker->AllocatePersistentShadowMemory(size);
+
+            mapped_subresource_data->pData =
+                AllocateMappedResourceMemoryDeferred(deferred_tracker.get(), mapped_subresource, size);
+        }
+        else
+        {
+            // Update the memory ID and pointer that will be written to the capture file with the
+            // address of the new mapped allocation. This is done for both the D3D11_MAP_WRITE_DISCARD and
+            // D3D11_MAP_WRITE_NO_OVERWRITE cases because some drivers will return a different allocation for the
+            // NO_OVERWRITE case.
+            mapped_subresource_data->pData =
+                UpdateDiscardedResourceMemoryDeferred(context_info->deferred_tracker.get(), mapped_subresource);
+        }
+    }
+}
+
+void D3D12CaptureManager::ProcessMapDiscardMapped(std::shared_ptr<ID3D11DeviceContextInfo>& context_info,
+                                                  MappedSubresource&                        mapped_subresource,
+                                                  D3D11_MAP                                 map_type,
+                                                  D3D11_MAPPED_SUBRESOURCE*                 mapped_subresource_data)
+{
+    GFXRECON_ASSERT(context_info != nullptr);
+
+    if (!context_info->is_deferred)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        // Process any dirty pages that may be pending on the current memory ID before updating it.
+        manager->ProcessMemoryEntry(
+            mapped_subresource.tracker_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
+            });
+
+        // Update the memory ID and pointer that will be written to the capture file with the
+        // address of the new mapped allocation.
+        mapped_subresource_data->pData = UpdateDiscardedResourceMemory(manager, mapped_subresource);
+    }
+    else
+    {
+        GFXRECON_ASSERT(context_info->deferred_tracker != nullptr);
+
+        auto& deferred_tracker = context_info->deferred_tracker;
+
+        // Process any dirty pages that may be pending on the current memory ID before updating it.
+        deferred_tracker->ProcessMemoryEntry(
+            mapped_subresource.tracker_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
+            });
+
+        // Update the memory ID and pointer that will be written to the capture file with the address of the new mapped
+        // allocation.
+        mapped_subresource_data->pData =
+            UpdateDiscardedResourceMemoryDeferred(deferred_tracker.get(), mapped_subresource);
+    }
+}
+
+void D3D12CaptureManager::ProcessUnmap(std::shared_ptr<ID3D11DeviceContextInfo>& context_info,
+                                       MappedSubresource&                        mapped_subresource)
+{
+    GFXRECON_ASSERT(context_info != nullptr);
+
+    if (!context_info->is_deferred)
+    {
+        auto manager = util::PageGuardManager::Get();
+        GFXRECON_ASSERT(manager != nullptr);
+
+        manager->ProcessMemoryEntry(
+            mapped_subresource.tracker_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
+            });
+
+        // Persistent allocations created for D3D11_MAP_DISCARD and D3D11_MAP_NO_OVERWRITE will
+        // stay in the memory tracker until the resource is destroyed. For legal Map/Unmap
+        // usage, where memory is mapped and unmapped between draw/dispatch calls, this reduces
+        // capture overhead by eliminating frequent add/remove operations from the page guard
+        // manager. For illegal Map/Unmap usage, where an application continues to write to
+        // memory after Unmap, this allows those writes to be detected.
+        if (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle)
+        {
+            manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
+            mapped_subresource.tracker_id = 0;
+        }
+    }
+    else
+    {
+        auto& tracker = context_info->deferred_tracker;
+        GFXRECON_ASSERT(tracker != nullptr);
+
+        tracker->ProcessMemoryEntry(
+            mapped_subresource.tracker_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
+            });
+    }
+}
+
+void D3D12CaptureManager::PreProcessDraw(ID3D11DeviceContext_Wrapper* wrapper)
+{
+    GFXRECON_ASSERT(wrapper != nullptr);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        auto context_info = wrapper->GetObjectInfo();
+        if (!context_info->is_deferred)
+        {
+            ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
         }
     }
 }
@@ -3672,34 +3920,42 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                                                               UINT                         map_flags,
                                                               D3D11_MAPPED_SUBRESOURCE*    mapped_subresource_data)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_ASSERT(wrapper != nullptr);
 
     if (SUCCEEDED(result) && (resource != nullptr))
     {
         auto resource_wrapper = reinterpret_cast<ID3D11Resource_Wrapper*>(resource);
-        auto info             = GetResourceInfo(resource_wrapper);
-        if (info != nullptr)
+        auto resource_info    = GetResourceInfo(resource_wrapper);
+        if (resource_info != nullptr)
         {
-            assert((subresource < info->num_subresources));
+            assert((subresource < resource_info->num_subresources));
 
-            std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
+            auto context_info = wrapper->GetObjectInfo();
+            GFXRECON_ASSERT(context_info != nullptr);
 
             // Get or initialize the per-context mapped memory info entry.
-            auto entry = info->mapped_subresources.find(wrapper->GetCaptureId());
-            if (entry == info->mapped_subresources.end())
-            {
-                if (info->subresource_sizes == nullptr)
-                {
-                    info->subresource_sizes = std::make_unique<uint64_t[]>(info->num_subresources);
-                }
+            auto entry      = std::unordered_map<format::HandleId, ResourceTrackingInfo>::iterator{};
+            auto context_id = wrapper->GetCaptureId();
 
-                auto& pair = info->mapped_subresources.emplace(
-                    wrapper->GetCaptureId(),
-                    std::make_unique<gfxrecon::encode::MappedSubresource[]>(info->num_subresources));
-                entry = pair.first;
+            {
+                std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
+
+                entry = resource_info->mapped_info.find(context_id);
+                if (entry == resource_info->mapped_info.end())
+                {
+                    auto& pair = resource_info->mapped_info.emplace(
+                        context_id,
+                        ResourceTrackingInfo{
+                            std::make_unique<uint64_t[]>(resource_info->num_subresources),
+                            std::make_unique<gfxrecon::encode::MappedSubresource[]>(resource_info->num_subresources),
+                            context_info });
+
+                    entry = pair.first;
+                }
             }
 
-            auto& mapped_subresource = entry->second[subresource];
+            auto& mapped_info        = entry->second;
+            auto& mapped_subresource = mapped_info.mapped_subresources[subresource];
 
             if ((mapped_subresource_data != nullptr) && (mapped_subresource_data->pData != nullptr) &&
                 (map_type != D3D11_MAP_READ))
@@ -3711,15 +3967,15 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                     // Calculate and store the subresource size on first use. This size is used with kPageGuard when
                     // adding an entry to PageGuardManager on Map or with kUnassisted when writing memory to the file on
                     // Unmap.
-                    auto& subresource_size = info->subresource_sizes[subresource];
+                    auto& subresource_size = mapped_info.subresource_sizes[subresource];
                     if (subresource_size == 0)
                     {
-                        subresource_size = graphics::dx12::GetSubresourceSize(info->dimension,
-                                                                              info->format,
-                                                                              info->width,
-                                                                              info->height,
-                                                                              info->depth_or_array_size,
-                                                                              info->mip_levels,
+                        subresource_size = graphics::dx12::GetSubresourceSize(resource_info->dimension,
+                                                                              resource_info->format,
+                                                                              resource_info->width,
+                                                                              resource_info->height,
+                                                                              resource_info->depth_or_array_size,
+                                                                              resource_info->mip_levels,
                                                                               mapped_subresource_data->RowPitch,
                                                                               mapped_subresource_data->DepthPitch,
                                                                               subresource);
@@ -3727,48 +3983,24 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
 
                     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                     {
-                        util::PageGuardManager* manager = util::PageGuardManager::Get();
-                        assert(manager != nullptr);
-
                         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_size);
                         auto size = static_cast<size_t>(subresource_size);
 
                         if ((map_type == D3D11_MAP_WRITE_DISCARD) || (map_type == D3D11_MAP_WRITE_NO_OVERWRITE))
                         {
-                            if (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle)
-                            {
-                                if ((mapped_subresource.tracker_id != 0) && (map_type == D3D11_MAP_WRITE_NO_OVERWRITE))
-                                {
-                                    // If a resource has previously been mapped with D3D11_MAP_WRITE or
-                                    // D3D11_MAP_READ_WRITE, its current content will not be copied to the persistent
-                                    // memory allocation, possibly producing an invalid result if the current content is
-                                    // expected to be preserved.
-                                    GFXRECON_LOG_WARNING_ONCE("A mapped resource that has previously been mapped with "
-                                                              "D3D11_MAP_WRITE or D3D11_MAP_READ_WRITE has been mapped "
-                                                              "with D3D11_MAP_WRITE_NO_OVERWRITE. This case "
-                                                              "is unexpected and may not be handled correctly.");
-                                }
-
-                                // When mapped for discard, the previous content of the memory does not need to be
-                                // preserved and a persistent allocation can be created to skip allocating and
-                                // copying each time the discarded memory is mapped.
-                                mapped_subresource.shadow_allocation = manager->AllocatePersistentShadowMemory(size);
-
-                                mapped_subresource_data->pData =
-                                    AllocateMappedResourceMemory(manager, mapped_subresource, size);
-                            }
-                            else
-                            {
-                                // Update the memory ID and pointer that will be written to the capture file with the
-                                // address of the new mapped allocation. This is done for both the
-                                // D3D11_MAP_WRITE_DISCARD and D3D11_MAP_WRITE_NO_OVERWRITE cases because some drivers
-                                // will return a different allocation for the NO_OVERWRITE case.
-                                mapped_subresource_data->pData =
-                                    UpdateDiscardedResourceMemory(manager, mapped_subresource);
-                            }
+                            ProcessMapDiscardNoOverwriteUnmapped(context_id,
+                                                                 context_info,
+                                                                 resource_info,
+                                                                 mapped_subresource,
+                                                                 map_type,
+                                                                 mapped_subresource_data,
+                                                                 size);
                         }
                         else
                         {
+                            util::PageGuardManager* manager = util::PageGuardManager::Get();
+                            assert(manager != nullptr);
+
                             // The D3D11_MAP_WRITE and D3D11_MAP_READ_WRITE cases use standard memory tracking
                             // where an entry for the mapped memory will be added to the memory tracker at Map and
                             // removed at Unmap, the memory tracker will allocate the shadow memory, and the content of
@@ -3818,17 +4050,8 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                                 "ever unmapping. This may lead to rendering corruption or other issues, "
                                 "which can be avoided by enabling GFXRECON_D3D11_MAP_WORKAROUND");
 
-                            // Process any dirty pages that may be pending on the current memory ID before updating it.
-                            manager->ProcessMemoryEntry(
-                                mapped_subresource.tracker_id,
-                                [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                    WriteFillMemoryCmd(
-                                        format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
-                                });
-
-                            // Update the memory ID and pointer that will be written to the capture file with the
-                            // address of the new mapped allocation.
-                            mapped_subresource_data->pData = UpdateDiscardedResourceMemory(manager, mapped_subresource);
+                            ProcessMapDiscardMapped(
+                                context_info, mapped_subresource, map_type, mapped_subresource_data);
                         }
                         else
                         {
@@ -3845,7 +4068,7 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
                                                                ID3D11Resource*              resource,
                                                                UINT                         subresource)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_ASSERT(wrapper != nullptr);
 
     if (resource != nullptr)
     {
@@ -3856,15 +4079,22 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
         {
             assert((subresource < info->num_subresources));
 
-            std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
+            auto entry = std::unordered_map<format::HandleId, ResourceTrackingInfo>::iterator{};
+            auto found = false;
 
-            auto entry = info->mapped_subresources.find(wrapper->GetCaptureId());
-            if (entry != info->mapped_subresources.end())
             {
-                auto& mapped_subresource = entry->second[subresource];
+                std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
+                entry = info->mapped_info.find(wrapper->GetCaptureId());
+                found = entry != info->mapped_info.end();
+            }
+
+            if (found)
+            {
+                auto& mapped_info        = entry->second;
+                auto& mapped_subresource = mapped_info.mapped_subresources[subresource];
 
                 // Note that memory tracking ignores the case where a resource was mapped for use with
-                // WriteToSubresoruce, where the Map D3D11_MAPPED_SUBRESOURCE parameter was NULL.
+                // WriteToSubresource, where the Map D3D11_MAPPED_SUBRESOURCE parameter was NULL.
                 if (mapped_subresource.data != nullptr)
                 {
                     if (mapped_subresource.map_count > 0)
@@ -3876,32 +4106,13 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
 
                         if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                         {
-                            util::PageGuardManager* manager = util::PageGuardManager::Get();
-                            assert(manager != nullptr);
-
-                            manager->ProcessMemoryEntry(
-                                mapped_subresource.tracker_id,
-                                [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-                                    WriteFillMemoryCmd(
-                                        format::ApiFamilyId::ApiFamily_D3D11, memory_id, offset, size, start_address);
-                                });
-
-                            // Persistent allocations created for D3D11_MAP_DISCARD and D3D11_MAP_NO_OVERWRITE will stay
-                            // in the memory tracker until the resource is destroyed. For legal Map/Unmap usage, where
-                            // memory is mapped and unmapped between draw/dispatch calls, this reduces capture overhead
-                            // by eliminating frequent add/remove operations from the page guard manager. For illegal
-                            // Map/Unmap usage, where an application continues to write to memory after Unmap, this
-                            // allows those writes to be detected.
-                            if (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle)
-                            {
-                                manager->RemoveTrackedMemory(mapped_subresource.tracker_id);
-                                mapped_subresource.tracker_id = 0;
-                            }
+                            auto context_info = wrapper->GetObjectInfo();
+                            ProcessUnmap(context_info, mapped_subresource);
                         }
                         else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
                         {
                             uint64_t offset = 0;
-                            uint64_t size   = info->subresource_sizes[subresource];
+                            uint64_t size   = mapped_info.subresource_sizes[subresource];
 
                             WriteFillMemoryCmd(format::ApiFamilyId::ApiFamily_D3D11,
                                                reinterpret_cast<uint64_t>(mapped_subresource.data),
@@ -3937,53 +4148,36 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Dispatch(ID3D11DeviceCo
                                                                   UINT                         thread_group_count_y,
                                                                   UINT                         thread_group_count_z)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(thread_group_count_x);
     GFXRECON_UNREFERENCED_PARAMETER(thread_group_count_y);
     GFXRECON_UNREFERENCED_PARAMETER(thread_group_count_z);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DispatchIndirect(ID3D11DeviceContext_Wrapper* wrapper,
                                                                           ID3D11Buffer*                buffer_for_args,
                                                                           UINT aligned_byte_offset_for_args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(buffer_for_args);
     GFXRECON_UNREFERENCED_PARAMETER(aligned_byte_offset_for_args);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Draw(ID3D11DeviceContext_Wrapper* wrapper,
                                                               UINT                         vertex_count,
                                                               UINT                         start_vertex_location)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(vertex_count);
     GFXRECON_UNREFERENCED_PARAMETER(start_vertex_location);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawAuto(ID3D11DeviceContext_Wrapper* wrapper)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
-
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexed(ID3D11DeviceContext_Wrapper* wrapper,
@@ -3991,15 +4185,11 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexed(ID3D11Devic
                                                                      UINT                         start_index_location,
                                                                      INT                          base_vertex_location)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(index_count);
     GFXRECON_UNREFERENCED_PARAMETER(start_index_location);
     GFXRECON_UNREFERENCED_PARAMETER(base_vertex_location);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(ID3D11DeviceContext_Wrapper* wrapper,
@@ -4009,30 +4199,22 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(ID
                                                                               INT  base_vertex_location,
                                                                               UINT start_instance_location)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(index_count_per_instance);
     GFXRECON_UNREFERENCED_PARAMETER(instance_count);
     GFXRECON_UNREFERENCED_PARAMETER(start_index_location);
     GFXRECON_UNREFERENCED_PARAMETER(base_vertex_location);
     GFXRECON_UNREFERENCED_PARAMETER(start_instance_location);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexedInstancedIndirect(
     ID3D11DeviceContext_Wrapper* wrapper, ID3D11Buffer* buffer_for_args, UINT aligned_byte_offset_for_args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(buffer_for_args);
     GFXRECON_UNREFERENCED_PARAMETER(aligned_byte_offset_for_args);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawInstanced(ID3D11DeviceContext_Wrapper* wrapper,
@@ -4041,30 +4223,22 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawInstanced(ID3D11Dev
                                                                        UINT start_vertex_location,
                                                                        UINT start_instance_location)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(vertex_count_per_instance);
     GFXRECON_UNREFERENCED_PARAMETER(instance_count);
     GFXRECON_UNREFERENCED_PARAMETER(start_vertex_location);
     GFXRECON_UNREFERENCED_PARAMETER(start_instance_location);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawInstancedIndirect(ID3D11DeviceContext_Wrapper* wrapper,
                                                                                ID3D11Buffer* buffer_for_args,
                                                                                UINT aligned_byte_offset_for_args)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
     GFXRECON_UNREFERENCED_PARAMETER(buffer_for_args);
     GFXRECON_UNREFERENCED_PARAMETER(aligned_byte_offset_for_args);
 
-    if (GetEnableD3D11MapWorkaroundSetting())
-    {
-        ProcessMappedMemory(format::ApiFamilyId::ApiFamily_D3D11);
-    }
+    PreProcessDraw(wrapper);
 }
 
 void D3D12CaptureManager::AddViewResourceRef(ID3D11ViewInfo* info, ID3D11Resource* resource)
