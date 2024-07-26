@@ -21923,14 +21923,19 @@ void Dx12ReplayConsumer::Process_ID3D11Device_CreateDeferredContext(
             replay_object,
             ContextFlags,
             ppDeferredContext);
-        if(!ppDeferredContext->IsNull()) ppDeferredContext->SetHandleLength(1);
-        auto out_p_ppDeferredContext    = ppDeferredContext->GetPointer();
-        auto out_hp_ppDeferredContext   = ppDeferredContext->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D11Device*>(replay_object->object)->CreateDeferredContext(ContextFlags,
-                                                                                                           out_hp_ppDeferredContext);
+        DxObjectInfo object_info_ppDeferredContext{};
+        if(!ppDeferredContext->IsNull())
+        {
+            ppDeferredContext->SetHandleLength(1);
+            ppDeferredContext->SetConsumerData(0, &object_info_ppDeferredContext);
+        }
+        auto replay_result = OverrideCreateDeferredContext(replay_object,
+                                                           return_value,
+                                                           ContextFlags,
+                                                           ppDeferredContext);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppDeferredContext, out_hp_ppDeferredContext, format::ApiCall_ID3D11Device_CreateDeferredContext);
+            AddObject(ppDeferredContext->GetPointer(), ppDeferredContext->GetHandlePointer(), std::move(object_info_ppDeferredContext), format::ApiCall_ID3D11Device_CreateDeferredContext);
         }
         CheckReplayResult("ID3D11Device_CreateDeferredContext", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateDeferredContext>::Dispatch(
@@ -24017,14 +24022,19 @@ void Dx12ReplayConsumer::Process_ID3D11Device1_CreateDeferredContext1(
             replay_object,
             ContextFlags,
             ppDeferredContext);
-        if(!ppDeferredContext->IsNull()) ppDeferredContext->SetHandleLength(1);
-        auto out_p_ppDeferredContext    = ppDeferredContext->GetPointer();
-        auto out_hp_ppDeferredContext   = ppDeferredContext->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D11Device1*>(replay_object->object)->CreateDeferredContext1(ContextFlags,
-                                                                                                             out_hp_ppDeferredContext);
+        DxObjectInfo object_info_ppDeferredContext{};
+        if(!ppDeferredContext->IsNull())
+        {
+            ppDeferredContext->SetHandleLength(1);
+            ppDeferredContext->SetConsumerData(0, &object_info_ppDeferredContext);
+        }
+        auto replay_result = OverrideCreateDeferredContext1(replay_object,
+                                                            return_value,
+                                                            ContextFlags,
+                                                            ppDeferredContext);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppDeferredContext, out_hp_ppDeferredContext, format::ApiCall_ID3D11Device1_CreateDeferredContext1);
+            AddObject(ppDeferredContext->GetPointer(), ppDeferredContext->GetHandlePointer(), std::move(object_info_ppDeferredContext), format::ApiCall_ID3D11Device1_CreateDeferredContext1);
         }
         CheckReplayResult("ID3D11Device1_CreateDeferredContext1", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device1_CreateDeferredContext1>::Dispatch(
@@ -24741,14 +24751,19 @@ void Dx12ReplayConsumer::Process_ID3D11Device2_CreateDeferredContext2(
             replay_object,
             ContextFlags,
             ppDeferredContext);
-        if(!ppDeferredContext->IsNull()) ppDeferredContext->SetHandleLength(1);
-        auto out_p_ppDeferredContext    = ppDeferredContext->GetPointer();
-        auto out_hp_ppDeferredContext   = ppDeferredContext->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D11Device2*>(replay_object->object)->CreateDeferredContext2(ContextFlags,
-                                                                                                             out_hp_ppDeferredContext);
+        DxObjectInfo object_info_ppDeferredContext{};
+        if(!ppDeferredContext->IsNull())
+        {
+            ppDeferredContext->SetHandleLength(1);
+            ppDeferredContext->SetConsumerData(0, &object_info_ppDeferredContext);
+        }
+        auto replay_result = OverrideCreateDeferredContext2(replay_object,
+                                                            return_value,
+                                                            ContextFlags,
+                                                            ppDeferredContext);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppDeferredContext, out_hp_ppDeferredContext, format::ApiCall_ID3D11Device2_CreateDeferredContext2);
+            AddObject(ppDeferredContext->GetPointer(), ppDeferredContext->GetHandlePointer(), std::move(object_info_ppDeferredContext), format::ApiCall_ID3D11Device2_CreateDeferredContext2);
         }
         CheckReplayResult("ID3D11Device2_CreateDeferredContext2", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device2_CreateDeferredContext2>::Dispatch(
@@ -25530,14 +25545,19 @@ void Dx12ReplayConsumer::Process_ID3D11Device3_CreateDeferredContext3(
             replay_object,
             ContextFlags,
             ppDeferredContext);
-        if(!ppDeferredContext->IsNull()) ppDeferredContext->SetHandleLength(1);
-        auto out_p_ppDeferredContext    = ppDeferredContext->GetPointer();
-        auto out_hp_ppDeferredContext   = ppDeferredContext->GetHandlePointer();
-        auto replay_result = reinterpret_cast<ID3D11Device3*>(replay_object->object)->CreateDeferredContext3(ContextFlags,
-                                                                                                             out_hp_ppDeferredContext);
+        DxObjectInfo object_info_ppDeferredContext{};
+        if(!ppDeferredContext->IsNull())
+        {
+            ppDeferredContext->SetHandleLength(1);
+            ppDeferredContext->SetConsumerData(0, &object_info_ppDeferredContext);
+        }
+        auto replay_result = OverrideCreateDeferredContext3(replay_object,
+                                                            return_value,
+                                                            ContextFlags,
+                                                            ppDeferredContext);
         if (SUCCEEDED(replay_result))
         {
-            AddObject(out_p_ppDeferredContext, out_hp_ppDeferredContext, format::ApiCall_ID3D11Device3_CreateDeferredContext3);
+            AddObject(ppDeferredContext->GetPointer(), ppDeferredContext->GetHandlePointer(), std::move(object_info_ppDeferredContext), format::ApiCall_ID3D11Device3_CreateDeferredContext3);
         }
         CheckReplayResult("ID3D11Device3_CreateDeferredContext3", return_value, replay_result);
         CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateDeferredContext3>::Dispatch(

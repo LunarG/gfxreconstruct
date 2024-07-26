@@ -910,6 +910,26 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                const D3D11_SUBRESOURCE_DATA* initial_data,
                                                ID3D11Buffer**                buffer);
 
+    void PostProcess_ID3D11Device_CreateDeferredContext(ID3D11Device_Wrapper* wrapper,
+                                                        HRESULT               result,
+                                                        UINT                  context_flags,
+                                                        ID3D11DeviceContext** deferred_context);
+
+    void PostProcess_ID3D11Device1_CreateDeferredContext1(ID3D11Device_Wrapper*  wrapper,
+                                                          HRESULT                result,
+                                                          UINT                   context_flags,
+                                                          ID3D11DeviceContext1** deferred_context);
+
+    void PostProcess_ID3D11Device2_CreateDeferredContext2(ID3D11Device_Wrapper*  wrapper,
+                                                          HRESULT                result,
+                                                          UINT                   context_flags,
+                                                          ID3D11DeviceContext2** deferred_context);
+
+    void PostProcess_ID3D11Device3_CreateDeferredContext3(ID3D11Device_Wrapper*  wrapper,
+                                                          HRESULT                result,
+                                                          UINT                   context_flags,
+                                                          ID3D11DeviceContext3** deferred_context);
+
     void PostProcess_ID3D11Device_CreateTexture1D(ID3D11Device_Wrapper*         wrapper,
                                                   HRESULT                       result,
                                                   const D3D11_TEXTURE1D_DESC*   desc,

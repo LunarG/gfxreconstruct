@@ -876,6 +876,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateBuffe
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateDeferredContext>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device_CreateDeferredContext(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateTexture1D>
 {
     template <typename... Args>
@@ -892,6 +902,36 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateTextu
     static void Dispatch(D3D12CaptureManager* manager, Args... args)
     {
         manager->PostProcess_ID3D11Device_CreateTexture2D(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device1_CreateDeferredContext1>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device1_CreateDeferredContext1(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device2_CreateDeferredContext2>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device2_CreateDeferredContext2(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device3_CreateDeferredContext3>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_ID3D11Device3_CreateDeferredContext3(args...);
     }
 };
 

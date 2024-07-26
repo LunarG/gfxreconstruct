@@ -1181,6 +1181,26 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                          UINT                     data_size,
                                          UINT                     get_data_flags);
 
+    HRESULT OverrideCreateDeferredContext(DxObjectInfo*                               replay_object_info,
+                                          HRESULT                                     original_result,
+                                          UINT                                        context_flags,
+                                          HandlePointerDecoder<ID3D11DeviceContext*>* deferred_context);
+
+    HRESULT OverrideCreateDeferredContext1(DxObjectInfo*                                replay_object_info,
+                                           HRESULT                                      original_result,
+                                           UINT                                         context_flags,
+                                           HandlePointerDecoder<ID3D11DeviceContext1*>* deferred_context);
+
+    HRESULT OverrideCreateDeferredContext2(DxObjectInfo*                                replay_object_info,
+                                           HRESULT                                      original_result,
+                                           UINT                                         context_flags,
+                                           HandlePointerDecoder<ID3D11DeviceContext2*>* deferred_context);
+
+    HRESULT OverrideCreateDeferredContext3(DxObjectInfo*                                replay_object_info,
+                                           HRESULT                                      original_result,
+                                           UINT                                         context_flags,
+                                           HandlePointerDecoder<ID3D11DeviceContext3*>* deferred_context);
+
     void OverrideDevice3ReadFromSubresource(DxObjectInfo*                            replay_object_info,
                                             uint64_t                                 dst_data,
                                             UINT                                     dst_row_pitch,

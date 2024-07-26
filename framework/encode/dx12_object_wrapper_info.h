@@ -691,7 +691,10 @@ struct ID3D11CommandListInfo : public DxWrapperInfo
 {};
 
 struct ID3D11DeviceContextInfo : public DxWrapperInfo
-{};
+{
+    bool is_deferred{ false };
+    bool needs_update_subresource_adjustment{ false };
+};
 
 struct ID3D11VideoDecoderInfo : public DxWrapperInfo
 {};
@@ -724,7 +727,9 @@ struct ID3D11VideoDeviceInfo : public DxWrapperInfo
 {};
 
 struct ID3D11DeviceInfo : public DxWrapperInfo
-{};
+{
+    bool supports_command_lists{ false };
+};
 
 struct ID3DDeviceContextStateInfo : public DxWrapperInfo
 {};

@@ -3396,6 +3396,16 @@ void D3D12CaptureManager::PostProcess_D3D11CreateDevice(HRESULT                 
             }
 
             WriteDx11DriverInfo();
+
+            // Check device features.
+            auto threading_feature_data = D3D11_FEATURE_DATA_THREADING{ FALSE, FALSE };
+            auto check_feature_result   = wrapped_device->CheckFeatureSupport(
+                D3D11_FEATURE_THREADING, &threading_feature_data, sizeof(threading_feature_data));
+            if (SUCCEEDED(check_feature_result) && threading_feature_data.DriverCommandLists)
+            {
+                auto device_info                    = reinterpret_cast<ID3D11Device_Wrapper*>(*device)->GetObjectInfo();
+                device_info->supports_command_lists = true;
+            }
         }
     }
 }
@@ -3460,6 +3470,70 @@ void D3D12CaptureManager::PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wra
         info->dimension        = D3D11_RESOURCE_DIMENSION_BUFFER;
         info->width            = desc->ByteWidth;
         info->num_subresources = 1;
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateDeferredContext(ID3D11Device_Wrapper* wrapper,
+                                                                         HRESULT               result,
+                                                                         UINT                  context_flags,
+                                                                         ID3D11DeviceContext** deferred_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if (SUCCEEDED(result) && (deferred_context != nullptr) && (*deferred_context != nullptr))
+    {
+        auto device_info         = wrapper->GetObjectInfo();
+        auto device_context_info = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(*deferred_context)->GetObjectInfo();
+        device_context_info->is_deferred                         = true;
+        device_context_info->needs_update_subresource_adjustment = !device_info->supports_command_lists;
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device1_CreateDeferredContext1(ID3D11Device_Wrapper*  wrapper,
+                                                                           HRESULT                result,
+                                                                           UINT                   context_flags,
+                                                                           ID3D11DeviceContext1** deferred_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if (SUCCEEDED(result) && (deferred_context != nullptr) && (*deferred_context != nullptr))
+    {
+        auto device_info         = wrapper->GetObjectInfo();
+        auto device_context_info = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(*deferred_context)->GetObjectInfo();
+        device_context_info->is_deferred                         = true;
+        device_context_info->needs_update_subresource_adjustment = !device_info->supports_command_lists;
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device2_CreateDeferredContext2(ID3D11Device_Wrapper*  wrapper,
+                                                                           HRESULT                result,
+                                                                           UINT                   context_flags,
+                                                                           ID3D11DeviceContext2** deferred_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if (SUCCEEDED(result) && (deferred_context != nullptr) && (*deferred_context != nullptr))
+    {
+        auto device_info         = wrapper->GetObjectInfo();
+        auto device_context_info = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(*deferred_context)->GetObjectInfo();
+        device_context_info->is_deferred                         = true;
+        device_context_info->needs_update_subresource_adjustment = !device_info->supports_command_lists;
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device3_CreateDeferredContext3(ID3D11Device_Wrapper*  wrapper,
+                                                                           HRESULT                result,
+                                                                           UINT                   context_flags,
+                                                                           ID3D11DeviceContext3** deferred_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if (SUCCEEDED(result) && (deferred_context != nullptr) && (*deferred_context != nullptr))
+    {
+        auto device_info         = wrapper->GetObjectInfo();
+        auto device_context_info = reinterpret_cast<ID3D11DeviceContext_Wrapper*>(*deferred_context)->GetObjectInfo();
+        device_context_info->is_deferred                         = true;
+        device_context_info->needs_update_subresource_adjustment = !device_info->supports_command_lists;
     }
 }
 

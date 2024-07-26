@@ -65,6 +65,7 @@ enum class DxObjectInfoType : uint32_t
     kID3D12CommandListInfo,
     kID3D12RootSignatureInfo,
     kID3D12StateObjectInfo,
+    kID3D11DeviceContextInfo,
     kID3D11ResourceInfo
 };
 
@@ -483,6 +484,15 @@ struct D3D12StateObjectInfo : DxObjectExtraInfo
     std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map;
 };
 
+struct D3D11DeviceContextInfo : DxObjectExtraInfo
+{
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D11DeviceContextInfo;
+    static constexpr char             kObjectType[] = "ID3D11DeviceContext";
+    D3D11DeviceContextInfo() : DxObjectExtraInfo(kType) {}
+
+    bool needs_update_subresource_adjustment{ false };
+};
+
 struct D3D11ResourceInfo : DxObjectExtraInfo
 {
     static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D11ResourceInfo;
@@ -490,6 +500,7 @@ struct D3D11ResourceInfo : DxObjectExtraInfo
     D3D11ResourceInfo() : DxObjectExtraInfo(kType) {}
 
     D3D11_RESOURCE_DIMENSION dimension{ D3D11_RESOURCE_DIMENSION_UNKNOWN };
+    DXGI_FORMAT              format{ DXGI_FORMAT_UNKNOWN };
     std::unordered_map<uint32_t, std::unordered_map<format::HandleId, MappedMemoryInfo>>
         mapped_memory_info; ///< Map subresource index to per-context mapped memory info.
 };

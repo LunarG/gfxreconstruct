@@ -189,21 +189,30 @@ void Encode_ID3D11DeviceContext_UpdateSubresource(ID3D11DeviceContext_Wrapper* w
         EncodeStructPtr(encoder, pDstBox);
 
         auto resource_wrapper = reinterpret_cast<ID3D11Resource_Wrapper*>(pDstResource);
-        auto info             = GetResourceInfo(resource_wrapper);
-        auto size             = graphics::dx12::GetSubresourceWriteDataSize(info->dimension,
-                                                                info->format,
-                                                                info->width,
-                                                                info->height,
-                                                                info->depth_or_array_size,
-                                                                info->mip_levels,
+        auto resource_info    = GetResourceInfo(resource_wrapper);
+        auto size             = graphics::dx12::GetSubresourceWriteDataSize(resource_info->dimension,
+                                                                resource_info->format,
+                                                                resource_info->width,
+                                                                resource_info->height,
+                                                                resource_info->depth_or_array_size,
+                                                                resource_info->mip_levels,
                                                                 DstSubresource,
                                                                 pDstBox,
                                                                 SrcRowPitch,
                                                                 SrcDepthPitch);
         GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, size);
 
-        encoder->EncodeVoidArray(pSrcData, static_cast<size_t>(size));
+        auto adjusted_src_data = reinterpret_cast<const uint8_t*>(pSrcData);
+        auto context_info      = wrapper->GetObjectInfo();
+        if (graphics::dx12::NeedUpdateSubresourceAdjustment(context_info->needs_update_subresource_adjustment, pDstBox))
+        {
+            // To obtain the address of the data to be used for the update, the pSrcData offset adjustment that the
+            // calling application was required to apply must be removed.
+            adjusted_src_data += graphics::dx12::GetUpdateSubresourceAdjustmentOffset(
+                resource_info->dimension, resource_info->format, pDstBox, SrcRowPitch, SrcDepthPitch);
+        }
 
+        encoder->EncodeVoidArray(adjusted_src_data, static_cast<size_t>(size));
         encoder->EncodeUInt32Value(SrcRowPitch);
         encoder->EncodeUInt32Value(SrcDepthPitch);
         D3D12CaptureManager::Get()->EndMethodCallCapture();

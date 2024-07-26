@@ -74,6 +74,45 @@ void InitialResourceExtraInfo(HandlePointerDecoder<void*>* resource_decoder,
     SetExtraInfo(resource_decoder, std::move(extra_info));
 }
 
+template <typename DeviceT, typename DeviceContextT>
+static HRESULT CreateDeferredContext(DxObjectInfo*                          replay_object_info,
+                                     HRESULT                                original_result,
+                                     UINT                                   context_flags,
+                                     HandlePointerDecoder<DeviceContextT*>* deferred_context,
+                                     HRESULT (STDMETHODCALLTYPE DeviceT::*CreateDeferredContextFunc)(UINT,
+                                                                                                     DeviceContextT**))
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+
+    GFXRECON_ASSERT((replay_object_info != nullptr) && (replay_object_info->object != nullptr) &&
+                    (deferred_context != nullptr));
+
+    auto replay_object = static_cast<DeviceT*>(replay_object_info->object);
+
+    auto deferred_context_object = deferred_context->GetHandlePointer();
+    auto result                  = (replay_object->*CreateDeferredContextFunc)(context_flags, deferred_context_object);
+    if (SUCCEEDED(result) && (deferred_context_object != nullptr) && (*deferred_context_object != nullptr))
+    {
+        auto deferred_context_info = std::make_unique<D3D11DeviceContextInfo>();
+
+        // Check device features. Note that when trimming a replay, this API call will be recorded to the trimmed file,
+        // but will not have been present in the original capture. To limit the addition of replay API calls during
+        // recapture, this call is deferred until it is needed instead of being made at device creation.
+        auto threading_feature_data = D3D11_FEATURE_DATA_THREADING{ FALSE, FALSE };
+        auto check_feature_result   = replay_object->CheckFeatureSupport(
+            D3D11_FEATURE_THREADING, &threading_feature_data, sizeof(threading_feature_data));
+
+        if (SUCCEEDED(check_feature_result) && !threading_feature_data.DriverCommandLists)
+        {
+            deferred_context_info->needs_update_subresource_adjustment = true;
+        }
+
+        SetExtraInfo(deferred_context, std::move(deferred_context_info));
+    }
+
+    return result;
+}
+
 Dx12ReplayConsumerBase::Dx12ReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                const DxReplayOptions&                    options) :
     application_(application),
@@ -4001,10 +4040,10 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture1D(
             ppTexture1D->SetHandleLength(1);
         }
 
+        auto in_pDesc           = pDesc->GetPointer();
         auto out_p_ppTexture1D  = ppTexture1D->GetPointer();
         auto out_hp_ppTexture1D = ppTexture1D->GetHandlePointer();
-        auto replay_result =
-            replay_object->CreateTexture1D(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture1D);
+        auto replay_result = replay_object->CreateTexture1D(in_pDesc, pInitialData->GetPointer(), out_hp_ppTexture1D);
 
         if (SUCCEEDED(replay_result))
         {
@@ -4012,6 +4051,10 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture1D(
             auto resource_info = std::make_unique<D3D11ResourceInfo>();
 
             resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE1D;
+            if (in_pDesc != nullptr)
+            {
+                resource_info->format = in_pDesc->Format;
+            }
             object_info.extra_info   = std::move(resource_info);
 
             AddObject(out_p_ppTexture1D,
@@ -4040,10 +4083,10 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture2D(
             ppTexture2D->SetHandleLength(1);
         }
 
+        auto in_pDesc           = pDesc->GetPointer();
         auto out_p_ppTexture2D  = ppTexture2D->GetPointer();
         auto out_hp_ppTexture2D = ppTexture2D->GetHandlePointer();
-        auto replay_result =
-            replay_object->CreateTexture2D(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture2D);
+        auto replay_result = replay_object->CreateTexture2D(in_pDesc, pInitialData->GetPointer(), out_hp_ppTexture2D);
 
         if (SUCCEEDED(replay_result))
         {
@@ -4051,7 +4094,11 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture2D(
             auto resource_info = std::make_unique<D3D11ResourceInfo>();
 
             resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
-            object_info.extra_info   = std::move(resource_info);
+            if (in_pDesc != nullptr)
+            {
+                resource_info->format = in_pDesc->Format;
+            }
+            object_info.extra_info = std::move(resource_info);
 
             AddObject(out_p_ppTexture2D,
                       out_hp_ppTexture2D,
@@ -4079,10 +4126,10 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture3D(
             ppTexture3D->SetHandleLength(1);
         }
 
+        auto in_pDesc           = pDesc->GetPointer();
         auto out_p_ppTexture3D  = ppTexture3D->GetPointer();
         auto out_hp_ppTexture3D = ppTexture3D->GetHandlePointer();
-        auto replay_result =
-            replay_object->CreateTexture3D(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture3D);
+        auto replay_result = replay_object->CreateTexture3D(in_pDesc, pInitialData->GetPointer(), out_hp_ppTexture3D);
 
         if (SUCCEEDED(replay_result))
         {
@@ -4090,7 +4137,11 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device_CreateTexture3D(
             auto resource_info = std::make_unique<D3D11ResourceInfo>();
 
             resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
-            object_info.extra_info   = std::move(resource_info);
+            if (in_pDesc != nullptr)
+            {
+                resource_info->format = in_pDesc->Format;
+            }
+            object_info.extra_info = std::move(resource_info);
 
             AddObject(out_p_ppTexture3D,
                       out_hp_ppTexture3D,
@@ -4112,13 +4163,70 @@ void Dx12ReplayConsumerBase::Process_ID3D11DeviceContext_UpdateSubresource(
     UINT                                     SrcRowPitch,
     UINT                                     SrcDepthPitch)
 {
-    auto replay_object = MapObject<ID3D11DeviceContext>(object_id);
-    if (replay_object != nullptr)
+    auto replay_object_info = GetObjectInfo(object_id);
+    if ((replay_object_info != nullptr) && (replay_object_info->object != nullptr))
     {
-        auto in_pDstResource = MapObject<ID3D11Resource>(pDstResource);
-        auto in_pSrcData     = pSrcData->GetPointer();
+        auto            replay_object   = static_cast<ID3D11DeviceContext*>(replay_object_info->object);
+        auto            in_pDstBox      = pDstBox->GetPointer();
+        auto            in_pSrcData     = pSrcData->GetPointer();
+        ID3D11Resource* in_pDstResource = nullptr;
+
+        auto resource_info = GetObjectInfo(pDstResource);
+        if (resource_info != nullptr)
+        {
+            in_pDstResource = static_cast<ID3D11Resource*>(resource_info->object);
+
+            // Currently, only deferred contexts have extra info.
+            if ((in_pSrcData != nullptr) && (replay_object_info->extra_info != nullptr))
+            {
+                auto context_extra_info = GetExtraInfo<D3D11DeviceContextInfo>(replay_object_info);
+                if ((context_extra_info != nullptr) &&
+                    graphics::dx12::NeedUpdateSubresourceAdjustment(
+                        context_extra_info->needs_update_subresource_adjustment, in_pDstBox))
+                {
+                    auto resource_extra_info = GetExtraInfo<D3D11ResourceInfo>(resource_info);
+                    auto adjustment_offset =
+                        graphics::dx12::GetUpdateSubresourceAdjustmentOffset(resource_extra_info->dimension,
+                                                                             resource_extra_info->format,
+                                                                             in_pDstBox,
+                                                                             SrcRowPitch,
+                                                                             SrcDepthPitch);
+
+                    if (adjustment_offset > 0)
+                    {
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, adjustment_offset);
+                        auto offset          = static_cast<size_t>(adjustment_offset);
+                        auto src_data_length = pSrcData->GetLength();
+                        auto adjustment_size = offset + src_data_length;
+
+                        static thread_local std::unique_ptr<std::vector<uint8_t>> adjustment_buffer;
+                        if (adjustment_buffer == nullptr)
+                        {
+                            // Start with a very large buffer to avoid having to resize the buffer on each call to
+                            // UpdateSubresource. So far, the largest resource requiring adjustment had a size of 131MB.
+                            constexpr auto kDefaultUpdateSubresourceAdjustmentBufferSize = 132u * 1024u * 1024u;
+                            adjustment_buffer =
+                                std::make_unique<std::vector<uint8_t>>(kDefaultUpdateSubresourceAdjustmentBufferSize);
+                        }
+                        else if (adjustment_buffer->size() < offset)
+                        {
+                            GFXRECON_LOG_INFO("PERFORMANCE WARNING: The size of the buffer allocated for the "
+                                              "ID3D11DeviceContext::UpdateSubresource deferred context workaround was "
+                                              "insufficient and the buffer had to be resized.");
+                            adjustment_buffer->resize(offset);
+                        }
+
+                        adjustment_buffer->insert(
+                            std::next(adjustment_buffer->begin(), offset), in_pSrcData, in_pSrcData + src_data_length);
+
+                        in_pSrcData = adjustment_buffer->data();
+                    }
+                }
+            }
+        }
+
         replay_object->UpdateSubresource(
-            in_pDstResource, DstSubresource, pDstBox->GetPointer(), in_pSrcData, SrcRowPitch, SrcDepthPitch);
+            in_pDstResource, DstSubresource, in_pDstBox, in_pSrcData, SrcRowPitch, SrcDepthPitch);
     }
 }
 
@@ -4159,10 +4267,10 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture2D1(
             ppTexture2D->SetHandleLength(1);
         }
 
+        auto in_pDesc           = pDesc->GetPointer();
         auto out_p_ppTexture2D  = ppTexture2D->GetPointer();
         auto out_hp_ppTexture2D = ppTexture2D->GetHandlePointer();
-        auto replay_result =
-            replay_object->CreateTexture2D1(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture2D);
+        auto replay_result = replay_object->CreateTexture2D1(in_pDesc, pInitialData->GetPointer(), out_hp_ppTexture2D);
 
         if (SUCCEEDED(replay_result))
         {
@@ -4170,7 +4278,11 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture2D1(
             auto resource_info = std::make_unique<D3D11ResourceInfo>();
 
             resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
-            object_info.extra_info   = std::move(resource_info);
+            if (in_pDesc != nullptr)
+            {
+                resource_info->format = in_pDesc->Format;
+            }
+            object_info.extra_info = std::move(resource_info);
 
             AddObject(out_p_ppTexture2D,
                       out_hp_ppTexture2D,
@@ -4198,10 +4310,10 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture3D1(
             ppTexture3D->SetHandleLength(1);
         }
 
+        auto in_pDesc           = pDesc->GetPointer();
         auto out_p_ppTexture3D  = ppTexture3D->GetPointer();
         auto out_hp_ppTexture3D = ppTexture3D->GetHandlePointer();
-        auto replay_result =
-            replay_object->CreateTexture3D1(pDesc->GetPointer(), pInitialData->GetPointer(), out_hp_ppTexture3D);
+        auto replay_result = replay_object->CreateTexture3D1(in_pDesc, pInitialData->GetPointer(), out_hp_ppTexture3D);
 
         if (SUCCEEDED(replay_result))
         {
@@ -4209,7 +4321,11 @@ void Dx12ReplayConsumerBase::Process_ID3D11Device3_CreateTexture3D1(
             auto resource_info = std::make_unique<D3D11ResourceInfo>();
 
             resource_info->dimension = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
-            object_info.extra_info   = std::move(resource_info);
+            if (in_pDesc != nullptr)
+            {
+                resource_info->format = in_pDesc->Format;
+            }
+            object_info.extra_info = std::move(resource_info);
 
             AddObject(out_p_ppTexture3D,
                       out_hp_ppTexture3D,
@@ -5249,6 +5365,46 @@ HRESULT Dx12ReplayConsumerBase::OverrideDeviceContextGetData(DxObjectInfo*      
     }
 
     return result;
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateDeferredContext(DxObjectInfo*                               replay_object_info,
+                                                      HRESULT                                     original_result,
+                                                      UINT                                        context_flags,
+                                                      HandlePointerDecoder<ID3D11DeviceContext*>* deferred_context)
+{
+    return CreateDeferredContext<ID3D11Device, ID3D11DeviceContext>(
+        replay_object_info, original_result, context_flags, deferred_context, &ID3D11Device::CreateDeferredContext);
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateDeferredContext1(DxObjectInfo*                                replay_object_info,
+                                                       HRESULT                                      original_result,
+                                                       UINT                                         context_flags,
+                                                       HandlePointerDecoder<ID3D11DeviceContext1*>* deferred_context)
+{
+    return CreateDeferredContext<ID3D11Device1, ID3D11DeviceContext1>(
+        replay_object_info, original_result, context_flags, deferred_context, &ID3D11Device1::CreateDeferredContext1);
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateDeferredContext2(DxObjectInfo*                                replay_object_info,
+                                                       HRESULT                                      original_result,
+                                                       UINT                                         context_flags,
+                                                       HandlePointerDecoder<ID3D11DeviceContext2*>* deferred_context)
+{
+    return CreateDeferredContext<ID3D11Device2, ID3D11DeviceContext2>(
+        replay_object_info, original_result, context_flags, deferred_context, &ID3D11Device2::CreateDeferredContext2);
+}
+
+HRESULT
+Dx12ReplayConsumerBase::OverrideCreateDeferredContext3(DxObjectInfo*                                replay_object_info,
+                                                       HRESULT                                      original_result,
+                                                       UINT                                         context_flags,
+                                                       HandlePointerDecoder<ID3D11DeviceContext3*>* deferred_context)
+{
+    return CreateDeferredContext<ID3D11Device3, ID3D11DeviceContext3>(
+        replay_object_info, original_result, context_flags, deferred_context, &ID3D11Device3::CreateDeferredContext3);
 }
 
 void Dx12ReplayConsumerBase::OverrideDevice3ReadFromSubresource(DxObjectInfo* replay_object_info,

@@ -440,6 +440,14 @@ uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
                                      uint32_t                 src_row_pitch,
                                      uint32_t                 src_depth_pitch);
 
+bool NeedUpdateSubresourceAdjustment(bool context_needs_adjustment, const D3D11_BOX* dst_box);
+
+uint64_t GetUpdateSubresourceAdjustmentOffset(D3D11_RESOURCE_DIMENSION dst_type,
+                                              DXGI_FORMAT              dst_format,
+                                              const D3D11_BOX*         dst_box,
+                                              uint32_t                 src_row_pitch,
+                                              uint32_t                 src_depth_pitch);
+
 void CopyAlignedTexture1D(
     const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size);
 

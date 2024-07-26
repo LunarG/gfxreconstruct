@@ -1832,6 +1832,65 @@ uint64_t GetSubresourceWriteDataSize(D3D11_RESOURCE_DIMENSION dst_type,
     return data_size;
 }
 
+bool NeedUpdateSubresourceAdjustment(bool context_needs_adjustment, const D3D11_BOX* dst_box)
+{
+    return (context_needs_adjustment && (dst_box != nullptr) &&
+            (dst_box->left != 0 || dst_box->top != 0 || dst_box->front != 0));
+}
+
+uint64_t GetUpdateSubresourceAdjustmentOffset(D3D11_RESOURCE_DIMENSION dst_type,
+                                              DXGI_FORMAT              dst_format,
+                                              const D3D11_BOX*         dst_box,
+                                              uint32_t                 src_row_pitch,
+                                              uint32_t                 src_depth_pitch)
+{
+    // The use of UpdateSubresource from a deferred context requires an adjustment to the pSrcData start address value,
+    // which must be inverted prior to encoding so that the correct data is written to the file. Note that the
+    // adjustment/workaround is not required for UpdateSubresource1.
+    GFXRECON_ASSERT(dst_box != nullptr);
+
+    auto left = static_cast<uint64_t>(dst_box->left);
+
+    // Skip pixel size calculations for buffers.
+    if (dst_type == D3D11_RESOURCE_DIMENSION_BUFFER)
+    {
+        return left;
+    }
+
+    auto top   = static_cast<uint64_t>(dst_box->top);
+    auto front = static_cast<uint64_t>(dst_box->front);
+
+    if (IsFormatCompressed(dst_format))
+    {
+        left = (left + 3) / 4;
+        top  = (top + 3) / 4;
+    }
+
+    auto adjusted_offset = 0ull;
+
+    switch (dst_type)
+    {
+        case D3D12_RESOURCE_DIMENSION_TEXTURE1D:
+            adjusted_offset = left * GetPixelByteSize(dst_format);
+            break;
+        case D3D12_RESOURCE_DIMENSION_TEXTURE2D:
+            adjusted_offset = (top * src_row_pitch) + (left * GetPixelByteSize(dst_format));
+            break;
+        case D3D12_RESOURCE_DIMENSION_TEXTURE3D:
+            adjusted_offset = (front * src_depth_pitch) + (top * src_row_pitch) + (left * GetPixelByteSize(dst_format));
+            break;
+        case D3D12_RESOURCE_DIMENSION_UNKNOWN:
+            GFXRECON_LOG_ERROR("Detected resource with D3D12_RESOURCE_DIMENSION_UNKNOWN dimension");
+            break;
+        default:
+            GFXRECON_ASSERT(dst_type != D3D12_RESOURCE_DIMENSION_BUFFER);
+            GFXRECON_LOG_ERROR("Detected invalid resource dimensions");
+            break;
+    }
+
+    return adjusted_offset;
+}
+
 void CopyAlignedTexture1D(
     const uint8_t* src, uint8_t* dst, uint32_t src_row_pitch, uint32_t dst_row_pitch, size_t offset, size_t size)
 {

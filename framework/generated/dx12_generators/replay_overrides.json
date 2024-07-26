@@ -132,7 +132,17 @@
       "Map": "OverrideDeviceContextMap",
       "Unmap": "OverrideDeviceContextUnmap"
     },
+    "ID3D11Device": {
+      "CreateDeferredContext": "OverrideCreateDeferredContext"
+    },
+    "ID3D11Device1": {
+      "CreateDeferredContext1": "OverrideCreateDeferredContext1"
+    },
+    "ID3D11Device2": {
+      "CreateDeferredContext2": "OverrideCreateDeferredContext2"
+    },
     "ID3D11Device3": {
+      "CreateDeferredContext3": "OverrideCreateDeferredContext3",
       "ReadFromSubresource": "OverrideDevice3ReadFromSubresource"
     },
     "IDXGIFactory": {
