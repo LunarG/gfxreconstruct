@@ -4587,6 +4587,22 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RASTERIZER_D
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_SUBRESOURCE_DATA* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_SUBRESOURCE_DATA& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_SUBRESOURCE_DATA& meta_struct = *data;
+        static thread_local uint64_t D3D11_SUBRESOURCE_DATA_pSysMem_counter{ 0 };
+        const bool written = RepresentBinaryFile(options, jdata["pSysMem"], "D3D11_SUBRESOURCE_DATA.pSysMem", D3D11_SUBRESOURCE_DATA_pSysMem_counter, meta_struct.pSysMem);
+        D3D11_SUBRESOURCE_DATA_pSysMem_counter += written;
+
+        FieldToJson(jdata["SysMemPitch"], decoded_value.SysMemPitch, options);
+        FieldToJson(jdata["SysMemSlicePitch"], decoded_value.SysMemSlicePitch, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_MAPPED_SUBRESOURCE* data, const JsonOptions& options)
 {
     using namespace util;

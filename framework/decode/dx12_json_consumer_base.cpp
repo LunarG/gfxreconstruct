@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -266,5 +267,70 @@ void Dx12JsonConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::Han
     }
     writer_->WriteBlockEnd();
 }
+
+void Dx12JsonConsumerBase::Process_ID3D11DeviceContext_UpdateSubresource(
+    const ApiCallInfo&                       call_info,
+    format::HandleId                         object_id,
+    format::HandleId                         pDstResource,
+    UINT                                     DstSubresource,
+    StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+    PointerDecoder<uint8_t>*                 pSrcData,
+    UINT                                     SrcRowPitch,
+    UINT                                     SrcDepthPitch)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method =
+        writer_->WriteApiCallStart(call_info, "ID3D11DeviceContext", object_id, "UpdateSubresource");
+    const JsonOptions&      options = writer_->GetOptions();
+    nlohmann::ordered_json& args    = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDstResource"], pDstResource, options);
+        FieldToJson(args["DstSubresource"], DstSubresource, options);
+        FieldToJson(args["pDstBox"], pDstBox, options);
+        RepresentBinaryFile(*writer_,
+                            args["pSrcData"],
+                            "ID3D11DeviceContext_UpdateSubresource.bin",
+                            pSrcData->GetLength(),
+                            pSrcData->GetPointer());
+        FieldToJson(args["SrcRowPitch"], SrcRowPitch, options);
+        FieldToJson(args["SrcDepthPitch"], SrcDepthPitch, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumerBase::Process_ID3D11DeviceContext1_UpdateSubresource1(
+    const ApiCallInfo&                       call_info,
+    format::HandleId                         object_id,
+    format::HandleId                         pDstResource,
+    UINT                                     DstSubresource,
+    StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+    PointerDecoder<uint8_t>*                 pSrcData,
+    UINT                                     SrcRowPitch,
+    UINT                                     SrcDepthPitch,
+    UINT                                     CopyFlags)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method =
+        writer_->WriteApiCallStart(call_info, "ID3D11DeviceContext1", object_id, "UpdateSubresource1");
+    const JsonOptions&      options = writer_->GetOptions();
+    nlohmann::ordered_json& args    = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDstResource"], pDstResource, options);
+        FieldToJson(args["DstSubresource"], DstSubresource, options);
+        FieldToJson(args["pDstBox"], pDstBox, options);
+        RepresentBinaryFile(*writer_,
+                            args["pSrcData"],
+                            "ID3D11DeviceContext1_UpdateSubresource1.bin",
+                            pSrcData->GetLength(),
+                            pSrcData->GetPointer());
+        FieldToJson(args["SrcRowPitch"], SrcRowPitch, options);
+        FieldToJson(args["SrcDepthPitch"], SrcDepthPitch, options);
+        FieldToJson(args["CopyFlags"], CopyFlags, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

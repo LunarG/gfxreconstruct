@@ -850,6 +850,42 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory);
 
+    void PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
+                                               HRESULT                       result,
+                                               const D3D11_BUFFER_DESC*      desc,
+                                               const D3D11_SUBRESOURCE_DATA* initial_data,
+                                               ID3D11Buffer**                buffer);
+
+    void PostProcess_ID3D11Device_CreateTexture1D(ID3D11Device_Wrapper*         wrapper,
+                                                  HRESULT                       result,
+                                                  const D3D11_TEXTURE1D_DESC*   desc,
+                                                  const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                  ID3D11Texture1D**             texture1D);
+
+    void PostProcess_ID3D11Device_CreateTexture2D(ID3D11Device_Wrapper*         wrapper,
+                                                  HRESULT                       result,
+                                                  const D3D11_TEXTURE2D_DESC*   desc,
+                                                  const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                  ID3D11Texture2D**             texture2D);
+
+    void PostProcess_ID3D11Device_CreateTexture3D(ID3D11Device_Wrapper*         wrapper,
+                                                  HRESULT                       result,
+                                                  const D3D11_TEXTURE3D_DESC*   desc,
+                                                  const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                  ID3D11Texture3D**             texture3D);
+
+    void PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContext_Wrapper* wrapper,
+                                             HRESULT                      result,
+                                             ID3D11Resource*              resource,
+                                             UINT                         subresource,
+                                             D3D11_MAP                    map_type,
+                                             UINT                         map_flags,
+                                             D3D11_MAPPED_SUBRESOURCE*    mapped_subresource_data);
+
+    void PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceContext_Wrapper* wrapper,
+                                              ID3D11Resource*              resource,
+                                              UINT                         subresource);
+
     void WriteDxgiAdapterInfo();
 
     bool IsAccelerationStructureResource(format::HandleId id);

@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2023 LunarG, Inc.
+** Copyright (c) 2024 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -89,6 +90,26 @@ class Dx12JsonConsumerBase : public Dx12Consumer
                                                            void*                                    pSrcData,
                                                            UINT                                     SrcRowPitch,
                                                            UINT SrcDepthPitch) override;
+
+    virtual void Process_ID3D11DeviceContext_UpdateSubresource(const ApiCallInfo&                       call_info,
+                                                               format::HandleId                         object_id,
+                                                               format::HandleId                         pDstResource,
+                                                               UINT                                     DstSubresource,
+                                                               StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                               PointerDecoder<uint8_t>*                 pSrcData,
+                                                               UINT                                     SrcRowPitch,
+                                                               UINT SrcDepthPitch) override;
+
+    virtual void Process_ID3D11DeviceContext1_UpdateSubresource1(const ApiCallInfo& call_info,
+                                                                 format::HandleId   object_id,
+                                                                 format::HandleId   pDstResource,
+                                                                 UINT               DstSubresource,
+                                                                 StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                 PointerDecoder<uint8_t>*                 pSrcData,
+                                                                 UINT                                     SrcRowPitch,
+                                                                 UINT                                     SrcDepthPitch,
+                                                                 UINT CopyFlags) override;
+
     /// @}
   protected:
     JsonWriter* writer_{ nullptr };

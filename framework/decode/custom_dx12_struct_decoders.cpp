@@ -1459,6 +1459,23 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_DIS
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SUBRESOURCE_DATA* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t                  bytes_read = 0;
+    D3D11_SUBRESOURCE_DATA* value      = wrapper->decoded_value;
+
+    bytes_read += wrapper->pSysMem.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSysMem = wrapper->pSysMem.GetPointer();
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SysMemPitch));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SysMemSlicePitch));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFER_SRV* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));

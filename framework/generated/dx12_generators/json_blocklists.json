@@ -4,18 +4,6 @@
   "functions-encoder": [],
   "functions-decoder": [],
   "classmethods": {
-    "ID3D11Device": [
-      "CreateBuffer",
-      "CreateTexture1D",
-      "CreateTexture2D",
-      "CreateTexture3D"
-    ],
-    "ID3D11DeviceContext": [
-      "UpdateSubresource"
-    ],
-    "ID3D11DeviceContext1": [
-      "UpdateSubresource1"
-    ],
     "ID3D12Device": [
       "CheckFeatureSupport"
     ],
@@ -25,6 +13,12 @@
     "ID3D12Resource": [
       "Comment: WriteToSubresource is needed because codegen gives pSrcData as the wrong type and because thhe manual signature in the base class defining it doesn't match what correct codegen would produce.",
       "WriteToSubresource"
+    ],
+    "ID3D11DeviceContext": [
+      "UpdateSubresource"
+    ],
+    "ID3D11DeviceContext1": [
+      "UpdateSubresource1"
     ]
   },
   "todo2": "Remove the ones below which can be handled with anon union support.",
@@ -34,7 +28,6 @@
     "Comment: definitely need custom json conversion below",
     "D3D12_PIPELINE_STATE_STREAM_DESC",
     "D3D12_STATE_SUBOBJECT",
-    "D3D12_CPU_DESCRIPTOR_HANDLE",
-    "D3D11_SUBRESOURCE_DATA"
+    "D3D12_CPU_DESCRIPTOR_HANDLE"
   ]
 }

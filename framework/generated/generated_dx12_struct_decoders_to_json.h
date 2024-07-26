@@ -333,6 +333,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_DEPTH_STENCI
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RENDER_TARGET_BLEND_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_BLEND_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RASTERIZER_DESC* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_SUBRESOURCE_DATA* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_MAPPED_SUBRESOURCE* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_BUFFER_DESC* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEXTURE1D_DESC* pObj, const util::JsonOptions& options);
@@ -798,6 +799,7 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_DEPTH
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RENDER_TARGET_BLEND_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_BLEND_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RASTERIZER_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_SUBRESOURCE_DATA& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_MAPPED_SUBRESOURCE& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_BUFFER_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEXTURE1D_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }

@@ -11673,6 +11673,94 @@ void Dx12JsonConsumer::Process_ID3D11VideoDevice_SetPrivateDataInterface(
     writer_->WriteBlockEnd();
 }
 
+void Dx12JsonConsumer::Process_ID3D11Device_CreateBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Buffer*>* ppBuffer)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device", object_id, "CreateBuffer");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pInitialData"], pInitialData, options);
+        FieldToJson(args["ppBuffer"], ppBuffer, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Device_CreateTexture1D(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture1D*>* ppTexture1D)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device", object_id, "CreateTexture1D");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pInitialData"], pInitialData, options);
+        FieldToJson(args["ppTexture1D"], ppTexture1D, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Device_CreateTexture2D(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture2D*>* ppTexture2D)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device", object_id, "CreateTexture2D");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pInitialData"], pInitialData, options);
+        FieldToJson(args["ppTexture2D"], ppTexture2D, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Device_CreateTexture3D(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture3D*>* ppTexture3D)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device", object_id, "CreateTexture3D");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDesc"], pDesc, options);
+        FieldToJson(args["pInitialData"], pInitialData, options);
+        FieldToJson(args["ppTexture3D"], ppTexture3D, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
 void Dx12JsonConsumer::Process_ID3D11Device_CreateShaderResourceView(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

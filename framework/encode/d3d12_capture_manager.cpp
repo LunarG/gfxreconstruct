@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2021-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -40,6 +41,38 @@ static constexpr char kDx12RuntimeName[] = "D3D12Core.dll";
 
 D3D12CaptureManager*  D3D12CaptureManager::singleton_  = nullptr;
 thread_local uint32_t D3D12CaptureManager::call_scope_ = 0;
+
+static auto GetResourceInfo(ID3D11Resource_Wrapper* wrapper)
+{
+    auto info           = std::shared_ptr<ID3D11ResourceInfo>{};
+    auto dimension      = D3D11_RESOURCE_DIMENSION{};
+    auto wrapped_object = wrapper->GetWrappedObjectAs<ID3D11Resource>();
+
+    wrapped_object->GetType(&dimension);
+
+    switch (dimension)
+    {
+        case D3D11_RESOURCE_DIMENSION_BUFFER:
+            info = static_cast<ID3D11Buffer_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE1D:
+            info = static_cast<ID3D11Texture1D_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE2D:
+            info = static_cast<ID3D11Texture2D_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        case D3D11_RESOURCE_DIMENSION_TEXTURE3D:
+            info = static_cast<ID3D11Texture3D_Wrapper*>(wrapper)->GetObjectInfo();
+            break;
+        default:
+            GFXRECON_LOG_ERROR("Mapped ID3D11Resource object with capture ID = %" PRIx64
+                               " has type of D3D11_RESOURCE_DIMENSION_UNKNOWN ",
+                               wrapper->GetCaptureId());
+            break;
+    }
+
+    return info;
+}
 
 D3D12CaptureManager::D3D12CaptureManager() :
     ApiCaptureManager(format::ApiFamilyId::ApiFamily_D3D12), dxgi_dispatch_table_{}, d3d12_dispatch_table_{},
@@ -3016,6 +3049,293 @@ void D3D12CaptureManager::PostProcess_CreateDXGIFactory1(HRESULT result, REFIID 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory)
 {
     graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateBuffer(ID3D11Device_Wrapper*         wrapper,
+                                                                HRESULT                       result,
+                                                                const D3D11_BUFFER_DESC*      desc,
+                                                                const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                                ID3D11Buffer**                buffer)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_data);
+    GFXRECON_ASSERT(desc != nullptr);
+
+    if (SUCCEEDED(result) && (buffer != nullptr) && (*buffer != nullptr))
+    {
+        auto info              = reinterpret_cast<ID3D11Buffer_Wrapper*>(*buffer)->GetObjectInfo();
+        info->dimension        = D3D11_RESOURCE_DIMENSION_BUFFER;
+        info->width            = desc->ByteWidth;
+        info->num_subresources = 1;
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture1D(ID3D11Device_Wrapper*         wrapper,
+                                                                   HRESULT                       result,
+                                                                   const D3D11_TEXTURE1D_DESC*   desc,
+                                                                   const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                                   ID3D11Texture1D**             texture1D)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_data);
+    GFXRECON_ASSERT(desc != nullptr);
+
+    if (SUCCEEDED(result) && (texture1D != nullptr) && (*texture1D != nullptr))
+    {
+        auto info                 = reinterpret_cast<ID3D11Texture1D_Wrapper*>(*texture1D)->GetObjectInfo();
+        info->dimension           = D3D11_RESOURCE_DIMENSION_TEXTURE1D;
+        info->format              = desc->Format;
+        info->width               = desc->Width;
+        info->depth_or_array_size = desc->ArraySize;
+        info->mip_levels          = desc->MipLevels;
+        info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture2D(ID3D11Device_Wrapper*         wrapper,
+                                                                   HRESULT                       result,
+                                                                   const D3D11_TEXTURE2D_DESC*   desc,
+                                                                   const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                                   ID3D11Texture2D**             texture2D)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_data);
+    GFXRECON_ASSERT(desc != nullptr);
+
+    if (SUCCEEDED(result) && (texture2D != nullptr) && (*texture2D != nullptr))
+    {
+        auto info                 = reinterpret_cast<ID3D11Texture2D_Wrapper*>(*texture2D)->GetObjectInfo();
+        info->dimension           = D3D11_RESOURCE_DIMENSION_TEXTURE2D;
+        info->format              = desc->Format;
+        info->width               = desc->Width;
+        info->height              = desc->Height;
+        info->depth_or_array_size = desc->ArraySize;
+        info->mip_levels          = desc->MipLevels;
+        info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11Device_CreateTexture3D(ID3D11Device_Wrapper*         wrapper,
+                                                                   HRESULT                       result,
+                                                                   const D3D11_TEXTURE3D_DESC*   desc,
+                                                                   const D3D11_SUBRESOURCE_DATA* initial_data,
+                                                                   ID3D11Texture3D**             texture3D)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(initial_data);
+    GFXRECON_ASSERT(desc != nullptr);
+
+    if (SUCCEEDED(result) && (texture3D != nullptr) && (*texture3D != nullptr))
+    {
+        auto info                 = reinterpret_cast<ID3D11Texture3D_Wrapper*>(*texture3D)->GetObjectInfo();
+        info->dimension           = D3D11_RESOURCE_DIMENSION_TEXTURE3D;
+        info->format              = desc->Format;
+        info->width               = desc->Width;
+        info->height              = desc->Height;
+        info->depth_or_array_size = desc->Depth;
+        info->mip_levels          = desc->MipLevels;
+        info->num_subresources    = graphics::dx12::GetNumSubresources(desc);
+    }
+}
+
+void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContext_Wrapper* wrapper,
+                                                              HRESULT                      result,
+                                                              ID3D11Resource*              resource,
+                                                              UINT                         subresource,
+                                                              D3D11_MAP                    map_type,
+                                                              UINT                         map_flags,
+                                                              D3D11_MAPPED_SUBRESOURCE*    mapped_subresource_data)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if (SUCCEEDED(result) && (resource != nullptr))
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D11Resource_Wrapper*>(resource);
+        auto info             = GetResourceInfo(resource_wrapper);
+        if (info != nullptr)
+        {
+            assert((subresource < info->num_subresources));
+
+            std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
+
+            // Get or initialize the per-context mapped memory info entry.
+            auto entry = info->mapped_subresources.find(wrapper->GetCaptureId());
+            if (entry == info->mapped_subresources.end())
+            {
+                if (info->subresource_sizes == nullptr)
+                {
+                    info->subresource_sizes = std::make_unique<uint64_t[]>(info->num_subresources);
+                }
+
+                auto& pair = info->mapped_subresources.emplace(
+                    wrapper->GetCaptureId(),
+                    std::make_unique<gfxrecon::encode::MappedSubresource[]>(info->num_subresources));
+                entry = pair.first;
+            }
+
+            auto& mapped_subresource = entry->second[subresource];
+
+            if ((mapped_subresource_data != nullptr) && (mapped_subresource_data->pData != nullptr) &&
+                (map_type != D3D11_MAP_READ))
+            {
+                mapped_subresource.data = mapped_subresource_data->pData;
+
+                if (++mapped_subresource.map_count == 1)
+                {
+                    // Calculate and store the subresource size on first use. This size is used with kPageGuard when
+                    // adding an entry to PageGuardManager on Map or with kUnassisted when writing memory to the file on
+                    // Unmap.
+                    auto& subresource_size = info->subresource_sizes[subresource];
+                    if (subresource_size == 0)
+                    {
+                        subresource_size = graphics::dx12::GetSubresourceSize(info->dimension,
+                                                                              info->format,
+                                                                              info->width,
+                                                                              info->height,
+                                                                              info->depth_or_array_size,
+                                                                              info->mip_levels,
+                                                                              mapped_subresource_data->RowPitch,
+                                                                              mapped_subresource_data->DepthPitch,
+                                                                              subresource);
+                    }
+
+                    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                    {
+                        util::PageGuardManager* manager = util::PageGuardManager::Get();
+                        assert(manager != nullptr);
+
+                        GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_size);
+                        auto size = static_cast<size_t>(subresource_size);
+
+                        if (IsPageGuardMemoryModeExternal())
+                        {
+                            GFXRECON_LOG_INFO_ONCE(
+                                "Ignoring GFXRECON_PAGE_GUARD_EXTERNAL_MEMORY for D3D11 capture. Write "
+                                "watch is not supported for D3D11 resources.")
+                        }
+
+                        if (IsPageGuardMemoryModeShadowPersistent() &&
+                            (mapped_subresource.shadow_allocation == util::PageGuardManager::kNullShadowHandle))
+                        {
+                            mapped_subresource.shadow_allocation = manager->AllocatePersistentShadowMemory(size);
+                        }
+
+                        // Return the pointer provided by the pageguard manager, which may be a pointer to shadow
+                        // memory, not the mapped memory.
+                        mapped_subresource_data->pData =
+                            manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                      mapped_subresource.data,
+                                                      0,
+                                                      size,
+                                                      mapped_subresource.shadow_allocation,
+                                                      true,
+                                                      false);
+                    }
+                }
+                else
+                {
+                    // The application has mapped the same ID3D11Resource object more than once and the pageguard
+                    // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
+                    // on the first map call. Note that the D3D11 runtime will report an error for this case, while also
+                    // returning S_OK, and the resource will be fully unmapped by the first Unmap() call regardless of
+                    // the number of times it has been mapped.
+                    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                    {
+                        // Return the shadow memory that was allocated for the previous map operation.
+                        util::PageGuardManager* manager = util::PageGuardManager::Get();
+                        assert(manager != nullptr);
+
+                        auto found = manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                               &mapped_subresource_data->pData);
+                        if (!found)
+                        {
+                            GFXRECON_LOG_ERROR("Failed to find tracked memory object for a previously mapped resource.")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceContext_Wrapper* wrapper,
+                                                               ID3D11Resource*              resource,
+                                                               UINT                         subresource)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if (resource != nullptr)
+    {
+        auto resource_wrapper = reinterpret_cast<ID3D11Resource_Wrapper*>(resource);
+
+        auto info = GetResourceInfo(resource_wrapper);
+        if (info != nullptr)
+        {
+            assert((subresource < info->num_subresources));
+
+            std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
+
+            auto entry = info->mapped_subresources.find(wrapper->GetCaptureId());
+            if (entry != info->mapped_subresources.end())
+            {
+                auto& mapped_subresource = entry->second[subresource];
+
+                // Note that memory tracking ignores the case where a resource was mapped for use with
+                // WriteToSubresoruce, where the Map D3D11_MAPPED_SUBRESOURCE parameter was NULL.
+                if (mapped_subresource.data != nullptr)
+                {
+                    if (mapped_subresource.map_count > 0)
+                    {
+                        // The D3D11 runtime will report an error when a subresource is mapped more than once, but may
+                        // also return S_OK. The resource will be fully unmapped by the first Unmap() call regardless of
+                        // the number of times it has been mapped.
+                        mapped_subresource.map_count = 0;
+
+                        if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+                        {
+                            util::PageGuardManager* manager = util::PageGuardManager::Get();
+                            assert(manager != nullptr);
+
+                            auto memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
+
+                            manager->ProcessMemoryEntry(
+                                memory_id, [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                    WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                });
+
+                            manager->RemoveTrackedMemory(memory_id);
+                        }
+                        else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
+                        {
+                            uint64_t offset = 0;
+                            uint64_t size   = info->subresource_sizes[subresource];
+
+                            WriteFillMemoryCmd(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                               offset,
+                                               size,
+                                               mapped_subresource.data);
+                        }
+
+                        mapped_subresource.data = nullptr;
+                    }
+                    else
+                    {
+                        GFXRECON_LOG_WARNING("Attempting to unmap ID3D11Resource object with capture ID = %" PRIx64
+                                             " that is not currently mapped",
+                                             resource_wrapper->GetCaptureId());
+                    }
+                }
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING(
+                    "Attempting to unmap ID3D11Resource object with capture ID = %" PRIx64
+                    " that has not been mapped by ID3D11DeviceContext object with capture ID = %" PRIx64,
+                    resource_wrapper->GetCaptureId(),
+                    wrapper->GetCaptureId());
+            }
+        }
+    }
 }
 
 void D3D12CaptureManager::WriteDx12DriverInfo()

@@ -4190,6 +4190,38 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         Decoded_GUID guid,
         format::HandleId pData) override;
 
+    virtual void Process_ID3D11Device_CreateBuffer(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Buffer*>* ppBuffer) override;
+
+    virtual void Process_ID3D11Device_CreateTexture1D(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture1D*>* ppTexture1D) override;
+
+    virtual void Process_ID3D11Device_CreateTexture2D(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture2D*>* ppTexture2D) override;
+
+    virtual void Process_ID3D11Device_CreateTexture3D(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>* pDesc,
+        StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+        HandlePointerDecoder<ID3D11Texture3D*>* ppTexture3D) override;
+
     virtual void Process_ID3D11Device_CreateShaderResourceView(
         const ApiCallInfo& call_info,
         format::HandleId object_id,

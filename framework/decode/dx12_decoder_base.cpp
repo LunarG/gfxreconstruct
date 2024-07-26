@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2023-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -634,14 +635,196 @@ size_t Dx12DecoderBase::Decode_ID3D12Resource_WriteToSubresource(format::HandleI
     return bytes_read;
 }
 
+size_t Dx12DecoderBase::Decode_ID3D11Device_CreateBuffer(format::HandleId   object_id,
+                                                         const ApiCallInfo& call_info,
+                                                         const uint8_t*     parameter_buffer,
+                                                         size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>      pDesc;
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA> pInitialData;
+    HandlePointerDecoder<ID3D11Buffer*>                  ppBuffer;
+    HRESULT                                              return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInitialData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppBuffer.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D11Device_CreateBuffer(
+            call_info, object_id, return_value, &pDesc, &pInitialData, &ppBuffer);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12DecoderBase::Decode_ID3D11Device_CreateTexture1D(format::HandleId   object_id,
+                                                            const ApiCallInfo& call_info,
+                                                            const uint8_t*     parameter_buffer,
+                                                            size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>   pDesc;
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA> pInitialData;
+    HandlePointerDecoder<ID3D11Texture1D*>               ppTexture1D;
+    HRESULT                                              return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInitialData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppTexture1D.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D11Device_CreateTexture1D(
+            call_info, object_id, return_value, &pDesc, &pInitialData, &ppTexture1D);
+    }
+    return bytes_read;
+}
+
+size_t Dx12DecoderBase::Decode_ID3D11Device_CreateTexture2D(format::HandleId   object_id,
+                                                            const ApiCallInfo& call_info,
+                                                            const uint8_t*     parameter_buffer,
+                                                            size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>   pDesc;
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA> pInitialData;
+    HandlePointerDecoder<ID3D11Texture2D*>               ppTexture2D;
+    HRESULT                                              return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInitialData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppTexture2D.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D11Device_CreateTexture2D(
+            call_info, object_id, return_value, &pDesc, &pInitialData, &ppTexture2D);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12DecoderBase::Decode_ID3D11Device_CreateTexture3D(format::HandleId   object_id,
+                                                            const ApiCallInfo& call_info,
+                                                            const uint8_t*     parameter_buffer,
+                                                            size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>   pDesc;
+    StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA> pInitialData;
+    HandlePointerDecoder<ID3D11Texture3D*>               ppTexture3D;
+    HRESULT                                              return_value;
+
+    bytes_read += pDesc.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pInitialData.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ppTexture3D.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D11Device_CreateTexture3D(
+            call_info, object_id, return_value, &pDesc, &pInitialData, &ppTexture3D);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12DecoderBase::Decode_ID3D11DeviceContext_UpdateSubresource(format::HandleId   object_id,
+                                                                     const ApiCallInfo& call_info,
+                                                                     const uint8_t*     parameter_buffer,
+                                                                     size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId                        pDstResource;
+    UINT                                    DstSubresource;
+    StructPointerDecoder<Decoded_D3D11_BOX> pDstBox;
+    PointerDecoder<uint8_t>                 pSrcData;
+    UINT                                    SrcRowPitch;
+    UINT                                    SrcDepthPitch;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstResource);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstSubresource);
+    bytes_read += pDstBox.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcRowPitch);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDepthPitch);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D11DeviceContext_UpdateSubresource(
+            call_info, object_id, pDstResource, DstSubresource, &pDstBox, &pSrcData, SrcRowPitch, SrcDepthPitch);
+    }
+
+    return bytes_read;
+}
+
+size_t Dx12DecoderBase::Decode_ID3D11DeviceContext1_UpdateSubresource1(format::HandleId   object_id,
+                                                                       const ApiCallInfo& call_info,
+                                                                       const uint8_t*     parameter_buffer,
+                                                                       size_t             buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId                        pDstResource;
+    UINT                                    DstSubresource;
+    StructPointerDecoder<Decoded_D3D11_BOX> pDstBox;
+    PointerDecoder<uint8_t>                 pSrcData;
+    UINT                                    SrcRowPitch;
+    UINT                                    SrcDepthPitch;
+    UINT                                    CopyFlags;
+
+    bytes_read +=
+        ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &pDstResource);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &DstSubresource);
+    bytes_read += pDstBox.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pSrcData.DecodeVoid((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcRowPitch);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &SrcDepthPitch);
+    bytes_read +=
+        ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &CopyFlags);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_ID3D11DeviceContext1_UpdateSubresource1(call_info,
+                                                                  object_id,
+                                                                  pDstResource,
+                                                                  DstSubresource,
+                                                                  &pDstBox,
+                                                                  &pSrcData,
+                                                                  SrcRowPitch,
+                                                                  SrcDepthPitch,
+                                                                  CopyFlags);
+    }
+
+    return bytes_read;
+}
+
 void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
                                        format::HandleId   object_id,
-                                       const ApiCallInfo& call_options,
+                                       const ApiCallInfo& call_info,
                                        const uint8_t*     parameter_buffer,
                                        size_t             buffer_size)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(call_options);
-
     switch (call_id)
     {
         case format::ApiCallId::ApiCall_ID3D12Device_CheckFeatureSupport:
@@ -652,6 +835,24 @@ void Dx12DecoderBase::DecodeMethodCall(format::ApiCallId  call_id,
             break;
         case format::ApiCallId::ApiCall_ID3D12Resource_WriteToSubresource:
             Decode_ID3D12Resource_WriteToSubresource(object_id, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11Device_CreateBuffer:
+            Decode_ID3D11Device_CreateBuffer(object_id, call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11Device_CreateTexture1D:
+            Decode_ID3D11Device_CreateTexture1D(object_id, call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11Device_CreateTexture2D:
+            Decode_ID3D11Device_CreateTexture2D(object_id, call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11Device_CreateTexture3D:
+            Decode_ID3D11Device_CreateTexture3D(object_id, call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11DeviceContext_UpdateSubresource:
+            Decode_ID3D11DeviceContext_UpdateSubresource(object_id, call_info, parameter_buffer, buffer_size);
+            break;
+        case format::ApiCallId::ApiCall_ID3D11DeviceContext1_UpdateSubresource1:
+            Decode_ID3D11DeviceContext1_UpdateSubresource1(object_id, call_info, parameter_buffer, buffer_size);
             break;
         default:
             break;

@@ -36,9 +36,10 @@
 #include <dxgi1_5.h>
 
 #include <array>
-#include <unordered_set>
 #include <map>
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -584,16 +585,34 @@ struct ID3D11BlendStateInfo : public DxWrapperInfo
 struct ID3D11RasterizerStateInfo : public DxWrapperInfo
 {};
 
-struct ID3D11BufferInfo : public DxWrapperInfo
+// Parent class for D3D11 buffer and texture resource info.
+struct ID3D11ResourceInfo : public DxWrapperInfo
+{
+    D3D11_RESOURCE_DIMENSION dimension{ D3D11_RESOURCE_DIMENSION_UNKNOWN };
+    DXGI_FORMAT              format{ DXGI_FORMAT_UNKNOWN };
+    uint32_t                 width{ 0 };
+    uint32_t                 height{ 0 };
+    uint32_t                 depth_or_array_size{ 0 };
+    uint32_t                 mip_levels{ 0 };
+
+    // Subresources sizes to be calculated/used when resource is mapped.
+    size_t                      num_subresources{ 0 };
+    std::unique_ptr<uint64_t[]> subresource_sizes;
+
+    // Map ID3D11DeviceContext ID to mapped subresource info.
+    std::unordered_map<uint64_t, std::unique_ptr<MappedSubresource[]>> mapped_subresources;
+};
+
+struct ID3D11BufferInfo : public ID3D11ResourceInfo
 {};
 
-struct ID3D11Texture1DInfo : public DxWrapperInfo
+struct ID3D11Texture1DInfo : public ID3D11ResourceInfo
 {};
 
-struct ID3D11Texture2DInfo : public DxWrapperInfo
+struct ID3D11Texture2DInfo : public ID3D11ResourceInfo
 {};
 
-struct ID3D11Texture3DInfo : public DxWrapperInfo
+struct ID3D11Texture3DInfo : public ID3D11ResourceInfo
 {};
 
 struct ID3D11ShaderResourceViewInfo : public DxWrapperInfo

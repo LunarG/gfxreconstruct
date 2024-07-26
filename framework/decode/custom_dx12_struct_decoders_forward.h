@@ -52,6 +52,7 @@ struct Decoded_D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS;
 struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA;
 struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS;
 struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS;
+struct Decoded_D3D11_SUBRESOURCE_DATA;
 struct Decoded_D3D11_BUFFER_SRV;
 struct Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC;
 struct Decoded_D3D11_BUFFER_RTV;
@@ -83,6 +84,7 @@ size_t
        DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D12_RENDER_PASS_ENDING_ACCESS* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SUBRESOURCE_DATA* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_BUFFER_SRV* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_SHADER_RESOURCE_VIEW_DESC* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC* wrapper);

@@ -370,6 +370,14 @@ struct Decoded_D3D12_DISPATCH_GRAPH_DESC
     Decoded_D3D12_MULTI_NODE_CPU_INPUT* multi_node_cpu_input{ nullptr };
 };
 
+struct Decoded_D3D11_SUBRESOURCE_DATA
+{
+    using struct_type = D3D11_SUBRESOURCE_DATA;
+
+    D3D11_SUBRESOURCE_DATA* decoded_value{ nullptr };
+    PointerDecoder<uint8_t> pSysMem;
+};
+
 struct Decoded_D3D11_BUFFER_SRV
 {
     using struct_type = D3D11_BUFFER_SRV;

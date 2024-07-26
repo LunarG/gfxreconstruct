@@ -273,6 +273,36 @@ class Dx12DecoderBase : public ApiDecoder
                                                     const uint8_t*   parameter_buffer,
                                                     size_t           buffer_size);
 
+    size_t Decode_ID3D11Device_CreateBuffer(format::HandleId   object_id,
+                                            const ApiCallInfo& call_info,
+                                            const uint8_t*     parameter_buffer,
+                                            size_t             buffer_size);
+
+    size_t Decode_ID3D11Device_CreateTexture1D(format::HandleId   object_id,
+                                               const ApiCallInfo& call_info,
+                                               const uint8_t*     parameter_buffer,
+                                               size_t             buffer_size);
+
+    size_t Decode_ID3D11Device_CreateTexture2D(format::HandleId   object_id,
+                                               const ApiCallInfo& call_info,
+                                               const uint8_t*     parameter_buffer,
+                                               size_t             buffer_size);
+
+    size_t Decode_ID3D11Device_CreateTexture3D(format::HandleId   object_id,
+                                               const ApiCallInfo& call_info,
+                                               const uint8_t*     parameter_buffer,
+                                               size_t             buffer_size);
+
+    size_t Decode_ID3D11DeviceContext_UpdateSubresource(format::HandleId   object_id,
+                                                        const ApiCallInfo& call_info,
+                                                        const uint8_t*     parameter_buffer,
+                                                        size_t             buffer_size);
+
+    size_t Decode_ID3D11DeviceContext1_UpdateSubresource1(format::HandleId   object_id,
+                                                          const ApiCallInfo& call_info,
+                                                          const uint8_t*     parameter_buffer,
+                                                          size_t             buffer_size);
+
   private:
     std::vector<Dx12Consumer*> consumers_;
 };
