@@ -475,24 +475,25 @@ void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(IDXGISwapChain_W
     }
 }
 
-void D3D12CaptureManager::InitializeID3D12DeviceInfo(IUnknown* adapter, void** device)
+void D3D12CaptureManager::InitializeID3D12DeviceInfo(ID3D12Device_Wrapper* device_wrapper)
 {
-    GFXRECON_ASSERT(device != nullptr);
-    GFXRECON_ASSERT(*device != nullptr);
+    GFXRECON_ASSERT(device_wrapper != nullptr);
 
-    if ((device != nullptr) && (*device != nullptr))
+    if (device_wrapper != nullptr)
     {
-        auto device_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(*device);
-        auto info           = device_wrapper->GetObjectInfo();
+        auto info = device_wrapper->GetObjectInfo();
 
         if (info != nullptr)
         {
+            auto wrapped_device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+
+            // TODO: When info->adapter3 is acquired, its ref count is incremented but it is never released; it should
+            // be stored in a COM pointer.
             graphics::dx12::GetAdapterAndIndexbyDevice(
-                reinterpret_cast<ID3D12Device*>(*device), info->adapter3, info->adapter_node_index, adapters_);
+                wrapped_device, info->adapter3, info->adapter_node_index, adapters_);
 
             // Cache info on device features:
-            auto wrapped_device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
-            info->is_uma        = graphics::dx12::IsUma(wrapped_device);
+            info->is_uma = graphics::dx12::IsUma(wrapped_device);
         }
     }
 }
@@ -2470,33 +2471,31 @@ void D3D12CaptureManager::PostProcess_D3D12CreateDevice(
 {
     if (result == S_OK)
     {
-        if (ppDevice != nullptr)
+        if ((ppDevice != nullptr) && (*ppDevice != nullptr))
         {
-            InitializeID3D12DeviceInfo(pAdapter, ppDevice);
+            auto device_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(*ppDevice);
 
-            auto device = reinterpret_cast<ID3D12Device*>(*ppDevice);
+            InitializeID3D12DeviceInfo(device_wrapper);
 
-            if (device != nullptr)
+            auto                     wrapped_device = device_wrapper->GetWrappedObjectAs<ID3D12Device>();
+            format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(wrapped_device, adapters_);
+
+            // Write adapter desc to file if it was marked active, and has not already been seen.
+            auto adapter_id = GetDx12WrappedId<IUnknown>(pAdapter);
+            if (active_adapter != nullptr)
             {
-                format::DxgiAdapterDesc* active_adapter = graphics::dx12::MarkActiveAdapter(device, adapters_);
-
-                // Write adapter desc to file if it was marked active, and has not already been seen
-                auto adapter_id = GetDx12WrappedId<IUnknown>(pAdapter);
-                if (active_adapter != nullptr)
+                graphics::dx12::InjectAdapterCaptureId(active_adapter->extra_info, adapter_id);
+                WriteDxgiAdapterInfoCommand(format::ApiFamilyId::ApiFamily_D3D12, *active_adapter);
+            }
+            else
+            {
+                // we have to write adapter if it is already marked active and as a result active_adapter is null
+                // this is essential for marking active adapter for system with multiple GPUs
+                auto parent_adapter = graphics::dx12::GetAdapterDescByLUID(wrapped_device->GetAdapterLuid(), adapters_);
+                if (parent_adapter != nullptr)
                 {
-                    graphics::dx12::InjectAdapterCaptureId(active_adapter->extra_info, adapter_id);
-                    WriteDxgiAdapterInfoCommand(*active_adapter);
-                }
-                else
-                {
-                    // we have to write adapter if it is already marked active and as a result active_adapter is null
-                    // this is essential for marking active adapter for system with multiple GPUs
-                    auto parent_adapter = graphics::dx12::GetAdapterDescByLUID(device->GetAdapterLuid(), adapters_);
-                    if (parent_adapter != nullptr)
-                    {
-                        graphics::dx12::InjectAdapterCaptureId(parent_adapter->extra_info, adapter_id);
-                        WriteDxgiAdapterInfoCommand(*parent_adapter);
-                    }
+                    graphics::dx12::InjectAdapterCaptureId(parent_adapter->extra_info, adapter_id);
+                    WriteDxgiAdapterInfoCommand(format::ApiFamilyId::ApiFamily_D3D12, *parent_adapter);
                 }
             }
         }
@@ -3040,7 +3039,8 @@ void D3D12CaptureManager::PostProcess_ID3D12StateObjectProperties_GetShaderIdent
     }
 }
 
-void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc)
+void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(format::ApiFamilyId            api_family,
+                                                      const format::DxgiAdapterDesc& adapter_desc)
 {
     if ((IsCaptureModeWrite()))
     {
@@ -3053,7 +3053,7 @@ void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterD
         adapter_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         adapter_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(adapter_info_header);
         adapter_info_header.meta_header.meta_data_id =
-            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kDxgiAdapterInfoCommand);
+            format::MakeMetaDataId(api_family, format::MetaDataType::kDxgiAdapterInfoCommand);
         adapter_info_header.thread_id = thread_data->thread_id_;
 
         util::platform::MemoryCopy(&adapter_info_header.adapter_desc,
@@ -3065,7 +3065,7 @@ void D3D12CaptureManager::WriteDxgiAdapterInfoCommand(const format::DxgiAdapterD
     }
 }
 
-void D3D12CaptureManager::WriteDxgiAdapterInfo()
+void D3D12CaptureManager::WriteDxgiAdapterInfo(format::ApiFamilyId api_family)
 {
     for (const auto& adapter : adapters_)
     {
@@ -3074,24 +3074,36 @@ void D3D12CaptureManager::WriteDxgiAdapterInfo()
         // Write adapter desc to file if it was marked active
         if (adapter.second.active == true)
         {
-            WriteDxgiAdapterInfoCommand(replay_adapter_desc);
+            WriteDxgiAdapterInfoCommand(api_family, replay_adapter_desc);
         }
     }
 }
 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory(HRESULT result, REFIID riid, void** ppFactory)
 {
-    graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
+    if (SUCCEEDED(result) && (ppFactory != nullptr) && (*ppFactory != nullptr))
+    {
+        graphics::dx12::TrackAdapters(GetWrappedObject<IDXGIFactory>(reinterpret_cast<IDXGIFactory*>(*ppFactory)),
+                                      adapters_);
+    }
 }
 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory1(HRESULT result, REFIID riid, void** ppFactory)
 {
-    graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
+    if (SUCCEEDED(result) && (ppFactory != nullptr) && (*ppFactory != nullptr))
+    {
+        graphics::dx12::TrackAdapters(GetWrappedObject<IDXGIFactory>(reinterpret_cast<IDXGIFactory*>(*ppFactory)),
+                                      adapters_);
+    }
 }
 
 void D3D12CaptureManager::PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory)
 {
-    graphics::dx12::TrackAdapters(result, ppFactory, adapters_);
+    if (SUCCEEDED(result) && (ppFactory != nullptr) && (*ppFactory != nullptr))
+    {
+        graphics::dx12::TrackAdapters(GetWrappedObject<IDXGIFactory>(reinterpret_cast<IDXGIFactory*>(*ppFactory)),
+                                      adapters_);
+    }
 }
 
 std::shared_ptr<ID3D11ResourceInfo> D3D12CaptureManager::GetResourceInfo(ID3D11Resource_Wrapper* wrapper)
@@ -3296,6 +3308,98 @@ HRESULT D3D12CaptureManager::OverrideD3D11CreateDeviceAndSwapChain(IDXGIAdapter*
                                                                immediate_context);
 }
 
+void D3D12CaptureManager::PostProcess_D3D11CreateDevice(HRESULT                  result,
+                                                        IDXGIAdapter*            adapter,
+                                                        D3D_DRIVER_TYPE          driver_type,
+                                                        HMODULE                  software,
+                                                        UINT                     flags,
+                                                        const D3D_FEATURE_LEVEL* feature_levels,
+                                                        UINT                     num_feature_levels,
+                                                        UINT                     sdk_version,
+                                                        ID3D11Device**           device,
+                                                        D3D_FEATURE_LEVEL*       feature_level,
+                                                        ID3D11DeviceContext**    immediate_context)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(driver_type);
+    GFXRECON_UNREFERENCED_PARAMETER(software);
+    GFXRECON_UNREFERENCED_PARAMETER(flags);
+    GFXRECON_UNREFERENCED_PARAMETER(feature_levels);
+    GFXRECON_UNREFERENCED_PARAMETER(num_feature_levels);
+    GFXRECON_UNREFERENCED_PARAMETER(sdk_version);
+    GFXRECON_UNREFERENCED_PARAMETER(feature_level);
+    GFXRECON_UNREFERENCED_PARAMETER(immediate_context);
+
+    if (SUCCEEDED(result))
+    {
+        if ((device != nullptr) && (*device != nullptr))
+        {
+            auto wrapped_device  = GetWrappedObject<ID3D11Device>(*device);
+            auto wrapped_adapter = GetWrappedObject<IDXGIAdapter>(adapter);
+
+            format::DxgiAdapterDesc* active_adapter = nullptr;
+
+            // Ensure that adapters are tracked.
+            if (adapters_.empty())
+            {
+                HRESULT                            factory_result = E_FAIL;
+                graphics::dx12::IDXGIFactoryComPtr factory;
+
+                if (wrapped_adapter != nullptr)
+                {
+                    factory_result = wrapped_adapter->GetParent(IID_PPV_ARGS(&factory));
+                }
+                else
+                {
+                    auto device_adapter = graphics::dx12::GetAdapter(wrapped_device);
+                    if (device_adapter != nullptr)
+                    {
+                        factory_result = device_adapter->GetParent(IID_PPV_ARGS(&factory));
+                    }
+                }
+
+                if (SUCCEEDED(factory_result))
+                {
+                    graphics::dx12::TrackAdapters(factory, adapters_);
+                }
+            }
+
+            if (wrapped_adapter != nullptr)
+            {
+                DXGI_ADAPTER_DESC desc{};
+                wrapped_adapter->GetDesc(&desc);
+
+                active_adapter = graphics::dx12::MarkActiveAdapter(desc.AdapterLuid, adapters_);
+            }
+            else
+            {
+                active_adapter = graphics::dx12::MarkActiveAdapter(wrapped_device, adapters_);
+            }
+
+            // Write adapter desc to file if it was marked active, and has not already been seen.
+            auto adapter_id = GetDx12WrappedId<IUnknown>(adapter);
+            if (active_adapter != nullptr)
+            {
+                graphics::dx12::InjectAdapterCaptureId(active_adapter->extra_info, adapter_id);
+                WriteDxgiAdapterInfoCommand(format::ApiFamilyId::ApiFamily_D3D11, *active_adapter);
+            }
+            else
+            {
+                // we have to write adapter if it is already marked active and as a result active_adapter is null
+                // this is essential for marking active adapter for system with multiple GPUs
+                auto parent_adapter =
+                    graphics::dx12::GetAdapterDescByLUID(graphics::dx12::GetAdapterLuid(wrapped_device), adapters_);
+                if (parent_adapter != nullptr)
+                {
+                    graphics::dx12::InjectAdapterCaptureId(parent_adapter->extra_info, adapter_id);
+                    WriteDxgiAdapterInfoCommand(format::ApiFamilyId::ApiFamily_D3D11, *parent_adapter);
+                }
+            }
+
+            WriteDx11DriverInfo();
+        }
+    }
+}
+
 void D3D12CaptureManager::PostProcess_D3D11CreateDeviceAndSwapChain(HRESULT                     result,
                                                                     IDXGIAdapter*               adapter,
                                                                     D3D_DRIVER_TYPE             driver_type,
@@ -3310,16 +3414,18 @@ void D3D12CaptureManager::PostProcess_D3D11CreateDeviceAndSwapChain(HRESULT     
                                                                     D3D_FEATURE_LEVEL*          feature_level,
                                                                     ID3D11DeviceContext**       immediate_context)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(adapter);
-    GFXRECON_UNREFERENCED_PARAMETER(driver_type);
-    GFXRECON_UNREFERENCED_PARAMETER(software);
-    GFXRECON_UNREFERENCED_PARAMETER(flags);
-    GFXRECON_UNREFERENCED_PARAMETER(feature_levels);
-    GFXRECON_UNREFERENCED_PARAMETER(num_feature_levels);
-    GFXRECON_UNREFERENCED_PARAMETER(sdk_version);
-    GFXRECON_UNREFERENCED_PARAMETER(device);
-    GFXRECON_UNREFERENCED_PARAMETER(feature_level);
-    GFXRECON_UNREFERENCED_PARAMETER(immediate_context);
+    // Apply the same device processing that would be performed for D3D11CreateDevice.
+    PostProcess_D3D11CreateDevice(result,
+                                  adapter,
+                                  driver_type,
+                                  software,
+                                  flags,
+                                  feature_levels,
+                                  num_feature_levels,
+                                  sdk_version,
+                                  device,
+                                  feature_level,
+                                  immediate_context);
 
     if (SUCCEEDED(result) && (swap_chain_desc != nullptr) && (swap_chain != nullptr) && ((*swap_chain) != nullptr))
     {
@@ -4044,7 +4150,7 @@ void D3D12CaptureManager::Destroy_ID3D11DepthStencilView(ID3D11DepthStencilView_
     ReleaseViewResourceRef(info.get());
 }
 
-void D3D12CaptureManager::WriteDx12DriverInfo()
+void D3D12CaptureManager::WriteDxDriverInfo(format::ApiFamilyId api_family)
 {
     if (IsCaptureModeWrite())
     {
@@ -4053,14 +4159,14 @@ void D3D12CaptureManager::WriteDx12DriverInfo()
 
         gfxrecon::graphics::dx12::GetActiveAdapterLuids(adapters_, adapter_luids);
 
-        if (util::driverinfo::GetDriverInfo(driverinfo, format::ApiFamilyId::ApiFamily_D3D12, adapter_luids) == true)
+        if (util::driverinfo::GetDriverInfo(driverinfo, api_family, adapter_luids) == true)
         {
-            WriteDriverInfoCommand(driverinfo);
+            WriteDriverInfoCommand(api_family, driverinfo);
         }
     }
 }
 
-void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
+void D3D12CaptureManager::WriteDriverInfoCommand(format::ApiFamilyId api_family, const std::string& info)
 {
     if ((IsCaptureModeWrite()))
     {
@@ -4074,7 +4180,7 @@ void D3D12CaptureManager::WriteDriverInfoCommand(const std::string& info)
         driver_info_header.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
         driver_info_header.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(driver_info_header);
         driver_info_header.meta_header.meta_data_id =
-            format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_D3D12, format::MetaDataType::kDriverInfoCommand);
+            format::MakeMetaDataId(api_family, format::MetaDataType::kDriverInfoCommand);
         driver_info_header.thread_id = GetThreadData()->thread_id_;
 
         WriteToFile(&driver_info_header, sizeof(driver_info_header));

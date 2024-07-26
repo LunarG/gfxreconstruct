@@ -61,6 +61,10 @@ class DX12ImageRenderer;
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
 #ifdef WIN32
+typedef _com_ptr_t<_com_IIID<IDXGIAdapter, &__uuidof(IDXGIAdapter)>>       IDXGIAdapterComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIDevice, &__uuidof(IDXGIDevice)>>         IDXGIDeviceComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory, &__uuidof(IDXGIFactory)>>       IDXGIFactoryComPtr;
+typedef _com_ptr_t<_com_IIID<IDXGIFactory1, &__uuidof(IDXGIFactory1)>>     IDXGIFactory1ComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain, &__uuidof(IDXGISwapChain)>>   IDXGISwapChainComPtr;
 typedef _com_ptr_t<_com_IIID<IDXGISwapChain3, &__uuidof(IDXGISwapChain3)>> IDXGISwapChain3ComPtr;
 
@@ -273,11 +277,21 @@ uint64_t GetOneRowSizeByDXGIFormat(ID3D12Resource*      resource,
 uint64_t GetSubresourceWriteDataSize(
     ID3D12Resource* resource, UINT dst_subresource, const D3D12_BOX* dst_box, UINT src_row_pitch, UINT src_depth_pitch);
 
-void TrackAdapters(HRESULT result, void** ppfactory, graphics::dx12::ActiveAdapterMap& adapters);
+void TrackAdapters(IDXGIFactory* factory, graphics::dx12::ActiveAdapterMap& adapters);
+
+void TrackAdapters(IDXGIFactory1* factory, graphics::dx12::ActiveAdapterMap& adapters);
 
 void RemoveDeactivatedAdapters(graphics::dx12::ActiveAdapterMap& adapters);
 
+IDXGIAdapterComPtr GetAdapter(ID3D11Device* device);
+
+LUID GetAdapterLuid(ID3D11Device* device);
+
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D11Device* device, graphics::dx12::ActiveAdapterMap& adapters);
+
 format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters);
+
+format::DxgiAdapterDesc* MarkActiveAdapter(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters);
 
 // Query adapter and index by LUID
 bool GetAdapterAndIndexbyLUID(LUID                              luid,

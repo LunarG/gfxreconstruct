@@ -1428,6 +1428,12 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDevice(HRESULT               
                                     feature_level->GetOutputPointer(),
                                     immediate_context_pointer);
 
+    if (SUCCEEDED(result) && (device_pointer != nullptr))
+    {
+        auto device_ptr = reinterpret_cast<ID3D11Device*>(*device_pointer);
+        graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
+    }
+
     return result;
 }
 
@@ -1519,6 +1525,12 @@ HRESULT Dx12ReplayConsumerBase::OverrideD3D11CreateDeviceAndSwapChain(
 
     if (SUCCEEDED(result))
     {
+        if (device_pointer != nullptr)
+        {
+            auto device_ptr = reinterpret_cast<ID3D11Device*>(*device_pointer);
+            graphics::dx12::MarkActiveAdapter(device_ptr, adapters_);
+        }
+
         if (swapchain_desc_pointer != nullptr)
         {
             auto     object_info = static_cast<DxObjectInfo*>(swapchain->GetConsumerData(0));
@@ -1668,16 +1680,14 @@ void Dx12ReplayConsumerBase::InitializeD3D12Device(HandlePointerDecoder<void*>* 
 
 void Dx12ReplayConsumerBase::DetectAdapters()
 {
-    IDXGIFactory1* factory1 = nullptr;
+    graphics::dx12::IDXGIFactory1ComPtr factory1;
 
-    HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+    HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
     if (SUCCEEDED(result))
     {
-        graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters_);
+        graphics::dx12::TrackAdapters(factory1, adapters_);
         render_adapter_ = graphics::dx12::GetAdapterbyIndex(adapters_, options_.override_gpu_index);
-
-        factory1->Release();
     }
 }
 

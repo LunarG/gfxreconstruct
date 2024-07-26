@@ -860,9 +860,13 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_ID3D12StateObjectProperties_GetShaderIdentifier(
         ID3D12StateObjectProperties_Wrapper* properties_wrapper, void* result, LPCWSTR export_name);
 
-    void WriteDx12DriverInfo();
+    void WriteDxDriverInfo(format::ApiFamilyId api_family);
 
-    void WriteDriverInfoCommand(const std::string& info);
+    void WriteDx11DriverInfo() { WriteDxDriverInfo(format::ApiFamilyId::ApiFamily_D3D11); }
+
+    void WriteDx12DriverInfo() { WriteDxDriverInfo(format::ApiFamilyId::ApiFamily_D3D12); }
+
+    void WriteDriverInfoCommand(format::ApiFamilyId api_family, const std::string& info);
 
     void WriteDx12RuntimeInfo();
 
@@ -873,6 +877,18 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_CreateDXGIFactory1(HRESULT result, REFIID riid, void** ppFactory);
 
     void PostProcess_CreateDXGIFactory2(HRESULT result, UINT Flags, REFIID riid, void** ppFactory);
+
+    void PostProcess_D3D11CreateDevice(HRESULT                  result,
+                                       IDXGIAdapter*            adapter,
+                                       D3D_DRIVER_TYPE          driver_type,
+                                       HMODULE                  software,
+                                       UINT                     flags,
+                                       const D3D_FEATURE_LEVEL* feature_levels,
+                                       UINT                     num_feature_levels,
+                                       UINT                     sdk_version,
+                                       ID3D11Device**           device,
+                                       D3D_FEATURE_LEVEL*       feature_level,
+                                       ID3D11DeviceContext**    immediate_context);
 
     void PostProcess_D3D11CreateDeviceAndSwapChain(HRESULT                     result,
                                                    IDXGIAdapter*               adapter,
@@ -1035,7 +1051,7 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     void Destroy_ID3D11DepthStencilView(ID3D11DepthStencilView_Wrapper* wrapper);
 
-    void WriteDxgiAdapterInfo();
+    void WriteDxgiAdapterInfo(format::ApiFamilyId api_family);
 
     bool IsAccelerationStructureResource(format::HandleId id);
 
@@ -1144,10 +1160,10 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                ID3D12Resource_Wrapper* resource_wrapper,
                                                D3D12_RESOURCE_STATES   initial_state);
 
-    void InitializeID3D12DeviceInfo(IUnknown* pAdapter, void** device);
+    void InitializeID3D12DeviceInfo(ID3D12Device_Wrapper* device_wrapper);
 
   private:
-    void     WriteDxgiAdapterInfoCommand(const format::DxgiAdapterDesc& adapter_desc);
+    void     WriteDxgiAdapterInfoCommand(format::ApiFamilyId api_family, const format::DxgiAdapterDesc& adapter_desc);
     void     CheckWriteWatchIgnored(D3D12_HEAP_FLAGS flags, format::HandleId id);
     bool     UseWriteWatch(D3D12_HEAP_TYPE type, D3D12_HEAP_FLAGS flags, D3D12_CPU_PAGE_PROPERTY page_property);
     void     EnableWriteWatch(D3D12_HEAP_FLAGS& flags, D3D12_HEAP_PROPERTIES& properties);

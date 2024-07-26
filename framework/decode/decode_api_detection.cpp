@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -44,6 +45,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 bool DetectAPIs(const std::string& input_filename,
+                bool&              dx11_detected,
                 bool&              dx12_detected,
                 bool&              vulkan_detected,
                 bool&              openxr_detected,
@@ -88,6 +90,11 @@ bool DetectAPIs(const std::string& input_filename,
 
         file_processor.ProcessAllFrames();
 #if defined(D3D12_SUPPORT)
+        if (dx12_detection_consumer.WasD3D11APIDetected())
+        {
+            dx11_detected = true;
+        }
+
         if (dx12_detection_consumer.WasD3D12APIDetected())
         {
             dx12_detected = true;
@@ -114,7 +121,7 @@ bool DetectAPIs(const std::string& input_filename,
             vulkan_detected = true;
         }
     }
-    return dx12_detected || vulkan_detected || openxr_detected;
+    return dx11_detected || dx12_detected || vulkan_detected || openxr_detected;
 }
 
 GFXRECON_END_NAMESPACE(decode)

@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2020-2024 LunarG, Inc.
 ** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -81,6 +82,9 @@ const char kEnumGpuIndices[]    = "--enum-gpu-indices";
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--enum-gpu-indices";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
+
+const char kD3D11Name[] = "D3D11";
+const char kD3D12Name[] = "D3D12";
 
 const int kDefaultIndent = 12;
 
@@ -304,7 +308,6 @@ void PrintAnnotations(uint32_t                          annotation_count,
     // If the capture file had target annotations, display them in an info block
     if (!all_annotation_infos.empty())
     {
-        GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("Annotations:");
 
         for (const auto& annotation_info : all_annotation_infos)
@@ -394,12 +397,33 @@ void PrintOpenXrStats(const gfxrecon::decode::FileProcessor&       file_processo
 }
 #endif // ENABLE_OPENXR_SUPPORT
 
+void PrintApiAgnosticStats(const ApiAgnosticStats& api_agnostic_stats)
+{
+    GFXRECON_WRITE_CONSOLE("");
+    GFXRECON_WRITE_CONSOLE("File info:");
+
+    // Compression type.
+    std::string compression_type_name = gfxrecon::format::GetCompressionTypeName(api_agnostic_stats.compression_type);
+    if (!compression_type_name.empty())
+    {
+        GFXRECON_WRITE_CONSOLE("\tCompression format: %s", compression_type_name.c_str());
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("\tCompression format: %s", kUnrecognizedFormatString);
+    }
+}
+
 void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processor,
                       const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
                       const ApiAgnosticStats&                      api_agnostic_stats,
                       const AnnotationRecorder&                    annotation_recoder)
 {
-    if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
+    // Frame counts.
+    uint32_t trim_start_frame = vulkan_stats_consumer.GetTrimmedStartFrame();
+    uint32_t frame_count      = file_processor.GetCurrentFrameNumber();
+
+    if (trim_start_frame == 0)
     {
         GFXRECON_WRITE_CONSOLE("");
         GFXRECON_WRITE_CONSOLE("File info:");
@@ -542,7 +566,72 @@ void PrintVulkanStats(const gfxrecon::decode::FileProcessor&       file_processo
     }
     else
     {
-        GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+        // Include the frame range for trimmed files.
+        GFXRECON_WRITE_CONSOLE("\tTotal frames: %u (trimmed frame range %u-%u)",
+                               frame_count,
+                               trim_start_frame,
+                               trim_start_frame + frame_count - 1);
+    }
+
+    // Application info.
+    uint32_t api_version = vulkan_stats_consumer.GetApiVersion();
+    GFXRECON_WRITE_CONSOLE("\nVulkan application info:");
+    GFXRECON_WRITE_CONSOLE("\tApplication name: %s", vulkan_stats_consumer.GetAppName().c_str());
+    GFXRECON_WRITE_CONSOLE("\tApplication version: %u", vulkan_stats_consumer.GetAppVersion());
+    GFXRECON_WRITE_CONSOLE("\tEngine name: %s", vulkan_stats_consumer.GetEngineName().c_str());
+    GFXRECON_WRITE_CONSOLE("\tEngine version: %u", vulkan_stats_consumer.GetEngineVersion());
+    GFXRECON_WRITE_CONSOLE("\tTarget API version: %u (%s)", api_version, GetVersionString(api_version).c_str());
+
+    // Properties for physical devices used to create logical devices.
+    std::vector<const VkPhysicalDeviceProperties*> used_device_properties;
+    auto                                           used_devices = vulkan_stats_consumer.GetInstantiatedDevices();
+    for (auto entry : used_devices)
+    {
+        auto properties = vulkan_stats_consumer.GetDeviceProperties(entry);
+        if (properties != nullptr)
+        {
+            used_device_properties.push_back(properties);
+        }
+    }
+
+    // Don't print anything if no queries were made for VkPhysicalDeviceProperties.
+    if (!used_device_properties.empty())
+    {
+        for (auto entry : used_device_properties)
+        {
+            GFXRECON_WRITE_CONSOLE("\nVulkan physical device info:");
+            GFXRECON_WRITE_CONSOLE("\tDevice name: %s", entry->deviceName);
+            GFXRECON_WRITE_CONSOLE("\tDevice ID: 0x%x", entry->deviceID);
+            GFXRECON_WRITE_CONSOLE("\tVendor ID: 0x%x", entry->vendorID);
+            GFXRECON_WRITE_CONSOLE("\tDriver version: %u (0x%x)", entry->driverVersion, entry->driverVersion);
+            GFXRECON_WRITE_CONSOLE(
+                "\tAPI version: %u (%s)", entry->apiVersion, GetVersionString(entry->apiVersion).c_str());
+        }
+    }
+
+    auto alocation_count = vulkan_stats_consumer.GetAllocationCount();
+    GFXRECON_WRITE_CONSOLE("\nVulkan device memory allocation info:");
+    GFXRECON_WRITE_CONSOLE("\tTotal allocations: %" PRIu64, alocation_count);
+
+    if (alocation_count > 0)
+    {
+        GFXRECON_WRITE_CONSOLE("\tMin allocation size: %" PRIu64, vulkan_stats_consumer.GetMinAllocationSize());
+        GFXRECON_WRITE_CONSOLE("\tMax allocation size: %" PRIu64, vulkan_stats_consumer.GetMaxAllocationSize());
+    }
+
+    GFXRECON_WRITE_CONSOLE("\nVulkan pipeline info:");
+    GFXRECON_WRITE_CONSOLE("\tTotal graphics pipelines: %" PRIu64, vulkan_stats_consumer.GetGraphicsPipelineCount());
+    GFXRECON_WRITE_CONSOLE("\tTotal compute pipelines: %" PRIu64, vulkan_stats_consumer.GetComputePipelineCount());
+
+    // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls
+    // executed when recorded once to a command buffer that is submitted/replayed more than once.
+    // GFXRECON_WRITE_CONSOLE("\nDraw/dispatch call info:");
+    // GFXRECON_WRITE_CONSOLE("\tTotal draw calls: %" PRIu64, stats_consumer.GetDrawCount());
+    // GFXRECON_WRITE_CONSOLE("\tTotal dispatch calls: %" PRIu64, stats_consumer.GetDispatchCount());
+
+    if (file_processor.GetCurrentFrameNumber() == 0)
+    {
+        GFXRECON_WRITE_CONSOLE("\nFile did not contain any frames");
     }
 }
 
@@ -572,9 +661,11 @@ void PrintDx12RuntimeInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     GFXRECON_WRITE_CONSOLE("");
 }
 
-void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+void PrintDxAdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer, const char* api_name)
 {
-    GFXRECON_WRITE_CONSOLE("D3D12 adapter info:");
+    GFXRECON_ASSERT(api_name != nullptr);
+
+    GFXRECON_WRITE_CONSOLE("%s adapter info:", api_name);
     const std::vector<gfxrecon::format::DxgiAdapterDesc> adapters = dx12_consumer.GetAdapters();
 
     if (adapters.empty() == false)
@@ -626,9 +717,9 @@ void PrintDx12AdapterInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
     }
 }
 
-void PrintDx12SwapchainInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
+void PrintDxgiSwapchainInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
 {
-    GFXRECON_WRITE_CONSOLE("D3D12 swapchain info:");
+    GFXRECON_WRITE_CONSOLE("DXGI swapchain info:");
 
     if (dx12_consumer.FoundSwapchainInfo())
     {
@@ -676,7 +767,40 @@ void PrintDxrEiInfo(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer)
         {
             GFXRECON_WRITE_CONSOLE("D3D12 DXR/EI optimized: no");
         }
+
+        GFXRECON_WRITE_CONSOLE("");
     }
+}
+
+void PrintD3D11Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
+                     const ApiAgnosticStats&              api_agnostic_stats,
+                     gfxrecon::decode::InfoConsumer&      info_consumer)
+{
+    if (api_agnostic_stats.trim_start_frame == 0)
+    {
+        // Not a trimmed file.
+        GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", api_agnostic_stats.frame_count);
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("\tBlank frames: %u", dx12_consumer.GetDummyFrameCount());
+        GFXRECON_WRITE_CONSOLE("\tCaptured frames: %u", api_agnostic_stats.frame_count);
+        GFXRECON_WRITE_CONSOLE("\tTotal frames: %u",
+                               dx12_consumer.GetDummyFrameCount() + api_agnostic_stats.frame_count);
+
+        GFXRECON_WRITE_CONSOLE("\tApplication frame range: %u-%u",
+                               api_agnostic_stats.trim_start_frame,
+                               api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
+    }
+
+    if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
+    {
+        GFXRECON_WRITE_CONSOLE("\tTest present count: %u", dx12_consumer.GetDXGITestPresentCount());
+    }
+
+    PrintDriverInfo(info_consumer);
+
+    PrintDxAdapterInfo(dx12_consumer, kD3D11Name);
 }
 
 void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
@@ -684,79 +808,49 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
                      gfxrecon::decode::InfoConsumer&      info_consumer,
                      const AnnotationRecorder&            annotation_recoder)
 {
-    if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
+    if (api_agnostic_stats.trim_start_frame == 0)
     {
-        GFXRECON_WRITE_CONSOLE("");
-        GFXRECON_WRITE_CONSOLE("File info:");
-
-        // Compression type.
-        std::string compression_type_name =
-            gfxrecon::format::GetCompressionTypeName(api_agnostic_stats.compression_type);
-        if (!compression_type_name.empty())
-        {
-            GFXRECON_WRITE_CONSOLE("\tCompression format: %s", compression_type_name.c_str());
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("\tCompression format: %s", kUnrecognizedFormatString);
-        }
-
-        if (api_agnostic_stats.trim_start_frame == 0)
-        {
-            // Not a trimmed file.
-            GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", api_agnostic_stats.frame_count);
-        }
-        else
-        {
-            GFXRECON_WRITE_CONSOLE("\tBlank frames: %u", dx12_consumer.GetDummyFrameCount());
-            GFXRECON_WRITE_CONSOLE("\tCaptured frames: %u", api_agnostic_stats.frame_count);
-            GFXRECON_WRITE_CONSOLE("\tTotal frames: %u",
-                                   dx12_consumer.GetDummyFrameCount() + api_agnostic_stats.frame_count);
-
-            GFXRECON_WRITE_CONSOLE("\tApplication frame range: %u-%u",
-                                   api_agnostic_stats.trim_start_frame,
-                                   api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
-        }
-
-        if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
-        {
-            GFXRECON_WRITE_CONSOLE("\tTest present count: %u", dx12_consumer.GetDXGITestPresentCount());
-        }
-
-        PrintDriverInfo(info_consumer);
-
-        PrintDx12RuntimeInfo(dx12_consumer);
-
-        PrintDx12AdapterInfo(dx12_consumer);
-
-        PrintDx12SwapchainInfo(dx12_consumer);
-
-        PrintDxrEiInfo(dx12_consumer);
-    }
-    else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
-    {
-        GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
-        gfxrecon::util::Log::Release();
-        exit(-1);
+        // Not a trimmed file.
+        GFXRECON_WRITE_CONSOLE("\tTotal frames: %u", api_agnostic_stats.frame_count);
     }
     else
     {
-        GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+        GFXRECON_WRITE_CONSOLE("\tBlank frames: %u", dx12_consumer.GetDummyFrameCount());
+        GFXRECON_WRITE_CONSOLE("\tCaptured frames: %u", api_agnostic_stats.frame_count);
+        GFXRECON_WRITE_CONSOLE("\tTotal frames: %u",
+                               dx12_consumer.GetDummyFrameCount() + api_agnostic_stats.frame_count);
+
+        GFXRECON_WRITE_CONSOLE("\tApplication frame range: %u-%u",
+                               api_agnostic_stats.trim_start_frame,
+                               api_agnostic_stats.trim_start_frame + api_agnostic_stats.frame_count - 1);
     }
+
+    if (dx12_consumer.GetDXGITestPresentCount() > 0 && api_agnostic_stats.uses_frame_markers == false)
+    {
+        GFXRECON_WRITE_CONSOLE("\tTest present count: %u", dx12_consumer.GetDXGITestPresentCount());
+    }
+
+    PrintDriverInfo(info_consumer);
+
+    PrintDx12RuntimeInfo(dx12_consumer);
+
+    PrintDxAdapterInfo(dx12_consumer, kD3D12Name);
+
+    PrintDxrEiInfo(dx12_consumer);
 }
 
 static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kEnumGpuIndices))
     {
-        IDXGIFactory1* factory1 = nullptr;
+        gfxrecon::graphics::dx12::IDXGIFactory1ComPtr factory1;
 
-        HRESULT result = CreateDXGIFactory1(IID_IDXGIFactory1, reinterpret_cast<void**>(&factory1));
+        HRESULT result = CreateDXGIFactory1(IID_PPV_ARGS(&factory1));
 
         if (SUCCEEDED(result))
         {
             gfxrecon::graphics::dx12::ActiveAdapterMap adapters{};
-            gfxrecon::graphics::dx12::TrackAdapters(result, reinterpret_cast<void**>(&factory1), adapters);
+            gfxrecon::graphics::dx12::TrackAdapters(factory1, adapters);
 
             GFXRECON_WRITE_CONSOLE("GPU index\tGPU name\tSubSys ID");
             for (size_t index = 0; index < adapters.size(); ++index)
@@ -777,7 +871,6 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
                     }
                 }
             }
-            factory1->Release();
         }
         else
         {
@@ -872,53 +965,78 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
             ApiAgnosticStats api_agnostic_stats = {};
             GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
 
-            std::vector<AnnotationInfo> target_annotations = {
-                { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
-                { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp }
-            };
+            if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
+            {
+                std::vector<AnnotationInfo> target_annotations = {
+                    { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
+                    { "Capture timestamp", gfxrecon::format::kOperationAnnotationTimestamp }
+                };
 
-            // If no APIs were detected, print stats for all APIs.
-            bool print_all_apis = !vulkan_detection_consumer.WasVulkanAPIDetected();
+                // If no APIs were detected, print stats for all APIs.
+                bool print_all_apis = !vulkan_detection_consumer.WasVulkanAPIDetected();
 #if defined(D3D12_SUPPORT)
-            print_all_apis = print_all_apis && !dx12_detection_consumer.WasD3D12APIDetected();
+                print_all_apis = print_all_apis && !dx12_detection_consumer.WasD3D12APIDetected();
 #endif
 
-            if (print_all_apis)
-            {
-                GFXRECON_WRITE_CONSOLE("Unable to detect capture file API(s). Writing all stats.");
-                GFXRECON_WRITE_CONSOLE("");
-            }
+                if (print_all_apis)
+                {
+                    GFXRECON_WRITE_CONSOLE("Unable to detect capture file API(s). Writing all stats.");
+                    GFXRECON_WRITE_CONSOLE("");
+                }
 
-            PrintExeInfo(info_consumer);
+                PrintExeInfo(info_consumer);
+                PrintApiAgnosticStats(api_agnostic_stats);
 
-            if (vulkan_detection_consumer.WasVulkanAPIDetected() || print_all_apis)
-            {
-                PrintVulkanStats(file_processor, vulkan_stats_consumer, api_agnostic_stats, annotation_recorder);
+                if (vulkan_detection_consumer.WasVulkanAPIDetected() || print_all_apis)
+                {
+                    PrintVulkanStats(file_processor, vulkan_stats_consumer, api_agnostic_stats, annotation_recorder);
 
-                // Add annotations relevant to Vulkan
-                target_annotations.push_back({ "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion });
-                target_annotations.push_back(
-                    { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions });
-                target_annotations.push_back(
-                    { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters });
-            }
+                    // Add annotations relevant to Vulkan
+                    target_annotations.push_back(
+                        { "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion });
+                    target_annotations.push_back(
+                        { "Default replay options", gfxrecon::format::kAnnotationLabelReplayOptions });
+                    target_annotations.push_back(
+                        { "Non-default capture options", gfxrecon::format::kOperationAnnotationCaptureParameters });
+                }
 
 #if defined(D3D12_SUPPORT)
-            if (dx12_detection_consumer.WasD3D12APIDetected() || print_all_apis)
-            {
-                PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
-            }
+                if (dx12_detection_consumer.WasD3D11APIDetected())
+                {
+                    PrintD3D11Stats(dx12_consumer, api_agnostic_stats, info_consumer);
+                }
+
+                if (dx12_detection_consumer.WasD3D12APIDetected() || print_all_apis)
+                {
+                    PrintD3D12Stats(dx12_consumer, api_agnostic_stats, info_consumer, annotation_recorder);
+                }
+
+                if (dx12_detection_consumer.WasD3D11APIDetected() || dx12_detection_consumer.WasD3D12APIDetected())
+                {
+                    PrintDxgiSwapchainInfo(dx12_consumer);
+                }
 #endif
 #ifdef ENABLE_OPENXR_SUPPORT
-            if (openxr_detection_consumer.WasOpenXrAPIDetected() || print_all_apis)
-            {
-                PrintOpenXrStats(file_processor, openxr_stats_consumer, api_agnostic_stats, annotation_recorder);
-            }
+                if (openxr_detection_consumer.WasOpenXrAPIDetected() || print_all_apis)
+                {
+                    PrintOpenXrStats(file_processor, openxr_stats_consumer, api_agnostic_stats, annotation_recorder);
+                }
 #endif
 
-            PrintAnnotations(annotation_recorder.GetAnnotationCount(),
-                             annotation_recorder.GetOperationAnnotationDatas(),
-                             target_annotations);
+                PrintAnnotations(annotation_recorder.GetAnnotationCount(),
+                                 annotation_recorder.GetOperationAnnotationDatas(),
+                                 target_annotations);
+            }
+            else if (api_agnostic_stats.error_state != gfxrecon::decode::FileProcessor::kErrorNone)
+            {
+                GFXRECON_WRITE_CONSOLE("A failure has occurred during file processing");
+                gfxrecon::util::Log::Release();
+                exit(-1);
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("File did not contain any frames");
+            }
         }
         else
         {

@@ -830,35 +830,17 @@ void TrackAdapterDesc(IDXGIAdapter*                     adapter,
     }
 }
 
-void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapterMap& adapters)
+void TrackAdapters(IDXGIFactory* factory, graphics::dx12::ActiveAdapterMap& adapters)
 {
-    if (SUCCEEDED(result))
+    if (factory != nullptr)
     {
         // First see if the created factory can be queried as a 1.1 factory
-        IDXGIFactory1* factory1 = reinterpret_cast<IDXGIFactory1*>(*ppFactory);
+        IDXGIFactory1ComPtr factory1;
 
         // DXGI 1.1 tracking (default)
-        if (SUCCEEDED(factory1->QueryInterface(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(&factory1))))
+        if (SUCCEEDED(factory->QueryInterface(IID_PPV_ARGS(&factory1))))
         {
-            // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
-            RemoveDeactivatedAdapters(adapters);
-
-            // Enumerate 1.1 adapters and fetch data with GetDesc1()
-            IDXGIAdapter1* adapter1 = nullptr;
-
-            for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1)); ++adapter_idx)
-            {
-                DXGI_ADAPTER_DESC1 dxgi_desc = {};
-                adapter1->GetDesc1(&dxgi_desc);
-
-                format::AdapterType adapter_type = format::AdapterType::kHardwareAdapter;
-                if (dxgi_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-                {
-                    adapter_type = format::AdapterType::kSoftwareAdapter;
-                }
-
-                TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, adapters, adapter_type);
-            }
+            TrackAdapters(factory1, adapters);
         }
 
         // DXGI 1.0 tracking (fall-back)
@@ -867,27 +849,43 @@ void TrackAdapters(HRESULT result, void** ppFactory, graphics::dx12::ActiveAdapt
             // Only enumerate 1.0 factory adapters if nothing has been seen yet
             if (adapters.empty())
             {
-                IDXGIFactory* factory = reinterpret_cast<IDXGIFactory*>(*ppFactory);
+                // Enumerate 1.0 adapters and fetch data with GetDesc()
+                IDXGIAdapter* adapter = nullptr;
 
-                if (SUCCEEDED(factory->QueryInterface(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&factory))))
+                for (UINT adapter_idx = 0; SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter)); ++adapter_idx)
                 {
-                    // Enumerate 1.0 adapters and fetch data with GetDesc()
-                    IDXGIAdapter* adapter = nullptr;
+                    DXGI_ADAPTER_DESC dxgi_desc = {};
+                    adapter->GetDesc(&dxgi_desc);
 
-                    for (UINT adapter_idx = 0; SUCCEEDED(factory->EnumAdapters(adapter_idx, &adapter)); ++adapter_idx)
-                    {
-                        DXGI_ADAPTER_DESC dxgi_desc = {};
-                        adapter->GetDesc(&dxgi_desc);
-
-                        TrackAdapterDesc(
-                            adapter, adapter_idx, dxgi_desc, adapters, format::AdapterType::kUnknownAdapter);
-                    }
-                }
-                else
-                {
-                    GFXRECON_LOG_ERROR("Could not enumerate and track factory's adapters.")
+                    TrackAdapterDesc(adapter, adapter_idx, dxgi_desc, adapters, format::AdapterType::kUnknownAdapter);
                 }
             }
+        }
+    }
+}
+
+void TrackAdapters(IDXGIFactory1* factory1, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    if (factory1 != nullptr)
+    {
+        // Get a fresh enumeration, in case it was previously filled by 1.0 tracking
+        RemoveDeactivatedAdapters(adapters);
+
+        // Enumerate 1.1 adapters and fetch data with GetDesc1()
+        IDXGIAdapter1* adapter1 = nullptr;
+
+        for (UINT adapter_idx = 0; SUCCEEDED(factory1->EnumAdapters1(adapter_idx, &adapter1)); ++adapter_idx)
+        {
+            DXGI_ADAPTER_DESC1 dxgi_desc = {};
+            adapter1->GetDesc1(&dxgi_desc);
+
+            format::AdapterType adapter_type = format::AdapterType::kHardwareAdapter;
+            if (dxgi_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
+            {
+                adapter_type = format::AdapterType::kSoftwareAdapter;
+            }
+
+            TrackAdapterDesc(adapter1, adapter_idx, dxgi_desc, adapters, adapter_type);
         }
     }
 }
@@ -909,32 +907,87 @@ void RemoveDeactivatedAdapters(graphics::dx12::ActiveAdapterMap& adapters)
     }
 }
 
+IDXGIAdapterComPtr GetAdapter(ID3D11Device* device)
+{
+    // Get the device's parent adapter.
+    IDXGIAdapterComPtr adapter;
+
+    if (device)
+    {
+        IDXGIDeviceComPtr device_parent;
+        auto              result = device->QueryInterface(IID_PPV_ARGS(&device_parent));
+
+        if (SUCCEEDED(result) && (device_parent != nullptr))
+        {
+            device_parent->GetAdapter(&adapter);
+        }
+    }
+
+    return adapter;
+}
+
+LUID GetAdapterLuid(ID3D11Device* device)
+{
+    // Get the device's parent adapter identifier.
+    LUID               luid{};
+    IDXGIAdapterComPtr adapter = GetAdapter(device);
+
+    if (adapter != nullptr)
+    {
+        DXGI_ADAPTER_DESC desc{};
+        adapter->GetDesc(&desc);
+
+        luid = desc.AdapterLuid;
+    }
+
+    return luid;
+}
+
+format::DxgiAdapterDesc* MarkActiveAdapter(ID3D11Device* device, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    format::DxgiAdapterDesc* active_adapter_desc = nullptr;
+
+    if (device != nullptr)
+    {
+        active_adapter_desc = MarkActiveAdapter(GetAdapterLuid(device), adapters);
+    }
+
+    return active_adapter_desc;
+}
+
 format::DxgiAdapterDesc* MarkActiveAdapter(ID3D12Device* device, graphics::dx12::ActiveAdapterMap& adapters)
 {
     format::DxgiAdapterDesc* active_adapter_desc = nullptr;
 
     if (device != nullptr)
     {
-        // Get the device's parent adapter identifier
-        LUID parent_adapter_luid = device->GetAdapterLuid();
+        // Get the device's parent adapter identifier.
+        active_adapter_desc = MarkActiveAdapter(device->GetAdapterLuid(), adapters);
+    }
 
-        const int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+    return active_adapter_desc;
+}
 
-        // Mark an adapter as active
-        for (auto& adapter : adapters)
+format::DxgiAdapterDesc* MarkActiveAdapter(LUID parent_adapter_luid, graphics::dx12::ActiveAdapterMap& adapters)
+{
+    format::DxgiAdapterDesc* active_adapter_desc = nullptr;
+
+    const int64_t packed_luid = (parent_adapter_luid.HighPart << 31) | parent_adapter_luid.LowPart;
+
+    // Mark an adapter as active
+    for (auto& adapter : adapters)
+    {
+        if (adapter.first == packed_luid)
         {
-            if (adapter.first == packed_luid)
+            // Only return adapter desc pointer if it hasn't already been seen
+            if (adapter.second.active == false)
             {
-                // Only return adapter desc pointer if it hasn't already been seen
-                if (adapter.second.active == false)
-                {
-                    active_adapter_desc = &adapter.second.internal_desc;
-                }
-
-                adapter.second.active = true;
-
-                break;
+                active_adapter_desc = &adapter.second.internal_desc;
             }
+
+            adapter.second.active = true;
+
+            break;
         }
     }
 

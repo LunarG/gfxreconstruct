@@ -846,6 +846,16 @@ struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D12GraphicsCommandLis
 };
 
 template <>
+struct CustomWrapperPostCall<format::ApiCallId::ApiCall_D3D11CreateDevice>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_D3D11CreateDevice(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_D3D11CreateDeviceAndSwapChain>
 {
     template <typename... Args>
