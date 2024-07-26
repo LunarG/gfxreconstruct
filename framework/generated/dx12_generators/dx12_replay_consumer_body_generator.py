@@ -349,8 +349,14 @@ class Dx12ReplayConsumerBodyGenerator(
             else:
                 if is_output:
                     length = '1'
-                    if value.array_length:
-                        if isinstance(value.array_length, str) and value.array_length[0] == '*':
+                    # The _result_bytebuffer_ annotation indicates that the parameter is a pointer to a
+                    # pointer to a buffer allocated by the runtime/driver. For this case, only the single
+                    # pointer to the output buffer needs to be allocated.
+                    if value.array_length and (
+                        not '_result_bytebuffer_' in value.full_type
+                    ):
+                        if isinstance(value.array_length,
+                                      str) and value.array_length[0] == '*':
                             length = value.array_length + '->GetPointer()'
                         else:
                             length = value.array_length
