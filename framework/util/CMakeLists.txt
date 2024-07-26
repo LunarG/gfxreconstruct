@@ -227,6 +227,7 @@ if (${RUN_TESTS})
     target_link_libraries(gfxrecon_util_test
                         PRIVATE
                             gfxrecon_util
+                            $<$<BOOL:${D3D12_SUPPORT}>:d3d11.lib>
                             $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                             $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>)
     if (MSVC)

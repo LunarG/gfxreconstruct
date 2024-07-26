@@ -64,6 +64,7 @@ target_link_libraries(gfxrecon-optimize
                           gfxrecon_format
                           gfxrecon_util
                           platform_specific
+                          $<$<BOOL:${D3D12_SUPPORT}>:d3d11.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:d3d12.lib>
                           $<$<BOOL:${D3D12_SUPPORT}>:dxgi.lib>
                           $<$<BOOL:${DXC_FOUND}>:${DXC_LIBRARY_PATH}>)
