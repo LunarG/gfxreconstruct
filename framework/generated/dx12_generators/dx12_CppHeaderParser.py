@@ -38,8 +38,7 @@ SAL_TOKENS = [
     '_Out_writes_all_opt_', '_Out_writes_bytes_', '_Out_writes_bytes_opt_',
     '_Out_writes_bytes_to_', '_Out_writes_opt_', '_Out_writes_to_opt_',
     '_Outptr_', '_Outptr_result_maybenull_', '_Outptr_result_bytebuffer_','_Outptr_opt_',
-    '_Outptr_opt_result_maybenull_', '_Outptr_opt_result_bytebuffer_',
-    '__MIDL___MIDL_itf_d3d11_0000_0034_0001'
+    '_Outptr_opt_result_maybenull_', '_Outptr_opt_result_bytebuffer_'
 ]
 
 original_warning_print = CppHeaderParser.warning_print
@@ -141,6 +140,10 @@ class Dx12CppHeader(CppHeader):
                 continue
 
             if interface_scope == 0:
+                # Remove annotations from anon struct declarations to prevent them from being interpreted as the struct name.
+                line = line.replace(
+                    '__MIDL___MIDL_itf_d3d11', '//__MIDL___MIDL_itf_d3d11'
+                )
                 source += line
 
                 if line.startswith('typedef enum '):

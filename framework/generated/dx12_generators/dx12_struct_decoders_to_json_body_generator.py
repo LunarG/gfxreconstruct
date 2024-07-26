@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2023 Valve Corporation
 # Copyright (c) 2021-2023 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -139,7 +140,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
     def generate_feature(self):
         struct_dict = self.source_dict['struct_dict']
         for k, v in struct_dict.items():
-            if not self.is_struct_black_listed(k):
+            if not self.is_struct_black_listed(k) and (not '<anon-' in k):
                 body = format_cpp_code('''
                     void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
                     {{
@@ -181,7 +182,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     field_to_json = field_to_json.format(name, value_info.name)
                 else:
                     function_name = self.choose_field_to_json_name(value_info)
-                    if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
+                    if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type) or self.is_union(value_info.base_type)):
                         # Basic data plumbs to raw struct:
                         field_to_json = '        {0}(jdata["{1}"], decoded_value.{1}, options);'
                     else:

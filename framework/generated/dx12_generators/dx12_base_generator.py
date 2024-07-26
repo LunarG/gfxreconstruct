@@ -1326,10 +1326,13 @@ class Dx12BaseGenerator():
         if self.check_blacklist:
             return [
                 key for key in self.source_dict['struct_dict']
-                if not self.is_struct_black_listed(key)
+                if not self.is_struct_black_listed(key) and not '::<anon-' in key
             ]
         else:
-            return self.source_dict['struct_dict'].keys()
+            return [
+                key for key in self.source_dict['struct_dict']
+                if not '::<anon-' in key
+            ]
 
     def get_category_type(self, type):
         if self.is_struct(type):
@@ -1586,7 +1589,7 @@ class Dx12BaseGenerator():
             not self.check_blacklist
             or not struct_source_data['name'] in self.STRUCT_BLACKLIST
         ) and struct_type[-4:] != 'Vtbl' and struct_type.find(
-            "::<anon-union-"
+            "::<anon-"
         ) == -1:
             return True
         return False
@@ -1622,6 +1625,22 @@ class Dx12BaseGenerator():
                         structs_with_objects[class_name] = values
 
         return structs_with_objects
+
+    def check_all_struct_member_handles(
+        self,
+        structs_with_handles,
+        structs_with_handle_ptrs=None,
+        ignore_output=False,
+        structs_with_map_data=None,
+        extra_types=None
+    ):
+        struct_dict = self.source_dict['struct_dict']
+        for s in struct_dict:
+            if not '<anon-' in s:
+                self.check_struct_member_handles(
+                    s, structs_with_handles, structs_with_handle_ptrs,
+                    ignore_output, structs_with_map_data, extra_types
+                )
 
     def is_output(self, value):
         if (value.full_type.find('_Out') !=

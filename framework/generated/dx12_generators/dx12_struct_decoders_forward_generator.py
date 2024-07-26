@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -60,7 +61,8 @@ class Dx12StructDecodersForwardGenerator(
         code = ''
         struct_dict = self.source_dict['struct_dict']
         for name in struct_dict:
-            code += 'struct Decoded_{};\n'.format(name)
+            if not '<anon-' in name:
+                code += 'struct Decoded_{};\n'.format(name)
         code += 'struct Decoded_LARGE_INTEGER;\n'
         write(code, file=self.outFile)
 
