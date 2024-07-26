@@ -871,7 +871,9 @@ void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId api_family)
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
             // Currently capturing a queue submit range, check for end of range.
-            CheckContinueCaptureForWriteMode(api_family, queue_submit_count_);
+            // It checks the boundary count with +1. That is for trim frames.
+            // It will write one more QueueSubmit for trim QueueSubmits, so +1.
+            CheckContinueCaptureForWriteMode(api_family, queue_submit_count_ + 1);
         }
     }
 }
