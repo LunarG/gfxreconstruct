@@ -25546,6 +25546,568 @@ void Dx12ReplayConsumer::Process_ID3D11Device3_ReadFromSubresource(
     }
 }
 
+void Dx12ReplayConsumer::Process_ID3D11Device4_RegisterDeviceRemovedEvent(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    uint64_t                                    hEvent,
+    PointerDecoder<DWORD>*                      pdwCookie)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            hEvent,
+            pdwCookie);
+        auto in_hEvent = static_cast<HANDLE>(PreProcessExternalObject(hEvent, format::ApiCallId::ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent, "ID3D11Device4_RegisterDeviceRemovedEvent"));
+        if(!pdwCookie->IsNull())
+        {
+            pdwCookie->AllocateOutputData(1);
+        }
+        auto replay_result = reinterpret_cast<ID3D11Device4*>(replay_object->object)->RegisterDeviceRemovedEvent(in_hEvent,
+                                                                                                                 pdwCookie->GetOutputPointer());
+        CheckReplayResult("ID3D11Device4_RegisterDeviceRemovedEvent", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            hEvent,
+            pdwCookie);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11Device4_UnregisterDeviceRemoved(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    DWORD                                       dwCookie)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Device4_UnregisterDeviceRemoved>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            dwCookie);
+        reinterpret_cast<ID3D11Device4*>(replay_object->object)->UnregisterDeviceRemoved(dwCookie);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device4_UnregisterDeviceRemoved>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            dwCookie);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11Device5_OpenSharedFence(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    uint64_t                                    hFence,
+    Decoded_GUID                                ReturnedInterface,
+    HandlePointerDecoder<void*>*                ppFence)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Device5_OpenSharedFence>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            hFence,
+            ReturnedInterface,
+            ppFence);
+        auto in_hFence = static_cast<HANDLE>(PreProcessExternalObject(hFence, format::ApiCallId::ApiCall_ID3D11Device5_OpenSharedFence, "ID3D11Device5_OpenSharedFence"));
+        if(!ppFence->IsNull()) ppFence->SetHandleLength(1);
+        auto out_p_ppFence    = ppFence->GetPointer();
+        auto out_hp_ppFence   = ppFence->GetHandlePointer();
+        auto replay_result = reinterpret_cast<ID3D11Device5*>(replay_object->object)->OpenSharedFence(in_hFence,
+                                                                                                      *ReturnedInterface.decoded_value,
+                                                                                                      out_hp_ppFence);
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppFence, out_hp_ppFence, format::ApiCall_ID3D11Device5_OpenSharedFence);
+        }
+        CheckReplayResult("ID3D11Device5_OpenSharedFence", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device5_OpenSharedFence>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            hFence,
+            ReturnedInterface,
+            ppFence);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11Device5_CreateFence(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    UINT64                                      InitialValue,
+    D3D11_FENCE_FLAG                            Flags,
+    Decoded_GUID                                ReturnedInterface,
+    HandlePointerDecoder<void*>*                ppFence)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Device5_CreateFence>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            InitialValue,
+            Flags,
+            ReturnedInterface,
+            ppFence);
+        if(!ppFence->IsNull()) ppFence->SetHandleLength(1);
+        auto out_p_ppFence    = ppFence->GetPointer();
+        auto out_hp_ppFence   = ppFence->GetHandlePointer();
+        auto replay_result = reinterpret_cast<ID3D11Device5*>(replay_object->object)->CreateFence(InitialValue,
+                                                                                                  Flags,
+                                                                                                  *ReturnedInterface.decoded_value,
+                                                                                                  out_hp_ppFence);
+        if (SUCCEEDED(replay_result))
+        {
+            AddObject(out_p_ppFence, out_hp_ppFence, format::ApiCall_ID3D11Device5_CreateFence);
+        }
+        CheckReplayResult("ID3D11Device5_CreateFence", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Device5_CreateFence>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            InitialValue,
+            Flags,
+            ReturnedInterface,
+            ppFence);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11Multithread_Enter(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_Enter>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+        reinterpret_cast<ID3D11Multithread*>(replay_object->object)->Enter();
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_Enter>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11Multithread_Leave(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_Leave>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+        reinterpret_cast<ID3D11Multithread*>(replay_object->object)->Leave();
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_Leave>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11Multithread_SetMultithreadProtected(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    BOOL                                        return_value,
+    BOOL                                        bMTProtect)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_SetMultithreadProtected>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            bMTProtect);
+        auto replay_result = reinterpret_cast<ID3D11Multithread*>(replay_object->object)->SetMultithreadProtected(bMTProtect);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_SetMultithreadProtected>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            bMTProtect);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11Multithread_GetMultithreadProtected(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    BOOL                                        return_value)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_GetMultithreadProtected>::Dispatch(
+            this,
+            call_info,
+            replay_object);
+        auto replay_result = reinterpret_cast<ID3D11Multithread*>(replay_object->object)->GetMultithreadProtected();
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_GetMultithreadProtected>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    format::HandleId                            pVideoProcessor,
+    DXGI_HDR_METADATA_TYPE                      Type,
+    UINT                                        Size,
+    PointerDecoder<uint8_t>*                    pHDRMetaData)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            Type,
+            Size,
+            pHDRMetaData);
+        auto in_pVideoProcessor = MapObject<ID3D11VideoProcessor>(pVideoProcessor);
+        reinterpret_cast<ID3D11VideoContext2*>(replay_object->object)->VideoProcessorSetOutputHDRMetaData(in_pVideoProcessor,
+                                                                                                          Type,
+                                                                                                          Size,
+                                                                                                          pHDRMetaData->GetPointer());
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            Type,
+            Size,
+            pHDRMetaData);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    format::HandleId                            pVideoProcessor,
+    PointerDecoder<DXGI_HDR_METADATA_TYPE>*     pType,
+    UINT                                        Size,
+    PointerDecoder<uint8_t>*                    pMetaData)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            pType,
+            Size,
+            pMetaData);
+        auto in_pVideoProcessor = MapObject<ID3D11VideoProcessor>(pVideoProcessor);
+        if(!pType->IsNull())
+        {
+            pType->AllocateOutputData(1);
+        }
+        if(!pMetaData->IsNull())
+        {
+            pMetaData->AllocateOutputData(Size);
+        }
+        reinterpret_cast<ID3D11VideoContext2*>(replay_object->object)->VideoProcessorGetOutputHDRMetaData(in_pVideoProcessor,
+                                                                                                          pType->GetOutputPointer(),
+                                                                                                          Size,
+                                                                                                          pMetaData->GetOutputPointer());
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            pType,
+            Size,
+            pMetaData);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    format::HandleId                            pVideoProcessor,
+    UINT                                        StreamIndex,
+    DXGI_HDR_METADATA_TYPE                      Type,
+    UINT                                        Size,
+    PointerDecoder<uint8_t>*                    pHDRMetaData)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            StreamIndex,
+            Type,
+            Size,
+            pHDRMetaData);
+        auto in_pVideoProcessor = MapObject<ID3D11VideoProcessor>(pVideoProcessor);
+        reinterpret_cast<ID3D11VideoContext2*>(replay_object->object)->VideoProcessorSetStreamHDRMetaData(in_pVideoProcessor,
+                                                                                                          StreamIndex,
+                                                                                                          Type,
+                                                                                                          Size,
+                                                                                                          pHDRMetaData->GetPointer());
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            StreamIndex,
+            Type,
+            Size,
+            pHDRMetaData);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    format::HandleId                            pVideoProcessor,
+    UINT                                        StreamIndex,
+    PointerDecoder<DXGI_HDR_METADATA_TYPE>*     pType,
+    UINT                                        Size,
+    PointerDecoder<uint8_t>*                    pMetaData)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            StreamIndex,
+            pType,
+            Size,
+            pMetaData);
+        auto in_pVideoProcessor = MapObject<ID3D11VideoProcessor>(pVideoProcessor);
+        if(!pType->IsNull())
+        {
+            pType->AllocateOutputData(1);
+        }
+        if(!pMetaData->IsNull())
+        {
+            pMetaData->AllocateOutputData(Size);
+        }
+        reinterpret_cast<ID3D11VideoContext2*>(replay_object->object)->VideoProcessorGetStreamHDRMetaData(in_pVideoProcessor,
+                                                                                                          StreamIndex,
+                                                                                                          pType->GetOutputPointer(),
+                                                                                                          Size,
+                                                                                                          pMetaData->GetOutputPointer());
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pVideoProcessor,
+            StreamIndex,
+            pType,
+            Size,
+            pMetaData);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoDevice2_CheckFeatureSupport(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    D3D11_FEATURE_VIDEO                         Feature,
+    PointerDecoder<uint8_t>*                    pFeatureSupportData,
+    UINT                                        FeatureSupportDataSize)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_CheckFeatureSupport>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+        if(!pFeatureSupportData->IsNull())
+        {
+            pFeatureSupportData->AllocateOutputData(FeatureSupportDataSize);
+        }
+        auto replay_result = reinterpret_cast<ID3D11VideoDevice2*>(replay_object->object)->CheckFeatureSupport(Feature,
+                                                                                                               pFeatureSupportData->GetOutputPointer(),
+                                                                                                               FeatureSupportDataSize);
+        CheckReplayResult("ID3D11VideoDevice2_CheckFeatureSupport", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_CheckFeatureSupport>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pCryptoSession,
+    D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS     flags,
+    UINT                                        DataSize,
+    PointerDecoder<uint8_t>*                    pData)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pCryptoSession,
+            flags,
+            DataSize,
+            pData);
+        auto in_pCryptoSession = MapObject<ID3D11CryptoSession>(pCryptoSession);
+        if(!pData->IsNull())
+        {
+            pData->AllocateOutputData(DataSize);
+        }
+        auto replay_result = reinterpret_cast<ID3D11VideoDevice2*>(replay_object->object)->NegotiateCryptoSessionKeyExchangeMT(in_pCryptoSession,
+                                                                                                                               flags,
+                                                                                                                               DataSize,
+                                                                                                                               pData->GetOutputPointer());
+        CheckReplayResult("ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pCryptoSession,
+            flags,
+            DataSize,
+            pData);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoContext3_DecoderBeginFrame1(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pDecoder,
+    format::HandleId                            pView,
+    UINT                                        ContentKeySize,
+    PointerDecoder<uint8_t>*                    pContentKey,
+    UINT                                        NumComponentHistograms,
+    PointerDecoder<UINT>*                       pHistogramOffsets,
+    HandlePointerDecoder<ID3D11Buffer*>*        ppHistogramBuffers)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_DecoderBeginFrame1>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pDecoder,
+            pView,
+            ContentKeySize,
+            pContentKey,
+            NumComponentHistograms,
+            pHistogramOffsets,
+            ppHistogramBuffers);
+        auto in_pDecoder = MapObject<ID3D11VideoDecoder>(pDecoder);
+        auto in_pView = MapObject<ID3D11VideoDecoderOutputView>(pView);
+        auto in_ppHistogramBuffers = MapObjects<ID3D11Buffer>(ppHistogramBuffers, NumComponentHistograms);
+        auto replay_result = reinterpret_cast<ID3D11VideoContext3*>(replay_object->object)->DecoderBeginFrame1(in_pDecoder,
+                                                                                                               in_pView,
+                                                                                                               ContentKeySize,
+                                                                                                               pContentKey->GetPointer(),
+                                                                                                               NumComponentHistograms,
+                                                                                                               pHistogramOffsets->GetPointer(),
+                                                                                                               in_ppHistogramBuffers);
+        CheckReplayResult("ID3D11VideoContext3_DecoderBeginFrame1", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_DecoderBeginFrame1>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pDecoder,
+            pView,
+            ContentKeySize,
+            pContentKey,
+            NumComponentHistograms,
+            pHistogramOffsets,
+            ppHistogramBuffers);
+    }
+}
+
+void Dx12ReplayConsumer::Process_ID3D11VideoContext3_SubmitDecoderBuffers2(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            object_id,
+    HRESULT                                     return_value,
+    format::HandleId                            pDecoder,
+    UINT                                        NumBuffers,
+    StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2>* pBufferDesc)
+{
+    auto replay_object = GetObjectInfo(object_id);
+    if ((replay_object != nullptr) && (replay_object->object != nullptr))
+    {
+        CustomReplayPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            pDecoder,
+            NumBuffers,
+            pBufferDesc);
+        auto in_pDecoder = MapObject<ID3D11VideoDecoder>(pDecoder);
+        auto replay_result = reinterpret_cast<ID3D11VideoContext3*>(replay_object->object)->SubmitDecoderBuffers2(in_pDecoder,
+                                                                                                                  NumBuffers,
+                                                                                                                  pBufferDesc->GetPointer());
+        CheckReplayResult("ID3D11VideoContext3_SubmitDecoderBuffers2", return_value, replay_result);
+        CustomReplayPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2>::Dispatch(
+            this,
+            call_info,
+            replay_object,
+            return_value,
+            replay_result,
+            pDecoder,
+            NumBuffers,
+            pBufferDesc);
+    }
+}
+
 void Dx12ReplayConsumer::Process_IDXGIObject_SetPrivateData(
     const ApiCallInfo&                          call_info,
     format::HandleId                            object_id,

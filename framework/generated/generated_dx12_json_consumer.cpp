@@ -14395,6 +14395,335 @@ void Dx12JsonConsumer::Process_ID3D11Device3_ReadFromSubresource(
 }
 
 /*
+** This part is generated from d3d11_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_ID3D11Device4_RegisterDeviceRemovedEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device4", object_id, "RegisterDeviceRemovedEvent");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hEvent"], hEvent, options);
+        FieldToJson(args["pdwCookie"], pdwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Device4_UnregisterDeviceRemoved(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device4", object_id, "UnregisterDeviceRemoved");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["dwCookie"], dwCookie, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Device5_OpenSharedFence(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hFence,
+        Decoded_GUID ReturnedInterface,
+        HandlePointerDecoder<void*>* ppFence)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device5", object_id, "OpenSharedFence");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["hFence"], hFence, options);
+        FieldToJson(args["ReturnedInterface"], ReturnedInterface, options);
+        FieldToJson(args["ppFence"], ppFence, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Device5_CreateFence(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT64 InitialValue,
+        D3D11_FENCE_FLAG Flags,
+        Decoded_GUID ReturnedInterface,
+        HandlePointerDecoder<void*>* ppFence)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Device5", object_id, "CreateFence");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["InitialValue"], InitialValue, options);
+        FieldToJson(args["Flags"], Flags, options);
+        FieldToJson(args["ReturnedInterface"], ReturnedInterface, options);
+        FieldToJson(args["ppFence"], ppFence, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Multithread_Enter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Multithread", object_id, "Enter");
+    const JsonOptions& options = writer_->GetOptions();
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Multithread_Leave(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Multithread", object_id, "Leave");
+    const JsonOptions& options = writer_->GetOptions();
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Multithread_SetMultithreadProtected(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value,
+        BOOL bMTProtect)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Multithread", object_id, "SetMultithreadProtected");
+    const JsonOptions& options = writer_->GetOptions();
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        Bool32ToJson(args["bMTProtect"], bMTProtect, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11Multithread_GetMultithreadProtected(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11Multithread", object_id, "GetMultithreadProtected");
+    const JsonOptions& options = writer_->GetOptions();
+    Bool32ToJson(method[format::kNameReturn], return_value, options);
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        PointerDecoder<uint8_t>* pHDRMetaData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoContext2", object_id, "VideoProcessorSetOutputHDRMetaData");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pVideoProcessor"], pVideoProcessor, options);
+        FieldToJson(args["Type"], Type, options);
+        FieldToJson(args["Size"], Size, options);
+        FieldToJson(args["pHDRMetaData"], pHDRMetaData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<DXGI_HDR_METADATA_TYPE>* pType,
+        UINT Size,
+        PointerDecoder<uint8_t>* pMetaData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoContext2", object_id, "VideoProcessorGetOutputHDRMetaData");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pVideoProcessor"], pVideoProcessor, options);
+        FieldToJson(args["pType"], pType, options);
+        FieldToJson(args["Size"], Size, options);
+        FieldToJson(args["pMetaData"], pMetaData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        PointerDecoder<uint8_t>* pHDRMetaData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoContext2", object_id, "VideoProcessorSetStreamHDRMetaData");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pVideoProcessor"], pVideoProcessor, options);
+        FieldToJson(args["StreamIndex"], StreamIndex, options);
+        FieldToJson(args["Type"], Type, options);
+        FieldToJson(args["Size"], Size, options);
+        FieldToJson(args["pHDRMetaData"], pHDRMetaData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<DXGI_HDR_METADATA_TYPE>* pType,
+        UINT Size,
+        PointerDecoder<uint8_t>* pMetaData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoContext2", object_id, "VideoProcessorGetStreamHDRMetaData");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pVideoProcessor"], pVideoProcessor, options);
+        FieldToJson(args["StreamIndex"], StreamIndex, options);
+        FieldToJson(args["pType"], pType, options);
+        FieldToJson(args["Size"], Size, options);
+        FieldToJson(args["pMetaData"], pMetaData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoDevice2_CheckFeatureSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D11_FEATURE_VIDEO Feature,
+        PointerDecoder<uint8_t>* pFeatureSupportData,
+        UINT FeatureSupportDataSize)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoDevice2", object_id, "CheckFeatureSupport");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["Feature"], Feature, options);
+        FieldToJson(args["pFeatureSupportData"], pFeatureSupportData, options);
+        FieldToJson(args["FeatureSupportDataSize"], FeatureSupportDataSize, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pCryptoSession,
+        D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS flags,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoDevice2", object_id, "NegotiateCryptoSessionKeyExchangeMT");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pCryptoSession"], pCryptoSession, options);
+        FieldToJson_D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS(args["flags"], flags, options);
+        FieldToJson(args["DataSize"], DataSize, options);
+        FieldToJson(args["pData"], pData, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoContext3_DecoderBeginFrame1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        format::HandleId pView,
+        UINT ContentKeySize,
+        PointerDecoder<uint8_t>* pContentKey,
+        UINT NumComponentHistograms,
+        PointerDecoder<UINT>* pHistogramOffsets,
+        HandlePointerDecoder<ID3D11Buffer*>* ppHistogramBuffers)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoContext3", object_id, "DecoderBeginFrame1");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDecoder"], pDecoder, options);
+        FieldToJson(args["pView"], pView, options);
+        FieldToJson(args["ContentKeySize"], ContentKeySize, options);
+        FieldToJson(args["pContentKey"], pContentKey, options);
+        FieldToJson(args["NumComponentHistograms"], NumComponentHistograms, options);
+        FieldToJson(args["pHistogramOffsets"], pHistogramOffsets, options);
+        FieldToJson(args["ppHistogramBuffers"], ppHistogramBuffers, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11VideoContext3_SubmitDecoderBuffers2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        UINT NumBuffers,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2>* pBufferDesc)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11VideoContext3", object_id, "SubmitDecoderBuffers2");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pDecoder"], pDecoder, options);
+        FieldToJson(args["NumBuffers"], NumBuffers, options);
+        FieldToJson(args["pBufferDesc"], pBufferDesc, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

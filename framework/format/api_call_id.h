@@ -1702,6 +1702,24 @@ enum ApiCallId : uint32_t
     ApiCall_ID3D11Device3_WriteToSubresource                                                      = MakeApiCallId(ApiFamily_D3D11, 0x116e),
     ApiCall_ID3D11Device3_ReadFromSubresource                                                     = MakeApiCallId(ApiFamily_D3D11, 0x116f),
 
+    // D3D 11.4
+    ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent                                              = MakeApiCallId(ApiFamily_D3D11, 0x1170),
+    ApiCall_ID3D11Device4_UnregisterDeviceRemoved                                                 = MakeApiCallId(ApiFamily_D3D11, 0x1171),
+    ApiCall_ID3D11Device5_OpenSharedFence                                                         = MakeApiCallId(ApiFamily_D3D11, 0x1172),
+    ApiCall_ID3D11Device5_CreateFence                                                             = MakeApiCallId(ApiFamily_D3D11, 0x1173),
+    ApiCall_ID3D11Multithread_Enter                                                               = MakeApiCallId(ApiFamily_D3D11, 0x1174),
+    ApiCall_ID3D11Multithread_Leave                                                               = MakeApiCallId(ApiFamily_D3D11, 0x1175),
+    ApiCall_ID3D11Multithread_SetMultithreadProtected                                             = MakeApiCallId(ApiFamily_D3D11, 0x1176),
+    ApiCall_ID3D11Multithread_GetMultithreadProtected                                             = MakeApiCallId(ApiFamily_D3D11, 0x1177),
+    ApiCall_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData                                = MakeApiCallId(ApiFamily_D3D11, 0x1178),
+    ApiCall_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData                                = MakeApiCallId(ApiFamily_D3D11, 0x1179),
+    ApiCall_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData                                = MakeApiCallId(ApiFamily_D3D11, 0x117a),
+    ApiCall_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData                                = MakeApiCallId(ApiFamily_D3D11, 0x117b),
+    ApiCall_ID3D11VideoDevice2_CheckFeatureSupport                                                = MakeApiCallId(ApiFamily_D3D11, 0x117c),
+    ApiCall_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT                                = MakeApiCallId(ApiFamily_D3D11, 0x117d),
+    ApiCall_ID3D11VideoContext3_DecoderBeginFrame1                                                = MakeApiCallId(ApiFamily_D3D11, 0x117e),
+    ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2                                             = MakeApiCallId(ApiFamily_D3D11, 0x117f),
+
     ApiCall_D3D11Last,
 
     // OpenXR

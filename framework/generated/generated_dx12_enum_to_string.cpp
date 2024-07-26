@@ -5616,6 +5616,59 @@ std::string ToString(const D3D11_FENCE_FLAG value)
     return ret;
 }
 
+std::string ToString(const D3D11_FEATURE_VIDEO value)
+{
+    const char* ret = "Unhandled D3D11_FEATURE_VIDEO";
+    switch (value) {
+        case D3D11_FEATURE_VIDEO_DECODER_HISTOGRAM: ret = "D3D11_FEATURE_VIDEO_DECODER_HISTOGRAM"; break;
+    }
+    return ret;
+}
+
+std::string ToString(const D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT value)
+{
+    const char* ret = "Unhandled D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT";
+    switch (value) {
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_Y: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_Y"; break;
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_U: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_U"; break;
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_V: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_V"; break;
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_A: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_A"; break;
+    }
+    return ret;
+}
+
+std::string ToString(const D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS value)
+{
+    const char* ret = "Unhandled D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS";
+    switch (value) {
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_NONE: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_NONE"; break;
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_Y: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_Y"; break;
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_U: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_U"; break;
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_V: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_V"; break;
+        case D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_A: ret = "D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAG_A"; break;
+    }
+    return ret;
+}
+
+std::string ToString_D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS(const uint32_t flags)
+{
+    return BitmaskToString<D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS>(flags);
+}
+
+std::string ToString(const D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS value)
+{
+    const char* ret = "Unhandled D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS";
+    switch (value) {
+        case D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAG_NONE: ret = "D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAG_NONE"; break;
+    }
+    return ret;
+}
+
+std::string ToString_D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS(const uint32_t flags)
+{
+    return BitmaskToString<D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS>(flags);
+}
+
 std::string ToString(const DXGI_RESIDENCY value)
 {
     const char* ret = "Unhandled DXGI_RESIDENCY";
@@ -6219,6 +6272,12 @@ std::string ToString(const IID& iid)
     if (iid == IID_ID3D11Fence) return "IID_ID3D11Fence";
     if (iid == IID_ID3D11DeviceContext4) return "IID_ID3D11DeviceContext4";
     if (iid == IID_ID3D11Device3) return "IID_ID3D11Device3";
+    if (iid == IID_ID3D11Device4) return "IID_ID3D11Device4";
+    if (iid == IID_ID3D11Device5) return "IID_ID3D11Device5";
+    if (iid == IID_ID3D11Multithread) return "IID_ID3D11Multithread";
+    if (iid == IID_ID3D11VideoContext2) return "IID_ID3D11VideoContext2";
+    if (iid == IID_ID3D11VideoDevice2) return "IID_ID3D11VideoDevice2";
+    if (iid == IID_ID3D11VideoContext3) return "IID_ID3D11VideoContext3";
     if (iid == IID_IDXGIObject) return "IID_IDXGIObject";
     if (iid == IID_IDXGIDeviceSubObject) return "IID_IDXGIDeviceSubObject";
     if (iid == IID_IDXGIResource) return "IID_IDXGIResource";

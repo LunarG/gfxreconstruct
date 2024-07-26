@@ -41,6 +41,7 @@
 #include <d3d11_1.h>
 #include <d3d11_2.h>
 #include <d3d11_3.h>
+#include <d3d11_4.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -1562,46 +1563,6 @@ void WrapID3DDeviceContextState(REFIID riid, void** object, DxWrapperResources* 
     }
 }
 
-void WrapID3D11VideoContext(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = ID3D11VideoContext_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D11VideoContext1_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
-void WrapID3D11VideoDevice(REFIID riid, void** object, DxWrapperResources* resources)
-{
-    assert((object != nullptr) && (*object != nullptr));
-    auto wrap_object = reinterpret_cast<IUnknown**>(object);
-
-    auto existing = ID3D11VideoDevice_Wrapper::GetExistingWrapper(*wrap_object);
-    if (existing != nullptr)
-    {
-        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
-        existing->AddRef();
-        (*wrap_object)->Release();
-        (*object) = existing;
-    }
-    else
-    {
-        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D11VideoDevice1_Wrapper(riid, *wrap_object, resources);
-    }
-}
-
 void WrapID3D11VideoProcessorEnumerator(REFIID riid, void** object, DxWrapperResources* resources)
 {
     assert((object != nullptr) && (*object != nullptr));
@@ -1838,7 +1799,67 @@ void WrapID3D11Device(REFIID riid, void** object, DxWrapperResources* resources)
     else
     {
         // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
-        (*object) = new ID3D11Device3_Wrapper(riid, *wrap_object, resources);
+        (*object) = new ID3D11Device5_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D11Multithread(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D11Multithread_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D11Multithread_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D11VideoDevice(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D11VideoDevice_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D11VideoDevice2_Wrapper(riid, *wrap_object, resources);
+    }
+}
+
+void WrapID3D11VideoContext(REFIID riid, void** object, DxWrapperResources* resources)
+{
+    assert((object != nullptr) && (*object != nullptr));
+    auto wrap_object = reinterpret_cast<IUnknown**>(object);
+
+    auto existing = ID3D11VideoContext_Wrapper::GetExistingWrapper(*wrap_object);
+    if (existing != nullptr)
+    {
+        // Transfer reference count from the object to the wrapper so that the wrapper holds a single reference to the object.
+        existing->AddRef();
+        (*wrap_object)->Release();
+        (*object) = existing;
+    }
+    else
+    {
+        // Create a wrapper for the latest interface version.  The application will only use the wrapper as the interface type that it expects it to be.
+        (*object) = new ID3D11VideoContext3_Wrapper(riid, *wrap_object, resources);
     }
 }
 

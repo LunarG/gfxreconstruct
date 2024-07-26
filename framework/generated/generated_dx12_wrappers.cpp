@@ -50,6 +50,7 @@
 #include <d3d11_1.h>
 #include <d3d11_2.h>
 #include <d3d11_3.h>
+#include <d3d11_4.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -214,10 +215,6 @@ ID3D11BlendState_Wrapper::ObjectMap ID3D11BlendState_Wrapper::object_map_;
 std::mutex ID3D11BlendState_Wrapper::object_map_lock_;
 ID3DDeviceContextState_Wrapper::ObjectMap ID3DDeviceContextState_Wrapper::object_map_;
 std::mutex ID3DDeviceContextState_Wrapper::object_map_lock_;
-ID3D11VideoContext_Wrapper::ObjectMap ID3D11VideoContext_Wrapper::object_map_;
-std::mutex ID3D11VideoContext_Wrapper::object_map_lock_;
-ID3D11VideoDevice_Wrapper::ObjectMap ID3D11VideoDevice_Wrapper::object_map_;
-std::mutex ID3D11VideoDevice_Wrapper::object_map_lock_;
 ID3D11VideoProcessorEnumerator_Wrapper::ObjectMap ID3D11VideoProcessorEnumerator_Wrapper::object_map_;
 std::mutex ID3D11VideoProcessorEnumerator_Wrapper::object_map_lock_;
 ID3DUserDefinedAnnotation_Wrapper::ObjectMap ID3DUserDefinedAnnotation_Wrapper::object_map_;
@@ -242,6 +239,12 @@ ID3D11DeviceContext_Wrapper::ObjectMap ID3D11DeviceContext_Wrapper::object_map_;
 std::mutex ID3D11DeviceContext_Wrapper::object_map_lock_;
 ID3D11Device_Wrapper::ObjectMap ID3D11Device_Wrapper::object_map_;
 std::mutex ID3D11Device_Wrapper::object_map_lock_;
+ID3D11Multithread_Wrapper::ObjectMap ID3D11Multithread_Wrapper::object_map_;
+std::mutex ID3D11Multithread_Wrapper::object_map_lock_;
+ID3D11VideoDevice_Wrapper::ObjectMap ID3D11VideoDevice_Wrapper::object_map_;
+std::mutex ID3D11VideoDevice_Wrapper::object_map_lock_;
+ID3D11VideoContext_Wrapper::ObjectMap ID3D11VideoContext_Wrapper::object_map_;
+std::mutex ID3D11VideoContext_Wrapper::object_map_lock_;
 IDXGIKeyedMutex_Wrapper::ObjectMap IDXGIKeyedMutex_Wrapper::object_map_;
 std::mutex IDXGIKeyedMutex_Wrapper::object_map_lock_;
 IDXGIDisplayControl_Wrapper::ObjectMap IDXGIDisplayControl_Wrapper::object_map_;
@@ -47149,6 +47152,1034 @@ void STDMETHODCALLTYPE ID3D11Device3_Wrapper::ReadFromSubresource(
     }
 
     manager->DecrementCallScope();
+}
+
+
+/*
+** This part is generated from d3d11_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+ID3D11Device4_Wrapper::ID3D11Device4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D11Device3_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D11Device4_Wrapper::RegisterDeviceRemovedEvent(
+    HANDLE hEvent,
+    DWORD* pdwCookie)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent>::Dispatch(
+            manager,
+            this,
+            hEvent,
+            pdwCookie);
+
+        result = GetWrappedObjectAs<ID3D11Device4>()->RegisterDeviceRemovedEvent(
+            hEvent,
+            pdwCookie);
+
+        Encode_ID3D11Device4_RegisterDeviceRemovedEvent(
+            this,
+            result,
+            hEvent,
+            pdwCookie);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent>::Dispatch(
+            manager,
+            this,
+            result,
+            hEvent,
+            pdwCookie);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11Device4>()->RegisterDeviceRemovedEvent(
+            hEvent,
+            pdwCookie);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+void STDMETHODCALLTYPE ID3D11Device4_Wrapper::UnregisterDeviceRemoved(
+    DWORD dwCookie)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Device4_UnregisterDeviceRemoved>::Dispatch(
+            manager,
+            this,
+            dwCookie);
+
+        GetWrappedObjectAs<ID3D11Device4>()->UnregisterDeviceRemoved(
+            dwCookie);
+
+        Encode_ID3D11Device4_UnregisterDeviceRemoved(
+            this,
+            dwCookie);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device4_UnregisterDeviceRemoved>::Dispatch(
+            manager,
+            this,
+            dwCookie);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D11Device4>()->UnregisterDeviceRemoved(
+            dwCookie);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D11Device5_Wrapper::ID3D11Device5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D11Device4_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D11Device5_Wrapper::OpenSharedFence(
+    HANDLE hFence,
+    REFIID ReturnedInterface,
+    void** ppFence)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Device5_OpenSharedFence>::Dispatch(
+            manager,
+            this,
+            hFence,
+            ReturnedInterface,
+            ppFence);
+
+        result = GetWrappedObjectAs<ID3D11Device5>()->OpenSharedFence(
+            hFence,
+            ReturnedInterface,
+            ppFence);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(ReturnedInterface, ppFence, nullptr);
+        }
+
+        Encode_ID3D11Device5_OpenSharedFence(
+            this,
+            result,
+            hFence,
+            ReturnedInterface,
+            ppFence);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device5_OpenSharedFence>::Dispatch(
+            manager,
+            this,
+            result,
+            hFence,
+            ReturnedInterface,
+            ppFence);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11Device5>()->OpenSharedFence(
+            hFence,
+            ReturnedInterface,
+            ppFence);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D11Device5_Wrapper::CreateFence(
+    UINT64 InitialValue,
+    D3D11_FENCE_FLAG Flags,
+    REFIID ReturnedInterface,
+    void** ppFence)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Device5_CreateFence>::Dispatch(
+            manager,
+            this,
+            InitialValue,
+            Flags,
+            ReturnedInterface,
+            ppFence);
+
+        result = GetWrappedObjectAs<ID3D11Device5>()->CreateFence(
+            InitialValue,
+            Flags,
+            ReturnedInterface,
+            ppFence);
+
+        if (SUCCEEDED(result))
+        {
+            WrapObject(ReturnedInterface, ppFence, nullptr);
+        }
+
+        Encode_ID3D11Device5_CreateFence(
+            this,
+            result,
+            InitialValue,
+            Flags,
+            ReturnedInterface,
+            ppFence);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device5_CreateFence>::Dispatch(
+            manager,
+            this,
+            result,
+            InitialValue,
+            Flags,
+            ReturnedInterface,
+            ppFence);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11Device5>()->CreateFence(
+            InitialValue,
+            Flags,
+            ReturnedInterface,
+            ppFence);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D11Multithread_Wrapper::ID3D11Multithread_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : IUnknown_Wrapper(riid, object, resources, destructor)
+{
+    info_ = std::make_shared<ID3D11MultithreadInfo>();
+    info_->SetWrapper(this);
+    AddWrapperMapEntry(object, this, object_map_, object_map_lock_);
+}
+
+ID3D11Multithread_Wrapper::~ID3D11Multithread_Wrapper()
+{
+    CustomWrapperDestroyCall(this);
+    RemoveWrapperMapEntry(GetWrappedObjectAs<ID3D11Multithread>(), object_map_, object_map_lock_);
+    D3D12CaptureManager::Get()->ProcessWrapperDestroy(this);
+    info_->SetWrapper(nullptr);
+}
+
+ID3D11Multithread_Wrapper* ID3D11Multithread_Wrapper::GetExistingWrapper(IUnknown* object)
+{
+    return FindMapEntry<ID3D11Multithread_Wrapper>(object, object_map_, object_map_lock_);
+}
+
+void STDMETHODCALLTYPE ID3D11Multithread_Wrapper::Enter()
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_Enter>::Dispatch(
+            manager,
+            this);
+
+        GetWrappedObjectAs<ID3D11Multithread>()->Enter();
+
+        Encode_ID3D11Multithread_Enter(
+            this);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_Enter>::Dispatch(
+            manager,
+            this);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D11Multithread>()->Enter();
+    }
+
+    manager->DecrementCallScope();
+}
+
+void STDMETHODCALLTYPE ID3D11Multithread_Wrapper::Leave()
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_Leave>::Dispatch(
+            manager,
+            this);
+
+        GetWrappedObjectAs<ID3D11Multithread>()->Leave();
+
+        Encode_ID3D11Multithread_Leave(
+            this);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_Leave>::Dispatch(
+            manager,
+            this);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D11Multithread>()->Leave();
+    }
+
+    manager->DecrementCallScope();
+}
+
+BOOL STDMETHODCALLTYPE ID3D11Multithread_Wrapper::SetMultithreadProtected(
+    BOOL bMTProtect)
+{
+    BOOL result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_SetMultithreadProtected>::Dispatch(
+            manager,
+            this,
+            bMTProtect);
+
+        result = GetWrappedObjectAs<ID3D11Multithread>()->SetMultithreadProtected(
+            bMTProtect);
+
+        Encode_ID3D11Multithread_SetMultithreadProtected(
+            this,
+            result,
+            bMTProtect);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_SetMultithreadProtected>::Dispatch(
+            manager,
+            this,
+            result,
+            bMTProtect);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11Multithread>()->SetMultithreadProtected(
+            bMTProtect);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+BOOL STDMETHODCALLTYPE ID3D11Multithread_Wrapper::GetMultithreadProtected()
+{
+    BOOL result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11Multithread_GetMultithreadProtected>::Dispatch(
+            manager,
+            this);
+
+        result = GetWrappedObjectAs<ID3D11Multithread>()->GetMultithreadProtected();
+
+        Encode_ID3D11Multithread_GetMultithreadProtected(
+            this,
+            result);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Multithread_GetMultithreadProtected>::Dispatch(
+            manager,
+            this,
+            result);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11Multithread>()->GetMultithreadProtected();
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D11VideoContext2_Wrapper::ID3D11VideoContext2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D11VideoContext1_Wrapper(riid, object, resources, destructor)
+{
+}
+
+void STDMETHODCALLTYPE ID3D11VideoContext2_Wrapper::VideoProcessorSetOutputHDRMetaData(
+    ID3D11VideoProcessor* pVideoProcessor,
+    DXGI_HDR_METADATA_TYPE Type,
+    UINT Size,
+    const void* pHDRMetaData)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            Type,
+            Size,
+            pHDRMetaData);
+
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorSetOutputHDRMetaData(
+            encode::GetWrappedObject<ID3D11VideoProcessor>(pVideoProcessor),
+            Type,
+            Size,
+            pHDRMetaData);
+
+        Encode_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData(
+            this,
+            pVideoProcessor,
+            Type,
+            Size,
+            pHDRMetaData);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            Type,
+            Size,
+            pHDRMetaData);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorSetOutputHDRMetaData(
+            pVideoProcessor,
+            Type,
+            Size,
+            pHDRMetaData);
+    }
+
+    manager->DecrementCallScope();
+}
+
+void STDMETHODCALLTYPE ID3D11VideoContext2_Wrapper::VideoProcessorGetOutputHDRMetaData(
+    ID3D11VideoProcessor* pVideoProcessor,
+    DXGI_HDR_METADATA_TYPE* pType,
+    UINT Size,
+    void* pMetaData)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            pType,
+            Size,
+            pMetaData);
+
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorGetOutputHDRMetaData(
+            encode::GetWrappedObject<ID3D11VideoProcessor>(pVideoProcessor),
+            pType,
+            Size,
+            pMetaData);
+
+        Encode_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData(
+            this,
+            pVideoProcessor,
+            pType,
+            Size,
+            pMetaData);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            pType,
+            Size,
+            pMetaData);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorGetOutputHDRMetaData(
+            pVideoProcessor,
+            pType,
+            Size,
+            pMetaData);
+    }
+
+    manager->DecrementCallScope();
+}
+
+void STDMETHODCALLTYPE ID3D11VideoContext2_Wrapper::VideoProcessorSetStreamHDRMetaData(
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    DXGI_HDR_METADATA_TYPE Type,
+    UINT Size,
+    const void* pHDRMetaData)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            StreamIndex,
+            Type,
+            Size,
+            pHDRMetaData);
+
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorSetStreamHDRMetaData(
+            encode::GetWrappedObject<ID3D11VideoProcessor>(pVideoProcessor),
+            StreamIndex,
+            Type,
+            Size,
+            pHDRMetaData);
+
+        Encode_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData(
+            this,
+            pVideoProcessor,
+            StreamIndex,
+            Type,
+            Size,
+            pHDRMetaData);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            StreamIndex,
+            Type,
+            Size,
+            pHDRMetaData);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorSetStreamHDRMetaData(
+            pVideoProcessor,
+            StreamIndex,
+            Type,
+            Size,
+            pHDRMetaData);
+    }
+
+    manager->DecrementCallScope();
+}
+
+void STDMETHODCALLTYPE ID3D11VideoContext2_Wrapper::VideoProcessorGetStreamHDRMetaData(
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    DXGI_HDR_METADATA_TYPE* pType,
+    UINT Size,
+    void* pMetaData)
+{
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            StreamIndex,
+            pType,
+            Size,
+            pMetaData);
+
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorGetStreamHDRMetaData(
+            encode::GetWrappedObject<ID3D11VideoProcessor>(pVideoProcessor),
+            StreamIndex,
+            pType,
+            Size,
+            pMetaData);
+
+        Encode_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData(
+            this,
+            pVideoProcessor,
+            StreamIndex,
+            pType,
+            Size,
+            pMetaData);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData>::Dispatch(
+            manager,
+            this,
+            pVideoProcessor,
+            StreamIndex,
+            pType,
+            Size,
+            pMetaData);
+    }
+    else
+    {
+        GetWrappedObjectAs<ID3D11VideoContext2>()->VideoProcessorGetStreamHDRMetaData(
+            pVideoProcessor,
+            StreamIndex,
+            pType,
+            Size,
+            pMetaData);
+    }
+
+    manager->DecrementCallScope();
+}
+
+ID3D11VideoDevice2_Wrapper::ID3D11VideoDevice2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D11VideoDevice1_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D11VideoDevice2_Wrapper::CheckFeatureSupport(
+    D3D11_FEATURE_VIDEO Feature,
+    void* pFeatureSupportData,
+    UINT FeatureSupportDataSize)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_CheckFeatureSupport>::Dispatch(
+            manager,
+            this,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
+        result = GetWrappedObjectAs<ID3D11VideoDevice2>()->CheckFeatureSupport(
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
+        Encode_ID3D11VideoDevice2_CheckFeatureSupport(
+            this,
+            result,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_CheckFeatureSupport>::Dispatch(
+            manager,
+            this,
+            result,
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11VideoDevice2>()->CheckFeatureSupport(
+            Feature,
+            pFeatureSupportData,
+            FeatureSupportDataSize);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D11VideoDevice2_Wrapper::NegotiateCryptoSessionKeyExchangeMT(
+    ID3D11CryptoSession* pCryptoSession,
+    D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS flags,
+    UINT DataSize,
+    void* pData)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT>::Dispatch(
+            manager,
+            this,
+            pCryptoSession,
+            flags,
+            DataSize,
+            pData);
+
+        result = GetWrappedObjectAs<ID3D11VideoDevice2>()->NegotiateCryptoSessionKeyExchangeMT(
+            encode::GetWrappedObject<ID3D11CryptoSession>(pCryptoSession),
+            flags,
+            DataSize,
+            pData);
+
+        Encode_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT(
+            this,
+            result,
+            pCryptoSession,
+            flags,
+            DataSize,
+            pData);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT>::Dispatch(
+            manager,
+            this,
+            result,
+            pCryptoSession,
+            flags,
+            DataSize,
+            pData);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11VideoDevice2>()->NegotiateCryptoSessionKeyExchangeMT(
+            pCryptoSession,
+            flags,
+            DataSize,
+            pData);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+ID3D11VideoContext3_Wrapper::ID3D11VideoContext3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources, const std::function<void(IUnknown_Wrapper*)>& destructor) : ID3D11VideoContext2_Wrapper(riid, object, resources, destructor)
+{
+}
+
+HRESULT STDMETHODCALLTYPE ID3D11VideoContext3_Wrapper::DecoderBeginFrame1(
+    ID3D11VideoDecoder* pDecoder,
+    ID3D11VideoDecoderOutputView* pView,
+    UINT ContentKeySize,
+    const void* pContentKey,
+    UINT NumComponentHistograms,
+    const UINT* pHistogramOffsets,
+    ID3D11Buffer* const* ppHistogramBuffers)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_DecoderBeginFrame1>::Dispatch(
+            manager,
+            this,
+            pDecoder,
+            pView,
+            ContentKeySize,
+            pContentKey,
+            NumComponentHistograms,
+            pHistogramOffsets,
+            ppHistogramBuffers);
+
+        auto unwrap_memory = manager->GetHandleUnwrapMemory();
+
+        result = GetWrappedObjectAs<ID3D11VideoContext3>()->DecoderBeginFrame1(
+            encode::GetWrappedObject<ID3D11VideoDecoder>(pDecoder),
+            encode::GetWrappedObject<ID3D11VideoDecoderOutputView>(pView),
+            ContentKeySize,
+            pContentKey,
+            NumComponentHistograms,
+            pHistogramOffsets,
+            UnwrapObjects<ID3D11Buffer>(ppHistogramBuffers, NumComponentHistograms, unwrap_memory));
+
+        Encode_ID3D11VideoContext3_DecoderBeginFrame1(
+            this,
+            result,
+            pDecoder,
+            pView,
+            ContentKeySize,
+            pContentKey,
+            NumComponentHistograms,
+            pHistogramOffsets,
+            ppHistogramBuffers);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_DecoderBeginFrame1>::Dispatch(
+            manager,
+            this,
+            result,
+            pDecoder,
+            pView,
+            ContentKeySize,
+            pContentKey,
+            NumComponentHistograms,
+            pHistogramOffsets,
+            ppHistogramBuffers);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11VideoContext3>()->DecoderBeginFrame1(
+            pDecoder,
+            pView,
+            ContentKeySize,
+            pContentKey,
+            NumComponentHistograms,
+            pHistogramOffsets,
+            ppHistogramBuffers);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
+}
+
+HRESULT STDMETHODCALLTYPE ID3D11VideoContext3_Wrapper::SubmitDecoderBuffers2(
+    ID3D11VideoDecoder* pDecoder,
+    UINT NumBuffers,
+    const D3D11_VIDEO_DECODER_BUFFER_DESC2* pBufferDesc)
+{
+    HRESULT result{};
+
+    auto manager = D3D12CaptureManager::Get();
+    auto call_scope = manager->IncrementCallScope();
+
+    if (call_scope == 1)
+    {
+        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
+        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+        if (force_command_serialization)
+        {
+            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
+        }
+        else
+        {
+            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
+        }
+
+        CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2>::Dispatch(
+            manager,
+            this,
+            pDecoder,
+            NumBuffers,
+            pBufferDesc);
+
+        result = GetWrappedObjectAs<ID3D11VideoContext3>()->SubmitDecoderBuffers2(
+            encode::GetWrappedObject<ID3D11VideoDecoder>(pDecoder),
+            NumBuffers,
+            pBufferDesc);
+
+        Encode_ID3D11VideoContext3_SubmitDecoderBuffers2(
+            this,
+            result,
+            pDecoder,
+            NumBuffers,
+            pBufferDesc);
+
+        CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2>::Dispatch(
+            manager,
+            this,
+            result,
+            pDecoder,
+            NumBuffers,
+            pBufferDesc);
+    }
+    else
+    {
+        result = GetWrappedObjectAs<ID3D11VideoContext3>()->SubmitDecoderBuffers2(
+            pDecoder,
+            NumBuffers,
+            pBufferDesc);
+    }
+
+    manager->DecrementCallScope();
+
+    return result;
 }
 
 

@@ -483,6 +483,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_UAV1* 
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_ARRAY_UAV1* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_QUERY_DESC1* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC* pObj, const util::JsonOptions& options);
@@ -962,6 +965,9 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_TEX2D_ARRAY_UAV1& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_UNORDERED_ACCESS_VIEW_DESC1& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_QUERY_DESC1& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }

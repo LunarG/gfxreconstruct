@@ -198,10 +198,6 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11BlendState, AddEntry<ID3D11BlendState_Wrapper, ParentWrapper> },
     { IID_ID3D11BlendState1, AddEntry<ID3D11BlendState_Wrapper, ParentWrapper> },
     { IID_ID3DDeviceContextState, AddEntry<ID3DDeviceContextState_Wrapper, ParentWrapper> },
-    { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
-    { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
-    { IID_ID3D11VideoDevice, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
-    { IID_ID3D11VideoDevice1, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
     { IID_ID3D11VideoProcessorEnumerator, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper, ParentWrapper> },
     { IID_ID3D11VideoProcessorEnumerator1, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper, ParentWrapper> },
     { IID_ID3DUserDefinedAnnotation, AddEntry<ID3DUserDefinedAnnotation_Wrapper, ParentWrapper> },
@@ -230,6 +226,16 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11Device1, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
     { IID_ID3D11Device2, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
     { IID_ID3D11Device3, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device4, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Device5, AddEntry<ID3D11Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11Multithread, AddEntry<ID3D11Multithread_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDevice, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDevice1, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoDevice2, AddEntry<ID3D11VideoDevice_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext2, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11VideoContext3, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper, ParentWrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper, ParentWrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper, ParentWrapper> },
@@ -402,10 +408,6 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11BlendState, AddEntry<ID3D11BlendState_Wrapper> },
     { IID_ID3D11BlendState1, AddEntry<ID3D11BlendState_Wrapper> },
     { IID_ID3DDeviceContextState, AddEntry<ID3DDeviceContextState_Wrapper> },
-    { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper> },
-    { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper> },
-    { IID_ID3D11VideoDevice, AddEntry<ID3D11VideoDevice_Wrapper> },
-    { IID_ID3D11VideoDevice1, AddEntry<ID3D11VideoDevice_Wrapper> },
     { IID_ID3D11VideoProcessorEnumerator, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper> },
     { IID_ID3D11VideoProcessorEnumerator1, AddEntry<ID3D11VideoProcessorEnumerator_Wrapper> },
     { IID_ID3DUserDefinedAnnotation, AddEntry<ID3DUserDefinedAnnotation_Wrapper> },
@@ -434,6 +436,16 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11Device1, AddEntry<ID3D11Device_Wrapper> },
     { IID_ID3D11Device2, AddEntry<ID3D11Device_Wrapper> },
     { IID_ID3D11Device3, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device4, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Device5, AddEntry<ID3D11Device_Wrapper> },
+    { IID_ID3D11Multithread, AddEntry<ID3D11Multithread_Wrapper> },
+    { IID_ID3D11VideoDevice, AddEntry<ID3D11VideoDevice_Wrapper> },
+    { IID_ID3D11VideoDevice1, AddEntry<ID3D11VideoDevice_Wrapper> },
+    { IID_ID3D11VideoDevice2, AddEntry<ID3D11VideoDevice_Wrapper> },
+    { IID_ID3D11VideoContext, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11VideoContext2, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11VideoContext3, AddEntry<ID3D11VideoContext_Wrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper> },
@@ -1116,26 +1128,6 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
         auto* new_wrapper = reinterpret_cast<ID3DDeviceContextState_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
-    if(riid == IID_ID3D11VideoContext)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11VideoContext1)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11VideoDevice)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
-    if(riid == IID_ID3D11VideoDevice1)
-    {
-        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
-        return new_wrapper->GetObjectInfo().get();
-    }
     if(riid == IID_ID3D11VideoProcessorEnumerator)
     {
         auto* new_wrapper = reinterpret_cast<ID3D11VideoProcessorEnumerator_Wrapper*>(wrapper);
@@ -1274,6 +1266,56 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D11Device3)
     {
         auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device4)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Device5)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11Multithread)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11Multithread_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDevice)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDevice1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoDevice2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoDevice_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11VideoContext3)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_IDXGIKeyedMutex)

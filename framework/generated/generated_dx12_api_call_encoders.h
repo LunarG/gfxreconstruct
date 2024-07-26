@@ -36,6 +36,7 @@
 #include <d3d11_1.h>
 #include <d3d11_2.h>
 #include <d3d11_3.h>
+#include <d3d11_4.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -5241,6 +5242,121 @@ void Encode_ID3D11Device3_ReadFromSubresource(
     ID3D11Resource* pSrcResource,
     UINT SrcSubresource,
     const D3D11_BOX* pSrcBox);
+
+
+/*
+** This part is generated from d3d11_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_ID3D11Device4_RegisterDeviceRemovedEvent(
+    ID3D11Device4_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hEvent,
+    DWORD* pdwCookie);
+
+void Encode_ID3D11Device4_UnregisterDeviceRemoved(
+    ID3D11Device4_Wrapper* wrapper,
+    DWORD dwCookie);
+
+void Encode_ID3D11Device5_OpenSharedFence(
+    ID3D11Device5_Wrapper* wrapper,
+    HRESULT return_value,
+    HANDLE hFence,
+    REFIID ReturnedInterface,
+    void** ppFence);
+
+void Encode_ID3D11Device5_CreateFence(
+    ID3D11Device5_Wrapper* wrapper,
+    HRESULT return_value,
+    UINT64 InitialValue,
+    D3D11_FENCE_FLAG Flags,
+    REFIID ReturnedInterface,
+    void** ppFence);
+
+void Encode_ID3D11Multithread_Enter(
+    ID3D11Multithread_Wrapper* wrapper);
+
+void Encode_ID3D11Multithread_Leave(
+    ID3D11Multithread_Wrapper* wrapper);
+
+void Encode_ID3D11Multithread_SetMultithreadProtected(
+    ID3D11Multithread_Wrapper* wrapper,
+    BOOL return_value,
+    BOOL bMTProtect);
+
+void Encode_ID3D11Multithread_GetMultithreadProtected(
+    ID3D11Multithread_Wrapper* wrapper,
+    BOOL return_value);
+
+void Encode_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData(
+    ID3D11VideoContext2_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    DXGI_HDR_METADATA_TYPE Type,
+    UINT Size,
+    const void* pHDRMetaData);
+
+void Encode_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData(
+    ID3D11VideoContext2_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    DXGI_HDR_METADATA_TYPE* pType,
+    UINT Size,
+    void* pMetaData);
+
+void Encode_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData(
+    ID3D11VideoContext2_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    DXGI_HDR_METADATA_TYPE Type,
+    UINT Size,
+    const void* pHDRMetaData);
+
+void Encode_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData(
+    ID3D11VideoContext2_Wrapper* wrapper,
+    ID3D11VideoProcessor* pVideoProcessor,
+    UINT StreamIndex,
+    DXGI_HDR_METADATA_TYPE* pType,
+    UINT Size,
+    void* pMetaData);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM& value);
+
+void Encode_ID3D11VideoDevice2_CheckFeatureSupport(
+    ID3D11VideoDevice2_Wrapper* wrapper,
+    HRESULT return_value,
+    D3D11_FEATURE_VIDEO Feature,
+    void* pFeatureSupportData,
+    UINT FeatureSupportDataSize);
+
+void Encode_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT(
+    ID3D11VideoDevice2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11CryptoSession* pCryptoSession,
+    D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS flags,
+    UINT DataSize,
+    void* pData);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_VIDEO_DECODER_BUFFER_DESC2& value);
+
+void Encode_ID3D11VideoContext3_DecoderBeginFrame1(
+    ID3D11VideoContext3_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    ID3D11VideoDecoderOutputView* pView,
+    UINT ContentKeySize,
+    const void* pContentKey,
+    UINT NumComponentHistograms,
+    const UINT* pHistogramOffsets,
+    ID3D11Buffer* const* ppHistogramBuffers);
+
+void Encode_ID3D11VideoContext3_SubmitDecoderBuffers2(
+    ID3D11VideoContext3_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11VideoDecoder* pDecoder,
+    UINT NumBuffers,
+    const D3D11_VIDEO_DECODER_BUFFER_DESC2* pBufferDesc);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTIONS4& value);
 
 
 /*

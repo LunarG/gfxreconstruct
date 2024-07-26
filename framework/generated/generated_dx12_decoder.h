@@ -805,6 +805,27 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D11Device3_ReadFromSubresource(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
+** This part is generated from d3d11_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+    size_t Decode_ID3D11Device4_RegisterDeviceRemovedEvent(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11Device4_UnregisterDeviceRemoved(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11Device5_OpenSharedFence(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11Device5_CreateFence(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11Multithread_Enter(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11Multithread_Leave(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11Multithread_SetMultithreadProtected(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11Multithread_GetMultithreadProtected(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoDevice2_CheckFeatureSupport(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoContext3_DecoderBeginFrame1(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11VideoContext3_SubmitDecoderBuffers2(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

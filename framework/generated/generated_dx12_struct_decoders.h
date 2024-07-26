@@ -39,6 +39,7 @@
 #include <d3d11_1.h>
 #include <d3d11_2.h>
 #include <d3d11_3.h>
+#include <d3d11_4.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -3253,6 +3254,32 @@ struct Decoded_D3D11_QUERY_DESC1
     using struct_type = D3D11_QUERY_DESC1;
 
     D3D11_QUERY_DESC1* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM
+{
+    using struct_type = D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM;
+
+    D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM* decoded_value{ nullptr };
+
+    Decoded_D3D11_VIDEO_DECODER_DESC* DecoderDesc{ nullptr };
+};
+
+struct Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2
+{
+    using struct_type = D3D11_VIDEO_DECODER_BUFFER_DESC2;
+
+    D3D11_VIDEO_DECODER_BUFFER_DESC2* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> pIV;
+    StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK>* pSubSampleMappingBlock{ nullptr };
+};
+
+struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4
+{
+    using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS4;
+
+    D3D11_FEATURE_DATA_D3D11_OPTIONS4* decoded_value{ nullptr };
 };
 
 struct Decoded_DXGI_FRAME_STATISTICS

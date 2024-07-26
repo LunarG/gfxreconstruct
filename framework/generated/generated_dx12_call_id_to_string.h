@@ -2222,6 +2222,54 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D11Device3_ReadFromSubresource:
         out = L"ID3D11Device3_ReadFromSubresource";
         break;
+    case format::ApiCallId::ApiCall_ID3D11Device4_RegisterDeviceRemovedEvent:
+        out = L"ID3D11Device4_RegisterDeviceRemovedEvent";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device4_UnregisterDeviceRemoved:
+        out = L"ID3D11Device4_UnregisterDeviceRemoved";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device5_OpenSharedFence:
+        out = L"ID3D11Device5_OpenSharedFence";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Device5_CreateFence:
+        out = L"ID3D11Device5_CreateFence";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_Enter:
+        out = L"ID3D11Multithread_Enter";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_Leave:
+        out = L"ID3D11Multithread_Leave";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_SetMultithreadProtected:
+        out = L"ID3D11Multithread_SetMultithreadProtected";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11Multithread_GetMultithreadProtected:
+        out = L"ID3D11Multithread_GetMultithreadProtected";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData:
+        out = L"ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice2_CheckFeatureSupport:
+        out = L"ID3D11VideoDevice2_CheckFeatureSupport";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT:
+        out = L"ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext3_DecoderBeginFrame1:
+        out = L"ID3D11VideoContext3_DecoderBeginFrame1";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2:
+        out = L"ID3D11VideoContext3_SubmitDecoderBuffers2";
+        break;
     case format::ApiCallId::ApiCall_CreateDXGIFactory:
         out = L"CreateDXGIFactory";
         break;

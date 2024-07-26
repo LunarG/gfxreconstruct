@@ -7015,6 +7015,50 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_QUERY_DESC1*
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM& meta_struct = *data;
+        FieldToJson(jdata["DecoderDesc"], meta_struct.DecoderDesc, options);
+        FieldToJson_D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS(jdata["Components"], decoded_value.Components, options);
+        FieldToJson(jdata["BinCount"], decoded_value.BinCount, options);
+        FieldToJson(jdata["CounterBitDepth"], decoded_value.CounterBitDepth, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_VIDEO_DECODER_BUFFER_DESC2& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2& meta_struct = *data;
+        FieldToJson(jdata["BufferType"], decoded_value.BufferType, options);
+        FieldToJson(jdata["DataOffset"], decoded_value.DataOffset, options);
+        FieldToJson(jdata["DataSize"], decoded_value.DataSize, options);
+        FieldToJson(jdata["pIV"], meta_struct.pIV, options);
+        FieldToJson(jdata["IVSize"], decoded_value.IVSize, options);
+        FieldToJson(jdata["pSubSampleMappingBlock"], meta_struct.pSubSampleMappingBlock, options);
+        FieldToJson(jdata["SubSampleMappingCount"], decoded_value.SubSampleMappingCount, options);
+        FieldToJson(jdata["cBlocksStripeEncrypted"], decoded_value.cBlocksStripeEncrypted, options);
+        FieldToJson(jdata["cBlocksStripeClear"], decoded_value.cBlocksStripeClear, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4* data, const JsonOptions& options)
+{
+    using namespace util;
+    if (data && data->decoded_value)
+    {
+        const D3D11_FEATURE_DATA_D3D11_OPTIONS4& decoded_value = *data->decoded_value;
+        const Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4& meta_struct = *data;
+        Bool32ToJson(jdata["ExtendedNV12SharedTextureSupported"], decoded_value.ExtendedNV12SharedTextureSupported, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* data, const JsonOptions& options)
 {
     using namespace util;

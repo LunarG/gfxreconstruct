@@ -40,6 +40,7 @@
 #include <d3d11_1.h>
 #include <d3d11_2.h>
 #include <d3d11_3.h>
+#include <d3d11_4.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -5925,6 +5926,147 @@ class ID3D11Device3_Wrapper : public ID3D11Device2_Wrapper
         ID3D11Resource* pSrcResource,
         UINT SrcSubresource,
         const D3D11_BOX* pSrcBox);
+
+};
+
+
+/*
+** This part is generated from d3d11_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+class ID3D11Device4_Wrapper : public ID3D11Device3_Wrapper
+{
+  public:
+    ID3D11Device4_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Device4_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE RegisterDeviceRemovedEvent(
+        HANDLE hEvent,
+        DWORD* pdwCookie);
+
+    virtual void STDMETHODCALLTYPE UnregisterDeviceRemoved(
+        DWORD dwCookie);
+
+};
+
+class ID3D11Device5_Wrapper : public ID3D11Device4_Wrapper
+{
+  public:
+    ID3D11Device5_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Device5_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE OpenSharedFence(
+        HANDLE hFence,
+        REFIID ReturnedInterface,
+        void** ppFence);
+
+    virtual HRESULT STDMETHODCALLTYPE CreateFence(
+        UINT64 InitialValue,
+        D3D11_FENCE_FLAG Flags,
+        REFIID ReturnedInterface,
+        void** ppFence);
+
+};
+
+class ID3D11Multithread_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D11Multithread_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11Multithread_Wrapper*>(u); });
+
+    ~ID3D11Multithread_Wrapper();
+
+    static ID3D11Multithread_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D11MultithreadInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D11MultithreadInfo> GetObjectInfo() { return info_; }
+
+    virtual void STDMETHODCALLTYPE Enter();
+
+    virtual void STDMETHODCALLTYPE Leave();
+
+    virtual BOOL STDMETHODCALLTYPE SetMultithreadProtected(
+        BOOL bMTProtect);
+
+    virtual BOOL STDMETHODCALLTYPE GetMultithreadProtected();
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D11Multithread_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D11MultithreadInfo> info_;
+};
+
+class ID3D11VideoContext2_Wrapper : public ID3D11VideoContext1_Wrapper
+{
+  public:
+    ID3D11VideoContext2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11VideoContext2_Wrapper*>(u); });
+
+    virtual void STDMETHODCALLTYPE VideoProcessorSetOutputHDRMetaData(
+        ID3D11VideoProcessor* pVideoProcessor,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        const void* pHDRMetaData);
+
+    virtual void STDMETHODCALLTYPE VideoProcessorGetOutputHDRMetaData(
+        ID3D11VideoProcessor* pVideoProcessor,
+        DXGI_HDR_METADATA_TYPE* pType,
+        UINT Size,
+        void* pMetaData);
+
+    virtual void STDMETHODCALLTYPE VideoProcessorSetStreamHDRMetaData(
+        ID3D11VideoProcessor* pVideoProcessor,
+        UINT StreamIndex,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        const void* pHDRMetaData);
+
+    virtual void STDMETHODCALLTYPE VideoProcessorGetStreamHDRMetaData(
+        ID3D11VideoProcessor* pVideoProcessor,
+        UINT StreamIndex,
+        DXGI_HDR_METADATA_TYPE* pType,
+        UINT Size,
+        void* pMetaData);
+
+};
+
+class ID3D11VideoDevice2_Wrapper : public ID3D11VideoDevice1_Wrapper
+{
+  public:
+    ID3D11VideoDevice2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11VideoDevice2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE CheckFeatureSupport(
+        D3D11_FEATURE_VIDEO Feature,
+        void* pFeatureSupportData,
+        UINT FeatureSupportDataSize);
+
+    virtual HRESULT STDMETHODCALLTYPE NegotiateCryptoSessionKeyExchangeMT(
+        ID3D11CryptoSession* pCryptoSession,
+        D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS flags,
+        UINT DataSize,
+        void* pData);
+
+};
+
+class ID3D11VideoContext3_Wrapper : public ID3D11VideoContext2_Wrapper
+{
+  public:
+    ID3D11VideoContext3_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11VideoContext3_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE DecoderBeginFrame1(
+        ID3D11VideoDecoder* pDecoder,
+        ID3D11VideoDecoderOutputView* pView,
+        UINT ContentKeySize,
+        const void* pContentKey,
+        UINT NumComponentHistograms,
+        const UINT* pHistogramOffsets,
+        ID3D11Buffer* const* ppHistogramBuffers);
+
+    virtual HRESULT STDMETHODCALLTYPE SubmitDecoderBuffers2(
+        ID3D11VideoDecoder* pDecoder,
+        UINT NumBuffers,
+        const D3D11_VIDEO_DECODER_BUFFER_DESC2* pBufferDesc);
 
 };
 

@@ -41,6 +41,7 @@
 #include <d3d11_1.h>
 #include <d3d11_2.h>
 #include <d3d11_3.h>
+#include <d3d11_4.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -216,10 +217,6 @@ void WrapID3D11BlendState(REFIID riid, void** object, DxWrapperResources* resour
 
 void WrapID3DDeviceContextState(REFIID riid, void** object, DxWrapperResources* resources);
 
-void WrapID3D11VideoContext(REFIID riid, void** object, DxWrapperResources* resources);
-
-void WrapID3D11VideoDevice(REFIID riid, void** object, DxWrapperResources* resources);
-
 void WrapID3D11VideoProcessorEnumerator(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3DUserDefinedAnnotation(REFIID riid, void** object, DxWrapperResources* resources);
@@ -243,6 +240,12 @@ void WrapID3D11Fence(REFIID riid, void** object, DxWrapperResources* resources);
 void WrapID3D11DeviceContext(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapID3D11Device(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11Multithread(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoDevice(REFIID riid, void** object, DxWrapperResources* resources);
+
+void WrapID3D11VideoContext(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapIDXGIKeyedMutex(REFIID riid, void** object, DxWrapperResources* resources);
 
@@ -399,10 +402,6 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D11BlendState, WrapID3D11BlendState },
     { IID_ID3D11BlendState1, WrapID3D11BlendState },
     { IID_ID3DDeviceContextState, WrapID3DDeviceContextState },
-    { IID_ID3D11VideoContext, WrapID3D11VideoContext },
-    { IID_ID3D11VideoContext1, WrapID3D11VideoContext },
-    { IID_ID3D11VideoDevice, WrapID3D11VideoDevice },
-    { IID_ID3D11VideoDevice1, WrapID3D11VideoDevice },
     { IID_ID3D11VideoProcessorEnumerator, WrapID3D11VideoProcessorEnumerator },
     { IID_ID3D11VideoProcessorEnumerator1, WrapID3D11VideoProcessorEnumerator },
     { IID_ID3DUserDefinedAnnotation, WrapID3DUserDefinedAnnotation },
@@ -431,6 +430,16 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D11Device1, WrapID3D11Device },
     { IID_ID3D11Device2, WrapID3D11Device },
     { IID_ID3D11Device3, WrapID3D11Device },
+    { IID_ID3D11Device4, WrapID3D11Device },
+    { IID_ID3D11Device5, WrapID3D11Device },
+    { IID_ID3D11Multithread, WrapID3D11Multithread },
+    { IID_ID3D11VideoDevice, WrapID3D11VideoDevice },
+    { IID_ID3D11VideoDevice1, WrapID3D11VideoDevice },
+    { IID_ID3D11VideoDevice2, WrapID3D11VideoDevice },
+    { IID_ID3D11VideoContext, WrapID3D11VideoContext },
+    { IID_ID3D11VideoContext1, WrapID3D11VideoContext },
+    { IID_ID3D11VideoContext2, WrapID3D11VideoContext },
+    { IID_ID3D11VideoContext3, WrapID3D11VideoContext },
     { IID_IDXGIKeyedMutex, WrapIDXGIKeyedMutex },
     { IID_IDXGIDisplayControl, WrapIDXGIDisplayControl },
     { IID_IDXGIOutputDuplication, WrapIDXGIOutputDuplication },

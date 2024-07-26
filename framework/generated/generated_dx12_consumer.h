@@ -5140,6 +5140,129 @@ class Dx12Consumer : public Dx12ConsumerBase
         StructPointerDecoder<Decoded_D3D11_BOX>* pSrcBox){}
 
 /*
+** This part is generated from d3d11_4.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_ID3D11Device4_RegisterDeviceRemovedEvent(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hEvent,
+        PointerDecoder<DWORD>* pdwCookie){}
+
+    virtual void Process_ID3D11Device4_UnregisterDeviceRemoved(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        DWORD dwCookie){}
+
+    virtual void Process_ID3D11Device5_OpenSharedFence(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        uint64_t hFence,
+        Decoded_GUID ReturnedInterface,
+        HandlePointerDecoder<void*>* ppFence){}
+
+    virtual void Process_ID3D11Device5_CreateFence(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        UINT64 InitialValue,
+        D3D11_FENCE_FLAG Flags,
+        Decoded_GUID ReturnedInterface,
+        HandlePointerDecoder<void*>* ppFence){}
+
+    virtual void Process_ID3D11Multithread_Enter(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id){}
+
+    virtual void Process_ID3D11Multithread_Leave(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id){}
+
+    virtual void Process_ID3D11Multithread_SetMultithreadProtected(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value,
+        BOOL bMTProtect){}
+
+    virtual void Process_ID3D11Multithread_GetMultithreadProtected(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        BOOL return_value){}
+
+    virtual void Process_ID3D11VideoContext2_VideoProcessorSetOutputHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        PointerDecoder<uint8_t>* pHDRMetaData){}
+
+    virtual void Process_ID3D11VideoContext2_VideoProcessorGetOutputHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        PointerDecoder<DXGI_HDR_METADATA_TYPE>* pType,
+        UINT Size,
+        PointerDecoder<uint8_t>* pMetaData){}
+
+    virtual void Process_ID3D11VideoContext2_VideoProcessorSetStreamHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        DXGI_HDR_METADATA_TYPE Type,
+        UINT Size,
+        PointerDecoder<uint8_t>* pHDRMetaData){}
+
+    virtual void Process_ID3D11VideoContext2_VideoProcessorGetStreamHDRMetaData(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        format::HandleId pVideoProcessor,
+        UINT StreamIndex,
+        PointerDecoder<DXGI_HDR_METADATA_TYPE>* pType,
+        UINT Size,
+        PointerDecoder<uint8_t>* pMetaData){}
+
+    virtual void Process_ID3D11VideoDevice2_CheckFeatureSupport(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        D3D11_FEATURE_VIDEO Feature,
+        PointerDecoder<uint8_t>* pFeatureSupportData,
+        UINT FeatureSupportDataSize){}
+
+    virtual void Process_ID3D11VideoDevice2_NegotiateCryptoSessionKeyExchangeMT(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pCryptoSession,
+        D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS flags,
+        UINT DataSize,
+        PointerDecoder<uint8_t>* pData){}
+
+    virtual void Process_ID3D11VideoContext3_DecoderBeginFrame1(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        format::HandleId pView,
+        UINT ContentKeySize,
+        PointerDecoder<uint8_t>* pContentKey,
+        UINT NumComponentHistograms,
+        PointerDecoder<UINT>* pHistogramOffsets,
+        HandlePointerDecoder<ID3D11Buffer*>* ppHistogramBuffers){}
+
+    virtual void Process_ID3D11VideoContext3_SubmitDecoderBuffers2(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pDecoder,
+        UINT NumBuffers,
+        StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2>* pBufferDesc){}
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

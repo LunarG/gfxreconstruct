@@ -2572,6 +2572,42 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FENCE_FLAG* p
     FieldToJson(jdata, *pEnum, options);
 }
 
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FEATURE_VIDEO value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_FEATURE_VIDEO* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS value, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, ToString(value), options);
+}
+inline void FieldToJson(nlohmann::ordered_json& jdata, const D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS* pEnum, const JsonOptions& options = JsonOptions())
+{
+    FieldToJson(jdata, *pEnum, options);
+}
+
 inline void FieldToJson(nlohmann::ordered_json& jdata, const DXGI_RESIDENCY value, const JsonOptions& options = JsonOptions())
 {
     FieldToJson(jdata, ToString(value), options);
@@ -3719,6 +3755,32 @@ inline void FieldToJson_D3D11_CRYPTO_SESSION_STATUS(nlohmann::ordered_json& jdat
     else
     {
         representation = ToString_D3D11_CRYPTO_SESSION_STATUS(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_VIDEO_DECODER_HISTOGRAM_COMPONENT_FLAGS(flags);
+    }
+    FieldToJson(jdata, representation, options);
+}
+inline void FieldToJson_D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS(nlohmann::ordered_json& jdata, const uint32_t flags, const JsonOptions& options = JsonOptions())
+{
+    std::string representation;
+    if (!options.expand_flags)
+    {
+        representation = to_hex_fixed_width(flags);
+    }
+    else
+    {
+        representation = ToString_D3D11_CRYPTO_SESSION_KEY_EXCHANGE_FLAGS(flags);
     }
     FieldToJson(jdata, representation, options);
 }

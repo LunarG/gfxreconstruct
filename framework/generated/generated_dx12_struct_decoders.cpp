@@ -6352,6 +6352,58 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_QUE
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM* value = wrapper->decoded_value;
+
+    wrapper->DecoderDesc = DecodeAllocator::Allocate<Decoded_D3D11_VIDEO_DECODER_DESC>();
+    wrapper->DecoderDesc->decoded_value = &(value->DecoderDesc);
+    bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->DecoderDesc);
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->Components));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->BinCount));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->CounterBitDepth));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D11_VIDEO_DECODER_BUFFER_DESC2* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->BufferType));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DataOffset));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->DataSize));
+    bytes_read += wrapper->pIV.DecodeVoid((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pIV = wrapper->pIV.GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->IVSize));
+    wrapper->pSubSampleMappingBlock = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_SUB_SAMPLE_MAPPING_BLOCK>>();
+    bytes_read += wrapper->pSubSampleMappingBlock->Decode((buffer + bytes_read), (buffer_size - bytes_read));
+    value->pSubSampleMappingBlock = wrapper->pSubSampleMappingBlock->GetPointer();
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->SubSampleMappingCount));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->cBlocksStripeEncrypted));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->cBlocksStripeClear));
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    D3D11_FEATURE_DATA_D3D11_OPTIONS4* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->ExtendedNV12SharedTextureSupported));
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_DXGI_FRAME_STATISTICS* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
