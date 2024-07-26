@@ -717,6 +717,9 @@ struct ID3D11MultithreadInfo : public DxWrapperInfo
 struct ID3DUserDefinedAnnotationInfo : public DxWrapperInfo
 {};
 
+struct ID3D11On12DeviceInfo : public DxWrapperInfo
+{};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

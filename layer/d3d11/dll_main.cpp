@@ -57,6 +57,8 @@ static void LoadD3D11CaptureProcs(HMODULE system_dll, encode::D3D11DispatchTable
             reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(GetProcAddress(system_dll, "D3D11CreateDevice"));
         dispatch_table->D3D11CreateDeviceAndSwapChain = reinterpret_cast<PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN>(
             GetProcAddress(system_dll, "D3D11CreateDeviceAndSwapChain"));
+        dispatch_table->D3D11On12CreateDevice =
+            reinterpret_cast<PFN_D3D11ON12_CREATE_DEVICE>(GetProcAddress(system_dll, "D3D11On12CreateDevice"));
     }
 }
 
@@ -154,6 +156,34 @@ EXTERN_C HRESULT WINAPI gfxrecon_D3D11CreateDeviceAndSwapChain(IDXGIAdapter*    
                                                                 ppDevice,
                                                                 pFeatureLevel,
                                                                 ppImmediateContext);
+    }
+
+    return E_FAIL;
+}
+
+EXTERN_C HRESULT WINAPI gfxrecon_D3D11On12CreateDevice(IUnknown*                pDevice,
+                                                       UINT                     Flags,
+                                                       const D3D_FEATURE_LEVEL* pFeatureLevels,
+                                                       UINT                     FeatureLevels,
+                                                       IUnknown* const*         ppCommandQueues,
+                                                       UINT                     NumQueues,
+                                                       UINT                     NodeMask,
+                                                       ID3D11Device**           ppDevice,
+                                                       ID3D11DeviceContext**    ppImmediateContext,
+                                                       D3D_FEATURE_LEVEL*       pChosenFeatureLevel)
+{
+    if (gfxrecon::Initialize())
+    {
+        return GetDispatchTable().D3D11On12CreateDevice(pDevice,
+                                                        Flags,
+                                                        pFeatureLevels,
+                                                        FeatureLevels,
+                                                        ppCommandQueues,
+                                                        NumQueues,
+                                                        NodeMask,
+                                                        ppDevice,
+                                                        ppImmediateContext,
+                                                        pChosenFeatureLevel);
     }
 
     return E_FAIL;

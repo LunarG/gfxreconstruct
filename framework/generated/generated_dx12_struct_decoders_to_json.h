@@ -486,6 +486,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_QUERY_DESC1*
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4* pObj, const util::JsonOptions& options);
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RESOURCE_FLAGS* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT* pObj, const util::JsonOptions& options);
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC* pObj, const util::JsonOptions& options);
@@ -968,6 +969,7 @@ inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_QUERY
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
+inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_RESOURCE_FLAGS& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_FRAME_STATISTICS& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_MAPPED_RECT& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }
 inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_DXGI_ADAPTER_DESC& obj, const util::JsonOptions& options){ FieldToJson(jdata, &obj, options); }

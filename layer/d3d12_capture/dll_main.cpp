@@ -136,6 +136,7 @@ EXTERN_C bool InitializeD3D11Capture(gfxrecon::encode::D3D11DispatchTable* table
         // Update the dispatch table with the wrapper functions.
         table->D3D11CreateDevice             = gfxrecon::encode::D3D11CreateDevice;
         table->D3D11CreateDeviceAndSwapChain = gfxrecon::encode::D3D11CreateDeviceAndSwapChain;
+        table->D3D11On12CreateDevice         = gfxrecon::encode::D3D11On12CreateDevice;
 
         return true;
     }

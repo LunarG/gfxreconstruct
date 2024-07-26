@@ -826,6 +826,18 @@ class Dx12Decoder : public Dx12DecoderBase
     size_t Decode_ID3D11VideoContext3_SubmitDecoderBuffers2(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
 /*
+** This part is generated from d3d11on12.h in Windows SDK: 10.0.20348.0
+**
+*/
+    size_t Decode_D3D11On12CreateDevice(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11On12Device_CreateWrappedResource(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11On12Device_ReleaseWrappedResources(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11On12Device_AcquireWrappedResources(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11On12Device1_GetD3D12Device(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11On12Device2_UnwrapUnderlyingResource(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+    size_t Decode_ID3D11On12Device2_ReturnUnderlyingResource(format::HandleId object_id, const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

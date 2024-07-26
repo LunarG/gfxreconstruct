@@ -16408,6 +16408,184 @@ void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTI
 
 
 /*
+** This part is generated from d3d11on12.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_D3D11On12CreateDevice(
+    HRESULT return_value,
+    IUnknown* pDevice,
+    UINT Flags,
+    const D3D_FEATURE_LEVEL* pFeatureLevels,
+    UINT FeatureLevels,
+    IUnknown* const* ppCommandQueues,
+    UINT NumQueues,
+    UINT NodeMask,
+    ID3D11Device** ppDevice,
+    ID3D11DeviceContext** ppImmediateContext,
+    D3D_FEATURE_LEVEL* pChosenFeatureLevel)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginApiCallCapture(format::ApiCallId::ApiCall_D3D11On12CreateDevice);
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pDevice);
+        encoder->EncodeUInt32Value(Flags);
+        encoder->EncodeEnumArray(pFeatureLevels, FeatureLevels);
+        encoder->EncodeUInt32Value(FeatureLevels);
+        encoder->EncodeObjectArray(ppCommandQueues, NumQueues);
+        encoder->EncodeUInt32Value(NumQueues);
+        encoder->EncodeUInt32Value(NodeMask);
+        encoder->EncodeObjectPtr(ppDevice, omit_output_data);
+        encoder->EncodeObjectPtr(ppImmediateContext, omit_output_data);
+        encoder->EncodeEnumPtr(pChosenFeatureLevel, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndApiCallCapture();
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RESOURCE_FLAGS& value)
+{
+    encoder->EncodeUInt32Value(value.BindFlags);
+    encoder->EncodeUInt32Value(value.MiscFlags);
+    encoder->EncodeUInt32Value(value.CPUAccessFlags);
+    encoder->EncodeUInt32Value(value.StructureByteStride);
+}
+
+void Encode_ID3D11On12Device_CreateWrappedResource(
+    ID3D11On12Device_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pResource12,
+    const D3D11_RESOURCE_FLAGS* pFlags11,
+    D3D12_RESOURCE_STATES InState,
+    D3D12_RESOURCE_STATES OutState,
+    REFIID riid,
+    void** ppResource11)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D11On12Device_CreateWrappedResource, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pResource12);
+        EncodeStructPtr(encoder, pFlags11);
+        encoder->EncodeEnumValue(InState);
+        encoder->EncodeEnumValue(OutState);
+        EncodeStruct(encoder, riid);
+        encoder->EncodeObjectPtr(ppResource11, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppResource11, wrapper);
+    }
+}
+
+void Encode_ID3D11On12Device_ReleaseWrappedResources(
+    ID3D11On12Device_Wrapper* wrapper,
+    ID3D11Resource* const* ppResources,
+    UINT NumResources)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D11On12Device_ReleaseWrappedResources, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeObjectArray(ppResources, NumResources);
+        encoder->EncodeUInt32Value(NumResources);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D11On12Device_AcquireWrappedResources(
+    ID3D11On12Device_Wrapper* wrapper,
+    ID3D11Resource* const* ppResources,
+    UINT NumResources)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D11On12Device_AcquireWrappedResources, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        encoder->EncodeObjectArray(ppResources, NumResources);
+        encoder->EncodeUInt32Value(NumResources);
+        D3D12CaptureManager::Get()->EndMethodCallCapture();
+    }
+}
+
+void Encode_ID3D11On12Device1_GetD3D12Device(
+    ID3D11On12Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID riid,
+    void** ppvDevice)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D11On12Device1_GetD3D12Device, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        EncodeStruct(encoder, riid);
+        encoder->EncodeObjectPtr(ppvDevice, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvDevice, wrapper);
+    }
+}
+
+void Encode_ID3D11On12Device2_UnwrapUnderlyingResource(
+    ID3D11On12Device2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource11,
+    ID3D12CommandQueue* pCommandQueue,
+    REFIID riid,
+    void** ppvResource12)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D11On12Device2_UnwrapUnderlyingResource, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pResource11);
+        encoder->EncodeObjectValue(pCommandQueue);
+        EncodeStruct(encoder, riid);
+        encoder->EncodeObjectPtr(ppvResource12, omit_output_data);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, riid, ppvResource12, wrapper);
+    }
+}
+
+void Encode_ID3D11On12Device2_ReturnUnderlyingResource(
+    ID3D11On12Device2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource11,
+    UINT NumSync,
+    UINT64* pSignalValues,
+    ID3D12Fence** ppFences)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginTrackedMethodCallCapture(format::ApiCallId::ApiCall_ID3D11On12Device2_ReturnUnderlyingResource, wrapper->GetCaptureId());
+    if(encoder)
+    {
+        bool omit_output_data = false;
+        if (return_value != S_OK)
+        {
+            omit_output_data = true;
+        }
+        encoder->EncodeObjectValue(pResource11);
+        encoder->EncodeUInt32Value(NumSync);
+        encoder->EncodeUInt64Array(pSignalValues, NumSync);
+        encoder->EncodeObjectArray(ppFences, NumSync);
+        encoder->EncodeInt32Value(return_value);
+        D3D12CaptureManager::Get()->EndCreateMethodCallCapture(return_value, IID_ID3D12Fence, reinterpret_cast<void**>(ppFences), wrapper);
+    }
+}
+
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

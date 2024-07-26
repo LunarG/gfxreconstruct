@@ -30,6 +30,12 @@
 #include <d3d11.h>
 #include <windows.h>
 
+// d3d11on12.h will include the d3d12.h from the Windows SDK directory, not the d3d12.h from the Agility SDK that is
+// included in the GFXReconstruct source tree. To prevent a conflict between the Windows SDK and Agility SDK
+// versions, include d3d12.h from the Agility SDK before including the d3d11on12.h header.
+#include <d3d12.h>
+#include <d3d11on12.h>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -38,6 +44,7 @@ struct D3D11DispatchTable
     // Functions processed for capture.  These are the D3D11 functions exported by d3d11.dll and documented on MSDN.
     PFN_D3D11_CREATE_DEVICE                D3D11CreateDevice{ nullptr };
     PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN D3D11CreateDeviceAndSwapChain{ nullptr };
+    PFN_D3D11ON12_CREATE_DEVICE            D3D11On12CreateDevice{ nullptr };
 };
 
 GFXRECON_END_NAMESPACE(encode)

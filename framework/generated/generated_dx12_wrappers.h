@@ -41,6 +41,7 @@
 #include <d3d11_2.h>
 #include <d3d11_3.h>
 #include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -6067,6 +6068,92 @@ class ID3D11VideoContext3_Wrapper : public ID3D11VideoContext2_Wrapper
         ID3D11VideoDecoder* pDecoder,
         UINT NumBuffers,
         const D3D11_VIDEO_DECODER_BUFFER_DESC2* pBufferDesc);
+
+};
+
+
+/*
+** This part is generated from d3d11on12.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+HRESULT WINAPI D3D11On12CreateDevice(
+    IUnknown* pDevice,
+    UINT Flags,
+    const D3D_FEATURE_LEVEL* pFeatureLevels,
+    UINT FeatureLevels,
+    IUnknown* const* ppCommandQueues,
+    UINT NumQueues,
+    UINT NodeMask,
+    ID3D11Device** ppDevice,
+    ID3D11DeviceContext** ppImmediateContext,
+    D3D_FEATURE_LEVEL* pChosenFeatureLevel);
+
+class ID3D11On12Device_Wrapper : public IUnknown_Wrapper
+{
+  public:
+    ID3D11On12Device_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11On12Device_Wrapper*>(u); });
+
+    ~ID3D11On12Device_Wrapper();
+
+    static ID3D11On12Device_Wrapper* GetExistingWrapper(IUnknown* object);
+
+    std::shared_ptr<const ID3D11On12DeviceInfo> GetObjectInfo() const { return info_; }
+
+    std::shared_ptr<ID3D11On12DeviceInfo> GetObjectInfo() { return info_; }
+
+    virtual HRESULT STDMETHODCALLTYPE CreateWrappedResource(
+        IUnknown* pResource12,
+        const D3D11_RESOURCE_FLAGS* pFlags11,
+        D3D12_RESOURCE_STATES InState,
+        D3D12_RESOURCE_STATES OutState,
+        REFIID riid,
+        void** ppResource11);
+
+    virtual void STDMETHODCALLTYPE ReleaseWrappedResources(
+        ID3D11Resource* const* ppResources,
+        UINT NumResources);
+
+    virtual void STDMETHODCALLTYPE AcquireWrappedResources(
+        ID3D11Resource* const* ppResources,
+        UINT NumResources);
+
+  private:
+    // Map to prevent creation of more than one interface wrapper per object.
+    typedef std::unordered_map<IUnknown*, ID3D11On12Device_Wrapper*> ObjectMap;
+    static ObjectMap  object_map_;
+    static std::mutex object_map_lock_;
+
+    std::shared_ptr<ID3D11On12DeviceInfo> info_;
+};
+
+class ID3D11On12Device1_Wrapper : public ID3D11On12Device_Wrapper
+{
+  public:
+    ID3D11On12Device1_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11On12Device1_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE GetD3D12Device(
+        REFIID riid,
+        void** ppvDevice);
+
+};
+
+class ID3D11On12Device2_Wrapper : public ID3D11On12Device1_Wrapper
+{
+  public:
+    ID3D11On12Device2_Wrapper(REFIID riid, IUnknown* object, DxWrapperResources* resources = nullptr, const std::function<void(IUnknown_Wrapper*)>& destructor = [](IUnknown_Wrapper* u){ delete reinterpret_cast<ID3D11On12Device2_Wrapper*>(u); });
+
+    virtual HRESULT STDMETHODCALLTYPE UnwrapUnderlyingResource(
+        ID3D11Resource* pResource11,
+        ID3D12CommandQueue* pCommandQueue,
+        REFIID riid,
+        void** ppvResource12);
+
+    virtual HRESULT STDMETHODCALLTYPE ReturnUnderlyingResource(
+        ID3D11Resource* pResource11,
+        UINT NumSync,
+        UINT64* pSignalValues,
+        ID3D12Fence** ppFences);
 
 };
 

@@ -236,6 +236,9 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
     { IID_ID3D11VideoContext2, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
     { IID_ID3D11VideoContext3, AddEntry<ID3D11VideoContext_Wrapper, ParentWrapper> },
+    { IID_ID3D11On12Device, AddEntry<ID3D11On12Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11On12Device1, AddEntry<ID3D11On12Device_Wrapper, ParentWrapper> },
+    { IID_ID3D11On12Device2, AddEntry<ID3D11On12Device_Wrapper, ParentWrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper, ParentWrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper, ParentWrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper, ParentWrapper> },
@@ -446,6 +449,9 @@ const std::unordered_map<IID, std::function<void(typename void**, format::ApiCal
     { IID_ID3D11VideoContext1, AddEntry<ID3D11VideoContext_Wrapper> },
     { IID_ID3D11VideoContext2, AddEntry<ID3D11VideoContext_Wrapper> },
     { IID_ID3D11VideoContext3, AddEntry<ID3D11VideoContext_Wrapper> },
+    { IID_ID3D11On12Device, AddEntry<ID3D11On12Device_Wrapper> },
+    { IID_ID3D11On12Device1, AddEntry<ID3D11On12Device_Wrapper> },
+    { IID_ID3D11On12Device2, AddEntry<ID3D11On12Device_Wrapper> },
     { IID_IDXGIKeyedMutex, AddEntry<IDXGIKeyedMutex_Wrapper> },
     { IID_IDXGIDisplayControl, AddEntry<IDXGIDisplayControl_Wrapper> },
     { IID_IDXGIOutputDuplication, AddEntry<IDXGIOutputDuplication_Wrapper> },
@@ -1316,6 +1322,21 @@ static DxWrapperInfo* GetWrapperInfo(IUnknown_Wrapper* wrapper)
     if(riid == IID_ID3D11VideoContext3)
     {
         auto* new_wrapper = reinterpret_cast<ID3D11VideoContext_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11On12Device)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11On12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11On12Device1)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11On12Device_Wrapper*>(wrapper);
+        return new_wrapper->GetObjectInfo().get();
+    }
+    if(riid == IID_ID3D11On12Device2)
+    {
+        auto* new_wrapper = reinterpret_cast<ID3D11On12Device_Wrapper*>(wrapper);
         return new_wrapper->GetObjectInfo().get();
     }
     if(riid == IID_IDXGIKeyedMutex)

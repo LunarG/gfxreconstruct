@@ -14724,6 +14724,178 @@ void Dx12JsonConsumer::Process_ID3D11VideoContext3_SubmitDecoderBuffers2(
 }
 
 /*
+** This part is generated from d3d11on12.h in Windows SDK: 10.0.20348.0
+**
+*/
+void Dx12JsonConsumer::Process_D3D11On12CreateDevice(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        UINT Flags,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pFeatureLevels,
+        UINT FeatureLevels,
+        HandlePointerDecoder<IUnknown*>* ppCommandQueues,
+        UINT NumQueues,
+        UINT NodeMask,
+        HandlePointerDecoder<ID3D11Device*>* ppDevice,
+        HandlePointerDecoder<ID3D11DeviceContext*>* ppImmediateContext,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pChosenFeatureLevel)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& function = writer_->WriteApiCallStart(call_info, "D3D11On12CreateDevice");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(function[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = function[format::kNameArgs];
+    {
+        FieldToJson(args["pDevice"], pDevice, options);
+        FieldToJson(args["Flags"], Flags, options);
+        FieldToJson(args["pFeatureLevels"], pFeatureLevels, options);
+        FieldToJson(args["FeatureLevels"], FeatureLevels, options);
+        FieldToJson(args["ppCommandQueues"], ppCommandQueues, options);
+        FieldToJson(args["NumQueues"], NumQueues, options);
+        FieldToJsonAsFixedWidthBinary(args["NodeMask"], NodeMask, options);
+        FieldToJson(args["ppDevice"], ppDevice, options);
+        FieldToJson(args["ppImmediateContext"], ppImmediateContext, options);
+        FieldToJson(args["pChosenFeatureLevel"], pChosenFeatureLevel, options);
+    }
+    writer_->WriteBlockEnd();
+
+}
+
+void Dx12JsonConsumer::Process_ID3D11On12Device_CreateWrappedResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource12,
+        StructPointerDecoder<Decoded_D3D11_RESOURCE_FLAGS>* pFlags11,
+        D3D12_RESOURCE_STATES InState,
+        D3D12_RESOURCE_STATES OutState,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppResource11)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11On12Device", object_id, "CreateWrappedResource");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pResource12"], pResource12, options);
+        FieldToJson(args["pFlags11"], pFlags11, options);
+        FieldToJson_D3D12_RESOURCE_STATES(args["InState"], InState, options);
+        FieldToJson_D3D12_RESOURCE_STATES(args["OutState"], OutState, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppResource11"], ppResource11, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11On12Device_ReleaseWrappedResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Resource*>* ppResources,
+        UINT NumResources)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11On12Device", object_id, "ReleaseWrappedResources");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ppResources"], ppResources, options);
+        FieldToJson(args["NumResources"], NumResources, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11On12Device_AcquireWrappedResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Resource*>* ppResources,
+        UINT NumResources)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11On12Device", object_id, "AcquireWrappedResources");
+    const JsonOptions& options = writer_->GetOptions();
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["ppResources"], ppResources, options);
+        FieldToJson(args["NumResources"], NumResources, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11On12Device1_GetD3D12Device(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDevice)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11On12Device1", object_id, "GetD3D12Device");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvDevice"], ppvDevice, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11On12Device2_UnwrapUnderlyingResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource11,
+        format::HandleId pCommandQueue,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvResource12)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11On12Device2", object_id, "UnwrapUnderlyingResource");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pResource11"], pResource11, options);
+        FieldToJson(args["pCommandQueue"], pCommandQueue, options);
+        FieldToJson(args["riid"], riid, options);
+        FieldToJson(args["ppvResource12"], ppvResource12, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+void Dx12JsonConsumer::Process_ID3D11On12Device2_ReturnUnderlyingResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource11,
+        UINT NumSync,
+        PointerDecoder<UINT64>* pSignalValues,
+        HandlePointerDecoder<ID3D12Fence*>* ppFences)
+{
+    using namespace gfxrecon::util;
+
+    nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "ID3D11On12Device2", object_id, "ReturnUnderlyingResource");
+    const JsonOptions& options = writer_->GetOptions();
+    HresultToJson(method[format::kNameReturn], return_value, options);
+    nlohmann::ordered_json& args = method[format::kNameArgs];
+    {
+        FieldToJson(args["pResource11"], pResource11, options);
+        FieldToJson(args["NumSync"], NumSync, options);
+        FieldToJson(args["pSignalValues"], pSignalValues, options);
+        FieldToJson(args["ppFences"], ppFences, options);
+    }
+    writer_->WriteBlockEnd();
+}
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

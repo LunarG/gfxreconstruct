@@ -479,6 +479,7 @@ struct Decoded_D3D11_QUERY_DESC1;
 struct Decoded_D3D11_FEATURE_DATA_VIDEO_DECODER_HISTOGRAM;
 struct Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2;
 struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4;
+struct Decoded_D3D11_RESOURCE_FLAGS;
 struct Decoded_DXGI_FRAME_STATISTICS;
 struct Decoded_DXGI_MAPPED_RECT;
 struct Decoded_DXGI_ADAPTER_DESC;
@@ -1346,6 +1347,12 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEA
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2* wrapper);
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4* wrapper);
+
+/*
+** This part is generated from d3d11on12.h in Windows SDK: 10.0.20348.0
+**
+*/
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_D3D11_RESOURCE_FLAGS* wrapper);
 
 /*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0

@@ -86,6 +86,33 @@ HRESULT WINAPI Mine_D3D11CreateDeviceAndSwapChain(IDXGIAdapter*               pA
     return result;
 }
 
+HRESULT WINAPI Mine_D3D11On12CreateDevice(IUnknown*                pDevice,
+                                          UINT                     Flags,
+                                          const D3D_FEATURE_LEVEL* pFeatureLevels,
+                                          UINT                     FeatureLevels,
+                                          IUnknown* const*         ppCommandQueues,
+                                          UINT                     NumQueues,
+                                          UINT                     NodeMask,
+                                          ID3D11Device**           ppDevice,
+                                          ID3D11DeviceContext**    ppImmediateContext,
+                                          D3D_FEATURE_LEVEL*       pChosenFeatureLevel)
+{
+    HRESULT result = S_FALSE;
+
+    result = hook_info_.dispatch_table.D3D11On12CreateDevice(pDevice,
+                                                             Flags,
+                                                             pFeatureLevels,
+                                                             FeatureLevels,
+                                                             ppCommandQueues,
+                                                             NumQueues,
+                                                             NodeMask,
+                                                             ppDevice,
+                                                             ppImmediateContext,
+                                                             pChosenFeatureLevel);
+
+    return result;
+}
+
 //----------------------------------------------------------------------------
 /// Fill in a dispatch table with function addresses obtained from d3d11.dll
 ///
@@ -112,6 +139,9 @@ bool GetD3d11DispatchTable(gfxrecon::encode::D3D11DispatchTable& d3d11_table)
 
             d3d11_table.D3D11CreateDeviceAndSwapChain = reinterpret_cast<PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN>(
                 GetProcAddress(hook_info_.d3d11_dll, "D3D11CreateDeviceAndSwapChain"));
+
+            d3d11_table.D3D11On12CreateDevice = reinterpret_cast<PFN_D3D11ON12_CREATE_DEVICE>(
+                GetProcAddress(hook_info_.d3d11_dll, "D3D11On12CreateDevice"));
 
             success = true;
         }
@@ -158,6 +188,15 @@ bool GetD3d11DispatchTableHooked(gfxrecon::encode::D3D11DispatchTable  d3d11_tab
             attach_success = pInterceptor->hook_D3D11CreateDeviceAndSwapChain_.Attach();
 
             gpu_table.D3D11CreateDeviceAndSwapChain = pInterceptor->hook_D3D11CreateDeviceAndSwapChain_.real_hook_;
+        }
+
+        if (d3d11_table.D3D11On12CreateDevice != nullptr)
+        {
+            pInterceptor->hook_D3D11On12CreateDevice_.SetHooks(d3d11_table.D3D11On12CreateDevice,
+                                                               Mine_D3D11On12CreateDevice);
+            attach_success = pInterceptor->hook_D3D11On12CreateDevice_.Attach();
+
+            gpu_table.D3D11On12CreateDevice = pInterceptor->hook_D3D11On12CreateDevice_.real_hook_;
         }
 
         success = true;
@@ -246,6 +285,7 @@ bool Hook_D3D11::UnhookInterceptor()
     {
         pInterceptor->hook_D3D11CreateDevice_.Detach();
         pInterceptor->hook_D3D11CreateDeviceAndSwapChain_.Detach();
+        pInterceptor->hook_D3D11On12CreateDevice_.Detach();
 
         success = true;
     }

@@ -63,7 +63,8 @@ class Dx12DecoderBase : public ApiDecoder
         auto family_id = format::GetApiCallFamily(call_id);
         return ((family_id == format::ApiFamilyId::ApiFamily_Dxgi) ||
                 (family_id == format::ApiFamilyId::ApiFamily_D3D12) ||
-                (family_id == format::ApiFamilyId::ApiFamily_D3D11));
+                (family_id == format::ApiFamilyId::ApiFamily_D3D11) ||
+                (family_id == format::ApiFamilyId::ApiFamily_D3D11On12));
     }
 
     virtual bool SupportsMetaDataId(format::MetaDataId meta_data_id) override

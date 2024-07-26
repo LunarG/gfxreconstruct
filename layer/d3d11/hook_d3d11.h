@@ -30,6 +30,7 @@
 
 #include <Windows.h>
 #include <d3d11.h>
+#include <d3d11on12.h>
 
 class Hook_D3D11;
 
@@ -93,7 +94,8 @@ class Hook_D3D11
 
     gfxrecon::util::interception::RealAndMineHook<PFN_D3D11_CREATE_DEVICE> hook_D3D11CreateDevice_;
     gfxrecon::util::interception::RealAndMineHook<PFN_D3D11_CREATE_DEVICE_AND_SWAP_CHAIN>
-        hook_D3D11CreateDeviceAndSwapChain_;
+                                                                               hook_D3D11CreateDeviceAndSwapChain_;
+    gfxrecon::util::interception::RealAndMineHook<PFN_D3D11ON12_CREATE_DEVICE> hook_D3D11On12CreateDevice_;
 };
 
 #endif // GFXRECON_HOOK_D3D11_H

@@ -2270,6 +2270,27 @@ inline std::wstring GetDx12CallIdString(format::ApiCallId call_id)
     case format::ApiCallId::ApiCall_ID3D11VideoContext3_SubmitDecoderBuffers2:
         out = L"ID3D11VideoContext3_SubmitDecoderBuffers2";
         break;
+    case format::ApiCallId::ApiCall_D3D11On12CreateDevice:
+        out = L"D3D11On12CreateDevice";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device_CreateWrappedResource:
+        out = L"ID3D11On12Device_CreateWrappedResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device_ReleaseWrappedResources:
+        out = L"ID3D11On12Device_ReleaseWrappedResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device_AcquireWrappedResources:
+        out = L"ID3D11On12Device_AcquireWrappedResources";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device1_GetD3D12Device:
+        out = L"ID3D11On12Device1_GetD3D12Device";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device2_UnwrapUnderlyingResource:
+        out = L"ID3D11On12Device2_UnwrapUnderlyingResource";
+        break;
+    case format::ApiCallId::ApiCall_ID3D11On12Device2_ReturnUnderlyingResource:
+        out = L"ID3D11On12Device2_ReturnUnderlyingResource";
+        break;
     case format::ApiCallId::ApiCall_CreateDXGIFactory:
         out = L"CreateDXGIFactory";
         break;

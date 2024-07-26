@@ -43,6 +43,7 @@
 #include <d3d11_2.h>
 #include <d3d11_3.h>
 #include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -248,6 +249,8 @@ void WrapID3D11VideoDevice(REFIID riid, void** object, DxWrapperResources* resou
 
 void WrapID3D11VideoContext(REFIID riid, void** object, DxWrapperResources* resources);
 
+void WrapID3D11On12Device(REFIID riid, void** object, DxWrapperResources* resources);
+
 void WrapIDXGIKeyedMutex(REFIID riid, void** object, DxWrapperResources* resources);
 
 void WrapIDXGIDisplayControl(REFIID riid, void** object, DxWrapperResources* resources);
@@ -441,6 +444,9 @@ const std::unordered_map<IID, std::function<void(REFIID, void**,DxWrapperResourc
     { IID_ID3D11VideoContext1, WrapID3D11VideoContext },
     { IID_ID3D11VideoContext2, WrapID3D11VideoContext },
     { IID_ID3D11VideoContext3, WrapID3D11VideoContext },
+    { IID_ID3D11On12Device, WrapID3D11On12Device },
+    { IID_ID3D11On12Device1, WrapID3D11On12Device },
+    { IID_ID3D11On12Device2, WrapID3D11On12Device },
     { IID_IDXGIKeyedMutex, WrapIDXGIKeyedMutex },
     { IID_IDXGIDisplayControl, WrapIDXGIDisplayControl },
     { IID_IDXGIOutputDuplication, WrapIDXGIOutputDuplication },

@@ -1722,6 +1722,17 @@ enum ApiCallId : uint32_t
 
     ApiCall_D3D11Last,
 
+    // D3D11On12 API
+    ApiCall_D3D11On12CreateDevice                                                                 = MakeApiCallId(ApiFamily_D3D11On12, 0x1000),
+    ApiCall_ID3D11On12Device_CreateWrappedResource                                                = MakeApiCallId(ApiFamily_D3D11On12, 0x1001),
+    ApiCall_ID3D11On12Device_ReleaseWrappedResources                                              = MakeApiCallId(ApiFamily_D3D11On12, 0x1002),
+    ApiCall_ID3D11On12Device_AcquireWrappedResources                                              = MakeApiCallId(ApiFamily_D3D11On12, 0x1003),
+    ApiCall_ID3D11On12Device1_GetD3D12Device                                                      = MakeApiCallId(ApiFamily_D3D11On12, 0x1004),
+    ApiCall_ID3D11On12Device2_UnwrapUnderlyingResource                                            = MakeApiCallId(ApiFamily_D3D11On12, 0x1005),
+    ApiCall_ID3D11On12Device2_ReturnUnderlyingResource                                            = MakeApiCallId(ApiFamily_D3D11On12, 0x1006),
+
+    ApiCall_D3D11On12Last,
+
     // OpenXR
     ApiCall_xrCreateInstance                                                                      = MakeApiCallId(ApiFamily_OpenXR, 0x1000),
     ApiCall_xrDestroyInstance                                                                     = MakeApiCallId(ApiFamily_OpenXR, 0x1001),

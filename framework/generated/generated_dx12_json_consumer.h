@@ -5307,6 +5307,72 @@ class Dx12JsonConsumer : public Dx12JsonConsumerBase
         StructPointerDecoder<Decoded_D3D11_VIDEO_DECODER_BUFFER_DESC2>* pBufferDesc) override;
 
 /*
+** This part is generated from d3d11on12.h in Windows SDK: 10.0.20348.0
+**
+*/
+    virtual void Process_D3D11On12CreateDevice(
+        const ApiCallInfo& call_info,
+        HRESULT return_value,
+        format::HandleId pDevice,
+        UINT Flags,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pFeatureLevels,
+        UINT FeatureLevels,
+        HandlePointerDecoder<IUnknown*>* ppCommandQueues,
+        UINT NumQueues,
+        UINT NodeMask,
+        HandlePointerDecoder<ID3D11Device*>* ppDevice,
+        HandlePointerDecoder<ID3D11DeviceContext*>* ppImmediateContext,
+        PointerDecoder<D3D_FEATURE_LEVEL>* pChosenFeatureLevel) override;
+
+    virtual void Process_ID3D11On12Device_CreateWrappedResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource12,
+        StructPointerDecoder<Decoded_D3D11_RESOURCE_FLAGS>* pFlags11,
+        D3D12_RESOURCE_STATES InState,
+        D3D12_RESOURCE_STATES OutState,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppResource11) override;
+
+    virtual void Process_ID3D11On12Device_ReleaseWrappedResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Resource*>* ppResources,
+        UINT NumResources) override;
+
+    virtual void Process_ID3D11On12Device_AcquireWrappedResources(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HandlePointerDecoder<ID3D11Resource*>* ppResources,
+        UINT NumResources) override;
+
+    virtual void Process_ID3D11On12Device1_GetD3D12Device(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvDevice) override;
+
+    virtual void Process_ID3D11On12Device2_UnwrapUnderlyingResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource11,
+        format::HandleId pCommandQueue,
+        Decoded_GUID riid,
+        HandlePointerDecoder<void*>* ppvResource12) override;
+
+    virtual void Process_ID3D11On12Device2_ReturnUnderlyingResource(
+        const ApiCallInfo& call_info,
+        format::HandleId object_id,
+        HRESULT return_value,
+        format::HandleId pResource11,
+        UINT NumSync,
+        PointerDecoder<UINT64>* pSignalValues,
+        HandlePointerDecoder<ID3D12Fence*>* ppFences) override;
+
+/*
 ** This part is generated from dxgi.h in Windows SDK: 10.0.20348.0
 **
 */

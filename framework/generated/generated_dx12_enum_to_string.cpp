@@ -6278,6 +6278,9 @@ std::string ToString(const IID& iid)
     if (iid == IID_ID3D11VideoContext2) return "IID_ID3D11VideoContext2";
     if (iid == IID_ID3D11VideoDevice2) return "IID_ID3D11VideoDevice2";
     if (iid == IID_ID3D11VideoContext3) return "IID_ID3D11VideoContext3";
+    if (iid == IID_ID3D11On12Device) return "IID_ID3D11On12Device";
+    if (iid == IID_ID3D11On12Device1) return "IID_ID3D11On12Device1";
+    if (iid == IID_ID3D11On12Device2) return "IID_ID3D11On12Device2";
     if (iid == IID_IDXGIObject) return "IID_IDXGIObject";
     if (iid == IID_IDXGIDeviceSubObject) return "IID_IDXGIDeviceSubObject";
     if (iid == IID_IDXGIResource) return "IID_IDXGIResource";

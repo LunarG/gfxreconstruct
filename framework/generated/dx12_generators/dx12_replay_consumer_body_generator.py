@@ -220,7 +220,7 @@ class Dx12ReplayConsumerBodyGenerator(
             if class_name in self.REPLAY_OVERRIDES['classmethods']:
                 is_override = method_name in self.REPLAY_OVERRIDES[
                     'classmethods'][class_name]
-            if re.search("^Create.+Resource[0-9]*$", method_name) is not None:
+            if class_name.startswith('ID3D12') and re.search("^Create.+Resource[0-9]*$", method_name) is not None:
                 is_resource_creation_methods = True
         else:
             is_override = name in self.REPLAY_OVERRIDES['functions']

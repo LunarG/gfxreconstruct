@@ -40,6 +40,7 @@
 #include <d3d11_2.h>
 #include <d3d11_3.h>
 #include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -3280,6 +3281,13 @@ struct Decoded_D3D11_FEATURE_DATA_D3D11_OPTIONS4
     using struct_type = D3D11_FEATURE_DATA_D3D11_OPTIONS4;
 
     D3D11_FEATURE_DATA_D3D11_OPTIONS4* decoded_value{ nullptr };
+};
+
+struct Decoded_D3D11_RESOURCE_FLAGS
+{
+    using struct_type = D3D11_RESOURCE_FLAGS;
+
+    D3D11_RESOURCE_FLAGS* decoded_value{ nullptr };
 };
 
 struct Decoded_DXGI_FRAME_STATISTICS

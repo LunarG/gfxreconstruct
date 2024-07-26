@@ -37,6 +37,7 @@
 #include <d3d11_2.h>
 #include <d3d11_3.h>
 #include <d3d11_4.h>
+#include <d3d11on12.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
 #include <dxgi1_3.h>
@@ -5357,6 +5358,69 @@ void Encode_ID3D11VideoContext3_SubmitDecoderBuffers2(
     const D3D11_VIDEO_DECODER_BUFFER_DESC2* pBufferDesc);
 
 void EncodeStruct(ParameterEncoder* encoder, const D3D11_FEATURE_DATA_D3D11_OPTIONS4& value);
+
+
+/*
+** This part is generated from d3d11on12.h in Windows SDK: 10.0.20348.0
+**
+*/
+
+void Encode_D3D11On12CreateDevice(
+    HRESULT return_value,
+    IUnknown* pDevice,
+    UINT Flags,
+    const D3D_FEATURE_LEVEL* pFeatureLevels,
+    UINT FeatureLevels,
+    IUnknown* const* ppCommandQueues,
+    UINT NumQueues,
+    UINT NodeMask,
+    ID3D11Device** ppDevice,
+    ID3D11DeviceContext** ppImmediateContext,
+    D3D_FEATURE_LEVEL* pChosenFeatureLevel);
+
+void EncodeStruct(ParameterEncoder* encoder, const D3D11_RESOURCE_FLAGS& value);
+
+void Encode_ID3D11On12Device_CreateWrappedResource(
+    ID3D11On12Device_Wrapper* wrapper,
+    HRESULT return_value,
+    IUnknown* pResource12,
+    const D3D11_RESOURCE_FLAGS* pFlags11,
+    D3D12_RESOURCE_STATES InState,
+    D3D12_RESOURCE_STATES OutState,
+    REFIID riid,
+    void** ppResource11);
+
+void Encode_ID3D11On12Device_ReleaseWrappedResources(
+    ID3D11On12Device_Wrapper* wrapper,
+    ID3D11Resource* const* ppResources,
+    UINT NumResources);
+
+void Encode_ID3D11On12Device_AcquireWrappedResources(
+    ID3D11On12Device_Wrapper* wrapper,
+    ID3D11Resource* const* ppResources,
+    UINT NumResources);
+
+void Encode_ID3D11On12Device1_GetD3D12Device(
+    ID3D11On12Device1_Wrapper* wrapper,
+    HRESULT return_value,
+    REFIID riid,
+    void** ppvDevice);
+
+void Encode_ID3D11On12Device2_UnwrapUnderlyingResource(
+    ID3D11On12Device2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource11,
+    ID3D12CommandQueue* pCommandQueue,
+    REFIID riid,
+    void** ppvResource12);
+
+void Encode_ID3D11On12Device2_ReturnUnderlyingResource(
+    ID3D11On12Device2_Wrapper* wrapper,
+    HRESULT return_value,
+    ID3D11Resource* pResource11,
+    UINT NumSync,
+    UINT64* pSignalValues,
+    ID3D12Fence** ppFences);
 
 
 /*
