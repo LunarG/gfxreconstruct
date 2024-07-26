@@ -3358,8 +3358,43 @@ void Dx12ReplayConsumerBase::ResetSwapchainImages(DxObjectInfo* info,
 
         std::fill(swapchain_info->image_ids.begin(), swapchain_info->image_ids.end(), format::kNullHandleId);
 
+        // When width and/or height are zero, the swapchain will resize its width and/or height to match the size of the
+        // client area of the target window.
+        auto window = swapchain_info->window;
+
+        if (width == 0)
+        {
+            auto hwnd    = HWND{};
+            auto success = window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd));
+
+            if (success)
+            {
+                RECT rect{};
+                success = GetClientRect(hwnd, &rect);
+
+                if (success)
+                {
+                    if (width == 0)
+                    {
+                        width = rect.right - rect.left;
+                    }
+
+                    if (height == 0)
+                    {
+                        height = rect.bottom - rect.top;
+                    }
+                }
+            }
+
+            if (!success)
+            {
+                GFXRECON_LOG_FATAL("Failed to retrieve the dimensions of the target window's client area when resizing "
+                                   "the swap chain with width and/or height equal to zero.")
+            }
+        }
+
         // Resize the swapchain's window.
-        swapchain_info->window->SetSize(width, height);
+        window->SetSize(width, height);
     }
 }
 
