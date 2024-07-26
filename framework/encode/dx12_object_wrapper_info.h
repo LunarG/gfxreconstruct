@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
 ** Copyright (c) 2022-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -572,6 +573,120 @@ struct AgsContextInfo : public DxWrapperInfo
 {};
 
 struct AgsDeviceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DepthStencilStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11BlendStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11RasterizerStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11BufferInfo : public DxWrapperInfo
+{};
+
+struct ID3D11Texture1DInfo : public DxWrapperInfo
+{};
+
+struct ID3D11Texture2DInfo : public DxWrapperInfo
+{};
+
+struct ID3D11Texture3DInfo : public DxWrapperInfo
+{};
+
+struct ID3D11ShaderResourceViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11RenderTargetViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DepthStencilViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11UnorderedAccessViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VertexShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11HullShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DomainShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11GeometryShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11PixelShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11ComputeShaderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11InputLayoutInfo : public DxWrapperInfo
+{};
+
+struct ID3D11SamplerStateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11PredicateInfo : public DxWrapperInfo
+{};
+
+struct ID3D11CounterInfo : public DxWrapperInfo
+{};
+
+struct ID3D11ClassInstanceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11ClassLinkageInfo : public DxWrapperInfo
+{};
+
+struct ID3D11CommandListInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DeviceContextInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoDecoderInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorEnumeratorInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorInfo : public DxWrapperInfo
+{};
+
+struct ID3D11AuthenticatedChannelInfo : public DxWrapperInfo
+{};
+
+struct ID3D11CryptoSessionInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoDecoderOutputViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorInputViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoProcessorOutputViewInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoContextInfo : public DxWrapperInfo
+{};
+
+struct ID3D11VideoDeviceInfo : public DxWrapperInfo
+{};
+
+struct ID3D11DeviceInfo : public DxWrapperInfo
+{};
+
+struct ID3DDeviceContextStateInfo : public DxWrapperInfo
+{};
+
+struct ID3DUserDefinedAnnotationInfo : public DxWrapperInfo
 {};
 
 GFXRECON_END_NAMESPACE(encode)

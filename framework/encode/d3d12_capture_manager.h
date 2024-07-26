@@ -2,6 +2,7 @@
 ** Copyright (c) 2018-2020 Valve Corporation
 ** Copyright (c) 2018-2021 LunarG, Inc.
 ** Copyright (c) 2019-2025 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -31,6 +32,7 @@
 #include <stdint.h>
 
 #include "encode/ags_dispatch_table.h"
+#include "encode/d3d11_dispatch_table.h"
 #include "encode/d3d12_dispatch_table.h"
 #include "encode/dx12_state_tracker.h"
 #include "encode/dxgi_dispatch_table.h"
@@ -95,6 +97,18 @@ class D3D12CaptureManager : public ApiCaptureManager
     //----------------------------------------------------------------------------
     void InitAgsDispatchTable(const AgsDispatchTable& dispatch_table) { ags_dispatch_table_ = dispatch_table; }
 
+    /// \brief Initializes the D3D11 dispatch table.
+    ///
+    /// Initializes the CaptureManager's internal D3D11 dispatch table with
+    /// functions loaded from the D3D11 system DLL.  This dispatch table will be
+    /// used by the 'wrapper' functions to invoke the 'real' D3D11 function prior
+    /// to processing the function parameters for encoding.
+    ///
+    /// \param dispatch_table A D3D11DispatchTable object containing the DXGI
+    ///                       function pointers to be used for initialization.
+    //----------------------------------------------------------------------------
+    void InitD3D11DispatchTable(const D3D11DispatchTable& dispatch_table) { d3d11_dispatch_table_ = dispatch_table; }
+
     //----------------------------------------------------------------------------
     /// \brief Retrieves the DXGI dispatch table.
     ///
@@ -129,6 +143,17 @@ class D3D12CaptureManager : public ApiCaptureManager
     const D3D12DispatchTable& GetD3D12DispatchTable() const { return d3d12_dispatch_table_; }
 
     //----------------------------------------------------------------------------
+    /// \brief Retrieves the D3D11 dispatch table.
+    ///
+    /// Retrieves the CaptureManager's internal D3D11 dispatch table. Intended to be
+    /// used by the 'wrapper' functions when invoking the 'real' D3D11 functions.
+    ///
+    /// \return A D3D11DispatchTable object containing D3D11 function pointers
+    ///         retrieved from the system DLL.
+    //----------------------------------------------------------------------------
+    const D3D11DispatchTable& GetD3D11DispatchTable() const { return d3d11_dispatch_table_; }
+
+    //----------------------------------------------------------------------------
     /// \brief Increments the scope count for the current thread.
     ///
     /// Increments a per-thread scope count that is intended to indicate if an
@@ -160,6 +185,26 @@ class D3D12CaptureManager : public ApiCaptureManager
     void EndCreateMethodCallCapture(HRESULT result, REFIID riid, void** handle, ParentWrapper* create_object_wrapper)
     {
         if (IsCaptureModeTrack() && SUCCEEDED(result))
+        {
+            if ((handle != nullptr) && (*handle != nullptr))
+            {
+                assert(state_tracker_ != nullptr);
+
+                auto thread_data = GetThreadData();
+                assert(thread_data != nullptr);
+
+                state_tracker_->AddEntry(
+                    riid, handle, thread_data->call_id_, create_object_wrapper, thread_data->parameter_buffer_.get());
+            }
+        }
+
+        EndMethodCallCapture();
+    }
+
+    template <typename ParentWrapper>
+    void EndCreateMethodCallCapture(REFIID riid, void** handle, ParentWrapper* create_object_wrapper)
+    {
+        if (IsCaptureModeTrack())
         {
             if ((handle != nullptr) && (*handle != nullptr))
             {
@@ -938,6 +983,7 @@ class D3D12CaptureManager : public ApiCaptureManager
     DxgiDispatchTable  dxgi_dispatch_table_;  ///< DXGI dispatch table for functions retrieved from the DXGI DLL.
     D3D12DispatchTable d3d12_dispatch_table_; ///< D3D12 dispatch table for functions retrieved from the D3D12 DLL.
     AgsDispatchTable   ags_dispatch_table_;   ///< ags dispatch table for functions retrieved from the AGS DLL.
+    D3D11DispatchTable d3d11_dispatch_table_; ///< D3D11 dispatch table for functions retrieved from the D3D11 DLL.
     int                ags_version_{};        ///< ags version.
     static thread_local uint32_t call_scope_; ///< Per-thread scope count to determine when an intercepted API call is
                                               ///< being made directly by the application.
