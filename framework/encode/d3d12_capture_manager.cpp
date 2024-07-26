@@ -564,6 +564,54 @@ uint64_t D3D12CaptureManager::GetResourceSizeInBytes(ID3D12Device8_Wrapper*     
     return graphics::dx12::GetResourceSizeInBytes(device, desc);
 }
 
+void D3D12CaptureManager::ProcessMappedMemory()
+{
+    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
+    {
+        util::PageGuardManager* manager = util::PageGuardManager::Get();
+        assert(manager != nullptr);
+
+        manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+            if (RvAnnotationActive() == true)
+            {
+                resource_value_annotator_->ScanForGPUVA(
+                    memory_id, reinterpret_cast<uint8_t*>(start_address) + offset, size, offset);
+            }
+            WriteFillMemoryCmd(memory_id, offset, size, start_address);
+        });
+    }
+    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
+    {
+        std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
+        for (auto resource_wrapper : mapped_resources_)
+        {
+            auto info = resource_wrapper->GetObjectInfo();
+
+            for (size_t i = 0; i < info->num_subresources; ++i)
+            {
+                // If the memory is mapped, write the entire mapped region.
+                auto        size               = info->subresource_sizes[i];
+                const auto& mapped_subresource = info->mapped_subresources[i];
+                if (mapped_subresource.data != nullptr)
+                {
+                    // we only need to handle data != nullptr case because no mapped memory and shadow memory
+                    // be tracked for data == nullptr, also no corresponding memory data for WriteFillMemoryCmd
+                    // writing to trace file.
+                    if (RvAnnotationActive() == true)
+                    {
+                        resource_value_annotator_->ScanForGPUVA(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                                reinterpret_cast<uint8_t*>(mapped_subresource.data),
+                                                                size,
+                                                                0);
+                    }
+                    WriteFillMemoryCmd(
+                        reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
+                }
+            }
+        }
+    }
+}
+
 void D3D12CaptureManager::PostProcess_IDXGIFactory_CreateSwapChain(IDXGIFactory_Wrapper* wrapper,
                                                                    HRESULT               result,
                                                                    IUnknown*             device,
@@ -1827,50 +1875,7 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
     GFXRECON_UNREFERENCED_PARAMETER(num_lists);
     GFXRECON_UNREFERENCED_PARAMETER(lists);
 
-    if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
-    {
-        util::PageGuardManager* manager = util::PageGuardManager::Get();
-        assert(manager != nullptr);
-
-        manager->ProcessMemoryEntries([this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
-            if (RvAnnotationActive() == true)
-            {
-                resource_value_annotator_->ScanForGPUVA(
-                    memory_id, reinterpret_cast<uint8_t*>(start_address) + offset, size, offset);
-            }
-            WriteFillMemoryCmd(memory_id, offset, size, start_address);
-        });
-    }
-    else if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUnassisted)
-    {
-        std::lock_guard<std::mutex> lock(GetMappedMemoryLock());
-        for (auto resource_wrapper : mapped_resources_)
-        {
-            auto info = resource_wrapper->GetObjectInfo();
-
-            for (size_t i = 0; i < info->num_subresources; ++i)
-            {
-                // If the memory is mapped, write the entire mapped region.
-                auto        size               = info->subresource_sizes[i];
-                const auto& mapped_subresource = info->mapped_subresources[i];
-                if (mapped_subresource.data != nullptr)
-                {
-                    // we only need to handle data != nullptr case because no mapped memory and shadow memory
-                    // be tracked for data == nullptr, also no corresponding memory data for WriteFillMemoryCmd
-                    // writing to trace file.
-                    if (RvAnnotationActive() == true)
-                    {
-                        resource_value_annotator_->ScanForGPUVA(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                                                reinterpret_cast<uint8_t*>(mapped_subresource.data),
-                                                                size,
-                                                                0);
-                    }
-                    WriteFillMemoryCmd(
-                        reinterpret_cast<uint64_t>(mapped_subresource.data), 0, size, mapped_subresource.data);
-                }
-            }
-        }
-    }
+    ProcessMappedMemory();
 
     // Split commandlist is for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
     // queue_submit_count_.
@@ -3390,20 +3395,56 @@ void D3D12CaptureManager::PostProcess_ID3D11DeviceContext_Map(ID3D11DeviceContex
                 {
                     // The application has mapped the same ID3D11Resource object more than once and the pageguard
                     // manager is already tracking it, so we will return the pointer obtained from the pageguard manager
-                    // on the first map call. Note that the D3D11 runtime will report an error for this case, while also
-                    // returning S_OK, and the resource will be fully unmapped by the first Unmap() call regardless of
-                    // the number of times it has been mapped.
+                    // on the first map call for the non WRITE_DISCARD case. If the memory was mapped with
+                    // WRITE_DISCARD, a new allocation was created and we need to update the pageguard manager. Note
+                    // that the D3D11 runtime will report an error for this case, while also returning S_OK, and the
+                    // resource will be fully unmapped by the first Unmap() call regardless of the number of times it
+                    // has been mapped.
                     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
                     {
                         // Return the shadow memory that was allocated for the previous map operation.
                         util::PageGuardManager* manager = util::PageGuardManager::Get();
                         assert(manager != nullptr);
 
-                        auto found = manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
-                                                               &mapped_subresource_data->pData);
-                        if (!found)
+                        if (map_type == D3D11_MAP_WRITE_DISCARD)
                         {
-                            GFXRECON_LOG_ERROR("Failed to find tracked memory object for a previously mapped resource.")
+                            GFXRECON_LOG_WARNING_ONCE(
+                                "A resource has been mapped more than once, which may indicate that the "
+                                "game is mapping memory with the D3D11_MAP_WRITE_DISCARD flag without "
+                                "ever unmapping. This may lead to rendering corruption or other issues, "
+                                "which can be avoided by enabling GFXRECON_D3D11_MAP_WORKAROUND");
+
+                            // Process any dirty pages that may still be pending on the old allocation and then remove
+                            // it from memory tracking.
+                            auto old_memory_id = reinterpret_cast<uint64_t>(mapped_subresource.data);
+                            manager->ProcessMemoryEntry(
+                                old_memory_id,
+                                [this](uint64_t memory_id, void* start_address, size_t offset, size_t size) {
+                                    WriteFillMemoryCmd(memory_id, offset, size, start_address);
+                                });
+
+                            manager->RemoveTrackedMemory(old_memory_id);
+
+                            // Update resource info and add a new entry for the new allocation.
+                            mapped_subresource.data = mapped_subresource_data->pData;
+                            mapped_subresource_data->pData =
+                                manager->AddTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                          mapped_subresource.data,
+                                                          0,
+                                                          static_cast<size_t>(info->subresource_sizes[subresource]),
+                                                          mapped_subresource.shadow_allocation,
+                                                          true,
+                                                          false);
+                        }
+                        else
+                        {
+                            auto found = manager->GetTrackedMemory(reinterpret_cast<uint64_t>(mapped_subresource.data),
+                                                                   &mapped_subresource_data->pData);
+                            if (!found)
+                            {
+                                GFXRECON_LOG_ERROR(
+                                    "Failed to find tracked memory object for a previously mapped resource.")
+                            }
                         }
                     }
                 }
@@ -3489,6 +3530,141 @@ void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Unmap(ID3D11DeviceConte
                     wrapper->GetCaptureId());
             }
         }
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Dispatch(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                  UINT                         thread_group_count_x,
+                                                                  UINT                         thread_group_count_y,
+                                                                  UINT                         thread_group_count_z)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(thread_group_count_x);
+    GFXRECON_UNREFERENCED_PARAMETER(thread_group_count_y);
+    GFXRECON_UNREFERENCED_PARAMETER(thread_group_count_z);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DispatchIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                          ID3D11Buffer*                buffer_for_args,
+                                                                          UINT aligned_byte_offset_for_args)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(buffer_for_args);
+    GFXRECON_UNREFERENCED_PARAMETER(aligned_byte_offset_for_args);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_Draw(ID3D11DeviceContext_Wrapper* wrapper,
+                                                              UINT                         vertex_count,
+                                                              UINT                         start_vertex_location)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(vertex_count);
+    GFXRECON_UNREFERENCED_PARAMETER(start_vertex_location);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawAuto(ID3D11DeviceContext_Wrapper* wrapper)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexed(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                     UINT                         index_count,
+                                                                     UINT                         start_index_location,
+                                                                     INT                          base_vertex_location)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(index_count);
+    GFXRECON_UNREFERENCED_PARAMETER(start_index_location);
+    GFXRECON_UNREFERENCED_PARAMETER(base_vertex_location);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                              UINT index_count_per_instance,
+                                                                              UINT instance_count,
+                                                                              UINT start_index_location,
+                                                                              INT  base_vertex_location,
+                                                                              UINT start_instance_location)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(index_count_per_instance);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_count);
+    GFXRECON_UNREFERENCED_PARAMETER(start_index_location);
+    GFXRECON_UNREFERENCED_PARAMETER(base_vertex_location);
+    GFXRECON_UNREFERENCED_PARAMETER(start_instance_location);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawIndexedInstancedIndirect(
+    ID3D11DeviceContext_Wrapper* wrapper, ID3D11Buffer* buffer_for_args, UINT aligned_byte_offset_for_args)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(buffer_for_args);
+    GFXRECON_UNREFERENCED_PARAMETER(aligned_byte_offset_for_args);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawInstanced(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                       UINT vertex_count_per_instance,
+                                                                       UINT instance_count,
+                                                                       UINT start_vertex_location,
+                                                                       UINT start_instance_location)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(vertex_count_per_instance);
+    GFXRECON_UNREFERENCED_PARAMETER(instance_count);
+    GFXRECON_UNREFERENCED_PARAMETER(start_vertex_location);
+    GFXRECON_UNREFERENCED_PARAMETER(start_instance_location);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
+    }
+}
+
+void D3D12CaptureManager::PreProcess_ID3D11DeviceContext_DrawInstancedIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                               ID3D11Buffer* buffer_for_args,
+                                                                               UINT aligned_byte_offset_for_args)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(wrapper);
+    GFXRECON_UNREFERENCED_PARAMETER(buffer_for_args);
+    GFXRECON_UNREFERENCED_PARAMETER(aligned_byte_offset_for_args);
+
+    if (GetEnableD3D11MapWorkaroundSetting())
+    {
+        ProcessMappedMemory();
     }
 }
 

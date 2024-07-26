@@ -906,6 +906,47 @@ class D3D12CaptureManager : public ApiCaptureManager
                                               ID3D11Resource*              resource,
                                               UINT                         subresource);
 
+    void PreProcess_ID3D11DeviceContext_Dispatch(ID3D11DeviceContext_Wrapper* wrapper,
+                                                 UINT                         thread_group_count_x,
+                                                 UINT                         thread_group_count_y,
+                                                 UINT                         thread_group_count_z);
+
+    void PreProcess_ID3D11DeviceContext_DispatchIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                         ID3D11Buffer*                buffer_for_args,
+                                                         UINT                         aligned_byte_offset_for_args);
+
+    void PreProcess_ID3D11DeviceContext_Draw(ID3D11DeviceContext_Wrapper* wrapper,
+                                             UINT                         vertex_count,
+                                             UINT                         start_vertex_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawAuto(ID3D11DeviceContext_Wrapper* wrapper);
+
+    void PreProcess_ID3D11DeviceContext_DrawIndexed(ID3D11DeviceContext_Wrapper* wrapper,
+                                                    UINT                         index_count,
+                                                    UINT                         start_index_location,
+                                                    INT                          base_vertex_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(ID3D11DeviceContext_Wrapper* wrapper,
+                                                             UINT                         index_count_per_instance,
+                                                             UINT                         instance_count,
+                                                             UINT                         start_index_location,
+                                                             INT                          base_vertex_location,
+                                                             UINT                         start_instance_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawIndexedInstancedIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                                     ID3D11Buffer*                buffer_for_args,
+                                                                     UINT aligned_byte_offset_for_args);
+
+    void PreProcess_ID3D11DeviceContext_DrawInstanced(ID3D11DeviceContext_Wrapper* wrapper,
+                                                      UINT                         vertex_count_per_instance,
+                                                      UINT                         instance_count,
+                                                      UINT                         start_vertex_location,
+                                                      UINT                         start_instance_location);
+
+    void PreProcess_ID3D11DeviceContext_DrawInstancedIndirect(ID3D11DeviceContext_Wrapper* wrapper,
+                                                              ID3D11Buffer*                buffer_for_args,
+                                                              UINT aligned_byte_offset_for_args);
+
     void PostProcess_ID3D11Device_CreateShaderResourceView(ID3D11Device_Wrapper*                  wrapper,
                                                            HRESULT                                result,
                                                            ID3D11Resource*                        resource,
@@ -1076,6 +1117,7 @@ class D3D12CaptureManager : public ApiCaptureManager
     uint64_t GetResourceSizeInBytes(ID3D12Device_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC* desc);
     uint64_t GetResourceSizeInBytes(ID3D12Device8_Wrapper* device_wrapper, const D3D12_RESOURCE_DESC1* desc);
     void     UpdateSwapChainSize(uint32_t width, uint32_t height, IDXGISwapChain1* swapchain);
+    void     ProcessMappedMemory();
     PFN_D3D12_GET_DEBUG_INTERFACE GetDebugInterfacePtr();
     void                          EnableDebugLayer();
     void                          EnableDRED();

@@ -950,6 +950,96 @@ struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Unmap
 };
 
 template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Dispatch>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_Dispatch(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DispatchIndirect>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DispatchIndirect(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_Draw>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_Draw(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawAuto>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawAuto(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexed>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawIndexed(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexedInstanced>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawIndexedInstanced(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawIndexedInstancedIndirect>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawIndexedInstancedIndirect(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawInstanced>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawInstanced(args...);
+    }
+};
+
+template <>
+struct CustomWrapperPreCall<format::ApiCallId::ApiCall_ID3D11DeviceContext_DrawInstancedIndirect>
+{
+    template <typename... Args>
+    static void Dispatch(D3D12CaptureManager* manager, Args... args)
+    {
+        manager->PreProcess_ID3D11DeviceContext_DrawInstancedIndirect(args...);
+    }
+};
+
+template <>
 struct CustomWrapperPostCall<format::ApiCallId::ApiCall_ID3D11Device_CreateShaderResourceView>
 {
     template <typename... Args>
