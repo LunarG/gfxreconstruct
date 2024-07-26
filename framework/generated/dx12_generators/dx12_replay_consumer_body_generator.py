@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 #
 # Copyright (c) 2021 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -440,10 +441,16 @@ class Dx12ReplayConsumerBodyGenerator(
                                     .format(value.name)
 
                         arg_list.append('out_op_{}'.format(value.name))
-                        post_extenal_object_list.append(
-                            'PostProcessExternalObject(replay_result, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
-                            .format(value.name, name)
-                        )
+                        if return_type != 'void':
+                            post_extenal_object_list.append(
+                                'PostProcessExternalObject(replay_result, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
+                                .format(value.name, name)
+                            )
+                        else:
+                            post_extenal_object_list.append(
+                                'PostProcessExternalObject(S_OK, out_op_{0}, out_p_{0}, format::ApiCallId::ApiCall_{1}, "{1}");\n'
+                                .format(value.name, name)
+                            )
 
                 else:
                     if is_override:

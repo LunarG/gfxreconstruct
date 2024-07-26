@@ -84,7 +84,7 @@ class Dx12BaseStructDecodersBodyGenerator():
 
         type_name = self.make_invocation_type_name(value.base_type)
 
-        if self.is_struct(type_name):
+        if self.is_struct(type_name) or type_name == 'Struct':
             is_struct = True
         elif self.is_class(value):
             is_class = True

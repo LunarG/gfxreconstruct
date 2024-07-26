@@ -57,6 +57,10 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
                 return "HandleToJson"
             if("HRESULT" in value_info.base_type):
                 return "HresultToJson"
+            if self.is_struct(value_info.base_type):
+                return "FieldToJson"
+            if self.is_union(value_info.base_type):
+                return "FieldToJson"
             if ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES):
                 return "FieldToJson_" + value_info.base_type
             if  self.is_raw_bitflags(value_info):

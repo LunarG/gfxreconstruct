@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2018 Valve Corporation
 # Copyright (c) 2018 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Technologies, Inc. and/or its subsidiaries.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -69,7 +70,7 @@ class Dx12BaseStructDecodersHeaderGenerator():
             return True
         elif self.is_handle(value.base_type):
             return True
-        elif self.is_struct(value.base_type):
+        elif self.is_struct(value.base_type) or self.is_union(value.base_type):
             return True
         elif self.is_generic_struct_handle_value(name, value.name):
             return True
@@ -94,7 +95,7 @@ class Dx12BaseStructDecodersHeaderGenerator():
         for value in values:
             if self.needs_member_declaration(name, value):
                 type_name = self.make_decoded_param_type(value)
-                if self.is_struct(value.base_type):
+                if self.is_struct(value.base_type) or self.is_union(value.base_type):
                     type_name = '{}*'.format(type_name)
 
                 default_value = self.get_default_init_value(type_name)
@@ -103,7 +104,7 @@ class Dx12BaseStructDecodersHeaderGenerator():
                         type_name, value.name, default_value
                     )
                 else:
-                    if self.is_struct(value.base_type):
+                    if self.is_struct(value.base_type) or self.is_union(value.base_type):
                         body += '    {} {}{{ nullptr }};\n'.format(
                             type_name, value.name
                         )

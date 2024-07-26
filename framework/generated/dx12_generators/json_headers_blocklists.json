@@ -4,6 +4,18 @@
   "functions-encoder": [],
   "functions-decoder": [],
   "classmethods": {
+    "ID3D11Device": [
+      "CreateBuffer",
+      "CreateTexture1D",
+      "CreateTexture2D",
+      "CreateTexture3D"
+    ],
+    "ID3D11DeviceContext": [
+      "UpdateSubresource"
+    ],
+    "ID3D11DeviceContext1": [
+      "UpdateSubresource1"
+    ],
     "ID3D12Device": [
       "CheckFeatureSupport"
     ],
@@ -17,5 +29,6 @@
   },
   "structures-comment": "We don't want to disable any structs from header generation. Even if we make custom bodies, the function protoypes in the headers will be the same so there's no need to type them all out.",
   "structures": [
+    "D3D11_SUBRESOURCE_DATA"
   ]
 }
