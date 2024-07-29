@@ -41,7 +41,6 @@ using util::JsonOptions;
 using util::to_hex_variable_width;
 using util::uuid_to_string;
 
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrApiLayerProperties* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -348,6 +347,48 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageBa
         const XrSwapchainImageBaseHeader& decoded_value = *data->decoded_value;
         const Decoded_XrSwapchainImageBaseHeader& meta_struct = *data;
 
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainImageOpenGLKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainImageOpenGLESKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainImageVulkanKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainImageD3D11KHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainImageD3D12KHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
@@ -440,6 +481,62 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
     {
         const XrCompositionLayerBaseHeader& decoded_value = *data->decoded_value;
         const Decoded_XrCompositionLayerBaseHeader& meta_struct = *data;
+
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerProjection*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_QUAD:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerQuad*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerCubeKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerCylinderKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerEquirectKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerEquirect2KHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerPassthroughHTC*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
 
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(XrCompositionLayerFlags_t(),jdata["layerFlags"], decoded_value.layerFlags, options);
@@ -729,6 +826,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticBaseHeader
         const XrHapticBaseHeader& decoded_value = *data->decoded_value;
         const Decoded_XrHapticBaseHeader& meta_struct = *data;
 
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_HAPTIC_VIBRATION:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrHapticVibration*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrHapticAmplitudeEnvelopeVibrationFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrHapticPcmVibrationFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
@@ -830,6 +955,167 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataBaseHea
     {
         const XrEventDataBaseHeader& decoded_value = *data->decoded_value;
         const Decoded_XrEventDataBaseHeader& meta_struct = *data;
+
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataEventsLost*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataInstanceLossPending*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSessionStateChanged*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataReferenceSpaceChangePending*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataInteractionProfileChanged*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataVisibilityMaskChangedKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataPerfSettingsEXT*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataMainSessionVisibilityChangedEXTX*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataDisplayRefreshRateChangedFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataViveTrackerConnectedHTCX*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpatialAnchorCreateCompleteFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpaceSetStatusCompleteFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataMarkerTrackingUpdateVARJO*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataLocalizationChangedML*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpaceQueryResultsAvailableFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpaceQueryCompleteFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpaceSaveCompleteFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpaceEraseCompleteFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpaceShareCompleteFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataSpaceListSaveCompleteFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataHeadsetFitChangedML*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrEventDataEyeCalibrationChangedML*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
 
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
@@ -1396,6 +1682,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLoaderInitInfoBa
         const XrLoaderInitInfoBaseHeaderKHR& decoded_value = *data->decoded_value;
         const Decoded_XrLoaderInitInfoBaseHeaderKHR& meta_struct = *data;
 
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrLoaderInitInfoAndroidKHR*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
@@ -1452,6 +1752,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBindingModificat
     {
         const XrBindingModificationBaseHeaderKHR& decoded_value = *data->decoded_value;
         const Decoded_XrBindingModificationBaseHeaderKHR& meta_struct = *data;
+
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrInteractionProfileDpadBindingEXT*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrInteractionProfileAnalogThresholdVALVE*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
 
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
@@ -2110,6 +2431,41 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainStateBa
     {
         const XrSwapchainStateBaseHeaderFB& decoded_value = *data->decoded_value;
         const Decoded_XrSwapchainStateBaseHeaderFB& meta_struct = *data;
+
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainStateFoveationFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainStateSamplerOpenGLESFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSwapchainStateSamplerVulkanFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
 
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
@@ -3725,6 +4081,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceQueryInfoBa
         const XrSpaceQueryInfoBaseHeaderFB& decoded_value = *data->decoded_value;
         const Decoded_XrSpaceQueryInfoBaseHeaderFB& meta_struct = *data;
 
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_SPACE_QUERY_INFO_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSpaceQueryInfoFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
@@ -3735,6 +4105,27 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceFilterInfoB
     {
         const XrSpaceFilterInfoBaseHeaderFB& decoded_value = *data->decoded_value;
         const Decoded_XrSpaceFilterInfoBaseHeaderFB& meta_struct = *data;
+
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSpaceUuidFilterInfoFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrSpaceComponentFilterInfoFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
 
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
@@ -5366,6 +5757,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUserCalibrationE
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
+
+
 void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, const JsonOptions& options)
 {
     if (data && data->GetPointer())

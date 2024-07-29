@@ -110,27 +110,52 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
             if struct in self.all_struct_aliases:
                 typename = self.all_struct_aliases[struct]
 
-            body += '''
-                void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
-                {{
-                    if (data && data->decoded_value)
-                    {{
-                        const {0}& decoded_value = *data->decoded_value;
-                        const Decoded_{0}& meta_struct = *data;
+            body += f'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{typename}* data, const JsonOptions& options)\n'
+            body += '{\n'
+            body += '    if (data && data->decoded_value)\n'
+            body += '    {\n'
+            body += f'        const {typename}& decoded_value = *data->decoded_value;\n'
+            body += f'        const Decoded_{typename}& meta_struct = *data;\n'
+            body += '\n'
+            if struct in self.base_header_structs.keys():
+                body += '        switch (decoded_value.type)\n'
+                body += '        {\n'
+                body += '            default:\n'
+                body += '                // Handle as base-type below\n'
+                body += '                break;\n'
 
-                '''.format(typename)
+                for child in self.base_header_structs[struct]:
+                    type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
+                    type = type.upper()
+                    switch_type = re.sub('XR_', 'XR_TYPE_', type)
+                    if 'OPEN_GLES' in switch_type:
+                        type = switch_type
+                        switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
+                    elif 'OPEN_GL' in switch_type:
+                        type = switch_type
+                        switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
+                    elif 'D3_D' in switch_type:
+                        type = switch_type
+                        switch_type = re.sub('D3_D', 'D3D', type)
+                    body += f'            case {switch_type}:\n'
+                    body += f'                FieldToJson(jdata,\n'
+                    body += f'                            reinterpret_cast<const Decoded_{child}*>(data),\n'
+                    body += '                            options);\n'
+                    body += '                // Return here because we processed the appropriate data in\n'
+                    body += '                // the correct structure type\n'
+                    body += '                return;\n'
+                body += '        }\n'
+                body += '\n'
+
             body += self.makeStructBody(
                 struct, self.all_struct_members[struct]
             )
-            body += remove_leading_empty_lines(
-                '''
-                    }
-                }
-                '''
-            )
-            body = remove_trailing_newlines(indent_cpp_code(body))
 
-        body += '''
+            body += '    }\n'
+            body += '}\n'
+        write(body, file=self.outFile)
+
+        body = '''
             void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, const JsonOptions& options)
             {
                 if (data && data->GetPointer())
