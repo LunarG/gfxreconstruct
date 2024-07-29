@@ -666,10 +666,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkCmdPushDescriptorSetWithTem
 {
     Decoded_VkPushDescriptorSetWithTemplateInfoKHR* info = pPushDescriptorSetWithTemplateInfo->GetMetaStructPointer();
     format::HandleId                                descriptorUpdateTemplate = info->descriptorUpdateTemplate;
-
-    DescriptorUpdateTemplateDecoder pData;
-    const uint8_t*                  ptr = static_cast<const uint8_t*>(info->pNext->GetPointer());
-    pData.Decode(ptr, pData.GetLength());
+    DescriptorUpdateTemplateDecoder                 pData                    = info->pData;
 
     PushDescriptorSetWithTemplate(commandBuffer, descriptorUpdateTemplate, &pData);
 }
