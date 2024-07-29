@@ -150,7 +150,9 @@ class Dx12StateWriter
 
     void WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper);
 
-    void WriteCommandListCommands(const ID3D12CommandList_Wrapper* list_wrapper, const Dx12StateTable& state_table);
+    void WriteCommandListCommands(const ID3D12CommandList_Wrapper* list_wrapper,
+                                  const Dx12StateTable&            state_table,
+                                  const util::UintRange&           drawcall_indices);
 
     void WriteCommandListClose(const ID3D12CommandList_Wrapper* list_wrapper);
 

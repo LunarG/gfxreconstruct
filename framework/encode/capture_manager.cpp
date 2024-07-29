@@ -366,6 +366,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     }
 
     if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty() &&
+        trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kDrawcalls &&
         trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kNotUsed)
     {
         // Use default kModeWrite capture mode.
@@ -430,6 +431,11 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
             {
                 capture_mode_ = kModeTrack;
             }
+        }
+        else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawcalls)
+        {
+            trim_drawcalls_ = trace_settings.trim_drawcalls;
+            capture_mode_   = kModeTrack;
         }
         else
         {
@@ -721,6 +727,26 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
             }
         }
     }
+    else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawcalls)
+    {
+        if (current_boundary_count == (trim_drawcalls_.submit_index + 1))
+        {
+            // Stop recording and close file.
+            DeactivateTrimming();
+            GFXRECON_LOG_INFO("Finished recording graphics API capture");
+
+            // No more trim ranges to capture. Capture can be disabled and resources can be released.
+            trim_enabled_  = false;
+            trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
+            capture_mode_  = kModeDisabled;
+            // Clean up all of the capture manager's state trackers
+            for (auto& manager_it : api_capture_managers_)
+            {
+                manager_it.first->DestroyStateTracker();
+            }
+            compressor_ = nullptr;
+        }
+    }
     else if (IsTrimHotkeyPressed() ||
              ((trim_key_frames_ > 0) && (current_boundary_count >= (trim_key_first_frame_ + trim_key_frames_))) ||
              RuntimeTriggerDisabled())
@@ -747,6 +773,23 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId api
             else
             {
                 GFXRECON_LOG_FATAL("Failed to initialize capture for trim range; capture has been disabled");
+                trim_enabled_ = false;
+                capture_mode_ = kModeDisabled;
+            }
+        }
+    }
+    else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawcalls)
+    {
+        if (current_boundary_count == trim_drawcalls_.submit_index)
+        {
+            bool success = CreateCaptureFile(api_family, CreateTrimDrawcallsFilename(base_filename_, trim_drawcalls_));
+            if (success)
+            {
+                ActivateTrimming();
+            }
+            else
+            {
+                GFXRECON_LOG_FATAL("Failed to initialize capture for trim drawcalls; capture has been disabled");
                 trim_enabled_ = false;
                 capture_mode_ = kModeDisabled;
             }
@@ -854,7 +897,8 @@ void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family)
 {
     ++queue_submit_count_;
 
-    if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
+    if (trim_enabled_ && ((trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits) ||
+                          (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawcalls)))
     {
         if (((capture_mode_ & kModeWrite) != kModeWrite) && ((capture_mode_ & kModeTrack) == kModeTrack))
         {
@@ -866,7 +910,8 @@ void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family)
 
 void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId api_family)
 {
-    if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
+    if (trim_enabled_ && ((trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits) ||
+                          (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawcalls)))
     {
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
@@ -906,6 +951,26 @@ std::string CommonCaptureManager::CreateTrimFilename(const std::string&     base
     {
         range_string += "_through_";
         range_string += std::to_string(trim_range.last);
+    }
+
+    return util::filepath::InsertFilenamePostfix(base_filename, range_string);
+}
+
+std::string CommonCaptureManager::CreateTrimDrawcallsFilename(const std::string&                    base_filename,
+                                                              const CaptureSettings::TrimDrawcalls& trim_drawcalls)
+{
+    std::string range_string = "_";
+
+    uint32_t    total        = trim_drawcalls.drawcall_indices.last - trim_drawcalls.drawcall_indices.first + 1;
+    const char* boundary_str = total > 1 ? "drawcalls_" : "drawcall_";
+
+    range_string += boundary_str;
+    range_string += std::to_string(trim_drawcalls.submit_index) + "_" + std::to_string(trim_drawcalls.command_index) +
+                    "_" + std::to_string(trim_drawcalls.drawcall_indices.first);
+    if (total > 1)
+    {
+        range_string += "_through_";
+        range_string += std::to_string(trim_drawcalls.drawcall_indices.last);
     }
 
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);

@@ -1770,6 +1770,16 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3D
         }
     }
 
+    std::vector<format::HandleId> command_ids;
+    for (uint32_t i = 0; i < num_lists; ++i)
+    {
+        auto wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(lists[i]);
+        if (wrapper)
+        {
+            command_ids.emplace_back(wrapper->GetCaptureId());
+        }
+    }
+    common_manager_->SetCurrentQueueSbumitCommandIds(command_ids);
     PreQueueSubmit();
 }
 

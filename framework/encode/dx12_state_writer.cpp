@@ -990,7 +990,33 @@ void Dx12StateWriter::WriteResidencyPriority(const Dx12StateTable& state_table)
 
 void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
 {
+    auto                           trim_boundary  = D3D12CaptureManager::Get()->GetTrimBundary();
+    CaptureSettings::TrimDrawcalls trim_drawcalls = {};
+    std::vector<format::HandleId>  target_command_ids;
+    format::HandleId               last_target_command_id = format::kNullHandleId;
+
+    // Write target commandlists in direct_command_lists for TrimBoundary::kDrawcalls.
+    if (trim_boundary == CaptureSettings::TrimBoundary::kDrawcalls)
+    {
+        trim_drawcalls   = D3D12CaptureManager::Get()->GetTrimDrawcalls();
+        auto command_ids = D3D12CaptureManager::Get()->GetCurrentQueueSbumitCommandIds();
+        GFXRECON_ASSERT(command_ids.size() >= trim_drawcalls.command_index);
+
+        uint32_t command_index = 0;
+        for (format::HandleId id : command_ids)
+        {
+            ++command_index;
+            target_command_ids.emplace_back(id);
+            if (command_index == trim_drawcalls.command_index)
+            {
+                last_target_command_id = id;
+                break;
+            }
+        }
+    }
+
     std::vector<ID3D12CommandList_Wrapper*> direct_command_lists;
+    // TrimBoundary::kDrawcalls only runs one ExecuteCommandLists, so it doesn't need !is_closed commandlists.
     std::vector<ID3D12CommandList_Wrapper*> open_command_lists;
 
     state_table.VisitWrappers([&](ID3D12CommandList_Wrapper* list_wrapper) {
@@ -1006,14 +1032,16 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
 
         // Write create calls and commands for bundle command lists. Keep track of primary and open command lists to be
         // written afterward.
+        // TrimBoundary::kDrawcalls doesn't filter Bundle commandlists. All are writed.
         if (list->GetType() == D3D12_COMMAND_LIST_TYPE_BUNDLE)
         {
             if (list_info->is_closed)
             {
+                util::UintRange drawcall_indices;
                 WriteCommandListCreation(list_wrapper);
-                WriteCommandListCommands(list_wrapper, state_table);
+                WriteCommandListCommands(list_wrapper, state_table, drawcall_indices);
             }
-            else
+            else if (trim_boundary != CaptureSettings::TrimBoundary::kDrawcalls)
             {
                 open_command_lists.push_back(list_wrapper);
             }
@@ -1030,10 +1058,22 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
         auto list_info = list_wrapper->GetObjectInfo();
         if (list_info->is_closed)
         {
+            if (!target_command_ids.empty() &&
+                (std::find(target_command_ids.begin(), target_command_ids.end(), list_wrapper->GetCaptureId()) ==
+                 target_command_ids.end()))
+            {
+                continue;
+            }
+
+            util::UintRange drawcall_indices;
+            if (last_target_command_id == list_wrapper->GetCaptureId())
+            {
+                drawcall_indices = trim_drawcalls.drawcall_indices;
+            }
             WriteCommandListCreation(list_wrapper);
-            WriteCommandListCommands(list_wrapper, state_table);
+            WriteCommandListCommands(list_wrapper, state_table, drawcall_indices);
         }
-        else
+        else if (trim_boundary != CaptureSettings::TrimBoundary::kDrawcalls)
         {
             open_command_lists.push_back(list_wrapper);
         }
@@ -1058,22 +1098,28 @@ void Dx12StateWriter::WriteCommandListState(const Dx12StateTable& state_table)
             WriteCommandListCreation(list_wrapper);
         }
 
+        util::UintRange drawcall_indices;
         // Write commands for all open command lists.
-        WriteCommandListCommands(list_wrapper, state_table);
+        WriteCommandListCommands(list_wrapper, state_table, drawcall_indices);
     }
 }
 
 void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* list_wrapper,
-                                               const Dx12StateTable&            state_table)
+                                               const Dx12StateTable&            state_table,
+                                               const util::UintRange&           drawcall_indices)
 {
     auto list_info = list_wrapper->GetObjectInfo();
 
     bool write_commands = CheckCommandListObjects(list_info.get(), state_table);
 
     // Write each of the commands that was recorded for the command buffer.
-    size_t         offset    = 0;
-    size_t         data_size = list_info->command_data.GetDataSize();
-    const uint8_t* data      = list_info->command_data.GetData();
+    size_t                      offset         = 0;
+    size_t                      data_size      = list_info->command_data.GetDataSize();
+    const uint8_t*              data           = list_info->command_data.GetData();
+    uint32_t                    drawcall_count = 0;
+    bool                        use_renderpass = false;
+    std::vector<const size_t*>  use_query_param_sizes;
+    std::vector<const uint8_t*> use_query_param_datas;
 
     while (offset < data_size)
     {
@@ -1100,6 +1146,42 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
             // Always write the close command.
             write_current_command = true;
         }
+        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass)
+        {
+            use_renderpass = true;
+        }
+        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass)
+        {
+            use_renderpass = false;
+        }
+        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_BeginQuery)
+        {
+            use_query_param_sizes.emplace_back(parameter_size);
+            use_query_param_datas.emplace_back(parameter_data);
+        }
+        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery)
+        {
+            GFXRECON_ASSERT(use_query_param_sizes.size() == use_query_param_datas.size());
+            auto use_query_size = use_query_param_sizes.size();
+            for (uint32_t i = 0; i < use_query_size; ++i)
+            {
+                if (*use_query_param_sizes[i] == *parameter_size &&
+                    util::platform::MemoryCompare(parameter_data, use_query_param_datas[i], *parameter_size) == 0)
+                {
+                    use_query_param_sizes.erase(use_query_param_sizes.begin() + i);
+                    use_query_param_datas.erase(use_query_param_datas.begin() + i);
+                    break;
+                }
+            }
+        }
+        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced ||
+                 (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced ||
+                 (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch ||
+                 (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle ||
+                 (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect)
+        {
+            ++drawcall_count;
+        }
 #ifdef GFXRECON_AGS_SUPPORT
         else if (format::GetApiCallFamily(*call_id) == format::ApiFamilyId::ApiFamily_AGS)
         {
@@ -1109,7 +1191,6 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
                 parameter_stream_.Write(parameter_data, (*parameter_size));
                 WriteFunctionCall((*call_id), &parameter_stream_);
                 parameter_stream_.Clear();
-
                 // The output below, in this case, should be skipped.
                 write_current_command = false;
             }
@@ -1122,10 +1203,43 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
             WriteMethodCall((*call_id), list_wrapper->GetCaptureId(), &parameter_stream_);
             parameter_stream_.Clear();
         }
+
+        if (drawcall_indices.last > 0 && drawcall_indices.last == drawcall_count)
+        {
+            if (use_renderpass)
+            {
+                // Write EndRenderPass if it use RenderPass
+                encoder_.EncodeUInt32Value(S_OK);
+                WriteMethodCall(format::ApiCallId::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass,
+                                list_wrapper->GetCaptureId(),
+                                &parameter_stream_);
+                parameter_stream_.Clear();
+            }
+
+            GFXRECON_ASSERT(use_query_param_sizes.size() == use_query_param_datas.size());
+            auto use_query_size = use_query_param_sizes.size();
+            for (uint32_t i = 0; i < use_query_size; ++i)
+            {
+                // Write EndQuery if it use BeginQuery
+                parameter_stream_.Write(use_query_param_datas[i], (*use_query_param_sizes[i]));
+                WriteMethodCall(format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_EndQuery,
+                                list_wrapper->GetCaptureId(),
+                                &parameter_stream_);
+                parameter_stream_.Clear();
+            }
+
+            WriteCommandListClose(list_wrapper);
+            break;
+        }
+
         offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
     }
 
-    GFXRECON_ASSERT(offset == data_size);
+    GFXRECON_ASSERT(drawcall_indices.last == 0 || drawcall_indices.last == drawcall_count);
+    if (drawcall_indices.last == 0)
+    {
+        GFXRECON_ASSERT(offset == data_size);
+    }
 }
 
 void Dx12StateWriter::WriteCommandListCreation(const ID3D12CommandList_Wrapper* list_wrapper)
