@@ -34,7 +34,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
+std::vector<UintRange> GetUintRanges(const char* args, const char* option_name, bool check_overlap_range)
 {
     std::vector<UintRange> ranges;
 
@@ -134,7 +134,7 @@ std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
                 next_allowed = ranges.back().last + 1;
             }
 
-            if (uint_range.first >= next_allowed)
+            if (!check_overlap_range || uint_range.first >= next_allowed)
             {
                 ranges.emplace_back(std::move(uint_range));
                 previous_range = range;

@@ -82,6 +82,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define SCREENSHOT_FRAMES_UPPER                              "SCREENSHOT_FRAMES"
 #define CAPTURE_FRAMES_LOWER                                 "capture_frames"
 #define CAPTURE_FRAMES_UPPER                                 "CAPTURE_FRAMES"
+#define CAPTURE_DRAWCALLS_LOWER                              "capture_drawcalls"
+#define CAPTURE_DRAWCALLS_UPPER                              "CAPTURE_DRAWCALLS"
 #define QUIT_AFTER_CAPTURE_FRAMES_LOWER                      "quit_after_capture_frames"
 #define QUIT_AFTER_CAPTURE_FRAMES_UPPER                      "QUIT_AFTER_CAPTURE_FRAMES"
 #define CAPTURE_TRIGGER_LOWER                                "capture_trigger"
@@ -161,6 +163,7 @@ const char kScreenshotDirEnvVar[]                            = GFXRECON_ENV_VAR_
 const char kScreenshotFormatEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FORMAT_LOWER;
 const char kScreenshotFramesEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FRAMES_LOWER;
 const char kCaptureFramesEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_LOWER;
+const char kCaptureDrawcallsEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX CAPTURE_DRAWCALLS_LOWER;
 const char kQuitAfterFramesEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX QUIT_AFTER_CAPTURE_FRAMES_LOWER;
 const char kCaptureTriggerEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_LOWER;
 const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX CAPTURE_TRIGGER_FRAMES_LOWER;
@@ -214,6 +217,7 @@ const char kScreenshotDirEnvVar[]                            = GFXRECON_ENV_VAR_
 const char kScreenshotFormatEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FORMAT_UPPER;
 const char kScreenshotFramesEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX SCREENSHOT_FRAMES_UPPER;
 const char kCaptureFramesEnvVar[]                            = GFXRECON_ENV_VAR_PREFIX CAPTURE_FRAMES_UPPER;
+const char kCaptureDrawcallsEnvVar[]                         = GFXRECON_ENV_VAR_PREFIX CAPTURE_DRAWCALLS_UPPER;
 const char kQuitAfterFramesEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX QUIT_AFTER_CAPTURE_FRAMES_UPPER;
 const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_UPPER;
 const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_UPPER;
@@ -265,6 +269,7 @@ const std::string kOptionKeyScreenshotDir                            = std::stri
 const std::string kOptionKeyScreenshotFormat                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FORMAT_LOWER);
 const std::string kOptionKeyScreenshotFrames                         = std::string(kSettingsFilter) + std::string(SCREENSHOT_FRAMES_LOWER);
 const std::string kOptionKeyCaptureFrames                            = std::string(kSettingsFilter) + std::string(CAPTURE_FRAMES_LOWER);
+const std::string kOptionKeyCaptureDrawcalls                         = std::string(kSettingsFilter) + std::string(CAPTURE_DRAWCALLS_LOWER);
 const std::string kOptionKeyQuitAfterCaptureFrames                   = std::string(kSettingsFilter) + std::string(QUIT_AFTER_CAPTURE_FRAMES_LOWER);
 const std::string kOptionKeyCaptureTrigger                           = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_LOWER);
 const std::string kOptionKeyCaptureTriggerFrames                     = std::string(kSettingsFilter) + std::string(CAPTURE_TRIGGER_FRAMES_LOWER);
@@ -403,6 +408,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     // Trimming environment variables
     LoadSingleOptionEnvVar(options, kCaptureFramesEnvVar, kOptionKeyCaptureFrames);
+    LoadSingleOptionEnvVar(options, kCaptureDrawcallsEnvVar, kOptionKeyCaptureDrawcalls);
     LoadSingleOptionEnvVar(options, kQuitAfterFramesEnvVar, kOptionKeyQuitAfterCaptureFrames);
     LoadSingleOptionEnvVar(options, kCaptureTriggerEnvVar, kOptionKeyCaptureTrigger);
     LoadSingleOptionEnvVar(options, kCaptureTriggerFramesEnvVar, kOptionKeyCaptureTriggerFrames);
@@ -498,6 +504,30 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         if (!settings->trace_settings_.trim_ranges.empty())
         {
             settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
+        }
+    }
+
+    std::string trim_drawcalls = FindOption(options, kOptionKeyCaptureDrawcalls);
+    if (!trim_drawcalls.empty())
+    {
+        std::vector<util::UintRange> trim_values;
+        ParseUintRangeList(trim_drawcalls, &trim_values, "capture drawcalls", false);
+        if (trim_values.size() == 3)
+        {
+            if (trim_values[0].first != 0)
+            {
+                settings->trace_settings_.trim_drawcalls.submit_index = trim_values[0].first;
+                if (trim_values[1].first != 0)
+                {
+                    settings->trace_settings_.trim_drawcalls.command_index = trim_values[1].first;
+                    if (trim_values[2].first != 0)
+                    {
+                        settings->trace_settings_.trim_drawcalls.drawcall_indices.first = trim_values[2].first;
+                        settings->trace_settings_.trim_drawcalls.drawcall_indices.last  = trim_values[2].last;
+                        settings->trace_settings_.trim_boundary                         = TrimBoundary::kDrawcalls;
+                    }
+                }
+            }
         }
     }
 
@@ -835,13 +865,15 @@ util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  val
 
 void CaptureSettings::ParseUintRangeList(const std::string&            value_string,
                                          std::vector<util::UintRange>* frames,
-                                         const char*                   option_name)
+                                         const char*                   option_name,
+                                         bool                          check_overlap_range)
 {
     GFXRECON_ASSERT(frames != nullptr);
 
     if (!value_string.empty())
     {
-        std::vector<gfxrecon::util::UintRange> frame_ranges = util::GetUintRanges(value_string.c_str(), option_name);
+        std::vector<gfxrecon::util::UintRange> frame_ranges =
+            util::GetUintRanges(value_string.c_str(), option_name, check_overlap_range);
 
         for (uint32_t i = 0; i < frame_ranges.size(); ++i)
         {
