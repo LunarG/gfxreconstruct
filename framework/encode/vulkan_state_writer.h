@@ -52,8 +52,8 @@ class VulkanStateWriter
     VulkanStateWriter(util::FileOutputStream*                output_stream,
                       util::Compressor*                      compressor,
                       format::ThreadId                       thread_id,
-                      std::unordered_map<uint64_t, int64_t>& asset_file_offsets,
-                      util::FileOutputStream*                asset_file_stream = nullptr);
+                      util::FileOutputStream*                asset_file_stream  = nullptr,
+                      std::unordered_map<uint64_t, int64_t>* asset_file_offsets = nullptr);
 
     ~VulkanStateWriter();
 
@@ -134,6 +134,8 @@ class VulkanStateWriter
 
     void WriteDescriptorSetState(const VulkanStateTable& state_table);
 
+    void WriteDescriptorSetStateWithAssetFile(const VulkanStateTable& state_table);
+
     void WriteQueryPoolState(const VulkanStateTable& state_table);
 
     void WriteSurfaceKhrState(const VulkanStateTable& state_table);
@@ -155,9 +157,17 @@ class VulkanStateWriter
                              const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
                              graphics::VulkanResourcesUtil&         resource_util);
 
+    void ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper*  device_wrapper,
+                                          const std::vector<BufferSnapshotInfo>& buffer_snapshot_info,
+                                          graphics::VulkanResourcesUtil&         resource_util);
+
     void ProcessImageMemory(const vulkan_wrappers::DeviceWrapper* device_wrapper,
                             const std::vector<ImageSnapshotInfo>& image_snapshot_info,
                             graphics::VulkanResourcesUtil&        resource_util);
+
+    void ProcessImageMemoryWithAssetFile(const vulkan_wrappers::DeviceWrapper* device_wrapper,
+                                         const std::vector<ImageSnapshotInfo>& image_snapshot_info,
+                                         graphics::VulkanResourcesUtil&        resource_util);
 
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
@@ -367,7 +377,7 @@ class VulkanStateWriter
     uint64_t                 blocks_written_;
 
     util::FileOutputStream*                asset_file_stream_;
-    std::unordered_map<uint64_t, int64_t>& asset_file_offsets_;
+    std::unordered_map<uint64_t, int64_t>* asset_file_offsets_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

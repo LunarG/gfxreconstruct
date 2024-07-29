@@ -59,7 +59,11 @@ class VulkanStateTracker
                         util::Compressor*       compressor,
                         uint64_t                frame_number)
     {
-        VulkanStateWriter state_writer(file_stream, compressor, thread_id, asset_file_offsets_, asset_file_stream);
+        VulkanStateWriter state_writer(file_stream,
+                                       compressor,
+                                       thread_id,
+                                       asset_file_stream,
+                                       asset_file_stream != nullptr ? &asset_file_offsets_ : nullptr);
 
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         return state_writer.WriteState(state_table_, frame_number);

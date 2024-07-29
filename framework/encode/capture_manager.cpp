@@ -104,7 +104,7 @@ CommonCaptureManager::CommonCaptureManager() :
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), block_index_(0)
+    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -386,6 +386,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         trim_enabled_            = true;
         trim_boundary_           = trace_settings.trim_boundary;
         quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
+        use_asset_file_          = trace_settings.use_asset_file;
 
         // Check if trim ranges were specified.
         if (!trace_settings.trim_ranges.empty())
@@ -703,7 +704,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                 trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
                 capture_mode_  = kModeDisabled;
 
-                if (asset_file_stream_)
+                if (use_asset_file_ && asset_file_stream_)
                 {
                     asset_file_stream_->Flush();
                     asset_file_stream_ = nullptr;
@@ -954,25 +955,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
     bool        success          = true;
     std::string capture_filename = base_filename;
 
-    if (trim_enabled_ && asset_file_stream_.get() == nullptr)
-    {
-        std::string asset_file_name = CreateAssetFilename(base_filename_);
-        if (timestamp_filename_)
-        {
-            asset_file_name = util::filepath::GenerateTimestampedFilename(asset_file_name);
-        }
-
-        asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
-        if (asset_file_stream_->IsValid())
-        {
-            WriteAssetFileHeader();
-        }
-        else
-        {
-            asset_file_stream_ = nullptr;
-        }
-    }
-
     if (timestamp_filename_)
     {
         capture_filename = util::filepath::GenerateTimestampedFilename(capture_filename);
@@ -1096,6 +1078,27 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         success      = false;
     }
 
+    // Create asset file
+    if (trim_enabled_ && use_asset_file_ && asset_file_stream_.get() == nullptr)
+    {
+        std::string asset_file_name = CreateAssetFilename(base_filename_);
+
+        if (timestamp_filename_)
+        {
+            asset_file_name = util::filepath::GenerateTimestampedFilename(asset_file_name);
+        }
+
+        asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
+        if (asset_file_stream_->IsValid())
+        {
+            WriteAssetFileHeader();
+        }
+        else
+        {
+            asset_file_stream_ = nullptr;
+        }
+    }
+
     return success;
 }
 
@@ -1108,7 +1111,8 @@ void CommonCaptureManager::ActivateTrimming()
 
     for (auto& manager : api_capture_managers_)
     {
-        manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_, asset_file_stream_.get());
+        manager.first->WriteTrackedState(
+            file_stream_.get(), thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
     }
 }
 

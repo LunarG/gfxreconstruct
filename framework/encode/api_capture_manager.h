@@ -48,6 +48,7 @@ class ApiCaptureManager
     virtual void                           WriteTrackedState(util::FileOutputStream* file_stream,
                                                              format::ThreadId        thread_id,
                                                              util::FileOutputStream* asseet_file_stream = nullptr) = 0;
+
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
     format::ApiFamilyId GetApiFamily() const { return api_family_; }

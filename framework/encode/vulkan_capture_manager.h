@@ -1276,13 +1276,16 @@ class VulkanCaptureManager : public ApiCaptureManager
                                              const VkDescriptorSet* pDescriptorSets,
                                              uint32_t               dynamicOffsetCount,
                                              const uint32_t*        pDynamicOffsets);
+
     void PostProcess_vkCmdBindDescriptorSets2KHR(VkCommandBuffer                    commandBuffer,
                                                  const VkBindDescriptorSetsInfoKHR* pBindDescriptorSetsInfo);
+
     void PostProcess_vkCmdCopyBuffer(VkCommandBuffer     commandBuffer,
                                      VkBuffer            srcBuffer,
                                      VkBuffer            dstBuffer,
                                      uint32_t            regionCount,
                                      const VkBufferCopy* pRegions);
+
     void PostProcess_vkCmdCopyImage(VkCommandBuffer    commandBuffer,
                                     VkImage            srcImage,
                                     VkImageLayout      srcImageLayout,
@@ -1290,30 +1293,41 @@ class VulkanCaptureManager : public ApiCaptureManager
                                     VkImageLayout      dstImageLayout,
                                     uint32_t           regionCount,
                                     const VkImageCopy* pRegions);
+
     void PostProcess_vkCmdCopyBufferToImage(VkCommandBuffer          commandBuffer,
                                             VkBuffer                 srcBuffer,
                                             VkImage                  dstImage,
                                             VkImageLayout            dstImageLayout,
                                             uint32_t                 regionCount,
                                             const VkBufferImageCopy* pRegions);
+
     void PostProcess_vkCmdCopyImageToBuffer(VkCommandBuffer          commandBuffer,
                                             VkImage                  srcImage,
                                             VkImageLayout            srcImageLayout,
                                             VkBuffer                 dstBuffer,
                                             uint32_t                 regionCount,
                                             const VkBufferImageCopy* pRegions);
+
     void PostProcess_vkCmdCopyBuffer2(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo);
+
     void PostProcess_vkCmdCopyImage2(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo);
+
     void PostProcess_vkCmdCopyBufferToImage2(VkCommandBuffer                 commandBuffer,
                                              const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
+
     void PostProcess_vkCmdCopyImageToBuffer2(VkCommandBuffer                 commandBuffer,
                                              const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
+
     void PostProcess_vkCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo);
+
     void PostProcess_vkCmdCopyImage2KHR(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo);
+
     void PostProcess_vkCmdCopyBufferToImage2KHR(VkCommandBuffer                 commandBuffer,
                                                 const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo);
+
     void PostProcess_vkCmdCopyImageToBuffer2KHR(VkCommandBuffer                 commandBuffer,
                                                 const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo);
+
     void PostProcess_vkCmdBlitImage(VkCommandBuffer    commandBuffer,
                                     VkImage            srcImage,
                                     VkImageLayout      srcImageLayout,
@@ -1322,21 +1336,27 @@ class VulkanCaptureManager : public ApiCaptureManager
                                     uint32_t           regionCount,
                                     const VkImageBlit* pRegions,
                                     VkFilter           filter);
+
     void PostProcess_vkCmdBlitImage2(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo);
+
     void PostProcess_vkCmdBlitImage2KHR(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo);
+
     void PostProcess_vkCmdUpdateBuffer(VkCommandBuffer commandBuffer,
                                        VkBuffer        dstBuffer,
                                        VkDeviceSize    dstOffset,
                                        VkDeviceSize    dataSize,
                                        const void*     pData);
+
     void PostProcess_vkCmdFillBuffer(
         VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data);
+
     void PostProcess_vkCmdClearColorImage(VkCommandBuffer                commandBuffer,
                                           VkImage                        image,
                                           VkImageLayout                  imageLayout,
                                           const VkClearColorValue*       pColor,
                                           uint32_t                       rangeCount,
                                           const VkImageSubresourceRange* pRanges);
+
     void PostProcess_vkCmdClearDepthStencilImage(VkCommandBuffer                 commandBuffer,
                                                  VkImage                         image,
                                                  VkImageLayout                   imageLayout,
