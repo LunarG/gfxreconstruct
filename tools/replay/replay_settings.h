@@ -43,7 +43,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
-    "--dump-resources-dump-color-attachment-index,--pbis";
+    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -325,6 +325,9 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tDump immutable shader resources.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-all-image-subresources");
     GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
+    GFXRECON_WRITE_CONSOLE("  --pcj\t\t\tSpecify the number of pipeline-creation-jobs or background-threads.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\tDefault is 0.");
+    GFXRECON_WRITE_CONSOLE("       \t\t\t(same as --pipeline-creation-jobs");
 
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")

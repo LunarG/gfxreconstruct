@@ -310,6 +310,10 @@ class VulkanReplayDumpResourcesBase
 
     uint64_t GetBeginCommandBufferIndexOfCommandBuffer(VkCommandBuffer original_command_buffer) const;
 
+    void DumpGraphicsPipelineInfos(const StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
+                                   uint32_t                                                          createInfoCount,
+                                   HandlePointerDecoder<VkPipeline>*                                 pPipelines);
+
   private:
     bool UpdateRecordingStatus(VkCommandBuffer original_command_buffer);
 

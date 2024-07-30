@@ -1,0 +1,5 @@
+{
+  "functions": {
+    "vkCreateGraphicsPipelines": "AsyncCreateGraphicsPipelines"
+  }
+}

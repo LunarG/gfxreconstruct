@@ -115,6 +115,9 @@
     "vkUpdateDescriptorSets": "OverrideUpdateDescriptorSets",
     "vkCreateGraphicsPipelines": "OverrideCreateGraphicsPipelines",
     "vkCreateComputePipelines": "OverrideCreateComputePipelines",
+    "vkDestroyShaderModule": "OverrideDestroyShaderModule",
+    "vkDestroyPipeline": "OverrideDestroyPipeline",
+    "vkDestroyRenderPass": "OverrideDestroyRenderPass",
     "vkCreateVideoSessionKHR": "OverrideCreateVideoSessionKHR",
     "vkDestroyVideoSessionKHR": "OverrideDestroyVideoSessionKHR",
     "vkBindVideoSessionMemoryKHR": "OverrideBindVideoSessionMemoryKHR"
