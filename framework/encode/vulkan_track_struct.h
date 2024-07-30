@@ -35,10 +35,10 @@ GFXRECON_BEGIN_NAMESPACE(vulkan_trackers)
  * @param   out_data    reference to an output std::unique_pointer
  * @return  a void-pointer to the tracked struct-memory.
  */
-inline void* TrackStruct(const void* value, std::unique_ptr<uint8_t[]> &out_data)
+inline void* TrackStruct(const void* value, std::unique_ptr<uint8_t[]>& out_data)
 {
     size_t num_bytes = graphics::vulkan_struct_deep_copy_pnext(value, nullptr);
-    out_data = std::make_unique<uint8_t[]>(num_bytes);
+    out_data         = std::make_unique<uint8_t[]>(num_bytes);
     graphics::vulkan_struct_deep_copy_pnext(value, out_data.get());
     return out_data.get();
 }
@@ -53,10 +53,10 @@ inline void* TrackStruct(const void* value, std::unique_ptr<uint8_t[]> &out_data
  * @return  a typed pointer to the beginning of the tracked struct-memory.
  */
 template <typename T>
-inline T* TrackStructs(const T* structs, uint32_t count, std::unique_ptr<uint8_t[]> &out_data)
+inline T* TrackStructs(const T* structs, uint32_t count, std::unique_ptr<uint8_t[]>& out_data)
 {
     size_t num_bytes = graphics::vulkan_struct_deep_copy(structs, count, nullptr);
-    out_data = std::make_unique<uint8_t[]>(num_bytes);
+    out_data         = std::make_unique<uint8_t[]>(num_bytes);
     graphics::vulkan_struct_deep_copy(structs, count, out_data.get());
     return reinterpret_cast<T*>(out_data.get());
 }
