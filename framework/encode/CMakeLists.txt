@@ -103,6 +103,7 @@ target_sources(gfxrecon_encode
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_tracker_initializers.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_state_writer.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_track_struct.h
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_struct_unwrappers.h>
@@ -127,8 +128,6 @@ target_sources(gfxrecon_encode
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_encoders.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.h
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_handle_wrappers.cpp
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_trackers.h
-                    ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_struct_trackers.cpp
                     ${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_state_table.h
 
 )
