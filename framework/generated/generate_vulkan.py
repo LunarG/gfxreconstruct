@@ -47,8 +47,6 @@ generate_targets = [
     'generated_vulkan_struct_encoders.cpp',
     'generated_vulkan_struct_handle_wrappers.h',
     'generated_vulkan_struct_handle_wrappers.cpp',
-    'generated_vulkan_struct_trackers.h',
-    'generated_vulkan_struct_trackers.cpp',
     'generated_vulkan_struct_deep_copy.cpp',
     'generated_vulkan_struct_deep_copy_pnext.cpp',
     'generated_vulkan_api_call_encoders.h',

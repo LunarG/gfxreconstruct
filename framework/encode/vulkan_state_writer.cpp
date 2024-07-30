@@ -2079,7 +2079,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
 {
     const VkResult result = VK_SUCCESS;
 
-    uint32_t format_count = static_cast<uint32_t>(formats.surface_formats.size());
+    uint32_t format_count = formats.surface_format_count;
 
     // First write the call to retrieve the size.
     encoder_.EncodeHandleIdValue(physical_device_id);
@@ -2095,7 +2095,7 @@ void VulkanStateWriter::WriteGetPhysicalDeviceSurfaceFormats(format::HandleId   
     encoder_.EncodeHandleIdValue(physical_device_id);
     EncodeStructPtr(&encoder_, &formats.surface_info);
     encoder_.EncodeUInt32Ptr(&format_count);
-    EncodeStructArray(&encoder_, formats.surface_formats.data(), format_count);
+    EncodeStructArray(&encoder_, formats.surface_formats, format_count);
     encoder_.EncodeEnumValue(result);
 
     WriteFunctionCall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceSurfaceFormats2KHR, &parameter_stream_);
