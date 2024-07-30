@@ -3511,5 +3511,74 @@ void VulkanCaptureManager::PostProcess_vkCmdResolveImage2KHR(VkCommandBuffer    
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksNV(VkCommandBuffer commandBuffer,
+                                                            uint32_t        taskCount,
+                                                            uint32_t        firstTask)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdDrawMeshTasksNV(commandBuffer, taskCount, firstTask);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksIndirectNV(
+    VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdDrawMeshTasksIndirectNV(commandBuffer, buffer, offset, drawCount, stride);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksIndirectCountNV(VkCommandBuffer commandBuffer,
+                                                                         VkBuffer        buffer,
+                                                                         VkDeviceSize    offset,
+                                                                         VkBuffer        countBuffer,
+                                                                         VkDeviceSize    countBufferOffset,
+                                                                         uint32_t        maxDrawCount,
+                                                                         uint32_t        stride)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdDrawMeshTasksIndirectCountNV(
+            commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksEXT(VkCommandBuffer commandBuffer,
+                                                             uint32_t        groupCountX,
+                                                             uint32_t        groupCountY,
+                                                             uint32_t        groupCountZ)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdDrawMeshTasksEXT(commandBuffer, groupCountX, groupCountY, groupCountZ);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksIndirectEXT(
+    VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdDrawMeshTasksIndirectEXT(commandBuffer, buffer, offset, drawCount, stride);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksIndirectCountEXT(VkCommandBuffer commandBuffer,
+                                                                          VkBuffer        buffer,
+                                                                          VkDeviceSize    offset,
+                                                                          VkBuffer        countBuffer,
+                                                                          VkDeviceSize    countBufferOffset,
+                                                                          uint32_t        maxDrawCount,
+                                                                          uint32_t        stride)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdDrawMeshTasksIndirectCountEXT(
+            commandBuffer, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

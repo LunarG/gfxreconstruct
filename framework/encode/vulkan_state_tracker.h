@@ -632,6 +632,35 @@ class VulkanStateTracker
 
     void TrackCmdResolveImage2(VkCommandBuffer commandBuffer, const VkResolveImageInfo2* pResolveImageInfo);
 
+    void TrackCmdDrawMeshTasksNV(VkCommandBuffer commandBuffer, uint32_t taskCount, uint32_t firstTask);
+
+    void TrackCmdDrawMeshTasksIndirectNV(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
+
+    void TrackCmdDrawMeshTasksIndirectCountNV(VkCommandBuffer commandBuffer,
+                                              VkBuffer        buffer,
+                                              VkDeviceSize    offset,
+                                              VkBuffer        countBuffer,
+                                              VkDeviceSize    countBufferOffset,
+                                              uint32_t        maxDrawCount,
+                                              uint32_t        stride);
+
+    void TrackCmdDrawMeshTasksEXT(VkCommandBuffer commandBuffer,
+                                  uint32_t        groupCountX,
+                                  uint32_t        groupCountY,
+                                  uint32_t        groupCountZ);
+
+    void TrackCmdDrawMeshTasksIndirectEXT(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
+
+    void TrackCmdDrawMeshTasksIndirectCountEXT(VkCommandBuffer commandBuffer,
+                                               VkBuffer        buffer,
+                                               VkDeviceSize    offset,
+                                               VkBuffer        countBuffer,
+                                               VkDeviceSize    countBufferOffset,
+                                               uint32_t        maxDrawCount,
+                                               uint32_t        stride);
+
     void TrackMappedAssetsWrites(VkCommandBuffer commandBuffer);
 
     void MarkReferencedAssetsAsDirty(VkCommandBuffer commandBuffer);

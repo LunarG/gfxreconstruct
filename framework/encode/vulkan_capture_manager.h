@@ -1513,6 +1513,35 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdResolveImage2KHR(VkCommandBuffer commandBuffer, const VkResolveImageInfo2* pResolveImageInfo);
 
+    void PostProcess_vkCmdDrawMeshTasksNV(VkCommandBuffer commandBuffer, uint32_t taskCount, uint32_t firstTask);
+
+    void PostProcess_vkCmdDrawMeshTasksIndirectNV(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
+
+    void PostProcess_vkCmdDrawMeshTasksIndirectCountNV(VkCommandBuffer commandBuffer,
+                                                       VkBuffer        buffer,
+                                                       VkDeviceSize    offset,
+                                                       VkBuffer        countBuffer,
+                                                       VkDeviceSize    countBufferOffset,
+                                                       uint32_t        maxDrawCount,
+                                                       uint32_t        stride);
+
+    void PostProcess_vkCmdDrawMeshTasksEXT(VkCommandBuffer commandBuffer,
+                                           uint32_t        groupCountX,
+                                           uint32_t        groupCountY,
+                                           uint32_t        groupCountZ);
+
+    void PostProcess_vkCmdDrawMeshTasksIndirectEXT(
+        VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride);
+
+    void PostProcess_vkCmdDrawMeshTasksIndirectCountEXT(VkCommandBuffer commandBuffer,
+                                                        VkBuffer        buffer,
+                                                        VkDeviceSize    offset,
+                                                        VkBuffer        countBuffer,
+                                                        VkDeviceSize    countBufferOffset,
+                                                        uint32_t        maxDrawCount,
+                                                        uint32_t        stride);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
