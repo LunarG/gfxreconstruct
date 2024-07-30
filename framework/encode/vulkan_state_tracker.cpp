@@ -2086,7 +2086,7 @@ void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          comm
                                                    uint32_t                 regionCount,
                                                    const VkBufferImageCopy* pRegions)
 {
-    if (dstImage != nullptr && commandBuffer != VK_NULL_HANDLE)
+    if (dstImage != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
     {
         vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
             vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
