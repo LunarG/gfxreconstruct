@@ -32,17 +32,10 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct Decoded_XrFrameEndInfo;
-struct Decoded_XrBindingModificationsKHR;
-struct Decoded_XrSecondaryViewConfigurationLayerInfoMSFT;
 struct Decoded_XrVulkanInstanceCreateInfoKHR;
 struct Decoded_XrVulkanDeviceCreateInfoKHR;
 struct Decoded_timespec;
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrFrameEndInfo* wrapper);
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrBindingModificationsKHR* wrapper);
-size_t
-DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanInstanceCreateInfoKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanDeviceCreateInfoKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_timespec* wrapper);

@@ -50,56 +50,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const MLCoordinateFrameUID& data
     FieldToJson(jdata["data"], data.data, options);
 }
 
-void FieldToJson(nlohmann::ordered_json&                  jdata,
-                 const Decoded_XrBindingModificationsKHR* data,
-                 const util::JsonOptions&                 options)
-{
-    if (data && data->decoded_value)
-    {
-        const XrBindingModificationsKHR&         decoded_value = *data->decoded_value;
-        const Decoded_XrBindingModificationsKHR& meta_struct   = *data;
-
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        FieldToJson(jdata["bindingModificationCount"], decoded_value.bindingModificationCount, options);
-        FieldToJson(jdata["bindingModifications"], meta_struct.bindingModifications, options);
-        FieldToJson(jdata["next"], meta_struct.next, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameEndInfo* data, const util::JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const XrFrameEndInfo&         decoded_value = *data->decoded_value;
-        const Decoded_XrFrameEndInfo& meta_struct   = *data;
-
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        FieldToJson(jdata["displayTime"], decoded_value.displayTime, options);
-        FieldToJson(jdata["environmentBlendMode"], decoded_value.environmentBlendMode, options);
-        FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
-        FieldToJson(jdata["layers"], meta_struct.layers, options);
-        FieldToJson(jdata["next"], meta_struct.next, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json&                                  jdata,
-                 const Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* data,
-                 const util::JsonOptions&                                 options)
-{
-    if (data && data->decoded_value)
-    {
-        const XrSecondaryViewConfigurationLayerInfoMSFT&         decoded_value = *data->decoded_value;
-        const Decoded_XrSecondaryViewConfigurationLayerInfoMSFT& meta_struct   = *data;
-
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        FieldToJson(jdata["viewConfigurationType"], decoded_value.viewConfigurationType, options);
-        FieldToJson(jdata["environmentBlendMode"], decoded_value.environmentBlendMode, options);
-        FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
-        FieldToJson(jdata["layers"], meta_struct.layers, options);
-        FieldToJson(jdata["next"], meta_struct.next, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const Decoded_XrVulkanInstanceCreateInfoKHR* data,
                  const util::JsonOptions&                     options)

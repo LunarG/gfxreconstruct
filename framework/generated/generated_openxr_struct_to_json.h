@@ -74,6 +74,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameWaitInfo* d
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameState* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameBeginInfo* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerBaseHeader* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameEndInfo* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewLocateInfo* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewState* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFovf* data, const util::JsonOptions& options = util::JsonOptions());
@@ -149,6 +150,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrLoaderInitInfoAn
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrVulkanGraphicsDeviceGetInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerEquirect2KHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBindingModificationBaseHeaderKHR* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBindingModificationsKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataPerfSettingsEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsObjectNameInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrDebugUtilsLabelEXT* data, const util::JsonOptions& options = util::JsonOptions());
@@ -186,6 +188,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHandPoseTypeInfo
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationSessionBeginInfoMSFT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationStateMSFT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationFrameStateMSFT* data, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationFrameEndInfoMSFT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationSwapchainCreateInfoMSFT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrControllerModelKeyStateMSFT* data, const util::JsonOptions& options = util::JsonOptions());

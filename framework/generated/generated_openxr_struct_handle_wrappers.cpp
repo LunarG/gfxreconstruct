@@ -64,10 +64,67 @@ void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
+        switch (value->type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerProjection*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_QUAD:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerQuad*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerCubeKHR*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerCylinderKHR*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerEquirectKHR*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerEquirect2KHR*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerPassthroughHTC*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
         if (value->next != nullptr)
         {
             value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
         }
+    }
+}
+
+void UnwrapStructHandles(XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->layers = UnwrapStructPtrArrayHandles(const_cast<XrCompositionLayerBaseHeader**>(value->layers), value->layerCount, unwrap_memory);
     }
 }
 
@@ -96,7 +153,7 @@ void UnwrapStructHandles(XrInteractionProfileSuggestedBinding* value, HandleUnwr
 {
     if (value != nullptr)
     {
-        value->suggestedBindings = UnwrapStructArrayHandles(value->suggestedBindings, value->countSuggestedBindings, unwrap_memory);
+        value->suggestedBindings = UnwrapStructArrayHandles(const_cast<XrActionSuggestedBinding*>(value->suggestedBindings), value->countSuggestedBindings, unwrap_memory);
     }
 }
 
@@ -132,7 +189,7 @@ void UnwrapStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_me
 {
     if (value != nullptr)
     {
-        value->activeActionSets = UnwrapStructArrayHandles(value->activeActionSets, value->countActiveActionSets, unwrap_memory);
+        value->activeActionSets = UnwrapStructArrayHandles(const_cast<XrActiveActionSet*>(value->activeActionSets), value->countActiveActionSets, unwrap_memory);
     }
 }
 
@@ -176,7 +233,7 @@ void UnwrapStructHandles(XrCompositionLayerProjection* value, HandleUnwrapMemory
 {
     if (value != nullptr)
     {
-        value->views = UnwrapStructArrayHandles(value->views, value->viewCount, unwrap_memory);
+        value->views = UnwrapStructArrayHandles(const_cast<XrCompositionLayerProjectionView*>(value->views), value->viewCount, unwrap_memory);
     }
 }
 
@@ -308,11 +365,19 @@ void UnwrapStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* u
     }
 }
 
+void UnwrapStructHandles(XrSecondaryViewConfigurationLayerInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+        value->layers = UnwrapStructPtrArrayHandles(const_cast<XrCompositionLayerBaseHeader**>(value->layers), value->layerCount, unwrap_memory);
+    }
+}
+
 void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
-        value->viewConfigurationLayersInfo = UnwrapStructArrayHandles(value->viewConfigurationLayersInfo, value->viewConfigurationCount, unwrap_memory);
+        value->viewConfigurationLayersInfo = UnwrapStructArrayHandles(const_cast<XrSecondaryViewConfigurationLayerInfoMSFT*>(value->viewConfigurationLayersInfo), value->viewConfigurationCount, unwrap_memory);
     }
 }
 
@@ -734,7 +799,7 @@ void UnwrapStructHandles(XrActiveActionSetPrioritiesEXT* value, HandleUnwrapMemo
 {
     if (value != nullptr)
     {
-        value->actionSetPriorities = UnwrapStructArrayHandles(value->actionSetPriorities, value->actionSetPriorityCount, unwrap_memory);
+        value->actionSetPriorities = UnwrapStructArrayHandles(const_cast<XrActiveActionSetPriorityEXT*>(value->actionSetPriorities), value->actionSetPriorityCount, unwrap_memory);
     }
 }
 

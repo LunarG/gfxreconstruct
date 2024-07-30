@@ -544,6 +544,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrameEndInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrFrameEndInfo& decoded_value = *data->decoded_value;
+        const Decoded_XrFrameEndInfo& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["displayTime"], decoded_value.displayTime, options);
+        FieldToJson(jdata["environmentBlendMode"], decoded_value.environmentBlendMode, options);
+        FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
+        FieldToJson(jdata["layers"], meta_struct.layers, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrViewLocateInfo* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1778,6 +1793,19 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBindingModificat
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBindingModificationsKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrBindingModificationsKHR& decoded_value = *data->decoded_value;
+        const Decoded_XrBindingModificationsKHR& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["bindingModificationCount"], decoded_value.bindingModificationCount, options);
+        FieldToJson(jdata["bindingModifications"], meta_struct.bindingModifications, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataPerfSettingsEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -2268,6 +2296,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewCon
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["viewConfigurationCount"], decoded_value.viewConfigurationCount, options);
         FieldToJson(jdata["viewConfigurationStates"], meta_struct.viewConfigurationStates, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSecondaryViewConfigurationLayerInfoMSFT& decoded_value = *data->decoded_value;
+        const Decoded_XrSecondaryViewConfigurationLayerInfoMSFT& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["viewConfigurationType"], decoded_value.viewConfigurationType, options);
+        FieldToJson(jdata["environmentBlendMode"], decoded_value.environmentBlendMode, options);
+        FieldToJson(jdata["layerCount"], decoded_value.layerCount, options);
+        FieldToJson(jdata["layers"], meta_struct.layers, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }

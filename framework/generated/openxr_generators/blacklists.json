@@ -26,9 +26,6 @@
     "XrBaseInStructure",
     "XrNegotiateLoaderInfo",
     "XrNegotiateRuntimeRequest",
-    "XrFrameEndInfo",
-    "XrBindingModificationsKHR",
-    "XrSecondaryViewConfigurationLayerInfoMSFT",
     "XrVulkanInstanceCreateInfoKHR",
     "XrVulkanDeviceCreateInfoKHR"
   ]

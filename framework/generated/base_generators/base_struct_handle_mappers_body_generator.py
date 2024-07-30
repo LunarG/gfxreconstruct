@@ -21,6 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import base_utils
 import sys
 from base_generator import write
 
@@ -185,6 +186,25 @@ class BaseStructHandleMappersBodyGenerator():
                         struct
                     )
 
+                    if struct in self.base_header_structs.keys():
+                        body += '\n'
+                        body += '        switch (value->type)\n'
+                        body += '        {\n'
+                        body += '            default:\n'
+                        body += '                // Handle as base-type below\n'
+                        body += '                break;\n'
+
+                        for child in self.base_header_structs[struct]:
+                            switch_type = base_utils.GenerateStructureType(child)
+
+                            body += f'            case {switch_type}:\n'
+                            body += f'                MapStructHandles(reinterpret_cast<Decoded_{child}*>(wrapper),\n'
+                            body += f'                                 object_info_table);\n'
+                            body += '                // Return here because we processed the appropriate data in\n'
+                            body += '                // the correct structure type\n'
+                            body += '                return;\n'
+                        body += '        }\n'
+
                 body += self.make_struct_handle_mappings(
                     struct, handle_members, generic_handle_members
                 )
@@ -248,9 +268,16 @@ class BaseStructHandleMappersBodyGenerator():
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
                 if member.is_array:
-                    body += '        MapStructArray{}<Decoded_{}>(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_info_table{});\n'.format(
-                        map_types,
-                        member.base_type,
+                    length_exprs = member.array_length.split(',')
+                    length_count = len(length_exprs)
+
+                    if member.pointer_count > 1 and length_count < member.pointer_count:
+                        unwrap_function = f'MapStructPtrArray{map_types}<Decoded_{member.base_type}*>'
+                    else:
+                        unwrap_function = f'MapStructArray{map_types}<Decoded_{member.base_type}>'
+
+                    body += '        {}(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_info_table{});\n'.format(
+                        unwrap_function,
                         given_object,
                         name=member.name
                     )

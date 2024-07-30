@@ -80,6 +80,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFrameWaitInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameState& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameBeginInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrViewLocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrViewState& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFovf& value);
@@ -174,6 +175,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanGraphicsDeviceGetInfo
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirect2KHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHeaderKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataPerfSettingsEXT& value);
 
@@ -224,6 +226,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandPoseTypeInfoMSFT& value
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationSessionBeginInfoMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationStateMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationFrameStateMSFT& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationFrameEndInfoMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationSwapchainCreateInfoMSFT& value);
 

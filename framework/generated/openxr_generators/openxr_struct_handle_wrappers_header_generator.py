@@ -223,6 +223,37 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         write('    return values;', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
+        write('template <typename T>', file=self.outFile)
+        write(
+            'T* UnwrapStructPtrArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
+            file=self.outFile
+        )
+        write('{', file=self.outFile)
+        write('    if ((values != nullptr) && (len > 0))', file=self.outFile)
+        write('    {', file=self.outFile)
+        write(
+            '        auto unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);',
+            file=self.outFile
+        )
+        self.newline()
+        write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+        write('        {', file=self.outFile)
+        write(
+            '            UnwrapStructHandles(unwrapped_structs[i], unwrap_memory);',
+            file=self.outFile
+        )
+        write('        }', file=self.outFile)
+        self.newline()
+        write('        return unwrapped_structs;', file=self.outFile)
+        write('    }', file=self.outFile)
+        self.newline()
+        write(
+            '    // Leave the original memory in place when the pointer is not null, but size is zero.',
+            file=self.outFile
+        )
+        write('    return values;', file=self.outFile)
+        write('}', file=self.outFile)
+        self.newline()
         write('GFXRECON_END_NAMESPACE(openxr_wrappers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)

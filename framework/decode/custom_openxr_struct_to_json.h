@@ -49,15 +49,6 @@ void FieldToJson(nlohmann::ordered_json&     jdata,
                  const MLCoordinateFrameUID& data,
                  const util::JsonOptions& = util::JsonOptions());
 
-void FieldToJson(nlohmann::ordered_json&                  jdata,
-                 const Decoded_XrBindingModificationsKHR* data,
-                 const util::JsonOptions& = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json&       jdata,
-                 const Decoded_XrFrameEndInfo* data,
-                 const util::JsonOptions& = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json&                                  jdata,
-                 const Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* data,
-                 const util::JsonOptions& = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json&                      jdata,
                  const Decoded_XrVulkanInstanceCreateInfoKHR* data,
                  const util::JsonOptions& = util::JsonOptions());

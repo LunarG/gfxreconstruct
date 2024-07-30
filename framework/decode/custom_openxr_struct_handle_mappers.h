@@ -33,11 +33,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void MapStructHandles(Decoded_XrFrameEndInfo* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* wrapper,
-                      const CommonObjectInfoTable&                       object_info_table);
-
 void MapStructHandles(Decoded_XrVulkanInstanceCreateInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrVulkanDeviceCreateInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);

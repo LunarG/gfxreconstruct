@@ -329,6 +329,16 @@ struct Decoded_XrFrameBeginInfo
     OpenXrNextNode* next{ nullptr };
 };
 
+struct Decoded_XrFrameEndInfo
+{
+    using struct_type = XrFrameEndInfo;
+
+    XrFrameEndInfo* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>* layers{ nullptr };
+};
+
 struct Decoded_XrViewLocateInfo
 {
     using struct_type = XrViewLocateInfo;
@@ -1044,6 +1054,16 @@ struct Decoded_XrCompositionLayerEquirect2KHR
     Decoded_XrPosef* pose{ nullptr };
 };
 
+struct Decoded_XrBindingModificationsKHR
+{
+    using struct_type = XrBindingModificationsKHR;
+
+    XrBindingModificationsKHR* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    StructPointerDecoder<Decoded_XrBindingModificationBaseHeaderKHR*>* bindingModifications{ nullptr };
+};
+
 struct Decoded_XrEventDataPerfSettingsEXT
 {
     using struct_type = XrEventDataPerfSettingsEXT;
@@ -1408,6 +1428,16 @@ struct Decoded_XrSecondaryViewConfigurationFrameStateMSFT
 
     OpenXrNextNode* next{ nullptr };
     StructPointerDecoder<Decoded_XrSecondaryViewConfigurationStateMSFT>* viewConfigurationStates{ nullptr };
+};
+
+struct Decoded_XrSecondaryViewConfigurationLayerInfoMSFT
+{
+    using struct_type = XrSecondaryViewConfigurationLayerInfoMSFT;
+
+    XrSecondaryViewConfigurationLayerInfoMSFT* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>* layers{ nullptr };
 };
 
 struct Decoded_XrSecondaryViewConfigurationFrameEndInfoMSFT

@@ -85,12 +85,39 @@ void MapStructHandles(Decoded_XrCompositionLayerBaseHeader* wrapper, const Commo
     {
         XrCompositionLayerBaseHeader* value = wrapper->decoded_value;
 
+        switch (value->type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+                MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerProjection*>(wrapper),
+                                 object_info_table);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+            case XR_TYPE_COMPOSITION_LAYER_QUAD:
+                MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerQuad*>(wrapper),
+                                 object_info_table);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
         if (wrapper->next)
         {
             MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
         }
 
         value->space = handle_mapping::MapHandle<OpenXrSpaceInfo>(wrapper->space, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
+    }
+}
+
+void MapStructHandles(Decoded_XrFrameEndInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructPtrArrayHandles<Decoded_XrCompositionLayerBaseHeader*>(wrapper->layers->GetMetaStructPointer(), wrapper->layers->GetLength(), object_info_table);
     }
 }
 
@@ -438,6 +465,14 @@ void MapStructHandles(Decoded_XrHandJointsLocateInfoEXT* wrapper, const CommonOb
         XrHandJointsLocateInfoEXT* value = wrapper->decoded_value;
 
         value->baseSpace = handle_mapping::MapHandle<OpenXrSpaceInfo>(wrapper->baseSpace, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
+    }
+}
+
+void MapStructHandles(Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if (wrapper != nullptr)
+    {
+        MapStructPtrArrayHandles<Decoded_XrCompositionLayerBaseHeader*>(wrapper->layers->GetMetaStructPointer(), wrapper->layers->GetLength(), object_info_table);
     }
 }
 

@@ -53,6 +53,8 @@ void MapStructHandles(Decoded_XrActionSpaceCreateInfo* wrapper, const CommonObje
 
 void MapStructHandles(Decoded_XrCompositionLayerBaseHeader* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_XrFrameEndInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_XrViewLocateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrActionCreateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -116,6 +118,8 @@ void MapStructHandles(Decoded_XrSpatialAnchorSpaceCreateInfoMSFT* wrapper, const
 void MapStructHandles(Decoded_XrSpatialGraphStaticNodeBindingCreateInfoMSFT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrHandJointsLocateInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrSecondaryViewConfigurationFrameEndInfoMSFT* wrapper, const CommonObjectInfoTable& object_info_table);
 

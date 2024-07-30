@@ -41,30 +41,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-struct Decoded_XrFrameEndInfo
-{
-    using struct_type = XrFrameEndInfo;
-    XrFrameEndInfo*                                              decoded_value{ nullptr };
-    OpenXrNextNode*                                              next{ nullptr };
-    StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>* layers{ nullptr };
-};
-
-struct Decoded_XrBindingModificationsKHR
-{
-    using struct_type = XrBindingModificationsKHR;
-    XrBindingModificationsKHR*                                         decoded_value{ nullptr };
-    OpenXrNextNode*                                                    next{ nullptr };
-    StructPointerDecoder<Decoded_XrBindingModificationBaseHeaderKHR*>* bindingModifications{ nullptr };
-};
-
-struct Decoded_XrSecondaryViewConfigurationLayerInfoMSFT
-{
-    using struct_type = XrSecondaryViewConfigurationLayerInfoMSFT;
-    XrSecondaryViewConfigurationLayerInfoMSFT*                   decoded_value{ nullptr };
-    OpenXrNextNode*                                              next{ nullptr };
-    StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>* layers{ nullptr };
-};
-
 struct Decoded_XrVulkanInstanceCreateInfoKHR
 {
     using struct_type = XrVulkanInstanceCreateInfoKHR;

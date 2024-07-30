@@ -391,6 +391,16 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader&
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value)
+{
+    encoder->EncodeEnumValue(value.type);
+    EncodeNextStruct(encoder, value.next);
+    encoder->EncodeInt64Value(value.displayTime);
+    encoder->EncodeEnumValue(value.environmentBlendMode);
+    encoder->EncodeUInt32Value(value.layerCount);
+    EncodeStructArray2D(encoder, value.layers, value.layerCount, 1);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const XrViewLocateInfo& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -1222,6 +1232,14 @@ void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHead
     }
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value)
+{
+    encoder->EncodeEnumValue(value.type);
+    EncodeNextStruct(encoder, value.next);
+    encoder->EncodeUInt32Value(value.bindingModificationCount);
+    EncodeStructArray2D(encoder, value.bindingModifications, value.bindingModificationCount, 1);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataPerfSettingsEXT& value)
 {
     encoder->EncodeEnumValue(value.type);
@@ -1528,6 +1546,16 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationF
     EncodeNextStruct(encoder, value.next);
     encoder->EncodeUInt32Value(value.viewConfigurationCount);
     EncodeStructArray(encoder, value.viewConfigurationStates, value.viewConfigurationCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value)
+{
+    encoder->EncodeEnumValue(value.type);
+    EncodeNextStruct(encoder, value.next);
+    encoder->EncodeEnumValue(value.viewConfigurationType);
+    encoder->EncodeEnumValue(value.environmentBlendMode);
+    encoder->EncodeUInt32Value(value.layerCount);
+    EncodeStructArray2D(encoder, value.layers, value.layerCount, 1);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationFrameEndInfoMSFT& value)

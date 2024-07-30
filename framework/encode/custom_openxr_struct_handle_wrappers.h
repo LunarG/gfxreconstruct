@@ -37,9 +37,6 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 GFXRECON_BEGIN_NAMESPACE(openxr_wrappers)
 
-void UnwrapStructHandles(const XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memory);
-void UnwrapStructHandles(const XrBindingModificationsKHR* value, HandleUnwrapMemory* unwrap_memory);
-void UnwrapStructHandles(const XrSecondaryViewConfigurationLayerInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 void UnwrapStructHandles(const XrVulkanInstanceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 void UnwrapStructHandles(const XrVulkanDeviceCreateInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 

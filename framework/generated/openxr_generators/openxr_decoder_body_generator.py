@@ -24,6 +24,7 @@
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from base_decoder_body_generator import BaseDecoderBodyGenerator
+from collections import OrderedDict
 
 
 class OpenXrDecoderBodyGeneratorOptions(BaseGeneratorOptions):
@@ -75,7 +76,7 @@ class OpenXrDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
 
         # Names of all OpenXR commands processed by the generator.
         self.cmd_names = []
-        self.cmd_info = dict()
+        self.cmd_info = OrderedDict()
 
         # Names of any OpenXR commands whose decoders are manually generated
         self.MANUALLY_GENERATED_COMMANDS = [

@@ -1244,9 +1244,14 @@ class BaseGenerator(OutputGenerator):
             count = value.pointer_count
 
             if self.is_struct(type_name):
-                type_name = 'StructPointerDecoder<Decoded_{}>'.format(
-                    type_name
-                )
+                if count > 1:
+                    type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
+                        type_name
+                    )
+                else:
+                    type_name = 'StructPointerDecoder<Decoded_{}>'.format(
+                        type_name
+                    )
             elif self.is_class(value):
                 if count == 1:
                     type_name = 'format::HandleId'

@@ -55,6 +55,8 @@ void UnwrapStructHandles(XrActionSpaceCreateInfo* value, HandleUnwrapMemory* unw
 
 void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrViewLocateInfo* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrActionCreateInfo* value, HandleUnwrapMemory* unwrap_memory);
@@ -118,6 +120,8 @@ void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrap
 void UnwrapStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrHandJointsLocateInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrSecondaryViewConfigurationLayerInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -386,6 +390,25 @@ T* UnwrapStructArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_me
         for (size_t i = 0; i < len; ++i)
         {
             UnwrapStructHandles(&unwrapped_structs[i], unwrap_memory);
+        }
+
+        return unwrapped_structs;
+    }
+
+    // Leave the original memory in place when the pointer is not null, but size is zero.
+    return values;
+}
+
+template <typename T>
+T* UnwrapStructPtrArrayHandles(T* values, size_t len, HandleUnwrapMemory* unwrap_memory)
+{
+    if ((values != nullptr) && (len > 0))
+    {
+        auto unwrapped_structs = MakeUnwrapStructs(values, len, unwrap_memory);
+
+        for (size_t i = 0; i < len; ++i)
+        {
+            UnwrapStructHandles(unwrapped_structs[i], unwrap_memory);
         }
 
         return unwrapped_structs;

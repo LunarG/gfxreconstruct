@@ -35,34 +35,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
-    encoder->EncodeUInt64Value(value.displayTime);
-    encoder->EncodeEnumValue(value.environmentBlendMode);
-    encoder->EncodeUInt32Value(value.layerCount);
-    EncodeStructArray2D(encoder, value.layers, value.layerCount, 1);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
-    encoder->EncodeUInt32Value(value.bindingModificationCount);
-    EncodeStructArray2D(encoder, value.bindingModifications, value.bindingModificationCount, 1);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value)
-{
-    encoder->EncodeEnumValue(value.type);
-    EncodeNextStruct(encoder, value.next);
-    encoder->EncodeEnumValue(value.viewConfigurationType);
-    encoder->EncodeEnumValue(value.environmentBlendMode);
-    encoder->EncodeUInt32Value(value.layerCount);
-    EncodeStructArray2D(encoder, value.layers, value.layerCount, 1);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR& value)
 {
     encoder->EncodeEnumValue(value.type);

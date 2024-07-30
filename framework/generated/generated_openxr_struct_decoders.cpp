@@ -682,6 +682,29 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrComposi
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrFrameEndInfo* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    XrFrameEndInfo* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeInt64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->displayTime));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->environmentBlendMode));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->layers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>>();
+    bytes_read += wrapper->layers->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->layers = wrapper->layers->GetPointer();
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrViewLocateInfo* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2033,6 +2056,27 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrBinding
     return bytes_read;
 }
 
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrBindingModificationsKHR* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    XrBindingModificationsKHR* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->bindingModificationCount));
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->bindingModifications = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrBindingModificationBaseHeaderKHR*>>();
+    bytes_read += wrapper->bindingModifications->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->bindingModifications = wrapper->bindingModifications->GetPointer();
+
+    return bytes_read;
+}
+
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrEventDataPerfSettingsEXT* wrapper)
 {
     assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
@@ -2685,6 +2729,29 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSeconda
     wrapper->viewConfigurationStates = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrSecondaryViewConfigurationStateMSFT>>();
     bytes_read += wrapper->viewConfigurationStates->Decode((buffer + bytes_read), (buffer_size - bytes_read));
     value->viewConfigurationStates = wrapper->viewConfigurationStates->GetPointer();
+
+    return bytes_read;
+}
+
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrSecondaryViewConfigurationLayerInfoMSFT* wrapper)
+{
+    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+
+    size_t bytes_read = 0;
+    XrSecondaryViewConfigurationLayerInfoMSFT* value = wrapper->decoded_value;
+
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->type));
+    bytes_read += DecodeNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->next));
+    value->next = wrapper->next ? wrapper->next->GetPointer() : nullptr;
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->viewConfigurationType));
+    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->environmentBlendMode));
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->layerCount));
+
+    // For base header arrays of pointers, we need to allocate an array to the generic base type pointer first
+    // and then read the array attributes so we can jump right in to decoding the contents
+    wrapper->layers = DecodeAllocator::Allocate<StructPointerDecoder<Decoded_XrCompositionLayerBaseHeader*>>();
+    bytes_read += wrapper->layers->DecodeBaseHeader((buffer + bytes_read), (buffer_size - bytes_read));
+    value->layers = wrapper->layers->GetPointer();
 
     return bytes_read;
 }

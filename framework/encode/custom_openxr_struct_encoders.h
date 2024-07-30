@@ -36,9 +36,6 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrSecondaryViewConfigurationLayerInfoMSFT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrVulkanDeviceCreateInfoKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const timespec& value);
