@@ -814,6 +814,15 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
         const uint64_t              sp       = RP_index.second;
         const uint64_t              rp       = RP_index.first;
 
+        // Fetch draw params for all Indirect and IndirectCount draw calls from the buffers
+        // into the DrawCallParameters
+        res = FetchDrawIndirectParams(dc_index);
+        if (res != VK_SUCCESS)
+        {
+            GFXRECON_LOG_ERROR("Fetching indirect draw parameters failed (%s).", util::ToString<VkResult>(res).c_str())
+            return res;
+        }
+
         // Dump vertex/index buffers
         if (dump_vertex_index_buffers && (!dump_resources_before || dump_resources_before && !(cb % 2)))
         {
@@ -2070,15 +2079,6 @@ VkResult DrawCallsDumpingContext::FetchDrawIndirectParams(uint64_t dc_index)
 
 VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint64_t bcb_index, uint64_t dc_index)
 {
-    // Fetch draw params for all Indirect and IndirectCount draw calls from the buffers
-    // into the DrawCallParameters
-    VkResult res = FetchDrawIndirectParams(dc_index);
-    if (res != VK_SUCCESS)
-    {
-        GFXRECON_LOG_ERROR("Fetching indirect draw parameters failed (%s).", util::ToString<VkResult>(res).c_str())
-        return res;
-    }
-
     assert(original_command_buffer_info);
     assert(original_command_buffer_info->parent_id != format::kNullHandleId);
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
@@ -2199,7 +2199,7 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
             dc_params.referenced_index_buffer.actual_size = total_size;
 
             std::vector<uint8_t> index_data;
-            res =
+            VkResult             res =
                 resource_util.ReadFromBufferResource(dc_params.referenced_index_buffer.buffer_info->handle,
                                                      total_size,
                                                      offset,
@@ -2453,11 +2453,11 @@ VkResult DrawCallsDumpingContext::DumpVertexIndexBuffers(uint64_t qs_index, uint
                 vb_entry->second.actual_size = total_size;
 
                 std::vector<uint8_t> vb_data;
-                res = resource_util.ReadFromBufferResource(vb_entry->second.buffer_info->handle,
-                                                           total_size,
-                                                           offset,
-                                                           vb_entry->second.buffer_info->queue_family_index,
-                                                           vb_data);
+                VkResult             res = resource_util.ReadFromBufferResource(vb_entry->second.buffer_info->handle,
+                                                                    total_size,
+                                                                    offset,
+                                                                    vb_entry->second.buffer_info->queue_family_index,
+                                                                    vb_data);
                 if (res != VK_SUCCESS)
                 {
                     GFXRECON_LOG_ERROR("Reading from buffer resource failed (%s).",
