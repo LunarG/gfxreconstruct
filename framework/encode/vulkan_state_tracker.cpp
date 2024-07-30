@@ -2377,6 +2377,46 @@ void VulkanStateTracker::TrackCmdClearDepthStencilImage(VkCommandBuffer         
     }
 }
 
+void VulkanStateTracker::TrackCmdResolveImage(VkCommandBuffer       commandBuffer,
+                                              VkImage               srcImage,
+                                              VkImageLayout         srcImageLayout,
+                                              VkImage               dstImage,
+                                              VkImageLayout         dstImageLayout,
+                                              uint32_t              regionCount,
+                                              const VkImageResolve* pRegions)
+{
+    if (dstImage != VK_NULL_HANDLE && dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        assert(cmd_buf_wrapper != nullptr);
+
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+    }
+}
+
+void VulkanStateTracker::TrackCmdResolveImage2(VkCommandBuffer            commandBuffer,
+                                               const VkResolveImageInfo2* pResolveImageInfo)
+{
+    if (commandBuffer != VK_NULL_HANDLE && pResolveImageInfo != nullptr &&
+        pResolveImageInfo->dstImage != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        assert(cmd_buf_wrapper != nullptr);
+
+        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pResolveImageInfo->dstImage);
+        assert(dst_img_wrapper != nullptr);
+
+        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+    }
+}
+
 void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
 {
     util::PageGuardManager* manager = util::PageGuardManager::Get();

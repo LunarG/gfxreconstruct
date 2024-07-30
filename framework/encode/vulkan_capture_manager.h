@@ -1448,7 +1448,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                    uint32_t        groupCountX,
                                    uint32_t        groupCountY,
                                    uint32_t        groupCountZ);
+
     void PostProcess_vkCmdDispatchIndirect(VkCommandBuffer commandBuffer, VkBuffer buffer, VkDeviceSize offset);
+
     void PostProcess_vkCmdDispatchBase(VkCommandBuffer commandBuffer,
                                        uint32_t        baseGroupX,
                                        uint32_t        baseGroupY,
@@ -1456,6 +1458,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                                        uint32_t        groupCountX,
                                        uint32_t        groupCountY,
                                        uint32_t        groupCountZ);
+
     void PostProcess_vkCmdDispatchBaseKHR(VkCommandBuffer commandBuffer,
                                           uint32_t        baseGroupX,
                                           uint32_t        baseGroupY,
@@ -1497,6 +1500,18 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                VkDeviceAddress                        indirectDeviceAddress);
 
     void PostProcess_vkCmdTraceRaysIndirect2KHR(VkCommandBuffer commandBuffer, VkDeviceAddress indirectDeviceAddress);
+
+    void PostProcess_vkCmdResolveImage(VkCommandBuffer       commandBuffer,
+                                       VkImage               srcImage,
+                                       VkImageLayout         srcImageLayout,
+                                       VkImage               dstImage,
+                                       VkImageLayout         dstImageLayout,
+                                       uint32_t              regionCount,
+                                       const VkImageResolve* pRegions);
+
+    void PostProcess_vkCmdResolveImage2(VkCommandBuffer commandBuffer, const VkResolveImageInfo2* pResolveImageInfo);
+
+    void PostProcess_vkCmdResolveImage2KHR(VkCommandBuffer commandBuffer, const VkResolveImageInfo2* pResolveImageInfo);
 
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);

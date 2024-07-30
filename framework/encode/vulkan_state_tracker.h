@@ -622,6 +622,16 @@ class VulkanStateTracker
 
     void TrackCmdTraceRaysIndirect2KHR(VkCommandBuffer commandBuffer, VkDeviceAddress indirectDeviceAddress);
 
+    void TrackCmdResolveImage(VkCommandBuffer       commandBuffer,
+                              VkImage               srcImage,
+                              VkImageLayout         srcImageLayout,
+                              VkImage               dstImage,
+                              VkImageLayout         dstImageLayout,
+                              uint32_t              regionCount,
+                              const VkImageResolve* pRegions);
+
+    void TrackCmdResolveImage2(VkCommandBuffer commandBuffer, const VkResolveImageInfo2* pResolveImageInfo);
+
     void TrackMappedAssetsWrites(VkCommandBuffer commandBuffer);
 
     void MarkReferencedAssetsAsDirty(VkCommandBuffer commandBuffer);

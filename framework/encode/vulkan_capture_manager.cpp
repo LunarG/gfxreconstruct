@@ -3478,5 +3478,38 @@ void VulkanCaptureManager::PostProcess_vkCmdClearDepthStencilImage(VkCommandBuff
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkCmdResolveImage(VkCommandBuffer       commandBuffer,
+                                                         VkImage               srcImage,
+                                                         VkImageLayout         srcImageLayout,
+                                                         VkImage               dstImage,
+                                                         VkImageLayout         dstImageLayout,
+                                                         uint32_t              regionCount,
+                                                         const VkImageResolve* pRegions)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdResolveImage(
+            commandBuffer, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, pRegions);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdResolveImage2(VkCommandBuffer            commandBuffer,
+                                                          const VkResolveImageInfo2* pResolveImageInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdResolveImage2(commandBuffer, pResolveImageInfo);
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCmdResolveImage2KHR(VkCommandBuffer            commandBuffer,
+                                                             const VkResolveImageInfo2* pResolveImageInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackCmdResolveImage2(commandBuffer, pResolveImageInfo);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
