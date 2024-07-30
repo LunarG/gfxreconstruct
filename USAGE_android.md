@@ -468,6 +468,17 @@ An existing capture file can be trimmed by replaying the capture with the captur
 enabled and a trimming frame range or capture trigger enabled. (However, replay for
 some content may be fast enough using the trigger property may be difficult.)
 
+### Asset files
+
+When doing a trimmed capture, `debug.gfxrecon.capture_use_asset_file` gives the
+option to dump all assets (images, buffers and descriptors) separetly in a
+different capture file called the asset file. When this option is enabled
+assets are tracked and only those that are changed during a tracking period
+(outside of a trim range) are dumped into the asset file. This first time a
+trim range is encountered (or the hotkey is pressed) all assets will be dumped,
+but the next time this happens only the assets that have been changed will be
+dumped. This should speed up the dumping process.
+
 ### Capture Limitations
 
 #### Conflicts With Crash Detection Libraries
