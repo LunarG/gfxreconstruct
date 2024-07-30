@@ -23,6 +23,7 @@
 
 import re
 from base_generator import write
+import base_utils
 
 
 class BaseStructDecodersHeaderGenerator():
@@ -97,18 +98,7 @@ class BaseStructDecodersHeaderGenerator():
             body += '                return_type = DecodeAllocator::Allocate<Decoded_{}>(len, initialize);\n'.format(struct)
             body += '                break;\n'
             for child in self.base_header_structs[struct]:
-                type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
-                type = type.upper()
-                switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                if 'OPEN_GLES' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
-                elif 'OPEN_GL' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
-                elif 'D3_D' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('D3_D', 'D3D', type)
+                switch_type = base_utils.GenerateStructureType(child)
 
                 body += '         case {}:\n'.format(switch_type)
                 body += '             return_type = reinterpret_cast<Decoded_{}*>(DecodeAllocator::Allocate<Decoded_{}>(len, initialize));\n'.format(struct, child)
@@ -132,18 +122,7 @@ class BaseStructDecodersHeaderGenerator():
             body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);\n'
             body += '                break;\n'
             for child in self.base_header_structs[struct]:
-                type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
-                type = type.upper()
-                switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                if 'OPEN_GLES' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
-                elif 'OPEN_GL' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
-                elif 'D3_D' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('D3_D', 'D3D', type)
+                switch_type = base_utils.GenerateStructureType(child)
 
                 body += '         case {}:\n'.format(switch_type)
                 body += '         {\n'

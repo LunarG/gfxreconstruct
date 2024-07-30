@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import *
+import base_utils
 from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
 
@@ -125,18 +126,8 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
                 body += '                break;\n'
 
                 for child in self.base_header_structs[struct]:
-                    type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
-                    type = type.upper()
-                    switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                    if 'OPEN_GLES' in switch_type:
-                        type = switch_type
-                        switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
-                    elif 'OPEN_GL' in switch_type:
-                        type = switch_type
-                        switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
-                    elif 'D3_D' in switch_type:
-                        type = switch_type
-                        switch_type = re.sub('D3_D', 'D3D', type)
+                    switch_type = base_utils.GenerateStructureType(child)
+
                     body += f'            case {switch_type}:\n'
                     body += f'                FieldToJson(jdata,\n'
                     body += f'                            reinterpret_cast<const Decoded_{child}*>(data),\n'
@@ -215,18 +206,8 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
             body += f'            FieldToJson(args["{var_name}"], {var_name}, json_options);\n'
             body += '            break;\n'
             for child in self.base_header_structs[var_type]:
-                type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
-                type = type.upper()
-                switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                if 'OPEN_GLES' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
-                elif 'OPEN_GL' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
-                elif 'D3_D' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('D3_D', 'D3D', type)
+                switch_type = base_utils.GenerateStructureType(child)
+
                 body += f'        case {switch_type}:\n'
                 body += f'            FieldToJson(args["{var_name}"],\n'
                 body += f'                        reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({var_name}),\n'
@@ -253,18 +234,8 @@ class OpenXrStructToJsonBodyGenerator(BaseGenerator):
             body += f'            FieldToJson(args["{var_name}"], {var_name}, json_options);\n'
             body += '            break;\n'
             for child in self.base_header_structs[var_type]:
-                type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', child)
-                type = type.upper()
-                switch_type = re.sub('XR_', 'XR_TYPE_', type)
-                if 'OPEN_GLES' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GLES', 'OPENGL_ES_', type)
-                elif 'OPEN_GL' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('OPEN_GL', 'OPENGL_', type)
-                elif 'D3_D' in switch_type:
-                    type = switch_type
-                    switch_type = re.sub('D3_D', 'D3D', type)
+                switch_type = base_utils.GenerateStructureType(child)
+
                 body += f'        case {switch_type}:\n'
                 body += f'            FieldToJson(args["{var_name}"],\n'
                 body += f'                        reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({var_name}),\n'
