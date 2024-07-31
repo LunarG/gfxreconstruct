@@ -39,6 +39,7 @@
 #include "util/platform.h"
 
 #include <cassert>
+#include <cstdlib>
 #include <unordered_map>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -958,6 +959,63 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         operation_annotation += "\n}";
         ForcedWriteAnnotation(
             format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
+
+        // Write block containing environment variables
+        #ifdef _WINDOWS
+            const LPCH env_string = GetEnvironmentStrings();
+            int offset = 0;
+            int base_offset = 0;
+            int string_count = 0;
+            while (env_string[offset] != '\0') {
+                static bool skipped_first = false;
+                const char* c = env_string + offset;
+
+                while (env_string[offset] != '\0') offset += 1;
+
+                offset += 1;
+
+                // For some reason the first entry is garbage, so we skip it.
+                if (!skipped_first) {
+                    base_offset = offset;
+                    skipped_first = true;
+                    continue;
+                }
+                string_count += 1;
+
+            }
+            std::vector<uint8_t> string_block_bytes;
+            string_block_bytes.resize(offset + string_count * (sizeof(uint32_t) - 1) - 1);
+            offset = base_offset;
+            uint8_t* string_block_ptr = static_cast<uint8_t*>(string_block_bytes.data());
+
+            int last_offset = offset;
+            while (env_string[offset] != '\0') {
+                const char* c = env_string + offset;
+                
+                // Advance offset until it points to null byte of string
+                while (env_string[offset] != '\0') offset += 1;
+                uint32_t string_length = offset - last_offset;      // Save length of string before bumping offset again
+
+                // Advance offset to point at the first character of the next string
+                // or null if we're out of strings
+                offset += 1;
+
+                // Copy in size, then string contents
+                util::platform::MemoryCopy(string_block_ptr, string_block_bytes.size() - (string_block_ptr - string_block_bytes.data()), &string_length, sizeof(uint32_t));
+                string_block_ptr += sizeof(uint32_t);
+                util::platform::MemoryCopy(string_block_ptr, string_block_bytes.size() - (string_block_ptr - string_block_bytes.data()), c, string_length);
+                string_block_ptr += string_length;
+
+                last_offset = offset;
+            }
+
+            // Write to file before freeing environment strings
+            WriteToFile(string_block_bytes.data(), string_block_bytes.size());
+            FreeEnvironmentStrings((LPCH)env_string);
+        #elif __unix__
+            extern char** environ;
+            const char* env_string = eviron;
+        #endif
     }
     else
     {
