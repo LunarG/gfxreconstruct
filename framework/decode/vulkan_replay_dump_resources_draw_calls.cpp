@@ -1162,6 +1162,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
         {
             std::vector<std::string> filenamesBeforeAfter;
             bool                     scaling_failed;
+
+            // We don't support stencil output yet
+            if (filenamesAfter[i].find("stencil") != std::string::npos)
+                continue;
+
             if (dump_resources_before)
             {
                 filenamesBeforeAfter.resize(2);
