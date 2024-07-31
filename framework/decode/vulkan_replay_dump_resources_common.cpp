@@ -525,6 +525,7 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
         {
             std::string filename = filenames[f++];
 
+            // We don't support stencil output yet
             if (aspects[i] == VK_IMAGE_ASPECT_STENCIL_BIT)
                 continue;
 
