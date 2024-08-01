@@ -2544,10 +2544,14 @@ void VulkanCppConsumer::Process_vkGetDeviceMemoryCommitment(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcommitted_memory_in_bytes_name = "pCommittedMemoryInBytes_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkDeviceSize %s;\n", pcommitted_memory_in_bytes_name.c_str());
+    std::string pcommitted_memory_in_bytes_name = "NULL";
+    if (!pCommittedMemoryInBytes->IsNull()) {
+        pcommitted_memory_in_bytes_name = "pCommittedMemoryInBytes_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceSize %s = %s;\n", pcommitted_memory_in_bytes_name.c_str(), util::ToString(*pCommittedMemoryInBytes->GetPointer()).c_str());
+        pcommitted_memory_in_bytes_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetDeviceMemoryCommitment(%s, %s, &%s);\n",
+            "\t\tvkGetDeviceMemoryCommitment(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(memory).c_str(),
             pcommitted_memory_in_bytes_name.c_str());
@@ -2629,10 +2633,14 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout(
                                                                         pSubresource->GetMetaStructPointer(),
                                                                         *this);
     fprintf(file, "%s", stream_psubresource.str().c_str());
-    std::string playout_name = "pLayout_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkSubresourceLayout %s;\n", playout_name.c_str());
+    std::string playout_name = "NULL";
+    if (!pLayout->IsNull()) {
+        playout_name = "pLayout_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSubresourceLayout %s = {};\n", playout_name.c_str());
+        playout_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetImageSubresourceLayout(%s, %s, &%s, &%s);\n",
+            "\t\tvkGetImageSubresourceLayout(%s, %s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             psubresource_struct.c_str(),
@@ -2648,10 +2656,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pfeatures_name = "pFeatures_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkPhysicalDeviceFeatures %s;\n", pfeatures_name.c_str());
+    std::string pfeatures_name = "NULL";
+    if (!pFeatures->IsNull()) {
+        pfeatures_name = "pFeatures_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceFeatures %s = {};\n", pfeatures_name.c_str());
+        pfeatures_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceFeatures(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFeatures(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pfeatures_name.c_str());
     fprintf(file, "\t}\n");
@@ -2666,10 +2678,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pformat_properties_name = "pFormatProperties_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkFormatProperties %s;\n", pformat_properties_name.c_str());
+    std::string pformat_properties_name = "NULL";
+    if (!pFormatProperties->IsNull()) {
+        pformat_properties_name = "pFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkFormatProperties %s = {};\n", pformat_properties_name.c_str());
+        pformat_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceFormatProperties(%s, %s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFormatProperties(%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             pformat_properties_name.c_str());
@@ -2690,10 +2706,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkImageFormatProperties %s;\n", pimage_format_properties_name.c_str());
+    std::string pimage_format_properties_name = "NULL";
+    if (!pImageFormatProperties->IsNull()) {
+        pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkImageFormatProperties %s = {};\n", pimage_format_properties_name.c_str());
+        pimage_format_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceImageFormatProperties(%s, %s, %s, %s, %s, %s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceImageFormatProperties(%s, %s, %s, %s, %s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             util::ToString<VkImageType>(type).c_str(),
@@ -2712,10 +2732,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmemory_properties_name = "pMemoryProperties_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkPhysicalDeviceMemoryProperties %s;\n", pmemory_properties_name.c_str());
+    std::string pmemory_properties_name = "NULL";
+    if (!pMemoryProperties->IsNull()) {
+        pmemory_properties_name = "pMemoryProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceMemoryProperties %s = {};\n", pmemory_properties_name.c_str());
+        pmemory_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceMemoryProperties(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceMemoryProperties(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pmemory_properties_name.c_str());
     fprintf(file, "\t}\n");
@@ -2729,10 +2753,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkPhysicalDeviceProperties %s;\n", pproperties_name.c_str());
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceProperties %s = {};\n", pproperties_name.c_str());
+        pproperties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceProperties(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceProperties(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperties_name.c_str());
     fprintf(file, "\t}\n");
@@ -2762,13 +2790,20 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
-    fprintf(file, "\t\tVkSparseImageFormatProperties %s[%d];\n", pproperties_name.c_str(), *in_pproperty_count);
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSparseImageFormatProperties %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceSparseImageFormatProperties(%s, %s, %s, %s, %s, %s, &%s, %s);\n",
+            "\t\tvkGetPhysicalDeviceSparseImageFormatProperties(%s, %s, %s, %s, %s, %s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             util::ToString<VkImageType>(type).c_str(),
@@ -2820,10 +2855,14 @@ void VulkanCppConsumer::Process_vkGetRenderAreaGranularity(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pgranularity_name = "pGranularity_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkExtent2D %s;\n", pgranularity_name.c_str());
+    std::string pgranularity_name = "NULL";
+    if (!pGranularity->IsNull()) {
+        pgranularity_name = "pGranularity_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExtent2D %s = {};\n", pgranularity_name.c_str());
+        pgranularity_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetRenderAreaGranularity(%s, %s, &%s);\n",
+            "\t\tvkGetRenderAreaGranularity(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(renderPass).c_str(),
             pgranularity_name.c_str());
@@ -3344,17 +3383,20 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroups(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pphysical_device_group_count_name = "pPhysicalDeviceGroupCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pphysical_device_group_count_name.c_str());
-    std::string pphysical_device_group_properties_name = "pPhysicalDeviceGroupProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pphysical_device_group_properties;
-    pphysical_device_group_properties_name = GenerateStruct_VkPhysicalDeviceGroupProperties(stream_pphysical_device_group_properties,
-                                                                                            pPhysicalDeviceGroupProperties->GetPointer(),
-                                                                                            pPhysicalDeviceGroupProperties->GetMetaStructPointer(),
-                                                                                            *this);
-    fprintf(file, "%s", stream_pphysical_device_group_properties.str().c_str());
+    std::string pphysical_device_group_count_name = "NULL";
+    if (!pPhysicalDeviceGroupCount->IsNull()) {
+        pphysical_device_group_count_name = "pPhysicalDeviceGroupCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pphysical_device_group_count_name.c_str(), util::ToString(*pPhysicalDeviceGroupCount->GetPointer()).c_str());
+        pphysical_device_group_count_name.insert(0, "&");
+    }
+    std::string pphysical_device_group_properties_name = "NULL";
+    if (!pPhysicalDeviceGroupProperties->IsNull()) {
+        const uint32_t* in_pphysical_device_group_count = pPhysicalDeviceGroupCount->GetPointer();
+        pphysical_device_group_properties_name = "pPhysicalDeviceGroupProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceGroupProperties %s[%d] = {};\n", pphysical_device_group_properties_name.c_str(), *in_pphysical_device_group_count);
+    }
     fprintf(file,
-            "\t\tVK_CALL_CHECK(vkEnumeratePhysicalDeviceGroups(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkEnumeratePhysicalDeviceGroups(%s, %s, %s), %s);\n",
             this->GetHandle(instance).c_str(),
             pphysical_device_group_count_name.c_str(),
             pphysical_device_group_properties_name.c_str(),
@@ -3387,15 +3429,14 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupport(
                                                                                      pCreateInfo->GetMetaStructPointer(),
                                                                                      *this);
     fprintf(file, "%s", stream_pcreate_info.str().c_str());
-    std::string psupport_name = "pSupport_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psupport;
-    psupport_name = GenerateStruct_VkDescriptorSetLayoutSupport(stream_psupport,
-                                                                pSupport->GetPointer(),
-                                                                pSupport->GetMetaStructPointer(),
-                                                                *this);
-    fprintf(file, "%s", stream_psupport.str().c_str());
+    std::string psupport_name = "NULL";
+    if (!pSupport->IsNull()) {
+        psupport_name = "pSupport_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDescriptorSetLayoutSupport %s = {};\n", psupport_name.c_str());
+        psupport_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetDescriptorSetLayoutSupport(%s, &%s, &%s);\n",
+            "\t\tvkGetDescriptorSetLayoutSupport(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pcreate_info_struct.c_str(),
             psupport_name.c_str());
@@ -3413,10 +3454,14 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPeerMemoryFeatures(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string ppeer_memory_features_name = "pPeerMemoryFeatures_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkPeerMemoryFeatureFlags %s;\n", ppeer_memory_features_name.c_str());
+    std::string ppeer_memory_features_name = "NULL";
+    if (!pPeerMemoryFeatures->IsNull()) {
+        ppeer_memory_features_name = "pPeerMemoryFeatures_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPeerMemoryFeatureFlags %s = %s;\n", ppeer_memory_features_name.c_str(), util::ToString(*pPeerMemoryFeatures->GetPointer()).c_str());
+        ppeer_memory_features_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetDeviceGroupPeerMemoryFeatures(%s, %u, %u, %u, &%s);\n",
+            "\t\tvkGetDeviceGroupPeerMemoryFeatures(%s, %u, %u, %u, %s);\n",
             this->GetHandle(device).c_str(),
             heapIndex,
             localDeviceIndex,
@@ -3478,17 +3523,20 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2(
                                                                                    pInfo->GetMetaStructPointer(),
                                                                                    *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", psparse_memory_requirement_count_name.c_str());
-    std::string psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psparse_memory_requirements;
-    psparse_memory_requirements_name = GenerateStruct_VkSparseImageMemoryRequirements2(stream_psparse_memory_requirements,
-                                                                                       pSparseMemoryRequirements->GetPointer(),
-                                                                                       pSparseMemoryRequirements->GetMetaStructPointer(),
-                                                                                       *this);
-    fprintf(file, "%s", stream_psparse_memory_requirements.str().c_str());
+    std::string psparse_memory_requirement_count_name = "NULL";
+    if (!pSparseMemoryRequirementCount->IsNull()) {
+        psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", psparse_memory_requirement_count_name.c_str(), util::ToString(*pSparseMemoryRequirementCount->GetPointer()).c_str());
+        psparse_memory_requirement_count_name.insert(0, "&");
+    }
+    std::string psparse_memory_requirements_name = "NULL";
+    if (!pSparseMemoryRequirements->IsNull()) {
+        const uint32_t* in_psparse_memory_requirement_count = pSparseMemoryRequirementCount->GetPointer();
+        psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSparseImageMemoryRequirements2 %s[%d] = {};\n", psparse_memory_requirements_name.c_str(), *in_psparse_memory_requirement_count);
+    }
     fprintf(file,
-            "\t\tvkGetImageSparseMemoryRequirements2(%s, &%s, &%s, &%s);\n",
+            "\t\tvkGetImageSparseMemoryRequirements2(%s, &%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             psparse_memory_requirement_count_name.c_str(),
@@ -3511,15 +3559,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferProperties(
                                                                                                  pExternalBufferInfo->GetMetaStructPointer(),
                                                                                                  *this);
     fprintf(file, "%s", stream_pexternal_buffer_info.str().c_str());
-    std::string pexternal_buffer_properties_name = "pExternalBufferProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pexternal_buffer_properties;
-    pexternal_buffer_properties_name = GenerateStruct_VkExternalBufferProperties(stream_pexternal_buffer_properties,
-                                                                                 pExternalBufferProperties->GetPointer(),
-                                                                                 pExternalBufferProperties->GetMetaStructPointer(),
-                                                                                 *this);
-    fprintf(file, "%s", stream_pexternal_buffer_properties.str().c_str());
+    std::string pexternal_buffer_properties_name = "NULL";
+    if (!pExternalBufferProperties->IsNull()) {
+        pexternal_buffer_properties_name = "pExternalBufferProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExternalBufferProperties %s = {};\n", pexternal_buffer_properties_name.c_str());
+        pexternal_buffer_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceExternalBufferProperties(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceExternalBufferProperties(%s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pexternal_buffer_info_struct.c_str(),
             pexternal_buffer_properties_name.c_str());
@@ -3541,15 +3588,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFenceProperties(
                                                                                                pExternalFenceInfo->GetMetaStructPointer(),
                                                                                                *this);
     fprintf(file, "%s", stream_pexternal_fence_info.str().c_str());
-    std::string pexternal_fence_properties_name = "pExternalFenceProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pexternal_fence_properties;
-    pexternal_fence_properties_name = GenerateStruct_VkExternalFenceProperties(stream_pexternal_fence_properties,
-                                                                               pExternalFenceProperties->GetPointer(),
-                                                                               pExternalFenceProperties->GetMetaStructPointer(),
-                                                                               *this);
-    fprintf(file, "%s", stream_pexternal_fence_properties.str().c_str());
+    std::string pexternal_fence_properties_name = "NULL";
+    if (!pExternalFenceProperties->IsNull()) {
+        pexternal_fence_properties_name = "pExternalFenceProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExternalFenceProperties %s = {};\n", pexternal_fence_properties_name.c_str());
+        pexternal_fence_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceExternalFenceProperties(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceExternalFenceProperties(%s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pexternal_fence_info_struct.c_str(),
             pexternal_fence_properties_name.c_str());
@@ -3571,15 +3617,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphoreProperties(
                                                                                                        pExternalSemaphoreInfo->GetMetaStructPointer(),
                                                                                                        *this);
     fprintf(file, "%s", stream_pexternal_semaphore_info.str().c_str());
-    std::string pexternal_semaphore_properties_name = "pExternalSemaphoreProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pexternal_semaphore_properties;
-    pexternal_semaphore_properties_name = GenerateStruct_VkExternalSemaphoreProperties(stream_pexternal_semaphore_properties,
-                                                                                       pExternalSemaphoreProperties->GetPointer(),
-                                                                                       pExternalSemaphoreProperties->GetMetaStructPointer(),
-                                                                                       *this);
-    fprintf(file, "%s", stream_pexternal_semaphore_properties.str().c_str());
+    std::string pexternal_semaphore_properties_name = "NULL";
+    if (!pExternalSemaphoreProperties->IsNull()) {
+        pexternal_semaphore_properties_name = "pExternalSemaphoreProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExternalSemaphoreProperties %s = {};\n", pexternal_semaphore_properties_name.c_str());
+        pexternal_semaphore_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceExternalSemaphoreProperties(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceExternalSemaphoreProperties(%s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pexternal_semaphore_info_struct.c_str(),
             pexternal_semaphore_properties_name.c_str());
@@ -3594,15 +3639,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pfeatures_name = "pFeatures_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pfeatures;
-    pfeatures_name = GenerateStruct_VkPhysicalDeviceFeatures2(stream_pfeatures,
-                                                              pFeatures->GetPointer(),
-                                                              pFeatures->GetMetaStructPointer(),
-                                                              *this);
-    fprintf(file, "%s", stream_pfeatures.str().c_str());
+    std::string pfeatures_name = "NULL";
+    if (!pFeatures->IsNull()) {
+        pfeatures_name = "pFeatures_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceFeatures2 %s = {};\n", pfeatures_name.c_str());
+        pfeatures_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceFeatures2(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFeatures2(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pfeatures_name.c_str());
     fprintf(file, "\t}\n");
@@ -3617,15 +3661,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pformat_properties_name = "pFormatProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pformat_properties;
-    pformat_properties_name = GenerateStruct_VkFormatProperties2(stream_pformat_properties,
-                                                                 pFormatProperties->GetPointer(),
-                                                                 pFormatProperties->GetMetaStructPointer(),
-                                                                 *this);
-    fprintf(file, "%s", stream_pformat_properties.str().c_str());
+    std::string pformat_properties_name = "NULL";
+    if (!pFormatProperties->IsNull()) {
+        pformat_properties_name = "pFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkFormatProperties2 %s = {};\n", pformat_properties_name.c_str());
+        pformat_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceFormatProperties2(%s, %s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceFormatProperties2(%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             pformat_properties_name.c_str());
@@ -3648,15 +3691,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2(
                                                                                             pImageFormatInfo->GetMetaStructPointer(),
                                                                                             *this);
     fprintf(file, "%s", stream_pimage_format_info.str().c_str());
-    std::string pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pimage_format_properties;
-    pimage_format_properties_name = GenerateStruct_VkImageFormatProperties2(stream_pimage_format_properties,
-                                                                            pImageFormatProperties->GetPointer(),
-                                                                            pImageFormatProperties->GetMetaStructPointer(),
-                                                                            *this);
-    fprintf(file, "%s", stream_pimage_format_properties.str().c_str());
+    std::string pimage_format_properties_name = "NULL";
+    if (!pImageFormatProperties->IsNull()) {
+        pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkImageFormatProperties2 %s = {};\n", pimage_format_properties_name.c_str());
+        pimage_format_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tVK_CALL_CHECK(vkGetPhysicalDeviceImageFormatProperties2(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkGetPhysicalDeviceImageFormatProperties2(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pimage_format_info_struct.c_str(),
             pimage_format_properties_name.c_str(),
@@ -3672,15 +3714,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmemory_properties_name = "pMemoryProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_properties;
-    pmemory_properties_name = GenerateStruct_VkPhysicalDeviceMemoryProperties2(stream_pmemory_properties,
-                                                                               pMemoryProperties->GetPointer(),
-                                                                               pMemoryProperties->GetMetaStructPointer(),
-                                                                               *this);
-    fprintf(file, "%s", stream_pmemory_properties.str().c_str());
+    std::string pmemory_properties_name = "NULL";
+    if (!pMemoryProperties->IsNull()) {
+        pmemory_properties_name = "pMemoryProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceMemoryProperties2 %s = {};\n", pmemory_properties_name.c_str());
+        pmemory_properties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceMemoryProperties2(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceMemoryProperties2(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pmemory_properties_name.c_str());
     fprintf(file, "\t}\n");
@@ -3694,15 +3735,14 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkPhysicalDeviceProperties2(stream_pproperties,
-                                                                  pProperties->GetPointer(),
-                                                                  pProperties->GetMetaStructPointer(),
-                                                                  *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceProperties2 %s = {};\n", pproperties_name.c_str());
+        pproperties_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceProperties2(%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceProperties2(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperties_name.c_str());
     fprintf(file, "\t}\n");
@@ -3717,17 +3757,20 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pqueue_family_property_count_name = "pQueueFamilyPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pqueue_family_property_count_name.c_str());
-    std::string pqueue_family_properties_name = "pQueueFamilyProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pqueue_family_properties;
-    pqueue_family_properties_name = GenerateStruct_VkQueueFamilyProperties2(stream_pqueue_family_properties,
-                                                                            pQueueFamilyProperties->GetPointer(),
-                                                                            pQueueFamilyProperties->GetMetaStructPointer(),
-                                                                            *this);
-    fprintf(file, "%s", stream_pqueue_family_properties.str().c_str());
+    std::string pqueue_family_property_count_name = "NULL";
+    if (!pQueueFamilyPropertyCount->IsNull()) {
+        pqueue_family_property_count_name = "pQueueFamilyPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pqueue_family_property_count_name.c_str(), util::ToString(*pQueueFamilyPropertyCount->GetPointer()).c_str());
+        pqueue_family_property_count_name.insert(0, "&");
+    }
+    std::string pqueue_family_properties_name = "NULL";
+    if (!pQueueFamilyProperties->IsNull()) {
+        const uint32_t* in_pqueue_family_property_count = pQueueFamilyPropertyCount->GetPointer();
+        pqueue_family_properties_name = "pQueueFamilyProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkQueueFamilyProperties2 %s[%d] = {};\n", pqueue_family_properties_name.c_str(), *in_pqueue_family_property_count);
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceQueueFamilyProperties2(%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceQueueFamilyProperties2(%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pqueue_family_property_count_name.c_str(),
             pqueue_family_properties_name.c_str());
@@ -3750,17 +3793,20 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2(
                                                                                             pFormatInfo->GetMetaStructPointer(),
                                                                                             *this);
     fprintf(file, "%s", stream_pformat_info.str().c_str());
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkSparseImageFormatProperties2(stream_pproperties,
-                                                                     pProperties->GetPointer(),
-                                                                     pProperties->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSparseImageFormatProperties2 %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     fprintf(file,
-            "\t\tvkGetPhysicalDeviceSparseImageFormatProperties2(%s, &%s, &%s, &%s);\n",
+            "\t\tvkGetPhysicalDeviceSparseImageFormatProperties2(%s, &%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pformat_info_struct.c_str(),
             pproperty_count_name.c_str(),
@@ -4022,10 +4068,14 @@ void VulkanCppConsumer::Process_vkGetSemaphoreCounterValue(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pvalue_name = "pValue_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s;\n", pvalue_name.c_str());
+    std::string pvalue_name = "NULL";
+    if (!pValue->IsNull()) {
+        pvalue_name = "pValue_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pvalue_name.c_str(), util::ToString(*pValue->GetPointer()).c_str());
+        pvalue_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tVK_CALL_CHECK(vkGetSemaphoreCounterValue(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkGetSemaphoreCounterValue(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(semaphore).c_str(),
             pvalue_name.c_str(),
@@ -4770,15 +4820,14 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirements(
                                                                                pInfo->GetMetaStructPointer(),
                                                                                *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_requirements;
-    pmemory_requirements_name = GenerateStruct_VkMemoryRequirements2(stream_pmemory_requirements,
-                                                                     pMemoryRequirements->GetPointer(),
-                                                                     pMemoryRequirements->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pmemory_requirements.str().c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2 %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetDeviceBufferMemoryRequirements(%s, &%s, &%s);\n",
+            "\t\tvkGetDeviceBufferMemoryRequirements(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             pmemory_requirements_name.c_str());
@@ -4800,15 +4849,14 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirements(
                                                                               pInfo->GetMetaStructPointer(),
                                                                               *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_requirements;
-    pmemory_requirements_name = GenerateStruct_VkMemoryRequirements2(stream_pmemory_requirements,
-                                                                     pMemoryRequirements->GetPointer(),
-                                                                     pMemoryRequirements->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pmemory_requirements.str().c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2 %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetDeviceImageMemoryRequirements(%s, &%s, &%s);\n",
+            "\t\tvkGetDeviceImageMemoryRequirements(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             pmemory_requirements_name.c_str());
@@ -4831,17 +4879,20 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirements(
                                                                               pInfo->GetMetaStructPointer(),
                                                                               *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", psparse_memory_requirement_count_name.c_str());
-    std::string psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psparse_memory_requirements;
-    psparse_memory_requirements_name = GenerateStruct_VkSparseImageMemoryRequirements2(stream_psparse_memory_requirements,
-                                                                                       pSparseMemoryRequirements->GetPointer(),
-                                                                                       pSparseMemoryRequirements->GetMetaStructPointer(),
-                                                                                       *this);
-    fprintf(file, "%s", stream_psparse_memory_requirements.str().c_str());
+    std::string psparse_memory_requirement_count_name = "NULL";
+    if (!pSparseMemoryRequirementCount->IsNull()) {
+        psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", psparse_memory_requirement_count_name.c_str(), util::ToString(*pSparseMemoryRequirementCount->GetPointer()).c_str());
+        psparse_memory_requirement_count_name.insert(0, "&");
+    }
+    std::string psparse_memory_requirements_name = "NULL";
+    if (!pSparseMemoryRequirements->IsNull()) {
+        const uint32_t* in_psparse_memory_requirement_count = pSparseMemoryRequirementCount->GetPointer();
+        psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSparseImageMemoryRequirements2 %s[%d] = {};\n", psparse_memory_requirements_name.c_str(), *in_psparse_memory_requirement_count);
+    }
     fprintf(file,
-            "\t\tvkGetDeviceImageSparseMemoryRequirements(%s, &%s, &%s, &%s);\n",
+            "\t\tvkGetDeviceImageSparseMemoryRequirements(%s, &%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             psparse_memory_requirement_count_name.c_str(),
@@ -4859,17 +4910,20 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolProperties(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string ptool_count_name = "pToolCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", ptool_count_name.c_str());
-    std::string ptool_properties_name = "pToolProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_ptool_properties;
-    ptool_properties_name = GenerateStruct_VkPhysicalDeviceToolProperties(stream_ptool_properties,
-                                                                          pToolProperties->GetPointer(),
-                                                                          pToolProperties->GetMetaStructPointer(),
-                                                                          *this);
-    fprintf(file, "%s", stream_ptool_properties.str().c_str());
+    std::string ptool_count_name = "NULL";
+    if (!pToolCount->IsNull()) {
+        ptool_count_name = "pToolCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", ptool_count_name.c_str(), util::ToString(*pToolCount->GetPointer()).c_str());
+        ptool_count_name.insert(0, "&");
+    }
+    std::string ptool_properties_name = "NULL";
+    if (!pToolProperties->IsNull()) {
+        const uint32_t* in_ptool_count = pToolCount->GetPointer();
+        ptool_properties_name = "pToolProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceToolProperties %s[%d] = {};\n", ptool_properties_name.c_str(), *in_ptool_count);
+    }
     fprintf(file,
-            "\t\tVK_CALL_CHECK(vkGetPhysicalDeviceToolProperties(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(vkGetPhysicalDeviceToolProperties(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             ptool_count_name.c_str(),
             ptool_properties_name.c_str(),
@@ -4888,10 +4942,14 @@ void VulkanCppConsumer::Process_vkGetPrivateData(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s;\n", pdata_name.c_str());
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pdata_name.c_str(), util::ToString(*pData->GetPointer()).c_str());
+        pdata_name.insert(0, "&");
+    }
     fprintf(file,
-            "\t\tvkGetPrivateData(%s, %s, %" PRIu64 "UL, %s, &%s);\n",
+            "\t\tvkGetPrivateData(%s, %s, %" PRIu64 "UL, %s, %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkObjectType>(objectType).c_str(),
             objectHandle,
@@ -4962,11 +5020,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string psurface_capabilities_name = "pSurfaceCapabilities_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkSurfaceCapabilitiesKHR %s;\n", psurface_capabilities_name.c_str());
+    std::string psurface_capabilities_name = "NULL";
+    if (!pSurfaceCapabilities->IsNull()) {
+        psurface_capabilities_name = "pSurfaceCapabilities_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSurfaceCapabilitiesKHR %s = {};\n", psurface_capabilities_name.c_str());
+        psurface_capabilities_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSurfaceCapabilitiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilitiesKHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(surface).c_str(),
             psurface_capabilities_name.c_str(),
@@ -5009,11 +5071,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceSupportKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string psupported_name = "pSupported_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkBool32 %s;\n", psupported_name.c_str());
+    std::string psupported_name = "NULL";
+    if (!pSupported->IsNull()) {
+        psupported_name = "pSupported_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkBool32 %s = %s;\n", psupported_name.c_str(), util::ToString(*pSupported->GetPointer()).c_str());
+        psupported_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSurfaceSupportKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceSupportKHR(%s, %u, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceSupportKHR(%s, %u, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             this->GetHandle(surface).c_str(),
@@ -5077,16 +5143,15 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPresentCapabilitiesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdevice_group_present_capabilities_name = "pDeviceGroupPresentCapabilities_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pdevice_group_present_capabilities;
-    pdevice_group_present_capabilities_name = GenerateStruct_VkDeviceGroupPresentCapabilitiesKHR(stream_pdevice_group_present_capabilities,
-                                                                                                 pDeviceGroupPresentCapabilities->GetPointer(),
-                                                                                                 pDeviceGroupPresentCapabilities->GetMetaStructPointer(),
-                                                                                                 *this);
-    fprintf(file, "%s", stream_pdevice_group_present_capabilities.str().c_str());
+    std::string pdevice_group_present_capabilities_name = "NULL";
+    if (!pDeviceGroupPresentCapabilities->IsNull()) {
+        pdevice_group_present_capabilities_name = "pDeviceGroupPresentCapabilities_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceGroupPresentCapabilitiesKHR %s = {};\n", pdevice_group_present_capabilities_name.c_str());
+        pdevice_group_present_capabilities_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceGroupPresentCapabilitiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupPresentCapabilitiesKHR(%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupPresentCapabilitiesKHR(%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pdevice_group_present_capabilities_name.c_str(),
             util::ToString<VkResult>(returnValue).c_str());
@@ -5103,11 +5168,15 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupSurfacePresentModesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmodes_name = "pModes_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkDeviceGroupPresentModeFlagsKHR %s;\n", pmodes_name.c_str());
+    std::string pmodes_name = "NULL";
+    if (!pModes->IsNull()) {
+        pmodes_name = "pModes_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceGroupPresentModeFlagsKHR %s = %s;\n", pmodes_name.c_str(), util::ToString(*pModes->GetPointer()).c_str());
+        pmodes_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceGroupSurfacePresentModesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModesKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModesKHR(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(surface).c_str(),
             pmodes_name.c_str(),
@@ -5126,14 +5195,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDevicePresentRectanglesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string prect_count_name = "pRectCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", prect_count_name.c_str());
-    std::string prects_name = "pRects_" + std::to_string(this->GetNextId());
-    const uint32_t* in_prect_count = pRectCount->GetPointer();
-    fprintf(file, "\t\tVkRect2D %s[%d];\n", prects_name.c_str(), *in_prect_count);
+    std::string prect_count_name = "NULL";
+    if (!pRectCount->IsNull()) {
+        prect_count_name = "pRectCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", prect_count_name.c_str(), util::ToString(*pRectCount->GetPointer()).c_str());
+        prect_count_name.insert(0, "&");
+    }
+    std::string prects_name = "NULL";
+    if (!pRects->IsNull()) {
+        const uint32_t* in_prect_count = pRectCount->GetPointer();
+        prects_name = "pRects_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkRect2D %s[%d] = {};\n", prects_name.c_str(), *in_prect_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDevicePresentRectanglesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDevicePresentRectanglesKHR(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDevicePresentRectanglesKHR(%s, %s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(surface).c_str(),
             prect_count_name.c_str(),
@@ -5244,14 +5320,21 @@ void VulkanCppConsumer::Process_vkGetDisplayModePropertiesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
-    fprintf(file, "\t\tVkDisplayModePropertiesKHR %s[%d];\n", pproperties_name.c_str(), *in_pproperty_count);
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayModePropertiesKHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetDisplayModePropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayModePropertiesKHR(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayModePropertiesKHR(%s, %s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(display).c_str(),
             pproperty_count_name.c_str(),
@@ -5271,11 +5354,15 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilitiesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcapabilities_name = "pCapabilities_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkDisplayPlaneCapabilitiesKHR %s;\n", pcapabilities_name.c_str());
+    std::string pcapabilities_name = "NULL";
+    if (!pCapabilities->IsNull()) {
+        pcapabilities_name = "pCapabilities_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayPlaneCapabilitiesKHR %s = {};\n", pcapabilities_name.c_str());
+        pcapabilities_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDisplayPlaneCapabilitiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilitiesKHR(%s, %s, %u, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilitiesKHR(%s, %s, %u, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(mode).c_str(),
             planeIndex,
@@ -5295,8 +5382,12 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdisplay_count_name = "pDisplayCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pdisplay_count_name.c_str());
+    std::string pdisplay_count_name = "NULL";
+    if (!pDisplayCount->IsNull()) {
+        pdisplay_count_name = "pDisplayCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pdisplay_count_name.c_str(), util::ToString(*pDisplayCount->GetPointer()).c_str());
+        pdisplay_count_name.insert(0, "&");
+    }
     std::string pdisplays_name = "pDisplays_" + std::to_string(this->GetNextId(VK_OBJECT_TYPE_DISPLAY_KHR));
     AddKnownVariables("VkDisplayKHR", pdisplays_name, pDisplays->GetPointer(), *pDisplayCount->GetPointer());
     if (returnValue == VK_SUCCESS) {
@@ -5305,7 +5396,7 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneSupportedDisplaysKHR(
     }
     pfn_loader_.AddMethodName("vkGetDisplayPlaneSupportedDisplaysKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneSupportedDisplaysKHR(%s, %u, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneSupportedDisplaysKHR(%s, %u, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             planeIndex,
             pdisplay_count_name.c_str(),
@@ -5324,14 +5415,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
-    fprintf(file, "\t\tVkDisplayPlanePropertiesKHR %s[%d];\n", pproperties_name.c_str(), *in_pproperty_count);
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayPlanePropertiesKHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceDisplayPlanePropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlanePropertiesKHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperty_count_name.c_str(),
             pproperties_name.c_str(),
@@ -5349,14 +5447,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPropertiesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
-    fprintf(file, "\t\tVkDisplayPropertiesKHR %s[%d];\n", pproperties_name.c_str(), *in_pproperty_count);
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayPropertiesKHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceDisplayPropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPropertiesKHR(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPropertiesKHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperty_count_name.c_str(),
             pproperties_name.c_str(),
@@ -5763,16 +5868,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoCapabilitiesKHR(
                                                                              pVideoProfile->GetMetaStructPointer(),
                                                                              *this);
     fprintf(file, "%s", stream_pvideo_profile.str().c_str());
-    std::string pcapabilities_name = "pCapabilities_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pcapabilities;
-    pcapabilities_name = GenerateStruct_VkVideoCapabilitiesKHR(stream_pcapabilities,
-                                                               pCapabilities->GetPointer(),
-                                                               pCapabilities->GetMetaStructPointer(),
-                                                               *this);
-    fprintf(file, "%s", stream_pcapabilities.str().c_str());
+    std::string pcapabilities_name = "NULL";
+    if (!pCapabilities->IsNull()) {
+        pcapabilities_name = "pCapabilities_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkVideoCapabilitiesKHR %s = {};\n", pcapabilities_name.c_str());
+        pcapabilities_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceVideoCapabilitiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoCapabilitiesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoCapabilitiesKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pvideo_profile_struct.c_str(),
             pcapabilities_name.c_str(),
@@ -5797,18 +5901,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoFormatPropertiesKHR(
                                                                                               pVideoFormatInfo->GetMetaStructPointer(),
                                                                                               *this);
     fprintf(file, "%s", stream_pvideo_format_info.str().c_str());
-    std::string pvideo_format_property_count_name = "pVideoFormatPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pvideo_format_property_count_name.c_str());
-    std::string pvideo_format_properties_name = "pVideoFormatProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pvideo_format_properties;
-    pvideo_format_properties_name = GenerateStruct_VkVideoFormatPropertiesKHR(stream_pvideo_format_properties,
-                                                                              pVideoFormatProperties->GetPointer(),
-                                                                              pVideoFormatProperties->GetMetaStructPointer(),
-                                                                              *this);
-    fprintf(file, "%s", stream_pvideo_format_properties.str().c_str());
+    std::string pvideo_format_property_count_name = "NULL";
+    if (!pVideoFormatPropertyCount->IsNull()) {
+        pvideo_format_property_count_name = "pVideoFormatPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pvideo_format_property_count_name.c_str(), util::ToString(*pVideoFormatPropertyCount->GetPointer()).c_str());
+        pvideo_format_property_count_name.insert(0, "&");
+    }
+    std::string pvideo_format_properties_name = "NULL";
+    if (!pVideoFormatProperties->IsNull()) {
+        const uint32_t* in_pvideo_format_property_count = pVideoFormatPropertyCount->GetPointer();
+        pvideo_format_properties_name = "pVideoFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkVideoFormatPropertiesKHR %s[%d] = {};\n", pvideo_format_properties_name.c_str(), *in_pvideo_format_property_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceVideoFormatPropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoFormatPropertiesKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoFormatPropertiesKHR(%s, &%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pvideo_format_info_struct.c_str(),
             pvideo_format_property_count_name.c_str(),
@@ -5828,18 +5935,21 @@ void VulkanCppConsumer::Process_vkGetVideoSessionMemoryRequirementsKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmemory_requirements_count_name = "pMemoryRequirementsCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pmemory_requirements_count_name.c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_requirements;
-    pmemory_requirements_name = GenerateStruct_VkVideoSessionMemoryRequirementsKHR(stream_pmemory_requirements,
-                                                                                   pMemoryRequirements->GetPointer(),
-                                                                                   pMemoryRequirements->GetMetaStructPointer(),
-                                                                                   *this);
-    fprintf(file, "%s", stream_pmemory_requirements.str().c_str());
+    std::string pmemory_requirements_count_name = "NULL";
+    if (!pMemoryRequirementsCount->IsNull()) {
+        pmemory_requirements_count_name = "pMemoryRequirementsCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pmemory_requirements_count_name.c_str(), util::ToString(*pMemoryRequirementsCount->GetPointer()).c_str());
+        pmemory_requirements_count_name.insert(0, "&");
+    }
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        const uint32_t* in_pmemory_requirements_count = pMemoryRequirementsCount->GetPointer();
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkVideoSessionMemoryRequirementsKHR %s[%d] = {};\n", pmemory_requirements_name.c_str(), *in_pmemory_requirements_count);
+    }
     pfn_loader_.AddMethodName("vkGetVideoSessionMemoryRequirementsKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetVideoSessionMemoryRequirementsKHR(%s, %s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetVideoSessionMemoryRequirementsKHR(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(videoSession).c_str(),
             pmemory_requirements_count_name.c_str(),
@@ -5937,16 +6047,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFeatures2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pfeatures_name = "pFeatures_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pfeatures;
-    pfeatures_name = GenerateStruct_VkPhysicalDeviceFeatures2(stream_pfeatures,
-                                                              pFeatures->GetPointer(),
-                                                              pFeatures->GetMetaStructPointer(),
-                                                              *this);
-    fprintf(file, "%s", stream_pfeatures.str().c_str());
+    std::string pfeatures_name = "NULL";
+    if (!pFeatures->IsNull()) {
+        pfeatures_name = "pFeatures_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceFeatures2 %s = {};\n", pfeatures_name.c_str());
+        pfeatures_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceFeatures2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceFeatures2KHR(%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceFeatures2KHR(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pfeatures_name.c_str());
     fprintf(file, "\t}\n");
@@ -5961,16 +6070,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFormatProperties2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pformat_properties_name = "pFormatProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pformat_properties;
-    pformat_properties_name = GenerateStruct_VkFormatProperties2(stream_pformat_properties,
-                                                                 pFormatProperties->GetPointer(),
-                                                                 pFormatProperties->GetMetaStructPointer(),
-                                                                 *this);
-    fprintf(file, "%s", stream_pformat_properties.str().c_str());
+    std::string pformat_properties_name = "NULL";
+    if (!pFormatProperties->IsNull()) {
+        pformat_properties_name = "pFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkFormatProperties2 %s = {};\n", pformat_properties_name.c_str());
+        pformat_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceFormatProperties2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceFormatProperties2KHR(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceFormatProperties2KHR(%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             pformat_properties_name.c_str());
@@ -5993,16 +6101,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceImageFormatProperties2KHR(
                                                                                             pImageFormatInfo->GetMetaStructPointer(),
                                                                                             *this);
     fprintf(file, "%s", stream_pimage_format_info.str().c_str());
-    std::string pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pimage_format_properties;
-    pimage_format_properties_name = GenerateStruct_VkImageFormatProperties2(stream_pimage_format_properties,
-                                                                            pImageFormatProperties->GetPointer(),
-                                                                            pImageFormatProperties->GetMetaStructPointer(),
-                                                                            *this);
-    fprintf(file, "%s", stream_pimage_format_properties.str().c_str());
+    std::string pimage_format_properties_name = "NULL";
+    if (!pImageFormatProperties->IsNull()) {
+        pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkImageFormatProperties2 %s = {};\n", pimage_format_properties_name.c_str());
+        pimage_format_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceImageFormatProperties2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceImageFormatProperties2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceImageFormatProperties2KHR(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pimage_format_info_struct.c_str(),
             pimage_format_properties_name.c_str(),
@@ -6018,16 +6125,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMemoryProperties2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmemory_properties_name = "pMemoryProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_properties;
-    pmemory_properties_name = GenerateStruct_VkPhysicalDeviceMemoryProperties2(stream_pmemory_properties,
-                                                                               pMemoryProperties->GetPointer(),
-                                                                               pMemoryProperties->GetMetaStructPointer(),
-                                                                               *this);
-    fprintf(file, "%s", stream_pmemory_properties.str().c_str());
+    std::string pmemory_properties_name = "NULL";
+    if (!pMemoryProperties->IsNull()) {
+        pmemory_properties_name = "pMemoryProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceMemoryProperties2 %s = {};\n", pmemory_properties_name.c_str());
+        pmemory_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceMemoryProperties2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceMemoryProperties2KHR(%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceMemoryProperties2KHR(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pmemory_properties_name.c_str());
     fprintf(file, "\t}\n");
@@ -6041,16 +6147,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceProperties2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkPhysicalDeviceProperties2(stream_pproperties,
-                                                                  pProperties->GetPointer(),
-                                                                  pProperties->GetMetaStructPointer(),
-                                                                  *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceProperties2 %s = {};\n", pproperties_name.c_str());
+        pproperties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceProperties2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceProperties2KHR(%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceProperties2KHR(%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperties_name.c_str());
     fprintf(file, "\t}\n");
@@ -6065,18 +6170,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyProperties2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pqueue_family_property_count_name = "pQueueFamilyPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pqueue_family_property_count_name.c_str());
-    std::string pqueue_family_properties_name = "pQueueFamilyProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pqueue_family_properties;
-    pqueue_family_properties_name = GenerateStruct_VkQueueFamilyProperties2(stream_pqueue_family_properties,
-                                                                            pQueueFamilyProperties->GetPointer(),
-                                                                            pQueueFamilyProperties->GetMetaStructPointer(),
-                                                                            *this);
-    fprintf(file, "%s", stream_pqueue_family_properties.str().c_str());
+    std::string pqueue_family_property_count_name = "NULL";
+    if (!pQueueFamilyPropertyCount->IsNull()) {
+        pqueue_family_property_count_name = "pQueueFamilyPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pqueue_family_property_count_name.c_str(), util::ToString(*pQueueFamilyPropertyCount->GetPointer()).c_str());
+        pqueue_family_property_count_name.insert(0, "&");
+    }
+    std::string pqueue_family_properties_name = "NULL";
+    if (!pQueueFamilyProperties->IsNull()) {
+        const uint32_t* in_pqueue_family_property_count = pQueueFamilyPropertyCount->GetPointer();
+        pqueue_family_properties_name = "pQueueFamilyProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkQueueFamilyProperties2 %s[%d] = {};\n", pqueue_family_properties_name.c_str(), *in_pqueue_family_property_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceQueueFamilyProperties2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceQueueFamilyProperties2KHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceQueueFamilyProperties2KHR(%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pqueue_family_property_count_name.c_str(),
             pqueue_family_properties_name.c_str());
@@ -6099,18 +6207,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSparseImageFormatProperties2K
                                                                                             pFormatInfo->GetMetaStructPointer(),
                                                                                             *this);
     fprintf(file, "%s", stream_pformat_info.str().c_str());
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkSparseImageFormatProperties2(stream_pproperties,
-                                                                     pProperties->GetPointer(),
-                                                                     pProperties->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSparseImageFormatProperties2 %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSparseImageFormatProperties2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(%s, &%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceSparseImageFormatProperties2KHR(%s, &%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pformat_info_struct.c_str(),
             pproperty_count_name.c_str(),
@@ -6170,11 +6281,15 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupPeerMemoryFeaturesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string ppeer_memory_features_name = "pPeerMemoryFeatures_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkPeerMemoryFeatureFlags %s;\n", ppeer_memory_features_name.c_str());
+    std::string ppeer_memory_features_name = "NULL";
+    if (!pPeerMemoryFeatures->IsNull()) {
+        ppeer_memory_features_name = "pPeerMemoryFeatures_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPeerMemoryFeatureFlags %s = %s;\n", ppeer_memory_features_name.c_str(), util::ToString(*pPeerMemoryFeatures->GetPointer()).c_str());
+        ppeer_memory_features_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceGroupPeerMemoryFeaturesKHR");
     fprintf(file,
-            "\t\tloaded_vkGetDeviceGroupPeerMemoryFeaturesKHR(%s, %u, %u, %u, &%s);\n",
+            "\t\tloaded_vkGetDeviceGroupPeerMemoryFeaturesKHR(%s, %u, %u, %u, %s);\n",
             this->GetHandle(device).c_str(),
             heapIndex,
             localDeviceIndex,
@@ -6209,18 +6324,21 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceGroupsKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pphysical_device_group_count_name = "pPhysicalDeviceGroupCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pphysical_device_group_count_name.c_str());
-    std::string pphysical_device_group_properties_name = "pPhysicalDeviceGroupProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pphysical_device_group_properties;
-    pphysical_device_group_properties_name = GenerateStruct_VkPhysicalDeviceGroupProperties(stream_pphysical_device_group_properties,
-                                                                                            pPhysicalDeviceGroupProperties->GetPointer(),
-                                                                                            pPhysicalDeviceGroupProperties->GetMetaStructPointer(),
-                                                                                            *this);
-    fprintf(file, "%s", stream_pphysical_device_group_properties.str().c_str());
+    std::string pphysical_device_group_count_name = "NULL";
+    if (!pPhysicalDeviceGroupCount->IsNull()) {
+        pphysical_device_group_count_name = "pPhysicalDeviceGroupCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pphysical_device_group_count_name.c_str(), util::ToString(*pPhysicalDeviceGroupCount->GetPointer()).c_str());
+        pphysical_device_group_count_name.insert(0, "&");
+    }
+    std::string pphysical_device_group_properties_name = "NULL";
+    if (!pPhysicalDeviceGroupProperties->IsNull()) {
+        const uint32_t* in_pphysical_device_group_count = pPhysicalDeviceGroupCount->GetPointer();
+        pphysical_device_group_properties_name = "pPhysicalDeviceGroupProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceGroupProperties %s[%d] = {};\n", pphysical_device_group_properties_name.c_str(), *in_pphysical_device_group_count);
+    }
     pfn_loader_.AddMethodName("vkEnumeratePhysicalDeviceGroupsKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceGroupsKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceGroupsKHR(%s, %s, %s), %s);\n",
             this->GetHandle(instance).c_str(),
             pphysical_device_group_count_name.c_str(),
             pphysical_device_group_properties_name.c_str(),
@@ -6242,16 +6360,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalBufferPropertiesKHR(
                                                                                                  pExternalBufferInfo->GetMetaStructPointer(),
                                                                                                  *this);
     fprintf(file, "%s", stream_pexternal_buffer_info.str().c_str());
-    std::string pexternal_buffer_properties_name = "pExternalBufferProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pexternal_buffer_properties;
-    pexternal_buffer_properties_name = GenerateStruct_VkExternalBufferProperties(stream_pexternal_buffer_properties,
-                                                                                 pExternalBufferProperties->GetPointer(),
-                                                                                 pExternalBufferProperties->GetMetaStructPointer(),
-                                                                                 *this);
-    fprintf(file, "%s", stream_pexternal_buffer_properties.str().c_str());
+    std::string pexternal_buffer_properties_name = "NULL";
+    if (!pExternalBufferProperties->IsNull()) {
+        pexternal_buffer_properties_name = "pExternalBufferProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExternalBufferProperties %s = {};\n", pexternal_buffer_properties_name.c_str());
+        pexternal_buffer_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceExternalBufferPropertiesKHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceExternalBufferPropertiesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceExternalBufferPropertiesKHR(%s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pexternal_buffer_info_struct.c_str(),
             pexternal_buffer_properties_name.c_str());
@@ -6273,11 +6390,15 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandleKHR(
                                                                                              pGetWin32HandleInfo->GetMetaStructPointer(),
                                                                                              *this);
     fprintf(file, "%s", stream_pget_win32_handle_info.str().c_str());
-    std::string phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", phandle_name.c_str());
+    std::string phandle_name = "NULL";
+    if (!pHandle->IsNull()) {
+        phandle_name = "pHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*pHandle->GetPointer()).c_str());
+        phandle_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryWin32HandleKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandleKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandleKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pget_win32_handle_info_struct.c_str(),
             phandle_name.c_str(),
@@ -6298,16 +6419,15 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandlePropertiesKHR(
     fprintf(file, "\t{\n");
     std::string handle_name = "handle_" + std::to_string(this->GetNextId());
     fprintf(file, "\t\tvoid* %s;\n", handle_name.c_str());
-    std::string pmemory_win32_handle_properties_name = "pMemoryWin32HandleProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_win32_handle_properties;
-    pmemory_win32_handle_properties_name = GenerateStruct_VkMemoryWin32HandlePropertiesKHR(stream_pmemory_win32_handle_properties,
-                                                                                           pMemoryWin32HandleProperties->GetPointer(),
-                                                                                           pMemoryWin32HandleProperties->GetMetaStructPointer(),
-                                                                                           *this);
-    fprintf(file, "%s", stream_pmemory_win32_handle_properties.str().c_str());
+    std::string pmemory_win32_handle_properties_name = "NULL";
+    if (!pMemoryWin32HandleProperties->IsNull()) {
+        pmemory_win32_handle_properties_name = "pMemoryWin32HandleProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryWin32HandlePropertiesKHR %s = {};\n", pmemory_win32_handle_properties_name.c_str());
+        pmemory_win32_handle_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryWin32HandlePropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandlePropertiesKHR(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandlePropertiesKHR(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             handle_name.c_str(),
@@ -6331,11 +6451,15 @@ void VulkanCppConsumer::Process_vkGetMemoryFdKHR(
                                                                           pGetFdInfo->GetMetaStructPointer(),
                                                                           *this);
     fprintf(file, "%s", stream_pget_fd_info.str().c_str());
-    std::string pfd_name = "pFd_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tint %s;\n", pfd_name.c_str());
+    std::string pfd_name = "NULL";
+    if (!pFd->IsNull()) {
+        pfd_name = "pFd_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tint %s = %s;\n", pfd_name.c_str(), util::ToString(*pFd->GetPointer()).c_str());
+        pfd_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryFdKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryFdKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryFdKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pget_fd_info_struct.c_str(),
             pfd_name.c_str(),
@@ -6354,16 +6478,15 @@ void VulkanCppConsumer::Process_vkGetMemoryFdPropertiesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmemory_fd_properties_name = "pMemoryFdProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_fd_properties;
-    pmemory_fd_properties_name = GenerateStruct_VkMemoryFdPropertiesKHR(stream_pmemory_fd_properties,
-                                                                        pMemoryFdProperties->GetPointer(),
-                                                                        pMemoryFdProperties->GetMetaStructPointer(),
-                                                                        *this);
-    fprintf(file, "%s", stream_pmemory_fd_properties.str().c_str());
+    std::string pmemory_fd_properties_name = "NULL";
+    if (!pMemoryFdProperties->IsNull()) {
+        pmemory_fd_properties_name = "pMemoryFdProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryFdPropertiesKHR %s = {};\n", pmemory_fd_properties_name.c_str());
+        pmemory_fd_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryFdPropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryFdPropertiesKHR(%s, %s, %d, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryFdPropertiesKHR(%s, %s, %d, %s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             fd,
@@ -6386,16 +6509,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalSemaphorePropertiesKH
                                                                                                        pExternalSemaphoreInfo->GetMetaStructPointer(),
                                                                                                        *this);
     fprintf(file, "%s", stream_pexternal_semaphore_info.str().c_str());
-    std::string pexternal_semaphore_properties_name = "pExternalSemaphoreProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pexternal_semaphore_properties;
-    pexternal_semaphore_properties_name = GenerateStruct_VkExternalSemaphoreProperties(stream_pexternal_semaphore_properties,
-                                                                                       pExternalSemaphoreProperties->GetPointer(),
-                                                                                       pExternalSemaphoreProperties->GetMetaStructPointer(),
-                                                                                       *this);
-    fprintf(file, "%s", stream_pexternal_semaphore_properties.str().c_str());
+    std::string pexternal_semaphore_properties_name = "NULL";
+    if (!pExternalSemaphoreProperties->IsNull()) {
+        pexternal_semaphore_properties_name = "pExternalSemaphoreProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExternalSemaphoreProperties %s = {};\n", pexternal_semaphore_properties_name.c_str());
+        pexternal_semaphore_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceExternalSemaphorePropertiesKHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceExternalSemaphorePropertiesKHR(%s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pexternal_semaphore_info_struct.c_str(),
             pexternal_semaphore_properties_name.c_str());
@@ -6656,16 +6778,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalFencePropertiesKHR(
                                                                                                pExternalFenceInfo->GetMetaStructPointer(),
                                                                                                *this);
     fprintf(file, "%s", stream_pexternal_fence_info.str().c_str());
-    std::string pexternal_fence_properties_name = "pExternalFenceProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pexternal_fence_properties;
-    pexternal_fence_properties_name = GenerateStruct_VkExternalFenceProperties(stream_pexternal_fence_properties,
-                                                                               pExternalFenceProperties->GetPointer(),
-                                                                               pExternalFenceProperties->GetMetaStructPointer(),
-                                                                               *this);
-    fprintf(file, "%s", stream_pexternal_fence_properties.str().c_str());
+    std::string pexternal_fence_properties_name = "NULL";
+    if (!pExternalFenceProperties->IsNull()) {
+        pexternal_fence_properties_name = "pExternalFenceProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExternalFenceProperties %s = {};\n", pexternal_fence_properties_name.c_str());
+        pexternal_fence_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceExternalFencePropertiesKHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceExternalFencePropertiesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceExternalFencePropertiesKHR(%s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pexternal_fence_info_struct.c_str(),
             pexternal_fence_properties_name.c_str());
@@ -6687,11 +6808,15 @@ void VulkanCppConsumer::Process_vkGetFenceWin32HandleKHR(
                                                                                             pGetWin32HandleInfo->GetMetaStructPointer(),
                                                                                             *this);
     fprintf(file, "%s", stream_pget_win32_handle_info.str().c_str());
-    std::string phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", phandle_name.c_str());
+    std::string phandle_name = "NULL";
+    if (!pHandle->IsNull()) {
+        phandle_name = "pHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*pHandle->GetPointer()).c_str());
+        phandle_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetFenceWin32HandleKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetFenceWin32HandleKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetFenceWin32HandleKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pget_win32_handle_info_struct.c_str(),
             phandle_name.c_str(),
@@ -6738,11 +6863,15 @@ void VulkanCppConsumer::Process_vkGetFenceFdKHR(
                                                                          pGetFdInfo->GetMetaStructPointer(),
                                                                          *this);
     fprintf(file, "%s", stream_pget_fd_info.str().c_str());
-    std::string pfd_name = "pFd_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tint %s;\n", pfd_name.c_str());
+    std::string pfd_name = "NULL";
+    if (!pFd->IsNull()) {
+        pfd_name = "pFd_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tint %s = %s;\n", pfd_name.c_str(), util::ToString(*pFd->GetPointer()).c_str());
+        pfd_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetFenceFdKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetFenceFdKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetFenceFdKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pget_fd_info_struct.c_str(),
             pfd_name.c_str(),
@@ -6809,25 +6938,27 @@ void VulkanCppConsumer::Process_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQ
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcounter_count_name = "pCounterCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pcounter_count_name.c_str());
-    std::string pcounters_name = "pCounters_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pcounters;
-    pcounters_name = GenerateStruct_VkPerformanceCounterKHR(stream_pcounters,
-                                                            pCounters->GetPointer(),
-                                                            pCounters->GetMetaStructPointer(),
-                                                            *this);
-    fprintf(file, "%s", stream_pcounters.str().c_str());
-    std::string pcounter_descriptions_name = "pCounterDescriptions_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pcounter_descriptions;
-    pcounter_descriptions_name = GenerateStruct_VkPerformanceCounterDescriptionKHR(stream_pcounter_descriptions,
-                                                                                   pCounterDescriptions->GetPointer(),
-                                                                                   pCounterDescriptions->GetMetaStructPointer(),
-                                                                                   *this);
-    fprintf(file, "%s", stream_pcounter_descriptions.str().c_str());
+    std::string pcounter_count_name = "NULL";
+    if (!pCounterCount->IsNull()) {
+        pcounter_count_name = "pCounterCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pcounter_count_name.c_str(), util::ToString(*pCounterCount->GetPointer()).c_str());
+        pcounter_count_name.insert(0, "&");
+    }
+    std::string pcounters_name = "NULL";
+    if (!pCounters->IsNull()) {
+        const uint32_t* in_pcounter_count = pCounterCount->GetPointer();
+        pcounters_name = "pCounters_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPerformanceCounterKHR %s[%d] = {};\n", pcounters_name.c_str(), *in_pcounter_count);
+    }
+    std::string pcounter_descriptions_name = "NULL";
+    if (!pCounterDescriptions->IsNull()) {
+        const uint32_t* in_pcounter_count = pCounterCount->GetPointer();
+        pcounter_descriptions_name = "pCounterDescriptions_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPerformanceCounterDescriptionKHR %s[%d] = {};\n", pcounter_descriptions_name.c_str(), *in_pcounter_count);
+    }
     pfn_loader_.AddMethodName("vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(%s, %u, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR(%s, %u, %s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             queueFamilyIndex,
             pcounter_count_name.c_str(),
@@ -6852,11 +6983,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPa
                                                                                                            pPerformanceQueryCreateInfo->GetMetaStructPointer(),
                                                                                                            *this);
     fprintf(file, "%s", stream_pperformance_query_create_info.str().c_str());
-    std::string pnum_passes_name = "pNumPasses_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pnum_passes_name.c_str());
+    std::string pnum_passes_name = "NULL";
+    if (!pNumPasses->IsNull()) {
+        pnum_passes_name = "pNumPasses_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pnum_passes_name.c_str(), util::ToString(*pNumPasses->GetPointer()).c_str());
+        pnum_passes_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceQueueFamilyPerformanceQueryPassesKHR(%s, &%s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pperformance_query_create_info_struct.c_str(),
             pnum_passes_name.c_str());
@@ -6892,16 +7027,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2KHR(
                                                                                       pSurfaceInfo->GetMetaStructPointer(),
                                                                                       *this);
     fprintf(file, "%s", stream_psurface_info.str().c_str());
-    std::string psurface_capabilities_name = "pSurfaceCapabilities_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psurface_capabilities;
-    psurface_capabilities_name = GenerateStruct_VkSurfaceCapabilities2KHR(stream_psurface_capabilities,
-                                                                          pSurfaceCapabilities->GetPointer(),
-                                                                          pSurfaceCapabilities->GetMetaStructPointer(),
-                                                                          *this);
-    fprintf(file, "%s", stream_psurface_capabilities.str().c_str());
+    std::string psurface_capabilities_name = "NULL";
+    if (!pSurfaceCapabilities->IsNull()) {
+        psurface_capabilities_name = "pSurfaceCapabilities_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSurfaceCapabilities2KHR %s = {};\n", psurface_capabilities_name.c_str());
+        psurface_capabilities_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSurfaceCapabilities2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2KHR(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             psurface_info_struct.c_str(),
             psurface_capabilities_name.c_str(),
@@ -6926,18 +7060,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceFormats2KHR(
                                                                                       pSurfaceInfo->GetMetaStructPointer(),
                                                                                       *this);
     fprintf(file, "%s", stream_psurface_info.str().c_str());
-    std::string psurface_format_count_name = "pSurfaceFormatCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", psurface_format_count_name.c_str());
-    std::string psurface_formats_name = "pSurfaceFormats_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psurface_formats;
-    psurface_formats_name = GenerateStruct_VkSurfaceFormat2KHR(stream_psurface_formats,
-                                                               pSurfaceFormats->GetPointer(),
-                                                               pSurfaceFormats->GetMetaStructPointer(),
-                                                               *this);
-    fprintf(file, "%s", stream_psurface_formats.str().c_str());
+    std::string psurface_format_count_name = "NULL";
+    if (!pSurfaceFormatCount->IsNull()) {
+        psurface_format_count_name = "pSurfaceFormatCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", psurface_format_count_name.c_str(), util::ToString(*pSurfaceFormatCount->GetPointer()).c_str());
+        psurface_format_count_name.insert(0, "&");
+    }
+    std::string psurface_formats_name = "NULL";
+    if (!pSurfaceFormats->IsNull()) {
+        const uint32_t* in_psurface_format_count = pSurfaceFormatCount->GetPointer();
+        psurface_formats_name = "pSurfaceFormats_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSurfaceFormat2KHR %s[%d] = {};\n", psurface_formats_name.c_str(), *in_psurface_format_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSurfaceFormats2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceFormats2KHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceFormats2KHR(%s, &%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             psurface_info_struct.c_str(),
             psurface_format_count_name.c_str(),
@@ -6956,18 +7093,21 @@ void VulkanCppConsumer::Process_vkGetDisplayModeProperties2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkDisplayModeProperties2KHR(stream_pproperties,
-                                                                  pProperties->GetPointer(),
-                                                                  pProperties->GetMetaStructPointer(),
-                                                                  *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayModeProperties2KHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetDisplayModeProperties2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayModeProperties2KHR(%s, %s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayModeProperties2KHR(%s, %s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(display).c_str(),
             pproperty_count_name.c_str(),
@@ -6992,16 +7132,15 @@ void VulkanCppConsumer::Process_vkGetDisplayPlaneCapabilities2KHR(
                                                                                    pDisplayPlaneInfo->GetMetaStructPointer(),
                                                                                    *this);
     fprintf(file, "%s", stream_pdisplay_plane_info.str().c_str());
-    std::string pcapabilities_name = "pCapabilities_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pcapabilities;
-    pcapabilities_name = GenerateStruct_VkDisplayPlaneCapabilities2KHR(stream_pcapabilities,
-                                                                       pCapabilities->GetPointer(),
-                                                                       pCapabilities->GetMetaStructPointer(),
-                                                                       *this);
-    fprintf(file, "%s", stream_pcapabilities.str().c_str());
+    std::string pcapabilities_name = "NULL";
+    if (!pCapabilities->IsNull()) {
+        pcapabilities_name = "pCapabilities_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayPlaneCapabilities2KHR %s = {};\n", pcapabilities_name.c_str());
+        pcapabilities_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDisplayPlaneCapabilities2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilities2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDisplayPlaneCapabilities2KHR(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pdisplay_plane_info_struct.c_str(),
             pcapabilities_name.c_str(),
@@ -7019,18 +7158,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkDisplayPlaneProperties2KHR(stream_pproperties,
-                                                                   pProperties->GetPointer(),
-                                                                   pProperties->GetMetaStructPointer(),
-                                                                   *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayPlaneProperties2KHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceDisplayPlaneProperties2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayPlaneProperties2KHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperty_count_name.c_str(),
             pproperties_name.c_str(),
@@ -7048,18 +7190,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceDisplayProperties2KHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkDisplayProperties2KHR(stream_pproperties,
-                                                              pProperties->GetPointer(),
-                                                              pProperties->GetMetaStructPointer(),
-                                                              *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDisplayProperties2KHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceDisplayProperties2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayProperties2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceDisplayProperties2KHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperty_count_name.c_str(),
             pproperties_name.c_str(),
@@ -7102,18 +7247,21 @@ void VulkanCppConsumer::Process_vkGetImageSparseMemoryRequirements2KHR(
                                                                                    pInfo->GetMetaStructPointer(),
                                                                                    *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", psparse_memory_requirement_count_name.c_str());
-    std::string psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psparse_memory_requirements;
-    psparse_memory_requirements_name = GenerateStruct_VkSparseImageMemoryRequirements2(stream_psparse_memory_requirements,
-                                                                                       pSparseMemoryRequirements->GetPointer(),
-                                                                                       pSparseMemoryRequirements->GetMetaStructPointer(),
-                                                                                       *this);
-    fprintf(file, "%s", stream_psparse_memory_requirements.str().c_str());
+    std::string psparse_memory_requirement_count_name = "NULL";
+    if (!pSparseMemoryRequirementCount->IsNull()) {
+        psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", psparse_memory_requirement_count_name.c_str(), util::ToString(*pSparseMemoryRequirementCount->GetPointer()).c_str());
+        psparse_memory_requirement_count_name.insert(0, "&");
+    }
+    std::string psparse_memory_requirements_name = "NULL";
+    if (!pSparseMemoryRequirements->IsNull()) {
+        const uint32_t* in_psparse_memory_requirement_count = pSparseMemoryRequirementCount->GetPointer();
+        psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSparseImageMemoryRequirements2 %s[%d] = {};\n", psparse_memory_requirements_name.c_str(), *in_psparse_memory_requirement_count);
+    }
     pfn_loader_.AddMethodName("vkGetImageSparseMemoryRequirements2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetImageSparseMemoryRequirements2KHR(%s, &%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetImageSparseMemoryRequirements2KHR(%s, &%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             psparse_memory_requirement_count_name.c_str(),
@@ -7259,16 +7407,15 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutSupportKHR(
                                                                                      pCreateInfo->GetMetaStructPointer(),
                                                                                      *this);
     fprintf(file, "%s", stream_pcreate_info.str().c_str());
-    std::string psupport_name = "pSupport_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psupport;
-    psupport_name = GenerateStruct_VkDescriptorSetLayoutSupport(stream_psupport,
-                                                                pSupport->GetPointer(),
-                                                                pSupport->GetMetaStructPointer(),
-                                                                *this);
-    fprintf(file, "%s", stream_psupport.str().c_str());
+    std::string psupport_name = "NULL";
+    if (!pSupport->IsNull()) {
+        psupport_name = "pSupport_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDescriptorSetLayoutSupport %s = {};\n", psupport_name.c_str());
+        psupport_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDescriptorSetLayoutSupportKHR");
     fprintf(file,
-            "\t\tloaded_vkGetDescriptorSetLayoutSupportKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDescriptorSetLayoutSupportKHR(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pcreate_info_struct.c_str(),
             psupport_name.c_str());
@@ -7335,11 +7482,15 @@ void VulkanCppConsumer::Process_vkGetSemaphoreCounterValueKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pvalue_name = "pValue_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s;\n", pvalue_name.c_str());
+    std::string pvalue_name = "NULL";
+    if (!pValue->IsNull()) {
+        pvalue_name = "pValue_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pvalue_name.c_str(), util::ToString(*pValue->GetPointer()).c_str());
+        pvalue_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetSemaphoreCounterValueKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreCounterValueKHR(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreCounterValueKHR(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(semaphore).c_str(),
             pvalue_name.c_str(),
@@ -7436,18 +7587,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceFragmentShadingRatesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pfragment_shading_rate_count_name = "pFragmentShadingRateCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pfragment_shading_rate_count_name.c_str());
-    std::string pfragment_shading_rates_name = "pFragmentShadingRates_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pfragment_shading_rates;
-    pfragment_shading_rates_name = GenerateStruct_VkPhysicalDeviceFragmentShadingRateKHR(stream_pfragment_shading_rates,
-                                                                                         pFragmentShadingRates->GetPointer(),
-                                                                                         pFragmentShadingRates->GetMetaStructPointer(),
-                                                                                         *this);
-    fprintf(file, "%s", stream_pfragment_shading_rates.str().c_str());
+    std::string pfragment_shading_rate_count_name = "NULL";
+    if (!pFragmentShadingRateCount->IsNull()) {
+        pfragment_shading_rate_count_name = "pFragmentShadingRateCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pfragment_shading_rate_count_name.c_str(), util::ToString(*pFragmentShadingRateCount->GetPointer()).c_str());
+        pfragment_shading_rate_count_name.insert(0, "&");
+    }
+    std::string pfragment_shading_rates_name = "NULL";
+    if (!pFragmentShadingRates->IsNull()) {
+        const uint32_t* in_pfragment_shading_rate_count = pFragmentShadingRateCount->GetPointer();
+        pfragment_shading_rates_name = "pFragmentShadingRates_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceFragmentShadingRateKHR %s[%d] = {};\n", pfragment_shading_rates_name.c_str(), *in_pfragment_shading_rate_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceFragmentShadingRatesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceFragmentShadingRatesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceFragmentShadingRatesKHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pfragment_shading_rate_count_name.c_str(),
             pfragment_shading_rates_name.c_str(),
@@ -7699,18 +7853,21 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableInternalRepresentationsKH
                                                                                      pExecutableInfo->GetMetaStructPointer(),
                                                                                      *this);
     fprintf(file, "%s", stream_pexecutable_info.str().c_str());
-    std::string pinternal_representation_count_name = "pInternalRepresentationCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pinternal_representation_count_name.c_str());
-    std::string pinternal_representations_name = "pInternalRepresentations_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pinternal_representations;
-    pinternal_representations_name = GenerateStruct_VkPipelineExecutableInternalRepresentationKHR(stream_pinternal_representations,
-                                                                                                  pInternalRepresentations->GetPointer(),
-                                                                                                  pInternalRepresentations->GetMetaStructPointer(),
-                                                                                                  *this);
-    fprintf(file, "%s", stream_pinternal_representations.str().c_str());
+    std::string pinternal_representation_count_name = "NULL";
+    if (!pInternalRepresentationCount->IsNull()) {
+        pinternal_representation_count_name = "pInternalRepresentationCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pinternal_representation_count_name.c_str(), util::ToString(*pInternalRepresentationCount->GetPointer()).c_str());
+        pinternal_representation_count_name.insert(0, "&");
+    }
+    std::string pinternal_representations_name = "NULL";
+    if (!pInternalRepresentations->IsNull()) {
+        const uint32_t* in_pinternal_representation_count = pInternalRepresentationCount->GetPointer();
+        pinternal_representations_name = "pInternalRepresentations_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPipelineExecutableInternalRepresentationKHR %s[%d] = {};\n", pinternal_representations_name.c_str(), *in_pinternal_representation_count);
+    }
     pfn_loader_.AddMethodName("vkGetPipelineExecutableInternalRepresentationsKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutableInternalRepresentationsKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutableInternalRepresentationsKHR(%s, &%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pexecutable_info_struct.c_str(),
             pinternal_representation_count_name.c_str(),
@@ -7736,18 +7893,21 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutablePropertiesKHR(
                                                                          pPipelineInfo->GetMetaStructPointer(),
                                                                          *this);
     fprintf(file, "%s", stream_ppipeline_info.str().c_str());
-    std::string pexecutable_count_name = "pExecutableCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pexecutable_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkPipelineExecutablePropertiesKHR(stream_pproperties,
-                                                                        pProperties->GetPointer(),
-                                                                        pProperties->GetMetaStructPointer(),
-                                                                        *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pexecutable_count_name = "NULL";
+    if (!pExecutableCount->IsNull()) {
+        pexecutable_count_name = "pExecutableCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pexecutable_count_name.c_str(), util::ToString(*pExecutableCount->GetPointer()).c_str());
+        pexecutable_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pexecutable_count = pExecutableCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPipelineExecutablePropertiesKHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pexecutable_count);
+    }
     pfn_loader_.AddMethodName("vkGetPipelineExecutablePropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutablePropertiesKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutablePropertiesKHR(%s, &%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             ppipeline_info_struct.c_str(),
             pexecutable_count_name.c_str(),
@@ -7773,18 +7933,21 @@ void VulkanCppConsumer::Process_vkGetPipelineExecutableStatisticsKHR(
                                                                                      pExecutableInfo->GetMetaStructPointer(),
                                                                                      *this);
     fprintf(file, "%s", stream_pexecutable_info.str().c_str());
-    std::string pstatistic_count_name = "pStatisticCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pstatistic_count_name.c_str());
-    std::string pstatistics_name = "pStatistics_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pstatistics;
-    pstatistics_name = GenerateStruct_VkPipelineExecutableStatisticKHR(stream_pstatistics,
-                                                                       pStatistics->GetPointer(),
-                                                                       pStatistics->GetMetaStructPointer(),
-                                                                       *this);
-    fprintf(file, "%s", stream_pstatistics.str().c_str());
+    std::string pstatistic_count_name = "NULL";
+    if (!pStatisticCount->IsNull()) {
+        pstatistic_count_name = "pStatisticCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pstatistic_count_name.c_str(), util::ToString(*pStatisticCount->GetPointer()).c_str());
+        pstatistic_count_name.insert(0, "&");
+    }
+    std::string pstatistics_name = "NULL";
+    if (!pStatistics->IsNull()) {
+        const uint32_t* in_pstatistic_count = pStatisticCount->GetPointer();
+        pstatistics_name = "pStatistics_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPipelineExecutableStatisticKHR %s[%d] = {};\n", pstatistics_name.c_str(), *in_pstatistic_count);
+    }
     pfn_loader_.AddMethodName("vkGetPipelineExecutableStatisticsKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutableStatisticsKHR(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineExecutableStatisticsKHR(%s, &%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pexecutable_info_struct.c_str(),
             pstatistic_count_name.c_str(),
@@ -7808,11 +7971,15 @@ void VulkanCppConsumer::Process_vkMapMemory2KHR(
                                                                             pMemoryMapInfo->GetMetaStructPointer(),
                                                                             *this);
     fprintf(file, "%s", stream_pmemory_map_info.str().c_str());
-    std::string pp_data_name = "ppData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", pp_data_name.c_str());
+    std::string pp_data_name = "NULL";
+    if (!ppData->IsNull()) {
+        pp_data_name = "ppData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", pp_data_name.c_str(), util::ToString(*ppData->GetPointer()).c_str());
+        pp_data_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkMapMemory2KHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkMapMemory2KHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkMapMemory2KHR(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pmemory_map_info_struct.c_str(),
             pp_data_name.c_str(),
@@ -7883,21 +8050,27 @@ void VulkanCppConsumer::Process_vkGetEncodedVideoSessionParametersKHR(
                                                                                                                 pVideoSessionParametersInfo->GetMetaStructPointer(),
                                                                                                                 *this);
     fprintf(file, "%s", stream_pvideo_session_parameters_info.str().c_str());
-    std::string pfeedback_info_name = "pFeedbackInfo_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pfeedback_info;
-    pfeedback_info_name = GenerateStruct_VkVideoEncodeSessionParametersFeedbackInfoKHR(stream_pfeedback_info,
-                                                                                       pFeedbackInfo->GetPointer(),
-                                                                                       pFeedbackInfo->GetMetaStructPointer(),
-                                                                                       *this);
-    fprintf(file, "%s", stream_pfeedback_info.str().c_str());
-    std::string pdata_size_name = "pDataSize_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tsize_t %s;\n", pdata_size_name.c_str());
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    size_t* in_pdata_size = pDataSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
+    std::string pfeedback_info_name = "NULL";
+    if (!pFeedbackInfo->IsNull()) {
+        pfeedback_info_name = "pFeedbackInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkVideoEncodeSessionParametersFeedbackInfoKHR %s = {};\n", pfeedback_info_name.c_str());
+        pfeedback_info_name.insert(0, "&");
+    }
+    std::string pdata_size_name = "NULL";
+    if (!pDataSize->IsNull()) {
+        pdata_size_name = "pDataSize_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tsize_t %s = %s;\n", pdata_size_name.c_str(), util::ToString(*pDataSize->GetPointer()).c_str());
+        pdata_size_name.insert(0, "&");
+    }
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        size_t* in_pdata_size = pDataSize->GetPointer();
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
+    }
     pfn_loader_.AddMethodName("vkGetEncodedVideoSessionParametersKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetEncodedVideoSessionParametersKHR(%s, &%s, &%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetEncodedVideoSessionParametersKHR(%s, &%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pvideo_session_parameters_info_struct.c_str(),
             pfeedback_info_name.c_str(),
@@ -7923,16 +8096,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceVideoEncodeQualityLevelProper
                                                                                                            pQualityLevelInfo->GetMetaStructPointer(),
                                                                                                            *this);
     fprintf(file, "%s", stream_pquality_level_info.str().c_str());
-    std::string pquality_level_properties_name = "pQualityLevelProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pquality_level_properties;
-    pquality_level_properties_name = GenerateStruct_VkVideoEncodeQualityLevelPropertiesKHR(stream_pquality_level_properties,
-                                                                                           pQualityLevelProperties->GetPointer(),
-                                                                                           pQualityLevelProperties->GetMetaStructPointer(),
-                                                                                           *this);
-    fprintf(file, "%s", stream_pquality_level_properties.str().c_str());
+    std::string pquality_level_properties_name = "NULL";
+    if (!pQualityLevelProperties->IsNull()) {
+        pquality_level_properties_name = "pQualityLevelProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkVideoEncodeQualityLevelPropertiesKHR %s = {};\n", pquality_level_properties_name.c_str());
+        pquality_level_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceVideoEncodeQualityLevelPropertiesKHR(%s, &%s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pquality_level_info_struct.c_str(),
             pquality_level_properties_name.c_str(),
@@ -8101,18 +8273,21 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointData2NV(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcheckpoint_data_count_name = "pCheckpointDataCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pcheckpoint_data_count_name.c_str());
-    std::string pcheckpoint_data_name = "pCheckpointData_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pcheckpoint_data;
-    pcheckpoint_data_name = GenerateStruct_VkCheckpointData2NV(stream_pcheckpoint_data,
-                                                               pCheckpointData->GetPointer(),
-                                                               pCheckpointData->GetMetaStructPointer(),
-                                                               *this);
-    fprintf(file, "%s", stream_pcheckpoint_data.str().c_str());
+    std::string pcheckpoint_data_count_name = "NULL";
+    if (!pCheckpointDataCount->IsNull()) {
+        pcheckpoint_data_count_name = "pCheckpointDataCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pcheckpoint_data_count_name.c_str(), util::ToString(*pCheckpointDataCount->GetPointer()).c_str());
+        pcheckpoint_data_count_name.insert(0, "&");
+    }
+    std::string pcheckpoint_data_name = "NULL";
+    if (!pCheckpointData->IsNull()) {
+        const uint32_t* in_pcheckpoint_data_count = pCheckpointDataCount->GetPointer();
+        pcheckpoint_data_name = "pCheckpointData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkCheckpointData2NV %s[%d] = {};\n", pcheckpoint_data_name.c_str(), *in_pcheckpoint_data_count);
+    }
     pfn_loader_.AddMethodName("vkGetQueueCheckpointData2NV");
     fprintf(file,
-            "\t\tloaded_vkGetQueueCheckpointData2NV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetQueueCheckpointData2NV(%s, %s, %s);\n",
             this->GetHandle(queue).c_str(),
             pcheckpoint_data_count_name.c_str(),
             pcheckpoint_data_name.c_str());
@@ -8291,16 +8466,15 @@ void VulkanCppConsumer::Process_vkGetDeviceBufferMemoryRequirementsKHR(
                                                                                pInfo->GetMetaStructPointer(),
                                                                                *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_requirements;
-    pmemory_requirements_name = GenerateStruct_VkMemoryRequirements2(stream_pmemory_requirements,
-                                                                     pMemoryRequirements->GetPointer(),
-                                                                     pMemoryRequirements->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pmemory_requirements.str().c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2 %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceBufferMemoryRequirementsKHR");
     fprintf(file,
-            "\t\tloaded_vkGetDeviceBufferMemoryRequirementsKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceBufferMemoryRequirementsKHR(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             pmemory_requirements_name.c_str());
@@ -8322,16 +8496,15 @@ void VulkanCppConsumer::Process_vkGetDeviceImageMemoryRequirementsKHR(
                                                                               pInfo->GetMetaStructPointer(),
                                                                               *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_requirements;
-    pmemory_requirements_name = GenerateStruct_VkMemoryRequirements2(stream_pmemory_requirements,
-                                                                     pMemoryRequirements->GetPointer(),
-                                                                     pMemoryRequirements->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pmemory_requirements.str().c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2 %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceImageMemoryRequirementsKHR");
     fprintf(file,
-            "\t\tloaded_vkGetDeviceImageMemoryRequirementsKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceImageMemoryRequirementsKHR(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             pmemory_requirements_name.c_str());
@@ -8354,18 +8527,21 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSparseMemoryRequirementsKHR(
                                                                               pInfo->GetMetaStructPointer(),
                                                                               *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", psparse_memory_requirement_count_name.c_str());
-    std::string psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psparse_memory_requirements;
-    psparse_memory_requirements_name = GenerateStruct_VkSparseImageMemoryRequirements2(stream_psparse_memory_requirements,
-                                                                                       pSparseMemoryRequirements->GetPointer(),
-                                                                                       pSparseMemoryRequirements->GetMetaStructPointer(),
-                                                                                       *this);
-    fprintf(file, "%s", stream_psparse_memory_requirements.str().c_str());
+    std::string psparse_memory_requirement_count_name = "NULL";
+    if (!pSparseMemoryRequirementCount->IsNull()) {
+        psparse_memory_requirement_count_name = "pSparseMemoryRequirementCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", psparse_memory_requirement_count_name.c_str(), util::ToString(*pSparseMemoryRequirementCount->GetPointer()).c_str());
+        psparse_memory_requirement_count_name.insert(0, "&");
+    }
+    std::string psparse_memory_requirements_name = "NULL";
+    if (!pSparseMemoryRequirements->IsNull()) {
+        const uint32_t* in_psparse_memory_requirement_count = pSparseMemoryRequirementCount->GetPointer();
+        psparse_memory_requirements_name = "pSparseMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSparseImageMemoryRequirements2 %s[%d] = {};\n", psparse_memory_requirements_name.c_str(), *in_psparse_memory_requirement_count);
+    }
     pfn_loader_.AddMethodName("vkGetDeviceImageSparseMemoryRequirementsKHR");
     fprintf(file,
-            "\t\tloaded_vkGetDeviceImageSparseMemoryRequirementsKHR(%s, &%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceImageSparseMemoryRequirementsKHR(%s, &%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             psparse_memory_requirement_count_name.c_str(),
@@ -8409,16 +8585,15 @@ void VulkanCppConsumer::Process_vkGetDeviceImageSubresourceLayoutKHR(
                                                                               pInfo->GetMetaStructPointer(),
                                                                               *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string playout_name = "pLayout_" + std::to_string(this->GetNextId());
-    std::stringstream stream_playout;
-    playout_name = GenerateStruct_VkSubresourceLayout2KHR(stream_playout,
-                                                          pLayout->GetPointer(),
-                                                          pLayout->GetMetaStructPointer(),
-                                                          *this);
-    fprintf(file, "%s", stream_playout.str().c_str());
+    std::string playout_name = "NULL";
+    if (!pLayout->IsNull()) {
+        playout_name = "pLayout_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSubresourceLayout2KHR %s = {};\n", playout_name.c_str());
+        playout_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceImageSubresourceLayoutKHR");
     fprintf(file,
-            "\t\tloaded_vkGetDeviceImageSubresourceLayoutKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceImageSubresourceLayoutKHR(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             playout_name.c_str());
@@ -8441,16 +8616,15 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2KHR(
                                                                             pSubresource->GetMetaStructPointer(),
                                                                             *this);
     fprintf(file, "%s", stream_psubresource.str().c_str());
-    std::string playout_name = "pLayout_" + std::to_string(this->GetNextId());
-    std::stringstream stream_playout;
-    playout_name = GenerateStruct_VkSubresourceLayout2KHR(stream_playout,
-                                                          pLayout->GetPointer(),
-                                                          pLayout->GetMetaStructPointer(),
-                                                          *this);
-    fprintf(file, "%s", stream_playout.str().c_str());
+    std::string playout_name = "NULL";
+    if (!pLayout->IsNull()) {
+        playout_name = "pLayout_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSubresourceLayout2KHR %s = {};\n", playout_name.c_str());
+        playout_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetImageSubresourceLayout2KHR");
     fprintf(file,
-            "\t\tloaded_vkGetImageSubresourceLayout2KHR(%s, %s, &%s, &%s);\n",
+            "\t\tloaded_vkGetImageSubresourceLayout2KHR(%s, %s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             psubresource_struct.c_str(),
@@ -8473,11 +8647,15 @@ void VulkanCppConsumer::Process_vkGetRenderingAreaGranularityKHR(
                                                                                     pRenderingAreaInfo->GetMetaStructPointer(),
                                                                                     *this);
     fprintf(file, "%s", stream_prendering_area_info.str().c_str());
-    std::string pgranularity_name = "pGranularity_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkExtent2D %s;\n", pgranularity_name.c_str());
+    std::string pgranularity_name = "NULL";
+    if (!pGranularity->IsNull()) {
+        pgranularity_name = "pGranularity_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExtent2D %s = {};\n", pgranularity_name.c_str());
+        pgranularity_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetRenderingAreaGranularityKHR");
     fprintf(file,
-            "\t\tloaded_vkGetRenderingAreaGranularityKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetRenderingAreaGranularityKHR(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             prendering_area_info_struct.c_str(),
             pgranularity_name.c_str());
@@ -8493,18 +8671,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKH
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkCooperativeMatrixPropertiesKHR(stream_pproperties,
-                                                                       pProperties->GetPointer(),
-                                                                       pProperties->GetMetaStructPointer(),
-                                                                       *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkCooperativeMatrixPropertiesKHR %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperty_count_name.c_str(),
             pproperties_name.c_str(),
@@ -8556,13 +8737,20 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsKHR(
             fprintf(file, "\t\tVkCalibratedTimestampInfoKHR %s[] = { %s };\n", ptimestamp_infos_array.c_str(), ptimestamp_infos_names.c_str());
         }
     }
-    std::string ptimestamps_name = "pTimestamps_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s[%d];\n", ptimestamps_name.c_str(), timestampCount);
-    std::string pmax_deviation_name = "pMaxDeviation_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s;\n", pmax_deviation_name.c_str());
+    std::string ptimestamps_name = "NULL";
+    if (!pTimestamps->IsNull()) {
+        ptimestamps_name = "pTimestamps_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s[%d] = {};\n", ptimestamps_name.c_str(), timestampCount);
+    }
+    std::string pmax_deviation_name = "NULL";
+    if (!pMaxDeviation->IsNull()) {
+        pmax_deviation_name = "pMaxDeviation_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pmax_deviation_name.c_str(), util::ToString(*pMaxDeviation->GetPointer()).c_str());
+        pmax_deviation_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetCalibratedTimestampsKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetCalibratedTimestampsKHR(%s, %u, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetCalibratedTimestampsKHR(%s, %u, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             timestampCount,
             ptimestamp_infos_array.c_str(),
@@ -8582,14 +8770,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string ptime_domain_count_name = "pTimeDomainCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", ptime_domain_count_name.c_str());
-    std::string ptime_domains_name = "pTimeDomains_" + std::to_string(this->GetNextId());
-    const uint32_t* in_ptime_domain_count = pTimeDomainCount->GetPointer();
-    fprintf(file, "\t\tVkTimeDomainKHR %s[%d];\n", ptime_domains_name.c_str(), *in_ptime_domain_count);
+    std::string ptime_domain_count_name = "NULL";
+    if (!pTimeDomainCount->IsNull()) {
+        ptime_domain_count_name = "pTimeDomainCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", ptime_domain_count_name.c_str(), util::ToString(*pTimeDomainCount->GetPointer()).c_str());
+        ptime_domain_count_name.insert(0, "&");
+    }
+    std::string ptime_domains_name = "NULL";
+    if (!pTimeDomains->IsNull()) {
+        const uint32_t* in_ptime_domain_count = pTimeDomainCount->GetPointer();
+        ptime_domains_name = "pTimeDomains_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkTimeDomainKHR %s[%d] = {};\n", ptime_domains_name.c_str(), *in_ptime_domain_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceCalibrateableTimeDomainsKHR");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsKHR(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             ptime_domain_count_name.c_str(),
             ptime_domains_name.c_str(),
@@ -9096,16 +9291,15 @@ void VulkanCppConsumer::Process_vkGetImageViewAddressNVX(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkImageViewAddressPropertiesNVX(stream_pproperties,
-                                                                      pProperties->GetPointer(),
-                                                                      pProperties->GetMetaStructPointer(),
-                                                                      *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkImageViewAddressPropertiesNVX %s = {};\n", pproperties_name.c_str());
+        pproperties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetImageViewAddressNVX");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetImageViewAddressNVX(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetImageViewAddressNVX(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(imageView).c_str(),
             pproperties_name.c_str(),
@@ -9199,14 +9393,21 @@ void VulkanCppConsumer::Process_vkGetShaderInfoAMD(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pinfo_size_name = "pInfoSize_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tsize_t %s;\n", pinfo_size_name.c_str());
-    std::string pinfo_name = "pInfo_" + std::to_string(this->GetNextId());
-    size_t* in_pinfo_size = pInfoSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pinfo_name.c_str(), util::platform::SizeTtoUint64(*in_pinfo_size));
+    std::string pinfo_size_name = "NULL";
+    if (!pInfoSize->IsNull()) {
+        pinfo_size_name = "pInfoSize_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tsize_t %s = %s;\n", pinfo_size_name.c_str(), util::ToString(*pInfoSize->GetPointer()).c_str());
+        pinfo_size_name.insert(0, "&");
+    }
+    std::string pinfo_name = "NULL";
+    if (!pInfo->IsNull()) {
+        size_t* in_pinfo_size = pInfoSize->GetPointer();
+        pinfo_name = "pInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pinfo_name.c_str(), util::platform::SizeTtoUint64(*in_pinfo_size));
+    }
     pfn_loader_.AddMethodName("vkGetShaderInfoAMD");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetShaderInfoAMD(%s, %s, %s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetShaderInfoAMD(%s, %s, %s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(pipeline).c_str(),
             util::ToString<VkShaderStageFlagBits>(shaderStage).c_str(),
@@ -9264,11 +9465,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceExternalImageFormatProperties
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pexternal_image_format_properties_name = "pExternalImageFormatProperties_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkExternalImageFormatPropertiesNV %s;\n", pexternal_image_format_properties_name.c_str());
+    std::string pexternal_image_format_properties_name = "NULL";
+    if (!pExternalImageFormatProperties->IsNull()) {
+        pexternal_image_format_properties_name = "pExternalImageFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkExternalImageFormatPropertiesNV %s = {};\n", pexternal_image_format_properties_name.c_str());
+        pexternal_image_format_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceExternalImageFormatPropertiesNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(%s, %s, %s, %s, %s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceExternalImageFormatPropertiesNV(%s, %s, %s, %s, %s, %s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkFormat>(format).c_str(),
             util::ToString<VkImageType>(type).c_str(),
@@ -9291,11 +9496,15 @@ void VulkanCppConsumer::Process_vkGetMemoryWin32HandleNV(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string phandle_name = "pHandle_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", phandle_name.c_str());
+    std::string phandle_name = "NULL";
+    if (!pHandle->IsNull()) {
+        phandle_name = "pHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", phandle_name.c_str(), util::ToString(*pHandle->GetPointer()).c_str());
+        phandle_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryWin32HandleNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandleNV(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryWin32HandleNV(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(memory).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagsNV>(handleType).c_str(),
@@ -9484,16 +9693,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfaceCapabilities2EXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string psurface_capabilities_name = "pSurfaceCapabilities_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psurface_capabilities;
-    psurface_capabilities_name = GenerateStruct_VkSurfaceCapabilities2EXT(stream_psurface_capabilities,
-                                                                          pSurfaceCapabilities->GetPointer(),
-                                                                          pSurfaceCapabilities->GetMetaStructPointer(),
-                                                                          *this);
-    fprintf(file, "%s", stream_psurface_capabilities.str().c_str());
+    std::string psurface_capabilities_name = "NULL";
+    if (!pSurfaceCapabilities->IsNull()) {
+        psurface_capabilities_name = "pSurfaceCapabilities_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSurfaceCapabilities2EXT %s = {};\n", psurface_capabilities_name.c_str());
+        psurface_capabilities_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSurfaceCapabilities2EXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2EXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfaceCapabilities2EXT(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             this->GetHandle(surface).c_str(),
             psurface_capabilities_name.c_str(),
@@ -9537,11 +9745,15 @@ void VulkanCppConsumer::Process_vkGetSwapchainCounterEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcounter_value_name = "pCounterValue_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s;\n", pcounter_value_name.c_str());
+    std::string pcounter_value_name = "NULL";
+    if (!pCounterValue->IsNull()) {
+        pcounter_value_name = "pCounterValue_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pcounter_value_name.c_str(), util::ToString(*pCounterValue->GetPointer()).c_str());
+        pcounter_value_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetSwapchainCounterEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetSwapchainCounterEXT(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSwapchainCounterEXT(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             util::ToString<VkSurfaceCounterFlagBitsEXT>(counter).c_str(),
@@ -9630,14 +9842,21 @@ void VulkanCppConsumer::Process_vkGetPastPresentationTimingGOOGLE(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string ppresentation_timing_count_name = "pPresentationTimingCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", ppresentation_timing_count_name.c_str());
-    std::string ppresentation_timings_name = "pPresentationTimings_" + std::to_string(this->GetNextId());
-    const uint32_t* in_ppresentation_timing_count = pPresentationTimingCount->GetPointer();
-    fprintf(file, "\t\tVkPastPresentationTimingGOOGLE %s[%d];\n", ppresentation_timings_name.c_str(), *in_ppresentation_timing_count);
+    std::string ppresentation_timing_count_name = "NULL";
+    if (!pPresentationTimingCount->IsNull()) {
+        ppresentation_timing_count_name = "pPresentationTimingCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", ppresentation_timing_count_name.c_str(), util::ToString(*pPresentationTimingCount->GetPointer()).c_str());
+        ppresentation_timing_count_name.insert(0, "&");
+    }
+    std::string ppresentation_timings_name = "NULL";
+    if (!pPresentationTimings->IsNull()) {
+        const uint32_t* in_ppresentation_timing_count = pPresentationTimingCount->GetPointer();
+        ppresentation_timings_name = "pPresentationTimings_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPastPresentationTimingGOOGLE %s[%d] = {};\n", ppresentation_timings_name.c_str(), *in_ppresentation_timing_count);
+    }
     pfn_loader_.AddMethodName("vkGetPastPresentationTimingGOOGLE");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPastPresentationTimingGOOGLE(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPastPresentationTimingGOOGLE(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             ppresentation_timing_count_name.c_str(),
@@ -9656,11 +9875,15 @@ void VulkanCppConsumer::Process_vkGetRefreshCycleDurationGOOGLE(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdisplay_timing_properties_name = "pDisplayTimingProperties_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkRefreshCycleDurationGOOGLE %s;\n", pdisplay_timing_properties_name.c_str());
+    std::string pdisplay_timing_properties_name = "NULL";
+    if (!pDisplayTimingProperties->IsNull()) {
+        pdisplay_timing_properties_name = "pDisplayTimingProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkRefreshCycleDurationGOOGLE %s = {};\n", pdisplay_timing_properties_name.c_str());
+        pdisplay_timing_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetRefreshCycleDurationGOOGLE");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetRefreshCycleDurationGOOGLE(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetRefreshCycleDurationGOOGLE(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             pdisplay_timing_properties_name.c_str(),
@@ -10111,16 +10334,15 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceMultisamplePropertiesEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmultisample_properties_name = "pMultisampleProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmultisample_properties;
-    pmultisample_properties_name = GenerateStruct_VkMultisamplePropertiesEXT(stream_pmultisample_properties,
-                                                                             pMultisampleProperties->GetPointer(),
-                                                                             pMultisampleProperties->GetMetaStructPointer(),
-                                                                             *this);
-    fprintf(file, "%s", stream_pmultisample_properties.str().c_str());
+    std::string pmultisample_properties_name = "NULL";
+    if (!pMultisampleProperties->IsNull()) {
+        pmultisample_properties_name = "pMultisampleProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMultisamplePropertiesEXT %s = {};\n", pmultisample_properties_name.c_str());
+        pmultisample_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceMultisamplePropertiesEXT");
     fprintf(file,
-            "\t\tloaded_vkGetPhysicalDeviceMultisamplePropertiesEXT(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetPhysicalDeviceMultisamplePropertiesEXT(%s, %s, %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             util::ToString<VkSampleCountFlagBits>(samples).c_str(),
             pmultisample_properties_name.c_str());
@@ -10136,16 +10358,15 @@ void VulkanCppConsumer::Process_vkGetImageDrmFormatModifierPropertiesEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkImageDrmFormatModifierPropertiesEXT(stream_pproperties,
-                                                                            pProperties->GetPointer(),
-                                                                            pProperties->GetMetaStructPointer(),
-                                                                            *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkImageDrmFormatModifierPropertiesEXT %s = {};\n", pproperties_name.c_str());
+        pproperties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetImageDrmFormatModifierPropertiesEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetImageDrmFormatModifierPropertiesEXT(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetImageDrmFormatModifierPropertiesEXT(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             pproperties_name.c_str(),
@@ -10215,14 +10436,21 @@ void VulkanCppConsumer::Process_vkGetValidationCacheDataEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_size_name = "pDataSize_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tsize_t %s;\n", pdata_size_name.c_str());
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    size_t* in_pdata_size = pDataSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
+    std::string pdata_size_name = "NULL";
+    if (!pDataSize->IsNull()) {
+        pdata_size_name = "pDataSize_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tsize_t %s = %s;\n", pdata_size_name.c_str(), util::ToString(*pDataSize->GetPointer()).c_str());
+        pdata_size_name.insert(0, "&");
+    }
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        size_t* in_pdata_size = pDataSize->GetPointer();
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
+    }
     pfn_loader_.AddMethodName("vkGetValidationCacheDataEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetValidationCacheDataEXT(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetValidationCacheDataEXT(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(validationCache).c_str(),
             pdata_size_name.c_str(),
@@ -10540,8 +10768,11 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureHandleNV(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
     pfn_loader_.AddMethodName("vkGetAccelerationStructureHandleNV");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetAccelerationStructureHandleNV(%s, %s, %" PRIu64 ", %s), %s);\n",
@@ -10568,11 +10799,15 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureMemoryRequirementsNV(
                                                                                               pInfo->GetMetaStructPointer(),
                                                                                               *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkMemoryRequirements2KHR %s;\n", pmemory_requirements_name.c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2KHR %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetAccelerationStructureMemoryRequirementsNV");
     fprintf(file,
-            "\t\tloaded_vkGetAccelerationStructureMemoryRequirementsNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetAccelerationStructureMemoryRequirementsNV(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             pmemory_requirements_name.c_str());
@@ -10592,8 +10827,11 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesKHR(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
     pfn_loader_.AddMethodName("vkGetRayTracingShaderGroupHandlesKHR");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRIu64 ", %s), %s);\n",
@@ -10620,8 +10858,11 @@ void VulkanCppConsumer::Process_vkGetRayTracingShaderGroupHandlesNV(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
     pfn_loader_.AddMethodName("vkGetRayTracingShaderGroupHandlesNV");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingShaderGroupHandlesNV(%s, %s, %u, %u, %" PRIu64 ", %s), %s);\n",
@@ -10647,16 +10888,15 @@ void VulkanCppConsumer::Process_vkGetMemoryHostPointerPropertiesEXT(
     fprintf(file, "\t{\n");
     std::string phost_pointer_name = "pHostPointer_" + std::to_string(this->GetNextId());
     fprintf(file, "\t\tvoid* %s;\n", phost_pointer_name.c_str());
-    std::string pmemory_host_pointer_properties_name = "pMemoryHostPointerProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_host_pointer_properties;
-    pmemory_host_pointer_properties_name = GenerateStruct_VkMemoryHostPointerPropertiesEXT(stream_pmemory_host_pointer_properties,
-                                                                                           pMemoryHostPointerProperties->GetPointer(),
-                                                                                           pMemoryHostPointerProperties->GetMetaStructPointer(),
-                                                                                           *this);
-    fprintf(file, "%s", stream_pmemory_host_pointer_properties.str().c_str());
+    std::string pmemory_host_pointer_properties_name = "NULL";
+    if (!pMemoryHostPointerProperties->IsNull()) {
+        pmemory_host_pointer_properties_name = "pMemoryHostPointerProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryHostPointerPropertiesEXT %s = {};\n", pmemory_host_pointer_properties_name.c_str());
+        pmemory_host_pointer_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryHostPointerPropertiesEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryHostPointerPropertiesEXT(%s, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryHostPointerPropertiesEXT(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             phost_pointer_name.c_str(),
@@ -10713,13 +10953,20 @@ void VulkanCppConsumer::Process_vkGetCalibratedTimestampsEXT(
             fprintf(file, "\t\tVkCalibratedTimestampInfoKHR %s[] = { %s };\n", ptimestamp_infos_array.c_str(), ptimestamp_infos_names.c_str());
         }
     }
-    std::string ptimestamps_name = "pTimestamps_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s[%d];\n", ptimestamps_name.c_str(), timestampCount);
-    std::string pmax_deviation_name = "pMaxDeviation_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s;\n", pmax_deviation_name.c_str());
+    std::string ptimestamps_name = "NULL";
+    if (!pTimestamps->IsNull()) {
+        ptimestamps_name = "pTimestamps_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s[%d] = {};\n", ptimestamps_name.c_str(), timestampCount);
+    }
+    std::string pmax_deviation_name = "NULL";
+    if (!pMaxDeviation->IsNull()) {
+        pmax_deviation_name = "pMaxDeviation_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pmax_deviation_name.c_str(), util::ToString(*pMaxDeviation->GetPointer()).c_str());
+        pmax_deviation_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetCalibratedTimestampsEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetCalibratedTimestampsEXT(%s, %u, %s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetCalibratedTimestampsEXT(%s, %u, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             timestampCount,
             ptimestamp_infos_array.c_str(),
@@ -10739,14 +10986,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string ptime_domain_count_name = "pTimeDomainCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", ptime_domain_count_name.c_str());
-    std::string ptime_domains_name = "pTimeDomains_" + std::to_string(this->GetNextId());
-    const uint32_t* in_ptime_domain_count = pTimeDomainCount->GetPointer();
-    fprintf(file, "\t\tVkTimeDomainKHR %s[%d];\n", ptime_domains_name.c_str(), *in_ptime_domain_count);
+    std::string ptime_domain_count_name = "NULL";
+    if (!pTimeDomainCount->IsNull()) {
+        ptime_domain_count_name = "pTimeDomainCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", ptime_domain_count_name.c_str(), util::ToString(*pTimeDomainCount->GetPointer()).c_str());
+        ptime_domain_count_name.insert(0, "&");
+    }
+    std::string ptime_domains_name = "NULL";
+    if (!pTimeDomains->IsNull()) {
+        const uint32_t* in_ptime_domain_count = pTimeDomainCount->GetPointer();
+        ptime_domains_name = "pTimeDomains_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkTimeDomainKHR %s[%d] = {};\n", ptime_domains_name.c_str(), *in_ptime_domain_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceCalibrateableTimeDomainsEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             ptime_domain_count_name.c_str(),
             ptime_domains_name.c_str(),
@@ -10910,18 +11164,21 @@ void VulkanCppConsumer::Process_vkGetQueueCheckpointDataNV(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcheckpoint_data_count_name = "pCheckpointDataCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pcheckpoint_data_count_name.c_str());
-    std::string pcheckpoint_data_name = "pCheckpointData_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pcheckpoint_data;
-    pcheckpoint_data_name = GenerateStruct_VkCheckpointDataNV(stream_pcheckpoint_data,
-                                                              pCheckpointData->GetPointer(),
-                                                              pCheckpointData->GetMetaStructPointer(),
-                                                              *this);
-    fprintf(file, "%s", stream_pcheckpoint_data.str().c_str());
+    std::string pcheckpoint_data_count_name = "NULL";
+    if (!pCheckpointDataCount->IsNull()) {
+        pcheckpoint_data_count_name = "pCheckpointDataCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pcheckpoint_data_count_name.c_str(), util::ToString(*pCheckpointDataCount->GetPointer()).c_str());
+        pcheckpoint_data_count_name.insert(0, "&");
+    }
+    std::string pcheckpoint_data_name = "NULL";
+    if (!pCheckpointData->IsNull()) {
+        const uint32_t* in_pcheckpoint_data_count = pCheckpointDataCount->GetPointer();
+        pcheckpoint_data_name = "pCheckpointData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkCheckpointDataNV %s[%d] = {};\n", pcheckpoint_data_name.c_str(), *in_pcheckpoint_data_count);
+    }
     pfn_loader_.AddMethodName("vkGetQueueCheckpointDataNV");
     fprintf(file,
-            "\t\tloaded_vkGetQueueCheckpointDataNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetQueueCheckpointDataNV(%s, %s, %s);\n",
             this->GetHandle(queue).c_str(),
             pcheckpoint_data_count_name.c_str(),
             pcheckpoint_data_name.c_str());
@@ -11041,11 +11298,15 @@ void VulkanCppConsumer::Process_vkGetPerformanceParameterINTEL(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pvalue_name = "pValue_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkPerformanceValueINTEL %s;\n", pvalue_name.c_str());
+    std::string pvalue_name = "NULL";
+    if (!pValue->IsNull()) {
+        pvalue_name = "pValue_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPerformanceValueINTEL %s = {};\n", pvalue_name.c_str());
+        pvalue_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPerformanceParameterINTEL");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPerformanceParameterINTEL(%s, %s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPerformanceParameterINTEL(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkPerformanceParameterTypeINTEL>(parameter).c_str(),
             pvalue_name.c_str(),
@@ -11219,18 +11480,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string ptool_count_name = "pToolCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", ptool_count_name.c_str());
-    std::string ptool_properties_name = "pToolProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_ptool_properties;
-    ptool_properties_name = GenerateStruct_VkPhysicalDeviceToolProperties(stream_ptool_properties,
-                                                                          pToolProperties->GetPointer(),
-                                                                          pToolProperties->GetMetaStructPointer(),
-                                                                          *this);
-    fprintf(file, "%s", stream_ptool_properties.str().c_str());
+    std::string ptool_count_name = "NULL";
+    if (!pToolCount->IsNull()) {
+        ptool_count_name = "pToolCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", ptool_count_name.c_str(), util::ToString(*pToolCount->GetPointer()).c_str());
+        ptool_count_name.insert(0, "&");
+    }
+    std::string ptool_properties_name = "NULL";
+    if (!pToolProperties->IsNull()) {
+        const uint32_t* in_ptool_count = pToolCount->GetPointer();
+        ptool_properties_name = "pToolProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPhysicalDeviceToolProperties %s[%d] = {};\n", ptool_properties_name.c_str(), *in_ptool_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceToolPropertiesEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceToolPropertiesEXT(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceToolPropertiesEXT(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             ptool_count_name.c_str(),
             ptool_properties_name.c_str(),
@@ -11247,18 +11511,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperty_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkCooperativeMatrixPropertiesNV(stream_pproperties,
-                                                                      pProperties->GetPointer(),
-                                                                      pProperties->GetMetaStructPointer(),
-                                                                      *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperty_count_name = "NULL";
+    if (!pPropertyCount->IsNull()) {
+        pproperty_count_name = "pPropertyCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperty_count_name.c_str(), util::ToString(*pPropertyCount->GetPointer()).c_str());
+        pproperty_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperty_count = pPropertyCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkCooperativeMatrixPropertiesNV %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperty_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceCooperativeMatrixPropertiesNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceCooperativeMatrixPropertiesNV(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pproperty_count_name.c_str(),
             pproperties_name.c_str(),
@@ -11275,18 +11542,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSupportedFramebufferMixedSamp
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcombination_count_name = "pCombinationCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pcombination_count_name.c_str());
-    std::string pcombinations_name = "pCombinations_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pcombinations;
-    pcombinations_name = GenerateStruct_VkFramebufferMixedSamplesCombinationNV(stream_pcombinations,
-                                                                               pCombinations->GetPointer(),
-                                                                               pCombinations->GetMetaStructPointer(),
-                                                                               *this);
-    fprintf(file, "%s", stream_pcombinations.str().c_str());
+    std::string pcombination_count_name = "NULL";
+    if (!pCombinationCount->IsNull()) {
+        pcombination_count_name = "pCombinationCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pcombination_count_name.c_str(), util::ToString(*pCombinationCount->GetPointer()).c_str());
+        pcombination_count_name.insert(0, "&");
+    }
+    std::string pcombinations_name = "NULL";
+    if (!pCombinations->IsNull()) {
+        const uint32_t* in_pcombination_count = pCombinationCount->GetPointer();
+        pcombinations_name = "pCombinations_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkFramebufferMixedSamplesCombinationNV %s[%d] = {};\n", pcombinations_name.c_str(), *in_pcombination_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSupportedFramebufferMixedSamplesCombinationsNV(%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             pcombination_count_name.c_str(),
             pcombinations_name.c_str(),
@@ -11327,11 +11597,15 @@ void VulkanCppConsumer::Process_vkGetDeviceGroupSurfacePresentModes2EXT(
                                                                                       pSurfaceInfo->GetMetaStructPointer(),
                                                                                       *this);
     fprintf(file, "%s", stream_psurface_info.str().c_str());
-    std::string pmodes_name = "pModes_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkDeviceGroupPresentModeFlagsKHR %s;\n", pmodes_name.c_str());
+    std::string pmodes_name = "NULL";
+    if (!pModes->IsNull()) {
+        pmodes_name = "pModes_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceGroupPresentModeFlagsKHR %s = %s;\n", pmodes_name.c_str(), util::ToString(*pModes->GetPointer()).c_str());
+        pmodes_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceGroupSurfacePresentModes2EXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModes2EXT(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceGroupSurfacePresentModes2EXT(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             psurface_info_struct.c_str(),
             pmodes_name.c_str(),
@@ -11356,14 +11630,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceSurfacePresentModes2EXT(
                                                                                       pSurfaceInfo->GetMetaStructPointer(),
                                                                                       *this);
     fprintf(file, "%s", stream_psurface_info.str().c_str());
-    std::string ppresent_mode_count_name = "pPresentModeCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", ppresent_mode_count_name.c_str());
-    std::string ppresent_modes_name = "pPresentModes_" + std::to_string(this->GetNextId());
-    const uint32_t* in_ppresent_mode_count = pPresentModeCount->GetPointer();
-    fprintf(file, "\t\tVkPresentModeKHR %s[%d];\n", ppresent_modes_name.c_str(), *in_ppresent_mode_count);
+    std::string ppresent_mode_count_name = "NULL";
+    if (!pPresentModeCount->IsNull()) {
+        ppresent_mode_count_name = "pPresentModeCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", ppresent_mode_count_name.c_str(), util::ToString(*pPresentModeCount->GetPointer()).c_str());
+        ppresent_mode_count_name.insert(0, "&");
+    }
+    std::string ppresent_modes_name = "NULL";
+    if (!pPresentModes->IsNull()) {
+        const uint32_t* in_ppresent_mode_count = pPresentModeCount->GetPointer();
+        ppresent_modes_name = "pPresentModes_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPresentModeKHR %s[%d] = {};\n", ppresent_modes_name.c_str(), *in_ppresent_mode_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceSurfacePresentModes2EXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfacePresentModes2EXT(%s, &%s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceSurfacePresentModes2EXT(%s, &%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             psurface_info_struct.c_str(),
             ppresent_mode_count_name.c_str(),
@@ -11832,16 +12113,15 @@ void VulkanCppConsumer::Process_vkGetImageSubresourceLayout2EXT(
                                                                             pSubresource->GetMetaStructPointer(),
                                                                             *this);
     fprintf(file, "%s", stream_psubresource.str().c_str());
-    std::string playout_name = "pLayout_" + std::to_string(this->GetNextId());
-    std::stringstream stream_playout;
-    playout_name = GenerateStruct_VkSubresourceLayout2KHR(stream_playout,
-                                                          pLayout->GetPointer(),
-                                                          pLayout->GetMetaStructPointer(),
-                                                          *this);
-    fprintf(file, "%s", stream_playout.str().c_str());
+    std::string playout_name = "NULL";
+    if (!pLayout->IsNull()) {
+        playout_name = "pLayout_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkSubresourceLayout2KHR %s = {};\n", playout_name.c_str());
+        playout_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetImageSubresourceLayout2EXT");
     fprintf(file,
-            "\t\tloaded_vkGetImageSubresourceLayout2EXT(%s, %s, &%s, &%s);\n",
+            "\t\tloaded_vkGetImageSubresourceLayout2EXT(%s, %s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(image).c_str(),
             psubresource_struct.c_str(),
@@ -12040,16 +12320,15 @@ void VulkanCppConsumer::Process_vkGetGeneratedCommandsMemoryRequirementsNV(
                                                                                           pInfo->GetMetaStructPointer(),
                                                                                           *this);
     fprintf(file, "%s", stream_pinfo.str().c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_requirements;
-    pmemory_requirements_name = GenerateStruct_VkMemoryRequirements2(stream_pmemory_requirements,
-                                                                     pMemoryRequirements->GetPointer(),
-                                                                     pMemoryRequirements->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pmemory_requirements.str().c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2 %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetGeneratedCommandsMemoryRequirementsNV");
     fprintf(file,
-            "\t\tloaded_vkGetGeneratedCommandsMemoryRequirementsNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetGeneratedCommandsMemoryRequirementsNV(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pinfo_struct.c_str(),
             pmemory_requirements_name.c_str());
@@ -12186,11 +12465,15 @@ void VulkanCppConsumer::Process_vkGetPrivateDataEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint64_t %s;\n", pdata_name.c_str());
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint64_t %s = %s;\n", pdata_name.c_str(), util::ToString(*pData->GetPointer()).c_str());
+        pdata_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPrivateDataEXT");
     fprintf(file,
-            "\t\tloaded_vkGetPrivateDataEXT(%s, %s, %" PRIu64 "UL, %s, &%s);\n",
+            "\t\tloaded_vkGetPrivateDataEXT(%s, %s, %" PRIu64 "UL, %s, %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkObjectType>(objectType).c_str(),
             objectHandle,
@@ -12255,23 +12538,21 @@ void VulkanCppConsumer::Process_vkGetDeviceFaultInfoEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pfault_counts_name = "pFaultCounts_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pfault_counts;
-    pfault_counts_name = GenerateStruct_VkDeviceFaultCountsEXT(stream_pfault_counts,
-                                                               pFaultCounts->GetPointer(),
-                                                               pFaultCounts->GetMetaStructPointer(),
-                                                               *this);
-    fprintf(file, "%s", stream_pfault_counts.str().c_str());
-    std::string pfault_info_name = "pFaultInfo_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pfault_info;
-    pfault_info_name = GenerateStruct_VkDeviceFaultInfoEXT(stream_pfault_info,
-                                                           pFaultInfo->GetPointer(),
-                                                           pFaultInfo->GetMetaStructPointer(),
-                                                           *this);
-    fprintf(file, "%s", stream_pfault_info.str().c_str());
+    std::string pfault_counts_name = "NULL";
+    if (!pFaultCounts->IsNull()) {
+        pfault_counts_name = "pFaultCounts_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceFaultCountsEXT %s = {};\n", pfault_counts_name.c_str());
+        pfault_counts_name.insert(0, "&");
+    }
+    std::string pfault_info_name = "NULL";
+    if (!pFaultInfo->IsNull()) {
+        pfault_info_name = "pFaultInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDeviceFaultInfoEXT %s = {};\n", pfault_info_name.c_str());
+        pfault_info_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceFaultInfoEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceFaultInfoEXT(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDeviceFaultInfoEXT(%s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pfault_counts_name.c_str(),
             pfault_info_name.c_str(),
@@ -12444,11 +12725,15 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandleFUCHSIA(
                                                                                                    pGetZirconHandleInfo->GetMetaStructPointer(),
                                                                                                    *this);
     fprintf(file, "%s", stream_pget_zircon_handle_info.str().c_str());
-    std::string pzircon_handle_name = "pZirconHandle_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pzircon_handle_name.c_str());
+    std::string pzircon_handle_name = "NULL";
+    if (!pZirconHandle->IsNull()) {
+        pzircon_handle_name = "pZirconHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pzircon_handle_name.c_str(), util::ToString(*pZirconHandle->GetPointer()).c_str());
+        pzircon_handle_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryZirconHandleFUCHSIA");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryZirconHandleFUCHSIA(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryZirconHandleFUCHSIA(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pget_zircon_handle_info_struct.c_str(),
             pzircon_handle_name.c_str(),
@@ -12467,16 +12752,15 @@ void VulkanCppConsumer::Process_vkGetMemoryZirconHandlePropertiesFUCHSIA(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pmemory_zircon_handle_properties_name = "pMemoryZirconHandleProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_zircon_handle_properties;
-    pmemory_zircon_handle_properties_name = GenerateStruct_VkMemoryZirconHandlePropertiesFUCHSIA(stream_pmemory_zircon_handle_properties,
-                                                                                                 pMemoryZirconHandleProperties->GetPointer(),
-                                                                                                 pMemoryZirconHandleProperties->GetMetaStructPointer(),
-                                                                                                 *this);
-    fprintf(file, "%s", stream_pmemory_zircon_handle_properties.str().c_str());
+    std::string pmemory_zircon_handle_properties_name = "NULL";
+    if (!pMemoryZirconHandleProperties->IsNull()) {
+        pmemory_zircon_handle_properties_name = "pMemoryZirconHandleProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryZirconHandlePropertiesFUCHSIA %s = {};\n", pmemory_zircon_handle_properties_name.c_str());
+        pmemory_zircon_handle_properties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryZirconHandlePropertiesFUCHSIA");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryZirconHandlePropertiesFUCHSIA(%s, %s, %u, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryZirconHandlePropertiesFUCHSIA(%s, %s, %u, %s), %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkExternalMemoryHandleTypeFlagBits>(handleType).c_str(),
             zirconHandle,
@@ -12500,11 +12784,15 @@ void VulkanCppConsumer::Process_vkGetSemaphoreZirconHandleFUCHSIA(
                                                                                                       pGetZirconHandleInfo->GetMetaStructPointer(),
                                                                                                       *this);
     fprintf(file, "%s", stream_pget_zircon_handle_info.str().c_str());
-    std::string pzircon_handle_name = "pZirconHandle_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pzircon_handle_name.c_str());
+    std::string pzircon_handle_name = "NULL";
+    if (!pZirconHandle->IsNull()) {
+        pzircon_handle_name = "pZirconHandle_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pzircon_handle_name.c_str(), util::ToString(*pZirconHandle->GetPointer()).c_str());
+        pzircon_handle_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetSemaphoreZirconHandleFUCHSIA");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreZirconHandleFUCHSIA(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetSemaphoreZirconHandleFUCHSIA(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pget_zircon_handle_info_struct.c_str(),
             pzircon_handle_name.c_str(),
@@ -12568,11 +12856,15 @@ void VulkanCppConsumer::Process_vkGetMemoryRemoteAddressNV(
                                                                                                        pMemoryGetRemoteAddressInfo->GetMetaStructPointer(),
                                                                                                        *this);
     fprintf(file, "%s", stream_pmemory_get_remote_address_info.str().c_str());
-    std::string paddress_name = "pAddress_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", paddress_name.c_str());
+    std::string paddress_name = "NULL";
+    if (!pAddress->IsNull()) {
+        paddress_name = "pAddress_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", paddress_name.c_str(), util::ToString(*pAddress->GetPointer()).c_str());
+        paddress_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMemoryRemoteAddressNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryRemoteAddressNV(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetMemoryRemoteAddressNV(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             pmemory_get_remote_address_info_struct.c_str(),
             paddress_name.c_str(),
@@ -13138,11 +13430,15 @@ void VulkanCppConsumer::Process_vkGetDeviceMicromapCompatibilityEXT(
                                                                                pVersionInfo->GetMetaStructPointer(),
                                                                                *this);
     fprintf(file, "%s", stream_pversion_info.str().c_str());
-    std::string pcompatibility_name = "pCompatibility_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkAccelerationStructureCompatibilityKHR %s;\n", pcompatibility_name.c_str());
+    std::string pcompatibility_name = "NULL";
+    if (!pCompatibility->IsNull()) {
+        pcompatibility_name = "pCompatibility_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkAccelerationStructureCompatibilityKHR %s = %s;\n", pcompatibility_name.c_str(), util::ToString(*pCompatibility->GetPointer()).c_str());
+        pcompatibility_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceMicromapCompatibilityEXT");
     fprintf(file,
-            "\t\tloaded_vkGetDeviceMicromapCompatibilityEXT(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceMicromapCompatibilityEXT(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pversion_info_struct.c_str(),
             pcompatibility_name.c_str());
@@ -13165,16 +13461,15 @@ void VulkanCppConsumer::Process_vkGetMicromapBuildSizesEXT(
                                                                            pBuildInfo->GetMetaStructPointer(),
                                                                            *this);
     fprintf(file, "%s", stream_pbuild_info.str().c_str());
-    std::string psize_info_name = "pSizeInfo_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psize_info;
-    psize_info_name = GenerateStruct_VkMicromapBuildSizesInfoEXT(stream_psize_info,
-                                                                 pSizeInfo->GetPointer(),
-                                                                 pSizeInfo->GetMetaStructPointer(),
-                                                                 *this);
-    fprintf(file, "%s", stream_psize_info.str().c_str());
+    std::string psize_info_name = "NULL";
+    if (!pSizeInfo->IsNull()) {
+        psize_info_name = "pSizeInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMicromapBuildSizesInfoEXT %s = {};\n", psize_info_name.c_str());
+        psize_info_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetMicromapBuildSizesEXT");
     fprintf(file,
-            "\t\tloaded_vkGetMicromapBuildSizesEXT(%s, %s, &%s, &%s);\n",
+            "\t\tloaded_vkGetMicromapBuildSizesEXT(%s, %s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkAccelerationStructureBuildTypeKHR>(buildType).c_str(),
             pbuild_info_struct.c_str(),
@@ -13207,8 +13502,11 @@ void VulkanCppConsumer::Process_vkWriteMicromapsPropertiesEXT(
         pmicromaps_array = "pmicromaps_array_" + std::to_string(this->GetNextId());
         fprintf(file, "\t\tVkMicromapEXT %s[] = { %s };\n", pmicromaps_array.c_str(), pmicromaps_values.c_str());
     }
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
     pfn_loader_.AddMethodName("vkWriteMicromapsPropertiesEXT");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkWriteMicromapsPropertiesEXT(%s, %u, %s, %s, %" PRIu64 ", %s, %" PRIu64 "), %s);\n",
@@ -13285,11 +13583,15 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetHostMappingVALVE(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pp_data_name = "ppData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t* %s;\n", pp_data_name.c_str());
+    std::string pp_data_name = "NULL";
+    if (!ppData->IsNull()) {
+        pp_data_name = "ppData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t* %s = %s;\n", pp_data_name.c_str(), util::ToString(*ppData->GetPointer()).c_str());
+        pp_data_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDescriptorSetHostMappingVALVE");
     fprintf(file,
-            "\t\tloaded_vkGetDescriptorSetHostMappingVALVE(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetDescriptorSetHostMappingVALVE(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(descriptorSet).c_str(),
             pp_data_name.c_str());
@@ -13311,16 +13613,15 @@ void VulkanCppConsumer::Process_vkGetDescriptorSetLayoutHostMappingInfoVALVE(
                                                                                                 pBindingReference->GetMetaStructPointer(),
                                                                                                 *this);
     fprintf(file, "%s", stream_pbinding_reference.str().c_str());
-    std::string phost_mapping_name = "pHostMapping_" + std::to_string(this->GetNextId());
-    std::stringstream stream_phost_mapping;
-    phost_mapping_name = GenerateStruct_VkDescriptorSetLayoutHostMappingInfoVALVE(stream_phost_mapping,
-                                                                                  pHostMapping->GetPointer(),
-                                                                                  pHostMapping->GetMetaStructPointer(),
-                                                                                  *this);
-    fprintf(file, "%s", stream_phost_mapping.str().c_str());
+    std::string phost_mapping_name = "NULL";
+    if (!pHostMapping->IsNull()) {
+        phost_mapping_name = "pHostMapping_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkDescriptorSetLayoutHostMappingInfoVALVE %s = {};\n", phost_mapping_name.c_str());
+        phost_mapping_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDescriptorSetLayoutHostMappingInfoVALVE");
     fprintf(file,
-            "\t\tloaded_vkGetDescriptorSetLayoutHostMappingInfoVALVE(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDescriptorSetLayoutHostMappingInfoVALVE(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pbinding_reference_struct.c_str(),
             phost_mapping_name.c_str());
@@ -13382,16 +13683,15 @@ void VulkanCppConsumer::Process_vkGetPipelineIndirectMemoryRequirementsNV(
                                                                                  pCreateInfo->GetMetaStructPointer(),
                                                                                  *this);
     fprintf(file, "%s", stream_pcreate_info.str().c_str());
-    std::string pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pmemory_requirements;
-    pmemory_requirements_name = GenerateStruct_VkMemoryRequirements2(stream_pmemory_requirements,
-                                                                     pMemoryRequirements->GetPointer(),
-                                                                     pMemoryRequirements->GetMetaStructPointer(),
-                                                                     *this);
-    fprintf(file, "%s", stream_pmemory_requirements.str().c_str());
+    std::string pmemory_requirements_name = "NULL";
+    if (!pMemoryRequirements->IsNull()) {
+        pmemory_requirements_name = "pMemoryRequirements_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkMemoryRequirements2 %s = {};\n", pmemory_requirements_name.c_str());
+        pmemory_requirements_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetPipelineIndirectMemoryRequirementsNV");
     fprintf(file,
-            "\t\tloaded_vkGetPipelineIndirectMemoryRequirementsNV(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetPipelineIndirectMemoryRequirementsNV(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pcreate_info_struct.c_str(),
             pmemory_requirements_name.c_str());
@@ -14020,16 +14320,15 @@ void VulkanCppConsumer::Process_vkGetShaderModuleCreateInfoIdentifierEXT(
                                                                               pCreateInfo->GetMetaStructPointer(),
                                                                               *this);
     fprintf(file, "%s", stream_pcreate_info.str().c_str());
-    std::string pidentifier_name = "pIdentifier_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pidentifier;
-    pidentifier_name = GenerateStruct_VkShaderModuleIdentifierEXT(stream_pidentifier,
-                                                                  pIdentifier->GetPointer(),
-                                                                  pIdentifier->GetMetaStructPointer(),
-                                                                  *this);
-    fprintf(file, "%s", stream_pidentifier.str().c_str());
+    std::string pidentifier_name = "NULL";
+    if (!pIdentifier->IsNull()) {
+        pidentifier_name = "pIdentifier_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkShaderModuleIdentifierEXT %s = {};\n", pidentifier_name.c_str());
+        pidentifier_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetShaderModuleCreateInfoIdentifierEXT");
     fprintf(file,
-            "\t\tloaded_vkGetShaderModuleCreateInfoIdentifierEXT(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetShaderModuleCreateInfoIdentifierEXT(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pcreate_info_struct.c_str(),
             pidentifier_name.c_str());
@@ -14045,16 +14344,15 @@ void VulkanCppConsumer::Process_vkGetShaderModuleIdentifierEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pidentifier_name = "pIdentifier_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pidentifier;
-    pidentifier_name = GenerateStruct_VkShaderModuleIdentifierEXT(stream_pidentifier,
-                                                                  pIdentifier->GetPointer(),
-                                                                  pIdentifier->GetMetaStructPointer(),
-                                                                  *this);
-    fprintf(file, "%s", stream_pidentifier.str().c_str());
+    std::string pidentifier_name = "NULL";
+    if (!pIdentifier->IsNull()) {
+        pidentifier_name = "pIdentifier_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkShaderModuleIdentifierEXT %s = {};\n", pidentifier_name.c_str());
+        pidentifier_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetShaderModuleIdentifierEXT");
     fprintf(file,
-            "\t\tloaded_vkGetShaderModuleIdentifierEXT(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetShaderModuleIdentifierEXT(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(shaderModule).c_str(),
             pidentifier_name.c_str());
@@ -14177,18 +14475,21 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
                                                                                                        pOpticalFlowImageFormatInfo->GetMetaStructPointer(),
                                                                                                        *this);
     fprintf(file, "%s", stream_poptical_flow_image_format_info.str().c_str());
-    std::string pformat_count_name = "pFormatCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pformat_count_name.c_str());
-    std::string pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pimage_format_properties;
-    pimage_format_properties_name = GenerateStruct_VkOpticalFlowImageFormatPropertiesNV(stream_pimage_format_properties,
-                                                                                        pImageFormatProperties->GetPointer(),
-                                                                                        pImageFormatProperties->GetMetaStructPointer(),
-                                                                                        *this);
-    fprintf(file, "%s", stream_pimage_format_properties.str().c_str());
+    std::string pformat_count_name = "NULL";
+    if (!pFormatCount->IsNull()) {
+        pformat_count_name = "pFormatCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pformat_count_name.c_str(), util::ToString(*pFormatCount->GetPointer()).c_str());
+        pformat_count_name.insert(0, "&");
+    }
+    std::string pimage_format_properties_name = "NULL";
+    if (!pImageFormatProperties->IsNull()) {
+        const uint32_t* in_pformat_count = pFormatCount->GetPointer();
+        pimage_format_properties_name = "pImageFormatProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkOpticalFlowImageFormatPropertiesNV %s[%d] = {};\n", pimage_format_properties_name.c_str(), *in_pformat_count);
+    }
     pfn_loader_.AddMethodName("vkGetPhysicalDeviceOpticalFlowImageFormatsNV");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(%s, &%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(%s, &%s, %s, %s), %s);\n",
             this->GetHandle(physicalDevice).c_str(),
             poptical_flow_image_format_info_struct.c_str(),
             pformat_count_name.c_str(),
@@ -14313,14 +14614,21 @@ void VulkanCppConsumer::Process_vkGetShaderBinaryDataEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_size_name = "pDataSize_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tsize_t %s;\n", pdata_size_name.c_str());
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    size_t* in_pdata_size = pDataSize->GetPointer();
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
+    std::string pdata_size_name = "NULL";
+    if (!pDataSize->IsNull()) {
+        pdata_size_name = "pDataSize_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tsize_t %s = %s;\n", pdata_size_name.c_str(), util::ToString(*pDataSize->GetPointer()).c_str());
+        pdata_size_name.insert(0, "&");
+    }
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        size_t* in_pdata_size = pDataSize->GetPointer();
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(*in_pdata_size));
+    }
     pfn_loader_.AddMethodName("vkGetShaderBinaryDataEXT");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetShaderBinaryDataEXT(%s, %s, &%s, %s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetShaderBinaryDataEXT(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(shader).c_str(),
             pdata_size_name.c_str(),
@@ -14344,16 +14652,15 @@ void VulkanCppConsumer::Process_vkGetDynamicRenderingTilePropertiesQCOM(
                                                                         pRenderingInfo->GetMetaStructPointer(),
                                                                         *this);
     fprintf(file, "%s", stream_prendering_info.str().c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkTilePropertiesQCOM(stream_pproperties,
-                                                           pProperties->GetPointer(),
-                                                           pProperties->GetMetaStructPointer(),
-                                                           *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkTilePropertiesQCOM %s = {};\n", pproperties_name.c_str());
+        pproperties_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDynamicRenderingTilePropertiesQCOM");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetDynamicRenderingTilePropertiesQCOM(%s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetDynamicRenderingTilePropertiesQCOM(%s, &%s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             prendering_info_struct.c_str(),
             pproperties_name.c_str(),
@@ -14372,18 +14679,21 @@ void VulkanCppConsumer::Process_vkGetFramebufferTilePropertiesQCOM(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pproperties_count_name = "pPropertiesCount_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint32_t %s;\n", pproperties_count_name.c_str());
-    std::string pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
-    std::stringstream stream_pproperties;
-    pproperties_name = GenerateStruct_VkTilePropertiesQCOM(stream_pproperties,
-                                                           pProperties->GetPointer(),
-                                                           pProperties->GetMetaStructPointer(),
-                                                           *this);
-    fprintf(file, "%s", stream_pproperties.str().c_str());
+    std::string pproperties_count_name = "NULL";
+    if (!pPropertiesCount->IsNull()) {
+        pproperties_count_name = "pPropertiesCount_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint32_t %s = %s;\n", pproperties_count_name.c_str(), util::ToString(*pPropertiesCount->GetPointer()).c_str());
+        pproperties_count_name.insert(0, "&");
+    }
+    std::string pproperties_name = "NULL";
+    if (!pProperties->IsNull()) {
+        const uint32_t* in_pproperties_count = pPropertiesCount->GetPointer();
+        pproperties_name = "pProperties_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkTilePropertiesQCOM %s[%d] = {};\n", pproperties_name.c_str(), *in_pproperties_count);
+    }
     pfn_loader_.AddMethodName("vkGetFramebufferTilePropertiesQCOM");
     fprintf(file,
-            "\t\tVK_CALL_CHECK(loaded_vkGetFramebufferTilePropertiesQCOM(%s, %s, &%s, &%s), %s);\n",
+            "\t\tVK_CALL_CHECK(loaded_vkGetFramebufferTilePropertiesQCOM(%s, %s, %s, %s), %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(framebuffer).c_str(),
             pproperties_count_name.c_str(),
@@ -14400,16 +14710,15 @@ void VulkanCppConsumer::Process_vkGetLatencyTimingsNV(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string platency_marker_info_name = "pLatencyMarkerInfo_" + std::to_string(this->GetNextId());
-    std::stringstream stream_platency_marker_info;
-    platency_marker_info_name = GenerateStruct_VkGetLatencyMarkerInfoNV(stream_platency_marker_info,
-                                                                        pLatencyMarkerInfo->GetPointer(),
-                                                                        pLatencyMarkerInfo->GetMetaStructPointer(),
-                                                                        *this);
-    fprintf(file, "%s", stream_platency_marker_info.str().c_str());
+    std::string platency_marker_info_name = "NULL";
+    if (!pLatencyMarkerInfo->IsNull()) {
+        platency_marker_info_name = "pLatencyMarkerInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkGetLatencyMarkerInfoNV %s = {};\n", platency_marker_info_name.c_str());
+        platency_marker_info_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetLatencyTimingsNV");
     fprintf(file,
-            "\t\tloaded_vkGetLatencyTimingsNV(%s, %s, &%s);\n",
+            "\t\tloaded_vkGetLatencyTimingsNV(%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             this->GetHandle(swapchain).c_str(),
             platency_marker_info_name.c_str());
@@ -14882,16 +15191,15 @@ void VulkanCppConsumer::Process_vkGetAccelerationStructureBuildSizesKHR(
     } else {
         pmax_primitive_counts_array = "NULL";
     }
-    std::string psize_info_name = "pSizeInfo_" + std::to_string(this->GetNextId());
-    std::stringstream stream_psize_info;
-    psize_info_name = GenerateStruct_VkAccelerationStructureBuildSizesInfoKHR(stream_psize_info,
-                                                                              pSizeInfo->GetPointer(),
-                                                                              pSizeInfo->GetMetaStructPointer(),
-                                                                              *this);
-    fprintf(file, "%s", stream_psize_info.str().c_str());
+    std::string psize_info_name = "NULL";
+    if (!pSizeInfo->IsNull()) {
+        psize_info_name = "pSizeInfo_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkAccelerationStructureBuildSizesInfoKHR %s = {};\n", psize_info_name.c_str());
+        psize_info_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetAccelerationStructureBuildSizesKHR");
     fprintf(file,
-            "\t\tloaded_vkGetAccelerationStructureBuildSizesKHR(%s, %s, &%s, %s, &%s);\n",
+            "\t\tloaded_vkGetAccelerationStructureBuildSizesKHR(%s, %s, &%s, %s, %s);\n",
             this->GetHandle(device).c_str(),
             util::ToString<VkAccelerationStructureBuildTypeKHR>(buildType).c_str(),
             pbuild_info_struct.c_str(),
@@ -14938,11 +15246,15 @@ void VulkanCppConsumer::Process_vkGetDeviceAccelerationStructureCompatibilityKHR
                                                                                             pVersionInfo->GetMetaStructPointer(),
                                                                                             *this);
     fprintf(file, "%s", stream_pversion_info.str().c_str());
-    std::string pcompatibility_name = "pCompatibility_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tVkAccelerationStructureCompatibilityKHR %s;\n", pcompatibility_name.c_str());
+    std::string pcompatibility_name = "NULL";
+    if (!pCompatibility->IsNull()) {
+        pcompatibility_name = "pCompatibility_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkAccelerationStructureCompatibilityKHR %s = %s;\n", pcompatibility_name.c_str(), util::ToString(*pCompatibility->GetPointer()).c_str());
+        pcompatibility_name.insert(0, "&");
+    }
     pfn_loader_.AddMethodName("vkGetDeviceAccelerationStructureCompatibilityKHR");
     fprintf(file,
-            "\t\tloaded_vkGetDeviceAccelerationStructureCompatibilityKHR(%s, &%s, &%s);\n",
+            "\t\tloaded_vkGetDeviceAccelerationStructureCompatibilityKHR(%s, &%s, %s);\n",
             this->GetHandle(device).c_str(),
             pversion_info_struct.c_str(),
             pcompatibility_name.c_str());
@@ -14974,8 +15286,11 @@ void VulkanCppConsumer::Process_vkWriteAccelerationStructuresPropertiesKHR(
         pacceleration_structures_array = "pacceleration_structures_array_" + std::to_string(this->GetNextId());
         fprintf(file, "\t\tVkAccelerationStructureKHR %s[] = { %s };\n", pacceleration_structures_array.c_str(), pacceleration_structures_values.c_str());
     }
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
     pfn_loader_.AddMethodName("vkWriteAccelerationStructuresPropertiesKHR");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkWriteAccelerationStructuresPropertiesKHR(%s, %u, %s, %s, %" PRIu64 ", %s, %" PRIu64 "), %s);\n",
@@ -15118,8 +15433,11 @@ void VulkanCppConsumer::Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKH
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pdata_name = "pData_" + std::to_string(this->GetNextId());
-    fprintf(file, "\t\tuint8_t %s[%" PRIu64 "];\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    std::string pdata_name = "NULL";
+    if (!pData->IsNull()) {
+        pdata_name = "pData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", pdata_name.c_str(), util::platform::SizeTtoUint64(dataSize));
+    }
     pfn_loader_.AddMethodName("vkGetRayTracingCaptureReplayShaderGroupHandlesKHR");
     fprintf(file,
             "\t\tVK_CALL_CHECK(loaded_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(%s, %s, %u, %u, %" PRIu64 ", %s), %s);\n",
