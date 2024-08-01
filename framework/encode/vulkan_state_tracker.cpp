@@ -2039,7 +2039,7 @@ void VulkanStateTracker::TrackCmdBindPipeline(VkCommandBuffer     commandBuffer,
     }
 }
 
-void VulkanStateTracker::InsertAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image)
+void VulkanStateTracker::InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image)
 {
     if (command_buffer != VK_NULL_HANDLE && image != VK_NULL_HANDLE)
     {
@@ -2055,7 +2055,7 @@ void VulkanStateTracker::InsertAssetInCommandBuffer(VkCommandBuffer command_buff
     }
 }
 
-void VulkanStateTracker::InsertAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer)
+void VulkanStateTracker::InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer)
 {
     if (command_buffer != VK_NULL_HANDLE && buffer != VK_NULL_HANDLE)
     {
@@ -2077,7 +2077,7 @@ void VulkanStateTracker::TrackCmdCopyBuffer(VkCommandBuffer     commandBuffer,
                                             uint32_t            regionCount,
                                             const VkBufferCopy* pRegions)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
+    InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
@@ -2088,7 +2088,7 @@ void VulkanStateTracker::TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
                                            uint32_t           regionCount,
                                            const VkImageCopy* pRegions)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstImage);
+    InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          commandBuffer,
@@ -2098,7 +2098,7 @@ void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          comm
                                                    uint32_t                 regionCount,
                                                    const VkBufferImageCopy* pRegions)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstImage);
+    InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdCopyImageToBuffer(VkCommandBuffer          commandBuffer,
@@ -2108,14 +2108,14 @@ void VulkanStateTracker::TrackCmdCopyImageToBuffer(VkCommandBuffer          comm
                                                    uint32_t                 regionCount,
                                                    const VkBufferImageCopy* pRegions)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
+    InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdCopyBuffer2(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo)
 {
     if (pCopyBufferInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferInfo->dstBuffer);
+        InsertBufferAssetInCommandBuffer(commandBuffer, pCopyBufferInfo->dstBuffer);
     }
 }
 
@@ -2123,7 +2123,7 @@ void VulkanStateTracker::TrackCmdCopyImage2(VkCommandBuffer commandBuffer, const
 {
     if (pCopyImageInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage);
+        InsertImageAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage);
     }
 }
 
@@ -2132,7 +2132,7 @@ void VulkanStateTracker::TrackCmdCopyBufferToImage2(VkCommandBuffer             
 {
     if (pCopyBufferToImageInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferToImageInfo->dstImage);
+        InsertImageAssetInCommandBuffer(commandBuffer, pCopyBufferToImageInfo->dstImage);
     }
 }
 
@@ -2141,7 +2141,7 @@ void VulkanStateTracker::TrackCmdCopyImageToBuffer2(VkCommandBuffer             
 {
     if (pCopyImageToBufferInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyImageToBufferInfo->dstBuffer);
+        InsertBufferAssetInCommandBuffer(commandBuffer, pCopyImageToBufferInfo->dstBuffer);
     }
 }
 
@@ -2149,7 +2149,7 @@ void VulkanStateTracker::TrackCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, c
 {
     if (pCopyBufferInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferInfo->dstBuffer);
+        InsertBufferAssetInCommandBuffer(commandBuffer, pCopyBufferInfo->dstBuffer);
     }
 }
 
@@ -2157,7 +2157,7 @@ void VulkanStateTracker::TrackCmdCopyImage2KHR(VkCommandBuffer commandBuffer, co
 {
     if (pCopyImageInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage);
+        InsertImageAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage);
     }
 }
 
@@ -2166,7 +2166,7 @@ void VulkanStateTracker::TrackCmdCopyBufferToImage2KHR(VkCommandBuffer          
 {
     if (pCopyBufferToImageInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferToImageInfo->dstImage);
+        InsertImageAssetInCommandBuffer(commandBuffer, pCopyBufferToImageInfo->dstImage);
     }
 }
 
@@ -2175,7 +2175,7 @@ void VulkanStateTracker::TrackCmdCopyImageToBuffer2KHR(VkCommandBuffer          
 {
     if (pCopyImageToBufferInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pCopyImageToBufferInfo->dstBuffer);
+        InsertBufferAssetInCommandBuffer(commandBuffer, pCopyImageToBufferInfo->dstBuffer);
     }
 }
 
@@ -2188,14 +2188,14 @@ void VulkanStateTracker::TrackCmdBlitImage(VkCommandBuffer    commandBuffer,
                                            const VkImageBlit* pRegions,
                                            VkFilter           filter)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstImage);
+    InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdBlitImage2(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo)
 {
     if (pBlitImageInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pBlitImageInfo->dstImage);
+        InsertImageAssetInCommandBuffer(commandBuffer, pBlitImageInfo->dstImage);
     }
 }
 
@@ -2207,13 +2207,13 @@ void VulkanStateTracker::TrackCmdBlitImage2KHR(VkCommandBuffer commandBuffer, co
 void VulkanStateTracker::TrackCmdUpdateBuffer(
     VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* pData)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
+    InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdFillBuffer(
     VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
+    InsertBufferAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdClearColorImage(VkCommandBuffer                commandBuffer,
@@ -2223,7 +2223,7 @@ void VulkanStateTracker::TrackCmdClearColorImage(VkCommandBuffer                
                                                  uint32_t                       rangeCount,
                                                  const VkImageSubresourceRange* pRanges)
 {
-    InsertAssetInCommandBuffer(commandBuffer, image);
+    InsertImageAssetInCommandBuffer(commandBuffer, image);
 }
 
 void VulkanStateTracker::TrackCmdClearDepthStencilImage(VkCommandBuffer                 commandBuffer,
@@ -2233,7 +2233,7 @@ void VulkanStateTracker::TrackCmdClearDepthStencilImage(VkCommandBuffer         
                                                         uint32_t                        rangeCount,
                                                         const VkImageSubresourceRange*  pRanges)
 {
-    InsertAssetInCommandBuffer(commandBuffer, image);
+    InsertImageAssetInCommandBuffer(commandBuffer, image);
 }
 
 void VulkanStateTracker::TrackCmdResolveImage(VkCommandBuffer       commandBuffer,
@@ -2244,7 +2244,7 @@ void VulkanStateTracker::TrackCmdResolveImage(VkCommandBuffer       commandBuffe
                                               uint32_t              regionCount,
                                               const VkImageResolve* pRegions)
 {
-    InsertAssetInCommandBuffer(commandBuffer, dstImage);
+    InsertImageAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdResolveImage2(VkCommandBuffer            commandBuffer,
@@ -2252,7 +2252,7 @@ void VulkanStateTracker::TrackCmdResolveImage2(VkCommandBuffer            comman
 {
     if (pResolveImageInfo != nullptr)
     {
-        InsertAssetInCommandBuffer(commandBuffer, pResolveImageInfo->dstImage);
+        InsertImageAssetInCommandBuffer(commandBuffer, pResolveImageInfo->dstImage);
     }
 }
 

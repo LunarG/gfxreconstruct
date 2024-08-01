@@ -740,9 +740,9 @@ class VulkanStateTracker
     void TrackPipelineDescriptors(vulkan_wrappers::CommandBufferWrapper* command_wrapper,
                                   vulkan_state_info::PipelineBindPoints  ppl_bind_point);
 
-    void InsertAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image);
+    void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image);
 
-    void InsertAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer);
+    void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer);
 
     std::mutex       state_table_mutex_;
     VulkanStateTable state_table_;
