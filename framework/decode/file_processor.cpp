@@ -1815,6 +1815,14 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read parent to child dependency meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand) {
+        format::SetEnvironmentVariablesCommand command;
+        success = ReadBytes(&command.thread_id, sizeof(command.thread_id));
+        success = ReadBytes(&command.string_size, sizeof(command.string_size));
+        success = ReadParameterBuffer(static_cast<size_t>(command.string_size));
+
+        GFXRECON_LOG_WARNING("Skipping unhandled meta-data block with type kSetEnvironmentVariablesCommand");
+    }
     else
     {
         if ((meta_data_type == format::MetaDataType::kReserved23) ||
