@@ -103,8 +103,7 @@ bool FileProcessorSucceeded(const decode::FileProcessor& processor)
         GFXRECON_WRITE_CONSOLE("Did not reach the end of the capture.");
     }
 
-    return (processor.GetCurrentFrameNumber() > 0) &&
-           (processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone) &&
+    return (processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone) &&
            processor.EntireFileWasProcessed();
 }
 
