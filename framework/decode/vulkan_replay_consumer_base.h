@@ -1243,10 +1243,23 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                    const StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
                                    HandlePointerDecoder<VkPipeline>*                                pPipelines);
 
+    VkResult OverrideCreateShadersEXT(PFN_vkCreateShadersEXT                                     func,
+                                      VkResult                                                   original_result,
+                                      const DeviceInfo*                                          device_info,
+                                      uint32_t                                                   create_info_count,
+                                      const StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+                                      const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                      HandlePointerDecoder<VkShaderEXT>*                         pShaders);
+
     void OverrideDestroyPipeline(PFN_vkDestroyPipeline                                      func,
                                  const DeviceInfo*                                          device_info,
                                  PipelineInfo*                                              pipeline_info,
                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideDestroyShaderEXT(PFN_vkDestroyShaderEXT                                     func,
+                                  const DeviceInfo*                                          device_info,
+                                  ShaderEXTInfo*                                             shader_info,
+                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
     void OverrideDestroyRenderPass(PFN_vkDestroyRenderPass                                    func,
                                    const DeviceInfo*                                          device_info,
@@ -1267,6 +1280,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  StructPointerDecoder<Decoded_VkGraphicsPipelineCreateInfo>* pCreateInfos,
                                  StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
                                  HandlePointerDecoder<VkPipeline>*                           pPipelines);
+
+    std::function<handle_create_result_t<VkPipeline>()>
+    AsyncCreateComputePipelines(const ApiCallInfo&                                         call_info,
+                                VkResult                                                   returnValue,
+                                const DeviceInfo*                                          device_info,
+                                const PipelineCacheInfo*                                   pipeline_cache_info,
+                                uint32_t                                                   createInfoCount,
+                                StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+                                StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+                                HandlePointerDecoder<VkPipeline>*                          pPipelines);
+
+    std::function<handle_create_result_t<VkShaderEXT>()>
+    AsyncCreateShadersEXT(const ApiCallInfo&                                   call_info,
+                          VkResult                                             returnValue,
+                          const DeviceInfo*                                    device_info,
+                          uint32_t                                             createInfoCount,
+                          StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+                          StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                          HandlePointerDecoder<VkShaderEXT>*                   pShaders);
 
     const VulkanReplayOptions options_;
 

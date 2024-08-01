@@ -39,7 +39,7 @@ inline uint8_t* offset_ptr(uint8_t* ptr, uint32_t offset)
     return ptr != nullptr ? ptr + offset : nullptr;
 }
 
-size_t vulkan_struct_deep_copy_pnext(const void* pNext, uint8_t* out_data)
+size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
 {
     uint64_t offset = 0;
     auto     base    = reinterpret_cast<const VkBaseInStructure*>(pNext);
@@ -47,7 +47,7 @@ size_t vulkan_struct_deep_copy_pnext(const void* pNext, uint8_t* out_data)
     switch (base->sType)
     {
         default:
-            GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_pnext: unknown struct-type: %d", base->sType);
+            GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_stype: unknown struct-type: %d", base->sType);
             break;
         case VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER:
             offset += vulkan_struct_deep_copy(

@@ -29,8 +29,13 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
-    const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* create_infos, uint32_t count)
+    const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* create_infos)
 {
+    if (create_infos == nullptr)
+    {
+        return {};
+    }
+    uint32_t                             count = create_infos->GetLength();
     std::unordered_set<format::HandleId> handle_deps;
 
     // track dependencies on opaque vulkan-handles
@@ -60,6 +65,48 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
         }
     }
     return handle_deps;
+}
+
+std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
+    const decode::StructPointerDecoder<decode::Decoded_VkComputePipelineCreateInfo>* create_infos)
+{
+    if (create_infos == nullptr)
+    {
+        return {};
+    }
+    uint32_t                             count = create_infos->GetLength();
+    std::unordered_set<format::HandleId> handle_deps;
+
+    // track dependencies on opaque vulkan-handles
+    for (uint32_t i = 0; i < count; ++i)
+    {
+        const auto& create_info_meta = create_infos->GetMetaStructPointer()[i];
+        handle_deps.insert(create_info_meta.layout);
+        handle_deps.insert(create_info_meta.basePipelineHandle);
+
+        if (create_info_meta.stage != nullptr)
+        {
+            handle_deps.insert(create_info_meta.stage->module);
+        }
+        auto lib_info_pnext =
+            dynamic_cast<const decode::PNextTypedNode<decode::Decoded_VkPipelineLibraryCreateInfoKHR>*>(
+                create_info_meta.pNext);
+        if (lib_info_pnext != nullptr)
+        {
+            auto library_create_info_meta = reinterpret_cast<const decode::Decoded_VkPipelineLibraryCreateInfoKHR*>(
+                lib_info_pnext->GetMetaStructPointer());
+            for (uint32_t j = 0; j < library_create_info_meta->pLibraries.GetLength(); j++)
+            {
+                handle_deps.insert(library_create_info_meta->pLibraries.GetPointer()[j]);
+            }
+        }
+    }
+    return handle_deps;
+}
+std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
+    const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* create_infos)
+{
+    return {};
 }
 
 GFXRECON_END_NAMESPACE(graphics)

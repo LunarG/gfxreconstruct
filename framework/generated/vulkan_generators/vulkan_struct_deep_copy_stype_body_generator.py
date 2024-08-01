@@ -25,7 +25,7 @@ import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 
-class VulkanStructDeepCopyPNextBodyGeneratorOptions(BaseGeneratorOptions):
+class VulkanStructDeepCopySTypeBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating function definitions to track (deepcopy) Vulkan structs at API capture for trimming."""
 
     def __init__(
@@ -52,7 +52,7 @@ class VulkanStructDeepCopyPNextBodyGeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class VulkanStructDeepCopyPNextBodyGenerator(BaseGenerator):
+class VulkanStructDeepCopySTypeBodyGenerator(BaseGenerator):
     """VulkanStructTrackersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ function definitions to track (deepcopy) Vulkan structs
     at API capture for trimming.
@@ -93,7 +93,7 @@ class VulkanStructDeepCopyPNextBodyGenerator(BaseGenerator):
         write('    return ptr != nullptr ? ptr + offset : nullptr;', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
-        write('size_t vulkan_struct_deep_copy_pnext(const void* pNext, uint8_t* out_data)', file=self.outFile)
+        write('size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)', file=self.outFile)
         write('{', file=self.outFile)
         write('    uint64_t offset = 0;', file=self.outFile)
         write('    auto     base    = reinterpret_cast<const VkBaseInStructure*>(pNext);', file=self.outFile)
@@ -101,7 +101,7 @@ class VulkanStructDeepCopyPNextBodyGenerator(BaseGenerator):
         write('    switch (base->sType)', file=self.outFile)
         write('    {', file=self.outFile)
         write('        default:', file=self.outFile)
-        write('            GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_pnext: unknown struct-type: %d", base->sType);', file=self.outFile)
+        write('            GFXRECON_LOG_WARNING("vulkan_struct_deep_copy_stype: unknown struct-type: %d", base->sType);', file=self.outFile)
         write('            break;', file=self.outFile)
 
     def endFile(self):

@@ -87,7 +87,7 @@ from encode_pnext_struct_generator import EncodePNextStructGenerator, EncodePNex
 from vulkan_struct_handle_wrappers_header_generator import VulkanStructHandleWrappersHeaderGenerator, VulkanStructHandleWrappersHeaderGeneratorOptions
 from vulkan_struct_handle_wrappers_body_generator import VulkanStructHandleWrappersBodyGenerator, VulkanStructHandleWrappersBodyGeneratorOptions
 from vulkan_struct_deep_copy_body_generator import VulkanStructDeepCopyBodyGenerator, VulkanStructDeepCopyBodyGeneratorOptions
-from vulkan_struct_deep_copy_pnext_body_generator import VulkanStructDeepCopyPNextBodyGenerator, VulkanStructDeepCopyPNextBodyGeneratorOptions
+from vulkan_struct_deep_copy_stype_body_generator import VulkanStructDeepCopySTypeBodyGenerator, VulkanStructDeepCopySTypeBodyGeneratorOptions
 
 # To String
 from vulkan_enum_to_string_body_generator import VulkanEnumToStringBodyGenerator, VulkanEnumToStringBodyGeneratorOptions
@@ -907,10 +907,10 @@ def make_gen_opts(args):
         )
     ]
 
-    gen_opts['generated_vulkan_struct_deep_copy_pnext.cpp'] = [
-        VulkanStructDeepCopyPNextBodyGenerator,
-        VulkanStructDeepCopyPNextBodyGeneratorOptions(
-            filename='generated_vulkan_struct_deep_copy_pnext.cpp',
+    gen_opts['generated_vulkan_struct_deep_copy_stype.cpp'] = [
+        VulkanStructDeepCopySTypeBodyGenerator,
+        VulkanStructDeepCopySTypeBodyGeneratorOptions(
+            filename='generated_vulkan_struct_deep_copy_stype.cpp',
             directory=directory,
             blacklists=blacklists,
             platform_types=platform_types,

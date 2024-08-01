@@ -31,13 +31,13 @@
 #include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
+#include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
-#include "util/spirv_parsing_util.h"
 
 #include <cassert>
 #include <unordered_set>
@@ -2850,20 +2850,7 @@ void VulkanCaptureManager::PostProcess_vkCreateShaderModule(VkResult            
 
     if (result == VK_SUCCESS)
     {
-        // spirv-parsing for buffer-references
-        gfxrecon::util::SpirVParsingUtil spirv_util;
-
-        if (spirv_util.ParseBufferReferences(pCreateInfo->pCode, pCreateInfo->codeSize))
-        {
-            auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
-
-            if (!buffer_reference_infos.empty())
-            {
-                GFXRECON_LOG_WARNING_ONCE(
-                    "Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
-                    "Resource tracking for buffers accessed via references is currently unsupported");
-            }
-        }
+        graphics::vulkan_check_buffer_references(pCreateInfo->pCode, pCreateInfo->codeSize);
     }
 }
 
