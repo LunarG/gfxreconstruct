@@ -10019,10 +10019,11 @@ void VulkanReplayConsumer::Process_vkDestroyShaderEXT(
     format::HandleId                            shader,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
-    auto in_shader = GetObjectInfoTable().GetShaderEXTInfo(shader);
+    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
+    VkShaderEXT in_shader = MapHandle<ShaderEXTInfo>(shader, &VulkanObjectInfoTable::GetShaderEXTInfo);
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    OverrideDestroyShaderEXT(GetDeviceTable(in_device->handle)->DestroyShaderEXT, in_device, in_shader, pAllocator);
+    GetDeviceTable(in_device)->DestroyShaderEXT(in_device, in_shader, in_pAllocator);
     RemoveHandle(shader, &VulkanObjectInfoTable::RemoveShaderEXTInfo);
 }
 

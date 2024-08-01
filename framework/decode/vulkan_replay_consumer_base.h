@@ -1256,11 +1256,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                  PipelineInfo*                                              pipeline_info,
                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
 
-    void OverrideDestroyShaderEXT(PFN_vkDestroyShaderEXT                                     func,
-                                  const DeviceInfo*                                          device_info,
-                                  ShaderEXTInfo*                                             shader_info,
-                                  const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
-
     void OverrideDestroyRenderPass(PFN_vkDestroyRenderPass                                    func,
                                    const DeviceInfo*                                          device_info,
                                    RenderPassInfo*                                            renderpass_info,

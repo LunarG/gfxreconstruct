@@ -121,7 +121,6 @@
     "vkCreateVideoSessionKHR": "OverrideCreateVideoSessionKHR",
     "vkDestroyVideoSessionKHR": "OverrideDestroyVideoSessionKHR",
     "vkBindVideoSessionMemoryKHR": "OverrideBindVideoSessionMemoryKHR",
-    "vkCreateShadersEXT": "OverrideCreateShadersEXT",
-    "vkDestroyShaderEXT": "OverrideDestroyShaderEXT"
+    "vkCreateShadersEXT": "OverrideCreateShadersEXT"
   }
 }

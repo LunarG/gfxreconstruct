@@ -9279,29 +9279,6 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     }
 }
 
-void VulkanReplayConsumerBase::OverrideDestroyShaderEXT(
-    PFN_vkDestroyShaderEXT                                     func,
-    const DeviceInfo*                                          device_info,
-    ShaderEXTInfo*                                             shader_info,
-    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
-{
-    VkDevice    in_device = device_info->handle;
-    VkShaderEXT in_shader = MapHandle<ShaderEXTInfo>(shader_info->capture_id, &VulkanObjectInfoTable::GetShaderEXTInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-
-    if (!IsUsedByAsyncTask(shader_info->capture_id))
-    {
-        func(in_device, in_shader, in_pAllocator);
-    }
-    else
-    {
-        // schedule deletion
-        DestroyAsyncHandle(shader_info->capture_id, [func, in_device, in_shader, in_pAllocator]() {
-            func(in_device, in_shader, in_pAllocator);
-        });
-    }
-}
-
 void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
     PFN_vkDestroyRenderPass                                    func,
     const DeviceInfo*                                          device_info,
