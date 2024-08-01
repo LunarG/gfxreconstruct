@@ -7562,10 +7562,10 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateKHR(
                                                                   pFragmentSize->GetMetaStructPointer(),
                                                                   *this);
     fprintf(file, "%s", stream_pfragment_size.str().c_str());
-    std::string combiner_ops_array = "NULL";
+    std::string combiner_ops_array = "combiner_ops_array_" + std::to_string(this->GetNextId());
     std::string combiner_ops_values = toStringJoin(combinerOps->GetPointer(),
                                                    combinerOps->GetPointer() + 2,
-                                                   [&](const format::HandleId current) { return this->GetHandle(current); },
+                                                   [&](const VkFragmentShadingRateCombinerOpKHR current) { return util::ToString(current); },
                                                    ", ");
     fprintf(file, "\t\tVkFragmentShadingRateCombinerOpKHR %s[] = { %s };\n", combiner_ops_array.c_str(), combiner_ops_values.c_str());
     pfn_loader_.AddMethodName("vkCmdSetFragmentShadingRateKHR");
@@ -12514,10 +12514,10 @@ void VulkanCppConsumer::Process_vkCmdSetFragmentShadingRateEnumNV(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string combiner_ops_array = "NULL";
+    std::string combiner_ops_array = "combiner_ops_array_" + std::to_string(this->GetNextId());
     std::string combiner_ops_values = toStringJoin(combinerOps->GetPointer(),
                                                    combinerOps->GetPointer() + 2,
-                                                   [&](const format::HandleId current) { return this->GetHandle(current); },
+                                                   [&](const VkFragmentShadingRateCombinerOpKHR current) { return util::ToString(current); },
                                                    ", ");
     fprintf(file, "\t\tVkFragmentShadingRateCombinerOpKHR %s[] = { %s };\n", combiner_ops_array.c_str(), combiner_ops_values.c_str());
     pfn_loader_.AddMethodName("vkCmdSetFragmentShadingRateEnumNV");
@@ -13841,10 +13841,10 @@ void VulkanCppConsumer::Process_vkCmdSetColorWriteMaskEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pcolor_write_masks_array = "NULL";
+    std::string pcolor_write_masks_array = "pcolor_write_masks_array_" + std::to_string(this->GetNextId());
     std::string pcolor_write_masks_values = toStringJoin(pColorWriteMasks->GetPointer(),
                                                          pColorWriteMasks->GetPointer() + attachmentCount,
-                                                         [&](const format::HandleId current) { return this->GetHandle(current); },
+                                                         [&](const VkColorComponentFlags current) { return util::ToString(current); },
                                                          ", ");
     if (attachmentCount == 1) {
         pcolor_write_masks_array = "&" + pcolor_write_masks_values;
@@ -14507,10 +14507,10 @@ void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::string pstages_array = "NULL";
+    std::string pstages_array = "pstages_array_" + std::to_string(this->GetNextId());
     std::string pstages_values = toStringJoin(pStages->GetPointer(),
                                               pStages->GetPointer() + stageCount,
-                                              [&](const format::HandleId current) { return this->GetHandle(current); },
+                                              [&](const VkShaderStageFlagBits current) { return util::ToString(current); },
                                               ", ");
     if (stageCount == 1) {
         pstages_array = "&" + pstages_values;

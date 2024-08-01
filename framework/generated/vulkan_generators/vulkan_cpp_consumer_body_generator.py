@@ -968,11 +968,11 @@ class VulkanCppConsumerBodyGenerator(BaseGenerator):
                     strArrayVarName = makeSnakeCaseName(arg.name + 'Array')
                     strValuesVarName = makeSnakeCaseName(arg.name + 'Values')
 
-                    body += makeGenVar(strArrayVarName, None, handleObjectType, locals(), indent=4)
+                    body += makeGenVar(strArrayVarName, strArrayVarName, handleObjectType, locals(), indent=4)
                     body += makeGenVarCall('std::string', strValuesVarName, 'toStringJoin',
                                            [f'{arg.name}->GetPointer()',
                                             f'{arg.name}->GetPointer() + {arg.array_length}',
-                                            '[&](const format::HandleId current) {{ return this->GetHandle(current); }}',
+                                            '[&](const {arg.base_type} current) {{ return util::ToString(current); }}',
                                             '", "'], locals(), indent=4)
                     if arg.array_length.isnumeric() or arg.array_length.isupper():
                         body += makeCppArray(arg.base_type, strArrayVarName, strValuesVarName, locals(), indent=4)
