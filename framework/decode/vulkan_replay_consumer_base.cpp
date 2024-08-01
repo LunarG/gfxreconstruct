@@ -9230,8 +9230,8 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     HandlePointerDecoder<VkShaderEXT>*                         pShaders)
 {
     GFXRECON_UNREFERENCED_PARAMETER(original_result);
-    assert((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) && (pShaders != nullptr) &&
-           !pShaders->IsNull() && (pShaders->GetHandlePointer() != nullptr));
+    GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
+                    (pShaders != nullptr) && !pShaders->IsNull() && (pShaders->GetHandlePointer() != nullptr));
 
     VkDevice                     in_device                 = device_info->handle;
     const VkShaderCreateInfoEXT* in_p_create_infos         = pCreateInfos->GetPointer();
