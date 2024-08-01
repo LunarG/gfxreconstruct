@@ -169,8 +169,8 @@ struct EventWrapper : public HandleWrapper<VkEvent>
 
 struct AssetWrapperBase
 {
-    DeviceWrapper*     bind_device{ nullptr };
-    const void*        bind_pnext{ nullptr };
+    DeviceWrapper*             bind_device{ nullptr };
+    const void*                bind_pnext{ nullptr };
     std::unique_ptr<uint8_t[]> bind_pnext_memory;
 
     format::HandleId bind_memory_id{ format::kNullHandleId };

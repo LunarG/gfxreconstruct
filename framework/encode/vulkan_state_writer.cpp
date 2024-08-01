@@ -943,6 +943,8 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 
 void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTable& state_table)
 {
+    assert(asset_file_stream_ != nullptr);
+
     std::set<util::MemoryOutputStream*> processed;
 
     std::unordered_map<format::HandleId, const util::MemoryOutputStream*> temp_ds_layouts;
@@ -1590,6 +1592,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
                                                          graphics::VulkanResourcesUtil&         resource_util)
 {
     assert(device_wrapper != nullptr);
+    assert(asset_file_stream_ != nullptr);
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
@@ -1683,22 +1686,13 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
                 // Calculate size of packet with compressed or uncompressed data size.
                 upload_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(upload_cmd) + data_size;
 
-                if (asset_file_stream_ != nullptr)
-                {
-                    const int64_t offset = asset_file_stream_->GetOffset();
+                const int64_t offset = asset_file_stream_->GetOffset();
+                asset_file_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+                asset_file_stream_->Write(bytes, data_size);
+                (*asset_file_offsets_)[buffer_wrapper->handle_id] = offset;
 
-                    asset_file_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-                    asset_file_stream_->Write(bytes, data_size);
+                WriteExecuteFromFile(1, offset);
 
-                    (*asset_file_offsets_)[buffer_wrapper->handle_id] = offset;
-
-                    WriteExecuteFromFile(1, offset);
-                }
-                else
-                {
-                    output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-                    output_stream_->Write(bytes, data_size);
-                }
                 ++blocks_written_;
 
                 if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
@@ -1877,6 +1871,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
                                                         graphics::VulkanResourcesUtil&        resource_util)
 {
     assert(device_wrapper != nullptr);
+    assert(asset_file_stream_ != nullptr);
 
     const VulkanDeviceTable* device_table = &device_wrapper->layer_table;
 
@@ -2006,24 +2001,13 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
                     upload_cmd.meta_header.block_header.size += levels_size + data_size;
 
-                    if (asset_file_stream_ != nullptr)
-                    {
-                        const int64_t offset = asset_file_stream_->GetOffset();
+                    const int64_t offset                             = asset_file_stream_->GetOffset();
+                    (*asset_file_offsets_)[image_wrapper->handle_id] = offset;
+                    asset_file_stream_->Write(&upload_cmd, sizeof(upload_cmd));
+                    asset_file_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
+                    asset_file_stream_->Write(bytes, data_size);
 
-                        (*asset_file_offsets_)[image_wrapper->handle_id] = offset;
-
-                        asset_file_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-                        asset_file_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
-                        asset_file_stream_->Write(bytes, data_size);
-
-                        WriteExecuteFromFile(1, offset);
-                    }
-                    else
-                    {
-                        output_stream_->Write(&upload_cmd, sizeof(upload_cmd));
-                        output_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
-                        output_stream_->Write(bytes, data_size);
-                    }
+                    WriteExecuteFromFile(1, offset);
 
                     if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
                     {

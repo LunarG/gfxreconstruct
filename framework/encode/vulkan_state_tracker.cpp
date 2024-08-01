@@ -2039,24 +2039,45 @@ void VulkanStateTracker::TrackCmdBindPipeline(VkCommandBuffer     commandBuffer,
     }
 }
 
+void VulkanStateTracker::InsertAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image)
+{
+    if (command_buffer != VK_NULL_HANDLE && image != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+        assert(cmd_buf_wrapper != nullptr);
+
+        vulkan_wrappers::ImageWrapper* image_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
+        assert(image_wrapper != nullptr);
+
+        cmd_buf_wrapper->modified_assets.insert(image_wrapper);
+    }
+}
+
+void VulkanStateTracker::InsertAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer)
+{
+    if (command_buffer != VK_NULL_HANDLE && buffer != VK_NULL_HANDLE)
+    {
+        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffer);
+        assert(cmd_buf_wrapper != nullptr);
+
+        vulkan_wrappers::BufferWrapper* buffer_wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+        assert(buffer_wrapper != nullptr);
+
+        cmd_buf_wrapper->modified_assets.insert(buffer_wrapper);
+    }
+}
+
 void VulkanStateTracker::TrackCmdCopyBuffer(VkCommandBuffer     commandBuffer,
                                             VkBuffer            srcBuffer,
                                             VkBuffer            dstBuffer,
                                             uint32_t            regionCount,
                                             const VkBufferCopy* pRegions)
 {
-    if (dstBuffer != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
@@ -2067,16 +2088,7 @@ void VulkanStateTracker::TrackCmdCopyImage(VkCommandBuffer    commandBuffer,
                                            uint32_t           regionCount,
                                            const VkImageCopy* pRegions)
 {
-    if (dstImage != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
-        assert(dst_img_wrapper != nullptr);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          commandBuffer,
@@ -2086,18 +2098,7 @@ void VulkanStateTracker::TrackCmdCopyBufferToImage(VkCommandBuffer          comm
                                                    uint32_t                 regionCount,
                                                    const VkBufferImageCopy* pRegions)
 {
-    if (dstImage != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdCopyImageToBuffer(VkCommandBuffer          commandBuffer,
@@ -2107,153 +2108,74 @@ void VulkanStateTracker::TrackCmdCopyImageToBuffer(VkCommandBuffer          comm
                                                    uint32_t                 regionCount,
                                                    const VkBufferImageCopy* pRegions)
 {
-    if (dstBuffer != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdCopyBuffer2(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo)
 {
-    if (pCopyBufferInfo != nullptr && pCopyBufferInfo->dstBuffer != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
+    if (pCopyBufferInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyBufferInfo->dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferInfo->dstBuffer);
     }
 }
 
 void VulkanStateTracker::TrackCmdCopyImage2(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo)
 {
-    if (pCopyImageInfo != nullptr && pCopyImageInfo->dstImage != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
+    if (pCopyImageInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyImageInfo->dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage);
     }
 }
 
 void VulkanStateTracker::TrackCmdCopyBufferToImage2(VkCommandBuffer                 commandBuffer,
                                                     const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo)
 {
-    if (pCopyBufferToImageInfo != nullptr && pCopyBufferToImageInfo->dstImage != VK_NULL_HANDLE &&
-        commandBuffer != VK_NULL_HANDLE)
+    if (pCopyBufferToImageInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyBufferToImageInfo->dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferToImageInfo->dstImage);
     }
 }
 
 void VulkanStateTracker::TrackCmdCopyImageToBuffer2(VkCommandBuffer                 commandBuffer,
                                                     const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)
 {
-    if (pCopyImageToBufferInfo != nullptr && pCopyImageToBufferInfo->dstBuffer != VK_NULL_HANDLE &&
-        commandBuffer != VK_NULL_HANDLE)
+    if (pCopyImageToBufferInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyImageToBufferInfo->dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyImageToBufferInfo->dstBuffer);
     }
 }
 
 void VulkanStateTracker::TrackCmdCopyBuffer2KHR(VkCommandBuffer commandBuffer, const VkCopyBufferInfo2* pCopyBufferInfo)
 {
-    if (pCopyBufferInfo != nullptr && pCopyBufferInfo->dstBuffer != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
+    if (pCopyBufferInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyBufferInfo->dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferInfo->dstBuffer);
     }
 }
 
 void VulkanStateTracker::TrackCmdCopyImage2KHR(VkCommandBuffer commandBuffer, const VkCopyImageInfo2* pCopyImageInfo)
 {
-    if (pCopyImageInfo != nullptr && pCopyImageInfo->dstImage != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
+    if (pCopyImageInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyImageInfo->dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyImageInfo->dstImage);
     }
 }
 
 void VulkanStateTracker::TrackCmdCopyBufferToImage2KHR(VkCommandBuffer                 commandBuffer,
                                                        const VkCopyBufferToImageInfo2* pCopyBufferToImageInfo)
 {
-    if (pCopyBufferToImageInfo != nullptr && pCopyBufferToImageInfo->dstImage != VK_NULL_HANDLE &&
-        commandBuffer != VK_NULL_HANDLE)
+    if (pCopyBufferToImageInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pCopyBufferToImageInfo->dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyBufferToImageInfo->dstImage);
     }
 }
 
 void VulkanStateTracker::TrackCmdCopyImageToBuffer2KHR(VkCommandBuffer                 commandBuffer,
                                                        const VkCopyImageToBufferInfo2* pCopyImageToBufferInfo)
 {
-    if (pCopyImageToBufferInfo != nullptr && pCopyImageToBufferInfo->dstBuffer != VK_NULL_HANDLE &&
-        commandBuffer != VK_NULL_HANDLE)
+    if (pCopyImageToBufferInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pCopyImageToBufferInfo->dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pCopyImageToBufferInfo->dstBuffer);
     }
 }
 
@@ -2266,33 +2188,14 @@ void VulkanStateTracker::TrackCmdBlitImage(VkCommandBuffer    commandBuffer,
                                            const VkImageBlit* pRegions,
                                            VkFilter           filter)
 {
-    if (dstImage != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdBlitImage2(VkCommandBuffer commandBuffer, const VkBlitImageInfo2* pBlitImageInfo)
 {
-    if (pBlitImageInfo != nullptr && pBlitImageInfo->dstImage != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
+    if (pBlitImageInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pBlitImageInfo->dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pBlitImageInfo->dstImage);
     }
 }
 
@@ -2304,35 +2207,13 @@ void VulkanStateTracker::TrackCmdBlitImage2KHR(VkCommandBuffer commandBuffer, co
 void VulkanStateTracker::TrackCmdUpdateBuffer(
     VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize dataSize, const void* pData)
 {
-    if (dstBuffer != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdFillBuffer(
     VkCommandBuffer commandBuffer, VkBuffer dstBuffer, VkDeviceSize dstOffset, VkDeviceSize size, uint32_t data)
 {
-    if (dstBuffer != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::BufferWrapper* dst_buffer_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(dstBuffer);
-        assert(dst_buffer_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_buffer_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstBuffer);
 }
 
 void VulkanStateTracker::TrackCmdClearColorImage(VkCommandBuffer                commandBuffer,
@@ -2342,18 +2223,7 @@ void VulkanStateTracker::TrackCmdClearColorImage(VkCommandBuffer                
                                                  uint32_t                       rangeCount,
                                                  const VkImageSubresourceRange* pRanges)
 {
-    if (image != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, image);
 }
 
 void VulkanStateTracker::TrackCmdClearDepthStencilImage(VkCommandBuffer                 commandBuffer,
@@ -2363,18 +2233,7 @@ void VulkanStateTracker::TrackCmdClearDepthStencilImage(VkCommandBuffer         
                                                         uint32_t                        rangeCount,
                                                         const VkImageSubresourceRange*  pRanges)
 {
-    if (image != VK_NULL_HANDLE && commandBuffer != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(image);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, image);
 }
 
 void VulkanStateTracker::TrackCmdResolveImage(VkCommandBuffer       commandBuffer,
@@ -2385,35 +2244,15 @@ void VulkanStateTracker::TrackCmdResolveImage(VkCommandBuffer       commandBuffe
                                               uint32_t              regionCount,
                                               const VkImageResolve* pRegions)
 {
-    if (dstImage != VK_NULL_HANDLE && dstImage != VK_NULL_HANDLE)
-    {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
-    }
+    InsertAssetInCommandBuffer(commandBuffer, dstImage);
 }
 
 void VulkanStateTracker::TrackCmdResolveImage2(VkCommandBuffer            commandBuffer,
                                                const VkResolveImageInfo2* pResolveImageInfo)
 {
-    if (commandBuffer != VK_NULL_HANDLE && pResolveImageInfo != nullptr &&
-        pResolveImageInfo->dstImage != VK_NULL_HANDLE)
+    if (pResolveImageInfo != nullptr)
     {
-        vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-        assert(cmd_buf_wrapper != nullptr);
-
-        vulkan_wrappers::ImageWrapper* dst_img_wrapper =
-            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageWrapper>(pResolveImageInfo->dstImage);
-        assert(dst_img_wrapper != nullptr);
-
-        cmd_buf_wrapper->modified_assets.insert(dst_img_wrapper);
+        InsertAssetInCommandBuffer(commandBuffer, pResolveImageInfo->dstImage);
     }
 }
 
