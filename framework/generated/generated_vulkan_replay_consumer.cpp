@@ -1016,6 +1016,12 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
     std::vector<PipelineInfo> handle_info(createInfoCount);
     for (size_t i = 0; i < createInfoCount; ++i) { pPipelines->SetConsumerData(i, &handle_info[i]); }
 
+    if (UseAsyncOperations())
+    {
+        auto task = AsyncCreateComputePipelines(call_info, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
+        AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
+        return;
+    }
     VkResult replay_result = OverrideCreateComputePipelines(GetDeviceTable(in_device->handle)->CreateComputePipelines, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     CheckResult("vkCreateComputePipelines", returnValue, replay_result, call_info);
 
@@ -9988,17 +9994,23 @@ void VulkanReplayConsumer::Process_vkCreateShadersEXT(
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderEXT>*          pShaders)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkShaderCreateInfoEXT* in_pCreateInfos = pCreateInfos->GetPointer();
-    MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    if (!pShaders->IsNull()) { pShaders->SetHandleLength(createInfoCount); }
-    VkShaderEXT* out_pShaders = pShaders->GetHandlePointer();
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
 
-    VkResult replay_result = GetDeviceTable(in_device)->CreateShadersEXT(in_device, createInfoCount, in_pCreateInfos, in_pAllocator, out_pShaders);
+    MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
+    if (!pShaders->IsNull()) { pShaders->SetHandleLength(createInfoCount); }
+    std::vector<ShaderEXTInfo> handle_info(createInfoCount);
+    for (size_t i = 0; i < createInfoCount; ++i) { pShaders->SetConsumerData(i, &handle_info[i]); }
+
+    if (UseAsyncOperations())
+    {
+        auto task = AsyncCreateShadersEXT(call_info, returnValue, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
+        AddHandlesAsync<ShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddShaderEXTInfo, std::move(task));
+        return;
+    }
+    VkResult replay_result = OverrideCreateShadersEXT(GetDeviceTable(in_device->handle)->CreateShadersEXT, returnValue, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
     CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
 
-    AddHandles<ShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), out_pShaders, createInfoCount, &VulkanObjectInfoTable::AddShaderEXTInfo);
+    AddHandles<ShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), pShaders->GetHandlePointer(), createInfoCount, std::move(handle_info), &VulkanObjectInfoTable::AddShaderEXTInfo);
 }
 
 void VulkanReplayConsumer::Process_vkDestroyShaderEXT(

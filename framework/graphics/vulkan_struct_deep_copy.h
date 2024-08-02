@@ -48,14 +48,14 @@ template <typename T>
 size_t vulkan_struct_deep_copy(const T* structs, uint32_t count, uint8_t* out_data);
 
 /**
- * @brief   vulkan_struct_deep_copy_pnext is similar to 'vulkan_struct_deep_copy',
+ * @brief   vulkan_struct_deep_copy_stype is similar to 'vulkan_struct_deep_copy',
  *          with additional type-resolution based on sType-member.
  *
  * @param   pNext       a pointer to a pNext-chain
  * @param   out_data    pointer to an output-array or nullptr
  * @return  number of bytes required for deep-copy
  */
-size_t vulkan_struct_deep_copy_pnext(const void* pNext, uint8_t* out_data);
+size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

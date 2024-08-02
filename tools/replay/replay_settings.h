@@ -325,10 +325,11 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tDump immutable shader resources.");
     GFXRECON_WRITE_CONSOLE("  --dump-resources-dump-all-image-subresources");
     GFXRECON_WRITE_CONSOLE("          \t\tDump all available mip levels and layers when dumping images.");
-    GFXRECON_WRITE_CONSOLE("  --pcj\t\t\tSpecify the number of pipeline-creation-jobs or background-threads.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\tDefault is 0.");
-    GFXRECON_WRITE_CONSOLE("       \t\t\t(same as --pipeline-creation-jobs");
-
+    GFXRECON_WRITE_CONSOLE("  --pipeline-creation-jobs <num_jobs>");
+    GFXRECON_WRITE_CONSOLE("          \t\tSpecify the number of asynchronous pipeline-creation jobs as integer.");
+    GFXRECON_WRITE_CONSOLE("          \t\tIf <num_jobs> is negative it will be added to the number of cpu-cores");
+    GFXRECON_WRITE_CONSOLE("          \t\tDefault: 0 (do not use asynchronous operations).");
+    GFXRECON_WRITE_CONSOLE("          \t\tSame as --pcj <num_jobs>");
 #if defined(WIN32)
     GFXRECON_WRITE_CONSOLE("")
     GFXRECON_WRITE_CONSOLE("D3D12 only:")

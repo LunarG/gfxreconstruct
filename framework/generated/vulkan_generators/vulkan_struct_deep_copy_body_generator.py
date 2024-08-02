@@ -121,12 +121,29 @@ void handle_pnext(const T& base_struct, uint32_t out_index, uint64_t& offset, ui
     if (base_struct.pNext != nullptr)
     {
         uint8_t* out_address = offset_ptr(out_data, offset);
-        offset += vulkan_struct_deep_copy_pnext(base_struct.pNext, out_address);
+        offset += vulkan_struct_deep_copy_stype(base_struct.pNext, out_address);
         if (out_address != nullptr)
         {
             void** out_pNext = reinterpret_cast<void**>(out_data + out_index * sizeof(T) + offsetof(T, pNext));
             *out_pNext       = out_address;
         }
+    }
+}
+
+template <typename T, typename U>
+void handle_struct_member(
+    const T& base_struct, const U& struct_member, uint32_t out_index, uint64_t& offset, uint8_t* out_data)
+{
+    uint32_t member_offset =
+        reinterpret_cast<const uint8_t*>(&struct_member) - reinterpret_cast<const uint8_t*>(&base_struct);
+
+    auto out_address = offset_ptr(out_data, offset);
+    offset += vulkan_struct_deep_copy_stype(&struct_member, out_address);
+
+    if (out_data != nullptr)
+    {
+        auto& out_struct_member = *reinterpret_cast<U*>(out_data + out_index * sizeof(T) + member_offset);
+        out_struct_member       = *reinterpret_cast<U*>(out_address);
     }
 }
 '''
@@ -280,6 +297,8 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
                     write('                handle_pointer_member(base_struct.{0}[j], 1);'.format(value.name), file=self.outFile)
                     write('            }', file=self.outFile)
                     write('        }', file=self.outFile)
+            elif value.base_type in ["VkPipelineShaderStageCreateInfo", "VkAccelerationStructureGeometryDataKHR"]:
+                write('        handle_struct_member(base_struct, base_struct.{0}, i, offset, out_data);'.format(value.name), file=self.outFile)
         write('    }', file=self.outFile)
         write('    return offset;', file=self.outFile)
         write('}', file=self.outFile)

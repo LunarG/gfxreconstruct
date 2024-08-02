@@ -38,6 +38,7 @@
 #include "generated/generated_vulkan_struct_decoders.h"
 #include "generated/generated_vulkan_struct_handle_mappers.h"
 #include "generated/generated_vulkan_constant_maps.h"
+#include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
 #include "graphics/vulkan_struct_deep_copy.h"
@@ -46,7 +47,6 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
-#include "util/spirv_parsing_util.h"
 
 #include "spirv_reflect.h"
 
@@ -5601,19 +5601,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         if (vk_res == VK_SUCCESS)
         {
             // check for buffer-references, issue warning
-            gfxrecon::util::SpirVParsingUtil spirv_util;
-
-            if (spirv_util.ParseBufferReferences(original_info->pCode, original_info->codeSize))
-            {
-                auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
-
-                if (!buffer_reference_infos.empty())
-                {
-                    GFXRECON_LOG_WARNING_ONCE("A Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
-                                              "Resource tracking for buffers accessed via references is currently "
-                                              "unsupported, so replay may fail.");
-                }
-            }
+            graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize);
 
             if (options_.dumping_resources)
             {
@@ -5664,19 +5652,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
     if (vk_res == VK_SUCCESS)
     {
         // check for buffer-references, issue warning
-        gfxrecon::util::SpirVParsingUtil spirv_util;
-
-        if (spirv_util.ParseBufferReferences(original_info->pCode, original_info->codeSize))
-        {
-            auto buffer_reference_infos = spirv_util.GetBufferReferenceInfos();
-
-            if (!buffer_reference_infos.empty())
-            {
-                GFXRECON_LOG_WARNING_ONCE("A Shader is using the 'SPV_KHR_physical_storage_buffer' feature. "
-                                          "Resource tracking for buffers accessed via references is currently "
-                                          "unsupported, so replay may fail.");
-            }
-        }
+        graphics::vulkan_check_buffer_references(original_info->pCode, original_info->codeSize);
 
         if (vk_res == VK_SUCCESS && options_.dumping_resources)
         {
@@ -9244,14 +9220,50 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     return replay_result;
 }
 
+VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
+    PFN_vkCreateShadersEXT                                     func,
+    VkResult                                                   original_result,
+    const DeviceInfo*                                          device_info,
+    uint32_t                                                   create_info_count,
+    const StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+    const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    HandlePointerDecoder<VkShaderEXT>*                         pShaders)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(original_result);
+    GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
+                    (pShaders != nullptr) && !pShaders->IsNull() && (pShaders->GetHandlePointer() != nullptr));
+
+    VkDevice                     in_device                 = device_info->handle;
+    const VkShaderCreateInfoEXT* in_p_create_infos         = pCreateInfos->GetPointer();
+    const VkAllocationCallbacks* in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
+    VkShaderEXT*                 out_shaders               = pShaders->GetHandlePointer();
+
+    VkResult replay_result =
+        func(in_device, create_info_count, in_p_create_infos, in_p_allocation_callbacks, out_shaders);
+
+    if (replay_result == VK_SUCCESS)
+    {
+        for (uint32_t i = 0; i < create_info_count; ++i)
+        {
+            if (in_p_create_infos[i].codeType == VK_SHADER_CODE_TYPE_SPIRV_EXT)
+            {
+                graphics::vulkan_check_buffer_references(reinterpret_cast<const uint32_t*>(in_p_create_infos[i].pCode),
+                                                         in_p_create_infos[i].codeSize);
+            }
+        }
+    }
+    return replay_result;
+}
+
 void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     PFN_vkDestroyPipeline                                      func,
     const DeviceInfo*                                          device_info,
     PipelineInfo*                                              pipeline_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkDevice                     in_device     = device_info->handle;
-    VkPipeline                   in_pipeline   = pipeline_info->handle;
+    VkDevice   in_device = device_info->handle;
+    VkPipeline in_pipeline =
+        MapHandle<PipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetPipelineInfo);
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
     if (!IsUsedByAsyncTask(pipeline_info->capture_id))
@@ -9341,7 +9353,7 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
 
     // extract handle-dependencies and track those
-    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos, createInfoCount);
+    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
     TrackAsyncHandles(handle_deps);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
@@ -9364,6 +9376,112 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
         return { replay_result, std::move(out_pipelines) };
+    };
+    return task;
+}
+
+std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateComputePipelines(
+    const ApiCallInfo&                                         call_info,
+    VkResult                                                   returnValue,
+    const DeviceInfo*                                          device_info,
+    const PipelineCacheInfo*                                   pipeline_cache_info,
+    uint32_t                                                   createInfoCount,
+    StructPointerDecoder<Decoded_VkComputePipelineCreateInfo>* pCreateInfos,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
+    HandlePointerDecoder<VkPipeline>*                          pPipelines)
+{
+    const VkComputePipelineCreateInfo* in_pCreateInfos = pCreateInfos->GetPointer();
+    const VkAllocationCallbacks*       in_pAllocator   = GetAllocationCallbacks(pAllocator);
+    VkDevice                           device_handle   = device_info->handle;
+    VkPipelineCache                    pipeline_cache_handle =
+        (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
+
+    // replace with deep-copy of create-info array
+    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    std::vector<uint8_t> create_info_data(num_bytes);
+    graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+
+    // extract handle-dependencies and track those
+    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
+    TrackAsyncHandles(handle_deps);
+
+    // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
+    auto task = [this,
+                 device_handle,
+                 pipeline_cache_handle,
+                 returnValue,
+                 call_info,
+                 in_pAllocator,
+                 createInfoCount,
+                 create_info_data = std::move(create_info_data),
+                 handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkPipeline> {
+        std::vector<VkPipeline> out_pipelines(createInfoCount);
+        auto     create_infos  = reinterpret_cast<const VkComputePipelineCreateInfo*>(create_info_data.data());
+        auto     device_table  = GetDeviceTable(device_handle);
+        VkResult replay_result = device_table->CreateComputePipelines(
+            device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
+        CheckResult("vkCreateComputePipelines", returnValue, replay_result, call_info);
+
+        // schedule dependency-clear on main-thread
+        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
+        return { replay_result, std::move(out_pipelines) };
+    };
+    return task;
+}
+
+std::function<handle_create_result_t<VkShaderEXT>()>
+VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&                                   call_info,
+                                                VkResult                                             returnValue,
+                                                const DeviceInfo*                                    device_info,
+                                                uint32_t                                             createInfoCount,
+                                                StructPointerDecoder<Decoded_VkShaderCreateInfoEXT>* pCreateInfos,
+                                                StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                                HandlePointerDecoder<VkShaderEXT>*                   pShaders)
+{
+    const VkShaderCreateInfoEXT* in_pCreateInfos = pCreateInfos->GetPointer();
+    const VkAllocationCallbacks* in_pAllocator   = GetAllocationCallbacks(pAllocator);
+    VkDevice                     device_handle   = device_info->handle;
+
+    // replace with deep-copy of create-info array
+    uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
+    std::vector<uint8_t> create_info_data(num_bytes);
+    graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+
+    // extract handle-dependencies and track those
+    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
+    TrackAsyncHandles(handle_deps);
+
+    // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
+    auto task = [this,
+                 device_handle,
+                 returnValue,
+                 call_info,
+                 in_pAllocator,
+                 createInfoCount,
+                 create_info_data = std::move(create_info_data),
+                 handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkShaderEXT> {
+        std::vector<VkShaderEXT> out_shaders(createInfoCount);
+        auto                     create_infos = reinterpret_cast<const VkShaderCreateInfoEXT*>(create_info_data.data());
+        auto                     device_table = GetDeviceTable(device_handle);
+        VkResult                 replay_result = device_table->CreateShadersEXT(
+            device_handle, createInfoCount, create_infos, in_pAllocator, out_shaders.data());
+        CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
+
+        if (replay_result == VK_SUCCESS)
+        {
+            for (uint32_t i = 0; i < createInfoCount; ++i)
+            {
+                if (create_infos[i].codeType == VK_SHADER_CODE_TYPE_SPIRV_EXT)
+                {
+                    graphics::vulkan_check_buffer_references(reinterpret_cast<const uint32_t*>(create_infos[i].pCode),
+                                                             create_infos[i].codeSize);
+                }
+            }
+        }
+
+        // schedule dependency-clear on main-thread
+        MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
+        return { replay_result, std::move(out_shaders) };
     };
     return task;
 }

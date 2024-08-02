@@ -1,5 +1,7 @@
 {
   "functions": {
-    "vkCreateGraphicsPipelines": "AsyncCreateGraphicsPipelines"
+    "vkCreateGraphicsPipelines": "AsyncCreateGraphicsPipelines",
+    "vkCreateComputePipelines": "AsyncCreateComputePipelines",
+    "vkCreateShadersEXT": "AsyncCreateShadersEXT"
   }
 }

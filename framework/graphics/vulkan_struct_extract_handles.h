@@ -32,8 +32,32 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+/**
+ * @brief   vulkan_struct_extract_handle_ids can be used to extract the handle-ids for all referenced handles.
+ *
+ * @param   create_infos    a decoder-object, wrapping create-infos structs.
+ * @return  a set containing all referenced handles
+ */
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
-    const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* create_infos, uint32_t count);
+    const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* create_infos);
+
+/**
+ * @brief   vulkan_struct_extract_handle_ids can be used to extract the handle-ids for all referenced handles.
+ *
+ * @param   create_infos    a decoder-object, wrapping create-infos structs.
+ * @return  a set containing all referenced handles
+ */
+std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
+    const decode::StructPointerDecoder<decode::Decoded_VkComputePipelineCreateInfo>* create_infos);
+
+/**
+ * @brief   vulkan_struct_extract_handle_ids can be used to extract the handle-ids for all referenced handles.
+ *
+ * @param   create_infos    a decoder-object, wrapping create-infos structs.
+ * @return  a set containing all referenced handles
+ */
+std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
+    const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* create_infos);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

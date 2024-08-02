@@ -37,9 +37,9 @@ GFXRECON_BEGIN_NAMESPACE(vulkan_trackers)
  */
 inline void* TrackStruct(const void* value, std::unique_ptr<uint8_t[]>& out_data)
 {
-    size_t num_bytes = graphics::vulkan_struct_deep_copy_pnext(value, nullptr);
+    size_t num_bytes = graphics::vulkan_struct_deep_copy_stype(value, nullptr);
     out_data         = std::make_unique<uint8_t[]>(num_bytes);
-    graphics::vulkan_struct_deep_copy_pnext(value, out_data.get());
+    graphics::vulkan_struct_deep_copy_stype(value, out_data.get());
     return out_data.get();
 }
 
@@ -49,7 +49,7 @@ inline void* TrackStruct(const void* value, std::unique_ptr<uint8_t[]>& out_data
  * @tparam  T           structure-type
  * @param   structs     an array of vulkan-structures
  * @param   count       element count in structs-array
- * @param   out_data    reference to an output-array or nullptr
+ * @param   out_data    reference to an output std::unique_pointer
  * @return  a typed pointer to the beginning of the tracked struct-memory.
  */
 template <typename T>
