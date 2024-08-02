@@ -43,11 +43,12 @@ class ApiCaptureManager
     static auto AcquireExclusiveApiCallLock() { return std::move(CommonCaptureManager::AcquireExclusiveApiCallLock()); }
 
     // Virtual interface
-    virtual void CreateStateTracker()                                                    = 0;
-    virtual void DestroyStateTracker()                                                   = 0;
+    virtual void CreateStateTracker()                                                                = 0;
+    virtual void DestroyStateTracker()                                                               = 0;
     virtual void WriteTrackedState(util::FileOutputStream* file_stream,
                                    format::ThreadId        thread_id,
-                                   util::FileOutputStream* asseet_file_stream = nullptr) = 0;
+                                   util::FileOutputStream* asseet_file_stream = nullptr)             = 0;
+    virtual void WriteAssets(util::FileOutputStream* assert_file_stream, format::ThreadId thread_id) = 0;
 
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
@@ -156,6 +157,7 @@ class ApiCaptureManager
     uint16_t GetDescriptorMask() const { return common_manager_->GetDescriptorMask(); }
     uint64_t GetShaderIDMask() const { return common_manager_->GetShaderIDMask(); }
     uint64_t GetBlockIndex() const { return common_manager_->GetBlockIndex(); }
+    void     SetWriteAssets() const { return common_manager_->SetWriteAssets(); }
 
     bool                                GetForceFileFlush() const { return common_manager_->GetForceFileFlush(); }
     CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const

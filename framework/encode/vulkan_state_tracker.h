@@ -70,6 +70,17 @@ class VulkanStateTracker
         return state_writer.WriteState(state_table_, frame_number);
     }
 
+    uint64_t
+    WriteAssets(util::FileOutputStream* asset_file_stream, format::ThreadId thread_id, util::Compressor* compressor)
+    {
+        assert(asset_file_stream != nullptr);
+
+        VulkanStateWriter state_writer(nullptr, compressor, thread_id, asset_file_stream, &asset_file_offsets_);
+
+        std::unique_lock<std::mutex> lock(state_table_mutex_);
+        return state_writer.WriteAssets(state_table_);
+    }
+
     template <typename ParentHandle, typename Wrapper, typename CreateInfo>
     void AddEntry(ParentHandle                    parent_handle,
                   typename Wrapper::HandleType*   new_handle,

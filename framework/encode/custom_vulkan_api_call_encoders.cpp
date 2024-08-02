@@ -472,6 +472,12 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR()
     return manager->GetBlockIndex();
 }
 
+VKAPI_ATTR void VKAPI_CALL WriteAssetsGFXR()
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->SetWriteAssets();
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
                                                        VkPipelineCache                     pipelineCache,
                                                        uint32_t                            createInfoCount,

@@ -313,6 +313,8 @@ class CommonCaptureManager
         GetThreadData()->block_index_ = block_index_;
     }
 
+    void SetWriteAssets() { write_assets_ = true; }
+
   protected:
     std::unique_ptr<util::Compressor> compressor_;
     std::mutex                        mapped_memory_lock_;
@@ -384,6 +386,7 @@ class CommonCaptureManager
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
     bool                                    use_asset_file_;
+    bool                                    write_assets_;
 
     struct
     {

@@ -104,7 +104,8 @@ CommonCaptureManager::CommonCaptureManager() :
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0)
+    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
+    write_assets_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -784,6 +785,21 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId api
             capture_mode_ = kModeDisabled;
         }
     }
+    else if (write_assets_ && capture_mode_ == kModeTrack)
+    {
+        capture_mode_ |= kModeWrite;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        for (auto& manager : api_capture_managers_)
+        {
+            manager.first->WriteAssets(asset_file_stream_.get(), thread_data->thread_id_);
+        }
+
+        capture_mode_ = kModeTrack;
+        write_assets_ = false;
+    }
 }
 
 bool CommonCaptureManager::ShouldTriggerScreenshot()
@@ -1114,6 +1130,8 @@ void CommonCaptureManager::ActivateTrimming()
         manager.first->WriteTrackedState(
             file_stream_.get(), thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
     }
+
+    write_assets_ = false;
 }
 
 void CommonCaptureManager::DeactivateTrimming()

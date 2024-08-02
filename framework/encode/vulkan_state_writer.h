@@ -60,6 +60,8 @@ class VulkanStateWriter
     // Returns number of blocks written to the output_stream.
     uint64_t WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
 
+    uint64_t WriteAssets(const VulkanStateTable& state_table);
+
   private:
     // Data structures for processing resource memory snapshots.
     struct BufferSnapshotInfo
@@ -172,17 +174,19 @@ class VulkanStateWriter
     void WriteBufferMemoryState(const VulkanStateTable& state_table,
                                 DeviceResourceTables*   resources,
                                 VkDeviceSize*           max_resource_size,
-                                VkDeviceSize*           max_staging_copy_size);
+                                VkDeviceSize*           max_staging_copy_size,
+                                bool                    write_memory_state);
 
     void WriteImageMemoryState(const VulkanStateTable& state_table,
                                DeviceResourceTables*   resources,
                                VkDeviceSize*           max_resource_size,
-                               VkDeviceSize*           max_staging_copy_size);
+                               VkDeviceSize*           max_staging_copy_size,
+                               bool                    write_memory_state);
 
     void WriteImageSubresourceLayouts(const vulkan_wrappers::ImageWrapper* image_wrapper,
                                       VkImageAspectFlags                   aspect_flags);
 
-    void WriteResourceMemoryState(const VulkanStateTable& state_table);
+    void WriteResourceMemoryState(const VulkanStateTable& state_table, bool write_memory_state);
 
     void WriteMappedMemoryState(const VulkanStateTable& state_table);
 
