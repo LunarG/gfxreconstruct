@@ -22,6 +22,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "encode/capture_settings.h"
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 
@@ -105,7 +106,7 @@ CommonCaptureManager::CommonCaptureManager() :
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false)
+    write_assets_(false), previous_write_assets_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -651,17 +652,11 @@ bool CommonCaptureManager::IsTrimHotkeyPressed()
     return hotkey_pressed;
 }
 
-CaptureSettings::RuntimeTriggerState CommonCaptureManager::GetRuntimeTriggerState()
+bool CommonCaptureManager::RuntimeTriggerEnabled()
 {
     CaptureSettings settings;
     CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-
-    return settings.GetTraceSettings().runtime_capture_trigger;
-}
-
-bool CommonCaptureManager::RuntimeTriggerEnabled()
-{
-    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
 
     bool result = (state == CaptureSettings::RuntimeTriggerState::kEnabled &&
                    (previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kDisabled ||
@@ -674,7 +669,9 @@ bool CommonCaptureManager::RuntimeTriggerEnabled()
 
 bool CommonCaptureManager::RuntimeTriggerDisabled()
 {
-    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+    CaptureSettings settings;
+    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
+    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
 
     bool result = ((state == CaptureSettings::RuntimeTriggerState::kDisabled ||
                     state == CaptureSettings::RuntimeTriggerState::kNotUsed) &&
@@ -683,6 +680,24 @@ bool CommonCaptureManager::RuntimeTriggerDisabled()
     previous_runtime_trigger_state_ = state;
 
     return result;
+}
+
+bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
+{
+    CaptureSettings settings;
+    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
+    bool write_assets = settings.GetTraceSettings().runtime_write_assets;
+
+    if (previous_write_assets_ != write_assets)
+    {
+        write_assets_ = true;
+        previous_write_assets_ = write_assets;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId api_family,
@@ -785,12 +800,17 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId api
             capture_mode_ = kModeDisabled;
         }
     }
-    else if (write_assets_ && capture_mode_ == kModeTrack)
+    else if ((RuntimeWriteAssetsEnabled() || write_assets_) && capture_mode_ == kModeTrack)
     {
         capture_mode_ |= kModeWrite;
 
         auto thread_data = GetThreadData();
         assert(thread_data != nullptr);
+
+        if (asset_file_stream_.get() == nullptr)
+        {
+            CreateAssetFile();
+        }
 
         for (auto& manager : api_capture_managers_)
         {
@@ -942,17 +962,35 @@ std::string CommonCaptureManager::CreateTrimFilename(const std::string&     base
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
+std::string CommonCaptureManager::CreateAssetFile()
+{
+    std::string asset_file_name = CreateAssetFilename(base_filename_);
+
+    if (timestamp_filename_)
+    {
+        asset_file_name = util::filepath::GenerateTimestampedFilename(asset_file_name);
+    }
+
+    asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
+    if (asset_file_stream_->IsValid())
+    {
+        WriteAssetFileHeader();
+    }
+    else
+    {
+        asset_file_stream_ = nullptr;
+    }
+
+    return asset_file_name;
+}
+
 std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename) const
 {
-    GFXRECON_WRITE_CONSOLE("%s()", __func__)
-    GFXRECON_WRITE_CONSOLE(" base_filename: %s", base_filename.c_str())
-
     std::string asset_filename = base_filename;
 
     size_t dot_pos = base_filename.rfind('.');
     if (dot_pos != std::string::npos)
     {
-        GFXRECON_WRITE_CONSOLE("base_filename.substr(dot_pos): %s", base_filename.substr(dot_pos).c_str())
         if (base_filename.substr(dot_pos) == ".gfxr")
         {
             asset_filename.insert(dot_pos, "_asset_file");
@@ -1097,22 +1135,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
     // Create asset file
     if (trim_enabled_ && use_asset_file_ && asset_file_stream_.get() == nullptr)
     {
-        std::string asset_file_name = CreateAssetFilename(base_filename_);
-
-        if (timestamp_filename_)
-        {
-            asset_file_name = util::filepath::GenerateTimestampedFilename(asset_file_name);
-        }
-
-        asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
-        if (asset_file_stream_->IsValid())
-        {
-            WriteAssetFileHeader();
-        }
-        else
-        {
-            asset_file_stream_ = nullptr;
-        }
+        CreateAssetFile();
     }
 
     return success;
@@ -1130,8 +1153,6 @@ void CommonCaptureManager::ActivateTrimming()
         manager.first->WriteTrackedState(
             file_stream_.get(), thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
     }
-
-    write_assets_ = false;
 }
 
 void CommonCaptureManager::DeactivateTrimming()

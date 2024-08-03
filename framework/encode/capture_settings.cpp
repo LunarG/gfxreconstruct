@@ -91,6 +91,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_TRIGGER_FRAMES_UPPER                         "CAPTURE_TRIGGER_FRAMES"
 #define CAPTURE_ANDROID_TRIGGER_LOWER                        "capture_android_trigger"
 #define CAPTURE_ANDROID_TRIGGER_UPPER                        "CAPTURE_ANDROID_TRIGGER"
+#define CAPTURE_ANDROID_DUMP_ASSETS_LOWER                    "capture_android_dump_assets"
+#define CAPTURE_ANDROID_DUMP_ASSETS_UPPER                    "CAPTURE_ANDROID_DUMP_ASSETS"
 #define CAPTURE_IUNKNOWN_WRAPPING_LOWER                      "capture_iunknown_wrapping"
 #define CAPTURE_IUNKNOWN_WRAPPING_UPPER                      "CAPTURE_IUNKNOWN_WRAPPING"
 #define CAPTURE_QUEUE_SUBMITS_LOWER                          "capture_queue_submits"
@@ -182,6 +184,7 @@ const char kPageGuardSignalHandlerWatcherMaxRestoresEnvVar[] = GFXRECON_ENV_VAR_
 const char kDebugLayerEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DEBUG_LAYER_LOWER;
 const char kDebugDeviceLostEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX DEBUG_DEVICE_LOST_LOWER;
 const char kCaptureAndroidTriggerEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_TRIGGER_LOWER;
+const char kCaptureAndroidDumpAssetsEnvVar[]                 = GFXRECON_ENV_VAR_PREFIX CAPTURE_ANDROID_DUMP_ASSETS_LOWER;
 const char kDisableDxrEnvVar[]                               = GFXRECON_ENV_VAR_PREFIX DISABLE_DXR_LOWER;
 const char kAccelStructPaddingEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX ACCEL_STRUCT_PADDING_LOWER;
 const char kForceCommandSerializationEnvVar[]                = GFXRECON_ENV_VAR_PREFIX FORCE_COMMAND_SERIALIZATION_LOWER;
@@ -350,6 +353,17 @@ void CaptureSettings::LoadRunTimeEnvVarSettings(CaptureSettings* settings)
         if (settings->trace_settings_.runtime_capture_trigger != RuntimeTriggerState::kNotUsed)
         {
             settings->trace_settings_.trim_boundary = TrimBoundary::kFrames;
+        }
+
+        value = util::platform::GetEnv(kCaptureAndroidDumpAssetsEnvVar);
+        if (value.empty())
+        {
+            settings->trace_settings_.runtime_write_assets = false;
+        }
+        else
+        {
+            settings->trace_settings_.runtime_write_assets =
+                ParseBoolString(value, settings->trace_settings_.runtime_write_assets);
         }
     }
 #endif

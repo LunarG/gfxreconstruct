@@ -120,8 +120,6 @@ class ApiCaptureManager
 
     bool IsTrimHotkeyPressed() { return common_manager_->IsTrimHotkeyPressed(); }
 
-    CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState() { return common_manager_->GetRuntimeTriggerState(); }
-
     bool RuntimeTriggerEnabled() { return common_manager_->RuntimeTriggerEnabled(); }
 
     bool RuntimeTriggerDisabled() { return common_manager_->RuntimeTriggerDisabled(); }

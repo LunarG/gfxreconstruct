@@ -134,11 +134,11 @@ class CommonCaptureManager
 
     bool IsTrimHotkeyPressed();
 
-    CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState();
-
     bool RuntimeTriggerEnabled();
 
     bool RuntimeTriggerDisabled();
+
+    bool RuntimeWriteAssetsEnabled();
 
     void WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message);
 
@@ -264,6 +264,7 @@ class CommonCaptureManager
     util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
+    std::string CreateAssetFile();
     std::string CreateAssetFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
@@ -387,6 +388,7 @@ class CommonCaptureManager
     bool                                    quit_after_frame_ranges_;
     bool                                    use_asset_file_;
     bool                                    write_assets_;
+    bool                                    previous_write_assets_;
 
     struct
     {

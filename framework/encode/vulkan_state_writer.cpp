@@ -90,7 +90,7 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                outp
     compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_), asset_file_stream_(asset_file_stream),
     asset_file_offsets_(asset_file_offsets)
 {
-    assert(output_stream != nullptr);
+    assert(output_stream != nullptr || asset_file_stream != nullptr);
 }
 
 VulkanStateWriter::~VulkanStateWriter() {}
