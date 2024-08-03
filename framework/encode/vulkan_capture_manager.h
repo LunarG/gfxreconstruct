@@ -1257,7 +1257,10 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
                                                const VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
 
-    void PostProcess_vkFrameBoundaryANDROID(VkDevice device, VkSemaphore semaphore, VkImage image) { EndFrame(); }
+    void PostProcess_vkFrameBoundaryANDROID(VkDevice device, VkSemaphore semaphore, VkImage image)
+    {
+        EndFrame();
+    }
 
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
                                                    const VkDebugUtilsLabelEXT* pLabelInfo);
@@ -1551,9 +1554,15 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     virtual ~VulkanCaptureManager() {}
 
-    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<VulkanStateTracker>(); }
+    virtual void CreateStateTracker() override
+    {
+        state_tracker_ = std::make_unique<VulkanStateTracker>();
+    }
 
-    virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
+    virtual void DestroyStateTracker() override
+    {
+        state_tracker_ = nullptr;
+    }
 
     virtual void WriteTrackedState(util::FileOutputStream* file_stream,
                                    format::ThreadId        thread_id,
