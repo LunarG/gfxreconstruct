@@ -773,6 +773,8 @@ class D3D12CaptureManager : public ApiCaptureManager
                                    format::ThreadId        thread_id,
                                    util::FileOutputStream* asset_file_stream = nullptr) override;
 
+    virtual void WriteAssets(util::FileOutputStream* assert_file_stream, format::ThreadId thread_id) override {}
+
     void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
                                    IUnknown*               command_queue,
                                    uint32_t                image_count,
