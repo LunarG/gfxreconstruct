@@ -690,7 +690,7 @@ bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
 
     if (previous_write_assets_ != write_assets)
     {
-        write_assets_ = true;
+        write_assets_          = true;
         previous_write_assets_ = write_assets;
         return true;
     }
