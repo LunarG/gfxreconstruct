@@ -47,6 +47,47 @@ static void vulkan_check_buffer_references(const uint32_t* const spirv_code, uin
     }
 }
 
+static void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos, uint32_t create_info_count)
+{
+    for (uint32_t i = 0; i < create_info_count; ++i)
+    {
+        for (uint32_t j = 0; j < create_infos[i].stageCount; ++j)
+        {
+            const void* pNext = create_infos[i].pStages[j].pNext;
+            while (pNext != nullptr)
+            {
+                auto base = reinterpret_cast<const VkBaseInStructure*>(pNext);
+
+                if (base->sType == VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
+                {
+                    auto module_create_info = reinterpret_cast<const VkShaderModuleCreateInfo*>(base);
+                    graphics::vulkan_check_buffer_references(module_create_info->pCode, module_create_info->codeSize);
+                }
+                pNext = base->pNext;
+            }
+        }
+    }
+}
+
+static void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos, uint32_t create_info_count)
+{
+    for (uint32_t i = 0; i < create_info_count; ++i)
+    {
+        const void* pNext = create_infos[i].stage.pNext;
+        while (pNext != nullptr)
+        {
+            auto base = reinterpret_cast<const VkBaseInStructure*>(pNext);
+
+            if (base->sType == VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
+            {
+                auto module_create_info = reinterpret_cast<const VkShaderModuleCreateInfo*>(base);
+                graphics::vulkan_check_buffer_references(module_create_info->pCode, module_create_info->codeSize);
+            }
+            pNext = base->pNext;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

@@ -9168,9 +9168,15 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
         in_device, in_pipeline_cache, create_info_count, in_p_create_infos, in_p_allocation_callbacks, out_pipelines);
 
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
-    if (replay_result == VK_SUCCESS && options_.dumping_resources)
+    if (replay_result == VK_SUCCESS)
     {
-        resource_dumper.DumpGraphicsPipelineInfos(pCreateInfos, create_info_count, pPipelines);
+        if (options_.dumping_resources)
+        {
+            resource_dumper.DumpGraphicsPipelineInfos(pCreateInfos, create_info_count, pPipelines);
+        }
+
+        // check potentially inlined spirv
+        graphics::vulkan_check_buffer_references(in_p_create_infos, create_info_count);
     }
     return replay_result;
 }
@@ -9373,6 +9379,11 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
             device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
 
+        if (replay_result == VK_SUCCESS)
+        {
+            // check potentially inlined spirv
+            graphics::vulkan_check_buffer_references(create_infos, createInfoCount);
+        }
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
         return { replay_result, std::move(out_pipelines) };
@@ -9422,6 +9433,11 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
             device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
         CheckResult("vkCreateComputePipelines", returnValue, replay_result, call_info);
 
+        if (replay_result == VK_SUCCESS)
+        {
+            // check potentially inlined spirv
+            graphics::vulkan_check_buffer_references(create_infos, createInfoCount);
+        }
         // schedule dependency-clear on main-thread
         MainThreadQueue().post([this, handle_deps = std::move(handle_deps)] { ClearAsyncHandles(handle_deps); });
         return { replay_result, std::move(out_pipelines) };
