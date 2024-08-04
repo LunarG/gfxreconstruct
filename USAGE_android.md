@@ -263,7 +263,7 @@ Together, the last 4 commands look like the following:
 adb shell settings put global enable_gpu_debug_layers 1
 adb shell settings put global gpu_debug_app ${Package Name}
 adb shell settings put global gpu_debug_layers VK_LAYER_LUNARG_gfxreconstruct
-adb shell settings put global gpu_debug_layers_app com.lunarg.gfxreconstruct.replay
+adb shell settings put global gpu_debug_layer_app com.lunarg.gfxreconstruct.replay
 ```
 
 If you attempt to capture and nothing is happening, check the `logcat` output.
