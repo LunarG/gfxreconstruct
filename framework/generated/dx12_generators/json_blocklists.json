@@ -3,7 +3,7 @@
   "functions-all": [],
   "functions-encoder": [],
   "functions-decoder": [],
-  "classmethods": {
+  "classmethods-all": {
     "ID3D12Device": [
       "CheckFeatureSupport"
     ],
@@ -15,6 +15,8 @@
       "WriteToSubresource"
     ]
   },
+  "classmethods-encoder": {},
+  "classmethods-decoder": {},  
   "todo2": "Remove the ones below which can be handled with anon union support.",
   "structures": [
     "GUID Comment - We can generate the header for the decoded struct but the body needs a manual implementation.",

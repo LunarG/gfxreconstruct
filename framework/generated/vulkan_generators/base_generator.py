@@ -301,7 +301,11 @@ class BaseGenerator(OutputGenerator):
         self.APICALL_DECODER_BLACKLIST = []
 
         # These method calls should not be processed by the code generator.  They require special implementations.
-        self.METHODCALL_BLACKLIST = []
+        self.METHODCALL_ALL_BLACKLIST = []
+
+        self.METHODCALL_ENCODER_BLACKLIST = []
+
+        self.METHODCALL_DECODER_BLACKLIST = []
 
         # These structures should not be processed by the code generator.  They require special implementations.
         self.STRUCT_BLACKLIST = []
@@ -940,8 +944,12 @@ class BaseGenerator(OutputGenerator):
         combined_name = class_name
         if method_name:
             combined_name += '_' + method_name
-        if combined_name in self.METHODCALL_BLACKLIST:
+        if combined_name in self.METHODCALL_ALL_BLACKLIST:
+            return True    
+        if 'Decoder' in self.__class__.__name__ and combined_name in self.METHODCALL_DECODER_BLACKLIST:
             return True
+        if 'Encoder' in self.__class__.__name__ and combined_name in self.METHODCALL_ENCODER_BLACKLIST:
+            return True        
         return False
 
     def get_filtered_struct_names(self):
@@ -1629,12 +1637,24 @@ class BaseGenerator(OutputGenerator):
         self.APICALL_ENCODER_BLACKLIST += lists['functions-encoder']
         self.APICALL_DECODER_BLACKLIST += lists['functions-decoder']
         self.STRUCT_BLACKLIST += lists['structures']
-        if 'classmethods' in lists:
-            for class_name, method_list in lists['classmethods'].items():
+        if 'classmethods-all' in lists:
+            for class_name, method_list in lists['classmethods-all'].items():
                 for method_name in method_list:
-                    self.METHODCALL_BLACKLIST.append(
+                    self.METHODCALL_ALL_BLACKLIST.append(
                         class_name + '_' + method_name
                     )
+        if 'classmethods-encoder' in lists:
+            for class_name, method_list in lists['classmethods-encoder'].items():
+                for method_name in method_list:
+                    self.METHODCALL_ENCODER_BLACKLIST.append(
+                        class_name + '_' + method_name
+                    )
+        if 'classmethods-decoder' in lists:
+            for class_name, method_list in lists['classmethods-decoder'].items():
+                for method_name in method_list:
+                    self.METHODCALL_DECODER_BLACKLIST.append(
+                        class_name + '_' + method_name
+                    )                                        
 
     def __load_platform_types(self, filename):
         platforms = json.loads(open(filename, 'r').read())

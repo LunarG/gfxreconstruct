@@ -99,5 +99,40 @@ void Encode_ID3D12Resource_WriteToSubresource(ID3D12Resource_Wrapper* wrapper,
     }
 }
 
+void Encode_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                   UINT                        NumCommandLists,
+                                                   ID3D12CommandList* const*   ppCommandLists)
+{
+    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(
+        format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists, wrapper->GetCaptureId());
+    if (encoder)
+    {
+        auto trim_boundary = D3D12CaptureManager::Get()->GetTrimBundary();
+        if (trim_boundary == CaptureSettings::TrimBoundary::kDrawcalls)
+        {
+            auto trim_drawcalls   = D3D12CaptureManager::Get()->GetTrimDrawcalls();
+            GFXRECON_ASSERT(NumCommandLists >= trim_drawcalls.command_index);
+
+            encoder->EncodeUInt32Value(trim_drawcalls.command_index);
+
+            std::vector<ID3D12CommandList*> commandLists;
+            commandLists.resize(trim_drawcalls.command_index);
+            util::platform::MemoryCopy(commandLists.data(),
+                                       trim_drawcalls.command_index * sizeof (ID3D12CommandList*),
+                                       ppCommandLists,
+                                       trim_drawcalls.command_index * sizeof(ID3D12CommandList*));
+
+            encoder->EncodeObjectArray(commandLists.data(), trim_drawcalls.command_index);
+            D3D12CaptureManager::Get()->EndMethodCallCapture();
+        }
+        else
+        {
+            encoder->EncodeUInt32Value(NumCommandLists);
+            encoder->EncodeObjectArray(ppCommandLists, NumCommandLists);
+            D3D12CaptureManager::Get()->EndMethodCallCapture();
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

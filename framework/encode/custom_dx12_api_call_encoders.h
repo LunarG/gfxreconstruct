@@ -54,6 +54,10 @@ void Encode_ID3D12Resource_WriteToSubresource(ID3D12Resource_Wrapper* wrapper,
                                               UINT                    SrcRowPitch,
                                               UINT                    SrcDepthPitch);
 
+void Encode_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                   UINT                        NumCommandLists,
+                                                   ID3D12CommandList* const*   ppCommandLists);
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

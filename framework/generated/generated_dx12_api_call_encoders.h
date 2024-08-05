@@ -1911,11 +1911,6 @@ void Encode_ID3D12CommandQueue_CopyTileMappings(
     const D3D12_TILE_REGION_SIZE* pRegionSize,
     D3D12_TILE_MAPPING_FLAGS Flags);
 
-void Encode_ID3D12CommandQueue_ExecuteCommandLists(
-    ID3D12CommandQueue_Wrapper* wrapper,
-    UINT NumCommandLists,
-    ID3D12CommandList* const* ppCommandLists);
-
 void Encode_ID3D12CommandQueue_SetMarker(
     ID3D12CommandQueue_Wrapper* wrapper,
     UINT Metadata,

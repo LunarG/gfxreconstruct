@@ -6257,20 +6257,6 @@ void Encode_ID3D12CommandQueue_CopyTileMappings(
     }
 }
 
-void Encode_ID3D12CommandQueue_ExecuteCommandLists(
-    ID3D12CommandQueue_Wrapper* wrapper,
-    UINT NumCommandLists,
-    ID3D12CommandList* const* ppCommandLists)
-{
-    auto encoder = D3D12CaptureManager::Get()->BeginMethodCallCapture(format::ApiCallId::ApiCall_ID3D12CommandQueue_ExecuteCommandLists, wrapper->GetCaptureId());
-    if(encoder)
-    {
-        encoder->EncodeUInt32Value(NumCommandLists);
-        encoder->EncodeObjectArray(ppCommandLists, NumCommandLists);
-        D3D12CaptureManager::Get()->EndMethodCallCapture();
-    }
-}
-
 void Encode_ID3D12CommandQueue_SetMarker(
     ID3D12CommandQueue_Wrapper* wrapper,
     UINT Metadata,

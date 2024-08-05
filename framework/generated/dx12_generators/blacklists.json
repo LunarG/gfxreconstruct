@@ -2,7 +2,7 @@
   "functions-all": [],
   "functions-encoder": [],
   "functions-decoder": [],
-  "classmethods": {
+  "classmethods-all": {
     "ID3D12Device": [
       "CheckFeatureSupport"
     ],
@@ -13,6 +13,12 @@
       "WriteToSubresource"
     ]
   },
+  "classmethods-encoder": {
+    "ID3D12CommandQueue": [
+      "ExecuteCommandLists"
+    ]
+  },
+  "classmethods-decoder": {},
   "structures": [
     "D3D12_CPU_DESCRIPTOR_HANDLE",
     "D3D12_CLEAR_VALUE",
