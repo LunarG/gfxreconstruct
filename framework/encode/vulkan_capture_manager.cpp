@@ -473,7 +473,7 @@ void VulkanCaptureManager::SetDescriptorUpdateTemplateInfo(VkDescriptorUpdateTem
 
                 entry_size = sizeof(VkDescriptorImageInfo);
             }
-            if (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE)
+            else if (type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE)
             {
                 UpdateTemplateEntryInfo image_info;
                 image_info.binding       = entry->dstBinding;
