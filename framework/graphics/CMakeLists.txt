@@ -41,6 +41,8 @@ target_sources(gfxrecon_graphics
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h

@@ -23,12 +23,20 @@
 #ifndef GFXRECON_GRAPHICS_CHECK_BUFFER_REFERENCES_H
 #define GFXRECON_GRAPHICS_CHECK_BUFFER_REFERENCES_H
 
+#include "format/platform_types.h"
 #include "util/spirv_parsing_util.h"
 #include "util/logging.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+/**
+ * @brief   vulkan_check_buffer_references can be used to check provided SPIRV-bytecode for usage of buffer-references.
+ *          In case any buffer-references are actively used, a warning will be issued.
+ *
+ * @param   spirv_code  SPIRV-bytecode
+ * @param   num_bytes   number of bytes
+ */
 static void vulkan_check_buffer_references(const uint32_t* const spirv_code, uint32_t num_bytes)
 {
     // check for buffer-references, issue warning
@@ -46,6 +54,28 @@ static void vulkan_check_buffer_references(const uint32_t* const spirv_code, uin
         }
     }
 }
+
+/**
+ * @brief   vulkan_check_buffer_references is a helper-function to search and check inlined SPIRV-bytecode
+ *          in an array of create-infos.
+ *
+ * Inlined SPIRV: VkPipelineShaderStageCreateInfo 'can' provide a VkShaderModuleCreateInfo
+ * This function will iterate all contained 'VkPipelineShaderStageCreateInfo' and descend their pNext-chains.
+ * If any 'VkShaderModuleCreateInfo' are contained in the pNext-chains, the contained spirv-code will be checked using:
+ * vulkan_check_buffer_references(spirv_code, num_bytes).
+ *
+ * @tparam  T                   structure-type
+ * @param   create_infos        an array of pipeline/shader create-info structures.
+ * @param   create_info_count   create-infos' array-count
+ */
+template <typename T>
+void vulkan_check_buffer_references(const T* create_infos, uint32_t create_info_count) = delete;
+
+template <>
+void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos, uint32_t create_info_count);
+
+template <>
+void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos, uint32_t create_info_count);
 
 GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)

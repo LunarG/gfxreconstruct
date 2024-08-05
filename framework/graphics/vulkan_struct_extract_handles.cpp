@@ -28,6 +28,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* create_infos)
 {
@@ -67,6 +68,7 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     return handle_deps;
 }
 
+template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkComputePipelineCreateInfo>* create_infos)
 {
@@ -103,6 +105,8 @@ std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     }
     return handle_deps;
 }
+
+template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* create_infos)
 {
