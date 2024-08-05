@@ -1042,6 +1042,8 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 
             env_block.string_size = env_vars.size();
 
+            const char* just_testing_stuffs = env_vars.c_str();
+
             // Write to file before freeing environment strings
             CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
 
