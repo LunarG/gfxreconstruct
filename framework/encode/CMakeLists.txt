@@ -135,9 +135,7 @@ target_sources(gfxrecon_encode
 
 if (MSVC)
     # Increase object size limit to handle large numbers of template function instantiations.
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_api_call_encoders.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_dx12_wrappers.cpp PROPERTIES COMPILE_FLAGS /bigobj)
-    set_source_files_properties(${CMAKE_SOURCE_DIR}/framework/generated/generated_vulkan_api_call_encoders.cpp PROPERTIES COMPILE_FLAGS /bigobj)
+    target_compile_options(gfxrecon_encode PRIVATE /bigobj)
 endif()
 
 target_include_directories(gfxrecon_encode
