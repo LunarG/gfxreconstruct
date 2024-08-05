@@ -52,5 +52,14 @@ void InfoDecoder::DispatchDriverInfo(format::ThreadId thread_id, format::DriverI
     }
 }
 
+void InfoDecoder::DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                         const char*                             env_string)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->Process_SetEnvironmentVariablesCommand(header, env_string);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)

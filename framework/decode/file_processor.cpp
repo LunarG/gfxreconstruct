@@ -1816,10 +1816,26 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         }
     }
     else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand) {
-        format::SetEnvironmentVariablesCommand command;
-        success = ReadBytes(&command.thread_id, sizeof(command.thread_id));
-        success = ReadBytes(&command.string_size, sizeof(command.string_size));
-        success = ReadParameterBuffer(static_cast<size_t>(command.string_size));
+        format::SetEnvironmentVariablesCommand header;
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.string_size, sizeof(header.string_size));
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
+            return success;
+        }
+
+        success = ReadParameterBuffer(static_cast<size_t>(header.string_size));
+        if (!success || true)
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
+            return success;
+        }
+
+        for (auto decoder : decoders_)
+        {
+            // decoder->DispatchSetEnvironmentVariablesCommand(header, parameter_buffer_.data());
+        }
 
         GFXRECON_LOG_WARNING("Skipping unhandled meta-data block with type kSetEnvironmentVariablesCommand");
     }
