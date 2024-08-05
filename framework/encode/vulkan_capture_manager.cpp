@@ -2464,20 +2464,10 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     // This must be done before QueueSubmitWriteFillMemoryCmd is called
-    // and tracked mapped memory regions are reseted
+    // and tracked mapped memory regions are resetted
     if (IsCaptureModeTrack())
     {
-        if (pSubmits)
-        {
-            for (uint32_t s = 0; s < submitCount; ++s)
-            {
-                for (uint32_t c = 0; c < pSubmits[s].commandBufferCount; ++c)
-                {
-                    state_tracker_->TrackMappedAssetsWrites(pSubmits[s].pCommandBuffers[c]);
-                    state_tracker_->MarkReferencedAssetsAsDirty(pSubmits[s].pCommandBuffers[c]);
-                }
-            }
-        }
+        state_tracker_->TrackSubmission(submitCount, pSubmits);
     }
 
     QueueSubmitWriteFillMemoryCmd();
@@ -2508,20 +2498,10 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
     GFXRECON_UNREFERENCED_PARAMETER(fence);
 
     // This must be done before QueueSubmitWriteFillMemoryCmd is called
-    // and tracked mapped memory regions are reseted
+    // and tracked mapped memory regions are resetted
     if (IsCaptureModeTrack())
     {
-        if (pSubmits)
-        {
-            for (uint32_t s = 0; s < submitCount; ++s)
-            {
-                for (uint32_t c = 0; c < pSubmits[s].commandBufferInfoCount; ++c)
-                {
-                    state_tracker_->TrackMappedAssetsWrites(pSubmits[s].pCommandBufferInfos[c].commandBuffer);
-                    state_tracker_->MarkReferencedAssetsAsDirty(pSubmits[s].pCommandBufferInfos[c].commandBuffer);
-                }
-            }
-        }
+        state_tracker_->TrackSubmission(submitCount, pSubmits);
     }
 
     QueueSubmitWriteFillMemoryCmd();

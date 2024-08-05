@@ -225,8 +225,8 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
 
-    std::map<VkDeviceSize, AssetWrapperBase*> bound_assets;
-    std::mutex                                asset_map_lock;
+    std::unordered_set<AssetWrapperBase*> bound_assets;
+    std::mutex                            asset_map_lock;
 };
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
@@ -406,6 +406,7 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
         bound_descriptors[vulkan_state_info::PipelineBindPoints::kBindPoint_count];
 
     std::unordered_set<AssetWrapperBase*> modified_assets;
+    std::vector<CommandBufferWrapper*>    secondaries;
 };
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>

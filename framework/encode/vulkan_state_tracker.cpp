@@ -22,6 +22,7 @@
 
 #include "encode/vulkan_state_tracker.h"
 
+#include "decode/vulkan_object_info.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_info.h"
 #include "encode/custom_vulkan_struct_handle_wrappers.h"
@@ -61,7 +62,7 @@ void VulkanStateTracker::TrackCommandExecution(vulkan_wrappers::CommandBufferWra
         wrapper->recorded_queries.clear();
         wrapper->tlas_build_info_map.clear();
         wrapper->modified_assets.clear();
-        wrapper->modified_assets.clear();
+        wrapper->secondaries.clear();
         for (uint32_t point = vulkan_state_info::kBindPoint_graphics; point != vulkan_state_info::kBindPoint_count;
              ++point)
         {
@@ -109,7 +110,7 @@ void VulkanStateTracker::TrackResetCommandPool(VkCommandPool command_pool)
         entry.second->recorded_queries.clear();
         entry.second->tlas_build_info_map.clear();
         entry.second->modified_assets.clear();
-        entry.second->modified_assets.clear();
+        entry.second->secondaries.clear();
         for (uint32_t point = vulkan_state_info::kBindPoint_graphics; point != vulkan_state_info::kBindPoint_count;
              ++point)
         {
@@ -373,7 +374,7 @@ void VulkanStateTracker::TrackBufferMemoryBinding(
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert(mem_wrapper != nullptr);
     mem_wrapper->asset_map_lock.lock();
-    mem_wrapper->bound_assets.emplace(memoryOffset, wrapper);
+    mem_wrapper->bound_assets.emplace(wrapper);
     mem_wrapper->asset_map_lock.unlock();
 
     if (bind_info_pnext != nullptr)
@@ -444,7 +445,7 @@ void VulkanStateTracker::TrackImageMemoryBinding(
         vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceMemoryWrapper>(memory);
     assert(mem_wrapper != nullptr);
     mem_wrapper->asset_map_lock.lock();
-    mem_wrapper->bound_assets.emplace(memoryOffset, wrapper);
+    mem_wrapper->bound_assets.emplace(wrapper);
     mem_wrapper->asset_map_lock.unlock();
 
     if (bind_info_pnext != nullptr)
@@ -537,6 +538,8 @@ void VulkanStateTracker::TrackExecuteCommands(VkCommandBuffer        command_buf
     {
         auto secondary_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(command_buffers[i]);
         assert(secondary_wrapper != nullptr);
+
+        primary_wrapper->secondaries.push_back(secondary_wrapper);
 
         for (const auto& layout_entry : secondary_wrapper->pending_layouts)
         {
@@ -1817,7 +1820,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
         if (mem_wrapper != nullptr)
         {
             mem_wrapper->asset_map_lock.lock();
-            auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
+            auto bind_entry = mem_wrapper->bound_assets.find(wrapper);
             if (bind_entry != mem_wrapper->bound_assets.end())
             {
                 mem_wrapper->bound_assets.erase(bind_entry);
@@ -1837,7 +1840,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
         if (mem_wrapper != nullptr)
         {
             mem_wrapper->asset_map_lock.lock();
-            auto bind_entry = mem_wrapper->bound_assets.find(wrapper->bind_offset);
+            auto bind_entry = mem_wrapper->bound_assets.find(wrapper);
             if (bind_entry != mem_wrapper->bound_assets.end())
             {
                 mem_wrapper->bound_assets.erase(bind_entry);
@@ -2333,17 +2336,13 @@ void VulkanStateTracker::TrackCmdDrawMeshTasksIndirectCountEXT(VkCommandBuffer c
     }
 }
 
-void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
+void VulkanStateTracker::TrackMappedAssetsWrites()
 {
     util::PageGuardManager* manager = util::PageGuardManager::Get();
     if (manager == nullptr)
     {
         return;
     }
-
-    vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
-    assert(cmd_buf_wrapper != nullptr);
 
     std::unordered_map<uint64_t, util::PageStatusTracker::PageStatus&> memories_page_status;
     manager->GetModifiedMemoryRegions(memories_page_status);
@@ -2357,14 +2356,13 @@ void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
         dev_mem_wrapper->asset_map_lock.lock();
         for (auto& asset : dev_mem_wrapper->bound_assets)
         {
-            if (asset.second->dirty || !asset.second->size)
+            if (asset->dirty || !asset->size)
             {
                 continue;
             }
 
-            const size_t first_page = asset.first / page_size;
-            const size_t last_page  = (asset.first + asset.second->size - 1) / page_size;
-
+            const size_t first_page = asset->bind_offset / page_size;
+            const size_t last_page  = (asset->bind_offset + asset->size - 1) / page_size;
             assert(first_page <= last_page);
             assert(first_page <= entry.second.size());
 
@@ -2372,7 +2370,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites(VkCommandBuffer commandBuffer)
             {
                 if (entry.second[page])
                 {
-                    asset.second->dirty = true;
+                    asset->dirty = true;
                     break;
                 }
             }
@@ -2660,16 +2658,61 @@ void VulkanStateTracker::TrackCmdTraceRaysIndirect2KHR(VkCommandBuffer commandBu
     TrackPipelineDescriptors(cmd_buf_wrapper, vulkan_state_info::PipelineBindPoints::kBindPoint_ray_tracing);
 }
 
-void VulkanStateTracker::MarkReferencedAssetsAsDirty(VkCommandBuffer commandBuffer)
+void VulkanStateTracker::MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper)
 {
-    vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper =
-        vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
     assert(cmd_buf_wrapper != nullptr);
 
     for (auto asset : cmd_buf_wrapper->modified_assets)
     {
         assert(asset);
         asset->dirty = true;
+    }
+}
+
+void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits)
+{
+    if (pSubmits != nullptr && submitCount)
+    {
+        for (uint32_t s = 0; s < submitCount; ++s)
+        {
+            for (uint32_t c = 0; c < pSubmits[s].commandBufferCount; ++c)
+            {
+                vulkan_wrappers::CommandBufferWrapper* primary =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(pSubmits[s].pCommandBuffers[c]);
+                MarkReferencedAssetsAsDirty(primary);
+
+                for (const auto secondary : primary->secondaries)
+                {
+                    MarkReferencedAssetsAsDirty(secondary);
+                }
+            }
+        }
+
+        TrackMappedAssetsWrites();
+    }
+}
+
+void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits)
+{
+    if (pSubmits != nullptr && submitCount)
+    {
+        for (uint32_t s = 0; s < submitCount; ++s)
+        {
+            for (uint32_t c = 0; c < pSubmits[s].commandBufferInfoCount; ++c)
+            {
+                vulkan_wrappers::CommandBufferWrapper* primary =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(
+                        pSubmits[s].pCommandBufferInfos[c].commandBuffer);
+                MarkReferencedAssetsAsDirty(primary);
+
+                for (const auto secondary : primary->secondaries)
+                {
+                    MarkReferencedAssetsAsDirty(secondary);
+                }
+            }
+        }
+
+        TrackMappedAssetsWrites();
     }
 }
 

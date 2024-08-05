@@ -673,9 +673,9 @@ class VulkanStateTracker
                                                uint32_t        maxDrawCount,
                                                uint32_t        stride);
 
-    void TrackMappedAssetsWrites(VkCommandBuffer commandBuffer);
+    void TrackSubmission(uint32_t submitCount, const VkSubmitInfo* pSubmits);
 
-    void MarkReferencedAssetsAsDirty(VkCommandBuffer commandBuffer);
+    void TrackSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
@@ -754,6 +754,10 @@ class VulkanStateTracker
     void InsertImageAssetInCommandBuffer(VkCommandBuffer command_buffer, VkImage image);
 
     void InsertBufferAssetInCommandBuffer(VkCommandBuffer command_buffer, VkBuffer buffer);
+
+    void TrackMappedAssetsWrites();
+
+    void MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper);
 
     std::mutex       state_table_mutex_;
     VulkanStateTable state_table_;
