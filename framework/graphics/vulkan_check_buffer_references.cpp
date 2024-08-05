@@ -25,6 +25,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+template <>
 void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_infos, uint32_t create_info_count)
 {
     for (uint32_t i = 0; i < create_info_count; ++i)
@@ -47,6 +48,7 @@ void vulkan_check_buffer_references(const VkGraphicsPipelineCreateInfo* create_i
     }
 }
 
+template <>
 void vulkan_check_buffer_references(const VkComputePipelineCreateInfo* create_infos, uint32_t create_info_count)
 {
     for (uint32_t i = 0; i < create_info_count; ++i)
