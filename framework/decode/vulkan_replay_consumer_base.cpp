@@ -9267,21 +9267,26 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     PipelineInfo*                                              pipeline_info,
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    VkDevice   in_device = device_info->handle;
-    VkPipeline in_pipeline =
-        MapHandle<PipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetPipelineInfo);
-    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+    GFXRECON_ASSERT(device_info != nullptr);
+    VkDevice in_device = device_info->handle;
 
-    if (!IsUsedByAsyncTask(pipeline_info->capture_id))
+    if (pipeline_info != nullptr)
     {
-        func(in_device, in_pipeline, in_pAllocator);
-    }
-    else
-    {
-        // schedule deletion
-        DestroyAsyncHandle(pipeline_info->capture_id, [func, in_device, in_pipeline, in_pAllocator]() {
+        VkPipeline in_pipeline =
+            MapHandle<PipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetPipelineInfo);
+        const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+
+        if (!IsUsedByAsyncTask(pipeline_info->capture_id))
+        {
             func(in_device, in_pipeline, in_pAllocator);
-        });
+        }
+        else
+        {
+            // schedule deletion
+            DestroyAsyncHandle(pipeline_info->capture_id, [func, in_device, in_pipeline, in_pAllocator]() {
+                func(in_device, in_pipeline, in_pAllocator);
+            });
+        }
     }
 }
 
