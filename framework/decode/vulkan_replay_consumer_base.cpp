@@ -7932,9 +7932,10 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
     CommandPoolInfo*                                     pool_info,
     StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
-    assert(device_info != nullptr && pool_info != nullptr);
+    assert(device_info != nullptr);
+    VkCommandPool pool_handle = pool_info ? pool_info->handle : VK_NULL_HANDLE;
 
-    if (options_.dumping_resources)
+    if (options_.dumping_resources && pool_info != nullptr)
     {
         for (auto& cb_id : pool_info->child_ids)
         {
@@ -7946,7 +7947,7 @@ void VulkanReplayConsumerBase::OverrideDestroyCommandPool(
     }
 
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    func(device_info->handle, pool_info->handle, in_pAllocator);
+    func(device_info->handle, pool_handle, in_pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdDebugMarkerInsertEXT(
