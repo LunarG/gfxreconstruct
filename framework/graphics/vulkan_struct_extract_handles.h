@@ -38,24 +38,19 @@ GFXRECON_BEGIN_NAMESPACE(graphics)
  * @param   create_infos    a decoder-object, wrapping create-infos structs.
  * @return  a set containing all referenced handles
  */
+template <typename T>
+std::unordered_set<format::HandleId>
+vulkan_struct_extract_handle_ids(const typename decode::StructPointerDecoder<T>* create_infos) = delete;
+
+template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkGraphicsPipelineCreateInfo>* create_infos);
 
-/**
- * @brief   vulkan_struct_extract_handle_ids can be used to extract the handle-ids for all referenced handles.
- *
- * @param   create_infos    a decoder-object, wrapping create-infos structs.
- * @return  a set containing all referenced handles
- */
+template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkComputePipelineCreateInfo>* create_infos);
 
-/**
- * @brief   vulkan_struct_extract_handle_ids can be used to extract the handle-ids for all referenced handles.
- *
- * @param   create_infos    a decoder-object, wrapping create-infos structs.
- * @return  a set containing all referenced handles
- */
+template <>
 std::unordered_set<format::HandleId> vulkan_struct_extract_handle_ids(
     const decode::StructPointerDecoder<decode::Decoded_VkShaderCreateInfoEXT>* create_infos);
 
