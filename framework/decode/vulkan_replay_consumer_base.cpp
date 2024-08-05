@@ -9365,8 +9365,15 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
 
     // extract handle-dependencies and track those
-    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
-    TrackAsyncHandles(handle_deps);
+    auto                  handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
+    std::function<void()> sync_fn;
+    if (pPipelines != nullptr && createInfoCount > 0)
+    {
+        sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
+            MapHandle<PipelineInfo>(parent_id, &VulkanObjectInfoTable::GetPipelineInfo);
+        };
+    }
+    TrackAsyncHandles(handle_deps, sync_fn);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
@@ -9419,8 +9426,15 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
 
     // extract handle-dependencies and track those
-    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
-    TrackAsyncHandles(handle_deps);
+    auto                  handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
+    std::function<void()> sync_fn;
+    if (pPipelines != nullptr && createInfoCount > 0)
+    {
+        sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
+            MapHandle<PipelineInfo>(parent_id, &VulkanObjectInfoTable::GetPipelineInfo);
+        };
+    }
+    TrackAsyncHandles(handle_deps, sync_fn);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
@@ -9470,8 +9484,15 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
 
     // extract handle-dependencies and track those
-    auto handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
-    TrackAsyncHandles(handle_deps);
+    auto                  handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
+    std::function<void()> sync_fn;
+    if (pShaders != nullptr && createInfoCount > 0)
+    {
+        sync_fn = [this, parent_id = pShaders->GetPointer()[0]]() {
+            MapHandle<ShaderEXTInfo>(parent_id, &VulkanObjectInfoTable::GetShaderEXTInfo);
+        };
+    }
+    TrackAsyncHandles(handle_deps, sync_fn);
 
     // define pipeline-creation task, assert object-lifetimes by copying/moving into closure
     auto task = [this,
@@ -9506,6 +9527,63 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
         return { replay_result, std::move(out_shaders) };
     };
     return task;
+}
+
+void VulkanReplayConsumerBase::TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
+                                                 const std::function<void()>&                sync_fn)
+{
+    for (const auto& handle : async_handles)
+    {
+        // check to avoid overwriting existing handle-destructors
+        if (async_tracked_handles_.count(handle) == 0)
+        {
+            async_tracked_handles_[handle] = { sync_fn, {} };
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
+{
+    for (const auto& handle : async_handles)
+    {
+        auto it = async_tracked_handles_.find(handle);
+        if (it != async_tracked_handles_.end())
+        {
+            const auto& [tracked_handle, handle_asset] = *it;
+
+            if (handle_asset.destroy_fn)
+            {
+                handle_asset.destroy_fn();
+            }
+            async_tracked_handles_.erase(it);
+        }
+    }
+}
+
+void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn)
+{
+    auto it = async_tracked_handles_.find(handle);
+
+    if (it != async_tracked_handles_.end())
+    {
+        async_tracked_handle_asset_t& handle_asset = it->second;
+
+        if constexpr (async_defer_deletion_)
+        {
+            handle_asset.destroy_fn = std::move(destroy_fn);
+        }
+        else
+        {
+            if (handle_asset.sync_fn)
+            {
+                handle_asset.sync_fn();
+            }
+            if (destroy_fn)
+            {
+                destroy_fn();
+            }
+        }
+    }
 }
 
 void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
