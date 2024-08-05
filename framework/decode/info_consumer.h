@@ -73,6 +73,9 @@ class InfoConsumer
         }
     }
 
+    void Process_SetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header, const char* env_string)
+    {}
+
   private:
     static int const                   MaxBlockIdx                                               = 50;
     char                               driver_info[gfxrecon::util::filepath::kMaxDriverInfoSize] = {};

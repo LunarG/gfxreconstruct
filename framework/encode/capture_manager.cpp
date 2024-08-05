@@ -985,16 +985,14 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
                 string_count += 1;
             }
             env_vars.reserve(offset - base_offset);
-            // std::vector<uint8_t> string_block_bytes;
-            // string_block_bytes.resize(offset + string_count * (sizeof(uint32_t) - 1) - 1);
-            // uint8_t* string_block_ptr = static_cast<uint8_t*>(string_block_bytes.data());
             offset = base_offset;
 
             int last_offset = offset;
             while (env_string[offset] != '\0') {
                 const char* c = env_string + offset;
                 env_vars += c;
-                
+                env_vars += '\0';
+
                 // Advance offset until it points to null byte of string
                 while (env_string[offset] != '\0') offset += 1;
                 uint32_t string_length = offset - last_offset;      // Save length of string before bumping offset again
@@ -1014,6 +1012,8 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             env_block.thread_id = thread_data->thread_id_;
 
             env_block.string_size = env_vars.size();
+
+            const char* just_testing_stuffs = env_vars.c_str();
 
             // Write to file before freeing environment strings
             CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
