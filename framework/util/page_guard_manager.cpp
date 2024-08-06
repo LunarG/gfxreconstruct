@@ -1370,8 +1370,8 @@ const void* PageGuardManager::GetMappedMemory(uint64_t memory_id) const
     return nullptr;
 }
 
-void PageGuardManager::GetModifiedMemoryRegions(
-    std::unordered_map<uint64_t, PageStatusTracker::PageStatus&>& memories_page_status)
+void PageGuardManager::GetTrackedMemoryRegions(
+    std::unordered_map<uint64_t, const PageStatusTracker::PageStatus&>& memories_page_status)
 {
     memories_page_status.clear();
 

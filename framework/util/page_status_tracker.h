@@ -53,7 +53,7 @@ class PageStatusTracker
 
     void SetAllBlocksActiveWrite() { std::fill(active_writes_.begin(), active_writes_.end(), 1); }
 
-    PageStatus& GetActiveWrites() { return active_writes_; }
+    const PageStatus& GetActiveWrites() { return active_writes_; }
 
   private:
     PageStatus active_writes_; //< Track blocks that have been written.
