@@ -170,12 +170,9 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
         // before we write the entries, so that the decoder will know up front how much memory it needs to allocate for
         // decoding. Optional entries must be encoded after the required entries, and must encode the number of elements
         // in the array as well as VkDescriptorType.
-        encoder->EncodeSizeTValue(info->image_info_count);
-        encoder->EncodeSizeTValue(info->storage_image_info_count);
-        encoder->EncodeSizeTValue(info->buffer_info_count);
-        encoder->EncodeSizeTValue(info->storage_buffer_info_count);
-        encoder->EncodeSizeTValue(info->uniform_texel_buffer_view_count);
-        encoder->EncodeSizeTValue(info->storage_texel_buffer_view_count);
+        encoder->EncodeSizeTValue(info->image_info_count + info->storage_image_info_count);
+        encoder->EncodeSizeTValue(info->buffer_info_count + info->storage_buffer_info_count);
+        encoder->EncodeSizeTValue(info->uniform_texel_buffer_view_count + info->storage_texel_buffer_view_count);
 
         // Write the individual template update entries, sorted by type, as tightly packed arrays.
         const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
