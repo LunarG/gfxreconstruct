@@ -1016,6 +1016,8 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             current += 1;
         }
 #endif
+            env_vars[env_vars.size() - 1] = '\0';
+
             format::SetEnvironmentVariablesCommand env_block;
             env_block.meta_header.block_header.size = sizeof(env_block) + env_vars.size();
             env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;

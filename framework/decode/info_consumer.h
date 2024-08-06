@@ -25,6 +25,7 @@
 
 #include "decode/api_decoder.h"
 #include "info_consumer.h"
+#include "util/strings.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -74,7 +75,14 @@ class InfoConsumer
     }
 
     void Process_SetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header, const char* env_string)
-    {}
+    {
+        env_vars = util::strings::SplitString(std::string_view(env_string), ',');
+        printf("Captured environment vars:\n");
+        for (std::string& s : env_vars)
+        {
+            printf("%s\n", s.c_str());
+        }
+    }
 
   private:
     static int const                   MaxBlockIdx                                               = 50;
@@ -83,6 +91,7 @@ class InfoConsumer
     bool                               found_driver_info_{ false };
     gfxrecon::util::filepath::FileInfo exe_info = {};
     bool                               found_exe_info_{ false };
+    std::vector<std::string>           env_vars;
 };
 
 GFXRECON_END_NAMESPACE(decode)
