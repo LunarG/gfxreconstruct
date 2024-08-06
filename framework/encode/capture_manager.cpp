@@ -963,41 +963,44 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         // Gather environment variables in comma-delimited string
         std::string env_vars;
 #ifdef _WINDOWS
-            const LPCH env_string = GetEnvironmentStrings();
-            int offset = 0;
-            int        base_offset = 0;
-            while (env_string[offset] != '\0') {
-                static bool skipped_first = false;
-                const char* c = env_string + offset;
+        const LPCH env_string  = GetEnvironmentStrings();
+        int        offset      = 0;
+        int        base_offset = 0;
+        while (env_string[offset] != '\0')
+        {
+            static bool skipped_first = false;
+            const char* c             = env_string + offset;
 
-                while (env_string[offset] != '\0') offset += 1;
-                offset += 1;
+            while (env_string[offset] != '\0') offset += 1;
+            offset += 1;
 
-                // For some reason the first entry is garbage, so we skip it.
-                if (!skipped_first) {
-                    base_offset = offset;
-                    skipped_first = true;
-                    continue;
-                }
+            // For some reason the first entry is garbage, so we skip it.
+            if (!skipped_first)
+            {
+                base_offset   = offset;
+                skipped_first = true;
+                continue;
             }
-            env_vars.reserve(offset - base_offset);
-            offset = base_offset;
+        }
+        env_vars.reserve(offset - base_offset);
+        offset = base_offset;
 
-            int last_offset = offset;
-            while (env_string[offset] != '\0') {
-                const char* c = env_string + offset;
-                env_vars += c;
-                env_vars += ',';
+        int last_offset = offset;
+        while (env_string[offset] != '\0')
+        {
+            const char* c = env_string + offset;
+            env_vars += c;
+            env_vars += ',';
 
-                // Advance offset until it points to next null byte of string
-                while (env_string[offset] != '\0') offset += 1;
-                uint32_t string_length = offset - last_offset;      // Save length of string before bumping offset again
+            // Advance offset until it points to next null byte of string
+            while (env_string[offset] != '\0') offset += 1;
+            uint32_t string_length = offset - last_offset; // Save length of string before bumping offset again
 
-                // Advance offset to point at the first character of the next string
-                // or null if we're out of strings
-                offset += 1;
-                last_offset = offset;
-            }
+            // Advance offset to point at the first character of the next string
+            // or null if we're out of strings
+            offset += 1;
+            last_offset = offset;
+        }
 #elif __unix__
         extern char** environ;
         int           current      = 0;
@@ -1012,6 +1015,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         while (environ[current] != nullptr)
         {
             env_vars += environ[current];
+            env_vars += ',';
             current += 1;
         }
 #endif
