@@ -1035,14 +1035,12 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             format::SetEnvironmentVariablesCommand env_block;
             env_block.meta_header.block_header.size = sizeof(env_block) + env_vars.size();
             env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-            env_block.meta_header.meta_data_id = format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
+            env_block.meta_header.meta_data_id =
+                format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
 
-            auto thread_data = GetThreadData();
-            env_block.thread_id = thread_data->thread_id_;
-
+            auto thread_data      = GetThreadData();
+            env_block.thread_id   = thread_data->thread_id_;
             env_block.string_size = env_vars.size();
-
-            const char* just_testing_stuffs = env_vars.c_str();
 
             // Write to file before freeing environment strings
             CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
