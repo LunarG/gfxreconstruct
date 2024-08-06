@@ -44,6 +44,7 @@ class InfoConsumer
     const char*       GetOriginalFileName() const { return exe_info.OriginalFilename; }
     const char*       GetProductName() const { return exe_info.ProductName; }
     const char*       GetProductVersion() const { return exe_info.ProductVersion; }
+    const std::vector<std::string>& GetEnvironmentVariables() const { return env_vars; }
 
     void Process_ExeFileInfo(gfxrecon::util::filepath::FileInfo& info)
     {
@@ -77,11 +78,6 @@ class InfoConsumer
     void Process_SetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header, const char* env_string)
     {
         env_vars = util::strings::SplitString(std::string_view(env_string), ',');
-        printf("Captured environment vars:\n");
-        for (std::string& s : env_vars)
-        {
-            printf("%s\n", s.c_str());
-        }
     }
 
   private:
