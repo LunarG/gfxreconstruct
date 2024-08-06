@@ -1826,15 +1826,16 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         }
 
         success = ReadParameterBuffer(static_cast<size_t>(header.string_size));
-        if (!success || true)
+        if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
             return success;
         }
 
+        const char* env_string = (const char*)parameter_buffer_.data();
         for (auto decoder : decoders_)
         {
-            // decoder->DispatchSetEnvironmentVariablesCommand(header, parameter_buffer_.data());
+            decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
         }
 
         GFXRECON_LOG_WARNING("Skipping unhandled meta-data block with type kSetEnvironmentVariablesCommand");
