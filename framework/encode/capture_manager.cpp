@@ -990,7 +990,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             while (env_string[offset] != '\0') {
                 const char* c = env_string + offset;
                 env_vars += c;
-                env_vars += '\0';
+                env_vars += ',';
 
                 // Advance offset until it points to null byte of string
                 while (env_string[offset] != '\0') offset += 1;
@@ -1001,6 +1001,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
                 offset += 1;
                 last_offset = offset;
             }
+            env_vars[env_vars.size() - 1] = '\0';
 
             format::SetEnvironmentVariablesCommand env_block;
             env_block.meta_header.block_header.size = sizeof(env_block) + env_vars.size();
