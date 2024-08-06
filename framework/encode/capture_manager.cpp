@@ -960,14 +960,12 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         ForcedWriteAnnotation(
             format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
 
-        // Write block containing environment variables
+        // Gather environment variables in comma-delimited string
         std::string env_vars;
-
-        #ifdef _WINDOWS
+#ifdef _WINDOWS
             const LPCH env_string = GetEnvironmentStrings();
             int offset = 0;
-            int base_offset = 0;
-            int string_count = 0;
+            int        base_offset = 0;
             while (env_string[offset] != '\0') {
                 static bool skipped_first = false;
                 const char* c = env_string + offset;
@@ -981,7 +979,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
                     skipped_first = true;
                     continue;
                 }
-                string_count += 1;
             }
             env_vars.reserve(offset - base_offset);
             offset = base_offset;
@@ -990,9 +987,9 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             while (env_string[offset] != '\0') {
                 const char* c = env_string + offset;
                 env_vars += c;
-                env_vars += '\0';
+                env_vars += ',';
 
-                // Advance offset until it points to null byte of string
+                // Advance offset until it points to next null byte of string
                 while (env_string[offset] != '\0') offset += 1;
                 uint32_t string_length = offset - last_offset;      // Save length of string before bumping offset again
 
@@ -1001,28 +998,39 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
                 offset += 1;
                 last_offset = offset;
             }
-
+#elif __unix__
+        extern char** environ;
+        int           current      = 0;
+        size_t        total_length = 0;
+        while (environ[current] != nullptr)
+        {
+            total_length += util::platform::StringLength(environ[current]);
+            current += 1;
+        }
+        current = 0;
+        env_vars.reserve(total_length);
+        while (environ[current] != nullptr)
+        {
+            env_vars += environ[current];
+            current += 1;
+        }
+#endif
             format::SetEnvironmentVariablesCommand env_block;
             env_block.meta_header.block_header.size = sizeof(env_block) + env_vars.size();
             env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-            env_block.meta_header.meta_data_id = format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
+            env_block.meta_header.meta_data_id =
+                format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
 
-            auto thread_data = GetThreadData();
-            env_block.thread_id = thread_data->thread_id_;
-
+            auto thread_data      = GetThreadData();
+            env_block.thread_id   = thread_data->thread_id_;
             env_block.string_size = env_vars.size();
-
-            const char* just_testing_stuffs = env_vars.c_str();
 
             // Write to file before freeing environment strings
             CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
+
+#ifdef _WINDOWS
             FreeEnvironmentStrings((LPCH)env_string);
-        #elif __unix__
-            extern char** environ;
-            const char* env_string = eviron;
-            
-            GFXRECON_LOG_WARNING("Unable to save environment variables on linux at this time.");
-        #endif
+#endif
     }
     else
     {
