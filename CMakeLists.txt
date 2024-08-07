@@ -171,7 +171,7 @@ if(MSVC)
     option(CONVERT_EXPERIMENTAL_D3D12 "Build with convert DX12 enabled" OFF)
 	
 	# Enable STL locks to work after building capture libs with certain versions of VS
-	add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
+    add_definitions(-D_DISABLE_CONSTEXPR_MUTEX_CONSTRUCTOR)
 
     if(${D3D12_SUPPORT})
         add_definitions(-DD3D12_SUPPORT)
