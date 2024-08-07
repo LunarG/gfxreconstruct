@@ -990,7 +990,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         {
             const char* c = env_string + offset;
             env_vars += c;
-            env_vars += ',';
+            env_vars += format::kEnvironmentStringDelimeter;
 
             // Advance offset until it points to next null byte of string
             while (env_string[offset] != '\0') offset += 1;
@@ -1015,7 +1015,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         while (environ[current] != nullptr)
         {
             env_vars += environ[current];
-            env_vars += ',';
+            env_vars += format::kEnvironmentStringDelimeter;
             current += 1;
         }
 #endif
