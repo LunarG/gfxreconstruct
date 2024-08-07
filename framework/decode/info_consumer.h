@@ -77,7 +77,7 @@ class InfoConsumer
 
     void Process_SetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header, const char* env_string)
     {
-        env_vars = util::strings::SplitString(std::string_view(env_string), ',');
+        env_vars = util::strings::SplitString(std::string_view(env_string), format::kEnvironmentStringDelimeter);
     }
 
   private:
