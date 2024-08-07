@@ -340,7 +340,7 @@ inline std::string GetEnv(const char* name)
 
 inline bool SetEnv(const char* name, const char* value)
 {
-    return setenv(name, value, 1);
+    return setenv(name, value, 1) == 0;
 }
 
 inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)
