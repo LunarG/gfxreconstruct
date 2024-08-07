@@ -47,6 +47,7 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
+#include "util/strings.h"
 
 #include "spirv_reflect.h"
 
@@ -9530,59 +9531,18 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
     return task;
 }
 
-void VulkanReplayConsumerBase::TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
-                                                 const std::function<void()>&                sync_fn)
+void VulkanReplayConsumerBase::ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                                     const char*                             env_string)
 {
-    for (const auto& handle : async_handles)
+    std::vector<std::string> env_vars = util::strings::SplitString(env_string, format::kEnvironmentStringDelimeter);
+    for (std::string& s : env_vars)
     {
-        // check to avoid overwriting existing handle-destructors
-        if (async_tracked_handles_.count(handle) == 0)
+        std::vector<std::string> var = util::strings::SplitString(s, '=');
+        if (var.size() == 2)
         {
-            async_tracked_handles_[handle] = { sync_fn, {} };
-        }
-    }
-}
-
-void VulkanReplayConsumerBase::ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
-{
-    for (const auto& handle : async_handles)
-    {
-        auto it = async_tracked_handles_.find(handle);
-        if (it != async_tracked_handles_.end())
-        {
-            const auto& [tracked_handle, handle_asset] = *it;
-
-            if (handle_asset.destroy_fn)
-            {
-                handle_asset.destroy_fn();
-            }
-            async_tracked_handles_.erase(it);
-        }
-    }
-}
-
-void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn)
-{
-    auto it = async_tracked_handles_.find(handle);
-
-    if (it != async_tracked_handles_.end())
-    {
-        async_tracked_handle_asset_t& handle_asset = it->second;
-
-        if constexpr (async_defer_deletion_)
-        {
-            handle_asset.destroy_fn = std::move(destroy_fn);
-        }
-        else
-        {
-            if (handle_asset.sync_fn)
-            {
-                handle_asset.sync_fn();
-            }
-            if (destroy_fn)
-            {
-                destroy_fn();
-            }
+            const char* key = var[0].c_str();
+            const char* val = var[1].c_str();
+            util::platform::SetEnv(key, val);
         }
     }
 }
