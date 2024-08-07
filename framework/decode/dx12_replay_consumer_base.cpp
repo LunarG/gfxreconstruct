@@ -3263,10 +3263,12 @@ void Dx12ReplayConsumerBase::ProcessSetEnvironmentVariablesCommand(format::SetEn
     for (std::string& s : env_vars)
     {
         std::vector<std::string> var = util::strings::SplitString(s, '=');
-        GFXRECON_ASSERT(var.size() == 2);
-        const char* key = var[0].c_str();
-        const char* val = var[1].c_str();
-        SetEnvironmentVariable(key, val);
+        if (var.size() == 2)
+        {
+            const char* key = var[0].c_str();
+            const char* val = var[1].c_str();
+            util::platform::SetEnv(key, val);
+        }
     }
 }
 

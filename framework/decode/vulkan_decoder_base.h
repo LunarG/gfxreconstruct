@@ -195,6 +195,9 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
 
+    virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                        const char*                             env_string) override;
+
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
   protected:
