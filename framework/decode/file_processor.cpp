@@ -1837,8 +1837,6 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
         }
-
-        GFXRECON_LOG_WARNING("Skipping unhandled meta-data block with type kSetEnvironmentVariablesCommand");
     }
     else
     {
