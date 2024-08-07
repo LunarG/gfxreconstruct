@@ -129,33 +129,6 @@ Edit the `third-party/bootstrap-deps.json` file to use a new OpenXR-SDK commit.
 Update to at least sha1 of "be392bf6949adeeabad5082aa79d12aacbda781f".
 
 
-#### Copy the GFXReconstruct OpenXR API Layer Manifest File
-
-OpenXR finds the API Layer in the APK if the Manifest file is found under the assets folder.
-
-There are a few changes required to do so:
-
-1) Build GFXReconstruct manually for Android or Linux with OpenXR enabled to get the OpenXR
-   Manifest file.
-
-   The file will appear at:  `<build_folder>/layer/XrLayer_gfxreconstruct.json`
-
-2) Modify the manifest file to work as an implicit layer by adding a field at the end of the
-   "api_layer" section:
-
-```
-   "disable_environment" : "GFXRECON_DISABLE"
-```
-
-   **NOTE** You will need to add a comma after the previous field to be valid JSON
-
-3) Create the directory location for containing the manifest file
-
-    Under `shell/resources/images` create the following folder tree:
-    `openxr/1/api_layers/implicit.d`
-
-4) Copying the file into the appropriate location
-
 ### 4. Build IGL using Android Studio
 
  1. Select "app-openxr-vulkan" target
@@ -218,8 +191,8 @@ adb shell
 
 (logs into device)
 
-setprop debug.gfxrecon.capture_file  '/sdcard/Download/samples_capture.gfxr'
-setprop debug.gfxrecon.capture_frames '1-100'
+setprop debug.gfxrecon.capture_file  '/sdcard/Download/openxr_capture.gfxr'
+setprop debug.gfxrecon.capture_frames '1-30'
 ```
 
 More capture options can be found in the [USAGE_android.md](./USAGE_android.md)
@@ -231,5 +204,62 @@ Repeat the steps from section 2. above.
 
 This time, however, you should see a generated capture file after exiting the
 application in the `/sdcard/Download` folder called
-`samples_capture_frames_1_to_100.gfxr` since you have selected to save
+`openxr_capture_frames_1_to_30.gfxr` since you have selected to save
 only some of the frames.
+
+### 6. Verify the capture file
+
+Check that the above file exists:
+
+```bash
+adb shell ls /sdcard/Download/openxr_capture*.gfxr
+```
+
+### 7. Disable the capture layer
+
+Disable the capture layer globally and also restore the Vulkan usage of the
+HWUI:
+
+```bash
+adb shell "setprop debug.vulkan.layers ''"
+```
+
+## Replaying the Vulkan IGL Content
+
+
+### 1. Install the replay application
+
+Now, we need to install the Replay application that we built as part of the
+GFXReconstruct source.
+Install the replay APK from the root of the built source tree by using the
+`gfxrecon.py` script:
+
+```bash
+python3 android\\scripts\\gfxrecon.py install-apk \\
+    android\\tools\\quest_replay\\build\\outputs\\apk\\debug\\quest_replay-debug.apk
+```
+
+### 2. Force External Storage Permissions
+
+Even though the Quest Replay application is built enabling external
+storage access permissions in its Android Manifest file, it doesn't appear
+to always work.
+Because of this, just force on the permission right before attempting to
+run and access the files in the `/sdcard/downlaod` directory:
+
+```bash
+adb shell appops set --uid com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STORAGE allow
+```
+
+### 3. Run the replay
+
+Try running the replay using the `gfxrecon.py` script:
+
+```bash
+python3 android\\scripts\\gfxrecon.py replay \
+     /sdcard/Download/openxr_capture_frames_1_through_30_20240812T132918.gfxr
+```
+
+Replacing "openxr_capture_frames_1_through_30_20240812T132918.gfxr" with
+the name of the most recent capture file discovered when performing step
+[6. Verify the capture file](#6-verify-the-capture-file) above.

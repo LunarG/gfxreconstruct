@@ -58,7 +58,7 @@ if (OPENXR_SUPPORT_ENABLED)
     "file_format_version": "1.0.0",
     "api_layer": {
         "name": "XR_APILAYER_LUNARG_gfxreconstruct",
-        "library_path": "VkLayer_gfxreconstruct.so",
+        "library_path": "libVkLayer_gfxreconstruct.so",
         "api_version" : "${XR_VERSION}",
         "implementation_version" : "${GFXRECONSTRUCT_LAYER_JSON_VERSION}",
         "description": "GFXReconstruct Capture Layer Version ${GFXRECONSTRUCT_VERSION_STRING}",
