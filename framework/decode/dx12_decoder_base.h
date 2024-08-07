@@ -210,6 +210,9 @@ class Dx12DecoderBase : public ApiDecoder
     virtual void
     DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& dx12_runtime_info_header) override;
 
+    virtual void DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                        const char*                             env_string) override;
+
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
     virtual void SetCurrentApiCallId(format::ApiCallId api_call_id) override;
