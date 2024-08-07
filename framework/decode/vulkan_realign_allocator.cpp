@@ -68,7 +68,7 @@ VkResult VulkanRealignAllocator::AllocateMemory(const VkMemoryAllocateInfo*  all
     if ((allocate_info != nullptr) && (allocator_data != nullptr))
     {
         // allocate new memory allocation size collected from first pass by resource tracking
-        auto                 tracked_memory_info   = tracked_object_table_->GetTrackedDeviceMemoryInfo(capture_id);
+        auto                 tracked_memory_info   = tracked_object_table_->GetTrackedVkDeviceMemoryInfo(capture_id);
         VkMemoryAllocateInfo realign_allocate_info = *allocate_info;
 
         VkDeviceSize realign_size = tracked_memory_info->GetReplayMemoryAllocationSize();
@@ -100,7 +100,7 @@ VkResult VulkanRealignAllocator::BindBufferMemory(VkBuffer               buffer,
     if (resource_info != nullptr)
     {
         // Update buffer to new binding offset from first pass data collected from resource tracking.
-        auto tracked_buffer_info = tracked_object_table_->GetTrackedResourceInfo(resource_info->capture_id);
+        auto tracked_buffer_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
         if (tracked_buffer_info != nullptr)
         {
             realign_offset = tracked_buffer_info->GetReplayBindOffset();
@@ -131,7 +131,7 @@ VkResult VulkanRealignAllocator::BindBufferMemory2(uint32_t                     
             if (resource_info != nullptr)
             {
                 // Update buffer to new binding offset from first pass data collected from resource tracking.
-                auto tracked_buffer_info = tracked_object_table_->GetTrackedResourceInfo(resource_info->capture_id);
+                auto tracked_buffer_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
                 if (tracked_buffer_info != nullptr)
                 {
                     realign_bind_infos[i].memoryOffset = tracked_buffer_info->GetReplayBindOffset();
@@ -160,7 +160,7 @@ VkResult VulkanRealignAllocator::BindImageMemory(VkImage                image,
     if (resource_info != nullptr)
     {
         // Update image to new binding offset from first pass data collected from resource tracking.
-        auto tracked_image_info = tracked_object_table_->GetTrackedResourceInfo(resource_info->capture_id);
+        auto tracked_image_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
         if (tracked_image_info != nullptr)
         {
             realign_offset = tracked_image_info->GetReplayBindOffset();
@@ -191,7 +191,7 @@ VkResult VulkanRealignAllocator::BindImageMemory2(uint32_t                     b
             if (resource_info != nullptr)
             {
                 // Update image to new binding offset from first pass data collected from resource tracking.
-                auto tracked_image_info = tracked_object_table_->GetTrackedResourceInfo(resource_info->capture_id);
+                auto tracked_image_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
                 if (tracked_image_info != nullptr)
                 {
                     realign_bind_infos[i].memoryOffset = tracked_image_info->GetReplayBindOffset();
@@ -228,7 +228,7 @@ VkResult VulkanRealignAllocator::BindVideoSessionMemory(VkVideoSessionKHR       
             if (resource_info != nullptr)
             {
                 // Update video seesion to new binding offset from first pass data collected from resource tracking.
-                auto tracked_session_info = tracked_object_table_->GetTrackedResourceInfo(resource_info->capture_id);
+                auto tracked_session_info = tracked_object_table_->GetTrackedVkResourceInfo(resource_info->capture_id);
                 if (tracked_session_info != nullptr)
                 {
                     realign_bind_infos[i].memoryOffset = tracked_session_info->GetReplayBindOffset();
@@ -258,7 +258,7 @@ VkResult VulkanRealignAllocator::MapMemory(VkDeviceMemory   memory,
     if (memory_info != nullptr)
     {
         // Update map memory size to new allocated memory size.
-        auto tracked_memory_info = tracked_object_table_->GetTrackedDeviceMemoryInfo(memory_info->capture_id);
+        auto tracked_memory_info = tracked_object_table_->GetTrackedVkDeviceMemoryInfo(memory_info->capture_id);
 
         // Update map memory size.
         auto map_memories_sizes_list = tracked_memory_info->GetMappedMemorySizesList();
@@ -319,8 +319,8 @@ VkResult VulkanRealignAllocator::WriteMappedMemoryRange(MemoryData     allocator
 }
 
 // Util function to find the matching offset with the resources offsets.
-VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedDeviceMemoryInfo* tracked_memory_info,
-                                                                VkDeviceSize                   offset) const
+VkDeviceSize VulkanRealignAllocator::FindMatchingResourceOffset(const TrackedVkDeviceMemoryInfo* tracked_memory_info,
+                                                                VkDeviceSize                     offset) const
 {
     assert(tracked_memory_info != nullptr);
 
@@ -346,7 +346,7 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
     format::HandleId capture_id, MemoryData allocator_data, uint64_t offset, uint64_t size, const uint8_t* data)
 {
     // Find the corresponding resources offset and update fill memory to new offset.
-    auto tracked_memory_info = tracked_object_table_->GetTrackedDeviceMemoryInfo(capture_id);
+    auto tracked_memory_info = tracked_object_table_->GetTrackedVkDeviceMemoryInfo(capture_id);
 
     auto         tracked_bound_resources = tracked_memory_info->GetBoundResourcesList();
     VkDeviceSize mapped_memory_offset    = offset;
@@ -444,7 +444,7 @@ std::unique_ptr<VkMappedMemoryRange[]> VulkanRealignAllocator::UpdateMappedMemor
             if (memory_info != nullptr)
             {
                 // Update map memory size to new allocated memory size.
-                auto tracked_memory_info = tracked_object_table_->GetTrackedDeviceMemoryInfo(memory_info->capture_id);
+                auto tracked_memory_info = tracked_object_table_->GetTrackedVkDeviceMemoryInfo(memory_info->capture_id);
 
                 if (tracked_memory_info != nullptr)
                 {

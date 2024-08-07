@@ -26,90 +26,91 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 // Add tracked instance information into the instances table map
-void VulkanTrackedObjectInfoTable::AddTrackedInstanceInfo(TrackedInstanceInfo&& info)
+void VulkanTrackedObjectInfoTable::AddTrackedVkInstanceInfo(TrackedVkInstanceInfo&& info)
 {
-    AddTrackedObjectInfo(std::move(info), &tracked_instance_map_);
+    AddTrackedVkObjectInfo(std::move(info), &tracked_instance_map_);
 }
 
 // Add tracked physical device information into the physical devices table map
-void VulkanTrackedObjectInfoTable::AddTrackedPhysicalDeviceInfo(TrackedPhysicalDeviceInfo&& info)
+void VulkanTrackedObjectInfoTable::AddTrackedVkPhysicalDeviceInfo(TrackedVkPhysicalDeviceInfo&& info)
 {
-    AddTrackedObjectInfo(std::move(info), &tracked_physical_device_map_);
+    AddTrackedVkObjectInfo(std::move(info), &tracked_physical_device_map_);
 }
 
 // Add tracked device information into the devices table map
-void VulkanTrackedObjectInfoTable::AddTrackedDeviceInfo(TrackedDeviceInfo&& info)
+void VulkanTrackedObjectInfoTable::AddTrackedVkDeviceInfo(TrackedVkDeviceInfo&& info)
 {
-    AddTrackedObjectInfo(std::move(info), &tracked_device_map_);
+    AddTrackedVkObjectInfo(std::move(info), &tracked_device_map_);
 }
 
 // Add tracked memory information into the tracked memories information table map
-void VulkanTrackedObjectInfoTable::AddTrackedDeviceMemoryInfo(TrackedDeviceMemoryInfo&& info)
+void VulkanTrackedObjectInfoTable::AddTrackedVkDeviceMemoryInfo(TrackedVkDeviceMemoryInfo&& info)
 {
-    AddTrackedObjectInfo(std::move(info), &tracked_device_memory_map_);
+    AddTrackedVkObjectInfo(std::move(info), &tracked_device_memory_map_);
 }
 
 // Add tracked resource information into the tracked buffers information table map
-void VulkanTrackedObjectInfoTable::AddTrackedResourceInfo(TrackedResourceInfo&& info)
+void VulkanTrackedObjectInfoTable::AddTrackedVkResourceInfo(TrackedVkResourceInfo&& info)
 {
-    AddTrackedObjectInfo(std::move(info), &tracked_resource_map_);
+    AddTrackedVkObjectInfo(std::move(info), &tracked_resource_map_);
 }
 
-TrackedInstanceInfo* VulkanTrackedObjectInfoTable::GetTrackedInstanceInfo(format::HandleId id)
+TrackedVkInstanceInfo* VulkanTrackedObjectInfoTable::GetTrackedVkInstanceInfo(format::HandleId id)
 {
-    return GetTrackedObjectInfo<TrackedInstanceInfo>(id, &tracked_instance_map_);
+    return GetTrackedVkObjectInfo<TrackedVkInstanceInfo>(id, &tracked_instance_map_);
 }
 
-const TrackedInstanceInfo* VulkanTrackedObjectInfoTable::GetTrackedInstanceInfo(format::HandleId id) const
+const TrackedVkInstanceInfo* VulkanTrackedObjectInfoTable::GetTrackedVkInstanceInfo(format::HandleId id) const
 {
-    return GetTrackedObjectInfo<TrackedInstanceInfo>(id, &tracked_instance_map_);
+    return GetTrackedVkObjectInfo<TrackedVkInstanceInfo>(id, &tracked_instance_map_);
 }
 
-TrackedPhysicalDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedPhysicalDeviceInfo(format::HandleId id)
+TrackedVkPhysicalDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedVkPhysicalDeviceInfo(format::HandleId id)
 {
-    return GetTrackedObjectInfo<TrackedPhysicalDeviceInfo>(id, &tracked_physical_device_map_);
+    return GetTrackedVkObjectInfo<TrackedVkPhysicalDeviceInfo>(id, &tracked_physical_device_map_);
 }
 
-const TrackedPhysicalDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedPhysicalDeviceInfo(format::HandleId id) const
+const TrackedVkPhysicalDeviceInfo*
+VulkanTrackedObjectInfoTable::GetTrackedVkPhysicalDeviceInfo(format::HandleId id) const
 {
-    return GetTrackedObjectInfo<TrackedPhysicalDeviceInfo>(id, &tracked_physical_device_map_);
+    return GetTrackedVkObjectInfo<TrackedVkPhysicalDeviceInfo>(id, &tracked_physical_device_map_);
 }
 
-TrackedDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceInfo(format::HandleId id)
+TrackedVkDeviceInfo* VulkanTrackedObjectInfoTable::GetTrackedVkDeviceInfo(format::HandleId id)
 {
-    return GetTrackedObjectInfo<TrackedDeviceInfo>(id, &tracked_device_map_);
+    return GetTrackedVkObjectInfo<TrackedVkDeviceInfo>(id, &tracked_device_map_);
 }
 
 // Return specified handle ID's device memory information from the tracked memories information table map
-TrackedDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoryInfo(format::HandleId id)
+TrackedVkDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedVkDeviceMemoryInfo(format::HandleId id)
 {
-    return GetTrackedObjectInfo<TrackedDeviceMemoryInfo>(id, &tracked_device_memory_map_);
+    return GetTrackedVkObjectInfo<TrackedVkDeviceMemoryInfo>(id, &tracked_device_memory_map_);
 }
 
-const TrackedDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoryInfo(format::HandleId id) const
+const TrackedVkDeviceMemoryInfo* VulkanTrackedObjectInfoTable::GetTrackedVkDeviceMemoryInfo(format::HandleId id) const
 {
-    return GetTrackedObjectInfo<TrackedDeviceMemoryInfo>(id, &tracked_device_memory_map_);
+    return GetTrackedVkObjectInfo<TrackedVkDeviceMemoryInfo>(id, &tracked_device_memory_map_);
 }
 
 // Return specified handle ID's buffer information from the tracked buffers information table map
-TrackedResourceInfo* VulkanTrackedObjectInfoTable::GetTrackedResourceInfo(format::HandleId id)
+TrackedVkResourceInfo* VulkanTrackedObjectInfoTable::GetTrackedVkResourceInfo(format::HandleId id)
 {
-    return GetTrackedObjectInfo<TrackedResourceInfo>(id, &tracked_resource_map_);
+    return GetTrackedVkObjectInfo<TrackedVkResourceInfo>(id, &tracked_resource_map_);
 }
 
-const TrackedResourceInfo* VulkanTrackedObjectInfoTable::GetTrackedResourceInfo(format::HandleId id) const
+const TrackedVkResourceInfo* VulkanTrackedObjectInfoTable::GetTrackedVkResourceInfo(format::HandleId id) const
 {
-    return GetTrackedObjectInfo<TrackedResourceInfo>(id, &tracked_resource_map_);
+    return GetTrackedVkObjectInfo<TrackedVkResourceInfo>(id, &tracked_resource_map_);
 }
 
-std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>*
-VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoriesInfoMap()
+std::unordered_map<format::HandleId, TrackedVkDeviceMemoryInfo>*
+VulkanTrackedObjectInfoTable::GetTrackedVkDeviceMemoriesInfoMap()
 {
     return &tracked_device_memory_map_;
 }
 
-const std::unordered_map<format::HandleId, TrackedDeviceMemoryInfo>*
-VulkanTrackedObjectInfoTable::GetTrackedDeviceMemoriesInfoMap() const
+const std::unordered_map<format::HandleId, TrackedVkDeviceMemoryInfo>*
+VulkanTrackedObjectInfoTable::GetTrackedVkDeviceMemoriesInfoMap() const
 {
     return &tracked_device_memory_map_;
 }

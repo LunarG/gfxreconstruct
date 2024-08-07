@@ -166,13 +166,14 @@ class Dx12BaseGenerator(BaseGenerator):
         dx12_prefix_strings,
         err_file=sys.stderr,
         warn_file=sys.stderr,
-        diag_file=sys.stdout
+        diag_file=sys.stdout,
+        feature_break=True
     ):
         BaseGenerator.__init__(
             self,
             process_cmds=True,
             process_structs=True,
-            feature_break=True,
+            feature_break=feature_break,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -375,7 +376,7 @@ class Dx12BaseGenerator(BaseGenerator):
     def get_api_prefix(self):
         return 'Dx12'
 
-    def get_prefix_from_type(self):
+    def get_prefix_from_type(self, type):
         return 'Dx12'
 
     def get_wrapper_prefix_from_type(self):

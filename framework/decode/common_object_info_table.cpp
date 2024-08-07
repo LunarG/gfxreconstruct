@@ -1,5 +1,6 @@
 /*
-** Copyright (c) 2019-2020 LunarG, Inc.
+** Copyright (c) 2018-2021 Valve Corporation
+** Copyright (c) 2018-2024 LunarG, Inc.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,32 +21,40 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef GFXRECON_DECODE_CUSTOM_STRUCT_HANDLE_MAPPERS_H
-#define GFXRECON_DECODE_CUSTOM_STRUCT_HANDLE_MAPPERS_H
-
 #include "decode/common_object_info_table.h"
-#include "decode/custom_vulkan_struct_decoders_forward.h"
-#include "decode/vulkan_pnext_node.h"
-#include "util/defines.h"
-
-#include "vulkan/vulkan.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-void MapStructHandles(VkDescriptorType               type,
-                      Decoded_VkDescriptorImageInfo* wrapper,
-                      const CommonObjectInfoTable&   object_info_table);
+CommonObjectInfoTable* CommonObjectInfoTable::singleton_          = nullptr;
+uint32_t               CommonObjectInfoTable::singleton_refcount_ = 0;
 
-void MapStructHandles(Decoded_VkWriteDescriptorSet* wrapper, const CommonObjectInfoTable& object_info_table);
+CommonObjectInfoTable* CommonObjectInfoTable::GetSingleton()
+{
+    if (!singleton_)
+    {
+        singleton_          = new CommonObjectInfoTable();
+        singleton_refcount_ = 1;
+    }
+    return singleton_;
+}
 
-void MapStructHandles(Decoded_VkAccelerationStructureGeometryKHR* wrapper,
-                      const CommonObjectInfoTable&                object_info_table);
-
-void MapStructHandles(Decoded_VkAccelerationStructureBuildGeometryInfoKHR* wrapper,
-                      const CommonObjectInfoTable&                         object_info_table);
+void CommonObjectInfoTable::ReleaseSingleton()
+{
+    if (singleton_)
+    {
+        singleton_refcount_--;
+        if (singleton_refcount_ == 0)
+        {
+            delete singleton_;
+            singleton_ = nullptr;
+        }
+    }
+    else
+    {
+        assert(singleton_refcount_ == 0);
+    }
+}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
-
-#endif // GFXRECON_DECODE_CUSTOM_STRUCT_HANDLE_MAPPERS_H

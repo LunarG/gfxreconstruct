@@ -385,7 +385,7 @@ class BaseGenerator(OutputGenerator):
         self.generate_video = False
 
         # Typenames
-        self.base_types = dict()
+        self.base_types = dict()  # Set of OpenXR basetypes
         self.struct_names = set()  # Set of Vulkan struct typenames
         self.handle_names = set()  # Set of Vulkan handle typenames
         self.flags_types = dict(
@@ -420,6 +420,9 @@ class BaseGenerator(OutputGenerator):
             self.extension_structs_with_handle_ptrs = OrderedDict()  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
             self.feature_cmd_params = OrderedDict()                # Map of cmd names to lists of per-parameter ValueInfo
+
+        # Not used for Vulkan
+        self.base_header_structs = dict()  # Map of base header struct names to lists of child struct names
 
     #
     # Indicates that the current feature has C++ code to generate.
@@ -779,6 +782,12 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
+    def is_atom(self, base_type):
+        return False
+
+    def get_default_handle_atom_value(self, base_type):
+        return 'VK_NULL_HANDLE'
+
     def has_basetype(self, base_type):
         if base_type in self.base_types and self.base_types[base_type] is not None:
             return True
@@ -957,6 +966,12 @@ class BaseGenerator(OutputGenerator):
             key for key in self.feature_cmd_params
             if not self.is_cmd_black_listed(key)
         ]
+
+    def is_manually_generated_cmd_name(self, command):
+        """Determines if a command is in the list of manually generated command names."""
+        if self.MANUALLY_GENERATED_COMMANDS is not None and command in self.MANUALLY_GENERATED_COMMANDS:
+           return True
+        return False
 
     def clean_type_define(self, full_type):
         """Default to identity function, base classes may override."""
@@ -1385,15 +1400,18 @@ class BaseGenerator(OutputGenerator):
             type_name = value.base_type
 
             if is_override:
+                prefix_from_type = self.get_prefix_from_type(value.base_type)
+                info_type = prefix_from_type + value.base_type[2:] + 'Info'
                 if value.is_pointer or value.is_array:
                     count = value.pointer_count
+
                     if self.is_struct(type_name):
                         param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
                             type_name
                         )
                     elif self.is_class(value):
                         if count == 1:
-                            param_type = type_name[2:] + 'Info*'
+                            param_type = info_type + '*'
                         else:
                             param_type = 'HandlePointerDecoder<{}*>'.format(type_name)
                     elif self.is_handle(type_name) and type_name != 'VkCommandBuffer':
@@ -1402,7 +1420,7 @@ class BaseGenerator(OutputGenerator):
                         param_type = 'const ' + type_name + '*'
                 else:
                     if self.is_handle(type_name) and type_name != 'VkCommandBuffer':
-                        param_type = "const " + type_name[2:] + "Info*"
+                        param_type = "const " + info_type + '*'
                     else:
                         param_type = type_name
             else:
@@ -1494,8 +1512,8 @@ class BaseGenerator(OutputGenerator):
     def get_api_prefix(self):
         return 'Vulkan'
 
-    def get_prefix_from_type(self):
-        return 'Vulkan'
+    def get_prefix_from_type(self, type):
+        return self.get_api_prefix()
 
     def get_wrapper_prefix_from_type(self):
         return 'vulkan_wrappers'
@@ -1592,6 +1610,9 @@ class BaseGenerator(OutputGenerator):
 
     def is_dx12_class(self):
         return True if ('Dx12' in self.__class__.__name__) else False
+
+    def is_openxr_class(self):
+        return True if ('OpenXr' in self.__class__.__name__) else False
 
     def is_resource_dump_class(self):
         return True if ('ReplayDumpResources' in self.__class__.__name__) else False

@@ -37,11 +37,12 @@ class Dx12DecoderHeaderGenerator(
         dx12_prefix_strings,
         err_file=sys.stderr,
         warn_file=sys.stderr,
-        diag_file=sys.stdout
+        diag_file=sys.stdout,
+        feature_break=True
     ):
         Dx12BaseGenerator.__init__(
             self, source_dict, dx12_prefix_strings, err_file, warn_file,
-            diag_file
+            diag_file, feature_break=feature_break
         )
 
     def beginFile(self, gen_opts):

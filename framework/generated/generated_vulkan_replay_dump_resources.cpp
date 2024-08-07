@@ -39,7 +39,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindPipeline(
     PFN_vkCmdBindPipeline                       func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
-    const PipelineInfo*                         pipeline)
+    const VulkanPipelineInfo*                   pipeline)
 {
     if (IsRecording(commandBuffer))
     {
@@ -296,7 +296,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindDescriptorSets(
     PFN_vkCmdBindDescriptorSets                 func,
     VkCommandBuffer                             commandBuffer,
     VkPipelineBindPoint                         pipelineBindPoint,
-    const PipelineLayoutInfo*                   layout,
+    const VulkanPipelineLayoutInfo*             layout,
     uint32_t                                    firstSet,
     uint32_t                                    descriptorSetCount,
     HandlePointerDecoder<VkDescriptorSet>*      pDescriptorSets,
@@ -313,7 +313,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindIndexBuffer                    func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
     VkIndexType                                 indexType)
 {
@@ -373,7 +373,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirect(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirect                       func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
     uint32_t                                    drawCount,
     uint32_t                                    stride)
@@ -388,7 +388,7 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirect(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirect                func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
     uint32_t                                    drawCount,
     uint32_t                                    stride)
@@ -417,7 +417,7 @@ void VulkanReplayDumpResources::Process_vkCmdDispatchIndirect(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDispatchIndirect                   func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset)
 {
     if (IsRecording(commandBuffer))
@@ -1176,9 +1176,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCount(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCount                  func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    const BufferInfo*                           countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -1193,9 +1193,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCount(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirectCount           func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    const BufferInfo*                           countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -2261,9 +2261,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndirectCountKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndirectCountKHR               func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    const BufferInfo*                           countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -2278,9 +2278,9 @@ void VulkanReplayDumpResources::Process_vkCmdDrawIndexedIndirectCountKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdDrawIndexedIndirectCountKHR        func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
-    const BufferInfo*                           countBuffer,
+    const VulkanBufferInfo*                     countBuffer,
     VkDeviceSize                                countBufferOffset,
     uint32_t                                    maxDrawCount,
     uint32_t                                    stride)
@@ -2740,7 +2740,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2KHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindIndexBuffer2KHR                func,
     VkCommandBuffer                             commandBuffer,
-    const BufferInfo*                           buffer,
+    const VulkanBufferInfo*                     buffer,
     VkDeviceSize                                offset,
     VkDeviceSize                                size,
     VkIndexType                                 indexType)

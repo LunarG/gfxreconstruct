@@ -34,7 +34,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 // This class stores only the instance capture Id and replay handle Id
-class TrackedInstanceInfo
+class TrackedVkInstanceInfo
 {
   public:
     // Set capture ID
@@ -58,7 +58,7 @@ class TrackedInstanceInfo
 };
 
 // This class stores only the physical device capture Id and replay handle Id
-class TrackedPhysicalDeviceInfo
+class TrackedVkPhysicalDeviceInfo
 {
   public:
     // Set capture ID
@@ -100,7 +100,7 @@ class TrackedPhysicalDeviceInfo
 // This class stores the tracked device information
 // during the first pass of the replay.
 // It is need to query the resources' memory requirement on the replay device.
-class TrackedDeviceInfo
+class TrackedVkDeviceInfo
 {
   public:
     // Set capture ID
@@ -149,7 +149,7 @@ class TrackedDeviceInfo
 // during the first pass of the replay.
 // It is accessed by replay consumer class in second pass of
 // replay to support memory portability
-class TrackedResourceInfo
+class TrackedVkResourceInfo
 {
   public:
     // Set capture ID
@@ -295,7 +295,7 @@ class TrackedResourceInfo
 // during the first pass of the replay.
 // It is accessed by replay consumer class in second pass of
 // replay to support memory portability
-class TrackedDeviceMemoryInfo
+class TrackedVkDeviceMemoryInfo
 {
   public:
     // Set capture ID
@@ -335,11 +335,11 @@ class TrackedDeviceMemoryInfo
     const std::vector<VkDeviceSize>& GetFilledMemoryOffsetsList() const;
 
     // Insert resource into the bound resource list
-    void InsertBoundResourcesList(TrackedResourceInfo* buffer_id);
+    void InsertBoundResourcesList(TrackedVkResourceInfo* buffer_id);
 
     // Get bound resource list
-    std::vector<TrackedResourceInfo*>*       GetBoundResourcesList();
-    const std::vector<TrackedResourceInfo*>* GetBoundResourcesList() const;
+    std::vector<TrackedVkResourceInfo*>*       GetBoundResourcesList();
+    const std::vector<TrackedVkResourceInfo*>* GetBoundResourcesList() const;
 
     // Allocate replay memory allocation size by increment
     // on each resource binding call
@@ -374,7 +374,7 @@ class TrackedDeviceMemoryInfo
     std::vector<VkDeviceSize> filled_memories_offsets_;
 
     // a list of tracked resources (buffers and images) bound to this memory
-    std::vector<TrackedResourceInfo*> bound_resources_;
+    std::vector<TrackedVkResourceInfo*> bound_resources_;
 };
 
 GFXRECON_END_NAMESPACE(decode)
