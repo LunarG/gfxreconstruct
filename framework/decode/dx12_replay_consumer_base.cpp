@@ -33,6 +33,7 @@
 #include "util/file_path.h"
 #include "util/image_writer.h"
 #include "util/to_string.h"
+#include "util/strings.h"
 
 #include <dxgidebug.h>
 
@@ -3252,6 +3253,19 @@ void Dx12ReplayConsumerBase::Process_ID3D12Resource_WriteToSubresource(format::H
         auto replay_result = OverrideWriteToSubresource(
             replay_object, return_value, dst_subresource, dst_box, src_data, src_row_pitch, src_depth_pitch);
         CheckReplayResult("ID3D12Resource_WriteToSubresource", return_value, replay_result);
+    }
+}
+
+void Dx12ReplayConsumerBase::ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                                   const char*                             env_string)
+{
+    // env_string is a comma-delimited list of environment variables and their values
+    // Variable names and values are themselves delimited by an =
+    std::vector<std::string> env_vars = util::strings::SplitString(env_string, ',');
+    for (std::string& s : env_vars)
+    {
+        std::vector<std::string> var = util::strings::SplitString(s, '=');
+        SetEnvironmentVariable(var[0].c_str(), var[1].c_str());
     }
 }
 
