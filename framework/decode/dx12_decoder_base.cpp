@@ -321,6 +321,15 @@ void Dx12DecoderBase::DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCo
     }
 }
 
+void Dx12DecoderBase::DispatchSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                             const char*                             env_string)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessSetEnvironmentVariablesCommand(header, env_string);
+    }
+}
+
 void Dx12DecoderBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     for (auto consumer : consumers_)
