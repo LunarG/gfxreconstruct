@@ -93,10 +93,6 @@ class VulkanConsumerBase : public CommonConsumerBase
 
     virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId tlas, const std::vector<format::HandleId>& blases)
     {}
-
-    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                       const char*                             env_string)
-    {}
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -9588,22 +9588,6 @@ void VulkanReplayConsumerBase::DestroyAsyncHandle(format::HandleId handle, std::
     }
 }
 
-void VulkanReplayConsumerBase::ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                                     const char*                             env_string)
-{
-    std::vector<std::string> env_vars = util::strings::SplitString(env_string, format::kEnvironmentStringDelimeter);
-    for (std::string& s : env_vars)
-    {
-        std::vector<std::string> var = util::strings::SplitString(s, '=');
-        if (var.size() == 2)
-        {
-            const char* key = var[0].c_str();
-            const char* val = var[1].c_str();
-            util::platform::SetEnv(key, val);
-        }
-    }
-}
-
 void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
 {
     VulkanConsumer::SetCurrentBlockIndex(block_index);
