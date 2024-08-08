@@ -33,6 +33,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 #include "Vulkan-Utility-Libraries/vk_format_utils.h"
+#include "util/to_string.h"
 #include "vulkan/vulkan_core.h"
 
 #include "util/page_status_tracker.h"
@@ -1074,9 +1075,22 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
+                if (binding.type != entry.type)
+                {
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %s != %s",
+                                         __func__,
+                                         util::ToString<VkDescriptorType>(binding.type).c_str(),
+                                         util::ToString<VkDescriptorType>(entry.type).c_str());
+                }
+                const bool immutable_image = binding.type == VK_DESCRIPTOR_TYPE_SAMPLER ||
+                                             binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
+                                             binding.type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||
+                                             binding.type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+
                 format::HandleId*      dst_sampler_ids = &binding.sampler_ids[current_array_element];
                 format::HandleId*      dst_image_ids   = &binding.handle_ids[current_array_element];
-                VkDescriptorImageInfo* dst_info        = &binding.images[current_array_element];
+                VkDescriptorImageInfo* dst_info        = immutable_image ? &binding.images[current_array_element]
+                                                                         : &binding.storage_images[current_array_element];
                 const uint8_t*         src_address     = bytes + current_offset;
 
                 for (uint32_t i = 0; i < current_writes; ++i)
@@ -1094,59 +1108,6 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                         dst_image_ids[i] =
                             vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(image_info->imageView);
                     }
-
-                    memcpy(&dst_info[i], image_info, sizeof(dst_info[i]));
-
-                    src_address += entry.stride;
-                }
-
-                // Check for consecutive update.
-                if (current_count == current_writes)
-                {
-                    break;
-                }
-                else
-                {
-                    current_count -= current_writes;
-                    current_binding += 1;
-                    current_array_element = 0;
-                    current_offset += (current_writes * entry.stride);
-                }
-            }
-        }
-
-        for (const auto& entry : template_info->storage_image_info)
-        {
-            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
-            // will result in updates to consecutive bindings.
-            uint32_t current_count         = entry.count;
-            uint32_t current_binding       = entry.binding;
-            uint32_t current_array_element = entry.array_element;
-            size_t   current_offset        = entry.offset;
-
-            for (;;)
-            {
-                auto& binding = wrapper->bindings[current_binding];
-
-                assert(binding.storage_images != nullptr);
-
-                // Check count for consecutive updates.
-                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
-
-                bool* written_start = &binding.written[current_array_element];
-                std::fill(written_start, written_start + current_writes, true);
-
-                format::HandleId*      dst_image_ids = &binding.handle_ids[current_array_element];
-                VkDescriptorImageInfo* dst_info      = &binding.storage_images[current_array_element];
-                const uint8_t*         src_address   = bytes + current_offset;
-
-                for (uint32_t i = 0; i < current_writes; ++i)
-                {
-                    assert(binding.type == VK_DESCRIPTOR_TYPE_STORAGE_IMAGE);
-
-                    auto image_info = reinterpret_cast<const VkDescriptorImageInfo*>(src_address);
-                    dst_image_ids[i] =
-                        vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(image_info->imageView);
 
                     memcpy(&dst_info[i], image_info, sizeof(dst_info[i]));
 
@@ -1189,8 +1150,19 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
+                if (binding.type != entry.type)
+                {
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %s != %s",
+                                         __func__,
+                                         util::ToString<VkDescriptorType>(binding.type).c_str(),
+                                         util::ToString<VkDescriptorType>(entry.type).c_str());
+                }
+                const bool immutable_buffer = binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
+                                              binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
                 format::HandleId*       dst_buffer_ids = &binding.handle_ids[current_array_element];
-                VkDescriptorBufferInfo* dst_info       = &binding.buffers[current_array_element];
+                VkDescriptorBufferInfo* dst_info       = immutable_buffer ? &binding.buffers[current_array_element]
+                                                                          : &binding.storage_buffers[current_array_element];
                 const uint8_t*          src_address    = bytes + current_offset;
 
                 for (uint32_t i = 0; i < current_writes; ++i)
@@ -1218,57 +1190,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
             }
         }
 
-        for (const auto& entry : template_info->storage_buffer_info)
-        {
-            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
-            // will result in updates to consecutive bindings.
-            uint32_t current_count         = entry.count;
-            uint32_t current_binding       = entry.binding;
-            uint32_t current_array_element = entry.array_element;
-            size_t   current_offset        = entry.offset;
-
-            for (;;)
-            {
-                auto& binding = wrapper->bindings[current_binding];
-
-                assert(binding.storage_buffers != nullptr);
-
-                // Check count for consecutive updates.
-                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
-
-                bool* written_start = &binding.written[current_array_element];
-                std::fill(written_start, written_start + current_writes, true);
-
-                format::HandleId*       dst_buffer_ids = &binding.handle_ids[current_array_element];
-                VkDescriptorBufferInfo* dst_info       = &binding.storage_buffers[current_array_element];
-                const uint8_t*          src_address    = bytes + current_offset;
-
-                for (uint32_t i = 0; i < current_writes; ++i)
-                {
-                    auto buffer_info = reinterpret_cast<const VkDescriptorBufferInfo*>(src_address);
-                    dst_buffer_ids[i] =
-                        vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(buffer_info->buffer);
-                    memcpy(&dst_info[i], buffer_info, sizeof(dst_info[i]));
-
-                    src_address += entry.stride;
-                }
-
-                // Check for consecutive update.
-                if (current_count == current_writes)
-                {
-                    break;
-                }
-                else
-                {
-                    current_count -= current_writes;
-                    current_binding += 1;
-                    current_array_element = 0;
-                    current_offset += (current_writes * entry.stride);
-                }
-            }
-        }
-
-        for (const auto& entry : template_info->uniform_texel_buffer_view)
+        for (const auto& entry : template_info->texel_buffer_view)
         {
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to consecutive bindings.
@@ -1289,58 +1211,19 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
                 bool* written_start = &binding.written[current_array_element];
                 std::fill(written_start, written_start + current_writes, true);
 
-                format::HandleId* dst_view_ids = &binding.handle_ids[current_array_element];
-                VkBufferView*     dst_info     = &binding.uniform_texel_buffer_views[current_array_element];
-                const uint8_t*    src_address  = bytes + current_offset;
-
-                for (uint32_t i = 0; i < current_writes; ++i)
+                if (binding.type != entry.type)
                 {
-                    auto buffer_view = reinterpret_cast<const VkBufferView*>(src_address);
-                    dst_view_ids[i]  = vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(*buffer_view);
-                    dst_info[i]      = *buffer_view;
-
-                    src_address += entry.stride;
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %s != %s",
+                                         __func__,
+                                         util::ToString<VkDescriptorType>(binding.type).c_str(),
+                                         util::ToString<VkDescriptorType>(entry.type).c_str());
                 }
-
-                // Check for consecutive update.
-                if (current_count == current_writes)
-                {
-                    break;
-                }
-                else
-                {
-                    current_count -= current_writes;
-                    current_binding += 1;
-                    current_array_element = 0;
-                    current_offset += (current_writes * entry.stride);
-                }
-            }
-        }
-
-        for (const auto& entry : template_info->storage_texel_buffer_view)
-        {
-            // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
-            // will result in updates to consecutive bindings.
-            uint32_t current_count         = entry.count;
-            uint32_t current_binding       = entry.binding;
-            uint32_t current_array_element = entry.array_element;
-            size_t   current_offset        = entry.offset;
-
-            for (;;)
-            {
-                auto& binding = wrapper->bindings[current_binding];
-
-                assert(binding.storage_texel_buffer_views != nullptr);
-
-                // Check count for consecutive updates.
-                uint32_t current_writes = std::min(current_count, (binding.count - current_array_element));
-
-                bool* written_start = &binding.written[current_array_element];
-                std::fill(written_start, written_start + current_writes, true);
+                const bool immutable_buffer = binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
 
                 format::HandleId* dst_view_ids = &binding.handle_ids[current_array_element];
-                VkBufferView*     dst_info     = &binding.storage_texel_buffer_views[current_array_element];
-                const uint8_t*    src_address  = bytes + current_offset;
+                VkBufferView*  dst_info = immutable_buffer ? &binding.uniform_texel_buffer_views[current_array_element]
+                                                           : &binding.storage_texel_buffer_views[current_array_element];
+                const uint8_t* src_address = bytes + current_offset;
 
                 for (uint32_t i = 0; i < current_writes; ++i)
                 {

@@ -66,18 +66,6 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
             }
         }
 
-        for (const auto& entry_info : info->storage_image_info)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t offset          = entry_info.offset + (entry_info.stride * i);
-                auto   unwrapped_entry = reinterpret_cast<VkDescriptorImageInfo*>(unwrapped_data + offset);
-
-                memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorImageInfo));
-                vulkan_wrappers::UnwrapStructHandles(entry_info.type, unwrapped_entry, unwrap_memory);
-            }
-        }
-
         // Process VkDescriptorBufferInfo
         for (const auto& entry_info : info->buffer_info)
         {
@@ -91,32 +79,8 @@ static const void* UnwrapDescriptorUpdateTemplateInfoHandles(const UpdateTemplat
             }
         }
 
-        for (const auto& entry_info : info->storage_buffer_info)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t offset          = entry_info.offset + (entry_info.stride * i);
-                auto   unwrapped_entry = reinterpret_cast<VkDescriptorBufferInfo*>(unwrapped_data + offset);
-
-                memcpy(unwrapped_entry, bytes + offset, sizeof(VkDescriptorBufferInfo));
-                vulkan_wrappers::UnwrapStructHandles(unwrapped_entry, unwrap_memory);
-            }
-        }
-
         // Process VkBufferView
-        for (const auto& entry_info : info->uniform_texel_buffer_view)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t offset          = entry_info.offset + (entry_info.stride * i);
-                auto   unwrapped_entry = reinterpret_cast<VkBufferView*>(unwrapped_data + offset);
-                auto   entry           = reinterpret_cast<const VkBufferView*>(bytes + offset);
-
-                *unwrapped_entry = (*entry);
-            }
-        }
-
-        for (const auto& entry_info : info->storage_texel_buffer_view)
+        for (const auto& entry_info : info->texel_buffer_view)
         {
             for (size_t i = 0; i < entry_info.count; ++i)
             {
@@ -170,24 +134,14 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
         // before we write the entries, so that the decoder will know up front how much memory it needs to allocate for
         // decoding. Optional entries must be encoded after the required entries, and must encode the number of elements
         // in the array as well as VkDescriptorType.
-        encoder->EncodeSizeTValue(info->image_info_count + info->storage_image_info_count);
-        encoder->EncodeSizeTValue(info->buffer_info_count + info->storage_buffer_info_count);
-        encoder->EncodeSizeTValue(info->uniform_texel_buffer_view_count + info->storage_texel_buffer_view_count);
+        encoder->EncodeSizeTValue(info->image_info_count);
+        encoder->EncodeSizeTValue(info->buffer_info_count);
+        encoder->EncodeSizeTValue(info->texel_buffer_view_count);
 
         // Write the individual template update entries, sorted by type, as tightly packed arrays.
         const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
         // Process VkDescriptorImageInfo
         for (const auto& entry_info : info->image_info)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t                       offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorImageInfo* entry  = reinterpret_cast<const VkDescriptorImageInfo*>(bytes + offset);
-                EncodeStruct(encoder, entry_info.type, (*entry));
-            }
-        }
-
-        for (const auto& entry_info : info->storage_image_info)
         {
             for (size_t i = 0; i < entry_info.count; ++i)
             {
@@ -208,28 +162,8 @@ static void EncodeDescriptorUpdateTemplateInfo(VulkanCaptureManager*     manager
             }
         }
 
-        for (const auto& entry_info : info->storage_buffer_info)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t                        offset = entry_info.offset + (entry_info.stride * i);
-                const VkDescriptorBufferInfo* entry  = reinterpret_cast<const VkDescriptorBufferInfo*>(bytes + offset);
-                EncodeStruct(encoder, (*entry));
-            }
-        }
-
         // Process VkBufferView
-        for (const auto& entry_info : info->uniform_texel_buffer_view)
-        {
-            for (size_t i = 0; i < entry_info.count; ++i)
-            {
-                size_t              offset = entry_info.offset + (entry_info.stride * i);
-                const VkBufferView* entry  = reinterpret_cast<const VkBufferView*>(bytes + offset);
-                encoder->EncodeVulkanHandleValue<vulkan_wrappers::BufferViewWrapper>(*entry);
-            }
-        }
-
-        for (const auto& entry_info : info->storage_texel_buffer_view)
+        for (const auto& entry_info : info->texel_buffer_view)
         {
             for (size_t i = 0; i < entry_info.count; ++i)
             {
