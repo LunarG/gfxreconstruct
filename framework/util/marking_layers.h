@@ -62,7 +62,7 @@ class MarkingLayersUtil
         {
             if (!scope_closed_)
             {
-                GFXRECON_LOG_FATAL("Marking was not closed, previous begin call at %s, %s", file_.c_str(), line_);
+                GFXRECON_LOG_FATAL("Marking was not closed, previous begin call at %s, %d", file_.c_str(), line_);
                 GFXRECON_ASSERT(false);
             }
             file_         = file;
