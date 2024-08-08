@@ -366,50 +366,18 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     }
 
     //! track arbitrary handles that are currently used by asynchronous operations
-    void TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
-    {
-        for (const auto& handle : async_handles)
-        {
-            // check to avoid overwriting existing handle-destructors
-            if (async_inflight_handles_.count(handle) == 0)
-            {
-                async_inflight_handles_[handle] = {};
-            }
-        }
-    }
+    void TrackAsyncHandles(const std::unordered_set<format::HandleId>& async_handles,
+                           const std::function<void()>&                sync_fn);
 
     //! clear handles that are currently used by asynchronous operations,
     //! invoke stored deletion-functions
-    void ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles)
-    {
-        for (const auto& handle : async_handles)
-        {
-            auto it = async_inflight_handles_.find(handle);
-            if (it != async_inflight_handles_.end())
-            {
-                const auto& [tracked_handle, destroy_fn] = *it;
-                if (destroy_fn)
-                {
-                    destroy_fn();
-                }
-                async_inflight_handles_.erase(it);
-            }
-        }
-    }
+    void ClearAsyncHandles(const std::unordered_set<format::HandleId>& async_handles);
 
     //! schedules deletion of already tracked handles
-    void DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn)
-    {
-        auto it = async_inflight_handles_.find(handle);
-
-        if (it != async_inflight_handles_.end())
-        {
-            it->second = std::move(destroy_fn);
-        }
-    }
+    void DestroyAsyncHandle(format::HandleId handle, std::function<void()> destroy_fn);
 
     //! return true if this handle is currently being tracked (was passed to 'TrackAsyncHandles' earlier)
-    bool IsUsedByAsyncTask(uint64_t handle) const { return async_inflight_handles_.count(handle) > 0; }
+    bool IsUsedByAsyncTask(uint64_t handle) const { return async_tracked_handles_.count(handle) > 0; }
 
     //! returns true if asynchronous operations should be used at all
     bool UseAsyncOperations() { return options_.num_pipeline_creation_jobs != 0 && !options_.dumping_resources; }
@@ -1466,9 +1434,23 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
 
-    util::ThreadPool                                            main_thread_queue_;
-    util::ThreadPool                                            background_queue_;
-    std::unordered_map<format::HandleId, std::function<void()>> async_inflight_handles_;
+    util::ThreadPool main_thread_queue_;
+    util::ThreadPool background_queue_;
+
+    //! async_tracked_handle_asset_t groups assets used by tracked async-dependencies
+    struct async_tracked_handle_asset_t
+    {
+        //! function to synchronize (blocking wait) with parent asynchronous-task
+        std::function<void()> sync_fn;
+
+        //! function used to defer deletion of a tracked async-dependency
+        std::function<void()> destroy_fn;
+    };
+    //! stores handles used/referenced by currently running async tasks
+    std::unordered_map<format::HandleId, async_tracked_handle_asset_t> async_tracked_handles_;
+
+    //! decide whether to sync/wait or defer deletion of handles used by currently running async tasks
+    static constexpr bool async_defer_deletion_ = false;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid
