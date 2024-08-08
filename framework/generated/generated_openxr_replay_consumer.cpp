@@ -53,6 +53,7 @@ void OpenXrReplayConsumer::Process_xrDestroyInstance(
 
     XrResult replay_result = GetInstanceTable(in_instance)->DestroyInstance(in_instance);
     CheckResult("xrDestroyInstance", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyInstance>(), call_info, returnValue, instance, replay_result);
     RemoveHandle(instance, &CommonObjectInfoTable::RemoveXrInstanceInfo);
 }
 
@@ -68,6 +69,7 @@ void OpenXrReplayConsumer::Process_xrGetInstanceProperties(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetInstanceProperties(in_instance, out_instanceProperties);
     CheckResult("xrGetInstanceProperties", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetInstanceProperties>(), call_info, returnValue, instance, instanceProperties, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPollEvent(
@@ -82,6 +84,7 @@ void OpenXrReplayConsumer::Process_xrPollEvent(
 
     XrResult replay_result = GetInstanceTable(in_instance)->PollEvent(in_instance, out_eventData);
     CheckResult("xrPollEvent", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPollEvent>(), call_info, returnValue, instance, eventData, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrResultToString(
@@ -96,6 +99,7 @@ void OpenXrReplayConsumer::Process_xrResultToString(
 
     XrResult replay_result = GetInstanceTable(in_instance)->ResultToString(in_instance, value, out_buffer);
     CheckResult("xrResultToString", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrResultToString>(), call_info, returnValue, instance, value, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrStructureTypeToString(
@@ -110,6 +114,7 @@ void OpenXrReplayConsumer::Process_xrStructureTypeToString(
 
     XrResult replay_result = GetInstanceTable(in_instance)->StructureTypeToString(in_instance, value, out_buffer);
     CheckResult("xrStructureTypeToString", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrStructureTypeToString>(), call_info, returnValue, instance, value, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSystem(
@@ -128,6 +133,7 @@ void OpenXrReplayConsumer::Process_xrGetSystem(
     CheckResult("xrGetSystem", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrSystemIdInfo>(instance, systemId->GetPointer(), out_systemId, &CommonObjectInfoTable::AddXrSystemIdInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSystem>(), call_info, returnValue, instance, getInfo, systemId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSystemProperties(
@@ -146,6 +152,7 @@ void OpenXrReplayConsumer::Process_xrGetSystemProperties(
     CheckResult("xrGetSystemProperties", returnValue, replay_result, call_info);
 
     AddStructHandles(instance, properties->GetMetaStructPointer(), out_properties, &GetObjectInfoTable());
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSystemProperties>(), call_info, returnValue, instance, systemId, properties, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateEnvironmentBlendModes(
@@ -165,6 +172,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateEnvironmentBlendModes(
 
     XrResult replay_result = GetInstanceTable(in_instance)->EnumerateEnvironmentBlendModes(in_instance, in_systemId, viewConfigurationType, environmentBlendModeCapacityInput, out_environmentBlendModeCountOutput, out_environmentBlendModes);
     CheckResult("xrEnumerateEnvironmentBlendModes", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateEnvironmentBlendModes>(), call_info, returnValue, instance, systemId, viewConfigurationType, environmentBlendModeCapacityInput, environmentBlendModeCountOutput, environmentBlendModes, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSession(
@@ -186,6 +194,7 @@ void OpenXrReplayConsumer::Process_xrCreateSession(
     AddHandle<OpenXrSessionInfo>(instance, session->GetPointer(), out_session, &CommonObjectInfoTable::AddXrSessionInfo);
     
     AssociateParent(*out_session, in_instance);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSession>(), call_info, returnValue, instance, createInfo, session, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySession(
@@ -197,6 +206,7 @@ void OpenXrReplayConsumer::Process_xrDestroySession(
 
     XrResult replay_result = GetInstanceTable(in_session)->DestroySession(in_session);
     CheckResult("xrDestroySession", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySession>(), call_info, returnValue, session, replay_result);
     RemoveHandle(session, &CommonObjectInfoTable::RemoveXrSessionInfo);
 }
 
@@ -214,6 +224,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateReferenceSpaces(
 
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateReferenceSpaces(in_session, spaceCapacityInput, out_spaceCountOutput, out_spaces);
     CheckResult("xrEnumerateReferenceSpaces", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces>(), call_info, returnValue, session, spaceCapacityInput, spaceCountOutput, spaces, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateReferenceSpace(
@@ -234,6 +245,7 @@ void OpenXrReplayConsumer::Process_xrCreateReferenceSpace(
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateReferenceSpace>(), call_info, returnValue, session, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetReferenceSpaceBoundsRect(
@@ -248,6 +260,7 @@ void OpenXrReplayConsumer::Process_xrGetReferenceSpaceBoundsRect(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetReferenceSpaceBoundsRect(in_session, referenceSpaceType, out_bounds);
     CheckResult("xrGetReferenceSpaceBoundsRect", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetReferenceSpaceBoundsRect>(), call_info, returnValue, session, referenceSpaceType, bounds, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateActionSpace(
@@ -269,6 +282,7 @@ void OpenXrReplayConsumer::Process_xrCreateActionSpace(
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateActionSpace>(), call_info, returnValue, session, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrLocateSpace(
@@ -286,6 +300,7 @@ void OpenXrReplayConsumer::Process_xrLocateSpace(
 
     XrResult replay_result = GetInstanceTable(in_space)->LocateSpace(in_space, in_baseSpace, time, out_location);
     CheckResult("xrLocateSpace", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrLocateSpace>(), call_info, returnValue, space, baseSpace, time, location, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySpace(
@@ -297,6 +312,7 @@ void OpenXrReplayConsumer::Process_xrDestroySpace(
 
     XrResult replay_result = GetInstanceTable(in_space)->DestroySpace(in_space);
     CheckResult("xrDestroySpace", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySpace>(), call_info, returnValue, space, replay_result);
     RemoveHandle(space, &CommonObjectInfoTable::RemoveXrSpaceInfo);
 }
 
@@ -316,6 +332,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateViewConfigurations(
 
     XrResult replay_result = GetInstanceTable(in_instance)->EnumerateViewConfigurations(in_instance, in_systemId, viewConfigurationTypeCapacityInput, out_viewConfigurationTypeCountOutput, out_viewConfigurationTypes);
     CheckResult("xrEnumerateViewConfigurations", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateViewConfigurations>(), call_info, returnValue, instance, systemId, viewConfigurationTypeCapacityInput, viewConfigurationTypeCountOutput, viewConfigurationTypes, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetViewConfigurationProperties(
@@ -333,6 +350,7 @@ void OpenXrReplayConsumer::Process_xrGetViewConfigurationProperties(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetViewConfigurationProperties(in_instance, in_systemId, viewConfigurationType, out_configurationProperties);
     CheckResult("xrGetViewConfigurationProperties", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetViewConfigurationProperties>(), call_info, returnValue, instance, systemId, viewConfigurationType, configurationProperties, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateViewConfigurationViews(
@@ -352,6 +370,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateViewConfigurationViews(
 
     XrResult replay_result = GetInstanceTable(in_instance)->EnumerateViewConfigurationViews(in_instance, in_systemId, viewConfigurationType, viewCapacityInput, out_viewCountOutput, out_views);
     CheckResult("xrEnumerateViewConfigurationViews", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateViewConfigurationViews>(), call_info, returnValue, instance, systemId, viewConfigurationType, viewCapacityInput, viewCountOutput, views, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateSwapchainFormats(
@@ -368,6 +387,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateSwapchainFormats(
 
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateSwapchainFormats(in_session, formatCapacityInput, out_formatCountOutput, out_formats);
     CheckResult("xrEnumerateSwapchainFormats", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateSwapchainFormats>(), call_info, returnValue, session, formatCapacityInput, formatCountOutput, formats, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSwapchain(
@@ -388,6 +408,7 @@ void OpenXrReplayConsumer::Process_xrCreateSwapchain(
     AddHandle<OpenXrSwapchainInfo>(session, swapchain->GetPointer(), out_swapchain, &CommonObjectInfoTable::AddXrSwapchainInfo);
     
     AssociateParent(*out_swapchain, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSwapchain>(), call_info, returnValue, session, createInfo, swapchain, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySwapchain(
@@ -399,6 +420,7 @@ void OpenXrReplayConsumer::Process_xrDestroySwapchain(
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->DestroySwapchain(in_swapchain);
     CheckResult("xrDestroySwapchain", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySwapchain>(), call_info, returnValue, swapchain, replay_result);
     RemoveHandle(swapchain, &CommonObjectInfoTable::RemoveXrSwapchainInfo);
 }
 
@@ -416,6 +438,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateSwapchainImages(
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->EnumerateSwapchainImages(in_swapchain, imageCapacityInput, out_imageCountOutput, out_images);
     CheckResult("xrEnumerateSwapchainImages", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateSwapchainImages>(), call_info, returnValue, swapchain, imageCapacityInput, imageCountOutput, images, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrAcquireSwapchainImage(
@@ -431,6 +454,7 @@ void OpenXrReplayConsumer::Process_xrAcquireSwapchainImage(
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->AcquireSwapchainImage(in_swapchain, in_acquireInfo, out_index);
     CheckResult("xrAcquireSwapchainImage", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>(), call_info, returnValue, swapchain, acquireInfo, index, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrWaitSwapchainImage(
@@ -444,6 +468,7 @@ void OpenXrReplayConsumer::Process_xrWaitSwapchainImage(
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->WaitSwapchainImage(in_swapchain, in_waitInfo);
     CheckResult("xrWaitSwapchainImage", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrWaitSwapchainImage>(), call_info, returnValue, swapchain, waitInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrReleaseSwapchainImage(
@@ -457,6 +482,7 @@ void OpenXrReplayConsumer::Process_xrReleaseSwapchainImage(
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->ReleaseSwapchainImage(in_swapchain, in_releaseInfo);
     CheckResult("xrReleaseSwapchainImage", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrReleaseSwapchainImage>(), call_info, returnValue, swapchain, releaseInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrBeginSession(
@@ -470,6 +496,7 @@ void OpenXrReplayConsumer::Process_xrBeginSession(
 
     XrResult replay_result = GetInstanceTable(in_session)->BeginSession(in_session, in_beginInfo);
     CheckResult("xrBeginSession", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrBeginSession>(), call_info, returnValue, session, beginInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEndSession(
@@ -481,6 +508,7 @@ void OpenXrReplayConsumer::Process_xrEndSession(
 
     XrResult replay_result = GetInstanceTable(in_session)->EndSession(in_session);
     CheckResult("xrEndSession", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEndSession>(), call_info, returnValue, session, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrRequestExitSession(
@@ -492,6 +520,7 @@ void OpenXrReplayConsumer::Process_xrRequestExitSession(
 
     XrResult replay_result = GetInstanceTable(in_session)->RequestExitSession(in_session);
     CheckResult("xrRequestExitSession", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrRequestExitSession>(), call_info, returnValue, session, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrWaitFrame(
@@ -508,6 +537,7 @@ void OpenXrReplayConsumer::Process_xrWaitFrame(
 
     XrResult replay_result = GetInstanceTable(in_session)->WaitFrame(in_session, in_frameWaitInfo, out_frameState);
     CheckResult("xrWaitFrame", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrWaitFrame>(), call_info, returnValue, session, frameWaitInfo, frameState, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrBeginFrame(
@@ -521,6 +551,7 @@ void OpenXrReplayConsumer::Process_xrBeginFrame(
 
     XrResult replay_result = GetInstanceTable(in_session)->BeginFrame(in_session, in_frameBeginInfo);
     CheckResult("xrBeginFrame", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrBeginFrame>(), call_info, returnValue, session, frameBeginInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEndFrame(
@@ -535,6 +566,7 @@ void OpenXrReplayConsumer::Process_xrEndFrame(
 
     XrResult replay_result = GetInstanceTable(in_session)->EndFrame(in_session, in_frameEndInfo);
     CheckResult("xrEndFrame", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEndFrame>(), call_info, returnValue, session, frameEndInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrLocateViews(
@@ -557,6 +589,7 @@ void OpenXrReplayConsumer::Process_xrLocateViews(
 
     XrResult replay_result = GetInstanceTable(in_session)->LocateViews(in_session, in_viewLocateInfo, out_viewState, viewCapacityInput, out_viewCountOutput, out_views);
     CheckResult("xrLocateViews", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrLocateViews>(), call_info, returnValue, session, viewLocateInfo, viewState, viewCapacityInput, viewCountOutput, views, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrStringToPath(
@@ -575,6 +608,7 @@ void OpenXrReplayConsumer::Process_xrStringToPath(
     CheckResult("xrStringToPath", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrPathInfo>(instance, path->GetPointer(), out_path, &CommonObjectInfoTable::AddXrPathInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrStringToPath>(), call_info, returnValue, instance, pathString, path, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPathToString(
@@ -593,6 +627,7 @@ void OpenXrReplayConsumer::Process_xrPathToString(
 
     XrResult replay_result = GetInstanceTable(in_instance)->PathToString(in_instance, in_path, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrPathToString", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPathToString>(), call_info, returnValue, instance, path, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateActionSet(
@@ -613,6 +648,7 @@ void OpenXrReplayConsumer::Process_xrCreateActionSet(
     AddHandle<OpenXrActionSetInfo>(instance, actionSet->GetPointer(), out_actionSet, &CommonObjectInfoTable::AddXrActionSetInfo);
     
     AssociateParent(*out_actionSet, in_instance);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateActionSet>(), call_info, returnValue, instance, createInfo, actionSet, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyActionSet(
@@ -624,6 +660,7 @@ void OpenXrReplayConsumer::Process_xrDestroyActionSet(
 
     XrResult replay_result = GetInstanceTable(in_actionSet)->DestroyActionSet(in_actionSet);
     CheckResult("xrDestroyActionSet", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyActionSet>(), call_info, returnValue, actionSet, replay_result);
     RemoveHandle(actionSet, &CommonObjectInfoTable::RemoveXrActionSetInfo);
 }
 
@@ -646,6 +683,7 @@ void OpenXrReplayConsumer::Process_xrCreateAction(
     AddHandle<OpenXrActionInfo>(actionSet, action->GetPointer(), out_action, &CommonObjectInfoTable::AddXrActionInfo);
     
     AssociateParent(*out_action, in_actionSet);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateAction>(), call_info, returnValue, actionSet, createInfo, action, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyAction(
@@ -657,6 +695,7 @@ void OpenXrReplayConsumer::Process_xrDestroyAction(
 
     XrResult replay_result = GetInstanceTable(in_action)->DestroyAction(in_action);
     CheckResult("xrDestroyAction", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyAction>(), call_info, returnValue, action, replay_result);
     RemoveHandle(action, &CommonObjectInfoTable::RemoveXrActionInfo);
 }
 
@@ -672,6 +711,7 @@ void OpenXrReplayConsumer::Process_xrSuggestInteractionProfileBindings(
 
     XrResult replay_result = GetInstanceTable(in_instance)->SuggestInteractionProfileBindings(in_instance, in_suggestedBindings);
     CheckResult("xrSuggestInteractionProfileBindings", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSuggestInteractionProfileBindings>(), call_info, returnValue, instance, suggestedBindings, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrAttachSessionActionSets(
@@ -686,6 +726,7 @@ void OpenXrReplayConsumer::Process_xrAttachSessionActionSets(
 
     XrResult replay_result = GetInstanceTable(in_session)->AttachSessionActionSets(in_session, in_attachInfo);
     CheckResult("xrAttachSessionActionSets", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrAttachSessionActionSets>(), call_info, returnValue, session, attachInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetCurrentInteractionProfile(
@@ -704,6 +745,7 @@ void OpenXrReplayConsumer::Process_xrGetCurrentInteractionProfile(
     CheckResult("xrGetCurrentInteractionProfile", returnValue, replay_result, call_info);
 
     AddStructHandles(session, interactionProfile->GetMetaStructPointer(), out_interactionProfile, &GetObjectInfoTable());
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetCurrentInteractionProfile>(), call_info, returnValue, session, topLevelUserPath, interactionProfile, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetActionStateBoolean(
@@ -721,6 +763,7 @@ void OpenXrReplayConsumer::Process_xrGetActionStateBoolean(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetActionStateBoolean(in_session, in_getInfo, out_state);
     CheckResult("xrGetActionStateBoolean", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetActionStateBoolean>(), call_info, returnValue, session, getInfo, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetActionStateFloat(
@@ -738,6 +781,7 @@ void OpenXrReplayConsumer::Process_xrGetActionStateFloat(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetActionStateFloat(in_session, in_getInfo, out_state);
     CheckResult("xrGetActionStateFloat", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetActionStateFloat>(), call_info, returnValue, session, getInfo, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetActionStateVector2f(
@@ -755,6 +799,7 @@ void OpenXrReplayConsumer::Process_xrGetActionStateVector2f(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetActionStateVector2f(in_session, in_getInfo, out_state);
     CheckResult("xrGetActionStateVector2f", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetActionStateVector2f>(), call_info, returnValue, session, getInfo, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetActionStatePose(
@@ -772,6 +817,7 @@ void OpenXrReplayConsumer::Process_xrGetActionStatePose(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetActionStatePose(in_session, in_getInfo, out_state);
     CheckResult("xrGetActionStatePose", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetActionStatePose>(), call_info, returnValue, session, getInfo, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSyncActions(
@@ -786,6 +832,7 @@ void OpenXrReplayConsumer::Process_xrSyncActions(
 
     XrResult replay_result = GetInstanceTable(in_session)->SyncActions(in_session, in_syncInfo);
     CheckResult("xrSyncActions", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSyncActions>(), call_info, returnValue, session, syncInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateBoundSourcesForAction(
@@ -808,6 +855,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateBoundSourcesForAction(
     CheckResult("xrEnumerateBoundSourcesForAction", returnValue, replay_result, call_info);
 
     AddHandles<OpenXrPathInfo>(session, sources->GetPointer(), sources->GetLength(), out_sources, sourceCapacityInput, &CommonObjectInfoTable::AddXrPathInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateBoundSourcesForAction>(), call_info, returnValue, session, enumerateInfo, sourceCapacityInput, sourceCountOutput, sources, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetInputSourceLocalizedName(
@@ -827,6 +875,7 @@ void OpenXrReplayConsumer::Process_xrGetInputSourceLocalizedName(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetInputSourceLocalizedName(in_session, in_getInfo, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrGetInputSourceLocalizedName", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetInputSourceLocalizedName>(), call_info, returnValue, session, getInfo, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrApplyHapticFeedback(
@@ -843,6 +892,7 @@ void OpenXrReplayConsumer::Process_xrApplyHapticFeedback(
 
     XrResult replay_result = GetInstanceTable(in_session)->ApplyHapticFeedback(in_session, in_hapticActionInfo, in_hapticFeedback);
     CheckResult("xrApplyHapticFeedback", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrApplyHapticFeedback>(), call_info, returnValue, session, hapticActionInfo, hapticFeedback, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrStopHapticFeedback(
@@ -857,6 +907,7 @@ void OpenXrReplayConsumer::Process_xrStopHapticFeedback(
 
     XrResult replay_result = GetInstanceTable(in_session)->StopHapticFeedback(in_session, in_hapticActionInfo);
     CheckResult("xrStopHapticFeedback", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrStopHapticFeedback>(), call_info, returnValue, session, hapticActionInfo, replay_result);
 }
 
 
@@ -871,6 +922,7 @@ void OpenXrReplayConsumer::Process_xrSetAndroidApplicationThreadKHR(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetAndroidApplicationThreadKHR(in_session, threadType, threadId);
     CheckResult("xrSetAndroidApplicationThreadKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetAndroidApplicationThreadKHR>(), call_info, returnValue, session, threadType, threadId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSwapchainAndroidSurfaceKHR(
@@ -893,6 +945,7 @@ void OpenXrReplayConsumer::Process_xrCreateSwapchainAndroidSurfaceKHR(
     AddHandle<OpenXrSwapchainInfo>(session, swapchain->GetPointer(), out_swapchain, &CommonObjectInfoTable::AddXrSwapchainInfo);
     
     AssociateParent(*out_swapchain, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSwapchainAndroidSurfaceKHR>(), call_info, returnValue, session, info, swapchain, surface, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetOpenGLGraphicsRequirementsKHR(
@@ -909,6 +962,7 @@ void OpenXrReplayConsumer::Process_xrGetOpenGLGraphicsRequirementsKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetOpenGLGraphicsRequirementsKHR(in_instance, in_systemId, out_graphicsRequirements);
     CheckResult("xrGetOpenGLGraphicsRequirementsKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetOpenGLGraphicsRequirementsKHR>(), call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetOpenGLESGraphicsRequirementsKHR(
@@ -925,6 +979,7 @@ void OpenXrReplayConsumer::Process_xrGetOpenGLESGraphicsRequirementsKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetOpenGLESGraphicsRequirementsKHR(in_instance, in_systemId, out_graphicsRequirements);
     CheckResult("xrGetOpenGLESGraphicsRequirementsKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetOpenGLESGraphicsRequirementsKHR>(), call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVulkanInstanceExtensionsKHR(
@@ -943,6 +998,7 @@ void OpenXrReplayConsumer::Process_xrGetVulkanInstanceExtensionsKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanInstanceExtensionsKHR(in_instance, in_systemId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrGetVulkanInstanceExtensionsKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVulkanInstanceExtensionsKHR>(), call_info, returnValue, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVulkanDeviceExtensionsKHR(
@@ -961,6 +1017,7 @@ void OpenXrReplayConsumer::Process_xrGetVulkanDeviceExtensionsKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanDeviceExtensionsKHR(in_instance, in_systemId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrGetVulkanDeviceExtensionsKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVulkanDeviceExtensionsKHR>(), call_info, returnValue, instance, systemId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsDeviceKHR(
@@ -981,6 +1038,7 @@ void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsDeviceKHR(
     CheckResult("xrGetVulkanGraphicsDeviceKHR", returnValue, replay_result, call_info);
 
     AddHandle<VulkanPhysicalDeviceInfo>(instance, vkPhysicalDevice->GetPointer(), out_vkPhysicalDevice, &CommonObjectInfoTable::AddVkPhysicalDeviceInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>(), call_info, returnValue, instance, systemId, vkInstance, vkPhysicalDevice, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsRequirementsKHR(
@@ -997,6 +1055,7 @@ void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsRequirementsKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanGraphicsRequirementsKHR(in_instance, in_systemId, out_graphicsRequirements);
     CheckResult("xrGetVulkanGraphicsRequirementsKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirementsKHR>(), call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetD3D11GraphicsRequirementsKHR(
@@ -1013,6 +1072,7 @@ void OpenXrReplayConsumer::Process_xrGetD3D11GraphicsRequirementsKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetD3D11GraphicsRequirementsKHR(in_instance, in_systemId, out_graphicsRequirements);
     CheckResult("xrGetD3D11GraphicsRequirementsKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetD3D11GraphicsRequirementsKHR>(), call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetD3D12GraphicsRequirementsKHR(
@@ -1029,6 +1089,7 @@ void OpenXrReplayConsumer::Process_xrGetD3D12GraphicsRequirementsKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetD3D12GraphicsRequirementsKHR(in_instance, in_systemId, out_graphicsRequirements);
     CheckResult("xrGetD3D12GraphicsRequirementsKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetD3D12GraphicsRequirementsKHR>(), call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVisibilityMaskKHR(
@@ -1046,6 +1107,7 @@ void OpenXrReplayConsumer::Process_xrGetVisibilityMaskKHR(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetVisibilityMaskKHR(in_session, viewConfigurationType, viewIndex, visibilityMaskType, out_visibilityMask);
     CheckResult("xrGetVisibilityMaskKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVisibilityMaskKHR>(), call_info, returnValue, session, viewConfigurationType, viewIndex, visibilityMaskType, visibilityMask, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrConvertWin32PerformanceCounterToTimeKHR(
@@ -1061,6 +1123,7 @@ void OpenXrReplayConsumer::Process_xrConvertWin32PerformanceCounterToTimeKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->ConvertWin32PerformanceCounterToTimeKHR(in_instance, in_performanceCounter, out_time);
     CheckResult("xrConvertWin32PerformanceCounterToTimeKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrConvertWin32PerformanceCounterToTimeKHR>(), call_info, returnValue, instance, performanceCounter, time, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrConvertTimeToWin32PerformanceCounterKHR(
@@ -1075,6 +1138,7 @@ void OpenXrReplayConsumer::Process_xrConvertTimeToWin32PerformanceCounterKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->ConvertTimeToWin32PerformanceCounterKHR(in_instance, time, out_performanceCounter);
     CheckResult("xrConvertTimeToWin32PerformanceCounterKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrConvertTimeToWin32PerformanceCounterKHR>(), call_info, returnValue, instance, time, performanceCounter, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrConvertTimespecTimeToTimeKHR(
@@ -1090,6 +1154,7 @@ void OpenXrReplayConsumer::Process_xrConvertTimespecTimeToTimeKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->ConvertTimespecTimeToTimeKHR(in_instance, in_timespecTime, out_time);
     CheckResult("xrConvertTimespecTimeToTimeKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrConvertTimespecTimeToTimeKHR>(), call_info, returnValue, instance, timespecTime, time, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrConvertTimeToTimespecTimeKHR(
@@ -1104,6 +1169,7 @@ void OpenXrReplayConsumer::Process_xrConvertTimeToTimespecTimeKHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->ConvertTimeToTimespecTimeKHR(in_instance, time, out_timespecTime);
     CheckResult("xrConvertTimeToTimespecTimeKHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrConvertTimeToTimespecTimeKHR>(), call_info, returnValue, instance, time, timespecTime, replay_result);
 }
 
 
@@ -1126,6 +1192,7 @@ void OpenXrReplayConsumer::Process_xrCreateVulkanInstanceKHR(
     CheckResult("xrCreateVulkanInstanceKHR", returnValue, replay_result, call_info);
 
     AddHandle<VulkanInstanceInfo>(instance, vulkanInstance->GetPointer(), out_vulkanInstance, &CommonObjectInfoTable::AddVkInstanceInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>(), call_info, returnValue, instance, createInfo, vulkanInstance, vulkanResult, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateVulkanDeviceKHR(
@@ -1147,6 +1214,7 @@ void OpenXrReplayConsumer::Process_xrCreateVulkanDeviceKHR(
     CheckResult("xrCreateVulkanDeviceKHR", returnValue, replay_result, call_info);
 
     AddHandle<VulkanDeviceInfo>(instance, vulkanDevice->GetPointer(), out_vulkanDevice, &CommonObjectInfoTable::AddVkDeviceInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>(), call_info, returnValue, instance, createInfo, vulkanDevice, vulkanResult, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsDevice2KHR(
@@ -1166,6 +1234,7 @@ void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsDevice2KHR(
     CheckResult("xrGetVulkanGraphicsDevice2KHR", returnValue, replay_result, call_info);
 
     AddHandle<VulkanPhysicalDeviceInfo>(instance, vulkanPhysicalDevice->GetPointer(), out_vulkanPhysicalDevice, &CommonObjectInfoTable::AddVkPhysicalDeviceInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>(), call_info, returnValue, instance, getInfo, vulkanPhysicalDevice, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsRequirements2KHR(
@@ -1182,6 +1251,7 @@ void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsRequirements2KHR(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanGraphicsRequirements2KHR(in_instance, in_systemId, out_graphicsRequirements);
     CheckResult("xrGetVulkanGraphicsRequirements2KHR", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR>(), call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPerfSettingsSetPerformanceLevelEXT(
@@ -1195,6 +1265,7 @@ void OpenXrReplayConsumer::Process_xrPerfSettingsSetPerformanceLevelEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->PerfSettingsSetPerformanceLevelEXT(in_session, domain, level);
     CheckResult("xrPerfSettingsSetPerformanceLevelEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPerfSettingsSetPerformanceLevelEXT>(), call_info, returnValue, session, domain, level, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrThermalGetTemperatureTrendEXT(
@@ -1213,6 +1284,7 @@ void OpenXrReplayConsumer::Process_xrThermalGetTemperatureTrendEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->ThermalGetTemperatureTrendEXT(in_session, domain, out_notificationLevel, out_tempHeadroom, out_tempSlope);
     CheckResult("xrThermalGetTemperatureTrendEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrThermalGetTemperatureTrendEXT>(), call_info, returnValue, session, domain, notificationLevel, tempHeadroom, tempSlope, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetDebugUtilsObjectNameEXT(
@@ -1226,6 +1298,7 @@ void OpenXrReplayConsumer::Process_xrSetDebugUtilsObjectNameEXT(
 
     XrResult replay_result = GetInstanceTable(in_instance)->SetDebugUtilsObjectNameEXT(in_instance, in_nameInfo);
     CheckResult("xrSetDebugUtilsObjectNameEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetDebugUtilsObjectNameEXT>(), call_info, returnValue, instance, nameInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateDebugUtilsMessengerEXT(
@@ -1246,6 +1319,7 @@ void OpenXrReplayConsumer::Process_xrCreateDebugUtilsMessengerEXT(
     AddHandle<OpenXrDebugUtilsMessengerEXTInfo>(instance, messenger->GetPointer(), out_messenger, &CommonObjectInfoTable::AddXrDebugUtilsMessengerEXTInfo);
     
     AssociateParent(*out_messenger, in_instance);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateDebugUtilsMessengerEXT>(), call_info, returnValue, instance, createInfo, messenger, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyDebugUtilsMessengerEXT(
@@ -1257,6 +1331,7 @@ void OpenXrReplayConsumer::Process_xrDestroyDebugUtilsMessengerEXT(
 
     XrResult replay_result = GetInstanceTable(in_messenger)->DestroyDebugUtilsMessengerEXT(in_messenger);
     CheckResult("xrDestroyDebugUtilsMessengerEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyDebugUtilsMessengerEXT>(), call_info, returnValue, messenger, replay_result);
     RemoveHandle(messenger, &CommonObjectInfoTable::RemoveXrDebugUtilsMessengerEXTInfo);
 }
 
@@ -1273,6 +1348,7 @@ void OpenXrReplayConsumer::Process_xrSubmitDebugUtilsMessageEXT(
 
     XrResult replay_result = GetInstanceTable(in_instance)->SubmitDebugUtilsMessageEXT(in_instance, messageSeverity, messageTypes, in_callbackData);
     CheckResult("xrSubmitDebugUtilsMessageEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSubmitDebugUtilsMessageEXT>(), call_info, returnValue, instance, messageSeverity, messageTypes, callbackData, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSessionBeginDebugUtilsLabelRegionEXT(
@@ -1286,6 +1362,7 @@ void OpenXrReplayConsumer::Process_xrSessionBeginDebugUtilsLabelRegionEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SessionBeginDebugUtilsLabelRegionEXT(in_session, in_labelInfo);
     CheckResult("xrSessionBeginDebugUtilsLabelRegionEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSessionBeginDebugUtilsLabelRegionEXT>(), call_info, returnValue, session, labelInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSessionEndDebugUtilsLabelRegionEXT(
@@ -1297,6 +1374,7 @@ void OpenXrReplayConsumer::Process_xrSessionEndDebugUtilsLabelRegionEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SessionEndDebugUtilsLabelRegionEXT(in_session);
     CheckResult("xrSessionEndDebugUtilsLabelRegionEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSessionEndDebugUtilsLabelRegionEXT>(), call_info, returnValue, session, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSessionInsertDebugUtilsLabelEXT(
@@ -1310,6 +1388,7 @@ void OpenXrReplayConsumer::Process_xrSessionInsertDebugUtilsLabelEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SessionInsertDebugUtilsLabelEXT(in_session, in_labelInfo);
     CheckResult("xrSessionInsertDebugUtilsLabelEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSessionInsertDebugUtilsLabelEXT>(), call_info, returnValue, session, labelInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorMSFT(
@@ -1331,6 +1410,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorMSFT(
     AddHandle<OpenXrSpatialAnchorMSFTInfo>(session, anchor->GetPointer(), out_anchor, &CommonObjectInfoTable::AddXrSpatialAnchorMSFTInfo);
     
     AssociateParent(*out_anchor, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialAnchorMSFT>(), call_info, returnValue, session, createInfo, anchor, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorSpaceMSFT(
@@ -1352,6 +1432,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorSpaceMSFT(
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialAnchorSpaceMSFT>(), call_info, returnValue, session, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySpatialAnchorMSFT(
@@ -1363,6 +1444,7 @@ void OpenXrReplayConsumer::Process_xrDestroySpatialAnchorMSFT(
 
     XrResult replay_result = GetInstanceTable(in_anchor)->DestroySpatialAnchorMSFT(in_anchor);
     CheckResult("xrDestroySpatialAnchorMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySpatialAnchorMSFT>(), call_info, returnValue, anchor, replay_result);
     RemoveHandle(anchor, &CommonObjectInfoTable::RemoveXrSpatialAnchorMSFTInfo);
 }
 
@@ -1380,6 +1462,7 @@ void OpenXrReplayConsumer::Process_xrSetInputDeviceActiveEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetInputDeviceActiveEXT(in_session, in_interactionProfile, in_topLevelPath, isActive);
     CheckResult("xrSetInputDeviceActiveEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetInputDeviceActiveEXT>(), call_info, returnValue, session, interactionProfile, topLevelPath, isActive, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetInputDeviceStateBoolEXT(
@@ -1396,6 +1479,7 @@ void OpenXrReplayConsumer::Process_xrSetInputDeviceStateBoolEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetInputDeviceStateBoolEXT(in_session, in_topLevelPath, in_inputSourcePath, state);
     CheckResult("xrSetInputDeviceStateBoolEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetInputDeviceStateBoolEXT>(), call_info, returnValue, session, topLevelPath, inputSourcePath, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetInputDeviceStateFloatEXT(
@@ -1412,6 +1496,7 @@ void OpenXrReplayConsumer::Process_xrSetInputDeviceStateFloatEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetInputDeviceStateFloatEXT(in_session, in_topLevelPath, in_inputSourcePath, state);
     CheckResult("xrSetInputDeviceStateFloatEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetInputDeviceStateFloatEXT>(), call_info, returnValue, session, topLevelPath, inputSourcePath, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetInputDeviceStateVector2fEXT(
@@ -1428,6 +1513,7 @@ void OpenXrReplayConsumer::Process_xrSetInputDeviceStateVector2fEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetInputDeviceStateVector2fEXT(in_session, in_topLevelPath, in_inputSourcePath, *state.decoded_value);
     CheckResult("xrSetInputDeviceStateVector2fEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetInputDeviceStateVector2fEXT>(), call_info, returnValue, session, topLevelPath, inputSourcePath, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetInputDeviceLocationEXT(
@@ -1446,6 +1532,7 @@ void OpenXrReplayConsumer::Process_xrSetInputDeviceLocationEXT(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetInputDeviceLocationEXT(in_session, in_topLevelPath, in_inputSourcePath, in_space, *pose.decoded_value);
     CheckResult("xrSetInputDeviceLocationEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetInputDeviceLocationEXT>(), call_info, returnValue, session, topLevelPath, inputSourcePath, space, pose, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialGraphNodeSpaceMSFT(
@@ -1466,6 +1553,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialGraphNodeSpaceMSFT(
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialGraphNodeSpaceMSFT>(), call_info, returnValue, session, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrTryCreateSpatialGraphStaticNodeBindingMSFT(
@@ -1487,6 +1575,7 @@ void OpenXrReplayConsumer::Process_xrTryCreateSpatialGraphStaticNodeBindingMSFT(
     AddHandle<OpenXrSpatialGraphNodeBindingMSFTInfo>(session, nodeBinding->GetPointer(), out_nodeBinding, &CommonObjectInfoTable::AddXrSpatialGraphNodeBindingMSFTInfo);
     
     AssociateParent(*out_nodeBinding, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrTryCreateSpatialGraphStaticNodeBindingMSFT>(), call_info, returnValue, session, createInfo, nodeBinding, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySpatialGraphNodeBindingMSFT(
@@ -1498,6 +1587,7 @@ void OpenXrReplayConsumer::Process_xrDestroySpatialGraphNodeBindingMSFT(
 
     XrResult replay_result = GetInstanceTable(in_nodeBinding)->DestroySpatialGraphNodeBindingMSFT(in_nodeBinding);
     CheckResult("xrDestroySpatialGraphNodeBindingMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySpatialGraphNodeBindingMSFT>(), call_info, returnValue, nodeBinding, replay_result);
     RemoveHandle(nodeBinding, &CommonObjectInfoTable::RemoveXrSpatialGraphNodeBindingMSFTInfo);
 }
 
@@ -1515,6 +1605,7 @@ void OpenXrReplayConsumer::Process_xrGetSpatialGraphNodeBindingPropertiesMSFT(
 
     XrResult replay_result = GetInstanceTable(in_nodeBinding)->GetSpatialGraphNodeBindingPropertiesMSFT(in_nodeBinding, in_getInfo, out_properties);
     CheckResult("xrGetSpatialGraphNodeBindingPropertiesMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpatialGraphNodeBindingPropertiesMSFT>(), call_info, returnValue, nodeBinding, getInfo, properties, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateHandTrackerEXT(
@@ -1535,6 +1626,7 @@ void OpenXrReplayConsumer::Process_xrCreateHandTrackerEXT(
     AddHandle<OpenXrHandTrackerEXTInfo>(session, handTracker->GetPointer(), out_handTracker, &CommonObjectInfoTable::AddXrHandTrackerEXTInfo);
     
     AssociateParent(*out_handTracker, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateHandTrackerEXT>(), call_info, returnValue, session, createInfo, handTracker, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyHandTrackerEXT(
@@ -1546,6 +1638,7 @@ void OpenXrReplayConsumer::Process_xrDestroyHandTrackerEXT(
 
     XrResult replay_result = GetInstanceTable(in_handTracker)->DestroyHandTrackerEXT(in_handTracker);
     CheckResult("xrDestroyHandTrackerEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyHandTrackerEXT>(), call_info, returnValue, handTracker, replay_result);
     RemoveHandle(handTracker, &CommonObjectInfoTable::RemoveXrHandTrackerEXTInfo);
 }
 
@@ -1564,6 +1657,7 @@ void OpenXrReplayConsumer::Process_xrLocateHandJointsEXT(
 
     XrResult replay_result = GetInstanceTable(in_handTracker)->LocateHandJointsEXT(in_handTracker, in_locateInfo, out_locations);
     CheckResult("xrLocateHandJointsEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>(), call_info, returnValue, handTracker, locateInfo, locations, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateHandMeshSpaceMSFT(
@@ -1584,6 +1678,7 @@ void OpenXrReplayConsumer::Process_xrCreateHandMeshSpaceMSFT(
     AddHandle<OpenXrSpaceInfo>(handTracker, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_handTracker);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateHandMeshSpaceMSFT>(), call_info, returnValue, handTracker, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrUpdateHandMeshMSFT(
@@ -1600,6 +1695,7 @@ void OpenXrReplayConsumer::Process_xrUpdateHandMeshMSFT(
 
     XrResult replay_result = GetInstanceTable(in_handTracker)->UpdateHandMeshMSFT(in_handTracker, in_updateInfo, out_handMesh);
     CheckResult("xrUpdateHandMeshMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrUpdateHandMeshMSFT>(), call_info, returnValue, handTracker, updateInfo, handMesh, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetControllerModelKeyMSFT(
@@ -1618,6 +1714,7 @@ void OpenXrReplayConsumer::Process_xrGetControllerModelKeyMSFT(
     CheckResult("xrGetControllerModelKeyMSFT", returnValue, replay_result, call_info);
 
     AddStructHandles(session, controllerModelKeyState->GetMetaStructPointer(), out_controllerModelKeyState, &GetObjectInfoTable());
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetControllerModelKeyMSFT>(), call_info, returnValue, session, topLevelUserPath, controllerModelKeyState, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrLoadControllerModelMSFT(
@@ -1636,6 +1733,7 @@ void OpenXrReplayConsumer::Process_xrLoadControllerModelMSFT(
 
     XrResult replay_result = GetInstanceTable(in_session)->LoadControllerModelMSFT(in_session, in_modelKey, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrLoadControllerModelMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrLoadControllerModelMSFT>(), call_info, returnValue, session, modelKey, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetControllerModelPropertiesMSFT(
@@ -1652,6 +1750,7 @@ void OpenXrReplayConsumer::Process_xrGetControllerModelPropertiesMSFT(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetControllerModelPropertiesMSFT(in_session, in_modelKey, out_properties);
     CheckResult("xrGetControllerModelPropertiesMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetControllerModelPropertiesMSFT>(), call_info, returnValue, session, modelKey, properties, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetControllerModelStateMSFT(
@@ -1668,6 +1767,7 @@ void OpenXrReplayConsumer::Process_xrGetControllerModelStateMSFT(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetControllerModelStateMSFT(in_session, in_modelKey, out_state);
     CheckResult("xrGetControllerModelStateMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetControllerModelStateMSFT>(), call_info, returnValue, session, modelKey, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFromPerceptionAnchorMSFT(
@@ -1688,6 +1788,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFromPerceptionAnchorMSFT
     AddHandle<OpenXrSpatialAnchorMSFTInfo>(session, anchor->GetPointer(), out_anchor, &CommonObjectInfoTable::AddXrSpatialAnchorMSFTInfo);
     
     AssociateParent(*out_anchor, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPerceptionAnchorMSFT>(), call_info, returnValue, session, perceptionAnchor, anchor, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT(
@@ -1705,6 +1806,7 @@ void OpenXrReplayConsumer::Process_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT
     CheckResult("xrTryGetPerceptionAnchorFromSpatialAnchorMSFT", returnValue, replay_result, call_info);
 
     PostProcessExternalObject(replay_result, (*perceptionAnchor->GetPointer()), static_cast<void*>(*out_perceptionAnchor), format::ApiCallId::ApiCall_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT, "xrTryGetPerceptionAnchorFromSpatialAnchorMSFT");
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrTryGetPerceptionAnchorFromSpatialAnchorMSFT>(), call_info, returnValue, session, anchor, perceptionAnchor, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateReprojectionModesMSFT(
@@ -1724,6 +1826,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateReprojectionModesMSFT(
 
     XrResult replay_result = GetInstanceTable(in_instance)->EnumerateReprojectionModesMSFT(in_instance, in_systemId, viewConfigurationType, modeCapacityInput, out_modeCountOutput, out_modes);
     CheckResult("xrEnumerateReprojectionModesMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateReprojectionModesMSFT>(), call_info, returnValue, instance, systemId, viewConfigurationType, modeCapacityInput, modeCountOutput, modes, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrUpdateSwapchainFB(
@@ -1737,6 +1840,7 @@ void OpenXrReplayConsumer::Process_xrUpdateSwapchainFB(
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->UpdateSwapchainFB(in_swapchain, in_state);
     CheckResult("xrUpdateSwapchainFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrUpdateSwapchainFB>(), call_info, returnValue, swapchain, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSwapchainStateFB(
@@ -1750,6 +1854,7 @@ void OpenXrReplayConsumer::Process_xrGetSwapchainStateFB(
 
     XrResult replay_result = GetInstanceTable(in_swapchain)->GetSwapchainStateFB(in_swapchain, out_state);
     CheckResult("xrGetSwapchainStateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSwapchainStateFB>(), call_info, returnValue, swapchain, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateBodyTrackerFB(
@@ -1770,6 +1875,7 @@ void OpenXrReplayConsumer::Process_xrCreateBodyTrackerFB(
     AddHandle<OpenXrBodyTrackerFBInfo>(session, bodyTracker->GetPointer(), out_bodyTracker, &CommonObjectInfoTable::AddXrBodyTrackerFBInfo);
     
     AssociateParent(*out_bodyTracker, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateBodyTrackerFB>(), call_info, returnValue, session, createInfo, bodyTracker, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyBodyTrackerFB(
@@ -1781,6 +1887,7 @@ void OpenXrReplayConsumer::Process_xrDestroyBodyTrackerFB(
 
     XrResult replay_result = GetInstanceTable(in_bodyTracker)->DestroyBodyTrackerFB(in_bodyTracker);
     CheckResult("xrDestroyBodyTrackerFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyBodyTrackerFB>(), call_info, returnValue, bodyTracker, replay_result);
     RemoveHandle(bodyTracker, &CommonObjectInfoTable::RemoveXrBodyTrackerFBInfo);
 }
 
@@ -1799,6 +1906,7 @@ void OpenXrReplayConsumer::Process_xrLocateBodyJointsFB(
 
     XrResult replay_result = GetInstanceTable(in_bodyTracker)->LocateBodyJointsFB(in_bodyTracker, in_locateInfo, out_locations);
     CheckResult("xrLocateBodyJointsFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>(), call_info, returnValue, bodyTracker, locateInfo, locations, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetBodySkeletonFB(
@@ -1813,6 +1921,7 @@ void OpenXrReplayConsumer::Process_xrGetBodySkeletonFB(
 
     XrResult replay_result = GetInstanceTable(in_bodyTracker)->GetBodySkeletonFB(in_bodyTracker, out_skeleton);
     CheckResult("xrGetBodySkeletonFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetBodySkeletonFB>(), call_info, returnValue, bodyTracker, skeleton, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateSceneComputeFeaturesMSFT(
@@ -1831,6 +1940,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateSceneComputeFeaturesMSFT(
 
     XrResult replay_result = GetInstanceTable(in_instance)->EnumerateSceneComputeFeaturesMSFT(in_instance, in_systemId, featureCapacityInput, out_featureCountOutput, out_features);
     CheckResult("xrEnumerateSceneComputeFeaturesMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateSceneComputeFeaturesMSFT>(), call_info, returnValue, instance, systemId, featureCapacityInput, featureCountOutput, features, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSceneObserverMSFT(
@@ -1851,6 +1961,7 @@ void OpenXrReplayConsumer::Process_xrCreateSceneObserverMSFT(
     AddHandle<OpenXrSceneObserverMSFTInfo>(session, sceneObserver->GetPointer(), out_sceneObserver, &CommonObjectInfoTable::AddXrSceneObserverMSFTInfo);
     
     AssociateParent(*out_sceneObserver, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSceneObserverMSFT>(), call_info, returnValue, session, createInfo, sceneObserver, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySceneObserverMSFT(
@@ -1862,6 +1973,7 @@ void OpenXrReplayConsumer::Process_xrDestroySceneObserverMSFT(
 
     XrResult replay_result = GetInstanceTable(in_sceneObserver)->DestroySceneObserverMSFT(in_sceneObserver);
     CheckResult("xrDestroySceneObserverMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySceneObserverMSFT>(), call_info, returnValue, sceneObserver, replay_result);
     RemoveHandle(sceneObserver, &CommonObjectInfoTable::RemoveXrSceneObserverMSFTInfo);
 }
 
@@ -1883,6 +1995,7 @@ void OpenXrReplayConsumer::Process_xrCreateSceneMSFT(
     AddHandle<OpenXrSceneMSFTInfo>(sceneObserver, scene->GetPointer(), out_scene, &CommonObjectInfoTable::AddXrSceneMSFTInfo);
     
     AssociateParent(*out_scene, in_sceneObserver);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSceneMSFT>(), call_info, returnValue, sceneObserver, createInfo, scene, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySceneMSFT(
@@ -1894,6 +2007,7 @@ void OpenXrReplayConsumer::Process_xrDestroySceneMSFT(
 
     XrResult replay_result = GetInstanceTable(in_scene)->DestroySceneMSFT(in_scene);
     CheckResult("xrDestroySceneMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySceneMSFT>(), call_info, returnValue, scene, replay_result);
     RemoveHandle(scene, &CommonObjectInfoTable::RemoveXrSceneMSFTInfo);
 }
 
@@ -1909,6 +2023,7 @@ void OpenXrReplayConsumer::Process_xrComputeNewSceneMSFT(
 
     XrResult replay_result = GetInstanceTable(in_sceneObserver)->ComputeNewSceneMSFT(in_sceneObserver, in_computeInfo);
     CheckResult("xrComputeNewSceneMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrComputeNewSceneMSFT>(), call_info, returnValue, sceneObserver, computeInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSceneComputeStateMSFT(
@@ -1922,6 +2037,7 @@ void OpenXrReplayConsumer::Process_xrGetSceneComputeStateMSFT(
 
     XrResult replay_result = GetInstanceTable(in_sceneObserver)->GetSceneComputeStateMSFT(in_sceneObserver, out_state);
     CheckResult("xrGetSceneComputeStateMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSceneComputeStateMSFT>(), call_info, returnValue, sceneObserver, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSceneComponentsMSFT(
@@ -1938,6 +2054,7 @@ void OpenXrReplayConsumer::Process_xrGetSceneComponentsMSFT(
 
     XrResult replay_result = GetInstanceTable(in_scene)->GetSceneComponentsMSFT(in_scene, in_getInfo, out_components);
     CheckResult("xrGetSceneComponentsMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSceneComponentsMSFT>(), call_info, returnValue, scene, getInfo, components, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrLocateSceneComponentsMSFT(
@@ -1955,6 +2072,7 @@ void OpenXrReplayConsumer::Process_xrLocateSceneComponentsMSFT(
 
     XrResult replay_result = GetInstanceTable(in_scene)->LocateSceneComponentsMSFT(in_scene, in_locateInfo, out_locations);
     CheckResult("xrLocateSceneComponentsMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrLocateSceneComponentsMSFT>(), call_info, returnValue, scene, locateInfo, locations, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSceneMeshBuffersMSFT(
@@ -1971,6 +2089,7 @@ void OpenXrReplayConsumer::Process_xrGetSceneMeshBuffersMSFT(
 
     XrResult replay_result = GetInstanceTable(in_scene)->GetSceneMeshBuffersMSFT(in_scene, in_getInfo, out_buffers);
     CheckResult("xrGetSceneMeshBuffersMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSceneMeshBuffersMSFT>(), call_info, returnValue, scene, getInfo, buffers, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDeserializeSceneMSFT(
@@ -1984,6 +2103,7 @@ void OpenXrReplayConsumer::Process_xrDeserializeSceneMSFT(
 
     XrResult replay_result = GetInstanceTable(in_sceneObserver)->DeserializeSceneMSFT(in_sceneObserver, in_deserializeInfo);
     CheckResult("xrDeserializeSceneMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDeserializeSceneMSFT>(), call_info, returnValue, sceneObserver, deserializeInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSerializedSceneFragmentDataMSFT(
@@ -2002,6 +2122,7 @@ void OpenXrReplayConsumer::Process_xrGetSerializedSceneFragmentDataMSFT(
 
     XrResult replay_result = GetInstanceTable(in_scene)->GetSerializedSceneFragmentDataMSFT(in_scene, in_getInfo, countInput, out_readOutput, out_buffer);
     CheckResult("xrGetSerializedSceneFragmentDataMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSerializedSceneFragmentDataMSFT>(), call_info, returnValue, scene, getInfo, countInput, readOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateDisplayRefreshRatesFB(
@@ -2018,6 +2139,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateDisplayRefreshRatesFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateDisplayRefreshRatesFB(in_session, displayRefreshRateCapacityInput, out_displayRefreshRateCountOutput, out_displayRefreshRates);
     CheckResult("xrEnumerateDisplayRefreshRatesFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateDisplayRefreshRatesFB>(), call_info, returnValue, session, displayRefreshRateCapacityInput, displayRefreshRateCountOutput, displayRefreshRates, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetDisplayRefreshRateFB(
@@ -2031,6 +2153,7 @@ void OpenXrReplayConsumer::Process_xrGetDisplayRefreshRateFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetDisplayRefreshRateFB(in_session, out_displayRefreshRate);
     CheckResult("xrGetDisplayRefreshRateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetDisplayRefreshRateFB>(), call_info, returnValue, session, displayRefreshRate, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrRequestDisplayRefreshRateFB(
@@ -2043,6 +2166,7 @@ void OpenXrReplayConsumer::Process_xrRequestDisplayRefreshRateFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->RequestDisplayRefreshRateFB(in_session, displayRefreshRate);
     CheckResult("xrRequestDisplayRefreshRateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrRequestDisplayRefreshRateFB>(), call_info, returnValue, session, displayRefreshRate, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateViveTrackerPathsHTCX(
@@ -2061,6 +2185,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateViveTrackerPathsHTCX(
     CheckResult("xrEnumerateViveTrackerPathsHTCX", returnValue, replay_result, call_info);
 
     AddStructArrayHandles<Decoded_XrViveTrackerPathsHTCX>(instance, paths->GetMetaStructPointer(), paths->GetLength(), out_paths, pathCapacityInput, &GetObjectInfoTable());
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateViveTrackerPathsHTCX>(), call_info, returnValue, instance, pathCapacityInput, pathCountOutput, paths, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateFacialTrackerHTC(
@@ -2081,6 +2206,7 @@ void OpenXrReplayConsumer::Process_xrCreateFacialTrackerHTC(
     AddHandle<OpenXrFacialTrackerHTCInfo>(session, facialTracker->GetPointer(), out_facialTracker, &CommonObjectInfoTable::AddXrFacialTrackerHTCInfo);
     
     AssociateParent(*out_facialTracker, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateFacialTrackerHTC>(), call_info, returnValue, session, createInfo, facialTracker, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyFacialTrackerHTC(
@@ -2092,6 +2218,7 @@ void OpenXrReplayConsumer::Process_xrDestroyFacialTrackerHTC(
 
     XrResult replay_result = GetInstanceTable(in_facialTracker)->DestroyFacialTrackerHTC(in_facialTracker);
     CheckResult("xrDestroyFacialTrackerHTC", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyFacialTrackerHTC>(), call_info, returnValue, facialTracker, replay_result);
     RemoveHandle(facialTracker, &CommonObjectInfoTable::RemoveXrFacialTrackerHTCInfo);
 }
 
@@ -2107,6 +2234,7 @@ void OpenXrReplayConsumer::Process_xrGetFacialExpressionsHTC(
 
     XrResult replay_result = GetInstanceTable(in_facialTracker)->GetFacialExpressionsHTC(in_facialTracker, out_facialExpressions);
     CheckResult("xrGetFacialExpressionsHTC", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetFacialExpressionsHTC>(), call_info, returnValue, facialTracker, facialExpressions, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateColorSpacesFB(
@@ -2123,6 +2251,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateColorSpacesFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateColorSpacesFB(in_session, colorSpaceCapacityInput, out_colorSpaceCountOutput, out_colorSpaces);
     CheckResult("xrEnumerateColorSpacesFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateColorSpacesFB>(), call_info, returnValue, session, colorSpaceCapacityInput, colorSpaceCountOutput, colorSpaces, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetColorSpaceFB(
@@ -2135,6 +2264,7 @@ void OpenXrReplayConsumer::Process_xrSetColorSpaceFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetColorSpaceFB(in_session, colorSpace);
     CheckResult("xrSetColorSpaceFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetColorSpaceFB>(), call_info, returnValue, session, colorSpace, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetHandMeshFB(
@@ -2149,6 +2279,7 @@ void OpenXrReplayConsumer::Process_xrGetHandMeshFB(
 
     XrResult replay_result = GetInstanceTable(in_handTracker)->GetHandMeshFB(in_handTracker, out_mesh);
     CheckResult("xrGetHandMeshFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetHandMeshFB>(), call_info, returnValue, handTracker, mesh, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFB(
@@ -2168,6 +2299,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFB(
     CheckResult("xrCreateSpatialAnchorFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFB>(), call_info, returnValue, session, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceUuidFB(
@@ -2181,6 +2313,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceUuidFB(
 
     XrResult replay_result = GetInstanceTable(in_space)->GetSpaceUuidFB(in_space, out_uuid);
     CheckResult("xrGetSpaceUuidFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceUuidFB>(), call_info, returnValue, space, uuid, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateSpaceSupportedComponentsFB(
@@ -2197,6 +2330,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateSpaceSupportedComponentsFB(
 
     XrResult replay_result = GetInstanceTable(in_space)->EnumerateSpaceSupportedComponentsFB(in_space, componentTypeCapacityInput, out_componentTypeCountOutput, out_componentTypes);
     CheckResult("xrEnumerateSpaceSupportedComponentsFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateSpaceSupportedComponentsFB>(), call_info, returnValue, space, componentTypeCapacityInput, componentTypeCountOutput, componentTypes, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetSpaceComponentStatusFB(
@@ -2215,6 +2349,7 @@ void OpenXrReplayConsumer::Process_xrSetSpaceComponentStatusFB(
     CheckResult("xrSetSpaceComponentStatusFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(space, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetSpaceComponentStatusFB>(), call_info, returnValue, space, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceComponentStatusFB(
@@ -2230,6 +2365,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceComponentStatusFB(
 
     XrResult replay_result = GetInstanceTable(in_space)->GetSpaceComponentStatusFB(in_space, componentType, out_status);
     CheckResult("xrGetSpaceComponentStatusFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceComponentStatusFB>(), call_info, returnValue, space, componentType, status, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateFoveationProfileFB(
@@ -2250,6 +2386,7 @@ void OpenXrReplayConsumer::Process_xrCreateFoveationProfileFB(
     AddHandle<OpenXrFoveationProfileFBInfo>(session, profile->GetPointer(), out_profile, &CommonObjectInfoTable::AddXrFoveationProfileFBInfo);
     
     AssociateParent(*out_profile, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateFoveationProfileFB>(), call_info, returnValue, session, createInfo, profile, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyFoveationProfileFB(
@@ -2261,6 +2398,7 @@ void OpenXrReplayConsumer::Process_xrDestroyFoveationProfileFB(
 
     XrResult replay_result = GetInstanceTable(in_profile)->DestroyFoveationProfileFB(in_profile);
     CheckResult("xrDestroyFoveationProfileFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyFoveationProfileFB>(), call_info, returnValue, profile, replay_result);
     RemoveHandle(profile, &CommonObjectInfoTable::RemoveXrFoveationProfileFBInfo);
 }
 
@@ -2277,6 +2415,7 @@ void OpenXrReplayConsumer::Process_xrQuerySystemTrackedKeyboardFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->QuerySystemTrackedKeyboardFB(in_session, in_queryInfo, out_keyboard);
     CheckResult("xrQuerySystemTrackedKeyboardFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrQuerySystemTrackedKeyboardFB>(), call_info, returnValue, session, queryInfo, keyboard, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateKeyboardSpaceFB(
@@ -2297,6 +2436,7 @@ void OpenXrReplayConsumer::Process_xrCreateKeyboardSpaceFB(
     AddHandle<OpenXrSpaceInfo>(session, keyboardSpace->GetPointer(), out_keyboardSpace, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_keyboardSpace, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateKeyboardSpaceFB>(), call_info, returnValue, session, createInfo, keyboardSpace, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrTriangleMeshBeginUpdateFB(
@@ -2308,6 +2448,7 @@ void OpenXrReplayConsumer::Process_xrTriangleMeshBeginUpdateFB(
 
     XrResult replay_result = GetInstanceTable(in_mesh)->TriangleMeshBeginUpdateFB(in_mesh);
     CheckResult("xrTriangleMeshBeginUpdateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrTriangleMeshBeginUpdateFB>(), call_info, returnValue, mesh, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrTriangleMeshEndUpdateFB(
@@ -2321,6 +2462,7 @@ void OpenXrReplayConsumer::Process_xrTriangleMeshEndUpdateFB(
 
     XrResult replay_result = GetInstanceTable(in_mesh)->TriangleMeshEndUpdateFB(in_mesh, vertexCount, triangleCount);
     CheckResult("xrTriangleMeshEndUpdateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrTriangleMeshEndUpdateFB>(), call_info, returnValue, mesh, vertexCount, triangleCount, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrTriangleMeshBeginVertexBufferUpdateFB(
@@ -2334,6 +2476,7 @@ void OpenXrReplayConsumer::Process_xrTriangleMeshBeginVertexBufferUpdateFB(
 
     XrResult replay_result = GetInstanceTable(in_mesh)->TriangleMeshBeginVertexBufferUpdateFB(in_mesh, out_outVertexCount);
     CheckResult("xrTriangleMeshBeginVertexBufferUpdateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrTriangleMeshBeginVertexBufferUpdateFB>(), call_info, returnValue, mesh, outVertexCount, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrTriangleMeshEndVertexBufferUpdateFB(
@@ -2345,6 +2488,7 @@ void OpenXrReplayConsumer::Process_xrTriangleMeshEndVertexBufferUpdateFB(
 
     XrResult replay_result = GetInstanceTable(in_mesh)->TriangleMeshEndVertexBufferUpdateFB(in_mesh);
     CheckResult("xrTriangleMeshEndVertexBufferUpdateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrTriangleMeshEndVertexBufferUpdateFB>(), call_info, returnValue, mesh, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreatePassthroughFB(
@@ -2365,6 +2509,7 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughFB(
     AddHandle<OpenXrPassthroughFBInfo>(session, outPassthrough->GetPointer(), out_outPassthrough, &CommonObjectInfoTable::AddXrPassthroughFBInfo);
     
     AssociateParent(*out_outPassthrough, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreatePassthroughFB>(), call_info, returnValue, session, createInfo, outPassthrough, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyPassthroughFB(
@@ -2376,6 +2521,7 @@ void OpenXrReplayConsumer::Process_xrDestroyPassthroughFB(
 
     XrResult replay_result = GetInstanceTable(in_passthrough)->DestroyPassthroughFB(in_passthrough);
     CheckResult("xrDestroyPassthroughFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyPassthroughFB>(), call_info, returnValue, passthrough, replay_result);
     RemoveHandle(passthrough, &CommonObjectInfoTable::RemoveXrPassthroughFBInfo);
 }
 
@@ -2388,6 +2534,7 @@ void OpenXrReplayConsumer::Process_xrPassthroughStartFB(
 
     XrResult replay_result = GetInstanceTable(in_passthrough)->PassthroughStartFB(in_passthrough);
     CheckResult("xrPassthroughStartFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPassthroughStartFB>(), call_info, returnValue, passthrough, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPassthroughPauseFB(
@@ -2399,6 +2546,7 @@ void OpenXrReplayConsumer::Process_xrPassthroughPauseFB(
 
     XrResult replay_result = GetInstanceTable(in_passthrough)->PassthroughPauseFB(in_passthrough);
     CheckResult("xrPassthroughPauseFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPassthroughPauseFB>(), call_info, returnValue, passthrough, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreatePassthroughLayerFB(
@@ -2420,6 +2568,7 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughLayerFB(
     AddHandle<OpenXrPassthroughLayerFBInfo>(session, outLayer->GetPointer(), out_outLayer, &CommonObjectInfoTable::AddXrPassthroughLayerFBInfo);
     
     AssociateParent(*out_outLayer, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreatePassthroughLayerFB>(), call_info, returnValue, session, createInfo, outLayer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyPassthroughLayerFB(
@@ -2431,6 +2580,7 @@ void OpenXrReplayConsumer::Process_xrDestroyPassthroughLayerFB(
 
     XrResult replay_result = GetInstanceTable(in_layer)->DestroyPassthroughLayerFB(in_layer);
     CheckResult("xrDestroyPassthroughLayerFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyPassthroughLayerFB>(), call_info, returnValue, layer, replay_result);
     RemoveHandle(layer, &CommonObjectInfoTable::RemoveXrPassthroughLayerFBInfo);
 }
 
@@ -2443,6 +2593,7 @@ void OpenXrReplayConsumer::Process_xrPassthroughLayerPauseFB(
 
     XrResult replay_result = GetInstanceTable(in_layer)->PassthroughLayerPauseFB(in_layer);
     CheckResult("xrPassthroughLayerPauseFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPassthroughLayerPauseFB>(), call_info, returnValue, layer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPassthroughLayerResumeFB(
@@ -2454,6 +2605,7 @@ void OpenXrReplayConsumer::Process_xrPassthroughLayerResumeFB(
 
     XrResult replay_result = GetInstanceTable(in_layer)->PassthroughLayerResumeFB(in_layer);
     CheckResult("xrPassthroughLayerResumeFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPassthroughLayerResumeFB>(), call_info, returnValue, layer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPassthroughLayerSetStyleFB(
@@ -2468,6 +2620,7 @@ void OpenXrReplayConsumer::Process_xrPassthroughLayerSetStyleFB(
 
     XrResult replay_result = GetInstanceTable(in_layer)->PassthroughLayerSetStyleFB(in_layer, in_style);
     CheckResult("xrPassthroughLayerSetStyleFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPassthroughLayerSetStyleFB>(), call_info, returnValue, layer, style, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateGeometryInstanceFB(
@@ -2489,6 +2642,7 @@ void OpenXrReplayConsumer::Process_xrCreateGeometryInstanceFB(
     AddHandle<OpenXrGeometryInstanceFBInfo>(session, outGeometryInstance->GetPointer(), out_outGeometryInstance, &CommonObjectInfoTable::AddXrGeometryInstanceFBInfo);
     
     AssociateParent(*out_outGeometryInstance, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateGeometryInstanceFB>(), call_info, returnValue, session, createInfo, outGeometryInstance, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyGeometryInstanceFB(
@@ -2500,6 +2654,7 @@ void OpenXrReplayConsumer::Process_xrDestroyGeometryInstanceFB(
 
     XrResult replay_result = GetInstanceTable(in_instance)->DestroyGeometryInstanceFB(in_instance);
     CheckResult("xrDestroyGeometryInstanceFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyGeometryInstanceFB>(), call_info, returnValue, instance, replay_result);
     RemoveHandle(instance, &CommonObjectInfoTable::RemoveXrGeometryInstanceFBInfo);
 }
 
@@ -2515,6 +2670,7 @@ void OpenXrReplayConsumer::Process_xrGeometryInstanceSetTransformFB(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GeometryInstanceSetTransformFB(in_instance, in_transformation);
     CheckResult("xrGeometryInstanceSetTransformFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGeometryInstanceSetTransformFB>(), call_info, returnValue, instance, transformation, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateRenderModelPathsFB(
@@ -2533,6 +2689,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateRenderModelPathsFB(
     CheckResult("xrEnumerateRenderModelPathsFB", returnValue, replay_result, call_info);
 
     AddStructArrayHandles<Decoded_XrRenderModelPathInfoFB>(session, paths->GetMetaStructPointer(), paths->GetLength(), out_paths, pathCapacityInput, &GetObjectInfoTable());
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateRenderModelPathsFB>(), call_info, returnValue, session, pathCapacityInput, pathCountOutput, paths, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetRenderModelPropertiesFB(
@@ -2551,6 +2708,7 @@ void OpenXrReplayConsumer::Process_xrGetRenderModelPropertiesFB(
     CheckResult("xrGetRenderModelPropertiesFB", returnValue, replay_result, call_info);
 
     AddStructHandles(session, properties->GetMetaStructPointer(), out_properties, &GetObjectInfoTable());
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetRenderModelPropertiesFB>(), call_info, returnValue, session, path, properties, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrLoadRenderModelFB(
@@ -2568,6 +2726,7 @@ void OpenXrReplayConsumer::Process_xrLoadRenderModelFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->LoadRenderModelFB(in_session, in_info, out_buffer);
     CheckResult("xrLoadRenderModelFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrLoadRenderModelFB>(), call_info, returnValue, session, info, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetEnvironmentDepthEstimationVARJO(
@@ -2580,6 +2739,7 @@ void OpenXrReplayConsumer::Process_xrSetEnvironmentDepthEstimationVARJO(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetEnvironmentDepthEstimationVARJO(in_session, enabled);
     CheckResult("xrSetEnvironmentDepthEstimationVARJO", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetEnvironmentDepthEstimationVARJO>(), call_info, returnValue, session, enabled, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetMarkerTrackingVARJO(
@@ -2592,6 +2752,7 @@ void OpenXrReplayConsumer::Process_xrSetMarkerTrackingVARJO(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetMarkerTrackingVARJO(in_session, enabled);
     CheckResult("xrSetMarkerTrackingVARJO", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetMarkerTrackingVARJO>(), call_info, returnValue, session, enabled, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetMarkerTrackingTimeoutVARJO(
@@ -2605,6 +2766,7 @@ void OpenXrReplayConsumer::Process_xrSetMarkerTrackingTimeoutVARJO(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetMarkerTrackingTimeoutVARJO(in_session, markerId, timeout);
     CheckResult("xrSetMarkerTrackingTimeoutVARJO", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetMarkerTrackingTimeoutVARJO>(), call_info, returnValue, session, markerId, timeout, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetMarkerTrackingPredictionVARJO(
@@ -2618,6 +2780,7 @@ void OpenXrReplayConsumer::Process_xrSetMarkerTrackingPredictionVARJO(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetMarkerTrackingPredictionVARJO(in_session, markerId, enable);
     CheckResult("xrSetMarkerTrackingPredictionVARJO", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetMarkerTrackingPredictionVARJO>(), call_info, returnValue, session, markerId, enable, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetMarkerSizeVARJO(
@@ -2632,6 +2795,7 @@ void OpenXrReplayConsumer::Process_xrGetMarkerSizeVARJO(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetMarkerSizeVARJO(in_session, markerId, out_size);
     CheckResult("xrGetMarkerSizeVARJO", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetMarkerSizeVARJO>(), call_info, returnValue, session, markerId, size, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateMarkerSpaceVARJO(
@@ -2652,6 +2816,7 @@ void OpenXrReplayConsumer::Process_xrCreateMarkerSpaceVARJO(
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateMarkerSpaceVARJO>(), call_info, returnValue, session, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetViewOffsetVARJO(
@@ -2664,6 +2829,7 @@ void OpenXrReplayConsumer::Process_xrSetViewOffsetVARJO(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetViewOffsetVARJO(in_session, offset);
     CheckResult("xrSetViewOffsetVARJO", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetViewOffsetVARJO>(), call_info, returnValue, session, offset, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpaceFromCoordinateFrameUIDML(
@@ -2684,6 +2850,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpaceFromCoordinateFrameUIDML(
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpaceFromCoordinateFrameUIDML>(), call_info, returnValue, session, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateMarkerDetectorML(
@@ -2704,6 +2871,7 @@ void OpenXrReplayConsumer::Process_xrCreateMarkerDetectorML(
     AddHandle<OpenXrMarkerDetectorMLInfo>(session, markerDetector->GetPointer(), out_markerDetector, &CommonObjectInfoTable::AddXrMarkerDetectorMLInfo);
     
     AssociateParent(*out_markerDetector, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateMarkerDetectorML>(), call_info, returnValue, session, createInfo, markerDetector, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyMarkerDetectorML(
@@ -2715,6 +2883,7 @@ void OpenXrReplayConsumer::Process_xrDestroyMarkerDetectorML(
 
     XrResult replay_result = GetInstanceTable(in_markerDetector)->DestroyMarkerDetectorML(in_markerDetector);
     CheckResult("xrDestroyMarkerDetectorML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyMarkerDetectorML>(), call_info, returnValue, markerDetector, replay_result);
     RemoveHandle(markerDetector, &CommonObjectInfoTable::RemoveXrMarkerDetectorMLInfo);
 }
 
@@ -2730,6 +2899,7 @@ void OpenXrReplayConsumer::Process_xrSnapshotMarkerDetectorML(
 
     XrResult replay_result = GetInstanceTable(in_markerDetector)->SnapshotMarkerDetectorML(in_markerDetector, out_snapshotInfo);
     CheckResult("xrSnapshotMarkerDetectorML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSnapshotMarkerDetectorML>(), call_info, returnValue, markerDetector, snapshotInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetMarkerDetectorStateML(
@@ -2744,6 +2914,7 @@ void OpenXrReplayConsumer::Process_xrGetMarkerDetectorStateML(
 
     XrResult replay_result = GetInstanceTable(in_markerDetector)->GetMarkerDetectorStateML(in_markerDetector, out_state);
     CheckResult("xrGetMarkerDetectorStateML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetMarkerDetectorStateML>(), call_info, returnValue, markerDetector, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetMarkersML(
@@ -2763,6 +2934,7 @@ void OpenXrReplayConsumer::Process_xrGetMarkersML(
     CheckResult("xrGetMarkersML", returnValue, replay_result, call_info);
 
     AddHandles<OpenXrMarkerMLInfo>(markerDetector, markers->GetPointer(), markers->GetLength(), out_markers, markerCapacityInput, &CommonObjectInfoTable::AddXrMarkerMLInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetMarkersML>(), call_info, returnValue, markerDetector, markerCapacityInput, markerCountOutput, markers, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetMarkerReprojectionErrorML(
@@ -2778,6 +2950,7 @@ void OpenXrReplayConsumer::Process_xrGetMarkerReprojectionErrorML(
 
     XrResult replay_result = GetInstanceTable(in_markerDetector)->GetMarkerReprojectionErrorML(in_markerDetector, in_marker, out_reprojectionErrorMeters);
     CheckResult("xrGetMarkerReprojectionErrorML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetMarkerReprojectionErrorML>(), call_info, returnValue, markerDetector, marker, reprojectionErrorMeters, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetMarkerLengthML(
@@ -2793,6 +2966,7 @@ void OpenXrReplayConsumer::Process_xrGetMarkerLengthML(
 
     XrResult replay_result = GetInstanceTable(in_markerDetector)->GetMarkerLengthML(in_markerDetector, in_marker, out_meters);
     CheckResult("xrGetMarkerLengthML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetMarkerLengthML>(), call_info, returnValue, markerDetector, marker, meters, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetMarkerNumberML(
@@ -2808,6 +2982,7 @@ void OpenXrReplayConsumer::Process_xrGetMarkerNumberML(
 
     XrResult replay_result = GetInstanceTable(in_markerDetector)->GetMarkerNumberML(in_markerDetector, in_marker, out_number);
     CheckResult("xrGetMarkerNumberML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetMarkerNumberML>(), call_info, returnValue, markerDetector, marker, number, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetMarkerStringML(
@@ -2826,6 +3001,7 @@ void OpenXrReplayConsumer::Process_xrGetMarkerStringML(
 
     XrResult replay_result = GetInstanceTable(in_markerDetector)->GetMarkerStringML(in_markerDetector, in_marker, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrGetMarkerStringML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetMarkerStringML>(), call_info, returnValue, markerDetector, marker, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateMarkerSpaceML(
@@ -2847,6 +3023,7 @@ void OpenXrReplayConsumer::Process_xrCreateMarkerSpaceML(
     AddHandle<OpenXrSpaceInfo>(session, space->GetPointer(), out_space, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_space, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateMarkerSpaceML>(), call_info, returnValue, session, createInfo, space, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnableLocalizationEventsML(
@@ -2860,6 +3037,7 @@ void OpenXrReplayConsumer::Process_xrEnableLocalizationEventsML(
 
     XrResult replay_result = GetInstanceTable(in_session)->EnableLocalizationEventsML(in_session, in_info);
     CheckResult("xrEnableLocalizationEventsML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnableLocalizationEventsML>(), call_info, returnValue, session, info, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrQueryLocalizationMapsML(
@@ -2878,6 +3056,7 @@ void OpenXrReplayConsumer::Process_xrQueryLocalizationMapsML(
 
     XrResult replay_result = GetInstanceTable(in_session)->QueryLocalizationMapsML(in_session, in_queryInfo, mapCapacityInput, out_mapCountOutput, out_maps);
     CheckResult("xrQueryLocalizationMapsML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrQueryLocalizationMapsML>(), call_info, returnValue, session, queryInfo, mapCapacityInput, mapCountOutput, maps, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrRequestMapLocalizationML(
@@ -2891,6 +3070,7 @@ void OpenXrReplayConsumer::Process_xrRequestMapLocalizationML(
 
     XrResult replay_result = GetInstanceTable(in_session)->RequestMapLocalizationML(in_session, in_requestInfo);
     CheckResult("xrRequestMapLocalizationML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrRequestMapLocalizationML>(), call_info, returnValue, session, requestInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrImportLocalizationMapML(
@@ -2906,6 +3086,7 @@ void OpenXrReplayConsumer::Process_xrImportLocalizationMapML(
 
     XrResult replay_result = GetInstanceTable(in_session)->ImportLocalizationMapML(in_session, in_importInfo, out_mapUuid);
     CheckResult("xrImportLocalizationMapML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrImportLocalizationMapML>(), call_info, returnValue, session, importInfo, mapUuid, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateExportedLocalizationMapML(
@@ -2926,6 +3107,7 @@ void OpenXrReplayConsumer::Process_xrCreateExportedLocalizationMapML(
     AddHandle<OpenXrExportedLocalizationMapMLInfo>(session, map->GetPointer(), out_map, &CommonObjectInfoTable::AddXrExportedLocalizationMapMLInfo);
     
     AssociateParent(*out_map, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateExportedLocalizationMapML>(), call_info, returnValue, session, mapUuid, map, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyExportedLocalizationMapML(
@@ -2937,6 +3119,7 @@ void OpenXrReplayConsumer::Process_xrDestroyExportedLocalizationMapML(
 
     XrResult replay_result = GetInstanceTable(in_map)->DestroyExportedLocalizationMapML(in_map);
     CheckResult("xrDestroyExportedLocalizationMapML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyExportedLocalizationMapML>(), call_info, returnValue, map, replay_result);
     RemoveHandle(map, &CommonObjectInfoTable::RemoveXrExportedLocalizationMapMLInfo);
 }
 
@@ -2954,6 +3137,7 @@ void OpenXrReplayConsumer::Process_xrGetExportedLocalizationMapDataML(
 
     XrResult replay_result = GetInstanceTable(in_map)->GetExportedLocalizationMapDataML(in_map, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrGetExportedLocalizationMapDataML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetExportedLocalizationMapDataML>(), call_info, returnValue, map, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorStoreConnectionMSFT(
@@ -2972,6 +3156,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorStoreConnectionMSFT(
     AddHandle<OpenXrSpatialAnchorStoreConnectionMSFTInfo>(session, spatialAnchorStore->GetPointer(), out_spatialAnchorStore, &CommonObjectInfoTable::AddXrSpatialAnchorStoreConnectionMSFTInfo);
     
     AssociateParent(*out_spatialAnchorStore, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialAnchorStoreConnectionMSFT>(), call_info, returnValue, session, spatialAnchorStore, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySpatialAnchorStoreConnectionMSFT(
@@ -2983,6 +3168,7 @@ void OpenXrReplayConsumer::Process_xrDestroySpatialAnchorStoreConnectionMSFT(
 
     XrResult replay_result = GetInstanceTable(in_spatialAnchorStore)->DestroySpatialAnchorStoreConnectionMSFT(in_spatialAnchorStore);
     CheckResult("xrDestroySpatialAnchorStoreConnectionMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySpatialAnchorStoreConnectionMSFT>(), call_info, returnValue, spatialAnchorStore, replay_result);
     RemoveHandle(spatialAnchorStore, &CommonObjectInfoTable::RemoveXrSpatialAnchorStoreConnectionMSFTInfo);
 }
 
@@ -2998,6 +3184,7 @@ void OpenXrReplayConsumer::Process_xrPersistSpatialAnchorMSFT(
 
     XrResult replay_result = GetInstanceTable(in_spatialAnchorStore)->PersistSpatialAnchorMSFT(in_spatialAnchorStore, in_spatialAnchorPersistenceInfo);
     CheckResult("xrPersistSpatialAnchorMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPersistSpatialAnchorMSFT>(), call_info, returnValue, spatialAnchorStore, spatialAnchorPersistenceInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumeratePersistedSpatialAnchorNamesMSFT(
@@ -3014,6 +3201,7 @@ void OpenXrReplayConsumer::Process_xrEnumeratePersistedSpatialAnchorNamesMSFT(
 
     XrResult replay_result = GetInstanceTable(in_spatialAnchorStore)->EnumeratePersistedSpatialAnchorNamesMSFT(in_spatialAnchorStore, spatialAnchorNameCapacityInput, out_spatialAnchorNameCountOutput, out_spatialAnchorNames);
     CheckResult("xrEnumeratePersistedSpatialAnchorNamesMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumeratePersistedSpatialAnchorNamesMSFT>(), call_info, returnValue, spatialAnchorStore, spatialAnchorNameCapacityInput, spatialAnchorNameCountOutput, spatialAnchorNames, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFromPersistedNameMSFT(
@@ -3035,6 +3223,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFromPersistedNameMSFT(
     AddHandle<OpenXrSpatialAnchorMSFTInfo>(session, spatialAnchor->GetPointer(), out_spatialAnchor, &CommonObjectInfoTable::AddXrSpatialAnchorMSFTInfo);
     
     AssociateParent(*out_spatialAnchor, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialAnchorFromPersistedNameMSFT>(), call_info, returnValue, session, spatialAnchorCreateInfo, spatialAnchor, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrUnpersistSpatialAnchorMSFT(
@@ -3048,6 +3237,7 @@ void OpenXrReplayConsumer::Process_xrUnpersistSpatialAnchorMSFT(
 
     XrResult replay_result = GetInstanceTable(in_spatialAnchorStore)->UnpersistSpatialAnchorMSFT(in_spatialAnchorStore, in_spatialAnchorPersistenceName);
     CheckResult("xrUnpersistSpatialAnchorMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrUnpersistSpatialAnchorMSFT>(), call_info, returnValue, spatialAnchorStore, spatialAnchorPersistenceName, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrClearSpatialAnchorStoreMSFT(
@@ -3059,6 +3249,7 @@ void OpenXrReplayConsumer::Process_xrClearSpatialAnchorStoreMSFT(
 
     XrResult replay_result = GetInstanceTable(in_spatialAnchorStore)->ClearSpatialAnchorStoreMSFT(in_spatialAnchorStore);
     CheckResult("xrClearSpatialAnchorStoreMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrClearSpatialAnchorStoreMSFT>(), call_info, returnValue, spatialAnchorStore, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSceneMarkerRawDataMSFT(
@@ -3077,6 +3268,7 @@ void OpenXrReplayConsumer::Process_xrGetSceneMarkerRawDataMSFT(
 
     XrResult replay_result = GetInstanceTable(in_scene)->GetSceneMarkerRawDataMSFT(in_scene, in_markerId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrGetSceneMarkerRawDataMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSceneMarkerRawDataMSFT>(), call_info, returnValue, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSceneMarkerDecodedStringMSFT(
@@ -3095,6 +3287,7 @@ void OpenXrReplayConsumer::Process_xrGetSceneMarkerDecodedStringMSFT(
 
     XrResult replay_result = GetInstanceTable(in_scene)->GetSceneMarkerDecodedStringMSFT(in_scene, in_markerId, bufferCapacityInput, out_bufferCountOutput, out_buffer);
     CheckResult("xrGetSceneMarkerDecodedStringMSFT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSceneMarkerDecodedStringMSFT>(), call_info, returnValue, scene, markerId, bufferCapacityInput, bufferCountOutput, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrQuerySpacesFB(
@@ -3113,6 +3306,7 @@ void OpenXrReplayConsumer::Process_xrQuerySpacesFB(
     CheckResult("xrQuerySpacesFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrQuerySpacesFB>(), call_info, returnValue, session, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrRetrieveSpaceQueryResultsFB(
@@ -3131,6 +3325,7 @@ void OpenXrReplayConsumer::Process_xrRetrieveSpaceQueryResultsFB(
     CheckResult("xrRetrieveSpaceQueryResultsFB", returnValue, replay_result, call_info);
 
     AddStructHandles(session, results->GetMetaStructPointer(), out_results, &GetObjectInfoTable());
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrRetrieveSpaceQueryResultsFB>(), call_info, returnValue, session, requestId, results, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSaveSpaceFB(
@@ -3150,6 +3345,7 @@ void OpenXrReplayConsumer::Process_xrSaveSpaceFB(
     CheckResult("xrSaveSpaceFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSaveSpaceFB>(), call_info, returnValue, session, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEraseSpaceFB(
@@ -3169,6 +3365,7 @@ void OpenXrReplayConsumer::Process_xrEraseSpaceFB(
     CheckResult("xrEraseSpaceFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEraseSpaceFB>(), call_info, returnValue, session, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetAudioOutputDeviceGuidOculus(
@@ -3182,6 +3379,7 @@ void OpenXrReplayConsumer::Process_xrGetAudioOutputDeviceGuidOculus(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetAudioOutputDeviceGuidOculus(in_instance, out_buffer);
     CheckResult("xrGetAudioOutputDeviceGuidOculus", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetAudioOutputDeviceGuidOculus>(), call_info, returnValue, instance, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetAudioInputDeviceGuidOculus(
@@ -3195,6 +3393,7 @@ void OpenXrReplayConsumer::Process_xrGetAudioInputDeviceGuidOculus(
 
     XrResult replay_result = GetInstanceTable(in_instance)->GetAudioInputDeviceGuidOculus(in_instance, out_buffer);
     CheckResult("xrGetAudioInputDeviceGuidOculus", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetAudioInputDeviceGuidOculus>(), call_info, returnValue, instance, buffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrShareSpacesFB(
@@ -3214,6 +3413,7 @@ void OpenXrReplayConsumer::Process_xrShareSpacesFB(
     CheckResult("xrShareSpacesFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrShareSpacesFB>(), call_info, returnValue, session, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceBoundingBox2DFB(
@@ -3229,6 +3429,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceBoundingBox2DFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceBoundingBox2DFB(in_session, in_space, out_boundingBox2DOutput);
     CheckResult("xrGetSpaceBoundingBox2DFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox2DFB>(), call_info, returnValue, session, space, boundingBox2DOutput, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceBoundingBox3DFB(
@@ -3244,6 +3445,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceBoundingBox3DFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceBoundingBox3DFB(in_session, in_space, out_boundingBox3DOutput);
     CheckResult("xrGetSpaceBoundingBox3DFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceBoundingBox3DFB>(), call_info, returnValue, session, space, boundingBox3DOutput, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceSemanticLabelsFB(
@@ -3260,6 +3462,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceSemanticLabelsFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceSemanticLabelsFB(in_session, in_space, out_semanticLabelsOutput);
     CheckResult("xrGetSpaceSemanticLabelsFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceSemanticLabelsFB>(), call_info, returnValue, session, space, semanticLabelsOutput, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceBoundary2DFB(
@@ -3276,6 +3479,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceBoundary2DFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceBoundary2DFB(in_session, in_space, out_boundary2DOutput);
     CheckResult("xrGetSpaceBoundary2DFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceBoundary2DFB>(), call_info, returnValue, session, space, boundary2DOutput, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceRoomLayoutFB(
@@ -3292,6 +3496,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceRoomLayoutFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceRoomLayoutFB(in_session, in_space, out_roomLayoutOutput);
     CheckResult("xrGetSpaceRoomLayoutFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceRoomLayoutFB>(), call_info, returnValue, session, space, roomLayoutOutput, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetDigitalLensControlALMALENCE(
@@ -3305,6 +3510,7 @@ void OpenXrReplayConsumer::Process_xrSetDigitalLensControlALMALENCE(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetDigitalLensControlALMALENCE(in_session, in_digitalLensControl);
     CheckResult("xrSetDigitalLensControlALMALENCE", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetDigitalLensControlALMALENCE>(), call_info, returnValue, session, digitalLensControl, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrRequestSceneCaptureFB(
@@ -3323,6 +3529,7 @@ void OpenXrReplayConsumer::Process_xrRequestSceneCaptureFB(
     CheckResult("xrRequestSceneCaptureFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrRequestSceneCaptureFB>(), call_info, returnValue, session, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceContainerFB(
@@ -3339,6 +3546,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceContainerFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetSpaceContainerFB(in_session, in_space, out_spaceContainerOutput);
     CheckResult("xrGetSpaceContainerFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceContainerFB>(), call_info, returnValue, session, space, spaceContainerOutput, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetFoveationEyeTrackedStateMETA(
@@ -3353,6 +3561,7 @@ void OpenXrReplayConsumer::Process_xrGetFoveationEyeTrackedStateMETA(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetFoveationEyeTrackedStateMETA(in_session, out_foveationState);
     CheckResult("xrGetFoveationEyeTrackedStateMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetFoveationEyeTrackedStateMETA>(), call_info, returnValue, session, foveationState, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateFaceTrackerFB(
@@ -3373,6 +3582,7 @@ void OpenXrReplayConsumer::Process_xrCreateFaceTrackerFB(
     AddHandle<OpenXrFaceTrackerFBInfo>(session, faceTracker->GetPointer(), out_faceTracker, &CommonObjectInfoTable::AddXrFaceTrackerFBInfo);
     
     AssociateParent(*out_faceTracker, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateFaceTrackerFB>(), call_info, returnValue, session, createInfo, faceTracker, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyFaceTrackerFB(
@@ -3384,6 +3594,7 @@ void OpenXrReplayConsumer::Process_xrDestroyFaceTrackerFB(
 
     XrResult replay_result = GetInstanceTable(in_faceTracker)->DestroyFaceTrackerFB(in_faceTracker);
     CheckResult("xrDestroyFaceTrackerFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyFaceTrackerFB>(), call_info, returnValue, faceTracker, replay_result);
     RemoveHandle(faceTracker, &CommonObjectInfoTable::RemoveXrFaceTrackerFBInfo);
 }
 
@@ -3401,6 +3612,7 @@ void OpenXrReplayConsumer::Process_xrGetFaceExpressionWeightsFB(
 
     XrResult replay_result = GetInstanceTable(in_faceTracker)->GetFaceExpressionWeightsFB(in_faceTracker, in_expressionInfo, out_expressionWeights);
     CheckResult("xrGetFaceExpressionWeightsFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetFaceExpressionWeightsFB>(), call_info, returnValue, faceTracker, expressionInfo, expressionWeights, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateEyeTrackerFB(
@@ -3421,6 +3633,7 @@ void OpenXrReplayConsumer::Process_xrCreateEyeTrackerFB(
     AddHandle<OpenXrEyeTrackerFBInfo>(session, eyeTracker->GetPointer(), out_eyeTracker, &CommonObjectInfoTable::AddXrEyeTrackerFBInfo);
     
     AssociateParent(*out_eyeTracker, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateEyeTrackerFB>(), call_info, returnValue, session, createInfo, eyeTracker, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyEyeTrackerFB(
@@ -3432,6 +3645,7 @@ void OpenXrReplayConsumer::Process_xrDestroyEyeTrackerFB(
 
     XrResult replay_result = GetInstanceTable(in_eyeTracker)->DestroyEyeTrackerFB(in_eyeTracker);
     CheckResult("xrDestroyEyeTrackerFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyEyeTrackerFB>(), call_info, returnValue, eyeTracker, replay_result);
     RemoveHandle(eyeTracker, &CommonObjectInfoTable::RemoveXrEyeTrackerFBInfo);
 }
 
@@ -3450,6 +3664,7 @@ void OpenXrReplayConsumer::Process_xrGetEyeGazesFB(
 
     XrResult replay_result = GetInstanceTable(in_eyeTracker)->GetEyeGazesFB(in_eyeTracker, in_gazeInfo, out_eyeGazes);
     CheckResult("xrGetEyeGazesFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetEyeGazesFB>(), call_info, returnValue, eyeTracker, gazeInfo, eyeGazes, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPassthroughLayerSetKeyboardHandsIntensityFB(
@@ -3463,6 +3678,7 @@ void OpenXrReplayConsumer::Process_xrPassthroughLayerSetKeyboardHandsIntensityFB
 
     XrResult replay_result = GetInstanceTable(in_layer)->PassthroughLayerSetKeyboardHandsIntensityFB(in_layer, in_intensity);
     CheckResult("xrPassthroughLayerSetKeyboardHandsIntensityFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrPassthroughLayerSetKeyboardHandsIntensityFB>(), call_info, returnValue, layer, intensity, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetDeviceSampleRateFB(
@@ -3479,6 +3695,7 @@ void OpenXrReplayConsumer::Process_xrGetDeviceSampleRateFB(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetDeviceSampleRateFB(in_session, in_hapticActionInfo, out_deviceSampleRate);
     CheckResult("xrGetDeviceSampleRateFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetDeviceSampleRateFB>(), call_info, returnValue, session, hapticActionInfo, deviceSampleRate, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetPassthroughPreferencesMETA(
@@ -3493,6 +3710,7 @@ void OpenXrReplayConsumer::Process_xrGetPassthroughPreferencesMETA(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetPassthroughPreferencesMETA(in_session, out_preferences);
     CheckResult("xrGetPassthroughPreferencesMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetPassthroughPreferencesMETA>(), call_info, returnValue, session, preferences, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateVirtualKeyboardMETA(
@@ -3513,6 +3731,7 @@ void OpenXrReplayConsumer::Process_xrCreateVirtualKeyboardMETA(
     AddHandle<OpenXrVirtualKeyboardMETAInfo>(session, keyboard->GetPointer(), out_keyboard, &CommonObjectInfoTable::AddXrVirtualKeyboardMETAInfo);
     
     AssociateParent(*out_keyboard, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardMETA>(), call_info, returnValue, session, createInfo, keyboard, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyVirtualKeyboardMETA(
@@ -3524,6 +3743,7 @@ void OpenXrReplayConsumer::Process_xrDestroyVirtualKeyboardMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->DestroyVirtualKeyboardMETA(in_keyboard);
     CheckResult("xrDestroyVirtualKeyboardMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyVirtualKeyboardMETA>(), call_info, returnValue, keyboard, replay_result);
     RemoveHandle(keyboard, &CommonObjectInfoTable::RemoveXrVirtualKeyboardMETAInfo);
 }
 
@@ -3548,6 +3768,7 @@ void OpenXrReplayConsumer::Process_xrCreateVirtualKeyboardSpaceMETA(
     AddHandle<OpenXrSpaceInfo>(session, keyboardSpace->GetPointer(), out_keyboardSpace, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_keyboardSpace, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateVirtualKeyboardSpaceMETA>(), call_info, returnValue, session, keyboard, createInfo, keyboardSpace, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSuggestVirtualKeyboardLocationMETA(
@@ -3562,6 +3783,7 @@ void OpenXrReplayConsumer::Process_xrSuggestVirtualKeyboardLocationMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->SuggestVirtualKeyboardLocationMETA(in_keyboard, in_locationInfo);
     CheckResult("xrSuggestVirtualKeyboardLocationMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSuggestVirtualKeyboardLocationMETA>(), call_info, returnValue, keyboard, locationInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardScaleMETA(
@@ -3575,6 +3797,7 @@ void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardScaleMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardScaleMETA(in_keyboard, out_scale);
     CheckResult("xrGetVirtualKeyboardScaleMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVirtualKeyboardScaleMETA>(), call_info, returnValue, keyboard, scale, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetVirtualKeyboardModelVisibilityMETA(
@@ -3588,6 +3811,7 @@ void OpenXrReplayConsumer::Process_xrSetVirtualKeyboardModelVisibilityMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->SetVirtualKeyboardModelVisibilityMETA(in_keyboard, in_modelVisibility);
     CheckResult("xrSetVirtualKeyboardModelVisibilityMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetVirtualKeyboardModelVisibilityMETA>(), call_info, returnValue, keyboard, modelVisibility, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardModelAnimationStatesMETA(
@@ -3602,6 +3826,7 @@ void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardModelAnimationStatesMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardModelAnimationStatesMETA(in_keyboard, out_animationStates);
     CheckResult("xrGetVirtualKeyboardModelAnimationStatesMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVirtualKeyboardModelAnimationStatesMETA>(), call_info, returnValue, keyboard, animationStates, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardDirtyTexturesMETA(
@@ -3618,6 +3843,7 @@ void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardDirtyTexturesMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardDirtyTexturesMETA(in_keyboard, textureIdCapacityInput, out_textureIdCountOutput, out_textureIds);
     CheckResult("xrGetVirtualKeyboardDirtyTexturesMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVirtualKeyboardDirtyTexturesMETA>(), call_info, returnValue, keyboard, textureIdCapacityInput, textureIdCountOutput, textureIds, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardTextureDataMETA(
@@ -3633,6 +3859,7 @@ void OpenXrReplayConsumer::Process_xrGetVirtualKeyboardTextureDataMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->GetVirtualKeyboardTextureDataMETA(in_keyboard, textureId, out_textureData);
     CheckResult("xrGetVirtualKeyboardTextureDataMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetVirtualKeyboardTextureDataMETA>(), call_info, returnValue, keyboard, textureId, textureData, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSendVirtualKeyboardInputMETA(
@@ -3649,6 +3876,7 @@ void OpenXrReplayConsumer::Process_xrSendVirtualKeyboardInputMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->SendVirtualKeyboardInputMETA(in_keyboard, in_info, out_interactorRootPose);
     CheckResult("xrSendVirtualKeyboardInputMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSendVirtualKeyboardInputMETA>(), call_info, returnValue, keyboard, info, interactorRootPose, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrChangeVirtualKeyboardTextContextMETA(
@@ -3662,6 +3890,7 @@ void OpenXrReplayConsumer::Process_xrChangeVirtualKeyboardTextContextMETA(
 
     XrResult replay_result = GetInstanceTable(in_keyboard)->ChangeVirtualKeyboardTextContextMETA(in_keyboard, in_changeInfo);
     CheckResult("xrChangeVirtualKeyboardTextContextMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrChangeVirtualKeyboardTextContextMETA>(), call_info, returnValue, keyboard, changeInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumerateExternalCamerasOCULUS(
@@ -3678,6 +3907,7 @@ void OpenXrReplayConsumer::Process_xrEnumerateExternalCamerasOCULUS(
 
     XrResult replay_result = GetInstanceTable(in_session)->EnumerateExternalCamerasOCULUS(in_session, cameraCapacityInput, out_cameraCountOutput, out_cameras);
     CheckResult("xrEnumerateExternalCamerasOCULUS", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumerateExternalCamerasOCULUS>(), call_info, returnValue, session, cameraCapacityInput, cameraCountOutput, cameras, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnumeratePerformanceMetricsCounterPathsMETA(
@@ -3697,6 +3927,7 @@ void OpenXrReplayConsumer::Process_xrEnumeratePerformanceMetricsCounterPathsMETA
     CheckResult("xrEnumeratePerformanceMetricsCounterPathsMETA", returnValue, replay_result, call_info);
 
     AddHandles<OpenXrPathInfo>(instance, counterPaths->GetPointer(), counterPaths->GetLength(), out_counterPaths, counterPathCapacityInput, &CommonObjectInfoTable::AddXrPathInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnumeratePerformanceMetricsCounterPathsMETA>(), call_info, returnValue, instance, counterPathCapacityInput, counterPathCountOutput, counterPaths, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetPerformanceMetricsStateMETA(
@@ -3710,6 +3941,7 @@ void OpenXrReplayConsumer::Process_xrSetPerformanceMetricsStateMETA(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetPerformanceMetricsStateMETA(in_session, in_state);
     CheckResult("xrSetPerformanceMetricsStateMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetPerformanceMetricsStateMETA>(), call_info, returnValue, session, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetPerformanceMetricsStateMETA(
@@ -3724,6 +3956,7 @@ void OpenXrReplayConsumer::Process_xrGetPerformanceMetricsStateMETA(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetPerformanceMetricsStateMETA(in_session, out_state);
     CheckResult("xrGetPerformanceMetricsStateMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetPerformanceMetricsStateMETA>(), call_info, returnValue, session, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrQueryPerformanceMetricsCounterMETA(
@@ -3740,6 +3973,7 @@ void OpenXrReplayConsumer::Process_xrQueryPerformanceMetricsCounterMETA(
 
     XrResult replay_result = GetInstanceTable(in_session)->QueryPerformanceMetricsCounterMETA(in_session, in_counterPath, out_counter);
     CheckResult("xrQueryPerformanceMetricsCounterMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrQueryPerformanceMetricsCounterMETA>(), call_info, returnValue, session, counterPath, counter, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSaveSpaceListFB(
@@ -3759,6 +3993,7 @@ void OpenXrReplayConsumer::Process_xrSaveSpaceListFB(
     CheckResult("xrSaveSpaceListFB", returnValue, replay_result, call_info);
 
     AddHandle<OpenXrAsyncRequestIdFBInfo>(session, requestId->GetPointer(), out_requestId, &CommonObjectInfoTable::AddXrAsyncRequestIdFBInfo);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSaveSpaceListFB>(), call_info, returnValue, session, info, requestId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpaceUserFB(
@@ -3779,6 +4014,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpaceUserFB(
     AddHandle<OpenXrSpaceUserFBInfo>(session, user->GetPointer(), out_user, &CommonObjectInfoTable::AddXrSpaceUserFBInfo);
     
     AssociateParent(*out_user, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpaceUserFB>(), call_info, returnValue, session, info, user, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceUserIdFB(
@@ -3792,6 +4028,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceUserIdFB(
 
     XrResult replay_result = GetInstanceTable(in_user)->GetSpaceUserIdFB(in_user, out_userId);
     CheckResult("xrGetSpaceUserIdFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceUserIdFB>(), call_info, returnValue, user, userId, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroySpaceUserFB(
@@ -3803,6 +4040,7 @@ void OpenXrReplayConsumer::Process_xrDestroySpaceUserFB(
 
     XrResult replay_result = GetInstanceTable(in_user)->DestroySpaceUserFB(in_user);
     CheckResult("xrDestroySpaceUserFB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroySpaceUserFB>(), call_info, returnValue, user, replay_result);
     RemoveHandle(user, &CommonObjectInfoTable::RemoveXrSpaceUserFBInfo);
 }
 
@@ -3821,6 +4059,7 @@ void OpenXrReplayConsumer::Process_xrGetRecommendedLayerResolutionMETA(
 
     XrResult replay_result = GetInstanceTable(in_session)->GetRecommendedLayerResolutionMETA(in_session, in_info, out_resolution);
     CheckResult("xrGetRecommendedLayerResolutionMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetRecommendedLayerResolutionMETA>(), call_info, returnValue, session, info, resolution, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreatePassthroughColorLutMETA(
@@ -3841,6 +4080,7 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughColorLutMETA(
     AddHandle<OpenXrPassthroughColorLutMETAInfo>(passthrough, colorLut->GetPointer(), out_colorLut, &CommonObjectInfoTable::AddXrPassthroughColorLutMETAInfo);
     
     AssociateParent(*out_colorLut, in_passthrough);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreatePassthroughColorLutMETA>(), call_info, returnValue, passthrough, createInfo, colorLut, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyPassthroughColorLutMETA(
@@ -3852,6 +4092,7 @@ void OpenXrReplayConsumer::Process_xrDestroyPassthroughColorLutMETA(
 
     XrResult replay_result = GetInstanceTable(in_colorLut)->DestroyPassthroughColorLutMETA(in_colorLut);
     CheckResult("xrDestroyPassthroughColorLutMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyPassthroughColorLutMETA>(), call_info, returnValue, colorLut, replay_result);
     RemoveHandle(colorLut, &CommonObjectInfoTable::RemoveXrPassthroughColorLutMETAInfo);
 }
 
@@ -3866,6 +4107,7 @@ void OpenXrReplayConsumer::Process_xrUpdatePassthroughColorLutMETA(
 
     XrResult replay_result = GetInstanceTable(in_colorLut)->UpdatePassthroughColorLutMETA(in_colorLut, in_updateInfo);
     CheckResult("xrUpdatePassthroughColorLutMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrUpdatePassthroughColorLutMETA>(), call_info, returnValue, colorLut, updateInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpaceTriangleMeshMETA(
@@ -3882,6 +4124,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceTriangleMeshMETA(
 
     XrResult replay_result = GetInstanceTable(in_space)->GetSpaceTriangleMeshMETA(in_space, in_getInfo, out_triangleMeshOutput);
     CheckResult("xrGetSpaceTriangleMeshMETA", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpaceTriangleMeshMETA>(), call_info, returnValue, space, getInfo, triangleMeshOutput, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateFaceTracker2FB(
@@ -3902,6 +4145,7 @@ void OpenXrReplayConsumer::Process_xrCreateFaceTracker2FB(
     AddHandle<OpenXrFaceTracker2FBInfo>(session, faceTracker->GetPointer(), out_faceTracker, &CommonObjectInfoTable::AddXrFaceTracker2FBInfo);
     
     AssociateParent(*out_faceTracker, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateFaceTracker2FB>(), call_info, returnValue, session, createInfo, faceTracker, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyFaceTracker2FB(
@@ -3913,6 +4157,7 @@ void OpenXrReplayConsumer::Process_xrDestroyFaceTracker2FB(
 
     XrResult replay_result = GetInstanceTable(in_faceTracker)->DestroyFaceTracker2FB(in_faceTracker);
     CheckResult("xrDestroyFaceTracker2FB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyFaceTracker2FB>(), call_info, returnValue, faceTracker, replay_result);
     RemoveHandle(faceTracker, &CommonObjectInfoTable::RemoveXrFaceTracker2FBInfo);
 }
 
@@ -3930,6 +4175,7 @@ void OpenXrReplayConsumer::Process_xrGetFaceExpressionWeights2FB(
 
     XrResult replay_result = GetInstanceTable(in_faceTracker)->GetFaceExpressionWeights2FB(in_faceTracker, in_expressionInfo, out_expressionWeights);
     CheckResult("xrGetFaceExpressionWeights2FB", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB>(), call_info, returnValue, faceTracker, expressionInfo, expressionWeights, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrSetTrackingOptimizationSettingsHintQCOM(
@@ -3943,6 +4189,7 @@ void OpenXrReplayConsumer::Process_xrSetTrackingOptimizationSettingsHintQCOM(
 
     XrResult replay_result = GetInstanceTable(in_session)->SetTrackingOptimizationSettingsHintQCOM(in_session, domain, hint);
     CheckResult("xrSetTrackingOptimizationSettingsHintQCOM", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrSetTrackingOptimizationSettingsHintQCOM>(), call_info, returnValue, session, domain, hint, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreatePassthroughHTC(
@@ -3963,6 +4210,7 @@ void OpenXrReplayConsumer::Process_xrCreatePassthroughHTC(
     AddHandle<OpenXrPassthroughHTCInfo>(session, passthrough->GetPointer(), out_passthrough, &CommonObjectInfoTable::AddXrPassthroughHTCInfo);
     
     AssociateParent(*out_passthrough, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreatePassthroughHTC>(), call_info, returnValue, session, createInfo, passthrough, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyPassthroughHTC(
@@ -3974,6 +4222,7 @@ void OpenXrReplayConsumer::Process_xrDestroyPassthroughHTC(
 
     XrResult replay_result = GetInstanceTable(in_passthrough)->DestroyPassthroughHTC(in_passthrough);
     CheckResult("xrDestroyPassthroughHTC", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyPassthroughHTC>(), call_info, returnValue, passthrough, replay_result);
     RemoveHandle(passthrough, &CommonObjectInfoTable::RemoveXrPassthroughHTCInfo);
 }
 
@@ -3989,6 +4238,7 @@ void OpenXrReplayConsumer::Process_xrApplyFoveationHTC(
 
     XrResult replay_result = GetInstanceTable(in_session)->ApplyFoveationHTC(in_session, in_applyInfo);
     CheckResult("xrApplyFoveationHTC", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrApplyFoveationHTC>(), call_info, returnValue, session, applyInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorHTC(
@@ -4010,6 +4260,7 @@ void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorHTC(
     AddHandle<OpenXrSpaceInfo>(session, anchor->GetPointer(), out_anchor, &CommonObjectInfoTable::AddXrSpaceInfo);
     
     AssociateParent(*out_anchor, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreateSpatialAnchorHTC>(), call_info, returnValue, session, createInfo, anchor, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetSpatialAnchorNameHTC(
@@ -4023,6 +4274,7 @@ void OpenXrReplayConsumer::Process_xrGetSpatialAnchorNameHTC(
 
     XrResult replay_result = GetInstanceTable(in_anchor)->GetSpatialAnchorNameHTC(in_anchor, out_name);
     CheckResult("xrGetSpatialAnchorNameHTC", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetSpatialAnchorNameHTC>(), call_info, returnValue, anchor, name, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrApplyForceFeedbackCurlMNDX(
@@ -4036,6 +4288,7 @@ void OpenXrReplayConsumer::Process_xrApplyForceFeedbackCurlMNDX(
 
     XrResult replay_result = GetInstanceTable(in_handTracker)->ApplyForceFeedbackCurlMNDX(in_handTracker, in_locations);
     CheckResult("xrApplyForceFeedbackCurlMNDX", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrApplyForceFeedbackCurlMNDX>(), call_info, returnValue, handTracker, locations, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrCreatePlaneDetectorEXT(
@@ -4056,6 +4309,7 @@ void OpenXrReplayConsumer::Process_xrCreatePlaneDetectorEXT(
     AddHandle<OpenXrPlaneDetectorEXTInfo>(session, planeDetector->GetPointer(), out_planeDetector, &CommonObjectInfoTable::AddXrPlaneDetectorEXTInfo);
     
     AssociateParent(*out_planeDetector, in_session);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrCreatePlaneDetectorEXT>(), call_info, returnValue, session, createInfo, planeDetector, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrDestroyPlaneDetectorEXT(
@@ -4067,6 +4321,7 @@ void OpenXrReplayConsumer::Process_xrDestroyPlaneDetectorEXT(
 
     XrResult replay_result = GetInstanceTable(in_planeDetector)->DestroyPlaneDetectorEXT(in_planeDetector);
     CheckResult("xrDestroyPlaneDetectorEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrDestroyPlaneDetectorEXT>(), call_info, returnValue, planeDetector, replay_result);
     RemoveHandle(planeDetector, &CommonObjectInfoTable::RemoveXrPlaneDetectorEXTInfo);
 }
 
@@ -4082,6 +4337,7 @@ void OpenXrReplayConsumer::Process_xrBeginPlaneDetectionEXT(
 
     XrResult replay_result = GetInstanceTable(in_planeDetector)->BeginPlaneDetectionEXT(in_planeDetector, in_beginInfo);
     CheckResult("xrBeginPlaneDetectionEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrBeginPlaneDetectionEXT>(), call_info, returnValue, planeDetector, beginInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetPlaneDetectionStateEXT(
@@ -4095,6 +4351,7 @@ void OpenXrReplayConsumer::Process_xrGetPlaneDetectionStateEXT(
 
     XrResult replay_result = GetInstanceTable(in_planeDetector)->GetPlaneDetectionStateEXT(in_planeDetector, out_state);
     CheckResult("xrGetPlaneDetectionStateEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetPlaneDetectionStateEXT>(), call_info, returnValue, planeDetector, state, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetPlaneDetectionsEXT(
@@ -4112,6 +4369,7 @@ void OpenXrReplayConsumer::Process_xrGetPlaneDetectionsEXT(
 
     XrResult replay_result = GetInstanceTable(in_planeDetector)->GetPlaneDetectionsEXT(in_planeDetector, in_info, out_locations);
     CheckResult("xrGetPlaneDetectionsEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetPlaneDetectionsEXT>(), call_info, returnValue, planeDetector, info, locations, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetPlanePolygonBufferEXT(
@@ -4128,6 +4386,7 @@ void OpenXrReplayConsumer::Process_xrGetPlanePolygonBufferEXT(
 
     XrResult replay_result = GetInstanceTable(in_planeDetector)->GetPlanePolygonBufferEXT(in_planeDetector, planeId, polygonBufferIndex, out_polygonBuffer);
     CheckResult("xrGetPlanePolygonBufferEXT", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT>(), call_info, returnValue, planeDetector, planeId, polygonBufferIndex, polygonBuffer, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnableUserCalibrationEventsML(
@@ -4141,6 +4400,7 @@ void OpenXrReplayConsumer::Process_xrEnableUserCalibrationEventsML(
 
     XrResult replay_result = GetInstanceTable(in_instance)->EnableUserCalibrationEventsML(in_instance, in_enableInfo);
     CheckResult("xrEnableUserCalibrationEventsML", returnValue, replay_result, call_info);
+    UpdateState(CallTag<format::ApiCallId::ApiCall_xrEnableUserCalibrationEventsML>(), call_info, returnValue, instance, enableInfo, replay_result);
 }
 
 static void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutStructure* output_struct)

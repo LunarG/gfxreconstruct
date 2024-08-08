@@ -111,35 +111,17 @@ class OpenXrReplayConsumerBodyGenerator(
         if gen_opts.replay_overrides:
             self.__load_replay_overrides(gen_opts.replay_overrides)
 
-        write(
+        write("\n".join([
             '#include "decode/custom_openxr_struct_handle_mappers.h"',
-            file=self.outFile
-        )
-        write(
             '#include "decode/custom_vulkan_struct_handle_mappers.h"',
-            file=self.outFile
-        )
-        write(
             '#include "decode/openxr_handle_mapping_util.h"',
-            file=self.outFile
-        )
-        write(
             '#include "decode/vulkan_handle_mapping_util.h"',
-            file=self.outFile
-        )
-        write(
             '#include "generated/generated_openxr_dispatch_table.h"',
-            file=self.outFile
-        )
-        write(
             '#include "generated/generated_openxr_replay_consumer.h"',
-            file=self.outFile
-        )
-        write(
             '#include "generated/generated_openxr_struct_handle_mappers.h"',
-            file=self.outFile
-        )
-        write('#include "util/defines.h"', file=self.outFile)
+            '#include "util/defines.h"'
+            ]), file=self.outFile)
+
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
@@ -313,6 +295,21 @@ class OpenXrReplayConsumerBodyGenerator(
                 ['    ' + val if val else val for val in postexpr]
             )
             body += '\n'
+
+
+        # add custom call t
+        custom_update_args = [
+            'CallTag<format::ApiCallId::ApiCall_{}>()'.format(name),
+            "call_info"
+            ]
+
+        if return_type != 'void':
+            custom_update_args.append("returnValue")
+        custom_update_args.extend([value.name for value in values])
+        if return_type == 'XrResult':
+            custom_update_args.append("replay_result")
+        body += "    UpdateState({});\n".format(", ".join(custom_update_args))
+
 
         cleanup_expr = self.make_remove_handle_expression(name, values)
         if cleanup_expr:
