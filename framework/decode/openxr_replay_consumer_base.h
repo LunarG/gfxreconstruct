@@ -25,6 +25,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
+#include <optional>
 #include <unordered_map>
 #include "application/application.h"
 #include "decode/openxr_handle_mapping_util.h"
@@ -40,6 +41,27 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase;
+
+// Declaration of function defined in code gen derived class file
+void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutStructure* output_struct);
+
+template <typename T>
+void InitializeOutputStructNext(StructPointerDecoder<T>* decoder)
+{
+    if (decoder->IsNull())
+        return;
+    size_t len    = decoder->GetOutputLength();
+    auto   input  = decoder->GetPointer();
+    auto   output = decoder->GetOutputPointer();
+    for (size_t i = 0; i < len; ++i)
+    {
+        const auto* in_next = reinterpret_cast<const XrBaseInStructure*>(input[i].next);
+        if (in_next == nullptr)
+            continue;
+        auto* output_struct = reinterpret_cast<XrBaseOutStructure*>(&output[i]);
+        InitializeOutputStructNextImpl(in_next, output_struct);
+    }
+}
 
 class OpenXrReplayConsumerBase : public OpenXrConsumer
 {
@@ -60,18 +82,34 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                                   StructPointerDecoder<Decoded_XrInstanceCreateInfo>* info,
                                                   StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
                                                   HandlePointerDecoder<XrInstance>*) override;
+    virtual void Process_xrPollEvent(const ApiCallInfo&                               call_info,
+                                     XrResult                                         returnValue,
+                                     format::HandleId                                 instance,
+                                     StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
 
     void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
 
-    template <format::ApiCallId Id>
-    struct CallTag
-    {
-        static constexpr const format::ApiCallId kCallId = Id;
-    };
+    void UpdateState_xrCreateSession(const ApiCallInfo&                                 call_info,
+                                     XrResult                                           returnValue,
+                                     format::HandleId                                   instance,
+                                     StructPointerDecoder<Decoded_XrSessionCreateInfo>* createInfo,
+                                     HandlePointerDecoder<XrSession>*                   session,
+                                     XrResult                                           replay_result);
 
-    template <typename Tag, typename... Args>
-    void UpdateState(const Tag&, Args...)
-    {}
+    void UpdateState_xrWaitFrame(const ApiCallInfo&                             call_info,
+                                 XrResult                                       returnValue,
+                                 format::HandleId                               session,
+                                 StructPointerDecoder<Decoded_XrFrameWaitInfo>* frameWaitInfo,
+                                 StructPointerDecoder<Decoded_XrFrameState>*    frameState,
+                                 XrResult                                       replay_result);
+
+    void UpdateState_xrEnumerateReferenceSpaces(const ApiCallInfo&                    call_info,
+                                                XrResult                              returnValue,
+                                                format::HandleId                      session,
+                                                uint32_t                              spaceCapacityInput,
+                                                PointerDecoder<uint32_t>*             spaceCountOutput,
+                                                PointerDecoder<XrReferenceSpaceType>* spaces,
+                                                XrResult                              replay_result);
 
     const OpenXrReplayOptions options_;
 
@@ -287,6 +325,138 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     std::unordered_map<XrTriangleMeshFB, XrInstance>                   trianglemeshFB_to_instance_;
 
     VulkanReplayConsumerBase* vulkan_replay_consumer_ = nullptr;
+
+    // Replay specific state:
+
+    // Supported graphics bindings for OpenXr replay
+    enum class GraphicsBindingType
+    {
+        kVulkan,
+        kUnknown
+    };
+
+    struct VulkanGraphicsBinding : public XrGraphicsBindingVulkanKHR
+    {
+        VulkanGraphicsBinding(VulkanReplayConsumerBase& vulkan_consumer, const Decoded_XrGraphicsBindingVulkanKHR& xr);
+        VulkanReplayConsumerBase*          vulkan_consumer = nullptr;
+        const encode::VulkanInstanceTable* instance_table{ nullptr };
+        const encode::VulkanDeviceTable*   device_table{ nullptr };
+        format::HandleId                   instance_id{ format::kNullHandleId };
+        format::HandleId                   physicalDevice_id{ format::kNullHandleId };
+        format::HandleId                   device_id{ format::kNullHandleId };
+        VkQueue                            queue = VK_NULL_HANDLE;
+
+#if 0 // TODO: Next commit. Enable.
+        XrResult ResetCommandBuffer(VulkanSwapchainInfo::ProxyImage& proxy) const;
+#endif
+    };
+
+    class GraphicsBinding
+    {
+      public:
+        GraphicsBinding() : type(GraphicsBindingType::kUnknown){};
+        GraphicsBinding(const VulkanGraphicsBinding& binding) : type(GraphicsBindingType::kVulkan)
+        {
+            vulkan_binding.emplace(binding);
+        }
+        GraphicsBindingType GetType() const { return type; }
+        bool                IsValid() const { return type != GraphicsBindingType::kUnknown; }
+        bool                IsVulkan() const { return type == GraphicsBindingType::kVulkan; }
+
+        const VulkanGraphicsBinding& GetVulkanBinding() const
+        {
+            assert(type == GraphicsBindingType::kVulkan);
+            assert(vulkan_binding.has_value());
+            return *vulkan_binding;
+        }
+
+      private:
+        GraphicsBindingType type;
+
+        // NOTE: Add other supported bindings here
+        std::optional<VulkanGraphicsBinding> vulkan_binding;
+    };
+
+    GraphicsBinding MakeGraphicsBinding(Decoded_XrSessionCreateInfo* create_info);
+
+    using ReferenceSpaceSet = std::unordered_set<XrReferenceSpaceType>;
+    class SessionData
+    {
+      public:
+        bool                   AddGraphicsBinding(const GraphicsBinding& binding);
+        const GraphicsBinding& GetGraphicsBinding() const { return graphics_binding_; }
+
+        void   AddReferenceSpaces(uint32_t count, const XrReferenceSpaceType* replay_spaces);
+        void   SetDisplayTime(const XrTime& predicted) { last_display_time_ = predicted; }
+        XrTime GetDisplayTime() const { return last_display_time_; }
+
+      protected:
+        ReferenceSpaceSet reference_spaces_;
+        XrTime            last_display_time_ = XrTime();
+
+        // These are the replay handles
+        GraphicsBinding graphics_binding_;
+    };
+    using SessionDataMap = std::unordered_map<XrSession, SessionData>;
+
+    template <typename Handle, typename DataMap>
+    static typename DataMap::iterator AddHandleData(Handle handle, DataMap& data_map)
+    {
+        auto insert_info = data_map.insert(std::make_pair(handle, typename DataMap::mapped_type()));
+        assert(insert_info.second);
+        return insert_info.first;
+    }
+
+    template <typename Handle, typename DataMap, typename Data = typename DataMap::mapped_type>
+    static Data& GetHandleData(Handle handle, DataMap& data_map)
+    {
+        auto find_it = data_map.find(handle);
+        assert(find_it != data_map.end());
+        return find_it->second;
+    }
+
+    SessionDataMap session_data_;
+
+    SessionData& AddSessionData(XrSession session) { return AddHandleData(session, session_data_)->second; }
+    SessionData& GetSessionData(XrSession session) { return GetHandleData(session, session_data_); }
+};
+
+template <format::ApiCallId Id>
+struct CustomProcess
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase*, Args...)
+    {}
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrCreateSession>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrCreateSession(args...);
+    }
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrWaitFrame>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrWaitFrame(args...);
+    }
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrEnumerateReferenceSpaces(args...);
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)

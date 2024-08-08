@@ -220,14 +220,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         return MapHandle<VulkanDeviceInfo>(capture_id, &CommonObjectInfoTable::GetVkDeviceInfo);
     }
 
+    const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
+
+    const encode::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
+
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
 
     CommonObjectInfoTable& GetObjectInfoTable() { return *object_info_table_; }
-
-    const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
-
-    const encode::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 

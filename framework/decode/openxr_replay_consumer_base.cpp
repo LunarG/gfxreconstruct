@@ -488,6 +488,114 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
                                   &CommonObjectInfoTable::AddXrInstanceInfo);
 }
 
+void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
+    const ApiCallInfo&                                 call_info,
+    XrResult                                           returnValue,
+    format::HandleId                                   instance,
+    StructPointerDecoder<Decoded_XrSessionCreateInfo>* createInfo,
+    HandlePointerDecoder<XrSession>*                   session,
+    XrResult                                           replay_result)
+{
+    XrSession*                   replay_session = session->GetHandlePointer();
+    Decoded_XrSessionCreateInfo* decoded_info   = createInfo->GetMetaStructPointer();
+    SessionData&                 session_data   = AddSessionData(*replay_session);
+    session_data.AddGraphicsBinding(MakeGraphicsBinding(decoded_info));
+}
+
+void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&                               call_info,
+                                                   XrResult                                         returnValue,
+                                                   format::HandleId                                 instance,
+                                                   StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData)
+{
+    if (returnValue != XR_SUCCESS)
+    {
+        // Capture did not return an event, skip
+        return;
+    }
+
+    XrInstance         in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    XrEventDataBuffer* out_eventData =
+        eventData->IsNull() ? nullptr : eventData->AllocateOutputData(1, { XR_TYPE_EVENT_DATA_BUFFER, nullptr });
+    InitializeOutputStructNext(eventData);
+
+    XrEventDataBuffer* capture_event = eventData->GetPointer();
+
+    XrResult replay_result;
+
+    // WIP: Put this constant somewhere interesting
+    const uint32_t kRetryLimit = 10000;
+    uint32_t       retry_count = 0;
+
+    if (out_eventData && capture_event)
+    {
+        do
+        {
+            *out_eventData = XrEventDataBuffer{ XR_TYPE_EVENT_DATA_BUFFER };
+            replay_result  = GetInstanceTable(in_instance)->PollEvent(in_instance, out_eventData);
+
+            retry_count++;
+
+            if (capture_event->type != out_eventData->type)
+            {
+                if (replay_result == XR_SUCCESS)
+                {
+                    GFXRECON_LOG_WARNING("Skipping event %u", out_eventData->type);
+                }
+                else
+                {
+                    // Yield and retry
+                    std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+                }
+            }
+        } while ((retry_count < kRetryLimit) && capture_event->type != out_eventData->type);
+        if (capture_event->type != out_eventData->type)
+        {
+            replay_result = XR_ERROR_RUNTIME_FAILURE; // Runtime never gave us the event we were looking for
+        }
+    }
+    else
+    {
+        // Event data can't be null
+        replay_result = XR_ERROR_VALIDATION_FAILURE;
+    }
+
+    CheckResult("xrPollEvent", returnValue, replay_result, call_info);
+}
+
+void OpenXrReplayConsumerBase::UpdateState_xrWaitFrame(const ApiCallInfo&                             call_info,
+                                                       XrResult                                       returnValue,
+                                                       format::HandleId                               session,
+                                                       StructPointerDecoder<Decoded_XrFrameWaitInfo>* frameWaitInfo,
+                                                       StructPointerDecoder<Decoded_XrFrameState>*    frameState,
+                                                       XrResult                                       replay_result)
+{
+
+    // Store wait frame information for this session if needed later
+    XrSession    in_session   = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    SessionData& session_data = GetSessionData(in_session);
+    session_data.SetDisplayTime(frameState->GetOutputPointer()->predictedDisplayTime);
+}
+
+void OpenXrReplayConsumerBase::UpdateState_xrEnumerateReferenceSpaces(const ApiCallInfo&        call_info,
+                                                                      XrResult                  returnValue,
+                                                                      format::HandleId          session,
+                                                                      uint32_t                  spaceCapacityInput,
+                                                                      PointerDecoder<uint32_t>* spaceCountOutput,
+                                                                      PointerDecoder<XrReferenceSpaceType>* spaces,
+                                                                      XrResult replay_result)
+{
+    // Store wait frame information for this session if needed later
+    XrSession             in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    uint32_t*             out_spaceCountOutput = spaceCountOutput->GetOutputPointer();
+    XrReferenceSpaceType* out_spaces           = spaces->GetOutputPointer();
+
+    if (out_spaceCountOutput && *out_spaceCountOutput && out_spaces)
+    {
+        SessionData& session_data = GetSessionData(in_session);
+        session_data.AddReferenceSpaces(*out_spaceCountOutput, out_spaces);
+    }
+}
+
 void* OpenXrReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
                                                          format::ApiCallId call_id,
                                                          const char*       call_name)
@@ -566,6 +674,53 @@ void OpenXrReplayConsumerBase::RaiseFatalError(const char* message) const
     if (fatal_error_handler_ != nullptr)
     {
         fatal_error_handler_(message);
+    }
+}
+
+OpenXrReplayConsumerBase::GraphicsBinding
+OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_XrSessionCreateInfo* create_info)
+{
+    auto* vk_binding = gfxrecon::decode::GetNextMetaStruct<Decoded_XrGraphicsBindingVulkanKHR>(create_info->next);
+    if (vk_binding)
+    {
+        assert(vulkan_replay_consumer_);
+        assert(vk_binding->decoded_value);
+
+        return GraphicsBinding(VulkanGraphicsBinding(*vulkan_replay_consumer_, *vk_binding));
+    }
+
+    // Add additional bindings below this
+
+    // Default constructed object !IsValid()
+    return GraphicsBinding();
+}
+
+OpenXrReplayConsumerBase::VulkanGraphicsBinding::VulkanGraphicsBinding(
+    VulkanReplayConsumerBase& vulkan_consumer, const Decoded_XrGraphicsBindingVulkanKHR& xr_binding) :
+    XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value),
+    vulkan_consumer(&vulkan_consumer), instance_table(vulkan_consumer.GetInstanceTable(physicalDevice)),
+    device_table(vulkan_consumer.GetDeviceTable(device)), instance_id(xr_binding.instance),
+    physicalDevice_id(xr_binding.physicalDevice), device_id(xr_binding.device)
+{
+    next = nullptr; // We don't have a safe (deep) copy of the original so stub out the copies downchain pointer
+
+    //
+    device_table->GetDeviceQueue(device, queueFamilyIndex, queueIndex, &queue);
+}
+
+bool OpenXrReplayConsumerBase::SessionData::AddGraphicsBinding(const GraphicsBinding& binding)
+{
+    graphics_binding_ = binding;
+    return graphics_binding_.IsValid();
+}
+
+void OpenXrReplayConsumerBase::SessionData::AddReferenceSpaces(uint32_t                    count,
+                                                               const XrReferenceSpaceType* replay_spaces)
+{
+    reference_spaces_.clear();
+    for (uint32_t space = 0; space < count; space++)
+    {
+        reference_spaces_.insert(replay_spaces[space]);
     }
 }
 

@@ -102,6 +102,7 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrInitializeLoaderKHR',
             'xrCreateInstance',
             'xrCreateApiLayerInstance',
+            'xrPollEvent',
         ]
 
     def beginFile(self, gen_opts):
@@ -125,18 +126,12 @@ class OpenXrReplayConsumerBodyGenerator(
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write(
-            'void InitializeOutputStructNext(StructPointerDecoder<T> *decoder);',
-            file=self.outFile
-        )
 
     def endFile(self):
         """Method override."""
         self.newline()
         write(
-            'static void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutStructure* output_struct)',
+            'void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutStructure* output_struct)',
             file=self.outFile
         )
         write('{', file=self.outFile)
@@ -169,40 +164,6 @@ class OpenXrReplayConsumerBodyGenerator(
             '        output_struct->type = in_next->type;', file=self.outFile
         )
         write('        in_next = in_next->next;', file=self.outFile)
-        write('    }', file=self.outFile)
-        write('}', file=self.outFile)
-
-        self.newline()
-        write('template <typename T>', file=self.outFile)
-        write(
-            'void InitializeOutputStructNext(StructPointerDecoder<T> *decoder)',
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    if(decoder->IsNull()) return;', file=self.outFile)
-        write(
-            '    size_t len = decoder->GetOutputLength();', file=self.outFile
-        )
-        write('    auto input = decoder->GetPointer();', file=self.outFile)
-        write(
-            '    auto output = decoder->GetOutputPointer();',
-            file=self.outFile
-        )
-        write('    for( size_t i = 0 ; i < len; ++i )', file=self.outFile)
-        write('    {', file=self.outFile)
-        write(
-            '        const auto* in_next = reinterpret_cast<const XrBaseInStructure*>(input[i].next);',
-            file=self.outFile
-        )
-        write('        if( in_next == nullptr ) continue;', file=self.outFile)
-        write(
-            '        auto* output_struct = reinterpret_cast<XrBaseOutStructure*>(&output[i]);',
-            file=self.outFile
-        )
-        write(
-            '        InitializeOutputStructNextImpl(in_next, output_struct);',
-            file=self.outFile
-        )
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 
@@ -298,8 +259,9 @@ class OpenXrReplayConsumerBodyGenerator(
 
 
         # add custom call t
+        api_call='format::ApiCallId::ApiCall_{}'.format(name)
         custom_update_args = [
-            'CallTag<format::ApiCallId::ApiCall_{}>()'.format(name),
+            "this",
             "call_info"
             ]
 
@@ -308,7 +270,7 @@ class OpenXrReplayConsumerBodyGenerator(
         custom_update_args.extend([value.name for value in values])
         if return_type == 'XrResult':
             custom_update_args.append("replay_result")
-        body += "    UpdateState({});\n".format(", ".join(custom_update_args))
+        body += "    CustomProcess<{}>::UpdateState({});\n".format(api_call, ", ".join(custom_update_args))
 
 
         cleanup_expr = self.make_remove_handle_expression(name, values)
