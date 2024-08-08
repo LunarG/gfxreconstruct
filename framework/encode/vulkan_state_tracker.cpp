@@ -2623,7 +2623,7 @@ void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, cons
             wrapper->modified_assets.insert(img_view_wrapper->image);
         }
 
-        if (pRenderingInfo->pDepthAttachment != nullptr &&
+        if (pRenderingInfo->pStencilAttachment != nullptr &&
             pRenderingInfo->pStencilAttachment->storeOp == VK_ATTACHMENT_STORE_OP_STORE)
         {
             vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
