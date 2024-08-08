@@ -256,7 +256,7 @@ class VulkanReferencedResourceConsumerBase : public VulkanConsumer
 
     bool IsComplete(uint64_t current_block_index) override { return not_optimizable_; }
 
-    bool WasNotOptimizable() { return not_optimizable_; }
+    bool WasOptimizable() { return !not_optimizable_; }
 
   protected:
     bool IsStateLoading() const { return loading_state_; }

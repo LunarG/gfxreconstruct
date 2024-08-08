@@ -33,6 +33,8 @@ target_sources(gfxrecon-optimize
                    ${CMAKE_CURRENT_LIST_DIR}/main.cpp
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.h
                    ${CMAKE_CURRENT_LIST_DIR}/file_optimizer.cpp
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_file_optimizer.h
+                   ${CMAKE_CURRENT_LIST_DIR}/vulkan_file_optimizer.cpp
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.h>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_file_optimizer.cpp>
                    $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_optimize_util.h>
@@ -60,6 +62,7 @@ target_include_directories(gfxrecon-optimize PUBLIC ${CMAKE_BINARY_DIR})
 target_link_libraries(gfxrecon-optimize
                           gfxrecon_application
                           gfxrecon_decode
+                          gfxrecon_encode
                           gfxrecon_graphics
                           gfxrecon_format
                           gfxrecon_util

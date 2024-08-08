@@ -78,6 +78,8 @@ target_sources(gfxrecon_util
                     ${CMAKE_CURRENT_LIST_DIR}/spirv_helper.h
                     ${CMAKE_CURRENT_LIST_DIR}/spirv_parsing_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/spirv_parsing_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_modifier_base.h
+                    ${CMAKE_CURRENT_LIST_DIR}/call_modifier_base.h
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.h>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/hooking_detours.cpp>
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/interception/interception_util.h>
