@@ -609,7 +609,6 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     wrapper->create_parameters = std::move(create_parameters);
 
     wrapper->size = create_info->size;
-    wrapper->size = create_info->size;
 
     // TODO: Do we need to track the queue family that the buffer is actually used with?
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
@@ -892,10 +891,13 @@ inline void InitializePoolObjectState(VkDevice                               par
                     std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 break;
             case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
-                descriptor_info.sampler_ids = std::make_unique<format::HandleId[]>(binding_info.count);
-                descriptor_info.images      = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
-                descriptor_info.buffers     = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.sampler_ids     = std::make_unique<format::HandleId[]>(binding_info.count);
+                descriptor_info.images          = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.storage_images  = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.buffers         = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.storage_buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
                 descriptor_info.uniform_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.storage_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
                 descriptor_info.acceleration_structures =
                     std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 descriptor_info.mutable_type = std::make_unique<VkDescriptorType[]>(binding_info.count);
