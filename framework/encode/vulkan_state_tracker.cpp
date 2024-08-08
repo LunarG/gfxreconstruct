@@ -1077,10 +1077,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                 if (binding.type != entry.type)
                 {
-                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %s != %s",
-                                         __func__,
-                                         util::ToString<VkDescriptorType>(binding.type).c_str(),
-                                         util::ToString<VkDescriptorType>(entry.type).c_str());
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %u != %u", __func__, binding.type, entry.type);
                 }
                 const bool immutable_image = binding.type == VK_DESCRIPTOR_TYPE_SAMPLER ||
                                              binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
@@ -1152,10 +1149,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                 if (binding.type != entry.type)
                 {
-                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %s != %s",
-                                         __func__,
-                                         util::ToString<VkDescriptorType>(binding.type).c_str(),
-                                         util::ToString<VkDescriptorType>(entry.type).c_str());
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %u != %u", __func__, binding.type, entry.type);
                 }
                 const bool immutable_buffer = binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC ||
                                               binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -1213,10 +1207,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
 
                 if (binding.type != entry.type)
                 {
-                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %s != %s",
-                                         __func__,
-                                         util::ToString<VkDescriptorType>(binding.type).c_str(),
-                                         util::ToString<VkDescriptorType>(entry.type).c_str());
+                    GFXRECON_LOG_WARNING("%s() Descriptors mismatch: %u != %u", __func__, binding.type, entry.type);
                 }
                 const bool immutable_buffer = binding.type == VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
 
