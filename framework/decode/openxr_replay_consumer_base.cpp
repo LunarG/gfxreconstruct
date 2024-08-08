@@ -476,124 +476,16 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     XrInstanceCreateInfo* create_info = info->GetPointer();
     assert(create_info);
 
-    auto result = xrCreateInstance(create_info, replay_instance);
-    if (result >= 0)
-    {
-        AddInstanceTable(*replay_instance);
+    auto replay_result = xrCreateInstance(create_info, replay_instance);
+    CheckResult("xrCreateApiLayerInstance", returnValue, replay_result, call_info);
 
-        // Create the mapping between the recorded and replay instance handles
-        AddHandleMapping(format::kNullHandleId, *instance, instance_info_map_);
-    }
-    else
-    {
-        // WIP: Properly log and this
-        assert(result > 0);
-    }
-}
+    AddInstanceTable(*replay_instance);
 
-void OpenXrReplayConsumerBase::Process_xrGetSystem(const ApiCallInfo&                             call_info,
-                                                   XrResult                                       returnValue,
-                                                   format::HandleId                               instance,
-                                                   StructPointerDecoder<Decoded_XrSystemGetInfo>* getInfo,
-                                                   PointerDecoder<XrSystemId>*                    systemId)
-{
-    // WIP: Properly log and handle this
-    assert(systemId->GetPointer());
-
-    auto* instance_info = GetMappingInfo(instance, instance_info_map_);
-
-    // Get a system that matches the request info (from capture
-    XrSystemId replay_system_id;
-    auto       result = xrGetSystem(instance_info->handle, getInfo->GetPointer(), &replay_system_id);
-    if (result < 0)
-    {
-        assert(strcmp("always assert: text = ", "GetSystem failed") == 0);
-    }
-    AddValueMapping(*systemId, replay_system_id, system_id_info_map_);
-}
-
-void OpenXrReplayConsumerBase::Process_xrEnumerateViewConfigurationViews(
-    const ApiCallInfo&                                     call_info,
-    XrResult                                               returnValue,
-    format::HandleId                                       instance,
-    XrSystemId                                             systemId,
-    XrViewConfigurationType                                viewConfigurationType,
-    uint32_t                                               viewCapacityInput,
-    PointerDecoder<uint32_t>*                              viewCountOutput,
-    StructPointerDecoder<Decoded_XrViewConfigurationView>* views)
-{}
-
-void OpenXrReplayConsumerBase::Process_xrGetVulkanGraphicsRequirementsKHR(
-    const ApiCallInfo&                                             call_info,
-    XrResult                                                       returnValue,
-    format::HandleId                                               instance,
-    XrSystemId                                                     systemId,
-    StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR>* graphicsRequirements)
-{
-    auto* instance_info = GetMappingInfo(instance, instance_info_map_);
-
-    // WIP: Build a table of commonly used extension entry points
-    PFN_xrGetVulkanGraphicsRequirementsKHR getVulkanGraphicsRequirementsKHR;
-
-    xrGetInstanceProcAddr(instance_info->handle,
-                          "xrGetVulkanGraphicsRequirementsKHR",
-                          (PFN_xrVoidFunction*)(&getVulkanGraphicsRequirementsKHR));
-    // WIP: Properly compare/adjust? The graphic requirement from the playback runtime with the
-    //      captured graphicsRequirements
-    // WIP: Properly compare/adjust systemId on playback and runtime
-    XrGraphicsRequirementsVulkanKHR dummy{ XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN_KHR };
-    auto                            system_id_mapping = GetMappingInfo(systemId, system_id_info_map_);
-    auto result = getVulkanGraphicsRequirementsKHR(instance_info->handle, system_id_mapping->replay_value, &dummy);
-    if (result < 0)
-    {
-        assert(strcmp("always assert: text = ", "GetVulkanRequirements failed") == 0);
-    }
-}
-
-void OpenXrReplayConsumerBase::Process_xrGetVulkanGraphicsDeviceKHR(
-    const ApiCallInfo&                      call_info,
-    XrResult                                returnValue,
-    format::HandleId                        instance,
-    XrSystemId                              systemId,
-    format::HandleId                        vkInstance,
-    HandlePointerDecoder<VkPhysicalDevice>* vkPhysicalDevice)
-{
-    // Map the inputs
-    auto*      instance_info      = GetMappingInfo(instance, instance_info_map_);
-    auto*      system_id_info     = GetMappingInfo(systemId, system_id_info_map_);
-    VkInstance replay_vk_instance = vulkan_replay_consumer_->MapInstance(vkInstance);
-
-    // WIP: Properly log and handle this
-    assert(instance_info);
-    assert(system_id_info);
-    assert(replay_vk_instance != VK_NULL_HANDLE);
-
-    // Set up the output
-    if (!vkPhysicalDevice->IsNull())
-    {
-        vkPhysicalDevice->SetHandleLength(1);
-    }
-    VkPhysicalDevice* replay_device = vkPhysicalDevice->GetHandlePointer();
-
-    // WIP: Build a table of commonly used extension entry points
-    PFN_xrGetVulkanGraphicsDeviceKHR getVulkanGraphicsDeviceKHR;
-    xrGetInstanceProcAddr(
-        instance_info->handle, "xrGetVulkanGraphicsDeviceKHR", (PFN_xrVoidFunction*)(&getVulkanGraphicsDeviceKHR));
-
-    auto result = getVulkanGraphicsDeviceKHR(
-        instance_info->handle, system_id_info->replay_value, replay_vk_instance, replay_device);
-
-    // Create result mapping
-    if (result >= 0)
-    {
-        // Create the mapping between the recorded and replay instance handles
-        AddHandleMapping(format::kNullHandleId, *vkPhysicalDevice, vk_physical_device_info_map_);
-    }
-    else
-    {
-        // WIP: Properly log and handle this
-        assert(result > 0);
-    }
+    // Create the mapping between the recorded and replay instance handles
+    AddHandle<OpenXrInstanceInfo>(format::kNullHandleId,
+                                  instance->GetPointer(),
+                                  instance->GetHandlePointer(),
+                                  &CommonObjectInfoTable::AddXrInstanceInfo);
 }
 
 void* OpenXrReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
