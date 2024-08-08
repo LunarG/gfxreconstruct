@@ -136,9 +136,6 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         }
     }
 
-    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
-                                                       const char*                             env_string);
-
     void
     PreCall_ID3D12GraphicsCommandList_ResourceBarrier(const ApiCallInfo&                                    call_info,
                                                       DxObjectInfo*                                         object_info,

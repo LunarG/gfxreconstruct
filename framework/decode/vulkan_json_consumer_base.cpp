@@ -27,6 +27,7 @@
 #include "util/platform.h"
 #include "util/file_path.h"
 #include "util/to_string.h"
+#include "util/strings.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
