@@ -1795,6 +1795,63 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(ID3
     }
 }
 
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_DrawInstanced(
+    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
+    UINT                               VertexCountPerInstance,
+    UINT                               InstanceCount,
+    UINT                               StartVertexLocation,
+    UINT                               StartInstanceLocatio)
+{
+    auto info = command_list_wrapper->GetObjectInfo();
+    ++info->drawcall_count;
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_DrawIndexedInstanced(
+    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
+    UINT                               IndexCountPerInstance,
+    UINT                               InstanceCount,
+    UINT                               StartIndexLocation,
+    INT                                BaseVertexLocation,
+    UINT                               StartInstanceLocation)
+{
+    auto info = command_list_wrapper->GetObjectInfo();
+    ++info->drawcall_count;
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_Dispatch(
+    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
+    UINT                               ThreadGroupCountX,
+    UINT                               ThreadGroupCountY,
+    UINT                               ThreadGroupCountZ)
+{
+    auto info = command_list_wrapper->GetObjectInfo();
+    ++info->drawcall_count;
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ExecuteIndirect(
+    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper,
+    ID3D12CommandSignature*            pCommandSignature,
+    UINT                               MaxCommandCount,
+    ID3D12Resource*                    pArgumentBuffer,
+    UINT64                             ArgumentBufferOffset,
+    ID3D12Resource*                    pCountBuffer,
+    UINT64                             CountBufferOffset)
+{
+    auto info = command_list_wrapper->GetObjectInfo();
+    ++info->drawcall_count;
+}
+
+void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ExecuteBundle(
+    ID3D12GraphicsCommandList_Wrapper* command_list_wrapper, ID3D12GraphicsCommandList* pCommandList)
+{
+    auto bundle_command_list = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(pCommandList);
+    if (bundle_command_list)
+    {
+        auto info = command_list_wrapper->GetObjectInfo();
+        info->execute_bundles_commandlist_ids.emplace_back(bundle_command_list->GetCaptureId());
+    }
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
     ID3D12DescriptorHeap_Wrapper* wrapper)
 {

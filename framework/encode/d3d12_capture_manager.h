@@ -601,6 +601,35 @@ class D3D12CaptureManager : public ApiCaptureManager
                                                         ID3D12Pageable* const*          ppObjects,
                                                         const D3D12_RESIDENCY_PRIORITY* pPriorities);
 
+    void PostProcess_ID3D12GraphicsCommandList_DrawInstanced(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                             UINT                               VertexCountPerInstance,
+                                                             UINT                               InstanceCount,
+                                                             UINT                               StartVertexLocation,
+                                                             UINT                               StartInstanceLocatio);
+
+    void PostProcess_ID3D12GraphicsCommandList_DrawIndexedInstanced(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                                    UINT IndexCountPerInstance,
+                                                                    UINT InstanceCount,
+                                                                    UINT StartIndexLocation,
+                                                                    INT  BaseVertexLocation,
+                                                                    UINT StartInstanceLocation);
+
+    void PostProcess_ID3D12GraphicsCommandList_Dispatch(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                        UINT                               ThreadGroupCountX,
+                                                        UINT                               ThreadGroupCountY,
+                                                        UINT                               ThreadGroupCountZ);
+
+    void PostProcess_ID3D12GraphicsCommandList_ExecuteIndirect(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                               ID3D12CommandSignature*            pCommandSignature,
+                                                               UINT                               MaxCommandCount,
+                                                               ID3D12Resource*                    pArgumentBuffer,
+                                                               UINT64                             ArgumentBufferOffset,
+                                                               ID3D12Resource*                    pCountBuffer,
+                                                               UINT64                             CountBufferOffset);
+
+    void PostProcess_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                             ID3D12GraphicsCommandList*         pCommandList);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 

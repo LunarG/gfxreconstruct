@@ -1117,6 +1117,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
     size_t                      data_size      = list_info->command_data.GetDataSize();
     const uint8_t*              data           = list_info->command_data.GetData();
     uint32_t                    drawcall_count = 0;
+    uint32_t                    bundle_count = 0;
     bool                        use_renderpass = false;
     std::vector<const size_t*>  use_query_param_sizes;
     std::vector<const uint8_t*> use_query_param_datas;
@@ -1177,10 +1178,21 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
         else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawInstanced ||
                  (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced ||
                  (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_Dispatch ||
-                 (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle ||
                  (*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect)
         {
             ++drawcall_count;
+        }
+        else if ((*call_id) == format::ApiCallId::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle)
+        {
+            GFXRECON_ASSERT(bundle_count < list_info->execute_bundles_commandlist_ids.size());
+            auto* bundle_wrapper =
+                state_table.GetID3D12CommandList_Wrapper(list_info->execute_bundles_commandlist_ids[bundle_count]);
+            if (bundle_wrapper)
+            {
+                auto bundle_info = bundle_wrapper->GetObjectInfo();
+                drawcall_count += bundle_info->drawcall_count;
+            }
+            ++bundle_count;
         }
 #ifdef GFXRECON_AGS_SUPPORT
         else if (format::GetApiCallFamily(*call_id) == format::ApiFamilyId::ApiFamily_AGS)
@@ -1204,7 +1216,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
             parameter_stream_.Clear();
         }
 
-        if (drawcall_indices.last > 0 && drawcall_indices.last == drawcall_count)
+        if (drawcall_indices.last > 0 && drawcall_indices.last <= drawcall_count)
         {
             if (use_renderpass)
             {
@@ -1235,7 +1247,7 @@ void Dx12StateWriter::WriteCommandListCommands(const ID3D12CommandList_Wrapper* 
         offset += sizeof(size_t) + sizeof(format::ApiCallId) + (*parameter_size);
     }
 
-    GFXRECON_ASSERT(drawcall_indices.last == 0 || drawcall_indices.last == drawcall_count);
+    GFXRECON_ASSERT(drawcall_indices.last == 0 || drawcall_indices.last <= drawcall_count);
     if (drawcall_indices.last == 0)
     {
         GFXRECON_ASSERT(offset == data_size);
