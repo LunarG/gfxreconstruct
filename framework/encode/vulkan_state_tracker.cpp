@@ -27,6 +27,7 @@
 #include "encode/vulkan_state_info.h"
 #include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "encode/vulkan_handle_wrapper_util.h"
+#include "encode/vulkan_state_table_base.h"
 #include "encode/vulkan_track_struct.h"
 #include "graphics/vulkan_struct_get_pnext.h"
 #include "util/logging.h"
@@ -2713,6 +2714,51 @@ void VulkanStateTracker::TrackSubmission(uint32_t submitCount, const VkSubmitInf
         }
 
         TrackMappedAssetsWrites();
+    }
+}
+
+void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo)
+{
+    if (commandBuffer != VK_NULL_HANDLE && pRenderingInfo != nullptr)
+    {
+        vulkan_wrappers::CommandBufferWrapper* wrapper =
+            vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        assert(wrapper != nullptr);
+
+        for (uint32_t i = 0; i < pRenderingInfo->colorAttachmentCount; ++i)
+        {
+            if (pRenderingInfo->pColorAttachments[i].storeOp == VK_ATTACHMENT_STORE_OP_STORE)
+            {
+                vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
+                    vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                        pRenderingInfo->pColorAttachments[i].imageView);
+                assert(img_view_wrapper != nullptr);
+
+                wrapper->modified_assets.insert(img_view_wrapper->image);
+            }
+        }
+
+        if (pRenderingInfo->pDepthAttachment != nullptr &&
+            pRenderingInfo->pDepthAttachment->storeOp == VK_ATTACHMENT_STORE_OP_STORE)
+        {
+            vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                    pRenderingInfo->pDepthAttachment->imageView);
+            assert(img_view_wrapper != nullptr);
+
+            wrapper->modified_assets.insert(img_view_wrapper->image);
+        }
+
+        if (pRenderingInfo->pDepthAttachment != nullptr &&
+            pRenderingInfo->pStencilAttachment->storeOp == VK_ATTACHMENT_STORE_OP_STORE)
+        {
+            vulkan_wrappers::ImageViewWrapper* img_view_wrapper =
+                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                    pRenderingInfo->pStencilAttachment->imageView);
+            assert(img_view_wrapper != nullptr);
+
+            wrapper->modified_assets.insert(img_view_wrapper->image);
+        }
     }
 }
 

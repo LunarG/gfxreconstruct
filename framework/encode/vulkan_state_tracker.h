@@ -677,6 +677,8 @@ class VulkanStateTracker
 
     void TrackSubmission(uint32_t submitCount, const VkSubmitInfo2* pSubmits);
 
+    void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                        parent_handle,

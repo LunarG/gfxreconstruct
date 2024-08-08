@@ -3566,5 +3566,14 @@ void VulkanCaptureManager::PostProcess_vkCmdDrawMeshTasksIndirectCountEXT(VkComm
     }
 }
 
+void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer        commandBuffer,
+                                                           const VkRenderingInfo* pRenderingInfo)
+{
+    if (IsCaptureModeTrack())
+    {
+        state_tracker_->TrackBeginRendering(commandBuffer, pRenderingInfo);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

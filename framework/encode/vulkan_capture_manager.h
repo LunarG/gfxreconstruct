@@ -1545,6 +1545,8 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                         uint32_t        maxDrawCount,
                                                         uint32_t        stride);
 
+    void PostProcess_vkCmdBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
