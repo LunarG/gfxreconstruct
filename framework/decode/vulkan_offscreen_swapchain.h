@@ -110,7 +110,6 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    const VkSemaphore* signal_semaphores,
                                    VkFence            fence);
 
-    bool               insert_frame_boundary_{ false };
     VkFrameBoundaryEXT frame_boundary_;
 };
 
