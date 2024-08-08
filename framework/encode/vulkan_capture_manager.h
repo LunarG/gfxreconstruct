@@ -1204,17 +1204,17 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PreProcess_vkQueueSubmit2(VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence);
 
-    void PreProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
-                                                     VkDevice                                    device,
-                                                     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
-                                                     const VkAllocationCallbacks*                pAllocator,
-                                                     VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
+    void PostProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
+                                                      VkDevice                                    device,
+                                                      const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                      const VkAllocationCallbacks*                pAllocator,
+                                                      VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
-    void PreProcess_vkCreateDescriptorUpdateTemplateKHR(VkResult                                    result,
-                                                        VkDevice                                    device,
-                                                        const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
-                                                        const VkAllocationCallbacks*                pAllocator,
-                                                        VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
+    void PostProcess_vkCreateDescriptorUpdateTemplateKHR(VkResult                                    result,
+                                                         VkDevice                                    device,
+                                                         const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
+                                                         const VkAllocationCallbacks*                pAllocator,
+                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
     void PreProcess_vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
 

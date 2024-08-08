@@ -816,7 +816,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdate
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
-        manager->PreProcess_vkCreateDescriptorUpdateTemplate(args...);
+        manager->PostProcess_vkCreateDescriptorUpdateTemplate(args...);
     }
 };
 
@@ -826,7 +826,7 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateDescriptorUpdate
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
-        manager->PreProcess_vkCreateDescriptorUpdateTemplateKHR(args...);
+        manager->PostProcess_vkCreateDescriptorUpdateTemplateKHR(args...);
     }
 };
 

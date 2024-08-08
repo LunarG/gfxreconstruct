@@ -2561,7 +2561,7 @@ void VulkanCaptureManager::QueueSubmitWriteFillMemoryCmd()
     }
 }
 
-void VulkanCaptureManager::PreProcess_vkCreateDescriptorUpdateTemplate(
+void VulkanCaptureManager::PostProcess_vkCreateDescriptorUpdateTemplate(
     VkResult                                    result,
     VkDevice                                    device,
     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
@@ -2577,7 +2577,7 @@ void VulkanCaptureManager::PreProcess_vkCreateDescriptorUpdateTemplate(
     }
 }
 
-void VulkanCaptureManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
+void VulkanCaptureManager::PostProcess_vkCreateDescriptorUpdateTemplateKHR(
     VkResult                                    result,
     VkDevice                                    device,
     const VkDescriptorUpdateTemplateCreateInfo* pCreateInfo,
