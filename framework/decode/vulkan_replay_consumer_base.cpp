@@ -195,8 +195,9 @@ VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::
     }
 
     VulkanSwapchainOptions swapchain_options;
-    swapchain_options.skip_additional_present_blts = options.virtual_swapchain_skip_blit;
-    swapchain_options.select_surface_index         = options_.surface_index;
+    swapchain_options.virtual_swapchain_skip_blit        = options_.virtual_swapchain_skip_blit;
+    swapchain_options.surface_index                      = options_.surface_index;
+    swapchain_options.offscreen_swapchain_frame_boundary = options_.offscreen_swapchain_frame_boundary;
     swapchain_->SetOptions(swapchain_options);
 
     if (options_.enable_debug_device_lost)
