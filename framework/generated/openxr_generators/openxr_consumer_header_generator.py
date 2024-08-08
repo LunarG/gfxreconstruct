@@ -46,7 +46,8 @@ class OpenXrConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraOpenXrHeaders=[]
+        extraOpenXrHeaders=[], 
+        extra_skip_cmds=[]
     ):
         BaseGeneratorOptions.__init__(
             self,
@@ -63,6 +64,10 @@ class OpenXrConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         self.base_class_header = base_class_header
         self.is_override = is_override
         self.constructor_args = constructor_args
+        self.extra_skip_commands = extra_skip_cmds
+
+    def getExtraSkipCommands(self):
+        return self.extra_skip_commands
 
 
 class OpenXrConsumerHeaderGenerator(BaseGenerator):
@@ -100,8 +105,9 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        self.skip_cmds.extend(gen_opts.getExtraSkipCommands())
 
+        BaseGenerator.beginFile(self, gen_opts)
         write(
             '#include "decode/{}"'.format(gen_opts.base_class_header),
             file=self.outFile
