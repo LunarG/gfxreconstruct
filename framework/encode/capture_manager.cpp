@@ -995,7 +995,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 
             // Advance offset until it points to next null byte of string
             while (env_string[offset] != '\0') offset += 1;
-            uint32_t string_length = offset - last_offset; // Save length of string before bumping offset again
 
             // Advance offset to point at the first character of the next string
             // or null if we're out of strings
