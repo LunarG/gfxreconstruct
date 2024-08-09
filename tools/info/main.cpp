@@ -678,15 +678,6 @@ void PrintD3D12Stats(gfxrecon::decode::Dx12StatsConsumer& dx12_consumer,
     }
 }
 
-void PrintEnvironmentVariableInfo(gfxrecon::decode::InfoConsumer& info_consumer)
-{
-    GFXRECON_WRITE_CONSOLE("Environment variables:");
-    for (const std::string& var : info_consumer.GetEnvironmentVariables())
-    {
-        GFXRECON_WRITE_CONSOLE("\t%s", var.c_str());
-    }
-}
-
 static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     if (arg_parser.IsOptionSet(kEnumGpuIndices))
@@ -729,6 +720,15 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
     return false;
 }
 #endif
+
+void PrintEnvironmentVariableInfo(gfxrecon::decode::InfoConsumer& info_consumer)
+{
+    GFXRECON_WRITE_CONSOLE("Environment variables:");
+    for (const std::string& var : info_consumer.GetEnvironmentVariables())
+    {
+        GFXRECON_WRITE_CONSOLE("\t%s", var.c_str());
+    }
+}
 
 void GatherAndPrintEnvVars(const std::string& input_filename)
 {
