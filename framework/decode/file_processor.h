@@ -32,6 +32,7 @@
 #include "util/defines.h"
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <string>
@@ -85,7 +86,7 @@ class FileProcessor
         decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end());
     }
 
-    bool Initialize(const std::string& filename);
+    bool Initialize(const std::string& filename, const std::string* state_file = nullptr);
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.
@@ -183,6 +184,8 @@ class FileProcessor
   protected:
     FILE* GetFileDescriptor()
     {
+        assert(!file_stack_.empty());
+
         auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
@@ -202,6 +205,8 @@ class FileProcessor
 
     bool IsFileHeaderValid() const
     {
+        assert(!file_stack_.empty());
+
         auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
@@ -210,6 +215,11 @@ class FileProcessor
 
     bool IsFileValid() const
     {
+        if (file_stack_.empty())
+        {
+            return false;
+        }
+
         auto file_entry = active_files_.find(file_stack_.top().filename);
         assert(file_entry != active_files_.end());
 
@@ -222,9 +232,9 @@ class FileProcessor
 
     bool SeekActiveFile(int64_t offset, util::platform::FileSeekOrigin origin);
 
-    bool SetActiveFile(const std::string& filename);
+    bool SetActiveFile(const std::string& filename, bool eteof);
 
-    bool SetActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin);
+    bool SetActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin, bool eteof);
 
     void DecrementRemainingCommands();
 
@@ -258,13 +268,23 @@ class FileProcessor
     struct ActiveFileContext
     {
         ActiveFileContext(const std::string& filename) : filename(filename){};
+        ActiveFileContext(const std::string& filename, bool eteof) : filename(filename), execute_till_eof(eteof){};
 
         std::string filename;
         uint32_t    remaining_commands{ 0 };
+        bool        execute_till_eof{ false };
     };
     std::stack<ActiveFileContext> file_stack_;
 
     std::string override_asset_filename_;
+
+  private:
+    ActiveFileContext& GetCurrentFile()
+    {
+        assert(file_stack_.size());
+
+        return file_stack_.top();
+    }
 };
 
 GFXRECON_END_NAMESPACE(decode)

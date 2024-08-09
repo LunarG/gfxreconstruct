@@ -272,7 +272,9 @@ class CommonCaptureManager
     void        DeactivateTrimming();
 
     void WriteFileHeader();
-    void WriteAssetFileHeader();
+
+    void WriteFileHeader(util::FileOutputStream* file_stream);
+
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
 
@@ -316,6 +318,8 @@ class CommonCaptureManager
 
     void SetWriteAssets() { write_assets_ = true; }
 
+    bool WriteFrameStateFile();
+
   protected:
     std::unique_ptr<util::Compressor> compressor_;
     std::mutex                        mapped_memory_lock_;
@@ -351,6 +355,7 @@ class CommonCaptureManager
     std::unique_ptr<util::FileOutputStream> asset_file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
+    std::string                             capture_filename_;
     bool                                    timestamp_filename_;
     bool                                    force_file_flush_;
     CaptureSettings::MemoryTrackingMode     memory_tracking_mode_;
@@ -389,6 +394,7 @@ class CommonCaptureManager
     bool                                    use_asset_file_;
     bool                                    write_assets_;
     bool                                    previous_write_assets_;
+    bool                                    write_state_files_;
 
     struct
     {

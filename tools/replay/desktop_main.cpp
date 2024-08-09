@@ -161,7 +161,14 @@ int main(int argc, const char** argv)
             file_processor = std::make_unique<gfxrecon::decode::FileProcessor>();
         }
 
-        if (!file_processor->Initialize(filename))
+        const bool  use_state_file = arg_parser.IsArgumentSet(kStateFileArgument);
+        std::string state_file;
+        if (use_state_file)
+        {
+            state_file = arg_parser.GetArgumentValue(kStateFileArgument);
+        }
+
+        if (!file_processor->Initialize(filename, use_state_file ? &state_file : nullptr))
         {
             return_code = -1;
         }

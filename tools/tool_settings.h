@@ -130,6 +130,7 @@ const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
 const char kAssetFilePathArgument[] = "--asset-file-path";
+const char kStateFileArgument[]     = "--state-file";
 
 const char kDumpResourcesArgument[]               = "--dump-resources";
 const char kDumpResourcesBeforeDrawOption[]       = "--dump-resources-before-draw";
@@ -927,6 +928,11 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     if (arg_parser.IsArgumentSet(kAssetFilePathArgument))
     {
         options.asset_file_path = arg_parser.GetArgumentValue(kAssetFilePathArgument);
+    }
+
+    if (arg_parser.IsArgumentSet(kAssetFilePathArgument))
+    {
+        options.state_file = arg_parser.GetArgumentValue(kStateFileArgument);
     }
 
     const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);

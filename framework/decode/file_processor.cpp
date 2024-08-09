@@ -78,19 +78,29 @@ void FileProcessor::WaitDecodersIdle()
     }
 };
 
-bool FileProcessor::Initialize(const std::string& filename)
+bool FileProcessor::Initialize(const std::string& filename, const std::string* state_file)
 {
     bool success = OpenFile(filename);
 
     if (success)
     {
-        success = SetActiveFile(filename);
+        success = SetActiveFile(filename, true);
         success = success && ProcessFileHeader();
     }
     else
     {
         GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
         error_state_ = kErrorOpeningFile;
+    }
+
+    if (success && state_file != nullptr)
+    {
+        success = OpenFile(*state_file);
+        if (success)
+        {
+            SetActiveFile(*state_file, true);
+            success = success && ProcessFileHeader();
+        }
     }
 
     return success;
@@ -254,15 +264,17 @@ bool FileProcessor::ProcessFileHeader()
 
 void FileProcessor::DecrementRemainingCommands()
 {
-    assert((!file_stack_.top().remaining_commands && file_stack_.size() == 1) ||
-           (file_stack_.top().remaining_commands && file_stack_.size() > 1));
-
-    if (file_stack_.size() > 1)
+    if (!file_stack_.size())
     {
-        assert(file_stack_.top().remaining_commands);
+        return;
+    }
 
-        --file_stack_.top().remaining_commands;
-        if (file_stack_.top().remaining_commands == 0)
+    ActiveFileContext& current_file = GetCurrentFile();
+
+    if (!current_file.execute_till_eof)
+    {
+        --current_file.remaining_commands;
+        if (current_file.remaining_commands == 0)
         {
             file_stack_.pop();
         }
@@ -436,6 +448,17 @@ bool FileProcessor::ProcessBlocks()
                                        block_index_);
                     error_state_ = kErrorReadingBlockHeader;
                 }
+                else
+                {
+                    assert(file_stack_.size());
+
+                    ActiveFileContext& current_file = GetCurrentFile();
+                    if (current_file.execute_till_eof)
+                    {
+                        file_stack_.pop();
+                        success = !file_stack_.empty();
+                    }
+                }
             }
         }
         ++block_index_;
@@ -550,11 +573,11 @@ bool FileProcessor::SeekActiveFile(int64_t offset, util::platform::FileSeekOrigi
     return SeekActiveFile(file_stack_.top().filename, offset, origin);
 }
 
-bool FileProcessor::SetActiveFile(const std::string& filename)
+bool FileProcessor::SetActiveFile(const std::string& filename, bool eteof)
 {
     if (active_files_.find(filename) != active_files_.end())
     {
-        file_stack_.emplace(filename);
+        file_stack_.emplace(filename, eteof);
         return true;
     }
     else
@@ -563,11 +586,14 @@ bool FileProcessor::SetActiveFile(const std::string& filename)
     }
 }
 
-bool FileProcessor::SetActiveFile(const std::string& filename, int64_t offset, util::platform::FileSeekOrigin origin)
+bool FileProcessor::SetActiveFile(const std::string&             filename,
+                                  int64_t                        offset,
+                                  util::platform::FileSeekOrigin origin,
+                                  bool                           eteof)
 {
     if (active_files_.find(filename) != active_files_.end())
     {
-        file_stack_.emplace(filename);
+        file_stack_.emplace(filename, eteof);
         return SeekActiveFile(filename, offset, origin);
     }
     else
@@ -1966,7 +1992,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                         exec_from_file.thread_id, exec_from_file.n_blocks, exec_from_file.offset, filename);
                 }
 
-                SetActiveFile(filename, exec_from_file.offset, util::platform::FileSeekSet);
+                SetActiveFile(
+                    filename, exec_from_file.offset, util::platform::FileSeekSet, exec_from_file.n_blocks == 0);
                 // We need to add 1 because it will be decremented right after this function returns
                 file_stack_.top().remaining_commands = exec_from_file.n_blocks + 1;
             }

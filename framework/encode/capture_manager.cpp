@@ -106,7 +106,7 @@ CommonCaptureManager::CommonCaptureManager() :
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false), previous_write_assets_(false)
+    write_assets_(false), previous_write_assets_(false), write_state_files_(true)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -195,7 +195,7 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
         // NOTE: moved here from CaptureTracker::Initialize... DRY'r than putting it into the API specific
         //       CreateInstances. For actual multiple simulatenous API support we need to ensure all API capture manager
         //       state trackers are in the correct state given the differing settings that may be present.
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        if ((capture_mode_ & kModeTrack) == kModeTrack || write_state_files_)
         {
             api_capture_singleton->CreateStateTracker();
         }
@@ -311,6 +311,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     force_command_serialization_     = trace_settings.force_command_serialization;
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
+    use_asset_file_                  = trace_settings.use_asset_file;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -355,7 +356,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         // External memory takes precedence over shadow memory modes.
         if (use_external_memory)
         {
-            page_guard_memory_mode_ = kMemoryModeExternal;
+            page_guard_memory_mode_     = kMemoryModeExternal;
             page_guard_external_memory_ = true;
         }
         else if (trace_settings.page_guard_persistent_memory)
@@ -388,7 +389,6 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         trim_enabled_            = true;
         trim_boundary_           = trace_settings.trim_boundary;
         quit_after_frame_ranges_ = trace_settings.quit_after_frame_ranges;
-        use_asset_file_          = trace_settings.use_asset_file;
 
         // Check if trim ranges were specified.
         if (!trace_settings.trim_ranges.empty())
@@ -497,7 +497,7 @@ CommonCaptureManager::ThreadData* CommonCaptureManager::GetThreadData()
 
 bool CommonCaptureManager::IsCaptureModeTrack() const
 {
-    return (GetCaptureMode() & kModeTrack) == kModeTrack;
+    return ((GetCaptureMode() & kModeTrack) == kModeTrack) || write_state_files_;
 }
 bool CommonCaptureManager::IsCaptureModeWrite() const
 {
@@ -887,6 +887,11 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family)
         }
     }
 
+    if (IsCaptureModeWrite() && write_state_files_)
+    {
+        WriteFrameStateFile();
+    }
+
     // Flush after presents to help avoid capture files with incomplete final blocks.
     if (file_stream_.get() != nullptr)
     {
@@ -974,7 +979,7 @@ std::string CommonCaptureManager::CreateAssetFile()
     asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
     if (asset_file_stream_->IsValid())
     {
-        WriteAssetFileHeader();
+        WriteFileHeader(asset_file_stream_.get());
     }
     else
     {
@@ -1006,19 +1011,19 @@ std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_fi
 
 bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
 {
-    bool        success          = true;
-    std::string capture_filename = base_filename;
+    bool success      = true;
+    capture_filename_ = base_filename;
 
     if (timestamp_filename_)
     {
-        capture_filename = util::filepath::GenerateTimestampedFilename(capture_filename);
+        capture_filename_ = util::filepath::GenerateTimestampedFilename(capture_filename_);
     }
 
-    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename, kFileStreamBufferSize);
+    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename_, kFileStreamBufferSize);
 
     if (file_stream_->IsValid())
     {
-        GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
+        GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename_.c_str());
         WriteFileHeader();
 
         gfxrecon::util::filepath::FileInfo info{};
@@ -1133,7 +1138,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
     }
 
     // Create asset file
-    if (trim_enabled_ && use_asset_file_ && asset_file_stream_.get() == nullptr)
+    if (use_asset_file_ && asset_file_stream_.get() == nullptr)
     {
         CreateAssetFile();
     }
@@ -1148,11 +1153,73 @@ void CommonCaptureManager::ActivateTrimming()
     auto thread_data = GetThreadData();
     assert(thread_data != nullptr);
 
+    if (!write_state_files_)
+    {
+        for (auto& manager : api_capture_managers_)
+        {
+            manager.first->WriteTrackedState(
+                file_stream_.get(), thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
+        }
+    }
+}
+
+bool CommonCaptureManager::WriteFrameStateFile()
+{
+    assert(write_state_files_);
+
+    std::string state_filename = capture_filename_;
+
+    const std::string state_filename_post = std::string("_state_frame_") + std::to_string(current_frame_);
+
+    size_t dot_pos = capture_filename_.rfind('.');
+    if (dot_pos != std::string::npos)
+    {
+        if (capture_filename_.substr(dot_pos) == ".gfxr")
+        {
+            state_filename.insert(dot_pos, state_filename_post);
+        }
+    }
+    else
+    {
+        state_filename += state_filename_post;
+    }
+
+    util::FileOutputStream state_file_stream(state_filename, kFileStreamBufferSize);
+    if (!state_file_stream.IsValid())
+    {
+        assert(0);
+        return false;
+    }
+
+    WriteFileHeader(&state_file_stream);
+
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
     for (auto& manager : api_capture_managers_)
     {
         manager.first->WriteTrackedState(
-            file_stream_.get(), thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
+            &state_file_stream, thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
     }
+
+    const size_t filename_length = file_stream_->GetFilename().length();
+
+    format::ExecuteBlocksFromFile execute_from_file;
+    execute_from_file.meta_header.block_header.size =
+        format::GetMetaDataBlockBaseSize(execute_from_file) + filename_length;
+    execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
+    execute_from_file.meta_header.meta_data_id =
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
+    execute_from_file.thread_id       = thread_data->thread_id_;
+    execute_from_file.n_blocks        = 0;
+    execute_from_file.offset          = file_stream_->GetOffset();
+    execute_from_file.filename_length = filename_length;
+
+    state_file_stream.Write(&execute_from_file, sizeof(execute_from_file));
+    state_file_stream.Write(file_stream_->GetFilename().c_str(), filename_length);
+    state_file_stream.Flush();
+
+    return true;
 }
 
 void CommonCaptureManager::DeactivateTrimming()
@@ -1187,8 +1254,10 @@ void CommonCaptureManager::WriteFileHeader()
     thread_data->block_index_ = block_index_.load();
 }
 
-void CommonCaptureManager::WriteAssetFileHeader()
+void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
 {
+    assert(file_stream != nullptr);
+
     std::vector<format::FileOptionPair> option_list;
 
     BuildOptionList(file_options_, &option_list);
@@ -1199,8 +1268,8 @@ void CommonCaptureManager::WriteAssetFileHeader()
     file_header.minor_version = 0;
     file_header.num_options   = static_cast<uint32_t>(option_list.size());
 
-    WriteToFile(&file_header, sizeof(file_header), asset_file_stream_.get());
-    WriteToFile(option_list.data(), option_list.size() * sizeof(format::FileOptionPair), asset_file_stream_.get());
+    WriteToFile(&file_header, sizeof(file_header), file_stream);
+    WriteToFile(option_list.data(), option_list.size() * sizeof(format::FileOptionPair), file_stream);
 }
 
 void CommonCaptureManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
