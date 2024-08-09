@@ -116,10 +116,11 @@ if __name__ == '__main__':
         help="comma-delimited list of environment variables whose captured values we want to set before replay"
     )
     args, replay_args = parser.parse_known_args()
-    print(replay_args)
-    print(args.file)
 
     capture_path = args.file
+    env_vars_to_preserve = args.environment_variables
+    if env_vars_to_preserve:
+        env_vars_to_preserve = env_vars_to_preserve.split(',')
 
     replayer_tool_path_renamed = ""
     try:
@@ -133,10 +134,18 @@ if __name__ == '__main__':
 
                 # Verify info tool exists
                 if exists(info_tool_path):
+                    # Set any environment variables we were told to
+                    captured_env_vars = retrieve_environment_variables(info_tool_path, capture_path)
+                    for name in env_vars_to_preserve:
+                        if name in captured_env_vars:
+                            os.environ[name] = captured_env_vars[name]
+                        else:
+                            print(f"WARNING: user requested {name} to be preserved, but it wasn't present in original capture.")
+
+
                     encoded_app_executable = retrieve_exe_name(info_tool_path, capture_path)
 
                     if encoded_app_executable:
-                        print(retrieve_environment_variables(info_tool_path, capture_path))
                         replayer_tool_path_renamed = rename_replayer(encoded_app_executable)
                         if replayer_tool_path_renamed:
                             run_replayer(replayer_tool_path_renamed, args.file, replay_args)
