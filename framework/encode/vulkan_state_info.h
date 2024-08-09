@@ -178,7 +178,6 @@ static PipelineBindPoints VkPipelinePointToPipelinePoint(VkPipelineBindPoint bin
 {
     switch (bind_point)
     {
-
         case VK_PIPELINE_BIND_POINT_GRAPHICS:
             return kBindPoint_graphics;
         case VK_PIPELINE_BIND_POINT_COMPUTE:
@@ -186,6 +185,7 @@ static PipelineBindPoints VkPipelinePointToPipelinePoint(VkPipelineBindPoint bin
         case VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR:
             return kBindPoint_ray_tracing;
         default:
+            GFXRECON_LOG_ERROR("Unrecognized/unsupported pipeline binding point (%u)", bind_point);
             assert(0);
             return kBindPoint_graphics;
     }

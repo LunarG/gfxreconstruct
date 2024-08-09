@@ -1861,10 +1861,10 @@ void VulkanStateTracker::TrackCmdBindDescriptorSets(VkCommandBuffer        comma
         {
             vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper =
                 vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(pDescriptorSets[i]);
-            assert(desc_set_wrapper != nullptr);
 
-            cmd_buf_wrapper->bound_descriptors[vulkan_state_info::VkPipelinePointToPipelinePoint(pipelineBindPoint)]
-                                              [firstSet + i] = desc_set_wrapper;
+            const vulkan_state_info::PipelineBindPoints bind_point =
+                vulkan_state_info::VkPipelinePointToPipelinePoint(pipelineBindPoint);
+            cmd_buf_wrapper->bound_descriptors[bind_point][firstSet + i] = desc_set_wrapper;
         }
     }
 }
@@ -1884,14 +1884,13 @@ void VulkanStateTracker::TrackCmdBindDescriptorSets2KHR(VkCommandBuffer         
             vulkan_wrappers::DescriptorSetWrapper* desc_set_wrapper =
                 vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(
                     pBindDescriptorSetsInfo->pDescriptorSets[i]);
-            assert(desc_set_wrapper != nullptr);
 
-            std::vector<vulkan_state_info::PipelineBindPoints> points;
-            vulkan_state_info::VkShaderStageFlagsToPipelinePoint(pBindDescriptorSetsInfo->stageFlags, points);
-
-            for (auto point : points)
+            std::vector<vulkan_state_info::PipelineBindPoints> bind_points;
+            vulkan_state_info::VkShaderStageFlagsToPipelinePoint(pBindDescriptorSetsInfo->stageFlags, bind_points);
+            for (auto bind_point : bind_points)
             {
-                cmd_buf_wrapper->bound_descriptors[point][pBindDescriptorSetsInfo->firstSet + i] = desc_set_wrapper;
+                cmd_buf_wrapper->bound_descriptors[bind_point][pBindDescriptorSetsInfo->firstSet + i] =
+                    desc_set_wrapper;
             }
         }
     }
