@@ -42,6 +42,10 @@
 #include <cstdlib>
 #include <unordered_map>
 
+#if defined(__unix__)
+extern char** environ;
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -1002,7 +1006,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             last_offset = offset;
         }
 #elif __unix__
-        extern char** environ;
         int           current      = 0;
         size_t        total_length = 0;
         while (environ[current] != nullptr)
