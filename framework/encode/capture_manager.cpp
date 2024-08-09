@@ -1022,23 +1022,22 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             current += 1;
         }
 #endif
-            env_vars[env_vars.size() - 1] = '\0';
+        env_vars[env_vars.size() - 1] = '\0';
 
-            format::SetEnvironmentVariablesCommand env_block;
-            env_block.meta_header.block_header.size = sizeof(env_block) + env_vars.size();
-            env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
-            env_block.meta_header.meta_data_id =
-                format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
+        format::SetEnvironmentVariablesCommand env_block;
+        env_block.meta_header.block_header.size = env_vars.size();
+        env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        env_block.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
 
-            auto thread_data      = GetThreadData();
-            env_block.thread_id   = thread_data->thread_id_;
-            env_block.string_size = env_vars.size();
+        auto thread_data      = GetThreadData();
+        env_block.thread_id   = thread_data->thread_id_;
 
-            // Write to file before freeing environment strings
-            CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
+        // Write to file before freeing environment strings
+        CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
 
 #ifdef _WINDOWS
-            FreeEnvironmentStrings((LPCH)env_string);
+        FreeEnvironmentStrings((LPCH)env_string);
 #endif
     }
     else

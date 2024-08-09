@@ -653,7 +653,6 @@ static const char kEnvironmentStringDelimeter = (char)-1;
 struct SetEnvironmentVariablesCommand {
     MetaDataHeader meta_header;
     ThreadId thread_id;
-    uint64_t string_size;
 
     // In the capture file, a string will immediately follow this block
     // containing a list of environment variables and their values
