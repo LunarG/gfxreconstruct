@@ -1818,14 +1818,13 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
     else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand) {
         format::SetEnvironmentVariablesCommand header;
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
-        success = success && ReadBytes(&header.string_size, sizeof(header.string_size));
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
             return success;
         }
 
-        success = ReadParameterBuffer(static_cast<size_t>(header.string_size));
+        success = ReadParameterBuffer(static_cast<size_t>(block_header.size));
         if (!success)
         {
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
