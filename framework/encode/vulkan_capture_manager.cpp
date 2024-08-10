@@ -109,10 +109,10 @@ void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream
     common_manager_->IncrementBlockIndex(n_blocks);
 }
 
-void VulkanCaptureManager::WriteAssets(util::FileOutputStream* assert_file_stream, format::ThreadId thread_id)
+void VulkanCaptureManager::WriteAssets(util::FileOutputStream* asset_file_stream, format::ThreadId thread_id)
 {
     assert(state_tracker_ != nullptr);
-    state_tracker_->WriteAssets(assert_file_stream, thread_id, GetCompressor());
+    state_tracker_->WriteAssets(asset_file_stream, thread_id, GetCompressor());
 }
 
 void VulkanCaptureManager::SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device)
