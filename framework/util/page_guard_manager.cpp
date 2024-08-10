@@ -1373,6 +1373,8 @@ const void* PageGuardManager::GetMappedMemory(uint64_t memory_id) const
 void PageGuardManager::GetTrackedMemoryRegions(
     std::unordered_map<uint64_t, const PageStatusTracker::PageStatus&>& memories_page_status)
 {
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
     for (auto& entry : memory_info_)
     {
         auto new_entry = memories_page_status.emplace(entry.first, entry.second.status_tracker.GetActiveWrites());
