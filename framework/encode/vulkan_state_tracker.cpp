@@ -2219,7 +2219,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites()
     }
 
     std::unordered_map<uint64_t, const util::PageStatusTracker::PageStatus&> memories_page_status;
-    manager->GetTrackedMemoryRegions(memories_page_status);
+    manager->GetDirtyMemoryRegions(memories_page_status);
     const size_t page_size = util::platform::GetSystemPageSize();
 
     for (const auto& entry : memories_page_status)
