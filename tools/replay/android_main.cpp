@@ -107,7 +107,14 @@ void android_main(struct android_app* app)
                     ? std::make_unique<gfxrecon::decode::PreloadFileProcessor>()
                     : std::make_unique<gfxrecon::decode::FileProcessor>();
 
-            if (!file_processor->Initialize(filename))
+            const bool  use_state_file = arg_parser.IsArgumentSet(kStateFileArgument);
+            std::string state_file;
+            if (use_state_file)
+            {
+                state_file = arg_parser.GetArgumentValue(kStateFileArgument);
+            }
+
+            if (!file_processor->Initialize(filename, use_state_file ? &state_file : nullptr))
             {
                 GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
             }
