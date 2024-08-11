@@ -732,6 +732,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                     manager_it.first->DestroyStateTracker();
                 }
                 compressor_ = nullptr;
+                write_state_files_ = false;
             }
             else if (trim_ranges_[trim_current_range_].first == current_boundary_count)
             {
