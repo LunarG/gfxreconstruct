@@ -114,7 +114,15 @@ void android_main(struct android_app* app)
                 state_file = arg_parser.GetArgumentValue(kStateFileArgument);
             }
 
-            if (!file_processor->Initialize(filename, use_state_file ? &state_file : nullptr))
+            const bool  use_path_override = arg_parser.IsArgumentSet(kOverridePathArgument);
+            std::string override_path;
+            if (use_path_override)
+            {
+                override_path = arg_parser.GetArgumentValue(kOverridePathArgument);
+            }
+
+            if (!file_processor->Initialize(
+                    filename, use_state_file ? &state_file : nullptr, use_path_override ? &override_path : nullptr))
             {
                 GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
             }
@@ -162,10 +170,6 @@ void android_main(struct android_app* app)
                 decoder.AddConsumer(&replay_consumer);
 
                 file_processor->AddDecoder(&decoder);
-                if (!replay_options.asset_file_path.empty())
-                {
-                    file_processor->OverrideAssetFilename(replay_options.asset_file_path);
-                }
 
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
 

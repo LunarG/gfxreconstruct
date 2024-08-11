@@ -1094,7 +1094,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             }
         }
 
-        if (output_stream_ != nullptr)
+        if (output_stream_ != nullptr && n_blocks)
         {
             WriteExecuteFromFile(n_blocks, offset);
         }

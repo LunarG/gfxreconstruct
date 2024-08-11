@@ -168,7 +168,15 @@ int main(int argc, const char** argv)
             state_file = arg_parser.GetArgumentValue(kStateFileArgument);
         }
 
-        if (!file_processor->Initialize(filename, use_state_file ? &state_file : nullptr))
+        const bool  use_path_override = arg_parser.IsArgumentSet(kOverridePathArgument);
+        std::string override_path;
+        if (use_path_override)
+        {
+            override_path = arg_parser.GetArgumentValue(kOverridePathArgument);
+        }
+
+        if (!file_processor->Initialize(
+                filename, use_state_file ? &state_file : nullptr, use_path_override ? &override_path : nullptr))
         {
             return_code = -1;
         }
@@ -238,11 +246,6 @@ int main(int argc, const char** argv)
             file_processor->SetPrintBlockInfoFlag(vulkan_replay_options.enable_print_block_info,
                                                   vulkan_replay_options.block_index_from,
                                                   vulkan_replay_options.block_index_to);
-
-            if (!vulkan_replay_options.asset_file_path.empty())
-            {
-                file_processor->OverrideAssetFilename(vulkan_replay_options.asset_file_path);
-            }
 
 #if defined(D3D12_SUPPORT)
             gfxrecon::decode::DxReplayOptions    dx_replay_options = GetDxReplayOptions(arg_parser, filename);

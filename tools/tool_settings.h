@@ -129,8 +129,8 @@ const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
-const char kAssetFilePathArgument[] = "--asset-file-path";
-const char kStateFileArgument[]     = "--state-file";
+const char kOverridePathArgument[] = "--override-path";
+const char kStateFileArgument[]    = "--state-file";
 
 const char kDumpResourcesArgument[]               = "--dump-resources";
 const char kDumpResourcesBeforeDrawOption[]       = "--dump-resources-before-draw";
@@ -925,12 +925,12 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
         options.num_pipeline_creation_jobs = std::stoi(arg_parser.GetArgumentValue(kNumPipelineCreationJobs));
     }
 
-    if (arg_parser.IsArgumentSet(kAssetFilePathArgument))
+    if (arg_parser.IsArgumentSet(kOverridePathArgument))
     {
-        options.asset_file_path = arg_parser.GetArgumentValue(kAssetFilePathArgument);
+        options.override_path = arg_parser.GetArgumentValue(kOverridePathArgument);
     }
 
-    if (arg_parser.IsArgumentSet(kAssetFilePathArgument))
+    if (arg_parser.IsArgumentSet(kStateFileArgument))
     {
         options.state_file = arg_parser.GetArgumentValue(kStateFileArgument);
     }

@@ -114,7 +114,7 @@ def CreateReplayParser():
     parser.add_argument('--pbi-all', action='store_true', default=False, help='Print all block information.')
     parser.add_argument('--pbis', metavar='RANGES', default=False, help='Print block information between block index1 and block index2')
     parser.add_argument('--pcj', '--pipeline-creation-jobs', action='store_true', default=False, help='Specify the number of pipeline-creation-jobs or background-threads.')
-    parser.add_argument('--asset-file-path', metavar='RANGES', default=False, help='Provide an alternative path for the asset file')
+    parser.add_argument('--override-path', metavar='RANGES', default=False, help='Provide an alternative path for the capture file(s)')
     parser.add_argument('--state-file', metavar='RANGES', default=False, help='State file')
     return parser
 
@@ -284,9 +284,9 @@ def MakeExtrasString(args):
         arg_list.append('--pcj')
         arg_list.append('{}'.format(args.pcj))
 
-    if args.asset_file_path:
-        arg_list.append('--asset-file-path')
-        arg_list.append('{}'.format(args.asset_file_path))
+    if args.override_path:
+        arg_list.append('--override-path')
+        arg_list.append('{}'.format(args.override_path))
 
     if args.state_file:
         arg_list.append('--state-file')

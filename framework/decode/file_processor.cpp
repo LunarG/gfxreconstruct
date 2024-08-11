@@ -78,8 +78,15 @@ void FileProcessor::WaitDecodersIdle()
     }
 };
 
-bool FileProcessor::Initialize(const std::string& filename, const std::string* state_file)
+bool FileProcessor::Initialize(const std::string& filename,
+                               const std::string* state_file,
+                               const std::string* override_path)
 {
+    if (override_path != nullptr)
+    {
+        override_path_ = *override_path;
+    }
+
     bool success = OpenFile(filename);
 
     if (success)
@@ -106,21 +113,48 @@ bool FileProcessor::Initialize(const std::string& filename, const std::string* s
     return success;
 }
 
+std::string FileProcessor::ApplyOverrideFilePath(const std::string& file)
+{
+    if (override_path_.empty())
+    {
+        return file;
+    }
+
+
+    std::string  new_file       = file;
+    const size_t slash_last_pos = new_file.find_last_of('/');
+    if (slash_last_pos != std::string::npos)
+    {
+        new_file = new_file.substr(slash_last_pos);
+        new_file = override_path_ + new_file;
+        // new_file = std::string(".") + new_file;
+    }
+
+    GFXRECON_WRITE_CONSOLE("%s -> %s", file.c_str(), new_file.c_str())
+
+    return new_file;
+}
+
 bool FileProcessor::OpenFile(const std::string& filename)
 {
-    if (active_files_.find(filename) == active_files_.end())
+    std::string new_filename = ApplyOverrideFilePath(filename);
+
+    GFXRECON_WRITE_CONSOLE("new_filename: %s", new_filename.c_str())
+
+    if (active_files_.find(new_filename) == active_files_.end())
     {
         FILE* fd;
-        int   result = util::platform::FileOpen(&fd, filename.c_str(), "rb");
+        int   result = util::platform::FileOpen(&fd, new_filename.c_str(), "rb");
         if (result || fd == nullptr)
         {
-            GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
+            GFXRECON_LOG_ERROR("Failed to open file %s", new_filename.c_str());
             error_state_ = kErrorOpeningFile;
             return false;
         }
         else
         {
-            active_files_.emplace(std::piecewise_construct, std::forward_as_tuple(filename), std::forward_as_tuple(fd));
+            active_files_.emplace(
+                std::piecewise_construct, std::forward_as_tuple(new_filename), std::forward_as_tuple(fd));
             error_state_ = kErrorNone;
         }
     }
@@ -1973,17 +2007,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
         {
             filename_c_str[exec_from_file.filename_length] = '\0';
 
-            std::string filename;
-            if (override_asset_filename_.empty())
-            {
-                filename = std::string(filename_c_str.data());
-            }
-            else
-            {
-                filename = override_asset_filename_;
-            }
-
-            success = OpenFile(filename);
+            std::string filename = ApplyOverrideFilePath(std::string(filename_c_str.data()));
+            success              = OpenFile(filename);
             if (success)
             {
                 for (auto decoder : decoders_)
