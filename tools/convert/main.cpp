@@ -46,7 +46,7 @@ using Dx12JsonConsumer =
 #endif
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
-const char kArguments[] = "--output,--format";
+const char kArguments[] = "--output,--format,--override-path";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -81,6 +81,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE(
         "  --file-per-frame\tCreates a new file for every frame processed. Frame number is added as a suffix");
     GFXRECON_WRITE_CONSOLE("                  \tto the output file name.");
+    GFXRECON_WRITE_CONSOLE("  --alternative-path\tProvide an alternative path for capture files");
 
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
@@ -171,7 +172,14 @@ int main(int argc, const char** argv)
     bool        dump_binaries        = arg_parser.IsOptionSet(kIncludeBinariesOption);
     bool        expand_flags         = arg_parser.IsOptionSet(kExpandFlagsOption);
     bool        file_per_frame       = arg_parser.IsOptionSet(kFilePerFrameOption);
+    bool        use_override_path    = arg_parser.IsArgumentSet(kOverridePathArgument);
     bool        output_to_stdout     = output_filename == "stdout";
+
+    std::string override_path;
+    if (use_override_path)
+    {
+        override_path = arg_parser.GetArgumentValue(kOverridePathArgument);
+    }
 
     gfxrecon::decode::FileProcessor file_processor;
 
@@ -198,7 +206,7 @@ int main(int argc, const char** argv)
         gfxrecon::util::filepath::MakeDirectory(data_dir);
     }
 
-    if (file_processor.Initialize(input_filename))
+    if (file_processor.Initialize(input_filename, nullptr, use_override_path ? &override_path : nullptr))
     {
         std::string json_filename;
         FILE*       out_file_handle = nullptr;
