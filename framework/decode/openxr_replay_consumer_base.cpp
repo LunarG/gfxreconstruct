@@ -48,6 +48,7 @@ OpenXrReplayConsumerBase::OpenXrReplayConsumerBase(std::shared_ptr<application::
     options_(options), get_instance_proc_addr_(nullptr)
 {
     assert(application_ != nullptr);
+    object_info_table_ = CommonObjectInfoTable::GetSingleton();
 }
 
 OpenXrReplayConsumerBase::~OpenXrReplayConsumerBase() {}
