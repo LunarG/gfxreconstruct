@@ -965,31 +965,36 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         ForcedWriteAnnotation(
             format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
 
-        // Gather environment variables in comma-delimited string
+        // Gather environment variables in format::kEnvironmentStringDelimeter -delimited string
         std::string env_vars;
 #ifdef _WINDOWS
         const LPCH env_string  = GetEnvironmentStrings();
         int        offset      = 0;
         int        base_offset = 0;
+
+        // Initial loop to count total length
         while (env_string[offset] != '\0')
         {
-            static bool skipped_first = false;
             const char* c             = env_string + offset;
+
+            bool skip = *c == '=';
 
             while (env_string[offset] != '\0') offset += 1;
             offset += 1;
 
-            // For some reason the first entry is garbage, so we skip it.
-            if (!skipped_first)
+            // Environment variables starting with '=' are relics from the DOS era and can be ignored
+            // Said variables are always at the front, so we can simply bump base_offset to skip them
+            // more details: https://devblogs.microsoft.com/oldnewthing/20100506-00/?p=14133
+            if (skip)
             {
-                base_offset   = offset;
-                skipped_first = true;
+                base_offset = offset;
                 continue;
             }
         }
         env_vars.reserve(offset - base_offset);
         offset = base_offset;
 
+        // Second loop to copy string data into allocated buffer
         int last_offset = offset;
         while (env_string[offset] != '\0')
         {
@@ -1009,6 +1014,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 #elif __unix__
         int           current      = 0;
         size_t        total_length = 0;
+        // Initial loop to count total length
         while (environ[current] != nullptr)
         {
             total_length += util::platform::StringLength(environ[current]);
@@ -1016,6 +1022,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         }
         current = 0;
         env_vars.reserve(total_length);
+        // Second loop to copy string data into allocated buffer
         while (environ[current] != nullptr)
         {
             env_vars += environ[current];
@@ -1036,7 +1043,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
 
         env_block.string_length = env_vars.size();
 
-        // Write to file before freeing environment strings
+        // Write to file
         CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
     }
     else
