@@ -120,17 +120,13 @@ std::string FileProcessor::ApplyOverrideFilePath(const std::string& file)
         return file;
     }
 
-
     std::string  new_file       = file;
     const size_t slash_last_pos = new_file.find_last_of('/');
     if (slash_last_pos != std::string::npos)
     {
         new_file = new_file.substr(slash_last_pos);
         new_file = override_path_ + new_file;
-        // new_file = std::string(".") + new_file;
     }
-
-    GFXRECON_WRITE_CONSOLE("%s -> %s", file.c_str(), new_file.c_str())
 
     return new_file;
 }
@@ -138,8 +134,6 @@ std::string FileProcessor::ApplyOverrideFilePath(const std::string& file)
 bool FileProcessor::OpenFile(const std::string& filename)
 {
     std::string new_filename = ApplyOverrideFilePath(filename);
-
-    GFXRECON_WRITE_CONSOLE("new_filename: %s", new_filename.c_str())
 
     if (active_files_.find(new_filename) == active_files_.end())
     {
