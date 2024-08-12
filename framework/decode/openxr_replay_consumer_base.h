@@ -118,6 +118,14 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                            StructPointerDecoder<Decoded_XrSwapchainCreateInfo>* createInfo,
                                            HandlePointerDecoder<XrSwapchain>*                   swapchain) override;
 
+    void UpdateState_xrEnumerateSwapchainImages(const ApiCallInfo&        call_info,
+                                                XrResult                  returnValue,
+                                                format::HandleId          swapchain,
+                                                uint32_t                  imageCapacityInput,
+                                                PointerDecoder<uint32_t>* imageCountOutput,
+                                                StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images,
+                                                XrResult replay_result);
+
     const OpenXrReplayOptions options_;
 
   protected:
@@ -439,7 +447,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
       public:
         void
         InitSwapchainData(const GraphicsBinding& binding, const XrSwapchainCreateInfo& info, XrSwapchain replay_handle);
-        XrResult EnumerateReplaySwapchain();
+        XrResult ImportReplaySwapchain(StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images);
         XrResult InitVirtualSwapchain(PointerDecoder<uint32_t>*                                 imageCountOutput,
                                       StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* capture_images);
         XrResult InitVirtualSwapchain(PointerDecoder<uint32_t>*                                imageCountOutput,
@@ -531,6 +539,16 @@ struct CustomProcess<format::ApiCallId::ApiCall_xrEnumerateReferenceSpaces>
     static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
     {
         consumer->UpdateState_xrEnumerateReferenceSpaces(args...);
+    }
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrEnumerateSwapchainImages>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrEnumerateSwapchainImages(args...);
     }
 };
 
