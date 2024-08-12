@@ -746,7 +746,7 @@ void GatherAndPrintEnvVars(const std::string& input_filename)
         }
         else
         {
-            GFXRECON_WRITE_CONSOLE("Encountered error while reading capture. Unable to report environment variables.");
+            GFXRECON_LOG_ERROR("Encountered error while reading capture. Unable to report environment variables.");
         }
     }
 }
