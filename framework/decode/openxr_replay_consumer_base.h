@@ -93,9 +93,9 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     const OpenXrReplayOptions options_;
 
   protected:
-    const CommonObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
+    const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
 
-    CommonObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
+    CommonObjectInfoTable& GetObjectInfoTable() { return *object_info_table_; }
 
     void AddInstanceTable(XrInstance instance);
 
@@ -178,17 +178,17 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     typename T::HandleType MapHandle(format::HandleId id,
                                      const T* (CommonObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
-        return handle_mapping::MapHandle(id, object_info_table_, MapFunc);
+        return handle_mapping::MapHandle(id, *object_info_table_, MapFunc);
     }
 
     uint64_t MapHandle(uint64_t object, XrObjectType object_type)
     {
-        return handle_mapping::MapHandle(object, object_type, object_info_table_);
+        return handle_mapping::MapHandle(object, object_type, *object_info_table_);
     }
 
     void RemoveHandle(format::HandleId id, void (CommonObjectInfoTable::*RemoveFunc)(format::HandleId))
     {
-        handle_mapping::RemoveHandle(id, &object_info_table_, RemoveFunc);
+        handle_mapping::RemoveHandle(id, object_info_table_, RemoveFunc);
     }
 
     template <typename T>
@@ -222,7 +222,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         if ((id != nullptr) && (handle != nullptr))
         {
             handle_mapping::AddHandle(
-                parent_id, *id, *handle, std::forward<T>(initial_info), &object_info_table_, AddFunc);
+                parent_id, *id, *handle, std::forward<T>(initial_info), object_info_table_, AddFunc);
         }
     }
 
@@ -234,7 +234,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     {
         if ((id != nullptr) && (handle != nullptr))
         {
-            handle_mapping::AddHandle(parent_id, *id, *handle, &object_info_table_, AddFunc);
+            handle_mapping::AddHandle(parent_id, *id, *handle, object_info_table_, AddFunc);
         }
     }
 
@@ -259,7 +259,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                     size_t                        handles_len,
                     void (CommonObjectInfoTable::*AddFunc)(T&&))
     {
-        handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+        handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, object_info_table_, AddFunc);
     }
 
     void CheckResult(const char* func_name, XrResult original, XrResult replay, const decode::ApiCallInfo& call_info);
@@ -297,7 +297,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     HandleMap<VkPhysicalDevice> vk_physical_device_info_map_;
 
     PFN_xrGetInstanceProcAddr                                   get_instance_proc_addr_;
-    CommonObjectInfoTable                                       object_info_table_;
+    CommonObjectInfoTable*                                      object_info_table_;
     std::unordered_map<XrInstance, encode::OpenXrInstanceTable> instance_tables_;
     std::shared_ptr<application::Application>                   application_;
     std::function<void(const char*)>                            fatal_error_handler_;
