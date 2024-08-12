@@ -207,6 +207,7 @@ bool SpirVParsingUtil::ParseBufferReferences(const uint32_t* const spirv_code, s
             found_buffer_ref = true;
         }
 
+        // arrived at 'OpFunction' -> we have seen all metadata incl. capabilities
         if (insn.opcode() == spv::OpFunction)
         {
             // CapabilityPhysicalStorageBufferAddresses not found
