@@ -379,8 +379,12 @@ typedef struct PipelineCacheData
 struct PipelineCacheInfo : public VulkanObjectInfo<VkPipelineCache>
 {
     std::unordered_map<uint32_t, size_t> array_counts;
+
     // hash id of capture time pipeline cache data to capture and replay time pipeline cache data map;
     std::unordered_map<uint32_t, std::vector<PipelineCacheData>> pipeline_cache_data;
+
+    // cache was created using VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT flag.
+    bool requires_external_synchronization = false;
 };
 
 struct ShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>

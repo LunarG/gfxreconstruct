@@ -5803,6 +5803,11 @@ VkResult VulkanReplayConsumerBase::OverrideCreatePipelineCache(
         auto& create_info = *pCreateInfo->GetPointer();
         if ((create_info.pInitialData != nullptr) && (create_info.initialDataSize != 0))
         {
+            // keep track if external synchronization is required
+            auto handle_info = reinterpret_cast<PipelineCacheInfo*>(pPipelineCache->GetConsumerData(0));
+            handle_info->requires_external_synchronization =
+                create_info.flags & VK_PIPELINE_CACHE_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
+
             // This vkCreatePipelineCache call has initial pipeline cache data, the data is valid for capture time,
             // but it might not be valid for replay time if considering platform/driver version change. So in the
             // following process, we'll try to find corresponding replay time pipeline cache data.
