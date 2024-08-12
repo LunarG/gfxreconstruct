@@ -985,17 +985,12 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             // Environment variables starting with '=' are relics from the DOS era and can be ignored
             // Said variables are always at the front, so we can simply bump base_offset to skip them
             // more details: https://devblogs.microsoft.com/oldnewthing/20100506-00/?p=14133
-            if (skip)
-            {
-                base_offset = offset;
-                continue;
-            }
+            if (skip) base_offset = offset;
         }
         env_vars.reserve(offset - base_offset);
         offset = base_offset;
 
         // Second loop to copy string data into allocated buffer
-        int last_offset = offset;
         while (env_string[offset] != '\0')
         {
             const char* c = env_string + offset;
@@ -1008,7 +1003,6 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             // Advance offset to point at the first character of the next string
             // or null if we're out of strings
             offset += 1;
-            last_offset = offset;
         }
         FreeEnvironmentStrings(env_string);
 #elif __unix__
