@@ -9353,6 +9353,11 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
     HandlePointerDecoder<VkPipeline>*                           pPipelines)
 {
+    // avoid async operations if an externally synchronized pipeline-cache is used
+    if (pipeline_cache_info != nullptr && pipeline_cache_info->requires_external_synchronization)
+    {
+        return {};
+    }
     const VkGraphicsPipelineCreateInfo* in_pCreateInfos = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*        in_pAllocator   = GetAllocationCallbacks(pAllocator);
     VkDevice                            device_handle   = device_info->handle;
@@ -9420,6 +9425,12 @@ std::function<handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::As
     StructPointerDecoder<Decoded_VkAllocationCallbacks>*       pAllocator,
     HandlePointerDecoder<VkPipeline>*                          pPipelines)
 {
+    // avoid async operations if an externally synchronized pipeline-cache is used
+    if (pipeline_cache_info != nullptr && pipeline_cache_info->requires_external_synchronization)
+    {
+        return {};
+    }
+
     const VkComputePipelineCreateInfo* in_pCreateInfos = pCreateInfos->GetPointer();
     const VkAllocationCallbacks*       in_pAllocator   = GetAllocationCallbacks(pAllocator);
     VkDevice                           device_handle   = device_info->handle;
