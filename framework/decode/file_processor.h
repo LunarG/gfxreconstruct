@@ -97,17 +97,17 @@ class FileProcessor
     // Returns false if processing failed.  Use GetErrorState() to determine error condition for failure case.
     bool ProcessAllFrames();
 
-    const format::FileHeader& GetFileHeader() const
+    const format::FileHeader& GetFileHeader(const std::string& filename) const
     {
-        auto file_entry = active_files_.find(file_stack_.top().filename);
+        auto file_entry = active_files_.find(filename);
         assert(file_entry != active_files_.end());
 
         return file_entry->second.file_header;
     }
 
-    const std::vector<format::FileOptionPair>& GetFileOptions() const
+    const std::vector<format::FileOptionPair>& GetFileOptions(const std::string& filename) const
     {
-        auto file_entry = active_files_.find(file_stack_.top().filename);
+        auto file_entry = active_files_.find(filename);
         assert(file_entry != active_files_.end());
 
         return file_entry->second.file_options;
@@ -117,20 +117,34 @@ class FileProcessor
 
     uint64_t GetNumBytesRead() const
     {
-        auto file_entry = active_files_.find(file_stack_.top().filename);
-        assert(file_entry != active_files_.end());
+        if (!file_stack_.empty())
+        {
+            auto file_entry = active_files_.find(file_stack_.top().filename);
+            assert(file_entry != active_files_.end());
 
-        return file_entry->second.bytes_read;
+            return file_entry->second.bytes_read;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     Error GetErrorState() const { return error_state_; }
 
     bool EntireFileWasProcessed() const
     {
-        auto file_entry = active_files_.find(file_stack_.top().filename);
-        assert(file_entry != active_files_.end());
+        if (!file_stack_.empty())
+        {
+            auto file_entry = active_files_.find(file_stack_.top().filename);
+            assert(file_entry != active_files_.end());
 
-        return (feof(file_entry->second.fd) != 0);
+            return (feof(file_entry->second.fd) != 0);
+        }
+        else
+        {
+            return true;
+        }
     }
 
     bool UsesFrameMarkers() const { return capture_uses_frame_markers_; }
@@ -186,10 +200,17 @@ class FileProcessor
     {
         assert(!file_stack_.empty());
 
-        auto file_entry = active_files_.find(file_stack_.top().filename);
-        assert(file_entry != active_files_.end());
+        if (!file_stack_.empty())
+        {
+            auto file_entry = active_files_.find(file_stack_.top().filename);
+            assert(file_entry != active_files_.end());
 
-        return file_entry->second.fd;
+            return file_entry->second.fd;
+        }
+        else
+        {
+            return nullptr;
+        }
     }
 
   private:
@@ -207,23 +228,33 @@ class FileProcessor
     {
         assert(!file_stack_.empty());
 
-        auto file_entry = active_files_.find(file_stack_.top().filename);
-        assert(file_entry != active_files_.end());
+        if (!file_stack_.empty())
+        {
 
-        return (file_entry->second.file_header.fourcc == GFXRECON_FOURCC);
+            auto file_entry = active_files_.find(file_stack_.top().filename);
+            assert(file_entry != active_files_.end());
+
+            return (file_entry->second.file_header.fourcc == GFXRECON_FOURCC);
+        }
+        else
+        {
+            return false;
+        }
     }
 
     bool IsFileValid() const
     {
-        if (file_stack_.empty())
+        if (!file_stack_.empty())
+        {
+            auto file_entry = active_files_.find(file_stack_.top().filename);
+            assert(file_entry != active_files_.end());
+
+            return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
+        }
+        else
         {
             return false;
         }
-
-        auto file_entry = active_files_.find(file_stack_.top().filename);
-        assert(file_entry != active_files_.end());
-
-        return (file_entry->second.fd && !feof(file_entry->second.fd) && !ferror(file_entry->second.fd));
     }
 
     bool OpenFile(const std::string& filename);
