@@ -99,6 +99,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define CAPTURE_QUEUE_SUBMITS_UPPER                          "CAPTURE_QUEUE_SUBMITS"
 #define CAPTURE_USE_ASSET_FILE_LOWER                         "capture_use_asset_file"
 #define CAPTURE_USE_ASSET_FILE_UPPER                         "CAPTURE_USE_ASSET_FILE"
+#define CAPTURE_WRITE_STATE_FILES_LOWER                      "capture_write_state_files"
+#define CAPTURE_WRITE_STATE_FILES_UPPER                      "CAPTURE_WRITE_STATE_FILES"
 #define PAGE_GUARD_COPY_ON_MAP_LOWER                         "page_guard_copy_on_map"
 #define PAGE_GUARD_COPY_ON_MAP_UPPER                         "PAGE_GUARD_COPY_ON_MAP"
 #define PAGE_GUARD_SEPARATE_READ_LOWER                       "page_guard_separate_read"
@@ -172,6 +174,7 @@ const char kCaptureTriggerFramesEnvVar[]                     = GFXRECON_ENV_VAR_
 const char kCaptureIUnknownWrappingEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_IUNKNOWN_WRAPPING_LOWER;
 const char kCaptureQueueSubmitsEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_QUEUE_SUBMITS_LOWER;
 const char kCaptureUseAssetFileEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_USE_ASSET_FILE_LOWER;
+const char kCaptureWriteStateFilesEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX CAPTURE_WRITE_STATE_FILES_LOWER;
 const char kPageGuardCopyOnMapEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_COPY_ON_MAP_LOWER;
 const char kPageGuardSeparateReadEnvVar[]                    = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_SEPARATE_READ_LOWER;
 const char kPageGuardPersistentMemoryEnvVar[]                = GFXRECON_ENV_VAR_PREFIX PAGE_GUARD_PERSISTENT_MEMORY_LOWER;
@@ -206,6 +209,7 @@ const char kCaptureFileFlushEnvVar[]                         = GFXRECON_ENV_VAR_
 const char kCaptureFileNameEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_NAME_UPPER;
 const char kCaptureFileUseTimestampEnvVar[]                  = GFXRECON_ENV_VAR_PREFIX CAPTURE_FILE_USE_TIMESTAMP_UPPER;
 const char kCaptureUseAssetFileEnvVar[]                      = GFXRECON_ENV_VAR_PREFIX CAPTURE_USE_ASSET_FILE_UPPER;
+const char kCaptureWriteStateFilesEnvVar[]                   = GFXRECON_ENV_VAR_PREFIX CAPTURE_WRITE_STATE_FILES_UPPER;
 const char kLogAllowIndentsEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_ALLOW_INDENTS_UPPER;
 const char kLogBreakOnErrorEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX LOG_BREAK_ON_ERROR_UPPER;
 const char kLogDetailedEnvVar[]                              = GFXRECON_ENV_VAR_PREFIX LOG_DETAILED_UPPER;
@@ -279,6 +283,7 @@ const std::string kOptionKeyCaptureTriggerFrames                     = std::stri
 const std::string kOptionKeyCaptureIUnknownWrapping                  = std::string(kSettingsFilter) + std::string(CAPTURE_IUNKNOWN_WRAPPING_LOWER);
 const std::string kOptionKeyCaptureQueueSubmits                      = std::string(kSettingsFilter) + std::string(CAPTURE_QUEUE_SUBMITS_LOWER);
 const std::string kOptionKeyCaptureUseAssetFile                      = std::string(kSettingsFilter) + std::string(CAPTURE_USE_ASSET_FILE_LOWER);
+const std::string kOptionKeyCaptureWriteStateFiles                   = std::string(kSettingsFilter) + std::string(CAPTURE_WRITE_STATE_FILES_LOWER);
 const std::string kOptionKeyPageGuardCopyOnMap                       = std::string(kSettingsFilter) + std::string(PAGE_GUARD_COPY_ON_MAP_LOWER);
 const std::string kOptionKeyPageGuardSeparateRead                    = std::string(kSettingsFilter) + std::string(PAGE_GUARD_SEPARATE_READ_LOWER);
 const std::string kOptionKeyPageGuardPersistentMemory                = std::string(kSettingsFilter) + std::string(PAGE_GUARD_PERSISTENT_MEMORY_LOWER);
@@ -428,6 +433,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kCaptureTriggerFramesEnvVar, kOptionKeyCaptureTriggerFrames);
     LoadSingleOptionEnvVar(options, kCaptureQueueSubmitsEnvVar, kOptionKeyCaptureQueueSubmits);
     LoadSingleOptionEnvVar(options, kCaptureUseAssetFileEnvVar, kOptionKeyCaptureUseAssetFile);
+    LoadSingleOptionEnvVar(options, kCaptureWriteStateFilesEnvVar, kOptionKeyCaptureWriteStateFiles);
 
     // Page guard environment variables
     LoadSingleOptionEnvVar(options, kPageGuardCopyOnMapEnvVar, kOptionKeyPageGuardCopyOnMap);
@@ -567,6 +573,9 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
 
     settings->trace_settings_.use_asset_file =
         ParseBoolString(FindOption(options, kOptionKeyCaptureUseAssetFile), settings->trace_settings_.use_asset_file);
+
+    settings->trace_settings_.write_state_files = ParseBoolString(FindOption(options, kOptionKeyCaptureWriteStateFiles),
+                                                                  settings->trace_settings_.use_asset_file);
 
     // Page guard environment variables
     settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(

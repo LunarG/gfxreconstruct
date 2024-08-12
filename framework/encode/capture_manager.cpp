@@ -106,7 +106,7 @@ CommonCaptureManager::CommonCaptureManager() :
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
     allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
-    write_assets_(false), previous_write_assets_(false), write_state_files_(true)
+    write_assets_(false), previous_write_assets_(false), write_state_files_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -312,6 +312,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
     use_asset_file_                  = trace_settings.use_asset_file;
+    write_state_files_               = trace_settings.write_state_files;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -731,7 +732,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                 {
                     manager_it.first->DestroyStateTracker();
                 }
-                compressor_ = nullptr;
+                compressor_        = nullptr;
                 write_state_files_ = false;
             }
             else if (trim_ranges_[trim_current_range_].first == current_boundary_count)
