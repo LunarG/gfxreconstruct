@@ -1815,7 +1815,8 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read parent to child dependency meta-data block header");
         }
     }
-    else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand) {
+    else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand)
+    {
         format::SetEnvironmentVariablesCommand header;
         success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
         success = success && ReadBytes(&header.string_length, sizeof(header.string_length));
