@@ -135,12 +135,13 @@ if __name__ == '__main__':
                 # Verify info tool exists
                 if exists(info_tool_path):
                     # Set any environment variables we were told to
-                    captured_env_vars = retrieve_environment_variables(info_tool_path, capture_path)
-                    for name in env_vars_to_preserve:
-                        if name in captured_env_vars:
-                            os.environ[name] = captured_env_vars[name]
-                        else:
-                            print(f"WARNING: user requested {name} to be preserved, but it wasn't present in original capture.")
+                    if env_vars_to_preserve:
+                        captured_env_vars = retrieve_environment_variables(info_tool_path, capture_path)
+                        for name in env_vars_to_preserve:
+                            if name in captured_env_vars:
+                                os.environ[name] = captured_env_vars[name]
+                            else:
+                                print(f"WARNING: user requested {name} to be preserved, but it wasn't present in original capture.")
 
 
                     encoded_app_executable = retrieve_exe_name(info_tool_path, capture_path)
@@ -165,5 +166,5 @@ if __name__ == '__main__':
             print("Error: path to capture is invalid")
     except Exception as e:
         print()
-        print("Error: exception occurred " + e)
+        print(f"Error: exception occurred: {e}")
         cleanup(replayer_tool_path, replayer_tool_path_renamed)
