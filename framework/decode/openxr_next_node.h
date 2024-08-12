@@ -60,6 +60,8 @@ const T* GetNextMetaStruct(const OpenXrNextNode* next)
 {
     struct MetaStructHeader
     {
+        // The actual MetaStruct types are Xr<Struct> *, all of which begin with a ::type field, so we can
+        //  treat the general case as just pointing to the type field
         XrStructureType* type;
         OpenXrNextNode*  next;
     };

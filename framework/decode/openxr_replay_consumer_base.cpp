@@ -21,6 +21,8 @@
 */
 
 #if ENABLE_OPENXR_SUPPORT
+#include <array>
+
 #include "util/platform.h"
 #include "util/defines.h"
 
@@ -630,7 +632,40 @@ void OpenXrReplayConsumerBase::Process_xrCreateSwapchain(
     SwapchainData& swap_data    = AddSwapchainData(*out_swapchain);
     swap_data.InitSwapchainData(session_data.GetGraphicsBinding(), amended_info, *out_swapchain);
 }
+void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
+    const ApiCallInfo&                                        call_info,
+    XrResult                                                  returnValue,
+    format::HandleId                                          swapchain,
+    uint32_t                                                  imageCapacityInput,
+    PointerDecoder<uint32_t>*                                 imageCountOutput,
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images,
+    XrResult                                                  replay_result)
+{
+    // When there's nothing to do, do nothing
+    if (!XR_SUCCEEDED(returnValue) || (imageCapacityInput == 0) || (images->GetOutputLength() == 0))
+    {
+        return;
+    }
 
+    XrSwapchain in_swapchain = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
+    auto&       swapchain_data = GetSwapchainData(in_swapchain);
+
+    XrResult result = swapchain_data.ImportReplaySwapchain(images);
+    if (XR_SUCCEEDED(result))
+    {
+        result = swapchain_data.InitVirtualSwapchain(imageCountOutput, images);
+    }
+
+    if (!XR_SUCCEEDED(result))
+    {
+        GFXRECON_LOG_FATAL("API call at index: %d thread: %d virtual swapchain initialzation returned error value %s.  "
+                           "Replay cannot continue.",
+                           call_info.index,
+                           call_info.thread_id,
+                           util::ToString<XrResult>(result).c_str());
+        RaiseFatalError(enumutil::GetResultDescription(result));
+    }
+}
 void* OpenXrReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
                                                          format::ApiCallId call_id,
                                                          const char*       call_name)
@@ -738,36 +773,32 @@ void OpenXrReplayConsumerBase::SwapchainData::InitSwapchainData(const GraphicsBi
     }
 }
 
-XrResult OpenXrReplayConsumerBase::SwapchainData::EnumerateReplaySwapchain()
+XrResult OpenXrReplayConsumerBase::SwapchainData::ImportReplaySwapchain(
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
 {
+    XrResult                    result             = XR_SUCCESS;
+    XrSwapchainImageBaseHeader* replay_images      = images->GetOutputPointer();
+    size_t                      replay_image_count = images->GetOutputLength();
 
-    XrSwapchainImageBaseHeader* replay_image_arg = nullptr;
-    uint32_t                    replay_capacity_output;
-    auto result = xrEnumerateSwapchainImages(replay_handle_, 0, &replay_capacity_output, replay_image_arg);
-
-    if (result < 0)
+    if (replay_image_count == 0)
     {
         return result;
     }
+    assert(replay_images);
 
     if (graphics_binding_->IsVulkan())
     {
+        XrSwapchainImageVulkanKHR* vk_images = reinterpret_cast<XrSwapchainImageVulkanKHR*>(replay_images);
+        assert(vk_images->type == XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR);
         assert(swapchain_graphics_info_.vulkan_info.has_value());
         VulkanSwapchainInfo& vk_info = *swapchain_graphics_info_.vulkan_info;
-        vk_info.replay_images        = std::vector<XrSwapchainImageVulkanKHR>(
-            replay_capacity_output, XrSwapchainImageVulkanKHR{ XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR, nullptr });
-        replay_image_arg = reinterpret_cast<XrSwapchainImageBaseHeader*>(vk_info.replay_images.data());
+        vk_info.replay_images = std::vector<XrSwapchainImageVulkanKHR>(vk_images, vk_images + replay_image_count);
     }
-    if (!replay_image_arg)
+    else
     {
-        // WIP: Properly log and handle this
-        assert("always assert: text = " == "Unsupported graphics binding");
-        return XR_ERROR_VALIDATION_FAILURE;
+        result = XR_ERROR_RUNTIME_FAILURE; // Our version of replay can't handle any other binding than those above
     }
 
-    uint32_t replay_capacity_input = replay_capacity_output;
-    result =
-        xrEnumerateSwapchainImages(replay_handle_, replay_capacity_input, &replay_capacity_output, replay_image_arg);
     return result;
 }
 
