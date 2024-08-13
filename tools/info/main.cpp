@@ -835,8 +835,6 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
             PrintAnnotations(annotation_recorder.GetAnnotationCount(),
                              annotation_recorder.GetOperationAnnotationDatas(),
                              target_annotations);
-
-            PrintEnvironmentVariableInfo(info_consumer);
         }
         else
         {
