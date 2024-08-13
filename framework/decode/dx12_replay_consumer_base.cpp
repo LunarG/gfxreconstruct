@@ -33,7 +33,6 @@
 #include "util/file_path.h"
 #include "util/image_writer.h"
 #include "util/to_string.h"
-#include "util/strings.h"
 
 #include <dxgidebug.h>
 
