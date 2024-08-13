@@ -988,8 +988,11 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     if (UseAsyncOperations())
     {
         auto task = AsyncCreateGraphicsPipelines(call_info, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
-        AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
-        return;
+        if(task)
+        {
+           AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
+           return;
+        }
     }
     VkResult replay_result = OverrideCreateGraphicsPipelines(GetDeviceTable(in_device->handle)->CreateGraphicsPipelines, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
@@ -1019,8 +1022,11 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
     if (UseAsyncOperations())
     {
         auto task = AsyncCreateComputePipelines(call_info, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
-        AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
-        return;
+        if(task)
+        {
+           AddHandlesAsync<PipelineInfo>(device, pPipelines->GetPointer(), pPipelines->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddPipelineInfo, std::move(task));
+           return;
+        }
     }
     VkResult replay_result = OverrideCreateComputePipelines(GetDeviceTable(in_device->handle)->CreateComputePipelines, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     CheckResult("vkCreateComputePipelines", returnValue, replay_result, call_info);
@@ -10004,8 +10010,11 @@ void VulkanReplayConsumer::Process_vkCreateShadersEXT(
     if (UseAsyncOperations())
     {
         auto task = AsyncCreateShadersEXT(call_info, returnValue, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
-        AddHandlesAsync<ShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddShaderEXTInfo, std::move(task));
-        return;
+        if(task)
+        {
+           AddHandlesAsync<ShaderEXTInfo>(device, pShaders->GetPointer(), pShaders->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::AddShaderEXTInfo, std::move(task));
+           return;
+        }
     }
     VkResult replay_result = OverrideCreateShadersEXT(GetDeviceTable(in_device->handle)->CreateShadersEXT, returnValue, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
     CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);

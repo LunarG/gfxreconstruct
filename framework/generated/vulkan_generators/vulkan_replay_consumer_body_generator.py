@@ -342,8 +342,11 @@ class VulkanReplayConsumerBodyGenerator(
                 body += '    if (UseAsyncOperations())\n'
                 body += '    {\n'
                 body += '        auto task = {}(call_info, returnValue, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], arglist)
-                body += '        {}\n'.format(postexpr[0])
-                body += '        return;\n'
+                body += '        if(task)\n'
+                body += '        {\n'
+                body += '           {}\n'.format(postexpr[0])
+                body += '           return;\n'
+                body += '        }\n'
                 body += '    }\n'
                 postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
 
