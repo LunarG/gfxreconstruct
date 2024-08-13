@@ -9275,26 +9275,24 @@ void VulkanReplayConsumerBase::OverrideDestroyPipeline(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     GFXRECON_ASSERT(device_info != nullptr);
-    VkDevice in_device = device_info->handle;
+    VkDevice                     in_device     = device_info->handle;
+    VkPipeline                   in_pipeline   = VK_NULL_HANDLE;
+    const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
     if (pipeline_info != nullptr)
     {
-        VkPipeline in_pipeline =
-            MapHandle<PipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetPipelineInfo);
-        const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
+        in_pipeline = MapHandle<PipelineInfo>(pipeline_info->capture_id, &VulkanObjectInfoTable::GetPipelineInfo);
 
-        if (!IsUsedByAsyncTask(pipeline_info->capture_id))
-        {
-            func(in_device, in_pipeline, in_pAllocator);
-        }
-        else
+        if (IsUsedByAsyncTask(pipeline_info->capture_id))
         {
             // schedule deletion
             DestroyAsyncHandle(pipeline_info->capture_id, [func, in_device, in_pipeline, in_pAllocator]() {
                 func(in_device, in_pipeline, in_pAllocator);
             });
+            return;
         }
     }
+    func(in_device, in_pipeline, in_pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
@@ -9304,20 +9302,23 @@ void VulkanReplayConsumerBase::OverrideDestroyRenderPass(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     VkDevice                     in_device     = device_info->handle;
-    VkRenderPass                 in_renderpass = renderpass_info->handle;
+    VkRenderPass                 in_renderpass = VK_NULL_HANDLE;
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
 
-    if (!IsUsedByAsyncTask(renderpass_info->capture_id))
+    if (renderpass_info != nullptr)
     {
-        func(in_device, in_renderpass, in_pAllocator);
+        in_renderpass = renderpass_info->handle;
+
+        if (IsUsedByAsyncTask(renderpass_info->capture_id))
+        {
+            // schedule deletion
+            DestroyAsyncHandle(renderpass_info->capture_id, [func, in_device, in_renderpass, in_pAllocator]() {
+                func(in_device, in_renderpass, in_pAllocator);
+            });
+            return;
+        }
     }
-    else
-    {
-        // schedule deletion
-        DestroyAsyncHandle(renderpass_info->capture_id, [func, in_device, in_renderpass, in_pAllocator]() {
-            func(in_device, in_renderpass, in_pAllocator);
-        });
-    }
+    func(in_device, in_renderpass, in_pAllocator);
 }
 
 void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
@@ -9327,20 +9328,23 @@ void VulkanReplayConsumerBase::OverrideDestroyShaderModule(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
 {
     VkDevice                     in_device        = device_info->handle;
-    VkShaderModule               in_shader_module = shader_module_info->handle;
+    VkShaderModule               in_shader_module = VK_NULL_HANDLE;
     const VkAllocationCallbacks* in_pAllocator    = GetAllocationCallbacks(pAllocator);
 
-    if (!IsUsedByAsyncTask(shader_module_info->capture_id))
+    if (shader_module_info != nullptr)
     {
-        func(in_device, in_shader_module, in_pAllocator);
+        in_shader_module = shader_module_info->handle;
+
+        if (IsUsedByAsyncTask(shader_module_info->capture_id))
+        {
+            // schedule deletion
+            DestroyAsyncHandle(shader_module_info->capture_id, [func, in_device, in_shader_module, in_pAllocator]() {
+                func(in_device, in_shader_module, in_pAllocator);
+            });
+            return;
+        }
     }
-    else
-    {
-        // schedule deletion
-        DestroyAsyncHandle(shader_module_info->capture_id, [func, in_device, in_shader_module, in_pAllocator]() {
-            func(in_device, in_shader_module, in_pAllocator);
-        });
-    }
+    func(in_device, in_shader_module, in_pAllocator);
 }
 
 std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumerBase::AsyncCreateGraphicsPipelines(
