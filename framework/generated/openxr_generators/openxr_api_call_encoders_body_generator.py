@@ -252,6 +252,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         ]
                     )
 
+                body += indent + 'CommonCaptureManager::CaptureMode save_capture_mode;\n'
                 top_indent = indent + ' ' * self.INDENT_SIZE
                 body += indent + '{\n'
 
@@ -300,6 +301,11 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                     ]
                 )
 
+            # Disable capture for reentrance
+            body += top_indent + 'save_capture_mode = manager->GetCaptureMode();\n'
+            body += top_indent + 'manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);\n'
+
+            # Unlock above (only !is_override)
             body += indent + '}\n\n'
 
             # Still holding a lock across a call here...
@@ -322,6 +328,9 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
             # Need to relock, since lock was released before dispatch
             body += '\n' + indent + lock_call
+
+            # Restore capture_mode
+            body += indent + 'manager->SetCaptureMode(save_capture_mode);\n'
 
             # Wrap newly created handles.
             wrap_expr = self.make_handle_wrapping(values, indent)
