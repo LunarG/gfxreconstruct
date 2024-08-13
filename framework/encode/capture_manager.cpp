@@ -975,7 +975,7 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         // Initial loop to count total length
         while (env_string[offset] != '\0')
         {
-            const char* c             = env_string + offset;
+            const char* c = env_string + offset;
 
             bool skip = *c == '=';
 
@@ -985,7 +985,8 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
             // Environment variables starting with '=' are relics from the DOS era and can be ignored
             // Said variables are always at the front, so we can simply bump base_offset to skip them
             // more details: https://devblogs.microsoft.com/oldnewthing/20100506-00/?p=14133
-            if (skip) base_offset = offset;
+            if (skip)
+                base_offset = offset;
         }
         env_vars.reserve(offset - base_offset);
         offset = base_offset;
@@ -1006,8 +1007,8 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         }
         FreeEnvironmentStrings(env_string);
 #elif __unix__
-        int           current      = 0;
-        size_t        total_length = 0;
+        int    current      = 0;
+        size_t total_length = 0;
         // Initial loop to count total length
         while (environ[current] != nullptr)
         {
@@ -1032,8 +1033,8 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         env_block.meta_header.meta_data_id =
             format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
 
-        auto thread_data      = GetThreadData();
-        env_block.thread_id   = thread_data->thread_id_;
+        auto thread_data    = GetThreadData();
+        env_block.thread_id = thread_data->thread_id_;
 
         env_block.string_length = env_vars.size();
 
