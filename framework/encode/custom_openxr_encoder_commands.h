@@ -40,6 +40,22 @@ struct CustomEncoderPreCall
     template <typename... Args>
     static void Dispatch(OpenXrCaptureManager*, Args...)
     {}
+    template <typename... Args>
+    static void PreLockReentrant(OpenXrCaptureManager*, Args...)
+    {}
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>
+{
+    template <typename... Args>
+    static void Dispatch(OpenXrCaptureManager*, Args...)
+    {}
+    static void PreLockReentrant(OpenXrCaptureManager* manager,
+                                 XrInstance            instance,
+                                 XrSystemId            systemId,
+                                 VkInstance            vkInstance,
+                                 VkPhysicalDevice*     vkPhysicalDevice);
 };
 
 template <format::ApiCallId Id>
