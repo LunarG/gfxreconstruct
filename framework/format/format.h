@@ -675,9 +675,16 @@ struct ExecuteBlocksFromFile
 {
     MetaDataHeader   meta_header;
     format::ThreadId thread_id;
-    uint32_t         n_blocks;
-    int64_t          offset;
-    uint32_t         filename_length;
+
+    // Number of commands to execute from file.
+    // 0 means execute till the end of file.
+    uint32_t n_blocks;
+
+    // The offset from the start of the file to start executing
+    int64_t offset;
+
+    // Number of characters in file name
+    uint32_t filename_length;
 };
 
 // Restore size_t to normal behavior.
