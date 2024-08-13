@@ -47,7 +47,6 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
-#include "util/strings.h"
 
 #include "spirv_reflect.h"
 
