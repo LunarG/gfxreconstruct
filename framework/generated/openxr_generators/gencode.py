@@ -707,7 +707,7 @@ def make_gen_opts(args):
             protect_file=False,
             protect_feature=False,
             extraOpenXrHeaders=extraOpenXrHeaders,
-            extra_skip_cmds=[ 'xrPollEvent']
+            extra_skip_cmds=[ 'xrPollEvent', 'xrCreateSwapchain']
         )
     ]
     gen_opts['generated_openxr_replay_consumer.cpp'] = [

@@ -4015,39 +4015,105 @@ struct Decoded_XrSwapchainImageBaseHeader
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
-         {
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+            {
                 Decoded_XrSwapchainImageOpenGLKHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageOpenGLKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
-         {
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+            {
                 Decoded_XrSwapchainImageOpenGLESKHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageOpenGLESKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
-         {
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+            {
                 Decoded_XrSwapchainImageVulkanKHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageVulkanKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
-         {
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+            {
                 Decoded_XrSwapchainImageD3D11KHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageD3D11KHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
-         {
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+            {
                 Decoded_XrSwapchainImageD3D12KHR* local_dest = reinterpret_cast<Decoded_XrSwapchainImageD3D12KHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrSwapchainImageBaseHeader *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrSwapchainImageBaseHeader *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrSwapchainImageBaseHeader>(len);
+                break;
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainImageOpenGLKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainImageOpenGLKHR{ XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR };
+                }
+                output_data = reinterpret_cast<XrSwapchainImageBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainImageOpenGLESKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainImageOpenGLESKHR{ XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR };
+                }
+                output_data = reinterpret_cast<XrSwapchainImageBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainImageVulkanKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainImageVulkanKHR{ XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR };
+                }
+                output_data = reinterpret_cast<XrSwapchainImageBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainImageD3D11KHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainImageD3D11KHR{ XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR };
+                }
+                output_data = reinterpret_cast<XrSwapchainImageBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainImageD3D12KHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainImageD3D12KHR{ XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR };
+                }
+                output_data = reinterpret_cast<XrSwapchainImageBaseHeader*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -4123,51 +4189,137 @@ struct Decoded_XrCompositionLayerBaseHeader
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
-         {
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+            {
                 Decoded_XrCompositionLayerProjection* local_dest = reinterpret_cast<Decoded_XrCompositionLayerProjection*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_COMPOSITION_LAYER_QUAD:
-         {
+            }
+            case XR_TYPE_COMPOSITION_LAYER_QUAD:
+            {
                 Decoded_XrCompositionLayerQuad* local_dest = reinterpret_cast<Decoded_XrCompositionLayerQuad*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
-         {
+            }
+            case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+            {
                 Decoded_XrCompositionLayerCubeKHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerCubeKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
-         {
+            }
+            case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+            {
                 Decoded_XrCompositionLayerCylinderKHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerCylinderKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
-         {
+            }
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+            {
                 Decoded_XrCompositionLayerEquirectKHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerEquirectKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
-         {
+            }
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+            {
                 Decoded_XrCompositionLayerEquirect2KHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerEquirect2KHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
-         {
+            }
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+            {
                 Decoded_XrCompositionLayerPassthroughHTC* local_dest = reinterpret_cast<Decoded_XrCompositionLayerPassthroughHTC*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrCompositionLayerBaseHeader *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrCompositionLayerBaseHeader *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrCompositionLayerBaseHeader>(len);
+                break;
+            case XR_TYPE_COMPOSITION_LAYER_PROJECTION:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerProjection>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerProjection{ XR_TYPE_COMPOSITION_LAYER_PROJECTION };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_QUAD:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerQuad>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerQuad{ XR_TYPE_COMPOSITION_LAYER_QUAD };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerCubeKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerCubeKHR{ XR_TYPE_COMPOSITION_LAYER_CUBE_KHR };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerCylinderKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerCylinderKHR{ XR_TYPE_COMPOSITION_LAYER_CYLINDER_KHR };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerEquirectKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerEquirectKHR{ XR_TYPE_COMPOSITION_LAYER_EQUIRECT_KHR };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerEquirect2KHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerEquirect2KHR{ XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerPassthroughHTC>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerPassthroughHTC{ XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
     format::HandleId space{ format::kNullHandleId };
@@ -4228,27 +4380,73 @@ struct Decoded_XrHapticBaseHeader
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_HAPTIC_VIBRATION:
-         {
+            case XR_TYPE_HAPTIC_VIBRATION:
+            {
                 Decoded_XrHapticVibration* local_dest = reinterpret_cast<Decoded_XrHapticVibration*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
-         {
+            }
+            case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+            {
                 Decoded_XrHapticAmplitudeEnvelopeVibrationFB* local_dest = reinterpret_cast<Decoded_XrHapticAmplitudeEnvelopeVibrationFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
-         {
+            }
+            case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+            {
                 Decoded_XrHapticPcmVibrationFB* local_dest = reinterpret_cast<Decoded_XrHapticPcmVibrationFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrHapticBaseHeader *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrHapticBaseHeader *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrHapticBaseHeader>(len);
+                break;
+            case XR_TYPE_HAPTIC_VIBRATION:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrHapticVibration>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrHapticVibration{ XR_TYPE_HAPTIC_VIBRATION };
+                }
+                output_data = reinterpret_cast<XrHapticBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrHapticAmplitudeEnvelopeVibrationFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrHapticAmplitudeEnvelopeVibrationFB{ XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB };
+                }
+                output_data = reinterpret_cast<XrHapticBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrHapticPcmVibrationFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrHapticPcmVibrationFB{ XR_TYPE_HAPTIC_PCM_VIBRATION_FB };
+                }
+                output_data = reinterpret_cast<XrHapticBaseHeader*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -4384,141 +4582,377 @@ struct Decoded_XrEventDataBaseHeader
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_EVENT_DATA_EVENTS_LOST:
-         {
+            case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+            {
                 Decoded_XrEventDataEventsLost* local_dest = reinterpret_cast<Decoded_XrEventDataEventsLost*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+            {
                 Decoded_XrEventDataInstanceLossPending* local_dest = reinterpret_cast<Decoded_XrEventDataInstanceLossPending*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+            {
                 Decoded_XrEventDataSessionStateChanged* local_dest = reinterpret_cast<Decoded_XrEventDataSessionStateChanged*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+            {
                 Decoded_XrEventDataReferenceSpaceChangePending* local_dest = reinterpret_cast<Decoded_XrEventDataReferenceSpaceChangePending*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+            {
                 Decoded_XrEventDataInteractionProfileChanged* local_dest = reinterpret_cast<Decoded_XrEventDataInteractionProfileChanged*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+            {
                 Decoded_XrEventDataVisibilityMaskChangedKHR* local_dest = reinterpret_cast<Decoded_XrEventDataVisibilityMaskChangedKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+            {
                 Decoded_XrEventDataPerfSettingsEXT* local_dest = reinterpret_cast<Decoded_XrEventDataPerfSettingsEXT*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+            {
                 Decoded_XrEventDataMainSessionVisibilityChangedEXTX* local_dest = reinterpret_cast<Decoded_XrEventDataMainSessionVisibilityChangedEXTX*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+            {
                 Decoded_XrEventDataDisplayRefreshRateChangedFB* local_dest = reinterpret_cast<Decoded_XrEventDataDisplayRefreshRateChangedFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+            {
                 Decoded_XrEventDataViveTrackerConnectedHTCX* local_dest = reinterpret_cast<Decoded_XrEventDataViveTrackerConnectedHTCX*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+            {
                 Decoded_XrEventDataSpatialAnchorCreateCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpatialAnchorCreateCompleteFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+            {
                 Decoded_XrEventDataSpaceSetStatusCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceSetStatusCompleteFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+            {
                 Decoded_XrEventDataMarkerTrackingUpdateVARJO* local_dest = reinterpret_cast<Decoded_XrEventDataMarkerTrackingUpdateVARJO*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+            {
                 Decoded_XrEventDataLocalizationChangedML* local_dest = reinterpret_cast<Decoded_XrEventDataLocalizationChangedML*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+            {
                 Decoded_XrEventDataSpaceQueryResultsAvailableFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceQueryResultsAvailableFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+            {
                 Decoded_XrEventDataSpaceQueryCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceQueryCompleteFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+            {
                 Decoded_XrEventDataSpaceSaveCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceSaveCompleteFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+            {
                 Decoded_XrEventDataSpaceEraseCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceEraseCompleteFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+            {
                 Decoded_XrEventDataSpaceShareCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceShareCompleteFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+            {
                 Decoded_XrEventDataSpaceListSaveCompleteFB* local_dest = reinterpret_cast<Decoded_XrEventDataSpaceListSaveCompleteFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+            {
                 Decoded_XrEventDataHeadsetFitChangedML* local_dest = reinterpret_cast<Decoded_XrEventDataHeadsetFitChangedML*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
-         {
+            }
+            case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+            {
                 Decoded_XrEventDataEyeCalibrationChangedML* local_dest = reinterpret_cast<Decoded_XrEventDataEyeCalibrationChangedML*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrEventDataBaseHeader *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrEventDataBaseHeader *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrEventDataBaseHeader>(len);
+                break;
+            case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataEventsLost>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataEventsLost{ XR_TYPE_EVENT_DATA_EVENTS_LOST };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataInstanceLossPending>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataInstanceLossPending{ XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSessionStateChanged>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSessionStateChanged{ XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataReferenceSpaceChangePending>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataReferenceSpaceChangePending{ XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataInteractionProfileChanged>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataInteractionProfileChanged{ XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataVisibilityMaskChangedKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataVisibilityMaskChangedKHR{ XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataPerfSettingsEXT>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataPerfSettingsEXT{ XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataMainSessionVisibilityChangedEXTX>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataMainSessionVisibilityChangedEXTX{ XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataDisplayRefreshRateChangedFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataDisplayRefreshRateChangedFB{ XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataViveTrackerConnectedHTCX>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataViveTrackerConnectedHTCX{ XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpatialAnchorCreateCompleteFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpatialAnchorCreateCompleteFB{ XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpaceSetStatusCompleteFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpaceSetStatusCompleteFB{ XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataMarkerTrackingUpdateVARJO>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataMarkerTrackingUpdateVARJO{ XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataLocalizationChangedML>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataLocalizationChangedML{ XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpaceQueryResultsAvailableFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpaceQueryResultsAvailableFB{ XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpaceQueryCompleteFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpaceQueryCompleteFB{ XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpaceSaveCompleteFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpaceSaveCompleteFB{ XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpaceEraseCompleteFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpaceEraseCompleteFB{ XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpaceShareCompleteFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpaceShareCompleteFB{ XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataSpaceListSaveCompleteFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataSpaceListSaveCompleteFB{ XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataHeadsetFitChangedML>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataHeadsetFitChangedML{ XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrEventDataEyeCalibrationChangedML>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrEventDataEyeCalibrationChangedML{ XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML };
+                }
+                output_data = reinterpret_cast<XrEventDataBaseHeader*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -4570,15 +5004,41 @@ struct Decoded_XrLoaderInitInfoBaseHeaderKHR
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
-         {
+            case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+            {
                 Decoded_XrLoaderInitInfoAndroidKHR* local_dest = reinterpret_cast<Decoded_XrLoaderInitInfoAndroidKHR*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrLoaderInitInfoBaseHeaderKHR *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrLoaderInitInfoBaseHeaderKHR *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrLoaderInitInfoBaseHeaderKHR>(len);
+                break;
+            case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrLoaderInitInfoAndroidKHR>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrLoaderInitInfoAndroidKHR{ XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR };
+                }
+                output_data = reinterpret_cast<XrLoaderInitInfoBaseHeaderKHR*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -4634,21 +5094,57 @@ struct Decoded_XrBindingModificationBaseHeaderKHR
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
-         {
+            case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+            {
                 Decoded_XrInteractionProfileDpadBindingEXT* local_dest = reinterpret_cast<Decoded_XrInteractionProfileDpadBindingEXT*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
-         {
+            }
+            case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+            {
                 Decoded_XrInteractionProfileAnalogThresholdVALVE* local_dest = reinterpret_cast<Decoded_XrInteractionProfileAnalogThresholdVALVE*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrBindingModificationBaseHeaderKHR *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrBindingModificationBaseHeaderKHR *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrBindingModificationBaseHeaderKHR>(len);
+                break;
+            case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrInteractionProfileDpadBindingEXT>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrInteractionProfileDpadBindingEXT{ XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT };
+                }
+                output_data = reinterpret_cast<XrBindingModificationBaseHeaderKHR*>(allocation);
+                break;
+            }
+            case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrInteractionProfileAnalogThresholdVALVE>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrInteractionProfileAnalogThresholdVALVE{ XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE };
+                }
+                output_data = reinterpret_cast<XrBindingModificationBaseHeaderKHR*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -4712,33 +5208,89 @@ struct Decoded_XrSwapchainStateBaseHeaderFB
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
-         {
+            case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+            {
                 Decoded_XrSwapchainStateFoveationFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateFoveationFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
-         {
+            }
+            case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+            {
                 Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateAndroidSurfaceDimensionsFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
-         {
+            }
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+            {
                 Decoded_XrSwapchainStateSamplerOpenGLESFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateSamplerOpenGLESFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
-         {
+            }
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+            {
                 Decoded_XrSwapchainStateSamplerVulkanFB* local_dest = reinterpret_cast<Decoded_XrSwapchainStateSamplerVulkanFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrSwapchainStateBaseHeaderFB *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrSwapchainStateBaseHeaderFB *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrSwapchainStateBaseHeaderFB>(len);
+                break;
+            case XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainStateFoveationFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainStateFoveationFB{ XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB };
+                }
+                output_data = reinterpret_cast<XrSwapchainStateBaseHeaderFB*>(allocation);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainStateAndroidSurfaceDimensionsFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainStateAndroidSurfaceDimensionsFB{ XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB };
+                }
+                output_data = reinterpret_cast<XrSwapchainStateBaseHeaderFB*>(allocation);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainStateSamplerOpenGLESFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainStateSamplerOpenGLESFB{ XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB };
+                }
+                output_data = reinterpret_cast<XrSwapchainStateBaseHeaderFB*>(allocation);
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSwapchainStateSamplerVulkanFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSwapchainStateSamplerVulkanFB{ XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB };
+                }
+                output_data = reinterpret_cast<XrSwapchainStateBaseHeaderFB*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -4790,15 +5342,41 @@ struct Decoded_XrSpaceQueryInfoBaseHeaderFB
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_SPACE_QUERY_INFO_FB:
-         {
+            case XR_TYPE_SPACE_QUERY_INFO_FB:
+            {
                 Decoded_XrSpaceQueryInfoFB* local_dest = reinterpret_cast<Decoded_XrSpaceQueryInfoFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrSpaceQueryInfoBaseHeaderFB *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrSpaceQueryInfoBaseHeaderFB *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrSpaceQueryInfoBaseHeaderFB>(len);
+                break;
+            case XR_TYPE_SPACE_QUERY_INFO_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSpaceQueryInfoFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSpaceQueryInfoFB{ XR_TYPE_SPACE_QUERY_INFO_FB };
+                }
+                output_data = reinterpret_cast<XrSpaceQueryInfoBaseHeaderFB*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };
@@ -4854,21 +5432,57 @@ struct Decoded_XrSpaceFilterInfoBaseHeaderFB
             default:
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
                 break;
-         case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
-         {
+            case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+            {
                 Decoded_XrSpaceUuidFilterInfoFB* local_dest = reinterpret_cast<Decoded_XrSpaceUuidFilterInfoFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
-         case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
-         {
+            }
+            case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+            {
                 Decoded_XrSpaceComponentFilterInfoFB* local_dest = reinterpret_cast<Decoded_XrSpaceComponentFilterInfoFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
-         }
+            }
         }
         return bytes_read;
     }
+
+    XrSpaceFilterInfoBaseHeaderFB *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrSpaceFilterInfoBaseHeaderFB *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrSpaceFilterInfoBaseHeaderFB>(len);
+                break;
+            case XR_TYPE_SPACE_UUID_FILTER_INFO_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSpaceUuidFilterInfoFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSpaceUuidFilterInfoFB{ XR_TYPE_SPACE_UUID_FILTER_INFO_FB };
+                }
+                output_data = reinterpret_cast<XrSpaceFilterInfoBaseHeaderFB*>(allocation);
+                break;
+            }
+            case XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrSpaceComponentFilterInfoFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrSpaceComponentFilterInfoFB{ XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB };
+                }
+                output_data = reinterpret_cast<XrSpaceFilterInfoBaseHeaderFB*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
 
     OpenXrNextNode* next{ nullptr };
 };

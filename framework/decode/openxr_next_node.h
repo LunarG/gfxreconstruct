@@ -76,6 +76,28 @@ const T* GetNextMetaStruct(const OpenXrNextNode* next)
 }
 
 GFXRECON_END_NAMESPACE(decode)
+
+GFXRECON_BEGIN_NAMESPACE(util)
+template <typename NextType>
+const NextType* GetNextOfType(const void* chain)
+{
+    auto*                     current = reinterpret_cast<const XrBaseInStructure*>(chain);
+    const NextType*           found   = nullptr;
+    constexpr XrStructureType type    = GetType<NextType>();
+
+    while (current)
+    {
+        if (current->type == type)
+        {
+            found = reinterpret_cast<const NextType*>(current);
+            break;
+        }
+        current = current->next;
+    }
+    return found;
+}
+GFXRECON_END_NAMESPACE(util)
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_DECODE_OPENXR_NEXT_NODE_H
