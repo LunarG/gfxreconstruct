@@ -25,6 +25,7 @@
 
 #if ENABLE_OPENXR_SUPPORT
 
+#include <deque>
 #include <optional>
 #include <unordered_map>
 #include "application/application.h"
@@ -110,6 +111,12 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                                 PointerDecoder<uint32_t>*             spaceCountOutput,
                                                 PointerDecoder<XrReferenceSpaceType>* spaces,
                                                 XrResult                              replay_result);
+
+    virtual void Process_xrCreateSwapchain(const ApiCallInfo&                                   call_info,
+                                           XrResult                                             returnValue,
+                                           format::HandleId                                     session,
+                                           StructPointerDecoder<Decoded_XrSwapchainCreateInfo>* createInfo,
+                                           HandlePointerDecoder<XrSwapchain>*                   swapchain) override;
 
     const OpenXrReplayOptions options_;
 
@@ -335,6 +342,36 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         kUnknown
     };
 
+    // Virtual swapchain information
+    struct VulkanSwapchainInfo
+    {
+
+        // Structure necessary to track the necessary information related to the virtual swapchain images
+        struct ProxyImage
+        {
+            VkImage         image{ VK_NULL_HANDLE };
+            VkDeviceMemory  memory{ VK_NULL_HANDLE };
+            VkFence         cb_fence{ VK_NULL_HANDLE };
+            VkCommandBuffer command_buffer{ VK_NULL_HANDLE };
+        };
+
+        VkImageCreateInfo               image_create_info{ VK_STRUCTURE_TYPE_MAX_ENUM };
+        VkImageSubresourceRange         whole_range;
+        VkImageLayout                   layout;
+        XrVulkanSwapchainCreateInfoMETA xr_info_meta{ XR_TYPE_UNKNOWN }; // Backing store for deep copy
+
+        std::vector<ProxyImage>                proxy_images;
+        std::vector<XrSwapchainImageVulkanKHR> replay_images;
+        std::vector<VkCommandBuffer>           transfer_commandbuffer; // Indexed by replay image index
+        VkCommandPool                          command_pool = VK_NULL_HANDLE;
+    };
+
+    struct SwapchainGraphicsInfo
+    {
+        GraphicsBindingType                type = GraphicsBindingType::kUnknown;
+        std::optional<VulkanSwapchainInfo> vulkan_info;
+    };
+
     struct VulkanGraphicsBinding : public XrGraphicsBindingVulkanKHR
     {
         VulkanGraphicsBinding(VulkanReplayConsumerBase& vulkan_consumer, const Decoded_XrGraphicsBindingVulkanKHR& xr);
@@ -346,9 +383,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         format::HandleId                   device_id{ format::kNullHandleId };
         VkQueue                            queue = VK_NULL_HANDLE;
 
-#if 0 // TODO: Next commit. Enable.
         XrResult ResetCommandBuffer(VulkanSwapchainInfo::ProxyImage& proxy) const;
-#endif
     };
 
     class GraphicsBinding
@@ -399,6 +434,36 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     };
     using SessionDataMap = std::unordered_map<XrSession, SessionData>;
 
+    class SwapchainData
+    {
+      public:
+        void
+        InitSwapchainData(const GraphicsBinding& binding, const XrSwapchainCreateInfo& info, XrSwapchain replay_handle);
+        XrResult EnumerateReplaySwapchain();
+        XrResult InitVirtualSwapchain(PointerDecoder<uint32_t>*                                 imageCountOutput,
+                                      StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* capture_images);
+        XrResult InitVirtualSwapchain(PointerDecoder<uint32_t>*                                imageCountOutput,
+                                      StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR>* vk_capture_images);
+        XrResult AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index);
+        XrResult ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo);
+        void     WaitedWithoutTimeout();
+
+      protected:
+        static void MapVulkanSwapchainImageFlags(XrSwapchainUsageFlags xr_flags, VkImageCreateInfo& info);
+        XrResult    InitSwapchainData(const XrSwapchainCreateInfo& xr_info, VulkanSwapchainInfo& vk_info);
+        XrResult AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index, VulkanSwapchainInfo& swap_info);
+        XrResult ReleaseSwapchainImage(StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo,
+                                       VulkanSwapchainInfo&                                       swap_info);
+
+        XrSwapchainCreateInfo                  create_info;
+        std::unordered_map<uint32_t, uint32_t> capture_to_replay_map_;
+        std::deque<uint32_t>                   acquire_release_fifo_;
+        SwapchainGraphicsInfo                  swapchain_graphics_info_;
+        const GraphicsBinding*                 graphics_binding_ = nullptr;
+        XrSwapchain                            replay_handle_    = XR_NULL_HANDLE; // handy to keep a copy here
+    };
+    using SwapchainDataMap = std::unordered_map<XrSwapchain, SwapchainData>;
+
     template <typename Handle, typename DataMap>
     static typename DataMap::iterator AddHandleData(Handle handle, DataMap& data_map)
     {
@@ -415,10 +480,20 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         return find_it->second;
     }
 
-    SessionDataMap session_data_;
-
     SessionData& AddSessionData(XrSession session) { return AddHandleData(session, session_data_)->second; }
+    SwapchainData& AddSwapchainData(XrSwapchain swapchain)
+    {
+        return AddHandleData(swapchain, swapchain_data_)->second;
+    }
+
     SessionData& GetSessionData(XrSession session) { return GetHandleData(session, session_data_); }
+    SwapchainData& GetSwapchainData(XrSwapchain swapchain)
+    {
+        return GetHandleData(swapchain, swapchain_data_);
+    }
+
+    SessionDataMap   session_data_;
+    SwapchainDataMap swapchain_data_;
 };
 
 template <format::ApiCallId Id>

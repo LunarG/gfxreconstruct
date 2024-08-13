@@ -372,27 +372,6 @@ void OpenXrReplayConsumer::Process_xrEnumerateSwapchainFormats(
     CustomProcess<format::ApiCallId::ApiCall_xrEnumerateSwapchainFormats>::UpdateState(this, call_info, returnValue, session, formatCapacityInput, formatCountOutput, formats, replay_result);
 }
 
-void OpenXrReplayConsumer::Process_xrCreateSwapchain(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            session,
-    StructPointerDecoder<Decoded_XrSwapchainCreateInfo>* createInfo,
-    HandlePointerDecoder<XrSwapchain>*          swapchain)
-{
-    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
-    const XrSwapchainCreateInfo* in_createInfo = createInfo->GetPointer();
-    if (!swapchain->IsNull()) { swapchain->SetHandleLength(1); }
-    XrSwapchain* out_swapchain = swapchain->GetHandlePointer();
-
-    XrResult replay_result = GetInstanceTable(in_session)->CreateSwapchain(in_session, in_createInfo, out_swapchain);
-    CheckResult("xrCreateSwapchain", returnValue, replay_result, call_info);
-
-    AddHandle<OpenXrSwapchainInfo>(session, swapchain->GetPointer(), out_swapchain, &CommonObjectInfoTable::AddXrSwapchainInfo);
-    
-    AssociateParent(*out_swapchain, in_session);
-    CustomProcess<format::ApiCallId::ApiCall_xrCreateSwapchain>::UpdateState(this, call_info, returnValue, session, createInfo, swapchain, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrDestroySwapchain(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,

@@ -124,15 +124,44 @@ class BaseStructDecodersHeaderGenerator():
             for child in self.base_header_structs[struct]:
                 switch_type = base_utils.GenerateStructureType(child)
 
-                body += '         case {}:\n'.format(switch_type)
-                body += '         {\n'
+                body += '            case {}:\n'.format(switch_type)
+                body += '            {\n'
                 body += '                Decoded_{}* local_dest = reinterpret_cast<Decoded_{}*>(dest);\n'.format(child, child)
                 body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);\n'
                 body += '                break;\n'
-                body += '         }\n'
+                body += '            }\n'
             body += '        }\n'
             body += '        return bytes_read;\n'
             body += '    }\n'
+            body += '\n'
+            body += '    {} *AllocateOutputData(size_t len)\n'.format(struct)
+            body += '    {\n'
+            body += '        assert(decoded_value);\n'
+            body += '        XrStructureType struct_type = decoded_value->type;\n'
+            body += '        {} *output_data = nullptr;\n'.format(struct)
+            body += '\n'
+            body += '        switch (struct_type)\n'
+            body += '        {\n'
+            body += '            default:\n'
+            body += '                output_data = DecodeAllocator::Allocate<{}>(len);\n'.format(struct)
+            body += '                break;\n'
+            for child in self.base_header_structs[struct]:
+                switch_type = base_utils.GenerateStructureType(child)
+
+                body += '            case {}:\n'.format(switch_type)
+                body += '            {\n'
+                body += '                auto *allocation = DecodeAllocator::Allocate<{}>(len);\n'.format(child)
+                body += '                for (size_t i=0; i < len; i++)\n'
+                body += '                {\n'
+                body += '                    allocation[i] = {}{{ {} }};\n'.format(child, switch_type)
+                body += '                }\n'
+                body += '                output_data = reinterpret_cast<{}*>(allocation);\n'.format(struct)
+                body += '                break;\n'
+                body += '            }\n'
+            body += '        }\n'
+            body += '        return output_data;\n'
+            body += '    }\n'
+            body += '\n'
 
             decls = self.make_member_declarations(
                 struct, self.all_struct_members[struct]

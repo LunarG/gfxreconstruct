@@ -186,13 +186,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         PointerDecoder<uint32_t>*                   formatCountOutput,
         PointerDecoder<int64_t>*                    formats) override;
 
-    virtual void Process_xrCreateSwapchain(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            session,
-        StructPointerDecoder<Decoded_XrSwapchainCreateInfo>* createInfo,
-        HandlePointerDecoder<XrSwapchain>*          swapchain) override;
-
     virtual void Process_xrDestroySwapchain(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

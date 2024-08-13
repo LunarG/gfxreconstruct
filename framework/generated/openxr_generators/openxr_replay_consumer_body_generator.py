@@ -103,6 +103,7 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrCreateInstance',
             'xrCreateApiLayerInstance',
             'xrPollEvent',
+            'xrCreateSwapchain',
         ]
 
     def beginFile(self, gen_opts):
