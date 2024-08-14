@@ -977,15 +977,13 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         {
             const char* c = env_string + offset;
 
-            bool skip = *c == '=';
-
             while (env_string[offset] != '\0') offset += 1;
             offset += 1;
 
             // Environment variables starting with '=' are relics from the DOS era and can be ignored
             // Said variables are always at the front, so we can simply bump base_offset to skip them
             // more details: https://devblogs.microsoft.com/oldnewthing/20100506-00/?p=14133
-            if (skip)
+            if (*c == '=')
                 base_offset = offset;
         }
         env_vars.reserve(offset - base_offset);
