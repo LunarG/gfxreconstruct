@@ -65,6 +65,11 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
+// XXX brad This is per physical device and needs to be indexed through a PhysicalDeviceInfo:
+uint32_t shaderGroupHandleSize = 0;
+// XXX brad This is per raytracing pipeline.  It's also HORRIBLE because it's a map of vectors.  Probably can do better.
+std::map<std::vector<uint8_t>, std::vector<uint8_t>> shaderGroupHandles;
+
 const size_t kMaxEventStatusRetries      = 16;
 const size_t kMaxQueryPoolResultsRetries = 16;
 
@@ -312,7 +317,32 @@ void VulkanReplayConsumerBase::ProcessFillMemoryCommand(uint64_t       memory_id
 
         if (allocator != nullptr)
         {
-            result = allocator->WriteMappedMemoryRange(memory_info->allocator_data, offset, size, data);
+            if((shaderGroupHandleSize > 0) && (size % shaderGroupHandleSize == 0))
+            {
+                // XXX brad heuristic to catch shader group handles
+                std::vector<uint8_t> translated;
+                std::copy(data, data + size, std::back_inserter(translated));
+                for(size_t loc = 0; loc < size; loc += shaderGroupHandleSize)
+                {
+                    if(size - loc >= shaderGroupHandleSize)
+                    {
+                        std::vector<uint8_t> possibleGroupHandle;
+                        std::copy(data + loc, data + loc + shaderGroupHandleSize, std::back_inserter(possibleGroupHandle));
+                        const auto found = shaderGroupHandles.find(possibleGroupHandle); // XXX brad No doubt very slow
+                        if(found != shaderGroupHandles.end())
+                        {
+                            printf("found handle in a fillmemory, replacing it\n");
+                            const auto& replay_handle = found->second;
+                            std::copy(replay_handle.begin(), replay_handle.end(), translated.data() + loc);
+                        }
+                    }
+                }
+                result = allocator->WriteMappedMemoryRange(memory_info->allocator_data, offset, size, translated.data());
+            }
+            else
+            {
+                result = allocator->WriteMappedMemoryRange(memory_info->allocator_data, offset, size, data);
+            }
         }
         else
         {
@@ -3058,6 +3088,12 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
     // This can be set by ProcessSetDevicePropertiesCommand, but older files will not contain that data.
     auto capture_properties = pProperties->GetPointer();
     SetPhysicalDeviceProperties(physical_device_info, &capture_properties->properties, &replay_properties->properties);
+    const auto* rtprop = static_cast<VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(replay_properties->pNext);
+    if(rtprop != nullptr && rtprop->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR)
+    {
+        shaderGroupHandleSize = rtprop->shaderGroupHandleSize;
+        printf("shader group handle size is %" PRIu32 "\n", shaderGroupHandleSize);
+    }
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties(
@@ -7819,8 +7855,34 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
     VkDevice   device      = device_info->handle;
     VkPipeline pipeline    = pipeline_info->handle;
     uint8_t*   output_data = pData->GetOutputPointer();
+    const uint8_t*   captured_data = pData->GetPointer();
 
-    return func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
+    auto result = func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
+
+    // XXX brad - make a map of capture-time group handles to handles we just got back in replay 
+    for(int group = 0; group < groupCount; group++)
+    {
+        std::vector<uint8_t> capturedGroupHandle;
+        std::vector<uint8_t> replayGroupHandle;
+        std::copy(captured_data + group * shaderGroupHandleSize, captured_data + group * shaderGroupHandleSize + shaderGroupHandleSize, std::back_inserter(capturedGroupHandle));
+        std::copy(output_data + group * shaderGroupHandleSize, output_data + group * shaderGroupHandleSize + shaderGroupHandleSize, std::back_inserter(replayGroupHandle));
+        // XXX brad this print should not be in production code
+        printf("mapping capture group ");
+        for(auto j = 0; j < shaderGroupHandleSize; j++)
+        {
+            printf("%02X,", capturedGroupHandle[j]);
+        }
+        puts("");
+        printf("      to replay group ");
+        for(auto j = 0; j < shaderGroupHandleSize; j++)
+        {
+            printf("%02X,", replayGroupHandle[j]);
+        }
+        puts("");
+        shaderGroupHandles[capturedGroupHandle] = replayGroupHandle;
+    }
+
+    return result;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesANDROID(
