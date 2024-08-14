@@ -54,10 +54,7 @@ void EncodeStructArray(
 
     if ((value != nullptr) && (len > 0) && !omit_data)
     {
-        for (size_t i = 0; i < len; ++i)
-        {
-            EncodeStruct(encoder, value[i]);
-        }
+        EncodeStructArrayLoop(encoder, value, len);
     }
 }
 
