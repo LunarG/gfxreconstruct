@@ -150,45 +150,53 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
             body = '\n'
             value_name = 'value'
             value_ref = value_name + '.'
+            array_loop_specialization = None
             body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& {})\n'.format(
                 struct, value_name
             )
             body += '{\n'
             if struct in self.base_header_structs:
                 body += self.make_child_struct_cast_switch(struct, value_name)
+                array_loop_specialization = self.make_child_loop_cast_switch(struct)
             else:
                 body += self.make_struct_body(
                     struct, feature_struct_members[struct], value_ref
                 )
             body += '}'
+            if (array_loop_specialization) :
+                body += '\n\n' + array_loop_specialization
             write(body, file=self.outFile)
 
     def make_child_struct_cast_switch(self, base_struct, value):
-        """ Base structs are abstract, need to case to specific child struct based on type """
-        indent = '    '
-        indent2 = indent + indent
-        indent3 = indent2 + indent
+        default_case = f'GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", {value}.type);'
+        break_string = 'break;'
+        switch_expression = 'value.type'
+        fn_emit_default = lambda base_struct, value_name: [ default_case, break_string ]
+        fn_emit_case = lambda base_struct, child_struct, child_enum, value_name: [
+            f'const {child_struct}& child_value = reinterpret_cast<const {child_struct}&>({value_name});',
+            f'EncodeStruct(encoder, child_value);',
+            break_string
+        ]
+        return self.make_child_struct_switch(base_struct, value, '    ', switch_expression, fn_emit_default, fn_emit_case)
+
+    def make_child_loop_cast_switch(self, base_struct):
+        func = 'EncodeStructArrayLoop'
+        value = 'value'
+        switch_expression = 'value->type'
+        default_case = f'GFXRECON_LOG_WARNING("{func}: unrecognized Base Header child structure type %d", {value}->type);'
+        break_string = 'break;'
+        fn_emit_default = lambda base_struct, value_name: [ default_case, break_string ]
+        fn_emit_case = lambda base_struct, child_struct, child_enum, value_name: [
+            f'{func}<{child_struct}>(encoder, reinterpret_cast<const {child_struct} *>({value_name}), len);',
+            break_string
+        ]
         body = ''
-        body += f'{indent}// Cast and call the appropriate encoder based on the structure type\n'
-        body += f'{indent}switch({value}.type)\n'
+        body += 'template <>\n'
+        body += f'void EncodeStructArrayLoop<{base_struct}>(ParameterEncoder* encoder, const {base_struct}* {value}, size_t len)\n'
+        body += '{\n'
+        body += self.make_child_struct_switch(base_struct, value, '    ', switch_expression, fn_emit_default, fn_emit_case)
 
-        body += f'{indent}{{\n'
-        body += f'{indent2}default:\n'
-        body += f'{indent2}{{\n'
-        body += f'{indent3}GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", {value}.type);\n'
-        body += f'{indent3}break;\n'
-        body += f'{indent2}}}\n'
-
-        for child_struct in self.base_header_structs[base_struct]:
-            struct_type_name = self.struct_type_enums[child_struct]
-            body += f'{indent2}case {struct_type_name}:\n'
-            body += f'{indent2}{{\n'
-            body += f'{indent3}const {child_struct}& child_value = reinterpret_cast<const {child_struct}&>({value});\n'
-            body += f'{indent3}EncodeStruct(encoder, child_value);\n'
-            body += f'{indent3}break;\n'
-            body += f'{indent2}}}\n'
-
-        body += f'{indent}}}\n'
+        body += '}\n'
         return body
 
     def make_struct_body(self, name, values, prefix):

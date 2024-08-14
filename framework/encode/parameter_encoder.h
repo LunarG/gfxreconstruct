@@ -816,6 +816,16 @@ class ParameterEncoder
     util::OutputStream* output_stream_;
 };
 
+// Specialize when the stride of value isn't the sizeof(T)
+template <typename T>
+void EncodeStructArrayLoop(ParameterEncoder* encoder, const T* value, size_t len)
+{
+    for (size_t i = 0; i < len; ++i)
+    {
+        EncodeStruct(encoder, value[i]);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

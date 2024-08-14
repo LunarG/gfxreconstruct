@@ -51,7 +51,6 @@ class OpenXrStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
             extraOpenXrHeaders=extraOpenXrHeaders
         )
 
-
 class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
     """OpenXrStructEncodersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ type and function declarations for encoding OpenXR API structures.
@@ -65,11 +64,12 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
             self,
             process_cmds=False,
             process_structs=True,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
+        self.all_feature_struct_members = []
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -97,6 +97,10 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
         self.newline()
+
+        for feature_struct_members in self.all_feature_struct_members:
+            self.generate_struct_declarations(feature_struct_members)
+
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -110,10 +114,22 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
         return False
 
     def generate_feature(self):
+        """Gather up struct names for processing deferred to endFile"""
+        self.all_feature_struct_members.append(self.feature_struct_members)
+
+    def generate_struct_declarations(self, feature_struct_members):
         """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            write(
-                'void EncodeStruct(ParameterEncoder* encoder, const {}& value);'
-                .format(struct),
-                file=self.outFile
+        content = []
+        for struct in [
+            key for key in feature_struct_members
+            if not self.is_struct_black_listed(key)
+        ]:
+            content.append(f'void EncodeStruct(ParameterEncoder* encoder, const {struct}& value);')
+            if struct in self.base_header_structs:
+                content.append(f'template <>\nvoid EncodeStructArrayLoop<{struct}>(ParameterEncoder* encoder, const {struct}* value, size_t len);')
+
+        if len(content):
+            write('\n'.join(content),
+                    file=self.outFile
             )
+        self.newline()

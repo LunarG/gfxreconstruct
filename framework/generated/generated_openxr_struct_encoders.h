@@ -72,6 +72,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrViewConfigurationProperties
 void EncodeStruct(ParameterEncoder* encoder, const XrViewConfigurationView& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageBaseHeader& value);
+template <>
+void EncodeStructArrayLoop<XrSwapchainImageBaseHeader>(ParameterEncoder* encoder, const XrSwapchainImageBaseHeader* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageAcquireInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageWaitInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageReleaseInfo& value);
@@ -80,6 +82,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFrameWaitInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameState& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameBeginInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader& value);
+template <>
+void EncodeStructArrayLoop<XrCompositionLayerBaseHeader>(ParameterEncoder* encoder, const XrCompositionLayerBaseHeader* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const XrFrameEndInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrViewLocateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrViewState& value);
@@ -103,6 +107,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrBoundSourcesForActionEnumer
 void EncodeStruct(ParameterEncoder* encoder, const XrInputSourceLocalizedNameGetInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticActionInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticBaseHeader& value);
+template <>
+void EncodeStructArrayLoop<XrHapticBaseHeader>(ParameterEncoder* encoder, const XrHapticBaseHeader* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const XrOffset2Di& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrExtent2Di& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrRect2Di& value);
@@ -111,6 +117,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerProjectionV
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerProjection& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerQuad& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataBaseHeader& value);
+template <>
+void EncodeStructArrayLoop<XrEventDataBaseHeader>(ParameterEncoder* encoder, const XrEventDataBaseHeader* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataEventsLost& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataInstanceLossPending& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSessionStateChanged& value);
@@ -167,6 +175,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrEventDataVisibilityMaskChan
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerColorScaleBiasKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR& value);
+template <>
+void EncodeStructArrayLoop<XrLoaderInitInfoBaseHeaderKHR>(ParameterEncoder* encoder, const XrLoaderInitInfoBaseHeaderKHR* value, size_t len);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrLoaderInitInfoAndroidKHR& value);
 
@@ -175,6 +185,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanGraphicsDeviceGetInfo
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerEquirect2KHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationBaseHeaderKHR& value);
+template <>
+void EncodeStructArrayLoop<XrBindingModificationBaseHeaderKHR>(ParameterEncoder* encoder, const XrBindingModificationBaseHeaderKHR* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const XrBindingModificationsKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataPerfSettingsEXT& value);
@@ -246,6 +258,8 @@ void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerReprojectio
 void EncodeStruct(ParameterEncoder* encoder, const XrAndroidSurfaceSwapchainCreateInfoFB& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainStateBaseHeaderFB& value);
+template <>
+void EncodeStructArrayLoop<XrSwapchainStateBaseHeaderFB>(ParameterEncoder* encoder, const XrSwapchainStateBaseHeaderFB* value, size_t len);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerSecureContentFB& value);
 
@@ -402,7 +416,11 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSceneMarkerQRCodeMSFT& valu
 void EncodeStruct(ParameterEncoder* encoder, const XrSceneMarkerQRCodesMSFT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceQueryInfoBaseHeaderFB& value);
+template <>
+void EncodeStructArrayLoop<XrSpaceQueryInfoBaseHeaderFB>(ParameterEncoder* encoder, const XrSpaceQueryInfoBaseHeaderFB* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceFilterInfoBaseHeaderFB& value);
+template <>
+void EncodeStructArrayLoop<XrSpaceFilterInfoBaseHeaderFB>(ParameterEncoder* encoder, const XrSpaceFilterInfoBaseHeaderFB* value, size_t len);
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceQueryInfoFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceStorageLocationFilterInfoFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceUuidFilterInfoFB& value);
