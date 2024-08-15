@@ -161,13 +161,6 @@ int main(int argc, const char** argv)
             file_processor = std::make_unique<gfxrecon::decode::FileProcessor>();
         }
 
-        const bool  use_state_file = arg_parser.IsArgumentSet(kStateFileArgument);
-        std::string state_file;
-        if (use_state_file)
-        {
-            state_file = arg_parser.GetArgumentValue(kStateFileArgument);
-        }
-
         const bool  use_path_override = arg_parser.IsArgumentSet(kOverridePathArgument);
         std::string override_path;
         if (use_path_override)
@@ -175,8 +168,7 @@ int main(int argc, const char** argv)
             override_path = arg_parser.GetArgumentValue(kOverridePathArgument);
         }
 
-        if (!file_processor->Initialize(
-                filename, use_state_file ? &state_file : nullptr, use_path_override ? &override_path : nullptr))
+        if (!file_processor->Initialize(filename, use_path_override ? &override_path : nullptr))
         {
             return_code = -1;
         }

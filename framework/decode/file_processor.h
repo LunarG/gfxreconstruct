@@ -86,9 +86,7 @@ class FileProcessor
         decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end());
     }
 
-    bool Initialize(const std::string& filename,
-                    const std::string* state_file    = nullptr,
-                    const std::string* override_path = nullptr);
+    bool Initialize(const std::string& filename, const std::string* override_path = nullptr);
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.

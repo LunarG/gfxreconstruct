@@ -78,9 +78,7 @@ void FileProcessor::WaitDecodersIdle()
     }
 };
 
-bool FileProcessor::Initialize(const std::string& filename,
-                               const std::string* state_file,
-                               const std::string* override_path)
+bool FileProcessor::Initialize(const std::string& filename, const std::string* override_path)
 {
     if (override_path != nullptr)
     {
@@ -98,16 +96,6 @@ bool FileProcessor::Initialize(const std::string& filename,
     {
         GFXRECON_LOG_ERROR("Failed to open file %s", filename.c_str());
         error_state_ = kErrorOpeningFile;
-    }
-
-    if (success && state_file != nullptr)
-    {
-        success = OpenFile(*state_file);
-        if (success)
-        {
-            SetActiveFile(*state_file, true);
-            success = success && ProcessFileHeader();
-        }
     }
 
     return success;

@@ -206,7 +206,7 @@ int main(int argc, const char** argv)
         gfxrecon::util::filepath::MakeDirectory(data_dir);
     }
 
-    if (file_processor.Initialize(input_filename, nullptr, use_override_path ? &override_path : nullptr))
+    if (file_processor.Initialize(input_filename, use_override_path ? &override_path : nullptr))
     {
         std::string json_filename;
         FILE*       out_file_handle = nullptr;
