@@ -415,7 +415,7 @@ target_link_libraries(gfxrecon_decode
                         gfxrecon_util
                         vulkan_registry
                         vulkan_memory_allocator
-                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:openxr_headers>
+                        $<$<BOOL:${OPENXR_SUPPORT_ENABLED}>:OpenXR>
                         platform_specific
                         spirv-reflect-static
                         nlohmann_json::nlohmann_json

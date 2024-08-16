@@ -23,12 +23,17 @@
 #if ENABLE_OPENXR_SUPPORT
 #include <array>
 
+#if defined(__ANDROID__)
+#include <android_native_app_glue.h>
+#endif
+
 #include "util/platform.h"
 #include "util/defines.h"
 
 #ifdef XR_NO_PROTOTYPES
 #undef XR_NO_PROTOTYPES
 #endif
+#define XR_EXTENSION_PROTOTYPES
 
 #include "format/platform_types.h"
 
@@ -452,12 +457,26 @@ void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
     XrResult                                                     returnValue,
     StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
 {
-    const XrLoaderInitInfoBaseHeaderKHR* in_loaderInitInfo = loaderInitInfo->GetPointer();
-
-    // TODO: Call Loader xrInitializeLoader call
-    //  XrResult replay_result = xrInitializeLoaderKHR(in_loaderInitInfo);
+    GFXRECON_LOG_INFO("Process_xrInitializeLoaderKHR {");
     XrResult replay_result = XR_SUCCESS;
+
+    PFN_xrInitializeLoaderKHR pfn_initialize_loader;
+    xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrInitializeLoaderKHR", (PFN_xrVoidFunction*)&pfn_initialize_loader);
+    if (pfn_initialize_loader)
+    {
+#if defined(__ANDROID__)
+        XrLoaderInitInfoAndroidKHR loader_init = {
+            XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR,
+            nullptr,
+            android_app_->activity->vm,
+            android_app_->activity->clazz,
+        };
+
+        replay_result = pfn_initialize_loader((XrLoaderInitInfoBaseHeaderKHR*)&loader_init);
+#endif
+    }
     CheckResult("xrInitializeLoaderKHR", returnValue, replay_result, call_info);
+    GFXRECON_LOG_INFO("Process_xrInitializeLoaderKHR } (result = 0x%08x)", replay_result);
 }
 
 void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
@@ -467,6 +486,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
     HandlePointerDecoder<XrInstance>*                   instance)
 {
+    GFXRECON_LOG_INFO("Process_xrCreateApiLayerInstance {");
 
     if (!instance->IsNull())
     {
@@ -482,6 +502,34 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     XrInstanceCreateInfo* create_info = info->GetPointer();
     assert(create_info);
 
+    PFN_xrEnumerateInstanceExtensionProperties instance_extension_proc;
+    xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrEnumerateInstanceExtensionProperties", (PFN_xrVoidFunction*)&instance_extension_proc);
+
+    uint32_t ext_count = 0;
+    std::vector<XrExtensionProperties> ext_props;
+    XrResult ext_result = instance_extension_proc(nullptr, 0, &ext_count, nullptr);
+    if (ext_result == XR_SUCCESS && ext_count > 0)
+    {
+        ext_props.resize(ext_count);
+        for (uint32_t i = 0; i < ext_props.size(); ++i) {
+            ext_props[i].type = XR_TYPE_EXTENSION_PROPERTIES;
+            ext_props[i].next = nullptr;
+        }
+        ext_result = instance_extension_proc(nullptr, ext_count, &ext_count, ext_props.data());
+    }
+
+#if defined(__ANDROID__)
+    XrInstanceCreateInfoAndroidKHR init_android = {
+        XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR,
+        create_info->next,
+        android_app_->activity->vm,
+        android_app_->activity->clazz,
+    };
+    XrInstanceCreateInfo new_create_info = *create_info;
+    new_create_info.next = &init_android;
+    create_info = &new_create_info;
+#endif // IGL_PLATFORM_ANDROID
+
     auto replay_result = xrCreateInstance(create_info, replay_instance);
     CheckResult("xrCreateApiLayerInstance", returnValue, replay_result, call_info);
 
@@ -492,6 +540,8 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
                                   instance->GetPointer(),
                                   instance->GetHandlePointer(),
                                   &CommonObjectInfoTable::AddXrInstanceInfo);
+
+    GFXRECON_LOG_INFO("Process_xrCreateApiLayerInstance }");
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
@@ -769,7 +819,7 @@ void OpenXrReplayConsumerBase::SwapchainData::InitSwapchainData(const GraphicsBi
     {
         // WIP: Properly log and handle this
         // WIP: For now catch this to ensure we don't need support
-        assert("always assert: text = " == "Unsupported graphics binding");
+        GFXRECON_LOG_FATAL("Unsupported graphics binding");
     }
 }
 
@@ -821,7 +871,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
     {
         // This call is only supported for Vulkan graphics bindings
         // WIP: Properly log and handle this
-        assert("always assert: text = " == "unsupported graphics binding");
+        GFXRECON_LOG_FATAL("Unsupported graphics binding");
     }
     return XR_ERROR_RUNTIME_FAILURE;
 }
@@ -1004,7 +1054,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::AcquireSwapchainImage(uint32_t
     }
 
     // WIP: Properly log and handle this
-    assert("always assert: text = " == "unsupported graphics binding");
+    GFXRECON_LOG_FATAL("Unsupported graphics binding");
     return XR_ERROR_VALIDATION_FAILURE;
 }
 
@@ -1019,7 +1069,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::ReleaseSwapchainImage(
     }
 
     // WIP: Properly log and handle this
-    assert("always assert: text = " == "unsupported graphics binding");
+    GFXRECON_LOG_FATAL("Unsupported graphics binding");
     return XR_ERROR_VALIDATION_FAILURE;
 }
 

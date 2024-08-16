@@ -3,6 +3,9 @@
           android:versionCode="1"
           android:versionName="1.0"
           android:installLocation="auto">
+    <uses-feature android:name="com.oculus.experimental.enabled" android:required="false" />
+    <uses-feature android:name="com.oculus.feature.PASSTHROUGH" android:required="false" />
+    <uses-feature android:name="oculus.software.handtracking" android:required="false" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
