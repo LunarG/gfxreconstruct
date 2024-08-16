@@ -73,6 +73,10 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
 
     void SetVulkanReplayConsumer(VulkanReplayConsumerBase* vulkan_replay_consumer);
 
+#if defined(__ANDROID__)
+    void SetAndroidApp(struct android_app* app) { android_app_ = app; }
+#endif
+
     virtual void
     Process_xrInitializeLoaderKHR(const ApiCallInfo&                                           call_info,
                                   XrResult                                                     returnValue,
@@ -308,6 +312,9 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     std::unordered_map<XrInstance, encode::OpenXrInstanceTable> instance_tables_;
     std::shared_ptr<application::Application>                   application_;
     std::function<void(const char*)>                            fatal_error_handler_;
+#if defined(__ANDROID__)
+    struct android_app* android_app_;
+#endif
 
     std::unordered_map<XrSession, XrInstance>                          session_to_instance_;
     std::unordered_map<XrSpace, XrInstance>                            space_to_instance_;

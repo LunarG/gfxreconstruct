@@ -21,6 +21,7 @@ add_subdirectory(../../framework/graphics ${CMAKE_SOURCE_DIR}/../../framework/gr
 add_subdirectory(../../framework/format ${CMAKE_SOURCE_DIR}/../../framework/format/build/tools/replay/${ANDROID_ABI})
 add_subdirectory(../../framework/decode ${CMAKE_SOURCE_DIR}/../../framework/decode/build/tools/replay/${ANDROID_ABI})
 add_subdirectory(../../framework/application ${CMAKE_SOURCE_DIR}/../../framework/application/build/tools/replay/${ANDROID_ABI})
+add_subdirectory(external/OpenXR-SDK)
 
 add_library(gfxrecon-quest-replay
             SHARED
@@ -36,6 +37,8 @@ target_include_directories(gfxrecon-quest-replay
                                ${GFXRECON_SOURCE_DIR}/external/precompiled/android/include
                                ${CMAKE_BINARY_DIR})
 
+target_include_directories(gfxrecon_util PUBLIC ${GFXRECON_SOURCE_DIR}/external/OpenXR-SDK/include)
+
 target_link_libraries(
         gfxrecon-quest-replay
         nlohmann_json
@@ -47,4 +50,5 @@ target_link_libraries(
         platform_specific
         native_app_glue
         android
-        log)
+        log
+        OpenXR::openxr_loader)

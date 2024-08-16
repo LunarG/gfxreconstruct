@@ -355,12 +355,11 @@ target_compile_definitions(vulkan_registry INTERFACE VK_NO_PROTOTYPES VK_ENABLE_
 add_library(spirv_registry INTERFACE)
 target_include_directories(spirv_registry INTERFACE ${CMAKE_SOURCE_DIR}/external/SPIRV-Headers/include)
 
-add_library(openxr_headers INTERFACE)
+add_library(OpenXR INTERFACE)
 if (OPENXR_SUPPORT_ENABLED)
     add_subdirectory(${CMAKE_SOURCE_DIR}/external/OpenXR-SDK)
-    target_include_directories(openxr_headers INTERFACE ${CMAKE_SOURCE_DIR}/external/OpenXR-SDK/include)
-    target_compile_definitions(openxr_headers INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)
-    set_property(TARGET openxr_loader PROPERTY FOLDER "third-party/OpenXR")
+    target_include_directories(OpenXR INTERFACE ${CMAKE_SOURCE_DIR}/external/OpenXR-SDK/include)
+    target_compile_definitions(OpenXR INTERFACE XR_NO_PROTOTYPES ENABLE_OPENXR_SUPPORT=1)
 endif()
 
 add_library(vulkan_memory_allocator INTERFACE)

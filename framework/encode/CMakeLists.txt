@@ -180,7 +180,7 @@ target_link_libraries(gfxrecon_encode
                         gfxrecon_format
                         gfxrecon_util
                         vulkan_registry
-                        openxr_headers
+                        OpenXR
                         platform_specific)
 
 common_build_directives(gfxrecon_encode)

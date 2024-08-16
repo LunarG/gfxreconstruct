@@ -68,7 +68,7 @@ target_link_libraries(VkLayer_gfxreconstruct
                         gfxrecon_util
                         vulkan_registry
                         platform_specific
-                        openxr_headers)
+                        OpenXR)
 
 common_build_directives(VkLayer_gfxreconstruct)
 
