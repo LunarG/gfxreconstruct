@@ -81,7 +81,7 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE(
         "  --file-per-frame\tCreates a new file for every frame processed. Frame number is added as a suffix");
     GFXRECON_WRITE_CONSOLE("                  \tto the output file name.");
-    GFXRECON_WRITE_CONSOLE("  --alternative-path\tProvide an alternative path for capture files");
+    GFXRECON_WRITE_CONSOLE("  --override-path\tProvide an alternative path for capture files");
 
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
