@@ -736,6 +736,13 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_sampler_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::SamplerWrapper* sampler_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
+                            if (sampler_wrapper != nullptr)
+                            {
+                                sampler_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
                         }
                         break;
                     }
@@ -753,6 +760,24 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_image_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            if (image_view_wrapper != nullptr)
+                            {
+                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                if (image_view_wrapper->image != nullptr)
+                                {
+                                    image_view_wrapper->image->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
+
+                            vulkan_wrappers::SamplerWrapper* sampler_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(src_info[i].sampler);
+                            if (sampler_wrapper != nullptr)
+                            {
+                                sampler_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
                         }
                         break;
                     }
@@ -768,6 +793,17 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_image_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            if (image_view_wrapper != nullptr)
+                            {
+                                image_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                if (image_view_wrapper->image != nullptr)
+                                {
+                                    image_view_wrapper->image->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
                         }
                         break;
                     }
@@ -782,6 +818,13 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_image_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(src_info[i].imageView);
+                            if (image_view_wrapper != nullptr && image_view_wrapper->image != nullptr)
+                            {
+                                image_view_wrapper->image->descriptor_sets_bound_to.insert(wrapper);
+                            }
                         }
                         break;
                     }
@@ -797,6 +840,13 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_buffer_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
+                            if (buffer_wrapper != nullptr)
+                            {
+                                buffer_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
                         }
                         break;
                     }
@@ -812,6 +862,13 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_buffer_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
                             memcpy(&dst_info[i], &src_info[i], sizeof(dst_info[i]));
+
+                            vulkan_wrappers::BufferWrapper* buffer_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(src_info[i].buffer);
+                            if (buffer_wrapper != nullptr)
+                            {
+                                buffer_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                            }
                         }
                         break;
                     }
@@ -826,6 +883,17 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_view_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
                             dst_info[i] = src_info[i];
+
+                            vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
+                            if (buffer_view_wrapper != nullptr)
+                            {
+                                buffer_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                if (buffer_view_wrapper->buffer != nullptr)
+                                {
+                                    buffer_view_wrapper->buffer->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
                         }
                         break;
                     }
@@ -840,6 +908,17 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                             dst_view_ids[i] =
                                 vulkan_wrappers::GetWrappedId<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
                             dst_info[i] = src_info[i];
+
+                            vulkan_wrappers::BufferViewWrapper* buffer_view_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(src_info[i]);
+                            if (buffer_view_wrapper != nullptr)
+                            {
+                                buffer_view_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                if (buffer_view_wrapper->buffer != nullptr)
+                                {
+                                    buffer_view_wrapper->buffer->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
                         }
                         break;
                     }
@@ -858,8 +937,30 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     }
                     break;
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
-                        // TODO
-                        break;
+                    {
+                        VkWriteDescriptorSetAccelerationStructureNV* write_accel_struct =
+                            graphics::GetPNextStruct<VkWriteDescriptorSetAccelerationStructureNV>(
+                                write, VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV);
+
+                        if (write_accel_struct != nullptr)
+                        {
+                            const VkAccelerationStructureNV* src_accel_struct =
+                                &write_accel_struct->pAccelerationStructures[current_src_array_element];
+
+                            for (uint32_t i = 0; i < current_writes; ++i)
+                            {
+                                vulkan_wrappers::AccelerationStructureNVWrapper* accel_struct_wrapper =
+                                    vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureNVWrapper>(
+                                        src_accel_struct[i]);
+                                if (accel_struct_wrapper != nullptr)
+                                {
+                                    accel_struct_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                }
+                            }
+                        }
+                    }
+                    break;
+
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                     {
                         auto write_accel_struct =
@@ -879,6 +980,14 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                                     vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(
                                         src_accel_struct[i]);
                                 dst_accel_struct[i] = src_accel_struct[i];
+
+                                vulkan_wrappers::AccelerationStructureKHRWrapper* accel_struct_wrapper =
+                                    vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                                        src_accel_struct[i]);
+                                if (accel_struct_wrapper != nullptr)
+                                {
+                                    accel_struct_wrapper->descriptor_sets_bound_to.insert(wrapper);
+                                }
                             }
                         }
                     }
@@ -1340,6 +1449,7 @@ void VulkanStateTracker::TrackResetDescriptorPool(VkDescriptorPool descriptor_po
     std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& set_entry : wrapper->child_sets)
     {
+        DestroyState(set_entry.second);
         state_table_.RemoveWrapper(set_entry.second);
     }
 }
@@ -1643,6 +1753,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorPoolWrapper* wr
     std::unique_lock<std::mutex> lock(state_table_mutex_);
     for (const auto& entry : wrapper->child_sets)
     {
+        DestroyState(entry.second);
         state_table_.RemoveWrapper(entry.second);
     }
 }
@@ -1683,6 +1794,25 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureKHRW
     {
         as_device_addresses_map.erase(entry);
     }
+
+    for (auto entry : wrapper->descriptor_sets_bound_to)
+    {
+        entry->dirty = true;
+    }
+
+    wrapper->descriptor_sets_bound_to.clear();
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureNVWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+
+    for (auto entry : wrapper->descriptor_sets_bound_to)
+    {
+        entry->dirty = true;
+    }
+
+    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
@@ -1703,6 +1833,25 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
             mem_wrapper->asset_map_lock.unlock();
         }
     }
+
+    for (auto entry : wrapper->descriptor_sets_bound_to)
+    {
+        entry->dirty = true;
+    }
+
+    wrapper->descriptor_sets_bound_to.clear();
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+
+    for (auto entry : wrapper->descriptor_sets_bound_to)
+    {
+        entry->dirty = true;
+    }
+
+    wrapper->descriptor_sets_bound_to.clear();
 }
 
 void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
@@ -1721,6 +1870,223 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
                 mem_wrapper->bound_assets.erase(bind_entry);
             }
             mem_wrapper->asset_map_lock.unlock();
+        }
+    }
+
+    for (auto entry : wrapper->descriptor_sets_bound_to)
+    {
+        entry->dirty = true;
+    }
+
+    wrapper->descriptor_sets_bound_to.clear();
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+
+    for (auto entry : wrapper->descriptor_sets_bound_to)
+    {
+        entry->dirty = true;
+    }
+
+    wrapper->descriptor_sets_bound_to.clear();
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
+{
+    assert(wrapper != nullptr);
+
+    for (auto entry : wrapper->descriptor_sets_bound_to)
+    {
+        entry->dirty = true;
+    }
+
+    wrapper->descriptor_sets_bound_to.clear();
+}
+
+void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper)
+{
+    for (auto& entry : wrapper->bindings)
+    {
+        vulkan_state_info::DescriptorInfo& binding = entry.second;
+        switch (binding.type)
+        {
+            case VK_DESCRIPTOR_TYPE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            {
+                assert(binding.count);
+                assert(binding.images);
+
+                if (binding.type == VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE ||
+                    binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
+                    binding.type == VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT)
+                {
+                    for (uint32_t i = 0; i < binding.count; ++i)
+                    {
+                        vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(binding.images[i].imageView);
+                        if (image_view_wrapper != nullptr)
+                        {
+                            auto img_view_desc_entry = image_view_wrapper->descriptor_sets_bound_to.find(wrapper);
+                            if (img_view_desc_entry != image_view_wrapper->descriptor_sets_bound_to.end())
+                            {
+                                image_view_wrapper->descriptor_sets_bound_to.erase(img_view_desc_entry);
+                            }
+
+                            if (image_view_wrapper->image != nullptr)
+                            {
+                                auto img_desc_entry = image_view_wrapper->image->descriptor_sets_bound_to.find(wrapper);
+                                if (img_desc_entry != image_view_wrapper->image->descriptor_sets_bound_to.end())
+                                {
+                                    image_view_wrapper->image->descriptor_sets_bound_to.erase(img_desc_entry);
+                                }
+                            }
+                        }
+                    }
+
+                    if (binding.type == VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ||
+                        binding.type == VK_DESCRIPTOR_TYPE_SAMPLER)
+                    {
+                        for (uint32_t i = 0; i < binding.count; ++i)
+                        {
+                            vulkan_wrappers::SamplerWrapper* sampler_wrapper =
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(binding.images[i].sampler);
+                            if (sampler_wrapper != nullptr)
+                            {
+                                auto desc_entry = sampler_wrapper->descriptor_sets_bound_to.find(wrapper);
+                                if (desc_entry != sampler_wrapper->descriptor_sets_bound_to.end())
+                                {
+                                    sampler_wrapper->descriptor_sets_bound_to.erase(desc_entry);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            {
+                assert(binding.count);
+                assert(binding.storage_images);
+
+                for (uint32_t i = 0; i < binding.count; ++i)
+                {
+                    vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
+                            binding.storage_images[i].imageView);
+                    if (image_view_wrapper != nullptr)
+                    {
+                        auto img_view_desc_entry = image_view_wrapper->descriptor_sets_bound_to.find(wrapper);
+                        if (img_view_desc_entry != image_view_wrapper->descriptor_sets_bound_to.end())
+                        {
+                            image_view_wrapper->descriptor_sets_bound_to.erase(img_view_desc_entry);
+                        }
+
+                        if (image_view_wrapper->image != nullptr)
+                        {
+                            auto img_desc_entry = image_view_wrapper->image->descriptor_sets_bound_to.find(wrapper);
+                            if (img_desc_entry != image_view_wrapper->image->descriptor_sets_bound_to.end())
+                            {
+                                image_view_wrapper->image->descriptor_sets_bound_to.erase(img_desc_entry);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+
+            case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            {
+                const bool is_storage = binding.type == VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+
+                assert(binding.count);
+                assert((is_storage && binding.storage_texel_buffer_views) ||
+                       (!is_storage && binding.uniform_texel_buffer_views));
+
+                for (uint32_t i = 0; i < binding.count; ++i)
+                {
+                    vulkan_wrappers::BufferViewWrapper* buf_view_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
+                            is_storage ? binding.storage_texel_buffer_views[i] : binding.uniform_texel_buffer_views[i]);
+                    if (buf_view_wrapper != nullptr)
+                    {
+                        auto view_entry = buf_view_wrapper->descriptor_sets_bound_to.find(wrapper);
+                        if (view_entry != buf_view_wrapper->descriptor_sets_bound_to.end())
+                        {
+                            buf_view_wrapper->descriptor_sets_bound_to.erase(view_entry);
+                        }
+
+                        if (buf_view_wrapper->buffer != nullptr)
+                        {
+                            auto buf_entry = buf_view_wrapper->buffer->descriptor_sets_bound_to.find(wrapper);
+                            if (buf_entry != buf_view_wrapper->buffer->descriptor_sets_bound_to.end())
+                            {
+                                buf_view_wrapper->buffer->descriptor_sets_bound_to.erase(buf_entry);
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            {
+                const bool is_storage = (binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) ||
+                                        (binding.type == VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC);
+
+                assert(binding.count);
+                assert((is_storage && binding.storage_buffers) || (!is_storage && binding.buffers));
+
+                for (uint32_t i = 0; i < binding.count; ++i)
+                {
+                    vulkan_wrappers::BufferWrapper* buf_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
+                            is_storage ? binding.storage_buffers[i].buffer : binding.buffers[i].buffer);
+                    if (buf_wrapper != nullptr)
+                    {
+                        auto entry = buf_wrapper->descriptor_sets_bound_to.find(wrapper);
+                        if (entry != buf_wrapper->descriptor_sets_bound_to.end())
+                        {
+                            buf_wrapper->descriptor_sets_bound_to.erase(entry);
+                        }
+                    }
+                }
+            }
+            break;
+
+            case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            {
+                assert(binding.count);
+                assert(binding.acceleration_structures);
+
+                for (uint32_t i = 0; i < binding.count; ++i)
+                {
+                    vulkan_wrappers::AccelerationStructureKHRWrapper* accel_wrapper =
+                        vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
+                            binding.acceleration_structures[i]);
+                    if (accel_wrapper != nullptr)
+                    {
+                        auto entry = accel_wrapper->descriptor_sets_bound_to.find(wrapper);
+                        if (entry != accel_wrapper->descriptor_sets_bound_to.end())
+                        {
+                            accel_wrapper->descriptor_sets_bound_to.erase(entry);
+                        }
+                    }
+                }
+            }
+            break;
+
+            default:
+                GFXRECON_LOG_WARNING("%s() Descriptor type %u not handled", __func__, binding.type);
+                break;
         }
     }
 }

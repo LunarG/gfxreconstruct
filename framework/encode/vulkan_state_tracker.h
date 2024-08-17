@@ -744,9 +744,19 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
+    void DestroyState(vulkan_wrappers::AccelerationStructureNVWrapper* wrapper);
+
     void DestroyState(vulkan_wrappers::ImageWrapper* wrapper);
 
+    void DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper);
+
     void DestroyState(vulkan_wrappers::BufferWrapper* wrapper);
+
+    void DestroyState(vulkan_wrappers::BufferViewWrapper* wrapper);
+
+    void DestroyState(vulkan_wrappers::SamplerWrapper* wrapper);
+
+    void DestroyState(vulkan_wrappers::DescriptorSetWrapper* wrapper);
 
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
 

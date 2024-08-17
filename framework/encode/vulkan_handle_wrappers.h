@@ -75,7 +75,6 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
 struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
 struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
 struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
@@ -167,6 +166,7 @@ struct EventWrapper : public HandleWrapper<VkEvent>
     DeviceWrapper* device{ nullptr };
 };
 
+struct DescriptorSetWrapper;
 struct AssetWrapperBase
 {
     DeviceWrapper*             bind_device{ nullptr };
@@ -177,8 +177,9 @@ struct AssetWrapperBase
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
 
-    VkDeviceSize size{ 0 };
-    bool         dirty{ true };
+    VkDeviceSize                              size{ 0 };
+    bool                                      dirty{ true };
+    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
@@ -200,6 +201,11 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
     VkImageLayout            current_layout{ VK_IMAGE_LAYOUT_UNDEFINED };
     bool                     is_swapchain_image{ false };
     std::set<VkSwapchainKHR> parent_swapchains;
+};
+
+struct SamplerWrapper : public HandleWrapper<VkSampler>
+{
+    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
@@ -233,12 +239,16 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 {
     format::HandleId buffer_id{ format::kNullHandleId };
     BufferWrapper*   buffer{ nullptr };
+
+    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
+
+    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
@@ -515,10 +525,14 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 
     // List of BLASes this AS references. Used only while tracking.
     std::vector<AccelerationStructureKHRWrapper*> blas;
+
+    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
 {
+    std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
+
     // TODO: Determine what additional state tracking is needed.
 };
 
