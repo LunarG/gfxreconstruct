@@ -1021,7 +1021,7 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
         const DescriptorSetInfo* desc_set_info;
         desc_set_info       = object_info_table_.GetDescriptorSetInfo(descriptor_sets_ids[i]);
         desc_set_infos[i]   = desc_set_info;
-        desc_set_handles[i] = (desc_set_info != nullptr) ? desc_set_info->handle : nullptr;
+        desc_set_handles[i] = (desc_set_info != nullptr) ? desc_set_info->handle : VK_NULL_HANDLE;
     }
 
     DrawCallsDumpingContext* dc_context = FindDrawCallCommandBufferContext(original_command_buffer);
