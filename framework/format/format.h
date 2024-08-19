@@ -649,7 +649,7 @@ struct ParentToChildDependencyHeader
     uint32_t                    child_count;
 };
 
-static const char kEnvironmentStringDelimeter = (char)-1;
+static constexpr char kEnvironmentStringDelimeter = (char)-1;
 struct SetEnvironmentVariablesCommand
 {
     MetaDataHeader meta_header;
