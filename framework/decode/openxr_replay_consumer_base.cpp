@@ -457,7 +457,6 @@ void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
     XrResult                                                     returnValue,
     StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
 {
-    GFXRECON_LOG_INFO("Process_xrInitializeLoaderKHR {");
     XrResult replay_result = XR_SUCCESS;
 
     PFN_xrInitializeLoaderKHR pfn_initialize_loader;
@@ -476,7 +475,6 @@ void OpenXrReplayConsumerBase::Process_xrInitializeLoaderKHR(
 #endif
     }
     CheckResult("xrInitializeLoaderKHR", returnValue, replay_result, call_info);
-    GFXRECON_LOG_INFO("Process_xrInitializeLoaderKHR } (result = 0x%08x)", replay_result);
 }
 
 void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
@@ -486,8 +484,6 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
     HandlePointerDecoder<XrInstance>*                   instance)
 {
-    GFXRECON_LOG_INFO("Process_xrCreateApiLayerInstance {");
-
     if (!instance->IsNull())
     {
         instance->SetHandleLength(1);
@@ -540,8 +536,6 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
                                   instance->GetPointer(),
                                   instance->GetHandlePointer(),
                                   &CommonObjectInfoTable::AddXrInstanceInfo);
-
-    GFXRECON_LOG_INFO("Process_xrCreateApiLayerInstance }");
 }
 
 void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
@@ -682,6 +676,7 @@ void OpenXrReplayConsumerBase::Process_xrCreateSwapchain(
     SwapchainData& swap_data    = AddSwapchainData(*out_swapchain);
     swap_data.InitSwapchainData(session_data.GetGraphicsBinding(), amended_info, *out_swapchain);
 }
+
 void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
     const ApiCallInfo&                                        call_info,
     XrResult                                                  returnValue,
@@ -716,6 +711,7 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
         RaiseFatalError(enumutil::GetResultDescription(result));
     }
 }
+
 void* OpenXrReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
                                                          format::ApiCallId call_id,
                                                          const char*       call_name)
@@ -872,8 +868,9 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
         // This call is only supported for Vulkan graphics bindings
         // WIP: Properly log and handle this
         GFXRECON_LOG_FATAL("Unsupported graphics binding");
+        return XR_ERROR_RUNTIME_FAILURE;
     }
-    return XR_ERROR_RUNTIME_FAILURE;
+    return result;
 }
 
 XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
@@ -901,9 +898,9 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
                                             VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
                                             vk_binding.queueFamilyIndex };
 
-    VkResult result = device_table->CreateCommandPool(vk_device, &create_info, nullptr, &vk_swap.command_pool);
+    VkResult vk_result = device_table->CreateCommandPool(vk_device, &create_info, nullptr, &vk_swap.command_pool);
     // WIP: Properly log and handle this
-    assert(result == VK_SUCCESS);
+    assert(vk_result == VK_SUCCESS);
 
     vk_swap.transfer_commandbuffer.resize(vk_swap.replay_images.size());
     VkCommandBufferAllocateInfo cb_alloc_info = {
@@ -934,7 +931,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
     {
         const format::HandleId& image_id = wrappers[image_entry].image;
 
-        VkResult vk_result = device_table->CreateImage(vk_device, &vk_swap.image_create_info, nullptr, &proxy.image);
+        vk_result = device_table->CreateImage(vk_device, &vk_swap.image_create_info, nullptr, &proxy.image);
         // WIP: Properly log and handle this
         assert(vk_result == VK_SUCCESS);
 
@@ -970,31 +967,31 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
         alloc_info.memoryTypeIndex      = memory_type_index;
         alloc_info.allocationSize       = memory_reqs.size;
 
-        VkResult result = device_table->AllocateMemory(vk_device, &alloc_info, nullptr, &proxy.memory);
+        vk_result = device_table->AllocateMemory(vk_device, &alloc_info, nullptr, &proxy.memory);
 
-        if (result != VK_SUCCESS)
+        if (vk_result != VK_SUCCESS)
         {
             // WIP: Properly log and handle this
             break;
         }
 
-        result = device_table->BindImageMemory(vk_device, proxy.image, proxy.memory, 0);
+        vk_result = device_table->BindImageMemory(vk_device, proxy.image, proxy.memory, 0);
 
-        if (result != VK_SUCCESS)
+        if (vk_result != VK_SUCCESS)
         {
             // WIP: Properly log and handle this
             break;
         }
 
-        result = device_table->AllocateCommandBuffers(vk_device, &cb_alloc_info, &proxy.command_buffer);
-        if (result != VK_SUCCESS)
+        vk_result = device_table->AllocateCommandBuffers(vk_device, &cb_alloc_info, &proxy.command_buffer);
+        if (vk_result != VK_SUCCESS)
         {
             // WIP: Properly log and handle this
             break;
         }
 
-        result = device_table->CreateFence(vk_device, &cb_fence_info, nullptr, &proxy.cb_fence);
-        if (result != VK_SUCCESS)
+        vk_result = device_table->CreateFence(vk_device, &cb_fence_info, nullptr, &proxy.cb_fence);
+        if (vk_result != VK_SUCCESS)
         {
             // WIP: Properly log and handle this
             break;
@@ -1013,7 +1010,7 @@ XrResult OpenXrReplayConsumerBase::SwapchainData::InitVirtualSwapchain(
         proxy = VulkanSwapchainInfo::ProxyImage();
     }
 
-    if (result != VK_SUCCESS)
+    if (vk_result != VK_SUCCESS)
     {
         xr_result = XR_ERROR_VALIDATION_FAILURE; // WIP: Determine if there is a better code for this
     }
