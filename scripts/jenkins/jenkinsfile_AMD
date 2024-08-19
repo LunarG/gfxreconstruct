@@ -1,0 +1,609 @@
+// groovy
+import static groovy.io.FileType.*
+import static groovy.io.FileVisitResult.*
+
+// Default branch of gfxreconstruct to use.
+gfxrBranch = "amd-main"
+ArchiveName64 = "gfxr_bld${env.BUILD_ID}_${env.BRANCH_NAME}"
+ArchiveName86 = "gfxr_bld${env.BUILD_ID}_x86_${env.BRANCH_NAME}"
+kPackageNameRoot = ArchiveName64
+kPackageNameRoot64 = ArchiveName64 + "-x64"
+commonScriptsUrl = "git@github.amd.com:Developer-Solutions/scripts"
+// Default test run timeout 10 minutes + a buffer
+kTestTimeout = 120
+
+// Artifactory retention settings
+kMaxDays = 14
+kMaxBuilds = 7
+if (env.MAX_DAYS) {
+    kMaxDays = env.MAX_DAYS
+}
+if (env.MAX_BUILDS) {
+    kMaxBuilds = env.MAX_BUILDS
+}
+
+email_recip_fail = ""
+email_recip_success = ""
+
+JTools = null
+extraBuildArgs = ""
+build32 = "-a x86"
+build64 = "-a x64"
+runTests = true
+repoName = "gfxreconstruct"
+def author_email = ""
+
+def setupJobVars() {
+    // Defaults for GFXReconstruct package
+    gfxrBranch = "amd-main"
+    devMatchPattern = /[Dd][Ee][Vv]-.*/
+
+    extraBuildArgs = "--skip-check-code-style --skip-tests"
+	echo "listing env props:"
+    def fields = env.getEnvironment()
+	fields.each 
+	{
+		key, value -> println("${key} = ${value}");
+	}
+	
+	
+    email_recip_fail = ""
+    email_recip_success = ""
+
+    if (env.NOTIFY_FAIL) {
+        email_recip_fail = env.NOTIFY_FAIL
+    }
+
+
+    if (env.NOTIFY_SUCCESS) {
+        email_recip_success = env.NOTIFY_SUCCESS
+    }
+    // While testing, turn on running the tests.
+    runTests = true
+}
+
+// Define the cloning to be done.
+def cloneReposWin() {
+    dir("gfx") {
+        try {
+            checkout scm
+        } catch (Exception err) {
+            echo "Unable to clone the gfxreconstruct github repo"
+            throw err
+        }
+    }
+}
+
+// Define the cloning to be done.
+def cloneRepos() {
+    dir("gfxreconstruct") {
+        try {
+            checkout scm
+        } catch (Exception err) {
+            echo "Unable to clone the gfxreconstruct github repo"
+            throw err
+        }
+    }
+}
+
+// Check out, then load the script that contains functions that can be used in many projects.
+def setupTools() {
+    def jenkinsToolsLinux = "Scripts/lab_tools/Jenkins/Generic/JenkinsToolsLib.gvy"
+    def jenkinsToolsWindows = "Scripts\\lab_tools\\Jenkins\\Generic\\JenkinsToolsLib.gvy"
+
+    def loadedTools
+    if (isUnix()) {
+        jenkinsTools = jenkinsToolsLinux
+    } else {
+        jenkinsTools = jenkinsToolsWindows
+    }
+    catchError(stageResult: 'FAILURE', buildResult: 'FAILURE', message: 'There was a problem cloning the scripts repo.') {
+            dir('Scripts') {
+                git branch: "${gfxrBranch}", url: "${commonScriptsUrl}"
+            }
+        }
+    if (currentBuild.result != 'FAILURE') {
+        // Load the script.
+        try {
+            loadedTools = load(jenkinsTools)
+        } catch (Exception err) {
+            echo "Could not load "+ jenkinsTools + " " + err
+        }
+    }
+    echo "jenkinsTools loaded"
+    return loadedTools
+}
+
+// Upload all artifacts
+def UploadArtifacts(label) {
+    node(label) {
+        JTools.cleanUp()
+        // unstash zip and tgz files
+        dir ("Linux") {
+            deleteDir()
+            unstash "TestStashL"
+        }
+        dir ("Windows") {
+            deleteDir()
+            unstash "TestStashW"
+        }
+
+        // Initialize upload information
+        // Think about this some more... download spec could be problematic for test jobs
+        // partial_path = "${JOB_NAME}/${BUILD_NUMBER}/$gfxrBranch"
+        partial_path = "${JOB_NAME}/${BUILD_ID}"
+
+        def server = Artifactory.server('DevToolsBDC')
+        def build_info = Artifactory.newBuildInfo()
+        build_info.env.capture = true
+        build_info.number = env.BUILD_NUMBER
+        build_info.retention maxBuilds: kMaxBuilds, maxDays: kMaxDays, deleteBuildArtifacts: true
+        def upload_spec = """ {
+            "files": [
+                {
+                    "pattern": "Windows/*.zip",
+                    "props": "branch=$gfxrBranch",
+                    "target":  "DevToolsBDC/Builds/GFXR/${partial_path}/Windows/"
+                },
+                {
+                    "pattern": "Linux/*.tar",
+                    "props": "branch=$gfxrBranch",
+                    "target":  "DevToolsBDC/Builds/GFXR/${partial_path}/Linux/"
+                }
+            ]
+        } """
+        // Upload files and buildInfo object
+        server.upload spec: upload_spec, buildInfo: build_info
+        server.publishBuildInfo build_info
+    }
+}
+
+
+// Build GFXReconstruct
+def Build(label) {
+    node (label) {
+        agentName = "${env.NODE_NAME}"
+        stage('Get author email') {
+          try {
+            if (env.CHANGE_ID == null){
+              env.author_email = sh(script: 'git log -1 --format=\'%ae\'', returnStdout: true).trim()
+              echo "env.author_email =  ${env.author_email}"
+            }
+            else{
+              env.author_email = sh(script: 'git log -1 --format=\'%ae\' HEAD~1', returnStdout: true).trim()
+              echo "env.author_email =  ${env.author_email}"
+            }
+            if (!env.author_email.endsWith('@amd.com')){
+              env.author_email = ''
+            }
+          }
+          catch (Exception err) {
+            echo "Get author email, failed: " + err
+          }
+        }
+		
+        stage(agentName + ': Build GFXReconstruct') {
+            dir ("gfxreconstruct") {
+                deleteDir()
+            }
+            
+            if (isUnix()) {
+			    cloneRepos()
+                extraBuildArgs = "--skip-tests"
+                // build 64 bit
+                try {
+                    sh """
+                        set -x
+                        set -e
+                        python3 ./gfxreconstruct/scripts/build.py ${extraBuildArgs} ${build64}
+                    """
+                } catch (Exception err) {
+                    echo "GFXReconstruct Linux 64 bit build failed: " + err
+                    currentBuild.result = 'FAILURE'
+                }
+                try {
+                    dir ("gfxreconstruct") {
+                        sh """
+                            cp LICENSE.txt build/linux/x64/output/bin/
+                            cp LICENSE_ThirdParty.txt build/linux/x64/output/bin/
+                            cp USAGE_desktop_Vulkan.md build/linux/x64/output/bin/
+                            cp layer/vk_layer_settings.txt build/linux/x64/output/bin/
+                            rm -rf ../gfxreconstruct-dev						
+                            mv build/linux/x64/output/bin ../gfxreconstruct-dev
+                            mv build/linux/x64/output/lib*/*.so ../gfxreconstruct-dev/
+                            mv build/linux/x64/output/share/vulkan/explicit_layer.d/*.json ../gfxreconstruct-dev/
+                        """
+                    }
+                } catch (Exception epost) {
+                    echo "Could not prepare artifacts for archiving"
+                    throw epost
+                }
+                try {
+                    dir("gfxreconstruct-dev") {
+                        sh """
+                            tar cvf ../${kPackageNameRoot}.tar *
+                        """
+                    }
+                } catch (Exception etar) {
+                    echo "Unable to create the tar file, 64bit"
+                }
+                // build 32 bit. Run build.py --clean first.
+                sh "python3 ./gfxreconstruct/scripts/build.py --clean"
+                try {
+                    sh """
+                        set -x
+                        set -e
+                        python3 ./gfxreconstruct/scripts/build.py ${extraBuildArgs} ${build32}
+                    """
+                } catch (Exception err) {
+                    echo "GFXReconstruct Linux 32 bit build failed: " + err
+                    currentBuild.result = 'FAILURE'
+                }
+                try {
+                    dir ("gfxreconstruct") {
+                        sh """
+                            cp LICENSE.txt build/linux/x86/output/bin/
+                            cp LICENSE_ThirdParty.txt build/linux/x86/output/bin/
+                            cp USAGE_desktop_Vulkan.md build/linux/x86/output/bin/
+                            cp layer/vk_layer_settings.txt build/linux/x86/output/bin/
+                            rm -rf ../gfxreconstruct-dev
+                            mv build/linux/x86/output/bin ../gfxreconstruct-dev
+                            mv build/linux/x86/output/lib*/*.so ../gfxreconstruct-dev/
+                            mv build/linux/x86/output/share/vulkan/explicit_layer.d/*.json ../gfxreconstruct-dev/
+                        """
+                    }
+                } catch (Exception epost) {
+                    echo "Could not prepare artifacts for archiving"
+                    throw epost
+                }
+                try {
+                    dir("gfxreconstruct-dev") {
+                        sh """
+                            tar cvf ../${kPackageNameRoot}-x86.tar *
+                        """
+                    }
+                } catch (Exception etar) {
+                    echo "Unable to create the tar file, 32 bit"
+                }
+            } else {
+			    dir("gfx"){
+				    deleteDir()
+				}
+			    cloneReposWin()
+                withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}"]) {
+					echo "${env.BRANCH_NAME}" 
+					extraWinBuildArgs = "--skip-check-code-style --skip-tests"
+					echo "ArchiveName64 = " + ArchiveName64
+                    try {
+                        bat """
+                            echo on
+                            set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;"C:\\Program Files\\CMake\\bin";%PATH%
+                            C:\\Python36\\python.exe .\\gfx\\scripts\\build.py --cmake-system-version=10.0.20348.0 ${extraWinBuildArgs} ${build64} --build-launcher
+                        """
+                    } catch (Exception err) {
+                        echo "GFXReconstruct Windows 64 bit build failed: " + err
+                        currentBuild.result = 'FAILURE'
+                    }
+                    try {
+						dir ("gfx") {
+							bat """
+								copy layer\\vk_layer_settings.txt build\\windows\\x64\\output\\bin\\
+								copy README.md build\\windows\\x64\\output\\bin\\
+								copy USAGE_android.md build\\windows\\x64\\output\\bin\\
+								copy USAGE_desktop_D3D12.md build\\windows\\x64\\output\\bin\\
+								copy USAGE_desktop_Vulkan.md build\\windows\\x64\\output\\bin\\
+								copy scripts\\*test.py build\\windows\\x64\\output\\bin\\
+								copy scripts\\gfxrecon-replay-renamed.py build\\windows\\x64\\output\\bin\\
+								copy scripts\\gfxrecon-optimize-renamed.py build\\windows\\x64\\output\\bin\\
+								copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py build\\windows\\x64\\output\\bin\\
+								mkdir build\\windows\\x64\\output\\bin\\d3d12_capture
+								copy build\\windows\\x64\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll build\\windows\\x64\\output\\bin\\d3d12_capture
+								copy build\\windows\\x64\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll build\\windows\\x64\\output\\bin\\d3d12_capture
+								copy build\\windows\\x64\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll build\\windows\\x64\\output\\bin\\d3d12_capture								
+								copy build\\windows\\x64\\cmake_output\\layer\\gfxrecon_interceptor\\Release\\gfxrecon_interceptor.dll build\\windows\\x64\\output\\bin
+								copy build\\windows\\x64\\cmake_output\\tools\\replay\\Release\\D3D12\\D3D12Core.dll build\\windows\\x64\\output\\bin\\D3D12
+								if exist build\\windows\\x64\\cmake_output\\layer\\ags_capture\\ (
+									echo "there's ags dll need to copy"
+									copy build\\windows\\x64\\cmake_output\\layer\\ags_capture\\Release\\amd_ags_x64_capture.dll build\\windows\\x64\\output\\bin\\d3d12_capture
+								)
+								rmdir /S /Q ..\\${ArchiveName64}-x64
+								mkdir ..\\${ArchiveName64}-x64\\
+								move build\\windows\\x64\\output\\bin ..\\${ArchiveName64}-x64\\${ArchiveName64}-x64
+
+							"""
+                        }
+                    } catch (Exception epost) {
+                        echo "Could not prepare artifacts for archiving"
+                        throw epost
+                    }
+                    try {
+                        dir("${ArchiveName64}-x64") {
+                            bat """
+                            zip -r ..\\${kPackageNameRoot}-x64.zip .\\*
+                        """
+                        }
+                    } catch (Exception ezip) {
+                        echo "Unable to create the zip file"
+                    }
+                    // build the 32-bit version
+					extraWinBuildArgs = "--skip-check-code-style --skip-tests"
+                    try {
+                        bat """
+                            echo on
+                            set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;"C:\\Program Files\\CMake\\bin";%PATH%
+                            C:\\Python36\\python.exe .\\gfx\\scripts\\build.py --cmake-system-version=10.0.20348.0 ${extraWinBuildArgs} ${build32} --build-launcher
+                        """
+                    } catch (Exception err) {
+                        echo "GFXReconstruct Windows 32 bit build, failed: " + err
+                        currentBuild.result = 'FAILURE'
+                        
+                    }
+                    try {
+						dir ("gfx") {
+							bat """
+								copy layer\\vk_layer_settings.txt build\\windows\\x86\\output\\bin\\
+								copy README.md build\\windows\\x86\\output\\bin\\
+								copy USAGE_android.md build\\windows\\x86\\output\\bin\\
+								copy USAGE_desktop_D3D12.md build\\windows\\x86\\output\\bin\\
+								copy USAGE_desktop_Vulkan.md build\\windows\\x86\\output\\bin\\
+								copy scripts\\*test.py build\\windows\\x86\\output\\bin\\
+								copy scripts\\gfxrecon-replay-renamed.py build\\windows\\x86\\output\\bin\\
+								copy scripts\\gfxrecon-optimize-renamed.py build\\windows\\x86\\output\\bin\\
+								copy ..\\Scripts\\LabTools\\Jenkins\\GFXReconstruct\\internal_test.py build\\windows\\x86\\output\\bin\\
+								mkdir build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy build\\windows\\x86\\cmake_output\\layer\\d3d12_capture\\Release\\d3d12_capture.dll build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy build\\windows\\x86\\cmake_output\\layer\\d3d12\\Release\\d3d12.dll build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy build\\windows\\x86\\cmake_output\\layer\\dxgi\\Release\\dxgi.dll build\\windows\\x86\\output\\bin\\d3d12_capture
+								copy build\\windows\\x64\\cmake_output\\layer\\gfxrecon_interceptor\\Release\\gfxrecon_interceptor.dll build\\windows\\x64\\output\\bin\\
+								copy build\\windows\\x86\\cmake_output\\tools\\replay\\Release\\D3D12\\D3D12Core.dll build\\windows\\x86\\output\\bin\\D3D12
+								if exist build\\windows\\x86\\cmake_output\\layer\\ags_capture\\ (
+									echo "there's ags dll need to copy"
+									copy build\\windows\\x86\\cmake_output\\layer\\ags_capture\\Release\\amd_ags_x64_capture.dll build\\windows\\x86\\output\\bin\\d3d12_capture
+								)
+								rmdir /S /Q ..\\${ArchiveName86}
+								mkdir ..\\${ArchiveName64}-x86\\
+								move build\\windows\\x86\\output\\bin ..\\${kPackageNameRoot}-x86\\${kPackageNameRoot}-x86
+							"""
+						}
+                    } catch (Exception epost) {
+                        echo "Could not prepare artifacts for archiving"
+                        throw epost
+                    }
+                    try {
+                        dir("${kPackageNameRoot}-x86") {
+                            bat """
+                            zip -r ..\\${kPackageNameRoot}-x86.zip .\\*
+                        """
+                        }
+                    } catch (Exception ezip) {
+                        echo "Unable to create the 32 bit zip file"
+                    }
+                }
+            }
+            // Stash and archive artifacts
+            if (runTests) {
+                if (isUnix()) {
+                    stash name: 'TestStashL', includes: "${kPackageNameRoot}*.tar"
+                } else {
+                    stash name: 'TestStashW', includes: "${kPackageNameRoot}*.zip"
+                }
+            }
+        }
+    }
+}
+
+def Test(label) {
+    node(label) {
+        echo "label is " + label
+        agentName = "${env.NODE_NAME}"
+        echo "agentName is " + agentName
+        stage(agentName + ': TestGFXReconstruct') {
+            // test GFXReconstruct
+            if (isUnix()) {
+                echo "Running the linux tests"
+                JTools.cleanAll()
+                dir('LinuxTest') {
+                    sh "rm -f ${kPackageNameRoot}*.tar"
+                    unstash "TestStashL"
+                    try {
+                        // Download platform relevant test data - disabled for now since functional tests tests are not exeucted on Linux
+                        // sh "scp -r bdc-dtw-data:/cygdrive/d/BDC_Assets/GFXReconstruct/Samples_Linux ./build/linux/x64/test_data/Samples_Linux/TestApp"
+                        // timeout the tests if not done in kTestTimeout minutes
+                        timeout(kTestTimeout) {
+                            sh """
+                                set -x
+                                set -e
+                                tar -xvf ${kPackageNameRoot}.tar
+                                python3 ./test.py
+                            """
+                        }
+                        echo "Testing complete on ${agentName}"
+                    } catch (Exception err) {
+                        echo "Tests failed on ${agentName}: ${err}"
+                        currentBuild.result = 'FAILURE'
+                    }
+                }
+            } else {
+                echo "In the windows test stage..."
+                JTools.cleanAll()
+                try {
+                    // Additional registry cleanup before running tests.
+                    bat """
+                        SETLOCAL ENABLEDELAYEDEXPANSION
+                        FOR /F "tokens=* USEBACKQ" %%F IN (`reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v "*gfxreconstruct.json"`) DO (
+                            set LINE=%%F
+                            if "!LINE!" == "End of search: 0 match(es) found." (
+                                echo No stray gfxreconstruct entries
+                            ) else (
+                                for /F %%i in ("!LINE!") DO (
+                                    if not "%%i" == "End" (
+                                        if not "%%i" == "HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers" (
+                                            reg delete HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v %%i /f
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    """
+                }
+                catch (Exception regerr) {
+                    echo "Registry cleanup failed. Double check registry key HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers."
+                    currentBuild.result = 'FAILURE'
+                    // throw regerr
+                }
+                dir ('windowsTest') {
+                    bat "del /q ${kPackageNameRoot64}*.zip"
+                    unstash "TestStashW"
+                    withEnv(["_MSPDBSRV_ENDPOINT_=${BUILD_TAG}", "DST_PATH=${WORKSPACE}\\windowsTest\\${kPackageNameRoot}\\build\\test_data\\"]) {
+                        try {
+                            bat """
+                                echo on
+                                powershell expand-archive -Path .\\${kPackageNameRoot64}.zip
+                                cd ${kPackageNameRoot64}
+                            """
+                        } catch (Exception err) {
+                            echo "package expansion or download failed on ${agentName}: ${err}"
+                            currentBuild.result = 'FAILURE'
+                        }
+                        try {
+                            timeout(kTestTimeout) {
+                                bat """
+                                    echo on
+                                    net session >nul 2>&1
+                                    IF %ERRORLEVEL% EQU 0 (
+                                        ECHO you are Administrator
+                                    )
+                                    echo %VULKAN_SDK%
+                                    REM set PATH=C:\\Python36;C:\\Python36\\Scripts;C:\\Python36\\Tools\\Scripts;%PATH%
+                                    cd ${kPackageNameRoot64}\\${kPackageNameRoot64}
+                                    echo %DST_PATH%
+                                    REM reg add HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v  ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /t REG_DWORD /d 0
+                                    copy D:\\test\\internal_test.py .
+									copy D:\\test\\email_report_template.html .
+									copy D:\\test\\send_results_summary.py .
+									echo Author email: ${env.author_email}
+                                    python.exe .\\internal_test.py --branch-name ${BRANCH_NAME}
+                                    python.exe .\\send_results_summary.py --email ${EMAIL_RECIPIENTS},${env.author_email} --build-url ${BUILD_URL}
+									set /a STATUS=%STATUS%+%ERRORLEVEL%
+                                    reg delete HKEY_LOCAL_MACHINE\\SOFTWARE\\Khronos\\Vulkan\\ExplicitLayers /v ${WORKSPACE}\\windowsTest\\${kPackageNameRoot64}\\build\\windows\\x64\\output\\bin\\VK_LAYER_LUNARG_gfxreconstruct.json /f
+                                    exit /b %STATUS%
+                                """
+                                echo "Testing complete on ${agentName}"
+                            }
+                            //junit "${kPackageNameRoot}\\TestResult\\*.xml"
+                        } catch (Exception err) {
+                            echo "Tests failed on ${agentName}: ${err}"
+                            currentBuild.result = 'FAILURE'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+testOnNodes = [:]
+testOnNodesL = [:]
+testOnNodesW = [:]
+
+def setupWindowsJobs() {
+    // Windows test steps as step per node
+    def winNodes = JTools.nodeNames("GFXRWINTEST")
+    for (int i=0; i<winNodes.size(); ++i) {
+        def hostNameW = winNodes[i]
+        testOnNodesW["node_" + hostNameW] = {
+            echo "Running GFXReconstruct test on " + hostNameW
+            Test(hostNameW)
+        }
+    }
+}
+def setupLinuxJobs() {
+    def linuxNodes = JTools.nodeNames("GFXRLINUXTEST")
+    for (int i=0; i<linuxNodes.size(); ++i) {
+        def hostNameL = linuxNodes[i]
+        testOnNodesL["node_" + hostNameL] = {
+            echo "Running GFXReconstruct tests on " + hostNameL
+            Test(hostNameL)
+        }
+    }
+}
+
+pipeline {
+    agent none
+    /*    parameters { // uncomment this section when debugging without committing changes
+            string(name: 'GFXRBRANCH', defaultValue: "amd-master", description: "GFXR branch to use: amd-master, dev-<info>, or amd-vN.N")
+            string(name: 'NOTIFY_FAIL', description: "list of email recipients if build fails (space separated). Can be empty.")
+            string(name: 'NOTIFY_SUCCESS', description: "list of email recipients if status changes from failure to success (space separated). Can be empty.")
+        }*/
+    stages {
+        stage ('Setup the tools') {
+            agent { label 'BLD-WIN10' }
+            steps {
+                script {
+                    echo "setting JTools"
+                    JTools = setupTools()
+                    echo "setting job vars"
+                    setupJobVars()
+                }
+            }
+        }
+        stage ('Build') {
+            parallel ('Build') {
+                stage ('Windows') {
+                    steps {
+                        Build('BLD-WIN10')
+                    }
+                }
+                stage ('Ubuntu') {
+                    steps {
+                        Build('GFXRLINUXBUILD')
+                    }
+                }
+            }
+        }
+        stage ('Archiving if not dev- branch and running tests') {
+            steps {
+                script {
+                    if (runTests) {
+                        UploadArtifacts('BLD-WIN10')
+                    }
+                }
+            }
+        }
+        stage('Test GFX Reconstruct - Multiple nodes, if test archive exists') {
+            agent { label 'BLD-WIN10' }
+            steps {
+                script {
+                    if (runTests) {
+                        // Set up to run on multiple instances of the same OS
+                        setupWindowsJobs()
+                        // setupLinuxJobs()
+                        testOnNodes = testOnNodesW
+                        parallel(testOnNodes)
+                    }
+                }
+            }
+        }
+    }
+    // Note: these post actions are only used if the parameters for notification are part of the job configuration.
+    post {
+        failure {
+            script {
+                echo "this was a failure"
+                if (email_recip_fail != "") {
+                    JTools.notifyFailed(email_recip_fail, false)
+                }
+            }
+        }
+
+        success {
+            script {
+                echo "sending email to $email_recip_success"
+                echo "This was a success"
+                if (email_recip_success != "") {
+                    JTools.notifySuccessful(email_recip_success, false)
+                }
+            }
+        }
+    }
+}
