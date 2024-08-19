@@ -48,6 +48,13 @@
 #include <vector>
 #include "util/file_path.h"
 
+#if defined(__linux__)
+#include <dirent.h>
+#elif
+#include <windows.h>
+#include <TlHelp32.h>
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
@@ -64,6 +71,20 @@ class CommonCaptureManager
     static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }
 
     static auto AcquireExclusiveApiCallLock() { return std::move(std::unique_lock<ApiCallMutexT>(api_call_mutex_)); }
+    static bool IsCaptureApp()
+    {
+        int32_t pid = -1;
+#if defined(__linux__)
+        pid = getpid();
+#else
+        pid = GetCurrentProcessId();
+#endif
+        if (CommonCaptureManager::progress_id_ == INT32_MAX || pid == CommonCaptureManager::progress_id_)
+        {
+            return true;
+        }
+        return false;
+    }
 
     HandleUnwrapMemory* GetHandleUnwrapMemory()
     {
@@ -175,6 +196,7 @@ class CommonCaptureManager
     uint64_t GetBlockIndex() { return block_index_ == 0 ? 0 : block_index_ - 1; }
 
     static bool CreateInstance(ApiCaptureManager* api_instance_, const std::function<void()>& destroyer);
+    static int32_t GetPidFromPackageName(const char* progress_name);
     template <typename Derived>
     static bool CreateInstance()
     {
@@ -325,6 +347,7 @@ class CommonCaptureManager
     static thread_local std::unique_ptr<util::ThreadData> thread_data_;
     static std::atomic<format::HandleId>                  unique_id_counter_;
     static ApiCallMutexT                                  api_call_mutex_;
+    static int32_t                                        progress_id_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
