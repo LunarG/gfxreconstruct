@@ -153,6 +153,7 @@ enum class MetaDataType : uint16_t
     kReserved29                             = 29,
     kReserved30                             = 30,
     kReserved31                             = 31,
+    kSetEnvironmentVariablesCommand         = 32,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -646,6 +647,17 @@ struct ParentToChildDependencyHeader
     ParentToChildDependencyType dependency_type;
     format::HandleId            parent_id;
     uint32_t                    child_count;
+};
+
+static constexpr char kEnvironmentStringDelimeter = (char)-1;
+struct SetEnvironmentVariablesCommand
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    uint64_t       string_length;
+
+    // In the capture file, a string will immediately follow this block
+    // containing a list of environment variables and their values
 };
 
 // Restore size_t to normal behavior.
