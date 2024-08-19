@@ -1018,7 +1018,8 @@ void VulkanReplayDumpResourcesBase::OverrideCmdBindDescriptorSets(const ApiCallI
 
     for (uint32_t i = 0; i < descriptor_sets_count; ++i)
     {
-        const DescriptorSetInfo* desc_set_info = object_info_table_.GetDescriptorSetInfo(descriptor_sets_ids[i]);
+        const DescriptorSetInfo* desc_set_info;
+        desc_set_info       = object_info_table_.GetDescriptorSetInfo(descriptor_sets_ids[i]);
         desc_set_infos[i]   = desc_set_info;
         desc_set_handles[i] = (desc_set_info != nullptr) ? desc_set_info->handle : nullptr;
     }
