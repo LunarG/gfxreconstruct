@@ -222,6 +222,7 @@ HWUI:
 
 ```bash
 adb shell "setprop debug.vulkan.layers ''"
+adb shell "settings put global gpu_debug_layers ''"
 ```
 
 ## Replaying the Vulkan IGL Content
@@ -253,7 +254,15 @@ adb shell appops set --uid com.lunarg.gfxreconstruct.replay MANAGE_EXTERNAL_STOR
 
 ### 3. Run the replay
 
-Try running the replay using the `gfxrecon.py` script:
+First, disable the GFXReconstruct capture layers for Vulkan:
+
+```bash
+adb shell "setprop debug.vulkan.layers ''"
+adb shell "settings put global gpu_debug_app ''"
+adb shell "settings put global gpu_debug_layers ''"
+```
+
+Run the replay using the `gfxrecon.py` script:
 
 ```bash
 python3 android\\scripts\\gfxrecon.py replay \
