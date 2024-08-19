@@ -1111,7 +1111,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
                     device_table_.CmdResolveImage(command_buffer_,
                                                   image,
                                                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                                                  image,
+                                                  *resolved_image,
                                                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                                                   1,
                                                   &region);
