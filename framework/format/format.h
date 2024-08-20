@@ -154,9 +154,7 @@ enum class MetaDataType : uint16_t
     kReserved30                             = 30,
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
-    kAssetFilename                          = 33,
-    kLoadAssetFromFile                      = 34,
-    kExecuteBlocksFromFile                  = 35
+    kExecuteBlocksFromFile                  = 33
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -662,13 +660,6 @@ struct SetEnvironmentVariablesCommand
 
     // In the capture file, a string will immediately follow this block
     // containing a list of environment variables and their values
-};
-
-struct AssetFilame
-{
-    MetaDataHeader   meta_header;
-    format::ThreadId thread_id;
-    uint32_t         length;
 };
 
 struct ExecuteBlocksFromFile
