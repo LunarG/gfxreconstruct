@@ -1050,7 +1050,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
                     memory_barriers[0].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                     memory_barriers[0].srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
                     memory_barriers[0].dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-                    memory_barriers[0].image                           = image;
+                    memory_barriers[0].image                           = *resolved_image;
                     memory_barriers[0].subresourceRange.aspectMask     = aspect_mask;
                     memory_barriers[0].subresourceRange.baseMipLevel   = 0;
                     memory_barriers[0].subresourceRange.levelCount     = 1;
@@ -1064,7 +1064,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
 
                         memory_barriers[1].sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
                         memory_barriers[1].pNext                           = nullptr;
-                        memory_barriers[1].srcAccessMask                   = 0;
+                        memory_barriers[1].srcAccessMask                   = VK_ACCESS_MEMORY_WRITE_BIT;
                         memory_barriers[1].dstAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
                         memory_barriers[1].oldLayout                       = current_layout;
                         memory_barriers[1].newLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
@@ -1116,11 +1116,10 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
                                                   1,
                                                   &region);
 
-                    memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-                    memory_barriers[0].dstAccessMask = 0;
-                    memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-
                     // Prepare the resolved image for the next staging copy.
+                    memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+                    memory_barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+                    memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
                     memory_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
                     if (num_barriers == 2)
