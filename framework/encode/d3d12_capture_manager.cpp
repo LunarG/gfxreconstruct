@@ -1823,6 +1823,8 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
         if (common_manager_->GetQueueSubmitCount() == trim_drawcalls.submit_index)
         {
             // target of splitted
+            common_manager_->ActivateTrimmingDrawcalls(format::ApiFamilyId::ApiFamily_D3D12);
+
             std::vector<ID3D12CommandList*> cmdlists;
             auto                            target_cmdlist = lists[trim_drawcalls.command_index - 1];
             ID3D12CommandList_Wrapper*      target_wrapper = nullptr;
@@ -1842,6 +1844,8 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
             Encode_ID3D12CommandQueue_ExecuteCommandLists(wrapper, cmdlists.size(), cmdlists.data());
 
             cmdlists.clear();
+
+            common_manager_->DeactivateTrimmingDrawcalls();
 
             // after of splitted and lists
             auto after_drawcall_cmd = target_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list;

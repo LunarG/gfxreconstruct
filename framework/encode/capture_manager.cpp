@@ -746,6 +746,30 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
     }
 }
 
+void CommonCaptureManager::DeactivateTrimmingDrawcalls()
+{
+    if (trim_enabled_)
+    {
+        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        {
+            // Stop recording and close file.
+            DeactivateTrimming();
+            GFXRECON_LOG_INFO("Finished recording graphics API capture");
+
+            // No more trim ranges to capture. Capture can be disabled and resources can be released.
+            trim_enabled_  = false;
+            trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
+            capture_mode_  = kModeDisabled;
+            // Clean up all of the capture manager's state trackers
+            for (auto& manager_it : api_capture_managers_)
+            {
+                manager_it.first->DestroyStateTracker();
+            }
+            compressor_ = nullptr;
+        }
+    }
+}
+
 void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId              api_family,
                                                          uint32_t                         current_boundary_count,
                                                          std::shared_lock<ApiCallMutexT>& current_lock)
@@ -781,6 +805,24 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
         else
         {
             GFXRECON_LOG_FATAL("Failed to initialize capture for hotkey trim trigger; capture has been disabled");
+            trim_enabled_ = false;
+            capture_mode_ = kModeDisabled;
+        }
+    }
+}
+
+void CommonCaptureManager::ActivateTrimmingDrawcalls(format::ApiFamilyId api_family)
+{
+    if (((capture_mode_ & kModeWrite) != kModeWrite) && ((capture_mode_ & kModeTrack) == kModeTrack))
+    {
+        bool success = CreateCaptureFile(api_family, CreateTrimDrawcallsFilename(base_filename_, trim_drawcalls_));
+        if (success)
+        {
+            ActivateTrimming();
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Failed to initialize capture for trim drawcalls; capture has been disabled");
             trim_enabled_ = false;
             capture_mode_ = kModeDisabled;
         }

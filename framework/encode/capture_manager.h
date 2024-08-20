@@ -136,6 +136,10 @@ class CommonCaptureManager
                                        uint32_t                         current_boundary_count,
                                        std::shared_lock<ApiCallMutexT>& current_lock);
 
+    void ActivateTrimmingDrawcalls(format::ApiFamilyId api_family);
+
+    void DeactivateTrimmingDrawcalls();
+
     bool IsTrimHotkeyPressed();
 
     CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState();
