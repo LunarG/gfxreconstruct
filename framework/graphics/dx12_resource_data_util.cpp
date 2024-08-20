@@ -513,16 +513,27 @@ HRESULT Dx12ResourceDataUtil::WriteToResource(ID3D12Resource*                   
             GFXRECON_CHECK_CONVERSION_DATA_LOSS(size_t, subresource_sizes[i]);
             size_t subresource_size = static_cast<size_t>(std::min(subresource_sizes[i], layout_sizes[i]));
 
-            if (layout_sizes[i] != subresource_sizes[i])
+            if (layout_sizes[i] > subresource_sizes[i])
             {
-                GFXRECON_LOG_ERROR("The size of the data to be copied to the subresource does not match the size "
+#ifdef _DEBUG
+                GFXRECON_LOG_WARNING("The size of the data to be copied to the subresource does not match the size "
                                    "required by the subresource's copyable footprint (data size = %" PRIu64
                                    ", footprint size = %" PRIu64 ", subresouce index = %" PRIu32 ").",
                                    subresource_sizes[i],
                                    layout_sizes[i],
                                    i);
+#endif // DEBUG
             }
+            else if (layout_sizes[i] < subresource_sizes[i])
+            {
+                GFXRECON_LOG_ERROR("The size of the data to be copied to the subresource does not match the size "
+                                     "required by the subresource's copyable footprint (data size = %" PRIu64
+                                     ", footprint size = %" PRIu64 ", subresouce index = %" PRIu32 ").",
+                                     subresource_sizes[i],
+                                     layout_sizes[i],
+                                     i);
 
+            }
             size_t layout_offset = static_cast<size_t>(layout_offsets[i]);
             size_t layout_size   = static_cast<size_t>(layout_sizes[i]);
             util::platform::MemoryCopy(
