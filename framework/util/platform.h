@@ -130,6 +130,11 @@ inline std::string GetEnv(const char* name)
     return std::string("");
 }
 
+inline bool SetEnv(const char* name, const char* value)
+{
+    return SetEnvironmentVariableA(name, value);
+}
+
 inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)
 {
     return memcpy_s(destination, destination_size, source, source_size);
@@ -331,6 +336,11 @@ inline std::string GetEnv(const char* name)
 #endif
 
     return env_value;
+}
+
+inline bool SetEnv(const char* name, const char* value)
+{
+    return setenv(name, value, 1) == 0;
 }
 
 inline int32_t MemoryCopy(void* destination, size_t destination_size, const void* source, size_t source_size)

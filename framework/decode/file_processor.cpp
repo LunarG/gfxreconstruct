@@ -1815,6 +1815,30 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read parent to child dependency meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetEnvironmentVariablesCommand)
+    {
+        format::SetEnvironmentVariablesCommand header;
+        success = ReadBytes(&header.thread_id, sizeof(header.thread_id));
+        success = success && ReadBytes(&header.string_length, sizeof(header.string_length));
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to read environment variable block header");
+            return success;
+        }
+
+        success = ReadParameterBuffer(static_cast<size_t>(header.string_length));
+        if (!success)
+        {
+            HandleBlockReadError(kErrorReadingBlockData, "Failed to read environment variable block data");
+            return success;
+        }
+
+        const char* env_string = (const char*)parameter_buffer_.data();
+        for (auto decoder : decoders_)
+        {
+            decoder->DispatchSetEnvironmentVariablesCommand(header, env_string);
+        }
+    }
     else
     {
         if ((meta_data_type == format::MetaDataType::kReserved23) ||

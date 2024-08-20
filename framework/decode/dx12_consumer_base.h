@@ -82,6 +82,9 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
                                                            UINT                                     SrcDepthPitch)
     {}
 
+    virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
+                                                       const char*                             env_string) {};
+
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 
     void SetCurrentApiCallId(format::ApiCallId api_call_id) { current_api_call_id_ = api_call_id; }
