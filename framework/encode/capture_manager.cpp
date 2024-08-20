@@ -1165,18 +1165,16 @@ void CommonCaptureManager::ActivateTrimming()
     }
 }
 
-bool CommonCaptureManager::WriteFrameStateFile()
+std::string CommonCaptureManager::CreateFrameStateFilename(const std::string& base_filename) const
 {
-    assert(write_state_files_);
-
-    std::string state_filename = capture_filename_;
+    std::string state_filename = base_filename;
 
     const std::string state_filename_post = std::string("_state_frame_") + std::to_string(current_frame_);
 
-    size_t dot_pos = capture_filename_.rfind('.');
+    size_t dot_pos = base_filename.rfind('.');
     if (dot_pos != std::string::npos)
     {
-        if (capture_filename_.substr(dot_pos) == ".gfxr")
+        if (base_filename.substr(dot_pos) == ".gfxr")
         {
             state_filename.insert(dot_pos, state_filename_post);
         }
@@ -1185,6 +1183,15 @@ bool CommonCaptureManager::WriteFrameStateFile()
     {
         state_filename += state_filename_post;
     }
+
+    return state_filename;
+}
+
+bool CommonCaptureManager::WriteFrameStateFile()
+{
+    assert(write_state_files_);
+
+    std::string state_filename = CreateFrameStateFilename(capture_filename_);
 
     util::FileOutputStream state_file_stream(state_filename, kFileStreamBufferSize);
     if (!state_file_stream.IsValid())
@@ -1204,7 +1211,8 @@ bool CommonCaptureManager::WriteFrameStateFile()
             &state_file_stream, thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
     }
 
-    const size_t filename_length = file_stream_->GetFilename().length();
+    const std::string& filename        = file_stream_->GetFilename();
+    const size_t       filename_length = filename.length();
 
     format::ExecuteBlocksFromFile execute_from_file;
     execute_from_file.meta_header.block_header.size =
@@ -1213,12 +1221,12 @@ bool CommonCaptureManager::WriteFrameStateFile()
     execute_from_file.meta_header.meta_data_id =
         format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
     execute_from_file.thread_id       = thread_data->thread_id_;
-    execute_from_file.n_blocks        = 0;
+    execute_from_file.n_blocks        = 0; // 0 n_blocks means execute till eof
     execute_from_file.offset          = file_stream_->GetOffset();
     execute_from_file.filename_length = filename_length;
 
     state_file_stream.Write(&execute_from_file, sizeof(execute_from_file));
-    state_file_stream.Write(file_stream_->GetFilename().c_str(), filename_length);
+    state_file_stream.Write(filename.c_str(), filename_length);
     state_file_stream.Flush();
 
     return true;

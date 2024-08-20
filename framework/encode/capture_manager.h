@@ -266,6 +266,7 @@ class CommonCaptureManager
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     std::string CreateAssetFile();
     std::string CreateAssetFilename(const std::string& base_filename) const;
+    std::string CreateFrameStateFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
     void        ActivateTrimming();
