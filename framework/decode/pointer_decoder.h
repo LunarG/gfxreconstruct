@@ -123,6 +123,9 @@ class PointerDecoder : public PointerDecoderBase
     size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<float>(buffer, buffer_size); }
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
     size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)      { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }
+#if ENABLE_OPENXR_SUPPORT
+    size_t DecodeXrTime(const uint8_t* buffer, size_t buffer_size)       { return DecodeFrom<XrTime>(buffer, buffer_size); }
+#endif
 
     // Decode for array of bytes.
     size_t DecodeUInt8(const uint8_t* buffer, size_t buffer_size)        { return DecodeFrom<uint8_t>(buffer, buffer_size); }
@@ -259,6 +262,9 @@ class PointerDecoder<T*> : public PointerDecoderBase
     size_t DecodeInt64(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<int64_t>(buffer, buffer_size); }
     size_t DecodeUInt64(const uint8_t* buffer, size_t buffer_size)          { return DecodeFrom<uint64_t>(buffer, buffer_size); }
     size_t DecodeFloat(const uint8_t* buffer, size_t buffer_size)           { return DecodeFrom<float>(buffer, buffer_size); }
+#if ENABLE_OPENXR_SUPPORT
+    size_t DecodeXrTime(const uint8_t* buffer, size_t buffer_size)          { return DecodeFrom<XrTime>(buffer, buffer_size); }
+#endif
 
     // Decode pointer to a void pointer, encoded with ParameterEncoder::EncodeVoidPtrPtr.
     size_t DecodeVoidPtr(const uint8_t* buffer, size_t buffer_size)         { return DecodeFrom<format::AddressEncodeType>(buffer, buffer_size); }

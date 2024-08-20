@@ -529,7 +529,8 @@ class BaseGenerator(OutputGenerator):
             if type_info == 'XR_DEFINE_ATOM':
                 self.atom_names.add(name)
             else:
-                self.base_types[name] = type_elem.find('type').text
+                if not name == 'XrTime':
+                    self.base_types[name] = type_info
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override.
