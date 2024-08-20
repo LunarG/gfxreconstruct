@@ -517,10 +517,19 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
 #if defined(__ANDROID__)
     XrInstanceCreateInfoAndroidKHR init_android = {
         XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR,
-        create_info->next,
+        nullptr,
         android_app_->activity->vm,
         android_app_->activity->clazz,
     };
+
+    // Remove the original XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR structure with incorrect info
+    // TODO: This breaks if there is any structure in front of this in the next call chain.
+    const XrBaseInStructure* next_struct = reinterpret_cast<const XrBaseInStructure*>(create_info->next);
+    while (next_struct != nullptr && next_struct->type == XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR) {
+        next_struct = next_struct->next;
+    }
+    init_android.next = reinterpret_cast<const void*>(next_struct);
+
     XrInstanceCreateInfo new_create_info = *create_info;
     new_create_info.next = &init_android;
     create_info = &new_create_info;
