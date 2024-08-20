@@ -77,6 +77,7 @@ class ParameterEncoder
     void EncodeSizeTValue(size_t value)                                                                               { EncodeValue(static_cast<format::SizeTEncodeType>(value)); }
     void EncodeHandleIdValue(format::HandleId value)                                                                  { EncodeValue(static_cast<format::HandleEncodeType>(value)); }
 #if ENABLE_OPENXR_SUPPORT
+    void EncodeXrTimeValue(XrTime value)                                                                              { EncodeValue(static_cast<int64_t>(value)); }
     void EncodeD3D_FEATURE_LEVELValue(D3D_FEATURE_LEVEL value)                                                        { EncodeValue(value); }
 #endif // ENABLE_OPENXR_SUPPORT
     void EncodeLARGE_INTEGERValue(LARGE_INTEGER& value)                                                               { EncodeValue(value.QuadPart); }
@@ -123,6 +124,9 @@ class ParameterEncoder
     void EncodeHandleIdPtr(const format::HandleId* ptr, bool omit_data = false, bool omit_addr = false)               { EncodePointerConverted<format::HandleEncodeType>(ptr, omit_data, omit_addr); }
     void EncodeLARGE_INTEGERPtr(const LARGE_INTEGER* ptr, bool omit_data = false, bool omit_addr = false)             { EncodePointer<int64_t>(&(ptr->QuadPart), omit_data, omit_addr); }
     void EncodeLUIDPtr(const LUID* ptr, bool omit_data = false, bool omit_addr = false)                               { EncodePointer(reinterpret_cast<const int64_t*>(ptr), omit_data, omit_addr); }
+#if ENABLE_OPENXR_SUPPORT
+    void EncodeXrTimePtr(const XrTime* ptr, bool omit_data = false, bool omit_addr = false)                           { EncodePointer(reinterpret_cast<const int64_t*>(ptr), omit_data, omit_addr); }
+#endif // ENABLE_OPENXR_SUPPORT
 
     // Treat pointers to non-Vulkan objects as 64-bit object IDs.
     template<typename T>

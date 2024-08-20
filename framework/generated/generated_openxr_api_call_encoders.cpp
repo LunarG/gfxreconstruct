@@ -701,7 +701,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpace(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(space);
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::SpaceWrapper>(baseSpace);
-        encoder->EncodeInt64Value(time);
+        encoder->EncodeXrTimeValue(time);
         EncodeStructPtr(encoder, location, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
@@ -2689,7 +2689,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
         encoder->EncodeLARGE_INTEGERPtr(performanceCounter);
-        encoder->EncodeInt64Ptr(time, omit_output_data);
+        encoder->EncodeXrTimePtr(time, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }
@@ -2730,7 +2730,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(
     if (encoder)
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
-        encoder->EncodeInt64Value(time);
+        encoder->EncodeXrTimeValue(time);
         encoder->EncodeLARGE_INTEGERPtr(performanceCounter, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
@@ -2773,7 +2773,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimespecTimeToTimeKHR(
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
         EncodeStructPtr(encoder, timespecTime);
-        encoder->EncodeInt64Ptr(time, omit_output_data);
+        encoder->EncodeXrTimePtr(time, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();
     }
@@ -2814,7 +2814,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     if (encoder)
     {
         encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
-        encoder->EncodeInt64Value(time);
+        encoder->EncodeXrTimeValue(time);
         EncodeStructPtr(encoder, timespecTime, omit_output_data);
         encoder->EncodeEnumValue(result);
         manager->EndApiCallCapture();

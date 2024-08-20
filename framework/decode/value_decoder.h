@@ -41,6 +41,8 @@
 #include <cassert>
 #include <type_traits>
 #include <memory.h>
+#include <chrono>
+#include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -87,6 +89,32 @@ class ValueDecoder
 #endif
 
 #if ENABLE_OPENXR_SUPPORT
+    // We have to do some real tricks with XrTime.  Basically, we want to obey the original time, but we want to
+    // adjust it based on the current system time to properly reflect what's going on.
+    static size_t DecodeXrTimeValue(const uint8_t* buffer, size_t buffer_size, XrTime* value)
+    {
+        int64_t original_time = 0;
+        size_t bytes_read = DecodeValue(buffer, buffer_size, &original_time);
+
+        static uint64_t original_replay_time = 0;
+        static uint64_t original_capture_time = 0;
+
+        // Get the current time
+        const auto clock_now = std::chrono::steady_clock::now();
+        int64_t now_nanoseconds = static_cast<int64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(clock_now.time_since_epoch()).count());
+        if (original_replay_time == 0)
+        {
+            // No original time, so let's just set a time to 10 ms in the future
+            original_replay_time = now_nanoseconds + 10000000;
+            original_capture_time = original_time;
+        }
+
+        // Calculate the difference between the capture original time and the capture current time and add it to the replay original time.
+        int64_t capture_diff = original_time - original_capture_time;
+        *value = original_replay_time + capture_diff;
+        return bytes_read;
+    }
+
     static size_t DecodeLUIDValue(const uint8_t* buffer, size_t buffer_size, LUID* value)                           { return DecodeValue(buffer, buffer_size, reinterpret_cast<int64_t*>(value)); }
 
     static size_t DecodeD3D_FEATURE_LEVELValue(const uint8_t* buffer, size_t buffer_size, D3D_FEATURE_LEVEL* value) { return DecodeValueFrom<format::D3D_FEATURE_LEVELEncodeType>(buffer, buffer_size, value); }

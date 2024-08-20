@@ -387,7 +387,7 @@ size_t OpenXrDecoder::Decode_xrLocateSpace(const ApiCallInfo& call_info, const u
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &space);
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &baseSpace);
-    bytes_read += ValueDecoder::DecodeInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &time);
+    bytes_read += ValueDecoder::DecodeXrTimeValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &time);
     bytes_read += location.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1527,7 +1527,7 @@ size_t OpenXrDecoder::Decode_xrConvertWin32PerformanceCounterToTimeKHR(const Api
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += performanceCounter.DecodeLARGE_INTEGER((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += time.DecodeInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += time.DecodeXrTime((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -1548,7 +1548,7 @@ size_t OpenXrDecoder::Decode_xrConvertTimeToWin32PerformanceCounterKHR(const Api
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &time);
+    bytes_read += ValueDecoder::DecodeXrTimeValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &time);
     bytes_read += performanceCounter.DecodeLARGE_INTEGER((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
@@ -1571,7 +1571,7 @@ size_t OpenXrDecoder::Decode_xrConvertTimespecTimeToTimeKHR(const ApiCallInfo& c
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
     bytes_read += timespecTime.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
-    bytes_read += time.DecodeInt64((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += time.DecodeXrTime((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
     for (auto consumer : GetConsumers())
@@ -1592,7 +1592,7 @@ size_t OpenXrDecoder::Decode_xrConvertTimeToTimespecTimeKHR(const ApiCallInfo& c
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
-    bytes_read += ValueDecoder::DecodeInt64Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &time);
+    bytes_read += ValueDecoder::DecodeXrTimeValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &time);
     bytes_read += timespecTime.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
     bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
 
