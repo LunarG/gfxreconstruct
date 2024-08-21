@@ -41,14 +41,16 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y libx11-xcb-dev libxcb-keysyms1-dev libwayland-dev libxrandr-dev liblz4-dev libzstd-dev
     - name: Run build script
       run: |
-        python3 scripts/build.py --skip-check-code-style --skip-tests
+        python3 scripts/build.py --skip-check-code-style --skip-tests --parallel 0
     - name: Prepare artifacts
       run: |
         cp LICENSE.txt build/linux/x64/output/bin/
@@ -79,10 +81,12 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Run build script
       run: |
-        python scripts\build.py --skip-check-code-style --skip-tests
+        python scripts\build.py --skip-check-code-style --skip-tests --parallel 0
     - name: Prepare artifacts
       run: |
         copy LICENSE.txt build\windows\x64\output\bin\
@@ -111,7 +115,9 @@ jobs:
           }
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Update submodules
       run: |
         git submodule update --init
@@ -144,7 +150,9 @@ jobs:
     needs: [ linux, windows, android ]
     steps:
     - name: Clone repository
-      uses: actions/checkout@v1
+      uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
     - name: Get tag body
       id: get_tag_body
       run: |

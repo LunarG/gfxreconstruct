@@ -28,9 +28,9 @@
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
-#include "decode/pnext_node.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_pnext_node.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
 #include "util/defines.h"
 
@@ -38,19 +38,6 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
-
-// TODO: This is currently used when mapping external object IDs to object handles that are created on replay. This
-// functionality could instead be provided through the replay consumer's PreProcessExternalObject and
-// PostProcessExternalObject methods if they were moved to the VulkanObjectInfo table, which would make them available
-// to the struct decoders.
-struct Decoded_VkBaseOutStructure
-{
-    using struct_type = VkBaseOutStructure;
-
-    VkBaseOutStructure* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-};
 
 // Decoded union wrappers.
 struct Decoded_VkClearColorValue

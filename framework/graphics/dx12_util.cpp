@@ -114,12 +114,13 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                         "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
                                     // Intentional fall-through
                                 case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          datasize,
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WriteBmpImageNoAlpha(
+                                            filename + ".bmp",
+                                            static_cast<unsigned int>(fb_desc.Width),
+                                            static_cast<unsigned int>(fb_desc.Height),
+                                            datasize,
+                                            std::data(captured_image.data),
+                                            static_cast<unsigned int>(pitch)))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write BMP file %s",
@@ -127,12 +128,13 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                     }
                                     break;
                                 case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImage(filename + ".png",
-                                                                          static_cast<unsigned int>(fb_desc.Width),
-                                                                          static_cast<unsigned int>(fb_desc.Height),
-                                                                          datasize,
-                                                                          std::data(captured_image.data),
-                                                                          static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WritePngImageNoAlpha(
+                                            filename + ".png",
+                                            static_cast<unsigned int>(fb_desc.Width),
+                                            static_cast<unsigned int>(fb_desc.Height),
+                                            datasize,
+                                            std::data(captured_image.data),
+                                            static_cast<unsigned int>(pitch)))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write PNG file %s",
@@ -349,7 +351,11 @@ void GetAccelerationStructureInputsBufferEntries(D3D12_BUILD_RAYTRACING_ACCELERA
                 }
                 else
                 {
-                    GFXRECON_LOG_ERROR("D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC's vertex data has 0 byte size.");
+                    GFXRECON_LOG_DEBUG("D3D12_RAYTRACING_GEOMETRY_TRIANGLES_DESC's vertex data has 0 byte size. "
+                                       "(vertex count: %u, vertex stride in bytes: %" PRIu64
+                                       "). Skipping acceleration structure input data for this desc.",
+                                       triangles_desc.VertexCount,
+                                       triangles_desc.VertexBuffer.StrideInBytes);
                 }
             }
             else if (geom_desc->Type == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
@@ -1098,9 +1104,10 @@ bool IsDepthStencilFormat(const DXGI_FORMAT format)
         case DXGI_FORMAT_D32_FLOAT_S8X24_UINT:
         case DXGI_FORMAT_D24_UNORM_S8_UINT:
         case DXGI_FORMAT_D16_UNORM:
-        return true;
+            return true;
 
-        // Assumed colour formats listed explicitly so a new format added to the enum would trigger a compiler warning to update this:
+        // Assumed colour formats listed explicitly so a new format added to the enum would trigger a compiler warning
+        // to update this:
         case DXGI_FORMAT_R32G32B32A32_TYPELESS:
         case DXGI_FORMAT_R32G32B32A32_FLOAT:
         case DXGI_FORMAT_R32G32B32A32_UINT:
@@ -1217,7 +1224,7 @@ bool IsDepthStencilFormat(const DXGI_FORMAT format)
         case DXGI_FORMAT_V408:
         case DXGI_FORMAT_SAMPLER_FEEDBACK_MIN_MIP_OPAQUE:
         case DXGI_FORMAT_SAMPLER_FEEDBACK_MIP_REGION_USED_OPAQUE:
-        return false;
+            return false;
     }
     // Log the error if a new format shows up but on balance of probabilities assume it isn't depth:
     GFXRECON_LOG_ERROR("Unknown DXGI_FORMAT value: %u.", static_cast<unsigned>(format));

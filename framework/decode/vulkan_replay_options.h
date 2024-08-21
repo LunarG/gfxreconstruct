@@ -41,6 +41,14 @@ typedef std::function<VulkanResourceAllocator*()> CreateResourceAllocator;
 // Default log level to use prior to loading settings.
 const util::Log::Severity kDefaultLogLevel = util::Log::Severity::kInfoSeverity;
 
+enum class SkipGetFenceStatus
+{
+    NoSkip,
+    SkipUnsuccessful,
+    SkipAll,
+    COUNT
+};
+
 struct VulkanReplayOptions : public ReplayOptions
 {
     bool                         enable_vulkan{ true };
@@ -48,7 +56,9 @@ struct VulkanReplayOptions : public ReplayOptions
     bool                         omit_pipeline_cache_data{ false };
     bool                         remove_unsupported_features{ false };
     bool                         use_colorspace_fallback{ false };
+    bool                         offscreen_swapchain_frame_boundary{ false };
     util::SwapchainOption        swapchain_option{ util::SwapchainOption::kVirtual };
+    bool                         virtual_swapchain_skip_blit{ false };
     int32_t                      override_gpu_group_index{ -1 };
     int32_t                      surface_index{ -1 };
     CreateResourceAllocator      create_resource_allocator;
@@ -59,6 +69,9 @@ struct VulkanReplayOptions : public ReplayOptions
     uint32_t                     screenshot_width, screenshot_height;
     float                        screenshot_scale;
     std::string                  replace_dir;
+    SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
+    std::vector<util::UintRange> skip_get_fence_ranges;
+    bool                         wait_before_present{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -44,8 +44,6 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     virtual void Process_DriverInfo(const char* info_record) {}
 
-    virtual void Process_ExeFileInfo(const util::filepath::FileInfo& info_record) {}
-
     virtual bool IsComplete(uint64_t block_index) { return false; }
 
     virtual void ProcessInitDx12AccelerationStructureCommand(
@@ -91,12 +89,15 @@ class Dx12ConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
 
     bool ContainsOptFillMem() const { return opt_fillmem_; }
 
+    uint32_t GetDXGITestPresentCount() const { return dxgi_present_test_; }
+
   protected:
     auto GetCurrentBlockIndex() { return block_index_; }
 
     bool dxr_workload_{ false };
     bool ei_workload_{ false };
     bool opt_fillmem_{ false };
+    uint32_t dxgi_present_test_{ 0 };
 };
 
 GFXRECON_END_NAMESPACE(decode)

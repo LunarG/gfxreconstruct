@@ -21,6 +21,7 @@
 */
 
 #include "decode/vulkan_captured_swapchain.h"
+#include "decode/decoder_util.h"
 
 #include "util/logging.h"
 
@@ -33,7 +34,7 @@ VkResult VulkanCapturedSwapchain::CreateSwapchainKHR(VkResult                   
                                                      const VkSwapchainCreateInfoKHR*       create_info,
                                                      const VkAllocationCallbacks*          allocator,
                                                      HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                     const encode::DeviceTable*            device_table)
+                                                     const encode::VulkanDeviceTable*      device_table)
 {
     VkDevice device = VK_NULL_HANDLE;
 
@@ -343,7 +344,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStatePreAcquire(
     uint32_t        queue_family_index = swapchain_info->queue_family_indices[0];
 
     // TODO: Improved queue selection?
-    device_table_->GetDeviceQueue(device, queue_family_index, 0, &transition_queue);
+    transition_queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
 
     VkCommandPoolCreateInfo pool_create_info = { VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO };
     pool_create_info.pNext                   = nullptr;
@@ -547,19 +548,7 @@ void VulkanCapturedSwapchain::ProcessSetSwapchainImageStateQueueSubmit(
     pool_create_info.flags                   = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     pool_create_info.queueFamilyIndex        = queue_family_index;
 
-    const auto queue_family_flags = device_info->queue_family_creation_flags.find(queue_family_index);
-    assert(queue_family_flags != device_info->queue_family_creation_flags.end());
-    if (queue_family_flags->second != 0)
-    {
-        const VkDeviceQueueInfo2 queue_info = {
-            VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2, nullptr, queue_family_flags->second, queue_family_index, 0
-        };
-        device_table_->GetDeviceQueue2(device, &queue_info, &queue);
-    }
-    else
-    {
-        device_table_->GetDeviceQueue(device, queue_family_index, 0, &queue);
-    }
+    queue = GetDeviceQueue(device_table_, device_info, queue_family_index, 0);
 
     result = device_table_->CreateCommandPool(device, &pool_create_info, nullptr, &pool);
 

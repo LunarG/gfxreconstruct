@@ -153,39 +153,51 @@ void Dx12ResourceValueTracker::AddBlockResourceValue(uint64_t          fill_comm
         fill_command_offset,
         [](uint64_t offset, const auto& val) { return offset < (val.offset + GetResourceValueSize(val.type)); });
     auto insert_iter = block_resource_values.end();
+    bool do_insert   = true;
     if (iter != block_resource_values.end())
     {
-        bool erase_prev = false;
-        bool erase_next = false;
-
-        if ((fill_command_offset >= iter->offset) &&
-            (fill_command_offset < (iter->offset + GetResourceValueSize(iter->type))))
+        if ((iter->offset != fill_command_offset) || (iter->type != type))
         {
-            erase_prev = true;
-        }
+            bool erase_prev = false;
+            bool erase_next = false;
 
-        auto next_iter = iter + 1;
-        while ((next_iter != block_resource_values.end()) &&
-               (next_iter->offset < (fill_command_offset + GetResourceValueSize(type))))
-        {
-            erase_next = true;
-            ++next_iter;
-        }
+            if ((fill_command_offset >= iter->offset) &&
+                (fill_command_offset < (iter->offset + GetResourceValueSize(iter->type))))
+            {
+                erase_prev = true;
+            }
 
-        if (erase_prev || erase_next)
-        {
-            auto erase_begin = erase_prev ? iter : iter + 1;
-            auto erase_end   = next_iter;
-            insert_iter      = block_resource_values.erase(erase_begin, erase_end);
+            auto next_iter = iter + 1;
+            while ((next_iter != block_resource_values.end()) &&
+                   (next_iter->offset < (fill_command_offset + GetResourceValueSize(type))))
+            {
+                erase_next = true;
+                ++next_iter;
+            }
+
+            if (erase_prev || erase_next)
+            {
+                auto erase_begin = erase_prev ? iter : iter + 1;
+                auto erase_end   = next_iter;
+                insert_iter      = block_resource_values.erase(erase_begin, erase_end);
+            }
+            else
+            {
+                insert_iter = iter;
+            }
         }
         else
         {
-            insert_iter = iter;
+            // Same element. Nothing will be changed.
+            do_insert = false;
         }
     }
 
-    // Insert the new value at the sorted position.
-    block_resource_values.insert(insert_iter, { fill_command_offset, type });
+    if (do_insert)
+    {
+        // Insert the new value at the sorted position.
+        block_resource_values.insert(insert_iter, { fill_command_offset, type });
+    }
 }
 
 void Dx12ResourceValueTracker::PostProcessExecuteCommandLists(

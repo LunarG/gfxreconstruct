@@ -22,6 +22,7 @@
 
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "encode/vulkan_handle_wrapper_util.h"
+#include "decode/decoder_util.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -31,19 +32,23 @@ VkResult VulkanOffscreenSwapchain::CreateSurface(VkResult                       
                                                  const std::string&                  wsi_extension,
                                                  VkFlags                             flags,
                                                  HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                                 const encode::InstanceTable*        instance_table,
+                                                 const encode::VulkanInstanceTable*  instance_table,
                                                  application::Application*           application,
-                                                 int32_t                             options_surface_index)
+                                                 const int32_t                       xpos,
+                                                 const int32_t                       ypos,
+                                                 const uint32_t                      width,
+                                                 const uint32_t                      height,
+                                                 bool                                force_windowed)
 {
     GFXRECON_ASSERT(surface);
 
-    instance_table_        = instance_table;
-    application_           = application;
-    options_surface_index_ = options_surface_index;
+    instance_table_ = instance_table;
+    application_    = application;
 
     // For multi-surface captures, when replay is restricted to a specific surface, only create a surface for
     // the specified index.
-    if ((options_surface_index_ == -1) || (options_surface_index_ == create_surface_count_))
+    if ((swapchain_options_.select_surface_index == -1) ||
+        (swapchain_options_.select_surface_index == create_surface_count_))
     {
 
         const format::HandleId* id             = surface->GetPointer();
@@ -81,13 +86,14 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
                                                       const VkSwapchainCreateInfoKHR*       create_info,
                                                       const VkAllocationCallbacks*          allocator,
                                                       HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                                      const encode::DeviceTable*            device_table)
+                                                      const encode::VulkanDeviceTable*      device_table)
 {
     GFXRECON_ASSERT(device_info);
     device_table_ = device_table;
 
     const format::HandleId* id               = swapchain->GetPointer();
     VkSwapchainKHR*         replay_swapchain = swapchain->GetHandlePointer();
+    VkDevice                device           = device_info->handle;
 
     // Give swapchain a fake handle. It's handle id.
     *replay_swapchain = UINT64_TO_VK_HANDLE(VkSwapchainKHR, *id);
@@ -96,8 +102,70 @@ VkResult VulkanOffscreenSwapchain::CreateSwapchainKHR(VkResult                  
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
-    VkDevice device = device = device_info->handle;
-    device_table_->GetDeviceQueue(device, default_queue_family_index_, 0, &default_queue_);
+    default_queue_ = GetDeviceQueue(device_table_, device_info, default_queue_family_index_, 0);
+
+    // If this option is set, a command buffer submission with a `VkFrameBoundaryEXT` must be called each time
+    // `vkQueuePresentKHR` should have been called by the offscreen swapchain. So a maximum of work must be done at
+    // swapchain creation: Allocation and recording of an empty command buffer, initialization of a `VkFrameBoundaryEXT`
+    // structure... (Don't forget to free everything at swapchain destruction)
+    if (insert_frame_boundary_)
+    {
+        VkResult result;
+        command_pools_.resize(device_info->queue_family_index_enabled.size());
+        command_buffers_.resize(device_info->queue_family_index_enabled.size());
+
+        for (uint32_t family_index = 0; family_index < device_info->queue_family_index_enabled.size(); family_index++)
+        {
+            if (!device_info->queue_family_index_enabled.at(family_index))
+            {
+                continue;
+            }
+
+            VkCommandPoolCreateInfo commandPoolCreateInfo;
+            commandPoolCreateInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+            commandPoolCreateInfo.pNext            = nullptr;
+            commandPoolCreateInfo.queueFamilyIndex = family_index;
+            commandPoolCreateInfo.flags            = 0;
+
+            result = device_table_->CreateCommandPool(
+                device, &commandPoolCreateInfo, nullptr, &command_pools_.at(family_index));
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            VkCommandBufferAllocateInfo commandBufferAllocateInfo;
+            commandBufferAllocateInfo.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            commandBufferAllocateInfo.pNext              = nullptr;
+            commandBufferAllocateInfo.commandPool        = command_pools_.at(family_index);
+            commandBufferAllocateInfo.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            commandBufferAllocateInfo.commandBufferCount = 1;
+
+            result = device_table_->AllocateCommandBuffers(
+                device, &commandBufferAllocateInfo, &command_buffers_.at(family_index));
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            VkCommandBufferBeginInfo commandBufferBeginInfo;
+            commandBufferBeginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.pNext            = nullptr;
+            commandBufferBeginInfo.flags            = 0;
+            commandBufferBeginInfo.pInheritanceInfo = nullptr;
+
+            result = device_table_->BeginCommandBuffer(command_buffers_.at(family_index), &commandBufferBeginInfo);
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+
+            result = device_table_->EndCommandBuffer(command_buffers_.at(family_index));
+            GFXRECON_ASSERT(result == VK_SUCCESS);
+        }
+        frame_boundary_.sType       = VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT;
+        frame_boundary_.pNext       = nullptr;
+        frame_boundary_.flags       = VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT;
+        frame_boundary_.frameID     = 0;
+        frame_boundary_.imageCount  = 0;
+        frame_boundary_.pImages     = nullptr;
+        frame_boundary_.bufferCount = 0;
+        frame_boundary_.pBuffers    = nullptr;
+        frame_boundary_.tagName     = 0;
+        frame_boundary_.tagSize     = 0;
+        frame_boundary_.pTag        = nullptr;
+    }
 
     return original_result;
 }
@@ -110,6 +178,14 @@ void VulkanOffscreenSwapchain::DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    
     if ((device_info != nullptr) && (swapchain_info != nullptr))
     {
         CleanSwapchainResourceData(device_info, swapchain_info);
+    }
+
+    if (insert_frame_boundary_ && command_pools_.size() > 0)
+    {
+        for (const auto& command_pool : command_pools_)
+        {
+            device_table_->DestroyCommandPool(device_info->handle, command_pool, nullptr);
+        }
     }
 }
 
@@ -222,7 +298,36 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
                                                    const QueueInfo*                      queue_info,
                                                    const VkPresentInfoKHR*               present_info)
 {
-    if (present_info->waitSemaphoreCount > 0)
+    if (insert_frame_boundary_ && command_buffers_.size() > 0)
+    {
+        std::vector<VkImage> images(present_info->swapchainCount);
+        for (uint32_t i = 0; i < images.size(); ++i)
+        {
+            images[i] = swapchain_resources_[present_info->pSwapchains[i]]
+                            ->virtual_swapchain_images[present_info->pImageIndices[i]]
+                            .image;
+        }
+        frame_boundary_.imageCount = images.size();
+        frame_boundary_.pImages    = images.data();
+        ++frame_boundary_.frameID;
+
+        std::vector<VkPipelineStageFlags> dstStageFlags(present_info->waitSemaphoreCount,
+                                                        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+
+        VkSubmitInfo submitInfo;
+        submitInfo.sType                = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.pNext                = &frame_boundary_;
+        submitInfo.waitSemaphoreCount   = present_info->waitSemaphoreCount;
+        submitInfo.pWaitSemaphores      = present_info->pWaitSemaphores;
+        submitInfo.pWaitDstStageMask    = dstStageFlags.data();
+        submitInfo.commandBufferCount   = 1;
+        submitInfo.pCommandBuffers      = &command_buffers_.at(queue_info->family_index);
+        submitInfo.signalSemaphoreCount = 0;
+        submitInfo.pSignalSemaphores    = nullptr;
+
+        device_table_->QueueSubmit(queue_info->handle, 1, &submitInfo, VK_NULL_HANDLE);
+    }
+    else if (present_info->waitSemaphoreCount > 0)
     {
         VkResult result = SignalSemaphoresFence(
             queue_info, present_info->waitSemaphoreCount, present_info->pWaitSemaphores, 0, nullptr, VK_NULL_HANDLE);
@@ -235,6 +340,7 @@ VkResult VulkanOffscreenSwapchain::QueuePresentKHR(VkResult                     
             return result;
         }
     }
+
     return original_result;
 }
 

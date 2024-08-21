@@ -104,6 +104,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        wrapper_prefix = self.get_wrapper_prefix_from_type()
         for cmd, info in self.command_info.items():
             if not cmd[2:] in self.customImplementationRequired:
                 params = info[2]
@@ -114,8 +115,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                     if (handles):
                         # Generate a function to build a list of handle types and values.
                         cmddef = '\n'
-                        cmddef += 'void Track{}Handles(CommandBufferWrapper* wrapper, {})\n'.format(
-                            cmd[2:], self.get_arg_list(handles)
+                        cmddef += 'void Track{}Handles({}::CommandBufferWrapper* wrapper, {})\n'.format(
+                            cmd[2:], wrapper_prefix, self.get_arg_list(handles)
                         )
                         cmddef += '{\n'
                         indent = self.INDENT_SIZE * ' '
@@ -210,13 +211,14 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
 
         if self.is_handle(value.base_type):
             type_enum_value = '{}Handle'.format(value.base_type[2:])
+            wrapper_prefix = self.get_wrapper_prefix_from_type()
             value_name = value_prefix + value.name
             if value.is_array:
                 value_name = '{}[{}]'.format(value_name, index_name)
             elif value.is_pointer:
                 value_name = '(*{})'.format(value_name)
-            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[CommandHandleType::{}].insert(GetWrappedId<{}>({}));\n'.format(
-                value_name, type_enum_value, value.base_type[2:] + 'Wrapper' ,value_name
+            body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::{}].insert(vulkan_wrappers::GetWrappedId<{}>({}));\n'.format(
+                value_name, type_enum_value, wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper' ,value_name
             )
 
         elif self.is_struct(

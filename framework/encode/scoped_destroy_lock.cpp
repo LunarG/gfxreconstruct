@@ -1,6 +1,5 @@
 /*
-** Copyright (c) 2020 Valve Corporation
-** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -21,25 +20,37 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "util/hash.h"
+#include "scoped_destroy_lock.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(util)
-GFXRECON_BEGIN_NAMESPACE(hash)
+GFXRECON_BEGIN_NAMESPACE(encode)
 
-uint32_t CheckSum(const uint32_t* code, size_t code_size)
+std::shared_mutex ScopedDestroyLock::mutex_for_create_destroy_handle_;
+
+ScopedDestroyLock::ScopedDestroyLock(bool shared)
 {
-    uint32_t sum            = 0;
-    size_t   uint_code_size = code_size / sizeof(uint32_t);
-    for (size_t i = 0; i < uint_code_size; i++)
+    lock_shared_ = shared;
+    if (shared)
     {
-        uint32_t u = code[i];
-        uint32_t s = i % 32;
-        sum ^= (u << s) | (u >> (32 - s));
+        mutex_for_create_destroy_handle_.lock_shared();
     }
-    return sum;
-}
+    else
+    {
+        mutex_for_create_destroy_handle_.lock();
+    }
+};
 
-GFXRECON_END_NAMESPACE(hash)
-GFXRECON_END_NAMESPACE(util)
+ScopedDestroyLock::~ScopedDestroyLock()
+{
+    if (lock_shared_)
+    {
+        mutex_for_create_destroy_handle_.unlock_shared();
+    }
+    else
+    {
+        mutex_for_create_destroy_handle_.unlock();
+    }
+};
+
+GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

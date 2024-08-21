@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2018,2020 Valve Corporation
 ** Copyright (c) 2018,2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -33,10 +34,12 @@ GFXRECON_BEGIN_NAMESPACE(application)
 
 struct wl_surface_listener       WaylandWindow::surface_listener_;
 struct wl_shell_surface_listener WaylandWindow::shell_surface_listener_;
+struct xdg_surface_listener      WaylandWindow::xdg_surface_listener_;
+struct xdg_toplevel_listener     WaylandWindow::xdg_toplevel_listener_;
 
 WaylandWindow::WaylandWindow(WaylandContext* wayland_context) :
-    wayland_context_(wayland_context), surface_(nullptr), shell_surface_(nullptr), width_(0), height_(0), scale_(1),
-    output_(nullptr)
+    wayland_context_(wayland_context), surface_(nullptr), shell_surface_(nullptr), xdg_surface_(nullptr),
+    xdg_toplevel_(nullptr), width_(0), height_(0), scale_(1), output_(nullptr), xdg_surface_configured_(false)
 {
     assert(wayland_context_ != nullptr);
 
@@ -44,17 +47,28 @@ WaylandWindow::WaylandWindow(WaylandContext* wayland_context) :
     surface_listener_.enter = HandleSurfaceEnter;
     surface_listener_.leave = HandleSurfaceLeave;
 
-    shell_surface_listener_.ping       = HandlePing;
-    shell_surface_listener_.configure  = HandleConfigure;
-    shell_surface_listener_.popup_done = HandlePopupDone;
+    shell_surface_listener_.ping       = HandleShellSurfacePing;
+    shell_surface_listener_.configure  = HandleShellSurfaceConfigure;
+    shell_surface_listener_.popup_done = HandleShellSurfacePopupDone;
+
+    xdg_surface_listener_.configure = HandleXdgSurfaceConfigure;
+
+    xdg_toplevel_listener_.configure = HandleXdgToplevelConfigure;
+    xdg_toplevel_listener_.close     = HandleXdgToplevelClose;
 }
 
 WaylandWindow::~WaylandWindow()
 {
-    auto& wl = wayland_context_->GetWaylandFunctionTable();
-    if (surface_)
+    if (surface_ != nullptr)
     {
-        if (shell_surface_)
+        auto& wl = wayland_context_->GetWaylandFunctionTable();
+
+        if (xdg_toplevel_ != nullptr)
+        {
+            wl.xdg->xdg_toplevel_destroy(xdg_toplevel_);
+            wl.xdg->xdg_surface_destroy(xdg_surface_);
+        }
+        else if (shell_surface_ != nullptr)
         {
             wl.shell_surface_destroy(shell_surface_);
         }
@@ -63,11 +77,16 @@ WaylandWindow::~WaylandWindow()
     }
 }
 
-bool WaylandWindow::Create(
-    const std::string& title, const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+bool WaylandWindow::Create(const std::string& title,
+                           const int32_t      x,
+                           const int32_t      y,
+                           const uint32_t     width,
+                           const uint32_t     height,
+                           bool               force_windowed)
 {
     GFXRECON_UNREFERENCED_PARAMETER(x);
     GFXRECON_UNREFERENCED_PARAMETER(y);
+    GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
 
     auto& wl = wayland_context_->GetWaylandFunctionTable();
     surface_ = wl.compositor_create_surface(wayland_context_->GetCompositor());
@@ -78,18 +97,59 @@ bool WaylandWindow::Create(
         return false;
     }
 
-    shell_surface_ = wl.shell_get_shell_surface(wayland_context_->GetShell(), surface_);
-    if (!shell_surface_)
+    // If we have the choice between xdg_toplevel and wl_shell_surface, chose the xdg_toplevel
+
+    if (wayland_context_->GetXdgWmBase() != nullptr)
     {
+        xdg_surface_ = wl.xdg->xdg_wm_base_get_xdg_surface(wayland_context_->GetXdgWmBase(), surface_);
+        if (xdg_surface_ != nullptr)
+        {
+            wl.xdg->xdg_surface_add_listener(xdg_surface_, &WaylandWindow::xdg_surface_listener_, this);
+            xdg_toplevel_ = wl.xdg->xdg_surface_get_toplevel(xdg_surface_);
+        }
+    }
+
+    if (xdg_toplevel_ == nullptr && wayland_context_->GetShell() != nullptr)
+    {
+        shell_surface_ = wl.shell_get_shell_surface(wayland_context_->GetShell(), surface_);
+    }
+
+    // Check what was created, setup listener for it, and clean up if nothing was successfuly created
+
+    wayland_context_->RegisterWaylandWindow(this);
+
+    if (xdg_toplevel_ != nullptr)
+    {
+        wl.xdg->xdg_toplevel_add_listener(xdg_toplevel_, &WaylandWindow::xdg_toplevel_listener_, this);
+    }
+    else if (shell_surface_ != nullptr)
+    {
+        wl.shell_surface_add_listener(shell_surface_, &WaylandWindow::shell_surface_listener_, this);
+    }
+    else
+    {
+        if (xdg_surface_ != nullptr)
+        {
+            wl.xdg->xdg_surface_destroy(xdg_surface_);
+            xdg_surface_ = nullptr;
+        }
+
         GFXRECON_LOG_ERROR("Failed to create Wayland shell surface");
         return false;
     }
 
-    wayland_context_->RegisterWaylandWindow(this);
-
     wl.surface_add_listener(surface_, &WaylandWindow::surface_listener_, this);
-    wl.shell_surface_add_listener(shell_surface_, &WaylandWindow::shell_surface_listener_, this);
-    wl.shell_surface_set_title(shell_surface_, title.c_str());
+
+    SetTitle(title);
+
+    if (xdg_toplevel_ != nullptr)
+    {
+        wl.surface_commit(surface_);
+        while (!xdg_surface_configured_)
+        {
+            wl.display_dispatch(wayland_context_->GetDisplay());
+        }
+    }
 
     width_  = width;
     height_ = height;
@@ -100,18 +160,30 @@ bool WaylandWindow::Create(
 
 bool WaylandWindow::Destroy()
 {
-    if (surface_)
+    if (surface_ != nullptr)
     {
+        wayland_context_->UnregisterWaylandWindow(this);
+
         auto& wl = wayland_context_->GetWaylandFunctionTable();
-        if (shell_surface_)
+
+        if (xdg_toplevel_ != nullptr)
+        {
+            wl.xdg->xdg_toplevel_destroy(xdg_toplevel_);
+            xdg_toplevel_ = nullptr;
+            wl.xdg->xdg_surface_destroy(xdg_surface_);
+            xdg_surface_ = nullptr;
+
+            xdg_surface_configured_ = false;
+        }
+        else if (shell_surface_ != nullptr)
         {
             wl.shell_surface_destroy(shell_surface_);
             shell_surface_ = nullptr;
         }
 
         wl.surface_destroy(surface_);
-        wayland_context_->UnregisterWaylandWindow(this);
         surface_ = nullptr;
+
         return true;
     }
 
@@ -121,7 +193,14 @@ bool WaylandWindow::Destroy()
 void WaylandWindow::SetTitle(const std::string& title)
 {
     auto& wl = wayland_context_->GetWaylandFunctionTable();
-    wl.shell_surface_set_title(shell_surface_, title.c_str());
+    if (xdg_toplevel_ != nullptr)
+    {
+        wl.xdg->xdg_toplevel_set_title(xdg_toplevel_, title.c_str());
+    }
+    else if (shell_surface_ != nullptr)
+    {
+        wl.shell_surface_set_title(shell_surface_, title.c_str());
+    }
 }
 
 void WaylandWindow::SetPosition(const int32_t x, const int32_t y)
@@ -175,10 +254,10 @@ std::string WaylandWindow::GetWsiExtension() const
     return VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME;
 }
 
-VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
-                                      VkInstance                   instance,
-                                      VkFlags                      flags,
-                                      VkSurfaceKHR*                pSurface)
+VkResult WaylandWindow::CreateSurface(const encode::VulkanInstanceTable* table,
+                                      VkInstance                         instance,
+                                      VkFlags                            flags,
+                                      VkSurfaceKHR*                      pSurface)
 {
     if (table != nullptr)
     {
@@ -192,7 +271,7 @@ VkResult WaylandWindow::CreateSurface(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void WaylandWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void WaylandWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -215,14 +294,21 @@ void WaylandWindow::UpdateWindowSize()
 
         if (output_info.width == width_ && output_info.height == height_)
         {
-            wl.shell_surface_set_fullscreen(shell_surface_, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, output_);
+            if (xdg_toplevel_ != nullptr)
+            {
+                wl.xdg->xdg_toplevel_set_fullscreen(xdg_toplevel_, output_);
+            }
+            else if (shell_surface_ != nullptr)
+            {
+                wl.shell_surface_set_fullscreen(shell_surface_, WL_SHELL_SURFACE_FULLSCREEN_METHOD_DEFAULT, 0, output_);
+            }
         }
-        else
+        else if (shell_surface_ != nullptr)
         {
             wl.shell_surface_set_toplevel(shell_surface_);
         }
     }
-    else
+    else if (shell_surface_ != nullptr)
     {
         wl.shell_surface_set_toplevel(shell_surface_);
     }
@@ -238,31 +324,47 @@ void WaylandWindow::HandleSurfaceEnter(void* data, struct wl_surface* surface, s
 
 void WaylandWindow::HandleSurfaceLeave(void* data, struct wl_surface* surface, struct wl_output* output) {}
 
-void WaylandWindow::HandlePing(void* data, wl_shell_surface* shell_surface, uint32_t serial)
+void WaylandWindow::HandleShellSurfacePing(void* data, wl_shell_surface* shell_surface, uint32_t serial)
 {
     auto& wl = reinterpret_cast<WaylandWindow*>(data)->wayland_context_->GetWaylandFunctionTable();
     wl.shell_surface_pong(shell_surface, serial);
 }
 
-void WaylandWindow::HandleConfigure(
+void WaylandWindow::HandleShellSurfaceConfigure(
     void* data, wl_shell_surface* shell_surface, uint32_t edges, int32_t width, int32_t height)
 {}
 
-void WaylandWindow::HandlePopupDone(void* data, wl_shell_surface* shell_surface) {}
+void WaylandWindow::HandleShellSurfacePopupDone(void* data, wl_shell_surface* shell_surface) {}
+
+void WaylandWindow::HandleXdgSurfaceConfigure(void* data, struct xdg_surface* xdg_surface, uint32_t serial)
+{
+    WaylandWindow* window = reinterpret_cast<WaylandWindow*>(data);
+
+    auto& wl = window->wayland_context_->GetWaylandFunctionTable();
+
+    wl.xdg->xdg_surface_ack_configure(xdg_surface, serial);
+    window->xdg_surface_configured_ = true;
+}
+
+void WaylandWindow::HandleXdgToplevelConfigure(
+    void* data, struct xdg_toplevel* xdg_toplevel, int32_t width, int32_t height, struct wl_array* states)
+{}
+
+void WaylandWindow::HandleXdgToplevelClose(void* data, struct xdg_toplevel* xdg_toplevel) {}
 
 WaylandWindowFactory::WaylandWindowFactory(WaylandContext* wayland_context) : wayland_context_(wayland_context)
 {
     assert(wayland_context_ != nullptr);
 }
 
-decode::Window*
-WaylandWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* WaylandWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(wayland_context_);
     decode::Window* window      = new WaylandWindow(wayland_context_);
     auto            application = wayland_context_->GetApplication();
     assert(application);
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 
@@ -275,9 +377,9 @@ void WaylandWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                    VkPhysicalDevice             physical_device,
-                                                                    uint32_t                     queue_family_index)
+VkBool32 WaylandWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                    VkPhysicalDevice                   physical_device,
+                                                                    uint32_t queue_family_index)
 {
     assert(wayland_context_->GetDisplay() != nullptr);
     return table->GetPhysicalDeviceWaylandPresentationSupportKHR(

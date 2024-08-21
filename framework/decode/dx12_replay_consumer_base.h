@@ -73,6 +73,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
 
+    virtual void ProcessFrameEndMarker(uint64_t frame_number) override;
+
     virtual void
     ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override;
 
@@ -545,7 +547,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void EnableDebugLayer(ID3D12Debug* dx12_debug);
 
-    void PrePresent(DxObjectInfo* swapchain_object_info);
+    void PrePresent(DxObjectInfo* swapchain_object_info, UINT flags);
 
     void PostPresent();
 
@@ -906,6 +908,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     util::ScreenshotFormat                                screenshot_format_;
     std::unique_ptr<ScreenshotHandlerBase>                screenshot_handler_;
     std::unordered_map<ID3D12Resource*, ResourceInitInfo> resource_init_infos_;
+    uint64_t                                              frame_end_marker_count_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

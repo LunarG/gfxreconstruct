@@ -32,11 +32,11 @@
 
 #include "decode/custom_vulkan_struct_decoders_forward.h"
 #include "decode/handle_pointer_decoder.h"
-#include "decode/pnext_node.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_array_decoder.h"
 #include "decode/string_decoder.h"
 #include "decode/struct_pointer_decoder.h"
+#include "decode/vulkan_pnext_node.h"
 #include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_struct_decoders_forward.h"
@@ -9892,6 +9892,90 @@ struct Decoded_VkPhysicalDeviceDynamicRenderingUnusedAttachmentsFeaturesEXT
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkLatencySleepModeInfoNV
+{
+    using struct_type = VkLatencySleepModeInfoNV;
+
+    VkLatencySleepModeInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkLatencySleepInfoNV
+{
+    using struct_type = VkLatencySleepInfoNV;
+
+    VkLatencySleepInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    format::HandleId signalSemaphore{ format::kNullHandleId };
+};
+
+struct Decoded_VkSetLatencyMarkerInfoNV
+{
+    using struct_type = VkSetLatencyMarkerInfoNV;
+
+    VkSetLatencyMarkerInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkLatencyTimingsFrameReportNV
+{
+    using struct_type = VkLatencyTimingsFrameReportNV;
+
+    VkLatencyTimingsFrameReportNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkGetLatencyMarkerInfoNV
+{
+    using struct_type = VkGetLatencyMarkerInfoNV;
+
+    VkGetLatencyMarkerInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    StructPointerDecoder<Decoded_VkLatencyTimingsFrameReportNV>* pTimings{ nullptr };
+};
+
+struct Decoded_VkLatencySubmissionPresentIdNV
+{
+    using struct_type = VkLatencySubmissionPresentIdNV;
+
+    VkLatencySubmissionPresentIdNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkSwapchainLatencyCreateInfoNV
+{
+    using struct_type = VkSwapchainLatencyCreateInfoNV;
+
+    VkSwapchainLatencyCreateInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkOutOfBandQueueTypeInfoNV
+{
+    using struct_type = VkOutOfBandQueueTypeInfoNV;
+
+    VkOutOfBandQueueTypeInfoNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkLatencySurfaceCapabilitiesNV
+{
+    using struct_type = VkLatencySurfaceCapabilitiesNV;
+
+    VkLatencySurfaceCapabilitiesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+    PointerDecoder<VkPresentModeKHR> pPresentModes;
+};
+
 struct Decoded_VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM
 {
     using struct_type = VkPhysicalDeviceMultiviewPerViewRenderAreasFeaturesQCOM;
@@ -10030,11 +10114,29 @@ struct Decoded_VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV
     PNextNode* pNext{ nullptr };
 };
 
+struct Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceRawAccessChainsFeaturesNV;
+
+    VkPhysicalDeviceRawAccessChainsFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
 struct Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV
 {
     using struct_type = VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV;
 
     VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV* decoded_value{ nullptr };
+
+    PNextNode* pNext{ nullptr };
+};
+
+struct Decoded_VkPhysicalDeviceRayTracingValidationFeaturesNV
+{
+    using struct_type = VkPhysicalDeviceRayTracingValidationFeaturesNV;
+
+    VkPhysicalDeviceRayTracingValidationFeaturesNV* decoded_value{ nullptr };
 
     PNextNode* pNext{ nullptr };
 };

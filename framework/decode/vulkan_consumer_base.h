@@ -25,8 +25,7 @@
 #ifndef GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 #define GFXRECON_DECODE_VULKAN_CONSUMER_BASE_H
 
-#include "decode/metadata_consumer_base.h"
-#include "decode/marker_consumer_base.h"
+#include "decode/common_consumer_base.h"
 #include "decode/api_decoder.h"
 #include "decode/custom_vulkan_struct_decoders.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -40,21 +39,17 @@
 
 #include "vulkan/vulkan.h"
 
+#include <numeric>
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBase
+class VulkanConsumerBase : public CommonConsumerBase
 {
   public:
     VulkanConsumerBase() {}
 
     virtual ~VulkanConsumerBase() {}
-
-    virtual void WaitDevicesIdle() {}
-
-    virtual bool IsComplete(uint64_t block_index) { return false; }
-
-    virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
 
     virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
                                                            format::HandleId                 device,
@@ -92,8 +87,6 @@ class VulkanConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual void ProcessSetTlasToBlasRelationCommand(format::HandleId tlas, const std::vector<format::HandleId>& blases)
     {}
-
-    virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 };
 
 GFXRECON_END_NAMESPACE(decode)

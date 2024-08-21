@@ -85,43 +85,43 @@ void VulkanResourceTrackingConsumer::InitializeLoader()
 
 void VulkanResourceTrackingConsumer::AddInstanceTable(VkInstance instance)
 {
-    encode::DispatchKey dispatch_key = encode::GetDispatchKey(instance);
+    encode::VulkanDispatchKey dispatch_key = encode::GetVulkanDispatchKey(instance);
 
     get_device_proc_addrs_[dispatch_key] =
         reinterpret_cast<PFN_vkGetDeviceProcAddr>(get_instance_proc_addr_(instance, "vkGetDeviceProcAddr"));
     create_device_procs_[dispatch_key] =
         reinterpret_cast<PFN_vkCreateDevice>(get_instance_proc_addr_(instance, "vkCreateDevice"));
 
-    encode::InstanceTable& table = instance_tables_[dispatch_key];
-    encode::LoadInstanceTable(get_instance_proc_addr_, instance, &table);
+    encode::VulkanInstanceTable& table = instance_tables_[dispatch_key];
+    encode::LoadVulkanInstanceTable(get_instance_proc_addr_, instance, &table);
 }
 
 void VulkanResourceTrackingConsumer::AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa)
 {
-    encode::DeviceTable& table = device_tables_[encode::GetDispatchKey(device)];
-    encode::LoadDeviceTable(gpa, device, &table);
+    encode::VulkanDeviceTable& table = device_tables_[encode::GetVulkanDispatchKey(device)];
+    encode::LoadVulkanDeviceTable(gpa, device, &table);
 }
 
 PFN_vkGetDeviceProcAddr VulkanResourceTrackingConsumer::GetDeviceAddrProc(VkPhysicalDevice physical_device)
 {
-    return get_device_proc_addrs_[encode::GetDispatchKey(physical_device)];
+    return get_device_proc_addrs_[encode::GetVulkanDispatchKey(physical_device)];
 }
 
 PFN_vkCreateDevice VulkanResourceTrackingConsumer::GetCreateDeviceProc(VkPhysicalDevice physical_device)
 {
-    return create_device_procs_[encode::GetDispatchKey(physical_device)];
+    return create_device_procs_[encode::GetVulkanDispatchKey(physical_device)];
 }
 
-const encode::InstanceTable* VulkanResourceTrackingConsumer::GetInstanceTable(const void* handle) const
+const encode::VulkanInstanceTable* VulkanResourceTrackingConsumer::GetInstanceTable(const void* handle) const
 {
-    auto table = instance_tables_.find(encode::GetDispatchKey(handle));
+    auto table = instance_tables_.find(encode::GetVulkanDispatchKey(handle));
     assert(table != instance_tables_.end());
     return (table != instance_tables_.end()) ? &table->second : nullptr;
 }
 
-const encode::DeviceTable* VulkanResourceTrackingConsumer::GetDeviceTable(const void* handle) const
+const encode::VulkanDeviceTable* VulkanResourceTrackingConsumer::GetDeviceTable(const void* handle) const
 {
-    auto table = device_tables_.find(encode::GetDispatchKey(handle));
+    auto table = device_tables_.find(encode::GetVulkanDispatchKey(handle));
     assert(table != device_tables_.end());
     return (table != device_tables_.end()) ? &table->second : nullptr;
 }

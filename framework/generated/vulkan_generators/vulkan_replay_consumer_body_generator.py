@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2018-2020 Valve Corporation
 # Copyright (c) 2018-2023 LunarG, Inc.
+# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -259,9 +260,15 @@ class VulkanReplayConsumerBodyGenerator(
             for value in values:
                 for key in self.SKIP_FUNCTIONS_OFFSCREEN:
                     if self.is_has_specific_key_word_in_type(value, key):
-                        body += '    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)\n'
+                        if name == 'vkAcquireFullScreenExclusiveModeEXT':
+                            body += '    if ((options_.swapchain_option == util::SwapchainOption::kOffscreen) || (options_.force_windowed_origin == true) || (options_.force_windowed == true))\n'
+                        else:
+                            body += '    if (options_.swapchain_option == util::SwapchainOption::kOffscreen)\n'
                         body += '    {\n'
-                        body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen.");\n'
+                        if name == 'vkAcquireFullScreenExclusiveModeEXT':
+                            body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen or force windowed mode.");\n'
+                        else:
+                            body += '        GFXRECON_LOG_DEBUG("Skip ' + name + ' for offscreen.");\n'
                         body += '        return;\n'
                         body += '    }\n'
                         is_print = True
@@ -561,6 +568,8 @@ class VulkanReplayConsumerBodyGenerator(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
                                 .format(length_name, paramname=value.name)
                             )
+                            if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
+                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, in_pCreateInfos);}}'.format(length_name))
                             if need_temp_value:
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name

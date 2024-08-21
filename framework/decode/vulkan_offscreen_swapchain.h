@@ -40,9 +40,13 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    const std::string&                  wsi_extension,
                                    VkFlags                             flags,
                                    HandlePointerDecoder<VkSurfaceKHR>* surface,
-                                   const encode::InstanceTable*        instance_table,
+                                   const encode::VulkanInstanceTable*  instance_table,
                                    application::Application*           application,
-                                   int32_t                             options_surface_index) override;
+                                   const int32_t                       xpos,
+                                   const int32_t                       ypos,
+                                   const uint32_t                      width,
+                                   const uint32_t                      height,
+                                   bool                                force_windowed = false) override;
 
     virtual void DestroySurface(PFN_vkDestroySurfaceKHR      func,
                                 const InstanceInfo*          instance_info,
@@ -55,7 +59,7 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                         const VkSwapchainCreateInfoKHR*       create_info,
                                         const VkAllocationCallbacks*          allocator,
                                         HandlePointerDecoder<VkSwapchainKHR>* swapchain,
-                                        const encode::DeviceTable*            device_table) override;
+                                        const encode::VulkanDeviceTable*      device_table) override;
 
     virtual void DestroySwapchainKHR(PFN_vkDestroySwapchainKHR    func,
                                      const DeviceInfo*            device_info,
@@ -105,6 +109,11 @@ class VulkanOffscreenSwapchain : public VulkanVirtualSwapchain
                                    uint32_t           signal_semaphore_count,
                                    const VkSemaphore* signal_semaphores,
                                    VkFence            fence);
+
+    bool                         insert_frame_boundary_{ false };
+    std::vector<VkCommandPool>   command_pools_{ VK_NULL_HANDLE };
+    std::vector<VkCommandBuffer> command_buffers_{ VK_NULL_HANDLE };
+    VkFrameBoundaryEXT           frame_boundary_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

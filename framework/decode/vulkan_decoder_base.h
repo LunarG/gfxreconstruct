@@ -193,7 +193,7 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void DispatchDriverInfo(format::ThreadId thread_id, format::DriverInfoBlock& info) override {}
 
-    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override {}
+    virtual void DispatchExeFileInfo(format::ThreadId thread_id, format::ExeFileInfoBlock& info) override;
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
