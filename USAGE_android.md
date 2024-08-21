@@ -708,7 +708,9 @@ usage: gfxrecon.py replay [-h] [--push-file LOCAL_FILE] [--version] [--pause-fra
                           [--dump-resources-dump-vertex-index-buffers]
                           [--dump-resources-json-output-per-command]
                           [--dump-resources-dump-immutable-resources]
-                          [--dump-resources-dump-all-image-subresources] [file]
+                          [--dump-resources-dump-all-image-subresources]
+                          [--pbi-all] [--pbis <index1,index2>]
+                          [file]
 
 Launch the replay tool.
 
@@ -899,6 +901,10 @@ optional arguments:
               Enables dumping of resources that are used as inputs in the commands requested for dumping
   --dump-resources-dump-all-image-subresources
               Enables dumping of all image sub resources (mip map levels and array layers)
+  --pbi-all
+              Print all block information.
+  --pbis <index1,index2>
+              Print block information between block index1 and block index2.
 ```
 
 The command will force-stop an active replay process before starting the replay
