@@ -188,7 +188,7 @@ def Build(label) {
             }
             
             if (isUnix()) {
-			    cloneRepos()
+		cloneRepos()
                 extraBuildArgs = "--skip-tests"
                 // build 64 bit
                 try {
@@ -226,44 +226,6 @@ def Build(label) {
                     }
                 } catch (Exception etar) {
                     echo "Unable to create the tar file, 64bit"
-                }
-                // build 32 bit. Run build.py --clean first.
-                sh "python3 ./gfxreconstruct/scripts/build.py --clean"
-                try {
-                    sh """
-                        set -x
-                        set -e
-                        python3 ./gfxreconstruct/scripts/build.py ${extraBuildArgs} ${build32}
-                    """
-                } catch (Exception err) {
-                    echo "GFXReconstruct Linux 32 bit build failed: " + err
-                    currentBuild.result = 'FAILURE'
-                }
-                try {
-                    dir ("gfxreconstruct") {
-                        sh """
-                            cp LICENSE.txt build/linux/x86/output/bin/
-                            cp LICENSE_ThirdParty.txt build/linux/x86/output/bin/
-                            cp USAGE_desktop_Vulkan.md build/linux/x86/output/bin/
-                            cp layer/vk_layer_settings.txt build/linux/x86/output/bin/
-                            rm -rf ../gfxreconstruct-dev
-                            mv build/linux/x86/output/bin ../gfxreconstruct-dev
-                            mv build/linux/x86/output/lib*/*.so ../gfxreconstruct-dev/
-                            mv build/linux/x86/output/share/vulkan/explicit_layer.d/*.json ../gfxreconstruct-dev/
-                        """
-                    }
-                } catch (Exception epost) {
-                    echo "Could not prepare artifacts for archiving"
-                    throw epost
-                }
-                try {
-                    dir("gfxreconstruct-dev") {
-                        sh """
-                            tar cvf ../${kPackageNameRoot}-x86.tar *
-                        """
-                    }
-                } catch (Exception etar) {
-                    echo "Unable to create the tar file, 32 bit"
                 }
             } else {
 			    dir("gfx"){
