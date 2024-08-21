@@ -64,7 +64,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice            
 
 VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR();
 
-VKAPI_ATTR void VKAPI_CALL WriteAssetsGFXR();
+VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR();
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
                                                        VkPipelineCache                     pipelineCache,

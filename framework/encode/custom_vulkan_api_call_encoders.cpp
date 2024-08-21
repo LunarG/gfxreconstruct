@@ -403,7 +403,7 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR()
     return manager->GetBlockIndex();
 }
 
-VKAPI_ATTR void VKAPI_CALL WriteAssetsGFXR()
+VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     manager->SetWriteAssets();
