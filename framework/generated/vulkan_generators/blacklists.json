@@ -16,7 +16,8 @@
     "vkLatencySleepNV",
     "vkSetLatencyMarkerNV",
     "vkGetLatencyTimingsNV",
-    "vkQueueNotifyOutOfBandNV"
+    "vkQueueNotifyOutOfBandNV",
+    "vkCreateRayTracingPipelinesKHR"
   ],
   "functions-encoder": [
     "vkCreateComputePipelines",
@@ -35,15 +36,6 @@
     "VkWriteDescriptorSet",
     "VkPerformanceValueINTEL",
     "VkAccelerationStructureGeometryKHR",
-    "VkAccelerationStructureMotionInstanceNV",
-    "VkGetLatencyMarkerInfoNV",
-    "VkLatencySleepInfoNV",
-    "VkLatencySleepModeInfoNV",
-    "VkLatencyTimingsFrameReportNV",
-    "VkOutOfBandQueueTypeInfoNV",
-    "VkSetLatencyMarkerInfoNV",
-    "VkLatencySubmissionPresentIdNV",
-    "VkLatencySurfaceCapabilitiesNV",
-    "VkSwapchainLatencyCreateInfoNV"
+    "VkAccelerationStructureMotionInstanceNV"
   ]
 }

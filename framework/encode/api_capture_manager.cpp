@@ -1,5 +1,7 @@
 /*
-** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2018-2022 Valve Corporation
+** Copyright (c) 2018-2024 LunarG, Inc.
+** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -20,37 +22,18 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "vulkan_scoped_destroy_lock.h"
+#include PROJECT_VERSION_HEADER_FILE
+
+#include "encode/api_capture_manager.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-std::shared_mutex ScopedDestroyLock::mutex_for_create_destroy_handle_;
-
-ScopedDestroyLock::ScopedDestroyLock(bool shared)
+CaptureSettings::TraceSettings ApiCaptureManager::GetDefaultTraceSettings()
 {
-    lock_shared_ = shared;
-    if (shared)
-    {
-        mutex_for_create_destroy_handle_.lock_shared();
-    }
-    else
-    {
-        mutex_for_create_destroy_handle_.lock();
-    }
-};
-
-ScopedDestroyLock::~ScopedDestroyLock()
-{
-    if (lock_shared_)
-    {
-        mutex_for_create_destroy_handle_.unlock_shared();
-    }
-    else
-    {
-        mutex_for_create_destroy_handle_.unlock();
-    }
-};
+    // Return default trace settings.
+    return CaptureSettings::TraceSettings();
+}
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

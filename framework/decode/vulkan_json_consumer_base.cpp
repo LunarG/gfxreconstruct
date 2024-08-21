@@ -204,17 +204,19 @@ void VulkanExportJsonConsumerBase::Process_vkCmdPushConstants(const ApiCallInfo&
     });
 }
 
-void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplateKHR(
-    const ApiCallInfo&               call_info,
-    format::HandleId                 device,
-    format::HandleId                 descriptorSet,
-    format::HandleId                 descriptorUpdateTemplate,
-    DescriptorUpdateTemplateDecoder* pData)
+void VulkanExportJsonConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
+                                                                             format::HandleId   device,
+                                                                             format::HandleId   descriptorSet,
+                                                                             format::HandleId descriptorUpdateTemplate,
+                                                                             DescriptorUpdateTemplateDecoder* pData,
+                                                                             bool use_KHR_suffix)
 {
     using namespace gfxrecon::util;
     const JsonOptions& json_options = GetJsonOptions();
 
-    auto& function = WriteApiCallStart(call_info, "vkUpdateDescriptorSetWithTemplateKHR");
+    const char* function_name =
+        use_KHR_suffix ? "vkUpdateDescriptorSetWithTemplateKHR" : "vkUpdateDescriptorSetWithTemplate";
+    auto& function = WriteApiCallStart(call_info, function_name);
     auto& args     = function[NameArgs()];
 
     HandleToJson(args["device"], device, json_options);

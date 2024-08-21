@@ -24,8 +24,8 @@
 #define GFXRECON_DECODE_CUSTOM_STRUCT_HANDLE_MAPPERS_H
 
 #include "decode/custom_vulkan_struct_decoders_forward.h"
-#include "decode/pnext_node.h"
 #include "decode/vulkan_object_info_table.h"
+#include "decode/vulkan_pnext_node.h"
 #include "util/defines.h"
 
 #include "vulkan/vulkan.h"

@@ -171,14 +171,14 @@ Visual Studio 2017 x64 build configuration:
 ```bat
 cd gfxreconstruct
 mkdir build
-cmake -H. -Bbuild -G "Visual Studio 15 Win64"
+cmake . -Bbuild -G "Visual Studio 15 Win64"
 ```
 
 The following commands can be used to generate project files for different
 variations of the Visual Studio 2017 WIN32 and x64 build configurations:
 
-- 64-bit for VS 2017: `cmake -H. -Bbuild -G "Visual Studio 15 Win64"`
-- 32-bit for VS 2017: `cmake -H. -Bbuild -G "Visual Studio 15"`
+- 64-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15 Win64"`
+- 32-bit for VS 2017: `cmake . -Bbuild -G "Visual Studio 15"`
 
 Running any of the above commands will create a Windows solution file named
 `GFXReconstruct.sln` in the build directory.
@@ -197,7 +197,7 @@ prompt for Visual Studio 2022, the following CMake invocation will generate a Vi
 Studio solution and projects.
 
 ```bat
-cmake -H. -Bbuild -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_SYSTEM_VERSION=10.0.20348.0
+cmake . -Bbuild -G "Visual Studio 17 2022" -A ARM64 -DCMAKE_SYSTEM_VERSION=10.0.20348.0
 ```
 
 #### Build the Solution From the Command Line
@@ -229,7 +229,7 @@ Solution menu item.
 
 Building on Linux requires the installation of the following packages:
 
-- A C++ compiler with C++-14 support
+- A C++ compiler with C++-17 support
 - Git
 - CMake
 - X11 + XCB and/or Wayland development libraries
@@ -290,7 +290,7 @@ The following example demonstrates makefile generation for a 64-bit Debug build:
 ```bash
 cd gfxreconstruct
 mkdir build
-cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug
+cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug
 ```
 
 The following commands can be used to generate makefiles for different
@@ -299,11 +299,11 @@ variations of Debug and Release, as well as different architectures.
 profiles and the `-DCMAKE_TOOLCHAIN_FILE` with a matching toolcain file
 can be changed to compile for different architectures:
 
-- 64-bit x64 Release (default): cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
-- 32-bit x86 Debug: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
-- 32-bit x86 Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
-- 32-bit arm Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm.cmake
-- 64-bit arm Release: cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm64.cmake
+- 64-bit x64 Release (default): cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release
+- 32-bit x86 Debug: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
+- 32-bit x86 Release: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_x86_32.cmake
+- 32-bit arm Release: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm.cmake
+- 64-bit arm Release: cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=cmake/toolchain/linux_arm64.cmake
 
 For 32-bit builds, the 32-bit versions of the required packages specified above
 must be installed.
@@ -331,6 +331,39 @@ Files can be installed to "/usr/local/" with `sudo make install`
 For Linux, the default install directory `/usr/local` can be changed by setting CMake's CMAKE_INSTALL_PREFIX
 variable. For example, to install to a "/tmp/gfxreconstruct" directory, run `cmake -DCMAKE_INSTALL_PREFIX=/tmp/gfxreconstruct .`
 from gfxreconstruct's root source directory. Then install with `make install`.
+
+
+## Building for MacOS
+
+
+### Required Package List
+
+Building on MacOS requires the installation of the following packages:
+
+- Command Line Tools (CLT) for Xcode: 
+  - from `xcode-select --install` 
+  - or https://developer.apple.com/download/all/) 
+  - or [Xcode](https://itunes.apple.com/us/app/xcode/id497799835)
+- Git
+- CMake
+  - install e.g. via https://brew.sh/
+
+### MacOS Build
+The approach is identical to a linux-build with one addition.
+
+#### Explicit CPU-Architecture
+Building for specific cpu-architectures can be accomplished by using the cmake-variable `CMAKE_OSX_ARCHITECTURES` 
+with values `x86_64` (Intel) or `arm64` (Apple Silicon).
+The default behavior is to build only for the architecture present in the build-machine.
+A universal build, containing code for both architectures, can be done like this:
+
+```bash
+cd gfxreconstruct
+mkdir build
+cmake . -Bbuild -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+cd build
+make -j4
+```
 
 ## Building for Android
 

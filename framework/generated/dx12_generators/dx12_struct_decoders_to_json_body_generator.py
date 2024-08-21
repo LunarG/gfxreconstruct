@@ -332,12 +332,12 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         }
                         case D3D12_UAV_DIMENSION_TEXTURE2DMS:
                         {
-                            FieldToJson(jdata["Texture2DMS"], "Field missing from Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC.", options);
+                            FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
                             break;
                         }
                         case D3D12_UAV_DIMENSION_TEXTURE2DMSARRAY:
                         {
-                            FieldToJson(jdata["Texture2DMSArray"], "Field missing from Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC.", options);
+                            FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
                             break;
                         }
                         case D3D12_UAV_DIMENSION_TEXTURE3D:
@@ -502,7 +502,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     }
                     case D3D_ROOT_SIGNATURE_VERSION_1_2:
                     {
-                        /// @todo Uncomment this once the union member is added to the decoded struct: FieldToJson(jdata["Desc_1_2"], meta_struct.Desc_1_2, options);
+                        FieldToJson(jdata["Desc_1_2"], meta_struct.Desc_1_2, options);
                         GFXRECON_LOG_ERROR("Unknown D3D_ROOT_SIGNATURE_VERSION_1_2 in D3D12_VERSIONED_ROOT_SIGNATURE_DESC.");
                         break;
                     }
@@ -650,10 +650,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     }
                     case D3D12_DRED_VERSION_1_3:
                     {
-                        // This field was missing in the custom struct at time of writing.
-                        // See issue and revise this codegen by uncommenting line below when the issue
-                        // is fixed <https://github.com/LunarG/gfxreconstruct/issues/1351>
-                        // FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
+                        FieldToJson(jdata["Dred_1_3"], meta_struct.Dred_1_3, options);
                         FieldToJson(jdata[format::kNameWarning], "Dred_1_3 is not supported by GFXR at this time. Please file an issue quoting this text if this is a blocker for you.", options);
                         break;
                     }

@@ -501,7 +501,7 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
             switch (writes[i].descriptorType)
             {
                 case VK_DESCRIPTOR_TYPE_SAMPLER:
-                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK_EXT:
+                case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                     // Descriptor types that do not need to be tracked.
                     break;
                 case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
@@ -560,41 +560,22 @@ void VulkanReferencedResourceConsumerBase::Process_vkUpdateDescriptorSets(
                 }
                 case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                 {
-                    const VkBaseInStructure* pnext_header = nullptr;
-                    if (meta_writes[i].pNext != nullptr)
+                    const auto* accel_struct_writes =
+                        GetPNextMetaStruct<Decoded_VkWriteDescriptorSetAccelerationStructureKHR>(meta_writes[i].pNext);
+                    if (accel_struct_writes != nullptr)
                     {
-                        pnext_header = reinterpret_cast<const VkBaseInStructure*>(meta_writes[i].pNext->GetPointer());
-                    }
-
-                    while (pnext_header)
-                    {
-                        switch (pnext_header->sType)
+                        const auto& accel_structs = accel_struct_writes->pAccelerationStructures;
+                        if (!accel_structs.IsNull() && accel_structs.HasData())
                         {
-                            default:
-                                break;
-                            case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
-                            {
-                                auto pnext_value =
-                                    reinterpret_cast<const Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(
-                                        meta_writes[i].pNext->GetMetaStructPointer());
-                                const VkWriteDescriptorSetAccelerationStructureKHR& decoded_value =
-                                    *pnext_value->decoded_value;
-
-                                if (pnext_value && pnext_value->decoded_value)
-                                {
-                                    AddResourcesToContainer(meta_writes[i].dstSet,
-                                                            writes[i].dstBinding,
-                                                            writes[i].dstArrayElement,
-                                                            writes[i].descriptorCount,
-                                                            pnext_value->pAccelerationStructures.GetPointer());
-                                }
-                                break;
-                            }
+                            AddResourcesToContainer(meta_writes[i].dstSet,
+                                                    writes[i].dstBinding,
+                                                    writes[i].dstArrayElement,
+                                                    writes[i].descriptorCount,
+                                                    accel_structs.GetPointer());
                         }
-                        pnext_header = pnext_header->pNext;
                     }
+                    break;
                 }
-                break;
 
                 default:
                     GFXRECON_LOG_WARNING("Ingoring unrecognized descriptor type %d", writes[i].descriptorType);

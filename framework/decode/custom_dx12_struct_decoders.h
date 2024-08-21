@@ -96,6 +96,8 @@ struct Decoded_D3D12_UNORDERED_ACCESS_VIEW_DESC
     Decoded_D3D12_TEX1D_ARRAY_UAV*    Texture1DArray{ nullptr };
     Decoded_D3D12_TEX2D_UAV*          Texture2D{ nullptr };
     Decoded_D3D12_TEX2D_ARRAY_UAV*    Texture2DArray{ nullptr };
+    Decoded_D3D12_TEX2DMS_UAV*        Texture2DMS{ nullptr };
+    Decoded_D3D12_TEX2DMS_ARRAY_UAV*  Texture2DMSArray{ nullptr };
     Decoded_D3D12_TEX3D_UAV*          Texture3D{ nullptr };
 };
 
@@ -149,6 +151,7 @@ struct Decoded_D3D12_VERSIONED_ROOT_SIGNATURE_DESC
     D3D12_VERSIONED_ROOT_SIGNATURE_DESC* decoded_value{ nullptr };
     Decoded_D3D12_ROOT_SIGNATURE_DESC*   Desc_1_0{ nullptr };
     Decoded_D3D12_ROOT_SIGNATURE_DESC1*  Desc_1_1{ nullptr };
+    Decoded_D3D12_ROOT_SIGNATURE_DESC2*  Desc_1_2{ nullptr };
 };
 
 struct Decoded_D3D12_INDIRECT_ARGUMENT_DESC
@@ -180,6 +183,7 @@ struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA
     Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA*   Dred_1_0{ nullptr };
     Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA1*  Dred_1_1{ nullptr };
     Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA2*  Dred_1_2{ nullptr };
+    Decoded_D3D12_DEVICE_REMOVED_EXTENDED_DATA3*  Dred_1_3{ nullptr };
 };
 
 struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS

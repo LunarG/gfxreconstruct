@@ -25,6 +25,7 @@
 #include "util/image_writer.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "decode/decoder_util.h"
 
 #include <condition_variable>
 #include <limits>
@@ -58,14 +59,14 @@ inline void WriteImageFile(const std::string&     filename,
             GFXRECON_LOG_ERROR("Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
             // Intentional fall-through
         case util::ScreenshotFormat::kBmp:
-            if (!util::imagewriter::WriteBmpImage(filename + ".bmp", width, height, size, data))
+            if (!util::imagewriter::WriteBmpImageNoAlpha(filename + ".bmp", width, height, size, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write BMP file %s", filename.c_str());
             }
             break;
 #ifdef GFXRECON_ENABLE_PNG_SCREENSHOT
         case util::ScreenshotFormat::kPng:
-            if (!util::imagewriter::WritePngImage(filename + ".png", width, height, size, data))
+            if (!util::imagewriter::WritePngImageNoAlpha(filename + ".png", width, height, size, data))
             {
                 GFXRECON_LOG_ERROR("Screenshot could not be created: failed to write PNG file %s", filename.c_str());
             }
@@ -75,8 +76,8 @@ inline void WriteImageFile(const std::string&     filename,
 }
 
 void ScreenshotHandler::WriteImage(const std::string&                      filename_prefix,
-                                   VkDevice                                device,
-                                   const encode::DeviceTable*              device_table,
+                                   const DeviceInfo*                       device_info,
+                                   const encode::VulkanDeviceTable*        device_table,
                                    const VkPhysicalDeviceMemoryProperties& memory_properties,
                                    VulkanResourceAllocator*                allocator,
                                    VkImage                                 image,
@@ -104,7 +105,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
     }
 
     VkResult result = VK_SUCCESS;
-
+    auto     device = device_info->handle;
     // TODO: Improved queue selection; ensure queue supports transfer operations.
 
     // Get a command pool for the device.
@@ -137,7 +138,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
         VkQueue queue         = VK_NULL_HANDLE;
 
         // Get a queue.
-        device_table->GetDeviceQueue(device, kDefaultQueueFamilyIndex, kDefaultQueueIndex, &queue);
+        queue = GetDeviceQueue(device_table, device_info, kDefaultQueueFamilyIndex, kDefaultQueueIndex);
 
         // Get a buffer size.
         VkDeviceSize buffer_size     = copy_resource.buffer_size;
@@ -417,7 +418,7 @@ void ScreenshotHandler::WriteImage(const std::string&                      filen
     }
 }
 
-void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const encode::DeviceTable* device_table)
+void ScreenshotHandler::DestroyDeviceResources(VkDevice device, const encode::VulkanDeviceTable* device_table)
 {
     auto entry = copy_resources_.find(device);
     if (entry != copy_resources_.end())
@@ -490,8 +491,11 @@ VkFormat ScreenshotHandler::GetConversionFormat(VkFormat image_format) const
     }
 }
 
-VkDeviceSize ScreenshotHandler::GetCopyBufferSize(
-    VkDevice device, const encode::DeviceTable* device_table, VkFormat format, uint32_t width, uint32_t height) const
+VkDeviceSize ScreenshotHandler::GetCopyBufferSize(VkDevice                         device,
+                                                  const encode::VulkanDeviceTable* device_table,
+                                                  VkFormat                         format,
+                                                  uint32_t                         width,
+                                                  uint32_t                         height) const
 {
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
@@ -546,7 +550,7 @@ uint32_t ScreenshotHandler::GetMemoryTypeIndex(const VkPhysicalDeviceMemoryPrope
 }
 
 VkResult ScreenshotHandler::CreateCopyResource(VkDevice                                device,
-                                               const encode::DeviceTable*              device_table,
+                                               const encode::VulkanDeviceTable*        device_table,
                                                const VkPhysicalDeviceMemoryProperties& memory_properties,
                                                VkDeviceSize                            buffer_size,
                                                VkFormat                                image_format,

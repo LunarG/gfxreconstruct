@@ -1,5 +1,6 @@
 /*
 ** Copyright (c) 2020 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -44,9 +45,14 @@ XlibWindow::XlibWindow(XlibContext* xlib_context) :
 
 XlibWindow::~XlibWindow() {}
 
-bool XlibWindow::Create(
-    const std::string& title, const int32_t xpos, const int32_t ypos, const uint32_t width, const uint32_t height)
+bool XlibWindow::Create(const std::string& title,
+                        const int32_t      xpos,
+                        const int32_t      ypos,
+                        const uint32_t     width,
+                        const uint32_t     height,
+                        bool               force_windowed)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(force_windowed);
     display_ = xlib_context_->OpenDisplay();
 
     const auto xlib   = xlib_context_->GetXlibFunctionTable();
@@ -294,10 +300,10 @@ std::string XlibWindow::GetWsiExtension() const
     return VK_KHR_XLIB_SURFACE_EXTENSION_NAME;
 }
 
-VkResult XlibWindow::CreateSurface(const encode::InstanceTable* table,
-                                   VkInstance                   instance,
-                                   VkFlags                      flags,
-                                   VkSurfaceKHR*                pSurface)
+VkResult XlibWindow::CreateSurface(const encode::VulkanInstanceTable* table,
+                                   VkInstance                         instance,
+                                   VkFlags                            flags,
+                                   VkSurfaceKHR*                      pSurface)
 {
     if (table != nullptr)
     {
@@ -310,7 +316,7 @@ VkResult XlibWindow::CreateSurface(const encode::InstanceTable* table,
     return VK_ERROR_INITIALIZATION_FAILED;
 }
 
-void XlibWindow::DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
+void XlibWindow::DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface)
 {
     if (table != nullptr)
     {
@@ -323,13 +329,14 @@ XlibWindowFactory::XlibWindowFactory(XlibContext* context) : xlib_context_(conte
     assert(xlib_context_ != nullptr);
 }
 
-decode::Window* XlibWindowFactory::Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height)
+decode::Window* XlibWindowFactory::Create(
+    const int32_t x, const int32_t y, const uint32_t width, const uint32_t height, bool force_windowed)
 {
     assert(xlib_context_);
     decode::Window* window      = new XlibWindow(xlib_context_);
     auto            application = xlib_context_->GetApplication();
     assert(application);
-    window->Create(application->GetName(), x, y, width, height);
+    window->Create(application->GetName(), x, y, width, height, force_windowed);
     return window;
 }
 
@@ -342,9 +349,9 @@ void XlibWindowFactory::Destroy(decode::Window* window)
     }
 }
 
-VkBool32 XlibWindowFactory::GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                                 VkPhysicalDevice             physical_device,
-                                                                 uint32_t                     queue_family_index)
+VkBool32 XlibWindowFactory::GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                                 VkPhysicalDevice                   physical_device,
+                                                                 uint32_t                           queue_family_index)
 {
     const auto display = xlib_context_->OpenDisplay();
     const auto xlib    = xlib_context_->GetXlibFunctionTable();

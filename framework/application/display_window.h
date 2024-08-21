@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021 Broadcom, Inc.
 ** Copyright (c) 2021 LunarG, Inc.
+** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -38,7 +39,12 @@ class DisplayWindow : public decode::Window
 
     virtual ~DisplayWindow() override {}
 
-    virtual bool Create(const std::string&, const int32_t, const int32_t, const uint32_t, const uint32_t) override
+    virtual bool Create(const std::string&,
+                        const int32_t,
+                        const int32_t,
+                        const uint32_t,
+                        const uint32_t,
+                        bool force_windowed = false) override
     {
         return true;
     }
@@ -61,28 +67,30 @@ class DisplayWindow : public decode::Window
 
     virtual std::string GetWsiExtension() const override;
 
-    virtual VkResult CreateSurface(const encode::InstanceTable* table,
-                                   VkInstance                   instance,
-                                   VkFlags                      flags,
-                                   VkSurfaceKHR*                pSurface) override;
+    virtual VkResult CreateSurface(const encode::VulkanInstanceTable* table,
+                                   VkInstance                         instance,
+                                   VkFlags                            flags,
+                                   VkSurfaceKHR*                      pSurface) override;
 
-    virtual void DestroySurface(const encode::InstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
+    virtual void
+    DestroySurface(const encode::VulkanInstanceTable* table, VkInstance instance, VkSurfaceKHR surface) override;
 
   private:
-    VkResult SelectPhysicalDevice(const encode::InstanceTable* table,
-                                  VkInstance                   instance,
-                                  VkPhysicalDevice*            physical_device) const;
-    VkResult
-    SelectDisplay(const encode::InstanceTable* table, VkPhysicalDevice physical_device, VkDisplayKHR* display) const;
-    VkResult SelectMode(const encode::InstanceTable* table,
-                        VkPhysicalDevice             physical_device,
-                        VkDisplayKHR                 display,
-                        VkDisplayModePropertiesKHR*  mode_props) const;
-    VkResult SelectPlane(const encode::InstanceTable* table,
-                         VkPhysicalDevice             physical_device,
-                         VkDisplayKHR                 display,
-                         uint32_t*                    plane_index,
-                         VkDisplayPlanePropertiesKHR* plane_props) const;
+    VkResult SelectPhysicalDevice(const encode::VulkanInstanceTable* table,
+                                  VkInstance                         instance,
+                                  VkPhysicalDevice*                  physical_device) const;
+    VkResult SelectDisplay(const encode::VulkanInstanceTable* table,
+                           VkPhysicalDevice                   physical_device,
+                           VkDisplayKHR*                      display) const;
+    VkResult SelectMode(const encode::VulkanInstanceTable* table,
+                        VkPhysicalDevice                   physical_device,
+                        VkDisplayKHR                       display,
+                        VkDisplayModePropertiesKHR*        mode_props) const;
+    VkResult SelectPlane(const encode::VulkanInstanceTable* table,
+                         VkPhysicalDevice                   physical_device,
+                         VkDisplayKHR                       display,
+                         uint32_t*                          plane_index,
+                         VkDisplayPlanePropertiesKHR*       plane_props) const;
 
   private:
     DisplayContext* display_context_;
@@ -97,14 +105,17 @@ class DisplayWindowFactory : public decode::WindowFactory
 
     virtual const char* GetSurfaceExtensionName() const override { return VK_KHR_DISPLAY_EXTENSION_NAME; }
 
-    virtual decode::Window*
-    Create(const int32_t x, const int32_t y, const uint32_t width, const uint32_t height) override;
+    virtual decode::Window* Create(const int32_t  x,
+                                   const int32_t  y,
+                                   const uint32_t width,
+                                   const uint32_t height,
+                                   bool           force_windowed = false) override;
 
     void Destroy(decode::Window* window) override;
 
-    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::InstanceTable* table,
-                                                          VkPhysicalDevice             physical_device,
-                                                          uint32_t                     queue_family_index) override;
+    virtual VkBool32 GetPhysicalDevicePresentationSupport(const encode::VulkanInstanceTable* table,
+                                                          VkPhysicalDevice                   physical_device,
+                                                          uint32_t queue_family_index) override;
 
   private:
     DisplayContext* display_context_;

@@ -200,14 +200,27 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void ProcessCopyVulkanAccelerationStructuresMetaCommand(
         format::HandleId device, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos) override;
 
+    template <typename T>
+    void AllowCompileDuringPipelineCreation(uint32_t create_info_count, const T* create_infos)
+    {
+        for (uint32_t i = 0; i < create_info_count; ++i)
+        {
+            if (create_infos[i].flags & VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT)
+            {
+                T* create_infos_to_modify = const_cast<T*>(create_infos);
+                create_infos_to_modify[i].flags &= (~VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT);
+            }
+        }
+    };
+
   protected:
     const VulkanObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     VulkanObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
 
-    const encode::InstanceTable* GetInstanceTable(const void* handle) const;
+    const encode::VulkanInstanceTable* GetInstanceTable(const void* handle) const;
 
-    const encode::DeviceTable* GetDeviceTable(const void* handle) const;
+    const encode::VulkanDeviceTable* GetDeviceTable(const void* handle) const;
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
 
@@ -1068,6 +1081,11 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                        StructPointerDecoder<Decoded_VkAllocationCallbacks>*   allocator_decoder,
                                        HandlePointerDecoder<VkFramebuffer>*                   frame_buffer_decoder);
 
+    void OverrideFrameBoundaryANDROID(PFN_vkFrameBoundaryANDROID func,
+                                      const DeviceInfo*          device_info,
+                                      const SemaphoreInfo*       semaphore_info,
+                                      const ImageInfo*           image_info);
+
     void OverrideDestroyAccelerationStructureKHR(PFN_vkDestroyAccelerationStructureKHR func,
                                                  const DeviceInfo*                     device_info,
                                                  const AccelerationStructureKHRInfo*   acceleration_structure_info,
@@ -1205,6 +1223,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void WriteScreenshots(const Decoded_VkPresentInfoKHR* meta_info) const;
 
     bool CheckCommandBufferInfoForFrameBoundary(const CommandBufferInfo* command_buffer_info);
+    bool CheckPNextChainForFrameBoundary(const DeviceInfo* device_info, const PNextNode* pnext);
 
   private:
     struct HardwareBufferInfo
@@ -1233,25 +1252,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     typedef std::unordered_map<format::HandleId, HardwareBufferMemoryInfo> HardwareBufferMemoryMap;
 
   private:
-    util::platform::LibraryHandle                                    loader_handle_;
-    PFN_vkGetInstanceProcAddr                                        get_instance_proc_addr_;
-    PFN_vkCreateInstance                                             create_instance_proc_;
-    std::unordered_map<encode::DispatchKey, PFN_vkGetDeviceProcAddr> get_device_proc_addrs_;
-    std::unordered_map<encode::DispatchKey, PFN_vkCreateDevice>      create_device_procs_;
-    std::unordered_map<encode::DispatchKey, encode::InstanceTable>   instance_tables_;
-    std::unordered_map<encode::DispatchKey, encode::DeviceTable>     device_tables_;
-    std::function<void(const char*)>                                 fatal_error_handler_;
-    std::shared_ptr<application::Application>                        application_;
-    VulkanObjectInfoTable                                            object_info_table_;
-    bool                                                             loading_trim_state_;
-    bool                                                             replaying_trimmed_capture_;
-    SwapchainImageTracker                                            swapchain_image_tracker_;
-    HardwareBufferMap                                                hardware_buffers_;
-    HardwareBufferMemoryMap                                          hardware_buffer_memory_info_;
-    std::unique_ptr<ScreenshotHandler>                               screenshot_handler_;
-    std::unique_ptr<VulkanSwapchain>                                 swapchain_;
-    std::string                                                      screenshot_file_prefix_;
-    graphics::FpsInfo*                                               fps_info_;
+    util::platform::LibraryHandle                                              loader_handle_;
+    PFN_vkGetInstanceProcAddr                                                  get_instance_proc_addr_;
+    PFN_vkCreateInstance                                                       create_instance_proc_;
+    std::unordered_map<encode::VulkanDispatchKey, PFN_vkGetDeviceProcAddr>     get_device_proc_addrs_;
+    std::unordered_map<encode::VulkanDispatchKey, PFN_vkCreateDevice>          create_device_procs_;
+    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanInstanceTable> instance_tables_;
+    std::unordered_map<encode::VulkanDispatchKey, encode::VulkanDeviceTable>   device_tables_;
+    std::function<void(const char*)>                                           fatal_error_handler_;
+    std::shared_ptr<application::Application>                                  application_;
+    VulkanObjectInfoTable                                                      object_info_table_;
+    bool                                                                       loading_trim_state_;
+    bool                                                                       replaying_trimmed_capture_;
+    SwapchainImageTracker                                                      swapchain_image_tracker_;
+    HardwareBufferMap                                                          hardware_buffers_;
+    HardwareBufferMemoryMap                                                    hardware_buffer_memory_info_;
+    std::unique_ptr<ScreenshotHandler>                                         screenshot_handler_;
+    std::unique_ptr<VulkanSwapchain>                                           swapchain_;
+    std::string                                                                screenshot_file_prefix_;
+    graphics::FpsInfo*                                                         fps_info_;
 
     // Imported semaphores are semaphores that are used to track external memory.
     // During replay, the external memory is not present (we have no Fds or handles to valid
@@ -1282,6 +1301,25 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::unordered_map<format::HandleId, std::unique_ptr<VulkanAccelerationStructureBuilder>>
         acceleration_structure_builders_;
 
+  protected:
+    // Used by pipeline cache handling, there are the following two cases for the flag to be set:
+    //
+    //    1. Replay with command line option --opcd or --omit-pipeline-cache-data and some
+    //       pipeline cache data was really omitted.
+    //
+    //    2. Replay without command line option --opcd or --omit-pipeline-cache-data and there is
+    //       at least one vkCreatePipelineCache call with valid initial pipeline cache data and
+    //       the initial cache data has no corresponding replay time cache data.
+    bool omitted_pipeline_cache_data_;
+
+    // Temporary data used by pipeline cache data handling
+    // The following capture time data used for calling VisitPipelineCacheInfo as input parameters
+    // , replay time data used as output result.
+    uint32_t             capture_pipeline_cache_data_hash_ = 0;
+    uint32_t             capture_pipeline_cache_data_size_ = 0;
+    void*                capture_pipeline_cache_data_;
+    bool                 matched_replay_cache_data_exist_ = false;
+    std::vector<uint8_t> matched_replay_cache_data_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -21,7 +21,7 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "project_version.h"
+#include PROJECT_VERSION_HEADER_FILE
 
 #if defined(D3D12_SUPPORT)
 #include "decode/dx_replay_options.h"
@@ -98,6 +98,8 @@ const char kScreenshotSizeArgument[]             = "--screenshot-size";
 const char kScreenshotScaleArgument[]            = "--screenshot-scale";
 const char kForceWindowedShortArgument[]         = "--fw";
 const char kForceWindowedLongArgument[]          = "--force-windowed";
+const char kForceWindowWithOriginShortArgument[] = "--fwo";
+const char kForceWindowWithOriginLongArgument[]  = "--force-windowed-origin";
 const char kOutput[]                             = "--output";
 const char kMeasurementRangeArgument[]           = "--measurement-frame-range";
 const char kMeasurementFileArgument[]            = "--measurement-file";
@@ -107,13 +109,18 @@ const char kFlushInsideMeasurementRangeOption[]  = "--flush-inside-measurement-r
 const char kSwapchainOption[]                    = "--swapchain";
 const char kEnableUseCapturedSwapchainIndices[] =
     "--use-captured-swapchain-indices"; // The same: util::SwapchainOption::kCaptured
-const char kColorspaceFallback[]    = "--use-colorspace-fallback";
-const char kFormatArgument[]        = "--format";
-const char kIncludeBinariesOption[] = "--include-binaries";
-const char kExpandFlagsOption[]     = "--expand-flags";
-const char kFilePerFrameOption[]    = "--file-per-frame";
+const char kVirtualSwapchainSkipBlitShortOption[] = "--vssb";
+const char kVirtualSwapchainSkipBlitLongOption[]  = "--virtual-swapchain-skip-blit";
+const char kColorspaceFallback[]                  = "--use-colorspace-fallback";
+const char kOffscreenSwapchainFrameBoundary[]     = "--offscreen-swapchain-frame-boundary";
+const char kFormatArgument[]                      = "--format";
+const char kIncludeBinariesOption[]               = "--include-binaries";
+const char kExpandFlagsOption[]                   = "--expand-flags";
+const char kFilePerFrameOption[]                  = "--file-per-frame";
+const char kSkipGetFenceStatus[]                  = "--skip-get-fence-status";
+const char kSkipGetFenceRanges[]                  = "--skip-get-fence-ranges";
+const char kWaitBeforePresent[]                   = "--wait-before-present";
 #if defined(WIN32)
-const char kApiFamilyOption[]             = "--api";
 const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
@@ -687,40 +694,6 @@ GetCreateResourceAllocatorFunc(const gfxrecon::util::ArgumentParser&           a
     return func;
 }
 
-#if defined(WIN32)
-static bool IsApiFamilyIdEnabled(const gfxrecon::util::ArgumentParser& arg_parser, gfxrecon::format::ApiFamilyId api)
-{
-    const std::string& value = arg_parser.GetArgumentValue(kApiFamilyOption);
-
-    // If the --api argument was specified, parse the option.
-    if (!value.empty())
-    {
-        if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyAll, value.c_str()) == 0)
-        {
-            return true;
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyVulkan, value.c_str()) == 0)
-        {
-            return (api == gfxrecon::format::ApiFamilyId::ApiFamily_Vulkan);
-        }
-        else if (gfxrecon::util::platform::StringCompareNoCase(kApiFamilyD3D12, value.c_str()) == 0)
-        {
-            return (api == gfxrecon::format::ApiFamilyId::ApiFamily_D3D12);
-        }
-        else
-        {
-            GFXRECON_LOG_WARNING("Ignoring unrecognized API option \"%s\"", value.c_str());
-            return true;
-        }
-    }
-    // If the --api argument was not specified, default so that all APIs are enabled.
-    else
-    {
-        return true;
-    }
-}
-#endif
-
 static void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
 {
     auto value = arg_parser.GetArgumentValue(kForceWindowedShortArgument);
@@ -741,6 +714,29 @@ static void IsForceWindowed(gfxrecon::decode::ReplayOptions& options, const gfxr
         options.windowed_width = std::stoi(val);
         std::getline(value_input, val, ',');
         options.windowed_height = std::stoi(val);
+    }
+}
+
+static void SetWindowOrigin(gfxrecon::decode::ReplayOptions& options, const gfxrecon::util::ArgumentParser& arg_parser)
+{
+    auto value = arg_parser.GetArgumentValue(kForceWindowWithOriginShortArgument);
+
+    if (value.empty())
+    {
+        value = arg_parser.GetArgumentValue(kForceWindowWithOriginLongArgument);
+    }
+    if (!value.empty())
+    {
+        options.force_windowed_origin = true;
+
+        std::istringstream value_input;
+        value_input.str(value);
+        std::string val;
+
+        std::getline(value_input, val, ',');
+        options.window_topleft_x = std::stoi(val);
+        std::getline(value_input, val, ',');
+        options.window_topleft_y = std::stoi(val);
     }
 }
 
@@ -823,6 +819,7 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions& options, const gfx
     }
 
     IsForceWindowed(options, arg_parser);
+    SetWindowOrigin(options, arg_parser);
 }
 
 static gfxrecon::decode::VulkanReplayOptions
@@ -832,12 +829,6 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
 {
     gfxrecon::decode::VulkanReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
-
-#if defined(WIN32)
-    replay_options.enable_vulkan = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_Vulkan);
-#else
-    replay_options.enable_vulkan = true;
-#endif
 
     const auto& override_gpu_group = arg_parser.GetArgumentValue(kOverrideGpuGroupArgument);
     if (!override_gpu_group.empty())
@@ -899,6 +890,17 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.use_colorspace_fallback = true;
     }
 
+    if (arg_parser.IsOptionSet(kOffscreenSwapchainFrameBoundary))
+    {
+        replay_options.offscreen_swapchain_frame_boundary = true;
+    }
+
+    if (arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitLongOption) ||
+        arg_parser.IsOptionSet(kVirtualSwapchainSkipBlitShortOption))
+    {
+        replay_options.virtual_swapchain_skip_blit = true;
+    }
+
     replay_options.replace_dir = arg_parser.GetArgumentValue(kShaderReplaceArgument);
     replay_options.create_resource_allocator =
         GetCreateResourceAllocatorFunc(arg_parser, filename, replay_options, tracked_object_info_table);
@@ -926,6 +928,41 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
         replay_options.surface_index = std::stoi(surface_index);
     }
 
+    const std::string& skip_get_fence_status = arg_parser.GetArgumentValue(kSkipGetFenceStatus);
+    if (!skip_get_fence_status.empty())
+    {
+        const int i_skip_get_fence_status = std::stoi(skip_get_fence_status);
+        if (i_skip_get_fence_status < static_cast<int>(gfxrecon::decode::SkipGetFenceStatus::COUNT))
+        {
+            replay_options.skip_get_fence_status =
+                static_cast<gfxrecon::decode::SkipGetFenceStatus>(i_skip_get_fence_status);
+        }
+        else
+        {
+            GFXRECON_LOG_FATAL("Unexpected value after '--skip-get-fence-status' : '%s'. Closing the program.",
+                               skip_get_fence_status.c_str());
+            abort();
+        }
+    }
+
+    const std::string& skip_get_fence_ranges = arg_parser.GetArgumentValue(kSkipGetFenceRanges);
+    if (skip_get_fence_ranges.empty())
+    {
+        gfxrecon::util::UintRange range;
+        range.first = 1;
+        range.last  = std::numeric_limits<uint32_t>::max();
+        replay_options.skip_get_fence_ranges.push_back(range);
+    }
+    else
+    {
+        replay_options.skip_get_fence_ranges =
+            gfxrecon::util::GetUintRanges(skip_get_fence_ranges.c_str(), "skip-get-fence-ranges");
+    }
+    if (arg_parser.IsOptionSet(kWaitBeforePresent))
+    {
+        replay_options.wait_before_present = true;
+    }
+
     return replay_options;
 }
 
@@ -935,7 +972,6 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
     gfxrecon::decode::DxReplayOptions replay_options;
     GetReplayOptions(replay_options, arg_parser);
 
-    replay_options.enable_d3d12         = IsApiFamilyIdEnabled(arg_parser, gfxrecon::format::ApiFamily_D3D12);
     replay_options.DeniedDebugMessages  = GetFilteredMsgs(arg_parser, kDeniedMessages);
     replay_options.AllowedDebugMessages = GetFilteredMsgs(arg_parser, kAllowedMessages);
 

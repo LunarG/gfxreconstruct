@@ -24,6 +24,7 @@
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
+GFXRECON_BEGIN_NAMESPACE(vulkan_wrappers)
 
 VulkanStateHandleTable state_handle_table_;
 
@@ -215,5 +216,6 @@ uint64_t GetWrappedId(uint64_t object, VkDebugReportObjectTypeEXT object_type)
     }
 }
 
+GFXRECON_END_NAMESPACE(vulkan_wrappers)
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -42,6 +42,8 @@ class BasicStringDecoder : public PointerDecoderBase
   public:
     BasicStringDecoder() : data_(nullptr), capacity_(0), is_memory_external_(false) {}
 
+    CharT* GetPointer() { return data_; }
+
     const CharT* GetPointer() const { return data_; }
 
     void SetExternalMemory(CharT* data, size_t capacity)
