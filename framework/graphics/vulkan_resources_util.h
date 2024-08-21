@@ -93,30 +93,6 @@ class VulkanResourcesUtil
                                           std::vector<uint64_t>* subresource_sizes    = nullptr,
                                           bool                   all_layers_per_level = false);
 
-    // Will return the size requirements and offsets for each subresource contained in the specified image.
-    // Sizes and offsets are calculated in such a way that the each subresource will be tightly packed.
-    //
-    // This function will use texel size values from the Vulkan Utilities Library and is intented to be used
-    // with images that can be created with Linear tiling and therefore it is possible to be accesses directly
-    // without using a staging buffer.
-    //
-    // The sizes are returned in the subresource_sizes vector and will be in the order:
-    //    M0 L0 L1 ... La M1 L0 L1 ... La ... Mm L0 L1 ... La
-    // Where M denotes the mip map levels and L the array layers.
-    // The offsets will be returned in the subresource_offsets vector in the same manner.
-    // all_layers_per_level boolean determines if all array layer per mip map level will be accounted as one.
-    //
-    // Return value is the total size of the image.
-    uint64_t GetImageResourceSizesLinear(VkImage                image,
-                                         VkFormat               format,
-                                         const VkExtent3D&      extent,
-                                         uint32_t               mip_levels,
-                                         uint32_t               array_layers,
-                                         VkImageAspectFlagBits  aspect,
-                                         std::vector<uint64_t>* subresource_offsets  = nullptr,
-                                         std::vector<uint64_t>* subresource_sizes    = nullptr,
-                                         bool                   all_layers_per_level = false);
-
     // Use this function to dump an image sub resources into data vector.
     // This function is intented to be used when accessing the image content directly is not possible
     // and a staging buffer is required.
@@ -242,7 +218,7 @@ class VulkanResourcesUtil
                        VkFormat              format,
                        VkImageType           type,
                        const VkExtent3D&     extent,
-                       VkExtent3D&           scaled_extent,
+                       const VkExtent3D&     scaled_extent,
                        uint32_t              mip_levels,
                        uint32_t              array_layers,
                        VkImageAspectFlagBits aspect,

@@ -391,49 +391,6 @@ uint64_t VulkanResourcesUtil::GetImageResourceSizesOptimal(VkImage              
     return resource_size;
 }
 
-uint64_t VulkanResourcesUtil::GetImageResourceSizesLinear(VkImage                image,
-                                                          VkFormat               format,
-                                                          const VkExtent3D&      extent,
-                                                          uint32_t               mip_levels,
-                                                          uint32_t               array_layers,
-                                                          VkImageAspectFlagBits  aspect,
-                                                          std::vector<uint64_t>* subresource_offsets,
-                                                          std::vector<uint64_t>* subresource_sizes,
-                                                          bool                   all_layers_per_level)
-{
-    assert(mip_levels <= 1 + floor(log2(std::max(std::max(extent.width, extent.height), extent.depth))));
-
-    subresource_offsets->clear();
-    subresource_sizes->clear();
-
-    const double texel_size = vkuFormatTexelSizeWithAspect(format, aspect);
-    // Not expecting a fractional number from a linear image
-    assert(texel_size == static_cast<uint64_t>(texel_size));
-
-    uint64_t offset = 0;
-    for (uint32_t m = 0; m < mip_levels; ++m)
-    {
-        for (uint32_t l = 0; l < array_layers; ++l)
-        {
-            const uint32_t mip_width  = std::max(1u, (extent.width >> m));
-            const uint32_t mip_height = std::max(1u, (extent.height >> m));
-            const uint64_t stride     = mip_width * static_cast<uint64_t>(texel_size);
-            const uint64_t size       = all_layers_per_level ? stride * mip_height * array_layers : stride * mip_height;
-
-            subresource_offsets->push_back(offset);
-            subresource_sizes->push_back(size);
-            offset += size;
-
-            if (all_layers_per_level)
-            {
-                break;
-            }
-        }
-    }
-
-    return offset;
-}
-
 VkResult VulkanResourcesUtil::CreateStagingBuffer(VkDeviceSize size)
 {
     assert(size);
@@ -1214,6 +1171,9 @@ VkResult VulkanResourcesUtil::ReadFromImageResourceStaging(VkImage              
     subresource_offsets.clear();
     subresource_sizes.clear();
 
+    scaled_extent.width  = std::max(scaled_extent.width * scale, 1.0f);
+    scaled_extent.height = std::max(scaled_extent.height * scale, 1.0f);
+
     resource_size = GetImageResourceSizesOptimal(image,
                                                  format,
                                                  type,
@@ -1609,7 +1569,7 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                         VkFormat              format,
                                         VkImageType           type,
                                         const VkExtent3D&     extent,
-                                        VkExtent3D&           scaled_extent,
+                                        const VkExtent3D&     scaled_extent,
                                         uint32_t              mip_levels,
                                         uint32_t              array_layers,
                                         VkImageAspectFlagBits aspect,
@@ -1619,7 +1579,6 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
                                         VkDeviceMemory&       scaled_image_mem,
                                         bool&                 scaling_supported)
 {
-    scaled_extent    = extent;
     scaled_image     = VK_NULL_HANDLE;
     scaled_image_mem = VK_NULL_HANDLE;
     VkImageTiling tiling;
@@ -1682,9 +1641,6 @@ VkResult VulkanResourcesUtil::BlitImage(VkImage               image,
     {
         return VK_SUCCESS;
     }
-
-    scaled_extent.width  = std::max(scaled_extent.width * scale, 1.0f);
-    scaled_extent.height = std::max(scaled_extent.height * scale, 1.0f);
 
     // Create a scaled image and then blit to scaled image
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
