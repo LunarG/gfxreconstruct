@@ -467,6 +467,12 @@ template <> constexpr VkStructureType GetSType<VkPushDescriptorSetInfoKHR>(){ re
 template <> constexpr VkStructureType GetSType<VkPushDescriptorSetWithTemplateInfoKHR>(){ return VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR; }
 template <> constexpr VkStructureType GetSType<VkSetDescriptorBufferOffsetsInfoEXT>(){ return VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkBindDescriptorBufferEmbeddedSamplersInfoEXT>(){ return VK_STRUCTURE_TYPE_BIND_DESCRIPTOR_BUFFER_EMBEDDED_SAMPLERS_INFO_EXT; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_RELAXED_EXTENDED_INSTRUCTION_FEATURES_KHR; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMaintenance7FeaturesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_FEATURES_KHR; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceMaintenance7PropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_7_PROPERTIES_KHR; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredApiPropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_KHR; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredApiPropertiesListKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_PROPERTIES_LIST_KHR; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredApiVulkanPropertiesKHR>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LAYERED_API_VULKAN_PROPERTIES_KHR; }
 template <> constexpr VkStructureType GetSType<VkDebugReportCallbackCreateInfoEXT>(){ return VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkPipelineRasterizationStateRasterizationOrderAMD>(){ return VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD; }
 template <> constexpr VkStructureType GetSType<VkDebugMarkerObjectNameInfoEXT>(){ return VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT; }
@@ -825,6 +831,8 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocat
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingInvocationReorderFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_INVOCATION_REORDER_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceExtendedSparseAddressSpaceFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceExtendedSparseAddressSpacePropertiesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_SPARSE_ADDRESS_SPACE_PROPERTIES_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLegacyVertexAttributesFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_FEATURES_EXT; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLegacyVertexAttributesPropertiesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LEGACY_VERTEX_ATTRIBUTES_PROPERTIES_EXT; }
 template <> constexpr VkStructureType GetSType<VkLayerSettingsCreateInfoEXT>(){ return VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderCoreBuiltinsFeaturesARM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_FEATURES_ARM; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderCoreBuiltinsPropertiesARM>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_CORE_BUILTINS_PROPERTIES_ARM; }
@@ -856,7 +864,11 @@ template <> constexpr VkStructureType GetSType<VkPhysicalDeviceLayeredDriverProp
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceDescriptorPoolOverallocationFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_POOL_OVERALLOCATION_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRawAccessChainsFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAW_ACCESS_CHAINS_FEATURES_NV; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_ATOMIC_FLOAT16_VECTOR_FEATURES_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceShaderReplicatedCompositesFeaturesEXT>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_REPLICATED_COMPOSITES_FEATURES_EXT; }
 template <> constexpr VkStructureType GetSType<VkPhysicalDeviceRayTracingValidationFeaturesNV>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_VALIDATION_FEATURES_NV; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceImageAlignmentControlFeaturesMESA>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA; }
+template <> constexpr VkStructureType GetSType<VkPhysicalDeviceImageAlignmentControlPropertiesMESA>(){ return VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_PROPERTIES_MESA; }
+template <> constexpr VkStructureType GetSType<VkImageAlignmentControlCreateInfoMESA>(){ return VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryTrianglesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryAabbsDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR; }
 template <> constexpr VkStructureType GetSType<VkAccelerationStructureGeometryInstancesDataKHR>(){ return VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR; }

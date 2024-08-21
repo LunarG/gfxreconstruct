@@ -2716,21 +2716,6 @@ void VulkanCaptureManager::PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBu
     }
 }
 
-void VulkanCaptureManager::PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
-                                                                     const VkDebugUtilsLabelEXT* pLabelInfo)
-{
-    if (pLabelInfo != nullptr)
-    {
-        // Look for the label that identifies this command buffer as a VR frame boundary.
-        if (util::platform::StringContains(pLabelInfo->pLabelName, graphics::kVulkanVrFrameDelimiterString))
-        {
-            auto cmd_buffer_wrapper = GetWrapper<CommandBufferWrapper>(commandBuffer);
-            GFXRECON_ASSERT(cmd_buffer_wrapper != nullptr);
-            cmd_buffer_wrapper->is_frame_boundary = true;
-        }
-    }
-}
-
 #if defined(__ANDROID__)
 void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t*         pPresentModeCount,
                                                                            VkPresentModeKHR* pPresentModes)

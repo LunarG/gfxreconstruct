@@ -2226,7 +2226,7 @@ class VulkanConsumer : public VulkanConsumerBase
     virtual void Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
         const ApiCallInfo&                          call_info,
         format::HandleId                            commandBuffer,
-        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo) {}
+        StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pInputAttachmentIndexInfo) {}
 
     virtual void Process_vkWaitForPresentKHR(
         const ApiCallInfo&                          call_info,
@@ -4251,17 +4251,6 @@ class VulkanConsumer : public VulkanConsumerBase
         uint32_t                                    width,
         uint32_t                                    height,
         uint32_t                                    depth) {}
-
-    virtual void Process_vkCreateRayTracingPipelinesKHR(
-        const ApiCallInfo&                          call_info,
-        VkResult                                    returnValue,
-        format::HandleId                            device,
-        format::HandleId                            deferredOperation,
-        format::HandleId                            pipelineCache,
-        uint32_t                                    createInfoCount,
-        StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
-        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-        HandlePointerDecoder<VkPipeline>*           pPipelines) {}
 
     virtual void Process_vkGetRayTracingCaptureReplayShaderGroupHandlesKHR(
         const ApiCallInfo&                          call_info,

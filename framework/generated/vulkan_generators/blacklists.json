@@ -12,11 +12,6 @@
     "vkCmdPushDescriptorSetWithTemplateKHR",
     "vkBuildAccelerationStructuresKHR",
     "vkCopyAccelerationStructureKHR",
-    "vkSetLatencySleepModeNV",
-    "vkLatencySleepNV",
-    "vkSetLatencyMarkerNV",
-    "vkGetLatencyTimingsNV",
-    "vkQueueNotifyOutOfBandNV",
     "vkCreateRayTracingPipelinesKHR"
   ],
   "functions-encoder": [

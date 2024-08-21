@@ -7480,21 +7480,21 @@ void VulkanCppConsumer::Process_vkCmdSetRenderingAttachmentLocationsKHR(
 void VulkanCppConsumer::Process_vkCmdSetRenderingInputAttachmentIndicesKHR(
     const ApiCallInfo&                          call_info,
     format::HandleId                            commandBuffer,
-    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pLocationInfo)
+    StructPointerDecoder<Decoded_VkRenderingInputAttachmentIndexInfoKHR>* pInputAttachmentIndexInfo)
 {
     FILE* file = GetFrameFile();
     fprintf(file, "\t{\n");
-    std::stringstream stream_plocation_info;
-    std::string plocation_info_struct = GenerateStruct_VkRenderingInputAttachmentIndexInfoKHR(stream_plocation_info,
-                                                                                              pLocationInfo->GetPointer(),
-                                                                                              pLocationInfo->GetMetaStructPointer(),
-                                                                                              *this);
-    fprintf(file, "%s", stream_plocation_info.str().c_str());
+    std::stringstream stream_pinput_attachment_index_info;
+    std::string pinput_attachment_index_info_struct = GenerateStruct_VkRenderingInputAttachmentIndexInfoKHR(stream_pinput_attachment_index_info,
+                                                                                                            pInputAttachmentIndexInfo->GetPointer(),
+                                                                                                            pInputAttachmentIndexInfo->GetMetaStructPointer(),
+                                                                                                            *this);
+    fprintf(file, "%s", stream_pinput_attachment_index_info.str().c_str());
     pfn_loader_.AddMethodName("vkCmdSetRenderingInputAttachmentIndicesKHR");
     fprintf(file,
             "\t\tloaded_vkCmdSetRenderingInputAttachmentIndicesKHR(%s, &%s);\n",
             this->GetHandle(commandBuffer).c_str(),
-            plocation_info_struct.c_str());
+            pinput_attachment_index_info_struct.c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkCmdSetRenderingInputAttachmentIndicesKHR);
 }
