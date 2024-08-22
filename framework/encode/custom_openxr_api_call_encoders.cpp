@@ -91,14 +91,9 @@ XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(const XrLoaderInitInfoBaseH
     {
         OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
 
-        CommonCaptureManager::CaptureMode save_capture_mode;
-        {
-            auto call_lock = manager->AcquireCallLock();
+        auto api_call_lock = OpenXrCaptureManager::AcquireExclusiveApiCallLock();
 
-            CustomEncoderPreCall<format::ApiCallId::ApiCall_xrInitializeLoaderKHR>::Dispatch(manager, loader_init_info);
-            save_capture_mode = manager->GetCaptureMode();
-            manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
-        }
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrInitializeLoaderKHR>::Dispatch(manager, loader_init_info);
 
         auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrInitializeLoaderKHR);
         if (encoder)
@@ -125,9 +120,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrInitializeLoaderKHR(const XrLoaderInitInfoBaseH
             encoder->EncodeEnumValue(result);
             manager->EndApiCallCapture();
         }
-
-        auto call_lock = manager->AcquireCallLock();
-        manager->SetCaptureMode(save_capture_mode);
 
         CustomEncoderPostCall<format::ApiCallId::ApiCall_xrInitializeLoaderKHR>::Dispatch(
             manager, result, loader_init_info);

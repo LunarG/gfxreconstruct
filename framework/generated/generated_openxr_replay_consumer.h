@@ -687,13 +687,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         XrResult                                    returnValue,
         format::HandleId                            handTracker) override;
 
-    virtual void Process_xrLocateHandJointsEXT(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            handTracker,
-        StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
-        StructPointerDecoder<Decoded_XrHandJointLocationsEXT>* locations) override;
-
     virtual void Process_xrCreateHandMeshSpaceMSFT(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

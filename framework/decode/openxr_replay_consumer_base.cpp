@@ -55,8 +55,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 OpenXrReplayConsumerBase::OpenXrReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const OpenXrReplayOptions&                options) :
-    application_(application),
-    options_(options), get_instance_proc_addr_(nullptr)
+    application_(application), options_(options), get_instance_proc_addr_(nullptr)
 {
     assert(application_ != nullptr);
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
@@ -499,15 +498,17 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     assert(create_info);
 
     PFN_xrEnumerateInstanceExtensionProperties instance_extension_proc;
-    xrGetInstanceProcAddr(XR_NULL_HANDLE, "xrEnumerateInstanceExtensionProperties", (PFN_xrVoidFunction*)&instance_extension_proc);
+    xrGetInstanceProcAddr(
+        XR_NULL_HANDLE, "xrEnumerateInstanceExtensionProperties", (PFN_xrVoidFunction*)&instance_extension_proc);
 
-    uint32_t ext_count = 0;
+    uint32_t                           ext_count = 0;
     std::vector<XrExtensionProperties> ext_props;
-    XrResult ext_result = instance_extension_proc(nullptr, 0, &ext_count, nullptr);
+    XrResult                           ext_result = instance_extension_proc(nullptr, 0, &ext_count, nullptr);
     if (ext_result == XR_SUCCESS && ext_count > 0)
     {
         ext_props.resize(ext_count);
-        for (uint32_t i = 0; i < ext_props.size(); ++i) {
+        for (uint32_t i = 0; i < ext_props.size(); ++i)
+        {
             ext_props[i].type = XR_TYPE_EXTENSION_PROPERTIES;
             ext_props[i].next = nullptr;
         }
@@ -525,14 +526,15 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
     // Remove the original XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR structure with incorrect info
     // TODO: This breaks if there is any structure in front of this in the next call chain.
     const XrBaseInStructure* next_struct = reinterpret_cast<const XrBaseInStructure*>(create_info->next);
-    while (next_struct != nullptr && next_struct->type == XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR) {
+    while (next_struct != nullptr && next_struct->type == XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR)
+    {
         next_struct = next_struct->next;
     }
     init_android.next = reinterpret_cast<const void*>(next_struct);
 
     XrInstanceCreateInfo new_create_info = *create_info;
-    new_create_info.next = &init_android;
-    create_info = &new_create_info;
+    new_create_info.next                 = &init_android;
+    create_info                          = &new_create_info;
 #endif // IGL_PLATFORM_ANDROID
 
     auto replay_result = xrCreateInstance(create_info, replay_instance);
@@ -561,6 +563,59 @@ void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     session_data.AddGraphicsBinding(MakeGraphicsBinding(decoded_info));
 }
 
+struct EventStrings
+{
+    XrStructureType type;
+    char            name[128];
+};
+static EventStrings events_to_string[] = {
+    { XR_TYPE_UNKNOWN, "Unknown Event Type" },
+    { XR_TYPE_EVENT_DATA_BUFFER, "XR_TYPE_EVENT_DATA_BUFFER" },
+    { XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING, "XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING" },
+    { XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED, "XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED" },
+    { XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING, "XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING" },
+    { XR_TYPE_EVENT_DATA_EVENTS_LOST, "XR_TYPE_EVENT_DATA_EVENTS_LOST" },
+    { XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED, "XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED" },
+    { XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT, "XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT" },
+    { XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR, "XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR" },
+    { XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX,
+      "XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX" },
+    { XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB, "XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB" },
+    { XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB, "XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB" },
+    { XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO, "XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO" },
+    { XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML, "XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML" },
+    { XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML, "XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML" },
+    { XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML, "XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML" },
+    { XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB, "XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB" },
+    { XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_SCENE_CAPTURE_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SCENE_CAPTURE_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_COMMIT_TEXT_META, "XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_COMMIT_TEXT_META" },
+    { XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_BACKSPACE_META, "XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_BACKSPACE_META" },
+    { XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_ENTER_META, "XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_ENTER_META" },
+    { XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_SHOWN_META, "XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_SHOWN_META" },
+    { XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_HIDDEN_META, "XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_HIDDEN_META" },
+    { XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB, "XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB" },
+    { XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT, "XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT" },
+};
+
+const char* GetEventTypeString(XrStructureType type)
+{
+    size_t len = sizeof(events_to_string) / sizeof(EventStrings);
+    for (size_t ii = 0; ii < len; ++ii)
+    {
+        if (type == events_to_string[ii].type)
+        {
+            return events_to_string[ii].name;
+        }
+    }
+    return events_to_string[0].name;
+}
+
 void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&                               call_info,
                                                    XrResult                                         returnValue,
                                                    format::HandleId                                 instance,
@@ -573,11 +628,25 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
     }
 
     XrInstance         in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    XrEventDataBuffer* capture_event = eventData->GetPointer();
+
+    // We received events that haven't been handled yet already, so see if this one is in the list already
+    for (size_t ii = 0; ii < received_events_.size(); ++ii)
+    {
+        if (received_events_[ii].type == capture_event->type)
+        {
+            GFXRECON_LOG_WARNING("Previously received event %s (0x%x, %u)",
+                                 GetEventTypeString(capture_event->type),
+                                 capture_event->type,
+                                 capture_event->type);
+            received_events_.erase(received_events_.begin() + ii);
+            return;
+        }
+    }
+
     XrEventDataBuffer* out_eventData =
         eventData->IsNull() ? nullptr : eventData->AllocateOutputData(1, { XR_TYPE_EVENT_DATA_BUFFER, nullptr });
     InitializeOutputStructNext(eventData);
-
-    XrEventDataBuffer* capture_event = eventData->GetPointer();
 
     XrResult replay_result;
 
@@ -591,14 +660,29 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         {
             *out_eventData = XrEventDataBuffer{ XR_TYPE_EVENT_DATA_BUFFER };
             replay_result  = GetInstanceTable(in_instance)->PollEvent(in_instance, out_eventData);
-
             retry_count++;
 
             if (capture_event->type != out_eventData->type)
             {
                 if (replay_result == XR_SUCCESS)
                 {
-                    GFXRECON_LOG_WARNING("Skipping event %u", out_eventData->type);
+                    // Add it to the list of received events
+                    received_events_.push_back(*out_eventData);
+                    GFXRECON_LOG_WARNING("Recording event for later %s (0x%x, %u)",
+                                         GetEventTypeString(capture_event->type),
+                                         capture_event->type,
+                                         capture_event->type);
+
+                    // If we grow too lare on the event vector, it's probably because we have
+                    // received a bunch of events we can not handle.  So remove the first 100
+                    // events to make room for more without bloating the list size.
+                    // TODO: Perhaps do this more elegantly?
+                    if (received_events_.size() > 1000)
+                    {
+                        GFXRECON_LOG_WARNING("Event list is now %d in size, stripping the first 100!",
+                                             received_events_.size());
+                        received_events_.erase(received_events_.begin(), received_events_.begin() + 100);
+                    }
                 }
                 else
                 {
@@ -609,6 +693,10 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
         } while ((retry_count < kRetryLimit) && capture_event->type != out_eventData->type);
         if (capture_event->type != out_eventData->type)
         {
+            GFXRECON_LOG_ERROR("Event %s (0x%x %d) never occurred!",
+                               GetEventTypeString(capture_event->type),
+                               capture_event->type,
+                               capture_event->type);
             replay_result = XR_ERROR_RUNTIME_FAILURE; // Runtime never gave us the event we were looking for
         }
     }
@@ -701,7 +789,7 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
         return;
     }
 
-    XrSwapchain in_swapchain = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
+    XrSwapchain in_swapchain   = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
     auto&       swapchain_data = GetSwapchainData(in_swapchain);
 
     XrResult result = swapchain_data.ImportReplaySwapchain(images);
@@ -754,28 +842,70 @@ void OpenXrReplayConsumerBase::PostProcessExternalObject(
     GFXRECON_UNREFERENCED_PARAMETER(call_name);
 }
 
+// TODO: Process_xrLocateHandJointsEXT should be moved back to automatic
+// generation once the reason for the validation failure on Quest headsets
+// is diagnosed and figured out.
+// For now, we set the CheckResult assert_flag to false so we can continue
+// on even with this error.
+void OpenXrReplayConsumerBase::Process_xrLocateHandJointsEXT(
+    const ApiCallInfo&                                       call_info,
+    XrResult                                                 returnValue,
+    format::HandleId                                         handTracker,
+    StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
+    StructPointerDecoder<Decoded_XrHandJointLocationsEXT>*   locations)
+{
+    XrHandTrackerEXT in_handTracker =
+        MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
+    const XrHandJointsLocateInfoEXT* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrHandJointLocationsEXT* out_locations =
+        locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_HAND_JOINT_LOCATIONS_EXT, nullptr });
+    InitializeOutputStructNext(locations);
+
+    XrResult replay_result =
+        GetInstanceTable(in_handTracker)->LocateHandJointsEXT(in_handTracker, in_locateInfo, out_locations);
+    CheckResult("xrLocateHandJointsEXT", returnValue, replay_result, call_info, false);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::UpdateState(
+        this, call_info, returnValue, handTracker, locateInfo, locations, replay_result);
+}
+
 void OpenXrReplayConsumerBase::CheckResult(const char*                func_name,
                                            XrResult                   original,
                                            XrResult                   replay,
-                                           const decode::ApiCallInfo& call_info)
+                                           const decode::ApiCallInfo& call_info,
+                                           bool                       assert_on_error)
 {
     if (original != replay)
     {
         if (replay < 0)
         {
-            // Raise a fatal error if replay produced an error that did not occur during capture.  Format not supported
-            // errors are not treated as fatal, but will be reported as warnings below, allowing the replay to attempt
-            // to continue for the case where an application may have queried for formats that it did not use.
-            GFXRECON_LOG_FATAL(
-                "API call at index: %d thread: %d %s returned error value %s that does not match the result from the "
-                "capture file: %s. Replay cannot continue.",
-                call_info.index,
-                call_info.thread_id,
-                func_name,
-                util::ToString<XrResult>(replay).c_str(),
-                util::ToString<XrResult>(original).c_str());
+            if (assert_on_error)
+            {
+                // Raise a fatal error if replay produced an error that did not occur during capture.  Format not
+                // supported errors are not treated as fatal, but will be reported as warnings below, allowing the
+                // replay to attempt to continue for the case where an application may have queried for formats that it
+                // did not use.
+                GFXRECON_LOG_FATAL("API call at index: %d thread: %d %s returned error value %s that does not match "
+                                   "the result from the "
+                                   "capture file: %s. Replay cannot continue.",
+                                   call_info.index,
+                                   call_info.thread_id,
+                                   func_name,
+                                   util::ToString<XrResult>(replay).c_str(),
+                                   util::ToString<XrResult>(original).c_str());
 
-            RaiseFatalError(enumutil::GetResultDescription(replay));
+                RaiseFatalError(enumutil::GetResultDescription(replay));
+            }
+            else
+            {
+                GFXRECON_LOG_ERROR("API call at index: %d thread: %d %s returned error value %s that does not match "
+                                   "the result from the capture file: %s.",
+                                   call_info.index,
+                                   call_info.thread_id,
+                                   func_name,
+                                   util::ToString<XrResult>(replay).c_str(),
+                                   util::ToString<XrResult>(original).c_str());
+            }
         }
         else if (!((replay == XR_SUCCESS) &&
                    ((original == XR_TIMEOUT_EXPIRED) || (original == XR_SESSION_LOSS_PENDING) ||
@@ -1438,8 +1568,8 @@ OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_XrSessionCreateInfo* creat
 
 OpenXrReplayConsumerBase::VulkanGraphicsBinding::VulkanGraphicsBinding(
     VulkanReplayConsumerBase& vulkan_consumer, const Decoded_XrGraphicsBindingVulkanKHR& xr_binding) :
-    XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value),
-    vulkan_consumer(&vulkan_consumer), instance_table(vulkan_consumer.GetInstanceTable(physicalDevice)),
+    XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value), vulkan_consumer(&vulkan_consumer),
+    instance_table(vulkan_consumer.GetInstanceTable(physicalDevice)),
     device_table(vulkan_consumer.GetDeviceTable(device)), instance_id(xr_binding.instance),
     physicalDevice_id(xr_binding.physicalDevice), device_id(xr_binding.device)
 {

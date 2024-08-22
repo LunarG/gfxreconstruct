@@ -802,6 +802,7 @@ extern "C"
             loaderInfo->structType != XR_LOADER_INTERFACE_STRUCT_LOADER_INFO ||
             apiLayerRequest->structType != XR_LOADER_INTERFACE_STRUCT_API_LAYER_REQUEST)
         {
+            GFXRECON_LOG_ERROR("xrNegotiateLoaderApiLayerInterface: Failed checking incoming structs");
             return XR_ERROR_VALIDATION_FAILURE;
         }
 
@@ -820,6 +821,14 @@ extern "C"
              layer_cur_major_version > loader_max_major_version) ||
             (layer_cur_minor_version < loader_min_minor_version || layer_cur_major_version > loader_max_minor_version))
         {
+            GFXRECON_LOG_ERROR(
+                "xrNegotiateLoaderApiLayerInterface: Failed negotiating version (loader [%u.%u -> %u.%u], layer %u.%u)",
+                loader_min_major_version,
+                loader_min_minor_version,
+                loader_max_major_version,
+                loader_max_minor_version,
+                layer_cur_major_version,
+                layer_cur_minor_version);
             return XR_ERROR_API_VERSION_UNSUPPORTED;
         }
 
