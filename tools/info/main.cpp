@@ -64,9 +64,10 @@ const char kHelpLongOption[]    = "--help";
 const char kVersionOption[]     = "--version";
 const char kNoDebugPopup[]      = "--no-debug-popup";
 const char kExeInfoOnlyOption[] = "--exe-info-only";
+const char kEnvVarsOnlyOption[] = "--env-vars-only";
 const char kEnumGpuIndices[]    = "--enum-gpu-indices";
 
-const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--enum-gpu-indices";
+const char kOptions[] = "-h|--help,--version,--no-debug-popup,--exe-info-only,--env-vars-only,--enum-gpu-indices";
 
 const char kUnrecognizedFormatString[] = "<unrecognized-format>";
 
@@ -144,6 +145,8 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("  -h\t\t\tPrint usage information and exit (same as --help).");
     GFXRECON_WRITE_CONSOLE("  --version\t\tPrint version information and exit.");
     GFXRECON_WRITE_CONSOLE("  --exe-info-only\tQuickly exit after extracting captured application's executable name");
+    GFXRECON_WRITE_CONSOLE(
+        "  --env-vars-only\tQuickly exit after extracting captured application's environment variables");
 #if defined(WIN32) && defined(_DEBUG)
     GFXRECON_WRITE_CONSOLE("  --no-debug-popup\tDisable the 'Abort, Retry, Ignore' message box");
     GFXRECON_WRITE_CONSOLE("        \t\tdisplayed when abort() is called (Windows debug only).");
@@ -719,6 +722,36 @@ static bool CheckOptionEnumGpuIndices(const char* exe_name, const gfxrecon::util
 }
 #endif
 
+void PrintEnvironmentVariableInfo(gfxrecon::decode::InfoConsumer& info_consumer)
+{
+    GFXRECON_WRITE_CONSOLE("Environment variables:");
+    for (const std::string& var : info_consumer.GetEnvironmentVariables())
+    {
+        GFXRECON_WRITE_CONSOLE("\t%s", var.c_str());
+    }
+}
+
+void GatherAndPrintEnvVars(const std::string& input_filename)
+{
+    gfxrecon::decode::FileProcessor file_processor;
+    if (file_processor.Initialize(input_filename))
+    {
+        gfxrecon::decode::InfoConsumer info_consumer;
+        gfxrecon::decode::InfoDecoder  info_decoder;
+        info_decoder.AddConsumer(&info_consumer);
+        file_processor.AddDecoder(&info_decoder);
+        file_processor.ProcessAllFrames();
+        if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
+        {
+            PrintEnvironmentVariableInfo(info_consumer);
+        }
+        else
+        {
+            GFXRECON_LOG_ERROR("Encountered error while reading capture. Unable to report environment variables.");
+        }
+    }
+}
+
 void GatherAndPrintAllInfo(const std::string& input_filename)
 {
     gfxrecon::decode::FileProcessor file_processor;
@@ -850,6 +883,10 @@ int main(int argc, const char** argv)
     if (arg_parser.IsOptionSet(kExeInfoOnlyOption))
     {
         GatherAndPrintExeInfo(input_filename);
+    }
+    else if (arg_parser.IsOptionSet(kEnvVarsOnlyOption))
+    {
+        GatherAndPrintEnvVars(input_filename);
     }
     else
     {

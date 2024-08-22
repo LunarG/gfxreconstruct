@@ -1310,7 +1310,6 @@ struct Decoded_VkBindMemoryStatusKHR;
 struct Decoded_VkBindDescriptorSetsInfoKHR;
 struct Decoded_VkPushConstantsInfoKHR;
 struct Decoded_VkPushDescriptorSetInfoKHR;
-struct Decoded_VkPushDescriptorSetWithTemplateInfoKHR;
 struct Decoded_VkSetDescriptorBufferOffsetsInfoEXT;
 struct Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT;
 
@@ -1320,7 +1319,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBindDescriptorSetsInfoKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPushConstantsInfoKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPushDescriptorSetInfoKHR* wrapper);
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPushDescriptorSetWithTemplateInfoKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkSetDescriptorBufferOffsetsInfoEXT* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* wrapper);
 

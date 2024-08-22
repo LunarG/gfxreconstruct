@@ -603,7 +603,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindMemoryStatus
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDescriptorSetsInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushConstantsInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSetInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSetWithTemplateInfoKHR* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetDescriptorBufferOffsetsInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindDescriptorBufferEmbeddedSamplersInfoEXT* data, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceShaderRelaxedExtendedInstructionFeaturesKHR* data, const util::JsonOptions& options = util::JsonOptions());

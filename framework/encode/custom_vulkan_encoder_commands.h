@@ -791,6 +791,16 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWi
 };
 
 template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPushDescriptorSetWithTemplate2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdPushDescriptorSetWithTemplate2KHR(args...);
+    }
+};
+
+template <>
 struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetDescriptorPool>
 {
     template <typename... Args>
@@ -1157,6 +1167,26 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdDebugMarkerInsertEX
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
         manager->PostProcess_vkCmdDebugMarkerInsertEXT(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdInsertDebugUtilsLabelEXT>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCmdInsertDebugUtilsLabelEXT(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateShaderModule>
+{
+    template <typename... Args>
+    static void Dispatch(VulkanCaptureManager* manager, Args... args)
+    {
+        manager->PostProcess_vkCreateShaderModule(args...);
     }
 };
 

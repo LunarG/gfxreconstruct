@@ -33,16 +33,27 @@ class BaseReplayConsumerBodyGenerator():
 
         first = True
         for cmd in self.get_filtered_cmd_names():
+
+            if self.is_resource_dump_class() and cmd[:5] != "vkCmd":
+                continue
+
             info = self.feature_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 
             cmddef = '' if first else '\n'
-            cmddef += self.make_consumer_func_decl(
-                return_type,
-                '{}ReplayConsumer::Process_'.format(platform_type) + cmd,
-                values
-            ) + '\n'
+            if self.is_resource_dump_class():
+                cmddef += self.make_dump_resources_func_decl(
+                    return_type,
+                    '{}ReplayDumpResources::Process_'.format(platform_type) + cmd,
+                    values, cmd in self.DUMP_RESOURCES_OVERRIDES
+                ) + '\n'
+            else:
+                cmddef += self.make_consumer_func_decl(
+                    return_type,
+                    '{}ReplayConsumer::Process_'.format(platform_type) + cmd,
+                    values
+                ) + '\n'
             cmddef += '{\n'
             cmddef += self.make_consumer_func_body(return_type, cmd, values)
             cmddef += '}'

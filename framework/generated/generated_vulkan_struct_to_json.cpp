@@ -9338,22 +9338,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSe
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPushDescriptorSetWithTemplateInfoKHR* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkPushDescriptorSetWithTemplateInfoKHR& decoded_value = *data->decoded_value;
-        const Decoded_VkPushDescriptorSetWithTemplateInfoKHR& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        HandleToJson(jdata["descriptorUpdateTemplate"], meta_struct.descriptorUpdateTemplate, options);
-        HandleToJson(jdata["layout"], meta_struct.layout, options);
-        FieldToJson(jdata["set"], decoded_value.set, options);
-        FieldToJson(jdata["pData"], meta_struct.pData, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkSetDescriptorBufferOffsetsInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)

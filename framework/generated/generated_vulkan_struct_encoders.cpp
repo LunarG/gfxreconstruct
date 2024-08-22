@@ -5966,16 +5966,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetInfoKHR& v
     EncodeStructArray(encoder, value.pDescriptorWrites, value.descriptorWriteCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTemplateInfoKHR& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(value.descriptorUpdateTemplate);
-    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(value.layout);
-    encoder->EncodeUInt32Value(value.set);
-    encoder->EncodeVoidPtr(value.pData);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkSetDescriptorBufferOffsetsInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);

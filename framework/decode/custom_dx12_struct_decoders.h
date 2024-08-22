@@ -189,15 +189,17 @@ struct Decoded_D3D12_VERSIONED_DEVICE_REMOVED_EXTENDED_DATA
 struct Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS
 {
     using struct_type = D3D12_RENDER_PASS_BEGINNING_ACCESS;
-    D3D12_RENDER_PASS_BEGINNING_ACCESS*                          decoded_value{ nullptr };
-    Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS* Clear{ nullptr };
+    D3D12_RENDER_PASS_BEGINNING_ACCESS*                                   decoded_value{ nullptr };
+    Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_CLEAR_PARAMETERS*          Clear{ nullptr };
+    Decoded_D3D12_RENDER_PASS_BEGINNING_ACCESS_PRESERVE_LOCAL_PARAMETERS* PreserveLocal{ nullptr };
 };
 
 struct Decoded_D3D12_RENDER_PASS_ENDING_ACCESS
 {
     using struct_type = D3D12_RENDER_PASS_ENDING_ACCESS;
-    D3D12_RENDER_PASS_ENDING_ACCESS*                            decoded_value{ nullptr };
-    Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS* Resolve{ nullptr };
+    D3D12_RENDER_PASS_ENDING_ACCESS*                                   decoded_value{ nullptr };
+    Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_PARAMETERS*        Resolve{ nullptr };
+    Decoded_D3D12_RENDER_PASS_ENDING_ACCESS_PRESERVE_LOCAL_PARAMETERS* PreserveLocal{ nullptr };
 };
 
 // Platform types.

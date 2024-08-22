@@ -28,11 +28,11 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 void VulkanSwapchain::Clean()
 {
-    if (swapchain_options_.select_surface_index >= create_surface_count_)
+    if (swapchain_options_.surface_index >= create_surface_count_)
     {
         GFXRECON_LOG_WARNING("Rendering was restricted to surface index %u, but a surface was never created for that "
                              "index; replay created %d surface(s)",
-                             swapchain_options_.select_surface_index,
+                             swapchain_options_.surface_index,
                              create_surface_count_);
     }
 
@@ -75,8 +75,7 @@ VkResult VulkanSwapchain::CreateSurface(VkResult                            orig
 
     // For multi-surface captures, when replay is restricted to a specific surface, only create a surface for
     // the specified index.
-    if ((swapchain_options_.select_surface_index == -1) ||
-        (swapchain_options_.select_surface_index == create_surface_count_))
+    if ((swapchain_options_.surface_index == -1) || (swapchain_options_.surface_index == create_surface_count_))
     {
         // Create a window for our surface.
         assert(application_);

@@ -112,6 +112,8 @@ uint64_t GetWrappedId(uint64_t object, VkObjectType object_type)
         case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV:
             return GetWrappedId<IndirectCommandsLayoutNVWrapper>(
                 format::FromHandleId<VkIndirectCommandsLayoutNV>(object));
+        case VK_OBJECT_TYPE_MICROMAP_EXT:
+            return GetWrappedId<MicromapEXTWrapper>(format::FromHandleId<VkMicromapEXT>(object));
         case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT_EXT:
             return GetWrappedId<PrivateDataSlotEXTWrapper>(format::FromHandleId<VkPrivateDataSlotEXT>(object));
         case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:

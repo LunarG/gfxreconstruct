@@ -138,6 +138,51 @@ void VulkanDefaultAllocator::DestroyImage(VkImage                      image,
     functions_.destroy_image(device_, image, allocation_callbacks);
 }
 
+VkResult VulkanDefaultAllocator::CreateVideoSession(const VkVideoSessionCreateInfoKHR* create_info,
+                                                    const VkAllocationCallbacks*       allocation_callbacks,
+                                                    format::HandleId                   capture_id,
+                                                    VkVideoSessionKHR*                 session,
+                                                    std::vector<ResourceData>*         allocator_datas)
+{
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if (allocator_datas != nullptr)
+    {
+        result = functions_.create_video_session(device_, create_info, allocation_callbacks, session);
+
+        if (result >= 0)
+        {
+            uint32_t count = 0;
+            functions_.get_video_session_memory_requirements(device_, *session, &count, nullptr);
+            allocator_datas->resize(count);
+            for (auto& allocator_data : *allocator_datas)
+            {
+                auto resource_alloc_info        = new ResourceAllocInfo;
+                resource_alloc_info->capture_id = capture_id;
+                allocator_data                  = reinterpret_cast<ResourceData>(resource_alloc_info);
+            }
+        }
+    }
+
+    return result;
+}
+
+void VulkanDefaultAllocator::DestroyVideoSession(VkVideoSessionKHR            session,
+                                                 const VkAllocationCallbacks* allocation_callbacks,
+                                                 std::vector<ResourceData>    allocator_datas)
+{
+    for (auto allocator_data : allocator_datas)
+    {
+        if (allocator_data != 0)
+        {
+            auto resource_alloc_info = reinterpret_cast<ResourceAllocInfo*>(allocator_data);
+            delete resource_alloc_info;
+        }
+    }
+
+    functions_.destroy_video_session(device_, session, allocation_callbacks);
+}
+
 void VulkanDefaultAllocator::GetImageSubresourceLayout(VkImage                    image,
                                                        const VkImageSubresource*  subresource,
                                                        VkSubresourceLayout*       layout,
@@ -344,6 +389,48 @@ VkResult VulkanDefaultAllocator::BindImageMemory2(uint32_t                     b
     return result;
 }
 
+VkResult VulkanDefaultAllocator::BindVideoSessionMemory(VkVideoSessionKHR                      video_session,
+                                                        uint32_t                               bind_info_count,
+                                                        const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                                        const ResourceData*                    allocator_session_datas,
+                                                        const MemoryData*                      allocator_memory_datas,
+                                                        VkMemoryPropertyFlags*                 bind_memory_properties)
+{
+    VkResult result = VK_ERROR_INITIALIZATION_FAILED;
+
+    if ((bind_infos != nullptr) && (allocator_session_datas != nullptr) && (allocator_memory_datas != nullptr) &&
+        (bind_memory_properties != nullptr))
+    {
+        result = functions_.bind_video_session_memory(device_, video_session, bind_info_count, bind_infos);
+
+        if (result == VK_SUCCESS)
+        {
+            for (uint32_t i = 0; i < bind_info_count; ++i)
+            {
+                auto allocator_session_data = allocator_session_datas[i];
+                auto allocator_memory_data  = allocator_memory_datas[i];
+
+                if ((allocator_session_data != 0) && (allocator_memory_data != 0))
+                {
+                    auto resource_alloc_info          = reinterpret_cast<ResourceAllocInfo*>(allocator_session_data);
+                    resource_alloc_info->bound_memory = bind_infos[i].memory;
+                    resource_alloc_info->bound_offset = bind_infos[i].memoryOffset;
+
+                    auto memory_alloc_info    = reinterpret_cast<MemoryAllocInfo*>(allocator_memory_data);
+                    bind_memory_properties[i] = memory_alloc_info->property_flags;
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("VulkanDefaultAllocator binding a VkVideoSessionKHR object to a "
+                                         "VkDeviceMemory object without allocator data");
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
 VkResult VulkanDefaultAllocator::MapMemory(VkDeviceMemory   memory,
                                            VkDeviceSize     offset,
                                            VkDeviceSize     size,
@@ -507,6 +594,36 @@ void VulkanDefaultAllocator::ReportBindImage2Incompatibility(uint32_t           
         for (uint32_t i = 0; i < bind_info_count; ++i)
         {
             functions_.get_image_memory_requirements(device_, bind_infos[i].image, &requirements[i]);
+        }
+
+        ReportBindIncompatibility(requirements.data(), allocator_memory_datas, bind_info_count);
+    }
+}
+
+void VulkanDefaultAllocator::ReportBindVideoSessionIncompatibility(VkVideoSessionKHR video_session,
+                                                                   uint32_t          bind_info_count,
+                                                                   const VkBindVideoSessionMemoryInfoKHR* bind_infos,
+                                                                   const ResourceData* allocator_resource_datas,
+                                                                   const MemoryData*   allocator_memory_datas)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(allocator_resource_datas);
+
+    if ((bind_infos != nullptr) && (allocator_memory_datas != nullptr))
+    {
+        uint32_t session_requirements_count = 0;
+        functions_.get_video_session_memory_requirements(device_, video_session, &session_requirements_count, nullptr);
+
+        VkVideoSessionMemoryRequirementsKHR reqs = {};
+        reqs.sType                               = VK_STRUCTURE_TYPE_VIDEO_SESSION_MEMORY_REQUIREMENTS_KHR;
+        std::vector<VkVideoSessionMemoryRequirementsKHR> session_requirements(session_requirements_count, reqs);
+        functions_.get_video_session_memory_requirements(
+            device_, video_session, &session_requirements_count, session_requirements.data());
+
+        std::vector<VkMemoryRequirements> requirements;
+        for (uint32_t i = 0; i < bind_info_count; ++i)
+        {
+            auto mem_index = bind_infos[i].memoryBindIndex;
+            requirements.emplace_back(session_requirements[mem_index].memoryRequirements);
         }
 
         ReportBindIncompatibility(requirements.data(), allocator_memory_datas, bind_info_count);

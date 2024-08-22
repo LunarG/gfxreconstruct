@@ -26,6 +26,7 @@
 #include "application/android_context.h"
 #include "application/android_window.h"
 #include "decode/file_processor.h"
+#include "decode/preload_file_processor.h"
 #include "decode/vulkan_replay_options.h"
 #include "decode/vulkan_tracked_object_info_table.h"
 #include "format/format.h"
@@ -34,6 +35,7 @@
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
+#include "parse_dump_resources_cli.h"
 
 #include <android_native_app_glue.h>
 #include <android/log.h>
@@ -100,21 +102,33 @@ void android_main(struct android_app* app)
 
         try
         {
-            gfxrecon::decode::FileProcessor file_processor;
+            std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor =
+                arg_parser.IsOptionSet(kPreloadMeasurementRangeOption)
+                    ? std::make_unique<gfxrecon::decode::PreloadFileProcessor>()
+                    : std::make_unique<gfxrecon::decode::FileProcessor>();
 
-            if (!file_processor.Initialize(filename))
+            if (!file_processor->Initialize(filename))
             {
                 GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
             }
             else
             {
                 auto application =
-                    std::make_shared<gfxrecon::application::Application>(kApplicationName, &file_processor);
+                    std::make_shared<gfxrecon::application::Application>(kApplicationName, file_processor.get());
                 application->InitializeWsiContext(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME, app);
 
                 gfxrecon::decode::VulkanTrackedObjectInfoTable tracked_object_info_table;
                 gfxrecon::decode::VulkanReplayOptions          replay_options =
                     GetVulkanReplayOptions(arg_parser, filename, &tracked_object_info_table);
+
+                // Process --dump-resources arg. We do it here so that other gfxr tools that use
+                // the VulkanReplayOptions class won't have to link in the json library.
+                if (!gfxrecon::parse_dump_resources::parse_dump_resources_arg(replay_options))
+                {
+                    GFXRECON_LOG_FATAL("There was an error while parsing dump resource indices. Terminating");
+                    return;
+                }
+
                 gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
                 gfxrecon::decode::VulkanDecoder        decoder;
                 uint32_t                               start_frame, end_frame;
@@ -132,13 +146,14 @@ void android_main(struct android_app* app)
                                                      replay_options.quit_after_measurement_frame_range,
                                                      replay_options.flush_measurement_frame_range,
                                                      replay_options.flush_inside_measurement_range,
+                                                     replay_options.preload_measurement_range,
                                                      measurement_file_name);
 
                 replay_consumer.SetFatalErrorHandler([](const char* message) { throw std::runtime_error(message); });
                 replay_consumer.SetFpsInfo(&fps_info);
 
                 decoder.AddConsumer(&replay_consumer);
-                file_processor.AddDecoder(&decoder);
+                file_processor->AddDecoder(&decoder);
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                 // Warn if the capture layer is active.
@@ -156,25 +171,25 @@ void android_main(struct android_app* app)
                 application->Run();
 
                 // Add one so that it matches the trim range frame number semantic
-                fps_info.EndFile(file_processor.GetCurrentFrameNumber() + 1);
+                fps_info.EndFile(file_processor->GetCurrentFrameNumber() + 1);
 
-                if ((file_processor.GetCurrentFrameNumber() > 0) &&
-                    (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
+                if ((file_processor->GetCurrentFrameNumber() > 0) &&
+                    (file_processor->GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone))
                 {
-                    if (file_processor.GetCurrentFrameNumber() < start_frame)
+                    if (file_processor->GetCurrentFrameNumber() < start_frame)
                     {
                         GFXRECON_LOG_WARNING(
                             "Measurement range start frame (%u) is greater than the last replayed frame (%u). "
                             "Measurements were never started, cannot calculate measurement range FPS.",
                             start_frame,
-                            file_processor.GetCurrentFrameNumber());
+                            file_processor->GetCurrentFrameNumber());
                     }
                     else
                     {
                         fps_info.LogToConsole();
                     }
                 }
-                else if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                else if (file_processor->GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
                 {
                     GFXRECON_WRITE_CONSOLE("A failure has occurred during replay");
                 }

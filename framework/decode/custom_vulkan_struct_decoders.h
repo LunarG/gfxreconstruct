@@ -26,6 +26,7 @@
 
 #include "format/platform_types.h"
 #include "decode/custom_vulkan_struct_decoders_forward.h"
+#include "decode/descriptor_update_template_decoder.h"
 #include "decode/handle_pointer_decoder.h"
 #include "decode/pointer_decoder.h"
 #include "decode/string_decoder.h"
@@ -150,6 +151,18 @@ struct Decoded_VkAccelerationStructureGeometryKHR
 
     PNextNode*                                      pNext{ nullptr };
     Decoded_VkAccelerationStructureGeometryDataKHR* geometry{ nullptr };
+};
+
+struct Decoded_VkPushDescriptorSetWithTemplateInfoKHR
+{
+    using struct_type = VkPushDescriptorSetWithTemplateInfoKHR;
+
+    struct_type* decoded_value{ nullptr };
+
+    PNextNode*                      pNext{ nullptr };
+    format::HandleId                descriptorUpdateTemplate{ format::kNullHandleId };
+    format::HandleId                layout{ format::kNullHandleId };
+    DescriptorUpdateTemplateDecoder pData;
 };
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.

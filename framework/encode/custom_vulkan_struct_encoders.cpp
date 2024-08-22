@@ -279,5 +279,14 @@ void EncodeStruct(ParameterEncoder* encoder, const SECURITY_ATTRIBUTES& value)
     encoder->EncodeInt32Value(value.bInheritHandle);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTemplateInfoKHR& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::DescriptorUpdateTemplateWrapper>(value.descriptorUpdateTemplate);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(value.layout);
+    encoder->EncodeUInt32Value(value.set);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

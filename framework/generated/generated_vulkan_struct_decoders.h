@@ -5902,18 +5902,6 @@ struct Decoded_VkPushDescriptorSetInfoKHR
     StructPointerDecoder<Decoded_VkWriteDescriptorSet>* pDescriptorWrites{ nullptr };
 };
 
-struct Decoded_VkPushDescriptorSetWithTemplateInfoKHR
-{
-    using struct_type = VkPushDescriptorSetWithTemplateInfoKHR;
-
-    VkPushDescriptorSetWithTemplateInfoKHR* decoded_value{ nullptr };
-
-    PNextNode* pNext{ nullptr };
-    format::HandleId descriptorUpdateTemplate{ format::kNullHandleId };
-    format::HandleId layout{ format::kNullHandleId };
-    uint64_t pData{ 0 };
-};
-
 struct Decoded_VkSetDescriptorBufferOffsetsInfoEXT
 {
     using struct_type = VkSetDescriptorBufferOffsetsInfoEXT;

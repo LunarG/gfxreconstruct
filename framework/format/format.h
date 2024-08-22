@@ -63,12 +63,14 @@ const size_t   kUuidSize                  = 16;
 const size_t   kMaxPhysicalDeviceNameSize = 256;
 const HandleId kNullHandleId              = 0;
 const size_t   kAdapterDescriptionSize    = 128;
+const int8_t   kNoneIndex                 = -1;
 
 /// Label for operation annotation, which captures parameters used by tools
 /// operating on a capture file.
-const char* const kAnnotationLabelOperation       = "operation";
-const char* const kAnnotationLabelReplayOptions   = "replayopts";
-const char* const kAnnotationLabelRemovedResource = "removed-resource";
+const char* const kAnnotationLabelOperation          = "operation";
+const char* const kAnnotationLabelReplayOptions      = "replayopts";
+const char* const kAnnotationLabelRemovedResource    = "removed-resource";
+const char* const kAnnotationPipelineCreationAttempt = "pipelinecreationattempt";
 
 const char* const kOperationAnnotationGfxreconstructVersion = "gfxrecon-version";
 const char* const kOperationAnnotationVulkanVersion         = "vulkan-version";
@@ -151,6 +153,7 @@ enum class MetaDataType : uint16_t
     kVulkanCopyAccelerationStructuresCommand  = 29,
     kReserved30                               = 30,
     kReserved31                               = 31,
+    kSetEnvironmentVariablesCommand           = 32,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -654,6 +657,16 @@ struct VulkanMetaBuildAccelerationStructuresHeader
 struct VulkanCopyAccelerationStructuresCommandHeader
 {
     format::MetaDataHeader meta_header;
+};
+static constexpr char kEnvironmentStringDelimeter = (char)-1;
+struct SetEnvironmentVariablesCommand
+{
+    MetaDataHeader meta_header;
+    ThreadId       thread_id;
+    uint64_t       string_length;
+
+    // In the capture file, a string will immediately follow this block
+    // containing a list of environment variables and their values
 };
 
 // Restore size_t to normal behavior.

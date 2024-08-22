@@ -778,8 +778,6 @@ class VulkanDecoder : public VulkanDecoderBase
 
     size_t Decode_vkCmdPushDescriptorSet2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
-    size_t Decode_vkCmdPushDescriptorSetWithTemplate2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
-
     size_t Decode_vkCmdSetDescriptorBufferOffsets2EXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_vkCmdBindDescriptorBufferEmbeddedSamplers2EXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);

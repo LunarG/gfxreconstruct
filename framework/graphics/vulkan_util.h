@@ -59,6 +59,7 @@ static T* GetPNextStruct(const Parent_T* parent, VkStructureType struct_type)
         {
             return reinterpret_cast<T*>(current_struct);
         }
+        current_struct = current_struct->pNext;
     }
     return nullptr;
 }

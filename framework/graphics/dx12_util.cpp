@@ -32,6 +32,12 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(dx12)
 
+UINT GetTexturePitch(UINT64 width)
+{
+    return (width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
+           D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+}
+
 void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer,
                     ID3D12CommandQueue*                           queue,
                     IDXGISwapChain*                               swapchain,
@@ -76,8 +82,7 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                 {
                     D3D12_RESOURCE_DESC fb_desc = frame_buffer_resource->GetDesc();
 
-                    auto pitch = (fb_desc.Width * graphics::BytesPerPixel + D3D12_TEXTURE_DATA_PITCH_ALIGNMENT - 1) /
-                                 D3D12_TEXTURE_DATA_PITCH_ALIGNMENT * D3D12_TEXTURE_DATA_PITCH_ALIGNMENT;
+                    auto pitch = GetTexturePitch(fb_desc.Width);
 
                     graphics::CpuImage captured_image = {};
 
@@ -114,13 +119,12 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                         "Screenshot format invalid!  Expected BMP or PNG, falling back to BMP.");
                                     // Intentional fall-through
                                 case gfxrecon::util::ScreenshotFormat::kBmp:
-                                    if (!util::imagewriter::WriteBmpImageNoAlpha(
-                                            filename + ".bmp",
-                                            static_cast<unsigned int>(fb_desc.Width),
-                                            static_cast<unsigned int>(fb_desc.Height),
-                                            datasize,
-                                            std::data(captured_image.data),
-                                            static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WriteBmpImage(filename + ".bmp",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch)))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write BMP file %s",
@@ -128,13 +132,13 @@ void TakeScreenshot(std::unique_ptr<graphics::DX12ImageRenderer>& image_renderer
                                     }
                                     break;
                                 case gfxrecon::util::ScreenshotFormat::kPng:
-                                    if (!util::imagewriter::WritePngImageNoAlpha(
-                                            filename + ".png",
-                                            static_cast<unsigned int>(fb_desc.Width),
-                                            static_cast<unsigned int>(fb_desc.Height),
-                                            datasize,
-                                            std::data(captured_image.data),
-                                            static_cast<unsigned int>(pitch)))
+                                    if (!util::imagewriter::WritePngImage(filename + ".png",
+                                                                          static_cast<unsigned int>(fb_desc.Width),
+                                                                          static_cast<unsigned int>(fb_desc.Height),
+                                                                          datasize,
+                                                                          std::data(captured_image.data),
+                                                                          static_cast<unsigned int>(pitch),
+                                                                          util::imagewriter::kFormat_RGBA))
                                     {
                                         GFXRECON_LOG_ERROR(
                                             "Screenshot could not be created: failed to write PNG file %s",

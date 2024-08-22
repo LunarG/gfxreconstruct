@@ -41,16 +41,24 @@ target_sources(gfxrecon_graphics
                     $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_CURRENT_LIST_DIR}/dx12_image_renderer.cpp>
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.h
                     ${CMAKE_CURRENT_LIST_DIR}/fps_info.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_check_buffer_references.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_resources_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_device_util.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.h
                     ${CMAKE_CURRENT_LIST_DIR}/vulkan_util.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_deep_copy.h
+                    ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_struct_deep_copy.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/../generated/generated_vulkan_struct_deep_copy_stype.cpp
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.h
+                    ${CMAKE_CURRENT_LIST_DIR}/vulkan_struct_extract_handles.cpp
               )
 
 target_include_directories(gfxrecon_graphics
                            PUBLIC
+                               ${CMAKE_SOURCE_DIR}/build
                                ${CMAKE_SOURCE_DIR}/framework
                                ${CMAKE_SOURCE_DIR}/external
                                $<$<BOOL:${D3D12_SUPPORT}>:${CMAKE_SOURCE_DIR}/external/AgilitySDK/inc>)

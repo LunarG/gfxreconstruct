@@ -188,10 +188,10 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
 {
-    DeviceWrapper*     bind_device{ nullptr };
-    const void*        bind_pnext{ nullptr };
-    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
-                                          // HandleUnwrapMemory.
+    DeviceWrapper*             bind_device{ nullptr };
+    const void*                bind_pnext{ nullptr };
+    std::unique_ptr<uint8_t[]> bind_pnext_memory;
+
     format::HandleId bind_memory_id{ format::kNullHandleId };
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
@@ -204,10 +204,10 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
 
 struct ImageWrapper : public HandleWrapper<VkImage>
 {
-    DeviceWrapper*     bind_device{ nullptr };
-    const void*        bind_pnext{ nullptr };
-    HandleUnwrapMemory bind_pnext_memory; // Global HandleUnwrapMemory could be reset anytime, so it should have its own
-                                          // HandleUnwrapMemory.
+    DeviceWrapper*             bind_device{ nullptr };
+    const void*                bind_pnext{ nullptr };
+    std::unique_ptr<uint8_t[]> bind_pnext_memory;
+
     format::HandleId         bind_memory_id{ format::kNullHandleId };
     VkDeviceSize             bind_offset{ 0 };
     uint32_t                 queue_family_index{ 0 };
@@ -415,20 +415,21 @@ struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 struct SurfaceCapabilities
 {
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
-    HandleUnwrapMemory              surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
 
-    VkSurfaceCapabilities2KHR surface_capabilities;
-    HandleUnwrapMemory        surface_capabilities_pnext_memory;
+    VkSurfaceCapabilities2KHR  surface_capabilities;
+    std::unique_ptr<uint8_t[]> surface_capabilities_pnext_memory;
 };
 
 // For vkGetPhysicalDeviceSurfaceFormatsKHR
 struct SurfaceFormats
 {
     VkPhysicalDeviceSurfaceInfo2KHR surface_info;
-    HandleUnwrapMemory              surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>      surface_info_pnext_memory;
 
-    std::vector<VkSurfaceFormat2KHR> surface_formats;
-    std::vector<HandleUnwrapMemory>  surface_formats_pnext_memory;
+    VkSurfaceFormat2KHR*       surface_formats;
+    uint32_t                   surface_format_count;
+    std::unique_ptr<uint8_t[]> surface_formats_memory;
 };
 
 // For vkGetPhysicalDeviceSurfacePresentModesKHR
@@ -436,7 +437,7 @@ struct SurfacePresentModes
 {
     std::vector<VkPresentModeKHR> present_modes;
     const void*                   surface_info_pnext{ nullptr };
-    HandleUnwrapMemory            surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>    surface_info_pnext_memory;
 };
 
 // For vkGetDeviceGroupSurfacePresentModesKHR
@@ -444,7 +445,7 @@ struct GroupSurfacePresentModes
 {
     VkDeviceGroupPresentModeFlagsKHR present_modes{ 0 };
     const void*                      surface_info_pnext{ nullptr };
-    HandleUnwrapMemory               surface_info_pnext_memory;
+    std::unique_ptr<uint8_t[]>       surface_info_pnext_memory;
 };
 
 struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>

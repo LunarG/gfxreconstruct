@@ -31,6 +31,7 @@
 
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -48,6 +49,10 @@ enum class SkipGetFenceStatus
     SkipAll,
     COUNT
 };
+
+// Default color attachment index selection for dump resources feature.
+// This default value essentially defines to dump all attachments.
+static constexpr int kUnspecifiedColorAttachment = -1;
 
 struct VulkanReplayOptions : public ReplayOptions
 {
@@ -72,6 +77,30 @@ struct VulkanReplayOptions : public ReplayOptions
     SkipGetFenceStatus           skip_get_fence_status{ SkipGetFenceStatus::NoSkip };
     std::vector<util::UintRange> skip_get_fence_ranges;
     bool                         wait_before_present{ false };
+
+    // Dumping resources related configurable replay options
+    std::vector<uint64_t>                           BeginCommandBuffer_Indices;
+    std::vector<std::vector<uint64_t>>              Draw_Indices;
+    std::vector<std::vector<std::vector<uint64_t>>> RenderPass_Indices;
+    std::vector<std::vector<uint64_t>>              Dispatch_Indices;
+    std::vector<std::vector<uint64_t>>              TraceRays_Indices;
+    std::unordered_set<uint64_t>                    QueueSubmit_Indices;
+    std::string                                     dump_resources;
+    std::string                                     dump_resources_output_dir;
+    util::ScreenshotFormat                          dump_resources_image_format{ util::ScreenshotFormat::kBmp };
+
+    // Flag to quickly check whether the feature is enabled or not
+    bool  dumping_resources{ false };
+    bool  dump_resources_before{ false };
+    bool  dump_resources_dump_depth{ false };
+    int   dump_resources_color_attachment_index{ kUnspecifiedColorAttachment };
+    float dump_resources_scale{ 1.0f };
+    bool  dump_resources_dump_vertex_index_buffer{ false };
+    bool  dump_resources_json_per_command{ false };
+    bool  dump_resources_dump_immutable_resources{ false };
+    bool  dump_resources_dump_all_image_subresources{ false };
+
+    bool preload_measurement_range{ false };
 };
 
 GFXRECON_END_NAMESPACE(decode)

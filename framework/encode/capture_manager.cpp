@@ -39,7 +39,12 @@
 #include "util/platform.h"
 
 #include <cassert>
+#include <cstdlib>
 #include <unordered_map>
+
+#if defined(__unix__)
+extern char** environ;
+#endif
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -92,7 +97,7 @@ CommonCaptureManager::CommonCaptureManager() :
     force_file_flush_(false), timestamp_filename_(true),
     memory_tracking_mode_(CaptureSettings::MemoryTrackingMode::kPageGuard), page_guard_align_buffer_sizes_(false),
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
-    page_guard_memory_mode_(kMemoryModeShadowInternal), trim_enabled_(false),
+    page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
     queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
@@ -349,6 +354,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         if (use_external_memory)
         {
             page_guard_memory_mode_ = kMemoryModeExternal;
+            page_guard_external_memory_ = true;
         }
         else if (trace_settings.page_guard_persistent_memory)
         {
@@ -872,7 +878,9 @@ void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId api_family)
         if ((capture_mode_ & kModeWrite) == kModeWrite)
         {
             // Currently capturing a queue submit range, check for end of range.
-            CheckContinueCaptureForWriteMode(api_family, queue_submit_count_);
+            // It checks the boundary count with +1. That is for trim frames.
+            // It will write one more QueueSubmit for trim QueueSubmits, so +1.
+            CheckContinueCaptureForWriteMode(api_family, queue_submit_count_ + 1);
         }
     }
 }
@@ -957,6 +965,80 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         operation_annotation += "\n}";
         ForcedWriteAnnotation(
             format::AnnotationType::kJson, format::kAnnotationLabelOperation, operation_annotation.c_str());
+
+        // Gather environment variables in format::kEnvironmentStringDelimeter -delimited string
+        std::string env_vars;
+#ifdef _WINDOWS
+        const LPCH env_string  = GetEnvironmentStrings();
+        int        offset      = 0;
+        int        base_offset = 0;
+
+        // Initial loop to count total length
+        while (env_string[offset] != '\0')
+        {
+            const char* c = env_string + offset;
+
+            while (env_string[offset] != '\0') offset += 1;
+            offset += 1;
+
+            // Environment variables starting with '=' are relics from the DOS era and can be ignored
+            // Said variables are always at the front, so we can simply bump base_offset to skip them
+            // more details: https://devblogs.microsoft.com/oldnewthing/20100506-00/?p=14133
+            if (*c == '=')
+                base_offset = offset;
+        }
+        env_vars.reserve(offset - base_offset);
+        offset = base_offset;
+
+        // Second loop to copy string data into allocated buffer
+        while (env_string[offset] != '\0')
+        {
+            const char* c = env_string + offset;
+            env_vars += c;
+            env_vars += format::kEnvironmentStringDelimeter;
+
+            // Advance offset until it points to next null byte of string
+            while (env_string[offset] != '\0') offset += 1;
+
+            // Advance offset to point at the first character of the next string
+            // or null if we're out of strings
+            offset += 1;
+        }
+        FreeEnvironmentStrings(env_string);
+#elif __unix__
+        int    current      = 0;
+        size_t total_length = 0;
+        // Initial loop to count total length
+        while (environ[current] != nullptr)
+        {
+            total_length += util::platform::StringLength(environ[current]);
+            current += 1;
+        }
+        current = 0;
+        env_vars.reserve(total_length);
+        // Second loop to copy string data into allocated buffer
+        while (environ[current] != nullptr)
+        {
+            env_vars += environ[current];
+            env_vars += format::kEnvironmentStringDelimeter;
+            current += 1;
+        }
+#endif
+        env_vars[env_vars.size() - 1] = '\0';
+
+        format::SetEnvironmentVariablesCommand env_block;
+        env_block.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(env_block) + env_vars.size();
+        env_block.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        env_block.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family, format::MetaDataType::kSetEnvironmentVariablesCommand);
+
+        auto thread_data    = GetThreadData();
+        env_block.thread_id = thread_data->thread_id_;
+
+        env_block.string_length = env_vars.size();
+
+        // Write to file
+        CombineAndWriteToFile({ { &env_block, sizeof(env_block) }, { env_vars.c_str(), env_vars.size() } });
     }
     else
     {

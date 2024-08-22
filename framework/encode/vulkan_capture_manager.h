@@ -1053,6 +1053,13 @@ class VulkanCaptureManager : public ApiCaptureManager
         // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
     }
 
+    void PostProcess_vkCmdPushDescriptorSetWithTemplate2KHR(VkCommandBuffer,
+                                                            const VkPushDescriptorSetWithTemplateInfoKHR* info)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(info);
+        // TODO: Need to be able to map layout + set to a VkDescriptorSet handle.
+    }
+
     void PostProcess_vkResetDescriptorPool(VkResult result,
                                            VkDevice,
                                            VkDescriptorPool descriptorPool,
@@ -1259,6 +1266,12 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
                                                    const VkDebugUtilsLabelEXT* pLabelInfo);
+
+    void PostProcess_vkCreateShaderModule(VkResult                        result,
+                                          VkDevice                        device,
+                                          const VkShaderModuleCreateInfo* pCreateInfo,
+                                          const VkAllocationCallbacks*    pAllocator,
+                                          VkShaderModule*                 pShaderModule);
 
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);

@@ -31,6 +31,7 @@
 #include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
+#include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
 #include "util/compressor.h"
@@ -854,11 +855,11 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
             // If the buffer has a device address, write the 'set buffer address' command before writing the API call to
             // create the buffer.  The address will need to be passed to vkCreateBuffer through the pCreateInfo pNext
             // list.
-            auto buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
-            VkBufferDeviceAddressInfo info           = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
-            info.pNext                               = nullptr;
-            info.buffer                              = buffer_wrapper->handle;
-            uint64_t address                         = 0;
+            auto buffer_wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+            VkBufferDeviceAddressInfo info = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
+            info.pNext                     = nullptr;
+            info.buffer                    = buffer_wrapper->handle;
+            uint64_t address               = 0;
 
             if (device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
@@ -886,7 +887,7 @@ VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     
                                                    const VkAllocationCallbacks* pAllocator,
                                                    VkImage*                     pImage)
 {
-    auto                     handle_unwrap_memory  = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
+    auto                     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
     const VkImageCreateInfo* pCreateInfo_unwrapped =
         vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
 
@@ -2846,6 +2847,22 @@ void VulkanCaptureManager::PreProcess_vkBindImageMemory2(VkDevice               
                                       "might occur. In that case set "
                                       "Page Guard Align Buffer Sizes env variable to true.");
         }
+    }
+}
+
+void VulkanCaptureManager::PostProcess_vkCreateShaderModule(VkResult                        result,
+                                                            VkDevice                        device,
+                                                            const VkShaderModuleCreateInfo* pCreateInfo,
+                                                            const VkAllocationCallbacks*    pAllocator,
+                                                            VkShaderModule*                 pShaderModule)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(device);
+    GFXRECON_UNREFERENCED_PARAMETER(pAllocator);
+    GFXRECON_UNREFERENCED_PARAMETER(pShaderModule);
+
+    if (result == VK_SUCCESS)
+    {
+        graphics::vulkan_check_buffer_references(pCreateInfo->pCode, pCreateInfo->codeSize);
     }
 }
 

@@ -889,17 +889,6 @@ void UnwrapStructHandles(VkPushDescriptorSetInfoKHR* value, HandleUnwrapMemory* 
     }
 }
 
-void UnwrapStructHandles(VkPushDescriptorSetWithTemplateInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->pNext != nullptr)
-        {
-            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
-        }
-    }
-}
-
 void UnwrapStructHandles(VkSetDescriptorBufferOffsetsInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -1291,13 +1280,6 @@ void UnwrapStructHandles(VkAccelerationStructureGeometryTrianglesDataKHR* value,
         {
             value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
         }
-    }
-}
-
-void UnwrapStructHandles(VkAccelerationStructureBuildGeometryInfoKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
     }
 }
 

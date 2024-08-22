@@ -31,6 +31,7 @@
 #include <cinttypes>
 #include <sys/syscall.h>
 #include <sys/ioctl.h>
+#include <time.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <poll.h>
@@ -70,6 +71,15 @@ static void internal_thread_termination_handler(int sig)
                        (_func_name),                                \
                        (_error),                                    \
                        strerror((_error)))
+
+#define LOG_THREAD_SYNCHRONIZATION_WARNING(_tid, _func_name, _error)  \
+    GFXRECON_LOG_WARNING("[%" PRIu64 "] %s: %u %s() failed %d (%s) ", \
+                         (_tid),                                      \
+                         __func__,                                    \
+                         __LINE__,                                    \
+                         (_func_name),                                \
+                         (_error),                                    \
+                         strerror((_error)))
 
 void PageGuardManager::UffdSignalHandler(int sig)
 {
@@ -205,7 +215,8 @@ bool PageGuardManager::UffdSetSignalHandler()
     // Install signal handler for the RT signal
     {
         struct sigaction sa = {};
-        sa.sa_flags         = SA_SIGINFO;
+        // Minimize side effects of the RT signal handler by restarting interrupted system calls when possible
+        sa.sa_flags = SA_RESTART;
         sigemptyset(&sa.sa_mask);
         sa.sa_handler = UffdStaticSignalHandler;
 
@@ -220,7 +231,6 @@ bool PageGuardManager::UffdSetSignalHandler()
     // Register a handler for SIGINT. We will use this signal to terminate the uffd handler thread
     {
         struct sigaction sa = {};
-        sa.sa_flags         = SA_SIGINFO;
         sigemptyset(&sa.sa_mask);
         sa.sa_handler = internal_thread_termination_handler;
 
@@ -243,9 +253,8 @@ void PageGuardManager::UffdRemoveSignalHandler()
     assert(uffd_rt_signal_used_ != -1);
 
     struct sigaction sa = {};
-    sa.sa_flags         = SA_SIGINFO;
     sigemptyset(&sa.sa_mask);
-    sa.sa_handler = nullptr;
+    sa.sa_handler = SIG_DFL;
 
     if (sigaction(uffd_rt_signal_used_, &sa, NULL))
     {
@@ -727,13 +736,27 @@ uint32_t PageGuardManager::UffdBlockFaultingThreads()
     {
         while (blocked_threads < threads_to_block)
         {
-            ret = pthread_cond_wait(&wait_for_threads_cond, &wait_for_threads_mutex);
+            struct timespec timeout;
+            if (clock_gettime(CLOCK_REALTIME, &timeout))
+            {
+                GFXRECON_LOG_ERROR("clock_gettime() failed (%s)", strerror(errno))
+            }
+
+            // 1 second should be a reasonable time
+            timeout.tv_sec += 1;
+            ret = pthread_cond_timedwait(&wait_for_threads_cond, &wait_for_threads_mutex, &timeout);
             if (ret)
             {
-                LOG_THREAD_SYNCHRONIZATION_ERROR(this_tid, "pthread_cond_wait()", ret);
-                assert(0);
+                LOG_THREAD_SYNCHRONIZATION_WARNING(this_tid, "pthread_cond_wait() (%s)", ret);
+
+                // For some reason not all threads made it to the signal handler in a reasonable time.
+                if (ret == ETIMEDOUT)
+                {
+                    threads_to_block = blocked_threads;
+                }
             }
         }
+
         ret = pthread_mutex_unlock(&wait_for_threads_mutex);
         if (ret)
         {
@@ -761,7 +784,6 @@ void PageGuardManager::UffdUnblockFaultingThreads(uint32_t n_threads_to_wait)
         int ret = pthread_mutex_lock(&reset_regions_mutex);
         if (ret == 0)
         {
-            // GFXRECON_WRITE_CONSOLE("rst")
             block_accessor_threads = false;
             ret                    = pthread_cond_broadcast(&reset_regions_cond);
             if (ret)

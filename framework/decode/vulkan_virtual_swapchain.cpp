@@ -665,7 +665,7 @@ VkResult VulkanVirtualSwapchain::QueuePresentKHR(VkResult                       
     {
         return VK_ERROR_FEATURE_NOT_PRESENT;
     }
-    else if (swapchain_options_.skip_additional_present_blts)
+    else if (swapchain_options_.virtual_swapchain_skip_blit)
     {
         // If we're to skip the BLT, just go ahead and perform the present even thought it won't
         // produce the valid image to the screen.  The intent for this path is mostly for performance
@@ -969,6 +969,21 @@ void VulkanVirtualSwapchain::CmdPipelineBarrier(PFN_vkCmdPipelineBarrier     fun
          buffer_memory_barriers,
          image_memory_barrier_count,
          image_memory_barriers);
+}
+
+void VulkanVirtualSwapchain::CmdPipelineBarrier2(PFN_vkCmdPipelineBarrier2 func,
+                                                 CommandBufferInfo*        command_buffer_info,
+                                                 const VkDependencyInfo*   pDependencyInfo)
+{
+
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+
+    if (command_buffer_info != nullptr)
+    {
+        command_buffer = command_buffer_info->handle;
+    }
+
+    func(command_buffer, pDependencyInfo);
 }
 
 VkResult VulkanVirtualSwapchain::CreateVirtualSwapchainImage(const DeviceInfo*        device_info,

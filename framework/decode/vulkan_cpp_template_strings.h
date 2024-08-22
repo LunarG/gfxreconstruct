@@ -140,9 +140,8 @@ void LogVkError(const char* function,
                 int line,
                 VkResult capturedReturnValue)
 {
-    // hack: '&& returnValue != VK_SUBOPTIMAL_KHR'
-    if (returnValue != VK_SUCCESS && returnValue != VK_SUBOPTIMAL_KHR &&
-        returnValue != capturedReturnValue) {
+    // Don't throw exception on positive return codes (e.g. VK_SUBOPTIMAL_KHR, VK_INCOMPLETE)
+    if (returnValue < 0 && returnValue != capturedReturnValue) {
         int size = snprintf(NULL, 0,
                             "Function %s returned a non VK_SUCCESS result: %d (0x%x) at %s:%d\n",
                             function, returnValue, returnValue, fileName, line);

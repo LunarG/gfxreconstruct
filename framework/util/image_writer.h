@@ -24,8 +24,11 @@
 #ifndef GFXRECON_UTIL_IMAGE_WRITER_H
 #define GFXRECON_UTIL_IMAGE_WRITER_H
 
+#include "logging.h"
 #include "util/defines.h"
 
+#include <assert.h>
+#include <cstdint>
 #include <string>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -61,33 +64,98 @@ struct BmpInfoHeader
 
 #pragma pack(pop)
 
+enum DataFormats
+{
+    kFormat_UNSPECIFIED = 0,
+    kFormat_R8,
+    kFormat_RGB,
+    kFormat_RGBA,
+    kFormat_BGR,
+    kFormat_R16G16B16A16_SFLOAT,
+    kFormat_B10G11R11_UFLOAT,
+    kFormat_BGRA,
+    kFormat_A2B10G10R10,
+    kFormat_D32_FLOAT,
+    kFormat_D24_UNORM,
+    kFormat_D16_UNORM,
+    kFormat_ASTC
+};
+
+constexpr size_t DataFormatsSizes(DataFormats format)
+{
+    switch (format)
+    {
+        case kFormat_R8:
+            return 1;
+
+        case kFormat_D16_UNORM:
+            return 2;
+
+        case kFormat_D24_UNORM:
+        case kFormat_RGB:
+        case kFormat_BGR:
+            return 3;
+
+        case kFormat_RGBA:
+        case kFormat_BGRA:
+        case kFormat_D32_FLOAT:
+        case kFormat_B10G11R11_UFLOAT:
+        case kFormat_A2B10G10R10:
+            return 4;
+
+        case kFormat_R16G16B16A16_SFLOAT:
+            return 8;
+
+        case kFormat_ASTC:
+            GFXRECON_LOG_WARNING("%s(): Cannot calculate element size for ASTC.", __func__);
+            return 0;
+
+        case kFormat_UNSPECIFIED:
+        default:
+            GFXRECON_LOG_WARNING("%s(): Unrecognized format %u", __func__, static_cast<uint32_t>(format));
+            assert(0);
+            return 0;
+    }
+}
+
+struct AstcFileHeader
+{
+    uint8_t magic[4];
+    uint8_t block_x;
+    uint8_t block_y;
+    uint8_t block_z;
+    uint8_t dim_x[3];
+    uint8_t dim_y[3];
+    uint8_t dim_z[3];
+};
+
 bool WriteBmpImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
                    uint64_t           data_size,
                    const void*        data,
-                   uint32_t           pitch = 0);
-
-bool WriteBmpImageNoAlpha(const std::string& filename,
-                          uint32_t           width,
-                          uint32_t           height,
-                          uint64_t           data_size,
-                          const void*        data,
-                          uint32_t           pitch = 0);
+                   uint32_t           pitch       = 0,
+                   DataFormats        data_format = kFormat_BGRA,
+                   bool               write_alpha = false);
 
 bool WritePngImage(const std::string& filename,
                    uint32_t           width,
                    uint32_t           height,
                    uint64_t           data_size,
                    const void*        data,
-                   uint32_t           pitch = 0);
+                   uint32_t           pitch       = 0,
+                   DataFormats        format      = kFormat_BGRA,
+                   bool               write_alpha = false);
 
-bool WritePngImageNoAlpha(const std::string& filename,
-                          uint32_t           width,
-                          uint32_t           height,
-                          uint64_t           data_size,
-                          const void*        data,
-                          uint32_t           pitch = 0);
+bool WriteAstcImage(const std::string& filename,
+                    uint32_t           width,
+                    uint32_t           height,
+                    uint32_t           depth,
+                    uint8_t            block_size_x,
+                    uint8_t            block_size_y,
+                    uint8_t            block_size_z,
+                    const void*        data,
+                    size_t             size);
 
 GFXRECON_END_NAMESPACE(imagewriter)
 GFXRECON_END_NAMESPACE(util)
