@@ -354,7 +354,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         // External memory takes precedence over shadow memory modes.
         if (use_external_memory)
         {
-            page_guard_memory_mode_ = kMemoryModeExternal;
+            page_guard_memory_mode_     = kMemoryModeExternal;
             page_guard_external_memory_ = true;
         }
         else if (trace_settings.page_guard_persistent_memory)
@@ -374,6 +374,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     }
 
     if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty() &&
+        trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kDrawcalls &&
         trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kNotUsed)
     {
         // Use default kModeWrite capture mode.
@@ -438,6 +439,11 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
             {
                 capture_mode_ = kModeTrack;
             }
+        }
+        else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawcalls)
+        {
+            trim_drawcalls_ = trace_settings.trim_drawcalls;
+            capture_mode_   = kModeTrack;
         }
         else
         {
@@ -917,6 +923,36 @@ std::string CommonCaptureManager::CreateTrimFilename(const std::string&     base
     {
         range_string += "_through_";
         range_string += std::to_string(trim_range.last);
+    }
+
+    return util::filepath::InsertFilenamePostfix(base_filename, range_string);
+}
+
+std::string CommonCaptureManager::CreateTrimDrawcallsFilename(const std::string&                    base_filename,
+                                                              const CaptureSettings::TrimDrawcalls& trim_drawcalls)
+{
+    std::string range_string = "_";
+
+    uint32_t total = trim_drawcalls.drawcall_indices.last - trim_drawcalls.drawcall_indices.first + 1;
+    uint32_t bundle_total =
+        trim_drawcalls.bundle_drawcall_indices.last - trim_drawcalls.bundle_drawcall_indices.first + 1;
+    const char* boundary_str = (total > 1 || bundle_total > 1) ? "drawcalls_" : "drawcall_";
+
+    range_string += boundary_str;
+    range_string += std::to_string(trim_drawcalls.submit_index) + "_" + std::to_string(trim_drawcalls.command_index) +
+                    "_" + std::to_string(trim_drawcalls.drawcall_indices.first);
+    if (total > 1)
+    {
+        range_string += "_through_";
+        range_string += std::to_string(trim_drawcalls.drawcall_indices.last);
+    }
+
+    range_string += "_" + std::to_string(trim_drawcalls.bundle_drawcall_indices.first);
+
+    if (bundle_total > 1)
+    {
+        range_string += "_through_";
+        range_string += std::to_string(trim_drawcalls.bundle_drawcall_indices.last);
     }
 
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
