@@ -981,13 +981,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     uintptr_t GetObjectAllocatorData(VkObjectType object_type, format::HandleId handle_id);
 
     VkResult OverrideSetDebugUtilsObjectNameEXT(PFN_vkSetDebugUtilsObjectNameEXT func,
-                                                const VkResult                   original_result,
-                                                const DeviceInfo*                device_info,
+                                                VkResult                         original_result,
+                                                const VulkanDeviceInfo*          device_info,
                                                 StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* name_info);
 
     VkResult OverrideSetDebugUtilsObjectTagEXT(PFN_vkSetDebugUtilsObjectTagEXT func,
-                                               const VkResult                  original_result,
-                                               const DeviceInfo*               device_info,
+                                               VkResult                        original_result,
+                                               const VulkanDeviceInfo*         device_info,
                                                StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* tag_info);
 
     VkResult OverrideCreateSwapchainKHR(PFN_vkCreateSwapchainKHR                                      func,

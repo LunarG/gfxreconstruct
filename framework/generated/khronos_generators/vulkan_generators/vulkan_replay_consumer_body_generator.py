@@ -291,7 +291,7 @@ class VulkanReplayConsumerBodyGenerator(
         )
         arglist = ', '.join(args)
 
-        dispatchfunc = ''
+        dispatchfunc = 'GetDeviceTable'
         if name not in ['vkCreateInstance', 'vkCreateDevice']:
             object_name = args[0]
             dispatch_func_is_set = False
@@ -301,8 +301,8 @@ class VulkanReplayConsumerBodyGenerator(
                     object_name = 'physical_device'
                     preexpr.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);")
                     preexpr.append("VkPhysicalDevice  physical_device = device_info->parent;")
-            else:
-                dispatchfunc = 'GetDeviceTable'
+                    dispatchfunc += '({})->{}'.format(object_name, name[2:])
+                    dispatch_func_is_set = True
 
             if not dispatch_func_is_set:
                 if is_override:

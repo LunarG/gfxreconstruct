@@ -6240,11 +6240,11 @@ uintptr_t VulkanReplayConsumerBase::GetObjectAllocatorData(VkObjectType object_t
     switch (object_type)
     {
         case VK_OBJECT_TYPE_DEVICE_MEMORY:
-            return GetObjectInfoTable().GetDeviceMemoryInfo(handle_id)->allocator_data;
+            return GetObjectInfoTable().GetVkDeviceMemoryInfo(handle_id)->allocator_data;
         case VK_OBJECT_TYPE_BUFFER:
-            return GetObjectInfoTable().GetBufferInfo(handle_id)->allocator_data;
+            return GetObjectInfoTable().GetVkBufferInfo(handle_id)->allocator_data;
         case VK_OBJECT_TYPE_IMAGE:
-            return GetObjectInfoTable().GetImageInfo(handle_id)->allocator_data;
+            return GetObjectInfoTable().GetVkImageInfo(handle_id)->allocator_data;
         default:
             return 0;
     }
@@ -6253,7 +6253,7 @@ uintptr_t VulkanReplayConsumerBase::GetObjectAllocatorData(VkObjectType object_t
 VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
     PFN_vkSetDebugUtilsObjectNameEXT                             func,
     const VkResult                                               original_result,
-    const DeviceInfo*                                            device_info,
+    const VulkanDeviceInfo*                                      device_info,
     StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* name_info)
 {
     GFXRECON_ASSERT(device_info != nullptr);
@@ -6275,7 +6275,7 @@ VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectNameEXT(
 VkResult VulkanReplayConsumerBase::OverrideSetDebugUtilsObjectTagEXT(
     PFN_vkSetDebugUtilsObjectTagEXT                             func,
     const VkResult                                              original_result,
-    const DeviceInfo*                                           device_info,
+    const VulkanDeviceInfo*                                     device_info,
     StructPointerDecoder<Decoded_VkDebugUtilsObjectTagInfoEXT>* tag_info)
 {
     GFXRECON_ASSERT(device_info != nullptr);

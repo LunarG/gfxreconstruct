@@ -64,6 +64,12 @@
 #include <algorithm>
 #include <cassert>
 
+#if VK_USE_64_BIT_PTR_DEFINES == 1
+#define VK_HANDLE_TO_UINT64(value) reinterpret_cast<uint64_t>(value)
+#else
+#define VK_HANDLE_TO_UINT64(value) (value)
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
@@ -613,7 +619,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory(VkBuffer                       
                                                resource_alloc_info,
                                                allocation_info.deviceMemory,
                                                VK_OBJECT_TYPE_BUFFER,
-                                               reinterpret_cast<uint64_t>(buffer));
+                                               VK_HANDLE_TO_UINT64(buffer));
             }
         }
     }
@@ -705,7 +711,7 @@ VkResult VulkanRebindAllocator::BindBufferMemory2(uint32_t                      
                                                        resource_alloc_info,
                                                        allocation_info.deviceMemory,
                                                        VK_OBJECT_TYPE_BUFFER,
-                                                       reinterpret_cast<uint64_t>(buffer));
+                                                       VK_HANDLE_TO_UINT64(buffer));
                     }
                 }
             }
@@ -793,7 +799,7 @@ VkResult VulkanRebindAllocator::BindImageMemory(VkImage                         
                                                resource_alloc_info,
                                                allocation_info.deviceMemory,
                                                VK_OBJECT_TYPE_IMAGE,
-                                               reinterpret_cast<uint64_t>(image));
+                                               VK_HANDLE_TO_UINT64(image));
             }
         }
     }
@@ -886,7 +892,7 @@ VkResult VulkanRebindAllocator::BindImageMemory2(uint32_t                     bi
                                                        resource_alloc_info,
                                                        allocation_info.deviceMemory,
                                                        VK_OBJECT_TYPE_IMAGE,
-                                                       reinterpret_cast<uint64_t>(image));
+                                                       VK_HANDLE_TO_UINT64(image));
                     }
                 }
             }
@@ -1139,7 +1145,7 @@ VkResult VulkanRebindAllocator::SetDebugUtilsObjectNameEXT(VkDevice             
                         vmaGetAllocationInfo(allocator_, it->second->allocation, &allocation_info);
                     }
 
-                    name_info->objectHandle = reinterpret_cast<uint64_t>(allocation_info.deviceMemory);
+                    name_info->objectHandle = VK_HANDLE_TO_UINT64(allocation_info.deviceMemory);
                 }
                 break;
             }
@@ -1200,7 +1206,7 @@ VkResult VulkanRebindAllocator::SetDebugUtilsObjectTagEXT(VkDevice              
                         vmaGetAllocationInfo(allocator_, it->second->allocation, &allocation_info);
                     }
 
-                    tag_info->objectHandle = reinterpret_cast<uint64_t>(allocation_info.deviceMemory);
+                    tag_info->objectHandle = VK_HANDLE_TO_UINT64(allocation_info.deviceMemory);
                 }
                 break;
             }
@@ -2031,7 +2037,7 @@ void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo
     if (!memory_alloc_info->debug_utils_name.empty())
     {
         name_info.objectType   = VK_OBJECT_TYPE_DEVICE_MEMORY;
-        name_info.objectHandle = reinterpret_cast<uint64_t>(device_memory);
+        name_info.objectHandle = VK_HANDLE_TO_UINT64(device_memory);
         name_info.pObjectName  = memory_alloc_info->debug_utils_name.c_str();
 
         functions_.set_debug_utils_object_name(device_, &name_info);
@@ -2040,7 +2046,7 @@ void VulkanRebindAllocator::SetBindingDebugUtilsNameAndTag(const MemoryAllocInfo
     if (!memory_alloc_info->debug_utils_tag.empty())
     {
         tag_info.objectType   = VK_OBJECT_TYPE_DEVICE_MEMORY;
-        tag_info.objectHandle = reinterpret_cast<uint64_t>(device_memory);
+        tag_info.objectHandle = VK_HANDLE_TO_UINT64(device_memory);
         tag_info.tagName      = memory_alloc_info->debug_utils_tag_name;
         tag_info.tagSize      = memory_alloc_info->debug_utils_tag.size();
         tag_info.pTag         = memory_alloc_info->debug_utils_tag.data();
