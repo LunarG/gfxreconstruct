@@ -34,6 +34,7 @@
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_handle_wrappers.h"
 #include "encode/vulkan_state_tracker.h"
+#include "encode/vulkan_device_address_tracker.h"
 #include "format/api_call_id.h"
 #include "format/format.h"
 #include "format/platform_types.h"
@@ -72,7 +73,9 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     // Register special layer provided functions, which perform layer specific initialization.
     // These must be set before the application calls vkCreateInstance.
-    static void SetLayerFuncs(PFN_vkCreateInstance create_instance, PFN_vkCreateDevice create_device);
+    static void SetLayerFuncs(PFN_vkCreateInstance                       create_instance,
+                              PFN_vkCreateDevice                         create_device,
+                              PFN_vkEnumerateInstanceExtensionProperties enum_instance_ext);
 
     // Called by the layer's vkCreateInstance function, after the driver's vkCreateInstance function has been called, to
     // check for failure.  If vkCreateInstance failed, the reference count will be decremented and resources will be
@@ -337,6 +340,12 @@ class VulkanCaptureManager : public ApiCaptureManager
     void OverrideCmdCopyAccelerationStructureKHR(VkCommandBuffer                           command_buffer,
                                                  const VkCopyAccelerationStructureInfoKHR* pInfo);
 
+    void OverrideCmdWriteAccelerationStructuresPropertiesKHR(VkCommandBuffer commandBuffer,
+                                                             uint32_t        accelerationStructureCount,
+                                                             const VkAccelerationStructureKHR* pAccelerationStructures,
+                                                             VkQueryType                       queryType,
+                                                             VkQueryPool                       queryPool,
+                                                             uint32_t                          firstQuery);
     void PostProcess_vkEnumeratePhysicalDevices(VkResult          result,
                                                 VkInstance        instance,
                                                 uint32_t*         pPhysicalDeviceCount,
@@ -482,6 +491,13 @@ class VulkanCaptureManager : public ApiCaptureManager
                                       const VkSwapchainCreateInfoKHR* pCreateInfo,
                                       const VkAllocationCallbacks*    pAllocator,
                                       VkSwapchainKHR*                 pSwapchain);
+
+    void PreProcess_vkCmdPushConstants(VkCommandBuffer    commandBuffer,
+                                       VkPipelineLayout   layout,
+                                       VkShaderStageFlags stageFlags,
+                                       uint32_t           offset,
+                                       uint32_t           size,
+                                       const void*        pValues);
 
     void PostProcess_vkAcquireNextImageKHR(VkResult result,
                                            VkDevice,
@@ -1226,8 +1242,14 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                           const VkDeviceMemoryOpaqueCaptureAddressInfo* pInfo);
 
     void
-    PreProcess_vkGetAccelerationStructureDeviceAddressKHR(VkDevice                                           device,
-                                                          const VkAccelerationStructureDeviceAddressInfoKHR* pInfo);
+         PreProcess_vkGetAccelerationStructureDeviceAddressKHR(VkDevice                                           device,
+                                                               const VkAccelerationStructureDeviceAddressInfoKHR* pInfo);
+    void PostProcess_vkGetAccelerationStructureDeviceAddressKHR(
+        VkDeviceAddress result, VkDevice device, const VkAccelerationStructureDeviceAddressInfoKHR* pInfo)
+    {
+        auto id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfo->accelerationStructure);
+        address_tracker.TrackAccelerationStructureDeviceAddress(id, result);
+    }
 
     void PreProcess_vkGetRayTracingShaderGroupHandlesKHR(
         VkDevice device, VkPipeline pipeline, uint32_t firstGroup, uint32_t groupCount, size_t dataSize, void* pData);
@@ -1266,7 +1288,18 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
                                                    const VkDebugUtilsLabelEXT* pLabelInfo);
-
+    void PostProcess_vkGetBufferDeviceAddress(VkDeviceAddress address, const VkBufferDeviceAddressInfo* pInfo)
+    {
+        if (address != 0)
+        {
+            vulkan_wrappers::BufferWrapper* wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(pInfo->buffer);
+            address_tracker.TrackBufferDeviceAddress(wrapper->handle_id, wrapper->created_size, address);
+            if (IsCaptureModeTrack())
+            {
+                state_tracker_->TrackGetBufferDeviceAddress(address, pInfo);
+            }
+        }
+    }
     void PostProcess_vkCreateShaderModule(VkResult                        result,
                                           VkDevice                        device,
                                           const VkShaderModuleCreateInfo* pCreateInfo,
@@ -1276,6 +1309,17 @@ class VulkanCaptureManager : public ApiCaptureManager
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
+    vulkan_wrappers::DeviceMemoryWrapper* GetMemory(format::HandleId id)
+    {
+        std::lock_guard<std::mutex> lock(mapped_memory_lock_);
+        return memories[id];
+    }
+
+    void PreProcess_vkCmdUpdateBuffer(VkCommandBuffer commandBuffer,
+                                      VkBuffer        dstBuffer,
+                                      VkDeviceSize    dstOffset,
+                                      VkDeviceSize    dataSize,
+                                      const void*     pData);
 
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
@@ -1359,6 +1403,9 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;
     std::mutex                                      deferred_operation_mutex;
+    VulkanDeviceAddressTracker                      address_tracker;
+    std::unordered_map<format::HandleId, vulkan_wrappers::DeviceMemoryWrapper*> memories;
+    std::mutex                                                                  mapped_memory_lock_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

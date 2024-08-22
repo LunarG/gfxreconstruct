@@ -121,39 +121,39 @@ enum AdapterType
 
 enum class MetaDataType : uint16_t
 {
-    kUnknownMetaDataType                      = 0,
-    kDisplayMessageCommand                    = 1,
-    kFillMemoryCommand                        = 2,
-    kResizeWindowCommand                      = 3,
-    kSetSwapchainImageStateCommand            = 4,
-    kBeginResourceInitCommand                 = 5,
-    kEndResourceInitCommand                   = 6,
-    kInitBufferCommand                        = 7,
-    kInitImageCommand                         = 8,
-    kCreateHardwareBufferCommand_deprecated   = 9,
-    kDestroyHardwareBufferCommand             = 10,
-    kSetDevicePropertiesCommand               = 11,
-    kSetDeviceMemoryPropertiesCommand         = 12,
-    kResizeWindowCommand2                     = 13,
-    kSetOpaqueAddressCommand                  = 14,
-    kSetRayTracingShaderGroupHandlesCommand   = 15,
-    kCreateHeapAllocationCommand              = 16,
-    kInitSubresourceCommand                   = 17,
-    kExeFileInfoCommand                       = 18,
-    kInitDx12AccelerationStructureCommand     = 19,
-    kFillMemoryResourceValueCommand           = 20,
-    kDxgiAdapterInfoCommand                   = 21,
-    kDriverInfoCommand                        = 22,
-    kReserved23                               = 23,
-    kCreateHardwareBufferCommand              = 24,
-    kReserved25                               = 25,
-    kDx12RuntimeInfoCommand                   = 26,
-    kParentToChildDependency                  = 27,
-    kVulkanBuildAccelerationStructuresCommand = 28,
-    kVulkanCopyAccelerationStructuresCommand  = 29,
-    kReserved30                               = 30,
-    kReserved31                               = 31,
-    kSetEnvironmentVariablesCommand           = 32,
+    kUnknownMetaDataType                                = 0,
+    kDisplayMessageCommand                              = 1,
+    kFillMemoryCommand                                  = 2,
+    kResizeWindowCommand                                = 3,
+    kSetSwapchainImageStateCommand                      = 4,
+    kBeginResourceInitCommand                           = 5,
+    kEndResourceInitCommand                             = 6,
+    kInitBufferCommand                                  = 7,
+    kInitImageCommand                                   = 8,
+    kCreateHardwareBufferCommand_deprecated             = 9,
+    kDestroyHardwareBufferCommand                       = 10,
+    kSetDevicePropertiesCommand                         = 11,
+    kSetDeviceMemoryPropertiesCommand                   = 12,
+    kResizeWindowCommand2                               = 13,
+    kSetOpaqueAddressCommand                            = 14,
+    kSetRayTracingShaderGroupHandlesCommand             = 15,
+    kCreateHeapAllocationCommand                        = 16,
+    kInitSubresourceCommand                             = 17,
+    kExeFileInfoCommand                                 = 18,
+    kInitDx12AccelerationStructureCommand               = 19,
+    kFillMemoryResourceValueCommand                     = 20,
+    kDxgiAdapterInfoCommand                             = 21,
+    kDriverInfoCommand                                  = 22,
+    kReserved23                                         = 23,
+    kCreateHardwareBufferCommand                        = 24,
+    kReserved25                                         = 25,
+    kDx12RuntimeInfoCommand                             = 26,
+    kParentToChildDependency                            = 27,
+    kVulkanBuildAccelerationStructuresCommand           = 28,
+    kVulkanCopyAccelerationStructuresCommand            = 29,
+    kVulkanWriteAccelerationStructuresPropertiesCommand = 30,
+    kFixDeviceAddressCommand                            = 31,
+    kSetEnvironmentVariablesCommand                     = 32
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -324,6 +324,25 @@ struct FillMemoryCommandHeader
     HandleId memory_id;
     uint64_t memory_offset; // Offset from the start of the mapped pointer, not the start of the memory object.
     uint64_t memory_size;   // Uncompressed size of the data encoded after the header.
+};
+
+struct FixDeviceAddressCommandHeader
+{
+    MetaDataHeader meta_header;
+    // This could be either device id for standalone binary blobs, or memory id for data associated with particular
+    // vkDeviceMemory
+    format::HandleId relation_id;
+    uint64_t         num_of_locations;
+};
+
+struct AddressLocationInfo
+{
+    format::HandleId id;
+    uint64_t         size;
+    uint64_t         original_address; // Buffer start
+    uint64_t         adjusted_address; // Address found in memory
+    uint64_t         offset_in_memory;
+    uint64_t         new_address; // Set on replay
 };
 
 struct FillMemoryResourceValueCommandHeader
@@ -650,6 +669,11 @@ struct ParentToChildDependencyHeader
 };
 
 struct VulkanMetaBuildAccelerationStructuresHeader
+{
+    format::MetaDataHeader meta_header;
+};
+
+struct VulkanWriteAccelerationStructuresPropertiesCommandHeader
 {
     format::MetaDataHeader meta_header;
 };

@@ -67,7 +67,7 @@ class ParameterEncoder
     void EncodeDoubleValue(double value)                                                                              { EncodeValue(value); }
     void EncodeSizeTValue(size_t value)                                                                               { EncodeValue(static_cast<format::SizeTEncodeType>(value)); }
     void EncodeHandleIdValue(format::HandleId value)                                                                  { EncodeValue(static_cast<format::HandleEncodeType>(value)); }
-
+    void EncodeVkDeviceAddressValue(VkDeviceAddress value)                                                            { EncodeValue(static_cast<format::DeviceSizeEncodeType>(value)); }
     // Encode the address values for pointers to non-Vulkan objects to be used as object IDs.
     void EncodeAddress(const void* value)                                                                             { EncodeValue(reinterpret_cast<format::AddressEncodeType>(value)); }
     void EncodeVoidPtr(const void* value)                                                                             { EncodeAddress(value); }

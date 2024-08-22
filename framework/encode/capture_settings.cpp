@@ -136,6 +136,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define RV_ANNOTATION_DESCRIPTOR_UPPER                       "RV_ANNOTATION_DESCRIPTOR"
 #define EXPERIMENTAL_RAYTRACING_FASTFORWARDING_LOWER         "experimental_raytracing_fastforwarding"
 #define EXPERIMENTAL_RAYTRACING_FASTFORWARDING_UPPER         "EXPERIMENTAL_RAYTRACING_FASTFORWARDING"
+#define BUFFER_USAGES_TO_IGNORE_LOWER                        "buffer_usages_to_ignore"
+#define BUFFER_USAGES_TO_IGNORE_UPPER                        "BUFFER_USAGES_TO_IGNORE"
 
 
 
@@ -192,6 +194,7 @@ const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_LOWER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_LOWER;
 const char kExperimentalRaytracingFastforwardingEnvVar[]     = GFXRECON_ENV_VAR_PREFIX EXPERIMENTAL_RAYTRACING_FASTFORWARDING_UPPER;
+const char kBufferUsagesToIgnoreEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX BUFFER_USAGES_TO_IGNORE_LOWER;
 
 #else
 // Desktop environment settings
@@ -245,6 +248,7 @@ const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_UPPER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_UPPER;
 const char kExperimentalRaytracingFastforwardingEnvVar[]     = GFXRECON_ENV_VAR_PREFIX EXPERIMENTAL_RAYTRACING_FASTFORWARDING_UPPER;
+const char kBufferUsagesToIgnoreEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX BUFFER_USAGES_TO_IGNORE_UPPER;
 
 #endif
 
@@ -297,7 +301,7 @@ const std::string kOptionKeyAnnotationRand                           = std::stri
 const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
 const std::string kOptionKeyAnnotationDescriptor                     = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_DESCRIPTOR_LOWER);
 const std::string kOptionExperimentalRaytracingFastforwarding        = std::string(kSettingsFilter) + std::string(EXPERIMENTAL_RAYTRACING_FASTFORWARDING_LOWER);
-
+const std::string kOptionBufferUsagesToIgnore                        = std::string(kSettingsFilter) + std::string(BUFFER_USAGES_TO_IGNORE_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -456,6 +460,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
 
     LoadSingleOptionEnvVar(
         options, kExperimentalRaytracingFastforwardingEnvVar, kOptionExperimentalRaytracingFastforwarding);
+    LoadSingleOptionEnvVar(options, kBufferUsagesToIgnoreEnvVar, kOptionBufferUsagesToIgnore);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -630,6 +635,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.experimental_raytracing_fastforwarding =
         ParseBoolString(FindOption(options, kOptionExperimentalRaytracingFastforwarding),
                         settings->trace_settings_.experimental_raytracing_fastforwarding);
+    settings->trace_settings_.buffer_usages_to_ignore =
+        ParseBufferUsages(FindOption(options, kOptionBufferUsagesToIgnore));
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
@@ -927,5 +934,73 @@ util::ScreenshotFormat CaptureSettings::ParseScreenshotFormatString(const std::s
 
     return result;
 }
+
+uint64_t StringToBufferUsage(std::string& str)
+{
+    if (str == "transfer_src") // VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+        return 0x00000001;
+    if (str == "transfer_dst") // VK_BUFFER_USAGE_TRANSFER_DST_BIT
+        return 0x00000002;
+    if (str == "uniform_texel") // VK_BUFFER_USAGE_UNIFORM_TEXEL_BUFFER_BIT
+        return 0x00000004;
+    if (str == "storage_texel") // VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT
+        return 0x00000008;
+    if (str == "uniform") // VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT
+        return 0x00000010;
+    if (str == "storage") // VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
+        return 0x00000020;
+    if (str == "index") // VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+        return 0x00000040;
+    if (str == "vertex") // VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+        return 0x00000080;
+    if (str == "indirect") // VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT
+        return 0x00000100;
+    if (str == "shader_address") // VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
+        return 0x00020000;
+    if (str == "acc_input") // VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR
+        return 0x00080000;
+    if (str == "acc_storage") // VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR
+        return 0x00100000;
+    if (str == "shader_binding") // VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR
+        return 0x00000400;
+    if (str == "resource_descriptor") // VK_BUFFER_USAGE_RESOURCE_DESCRIPTOR_BUFFER_BIT_EXT
+        return 0x00400000;
+    if (str == "push_descriptors") // VK_BUFFER_USAGE_PUSH_DESCRIPTORS_DESCRIPTOR_BUFFER_BIT_EXT
+        return 0x04000000;
+    if (str == "ignore_all")
+        return 0;
+
+    GFXRECON_LOG_WARNING("Unimplemented usage %s", str.c_str());
+    return UINT64_MAX;
+}
+
+std::vector<uint64_t> CaptureSettings::ParseBufferUsages(const std::string& value_string)
+{
+    std::string trimmed;
+    if (!value_string.empty())
+    {
+        trimmed = value_string;
+        gfxrecon::util::strings::RemoveWhitespace(trimmed);
+    }
+    else
+    {
+        return {};
+    }
+    std::vector<uint64_t>    result;
+    std::vector<std::string> values = util::strings::SplitString(trimmed, ',');
+    for (auto& val : values)
+    {
+        uint64_t                 mask = 0;
+        std::vector<std::string> vals = util::strings::SplitString(val, '|');
+        for (auto& v : vals)
+        {
+            mask |= StringToBufferUsage(v);
+            GFXRECON_LOG_DEBUG("multiple opt %s", v.c_str());
+        }
+        result.push_back(mask);
+    }
+    return result;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

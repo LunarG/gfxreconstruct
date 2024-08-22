@@ -555,11 +555,11 @@ class VulkanCppConsumerBase : public VulkanConsumer
                                             format::HandleId   device,
                                             format::HandleId   operation) override;
 
-    void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
-                                                   format::HandleId                 device,
-                                                   format::HandleId                 descriptorSet,
-                                                   format::HandleId                 descriptorUpdateTemplate,
-                                                   DescriptorUpdateTemplateDecoder* pData) override;
+    virtual void Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo&               call_info,
+                                                           format::HandleId                 device,
+                                                           format::HandleId                 descriptorSet,
+                                                           format::HandleId                 descriptorUpdateTemplate,
+                                                           DescriptorUpdateTemplateDecoder* pData) override;
 
     virtual void Process_vkCmdPushDescriptorSetWithTemplateKHR(const ApiCallInfo& call_info,
                                                                format::HandleId   commandBuffer,

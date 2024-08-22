@@ -146,6 +146,10 @@ class VulkanDispatchTableGenerator(BaseGenerator):
             '    PFN_vkCreateDevice CreateDevice{ nullptr };',
             file=self.outFile
         )
+        write(
+            '    PFN_vkEnumerateInstanceExtensionProperties EnumerateInstanceExtensionProperties{ nullptr };',
+            file=self.outFile
+        )
         write('};', file=self.outFile)
 
         self.newline()

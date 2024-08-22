@@ -26,14 +26,16 @@
 #include "decode/vulkan_resource_allocator.h"
 #include "decode/descriptor_update_template_decoder.h"
 #include "decode/vulkan_object_info_table.h"
+#include "decode/vulkan_buffer_tracker.h"
+#include "decode/vulkan_internal_buffer_manager.h"
 #include "util/defines.h"
 
-#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <set>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -43,39 +45,15 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanAccelerationStructureBuilder
 {
   public:
-    struct Functions
-    {
-        PFN_vkGetAccelerationStructureBuildSizesKHR       get_acceleration_structure_build_sizes{ nullptr };
-        PFN_vkCreateAccelerationStructureKHR              create_acceleration_structure{ nullptr };
-        PFN_vkGetBufferDeviceAddressKHR                   get_buffer_device_address{ nullptr };
-        PFN_vkCmdBuildAccelerationStructuresKHR           cmd_build_acceleration_structures{ nullptr };
-        PFN_vkGetAccelerationStructureDeviceAddressKHR    get_acceleration_structure_device_address{ nullptr };
-        PFN_vkGetBufferMemoryRequirements                 get_buffer_memory_requirements{ nullptr };
-        PFN_vkCmdCopyAccelerationStructureKHR             cmd_copy_acceleration_structure{ nullptr };
-        PFN_vkCmdWriteAccelerationStructuresPropertiesKHR cmd_write_acceleration_structures_properties{ nullptr };
-        PFN_vkDestroyAccelerationStructureKHR             destroy_acceleration_structure{ nullptr };
-        PFN_vkCreateCommandPool                           create_command_pool{ nullptr };
-        PFN_vkDestroyCommandPool                          destroy_command_pool{ nullptr };
-        PFN_vkAllocateCommandBuffers                      allocate_command_buffers{ nullptr };
-        PFN_vkGetDeviceQueue                              get_device_queue{ nullptr };
-        PFN_vkBeginCommandBuffer                          begin_command_buffer{ nullptr };
-        PFN_vkEndCommandBuffer                            end_command_buffer{ nullptr };
-        PFN_vkResetCommandBuffer                          reset_command_buffer{ nullptr };
-        PFN_vkQueueSubmit                                 queue_submit{ nullptr };
-        PFN_vkQueueWaitIdle                               queue_wait_idle{ nullptr };
-        PFN_vkUpdateDescriptorSets                        update_descriptor_sets{ nullptr };
-        PFN_vkGetQueryPoolResults                         get_query_pool_results{ nullptr };
-        PFN_vkCmdCopyQueryPoolResults                     cmd_copy_query_pool_results{ nullptr };
-        PFN_vkCmdPipelineBarrier                          cmd_pipeline_barrier{ nullptr };
-    };
-
     VulkanAccelerationStructureBuilder(
-        Functions                                        functions,
+        const encode::VulkanDeviceTable*                 device_table,
+        const PhysicalDeviceInfo*                        physical_device_info,
         VkDevice                                         device,
         VulkanResourceAllocator*                         allocator,
         const VkPhysicalDeviceMemoryProperties&          properties,
         VkPhysicalDeviceRayTracingPipelinePropertiesKHR  ray_tracing_pipeline_properties,
-        VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_features);
+        VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_features,
+        VulkanBufferTracker*                             buffer_tracker);
 
     ~VulkanAccelerationStructureBuilder();
 
@@ -85,6 +63,10 @@ class VulkanAccelerationStructureBuilder
                               VkWriteDescriptorSet* descriptor_writes,
                               uint32_t              descriptor_copy_count,
                               VkCopyDescriptorSet*  descriptor_copies);
+
+   void
+         StoreDeferredDeviceAddressBufferUpdates(const std::vector<BufferInfo*>&                   buffer_infos,
+                                                 const std::vector<const VkDescriptorBufferInfo*>& descriptor_buffer_infos);
 
     // Modifies vkDescriptorSetWithTemplateKHR parameters
     // Descriptior set update may contain acceleration structure references that need an update
@@ -116,8 +98,6 @@ class VulkanAccelerationStructureBuilder
                                                   VkQueryPool                 pool,
                                                   uint32_t                    first_query);
 
-    void SetBufferInfo(BufferInfo* buffer_info, VkDeviceAddress original_address, VkDeviceAddress new_address);
-
     void OnDestroyBuffer(const BufferInfo* buffer_info);
 
     // On creation of the acceleration structure, start tracking it by handle and original device address
@@ -139,10 +119,17 @@ class VulkanAccelerationStructureBuilder
     void ProcessCopyVulkanAccelerationStructuresMetaCommand(uint32_t                            info_count,
                                                             VkCopyAccelerationStructureInfoKHR* copy_infos);
 
+    void
+    ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(VkQueryType                query_type,
+                                                                  VkAccelerationStructureKHR acceleration_structure);
+
     // For each submitted buffer, if it contains a TLAS build command, update its instance buffer
     // with replacement BLAS address
     // Also check whether there are descriptor sets the needs the acceleration structure handle replaced
-    void OnQueueSubmit(uint32_t submitCount, const VkSubmitInfo* pSubmits);
+    void OnQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits);
+
+    // Execute actions post queue present
+    void PostQueuePresent();
 
     // Update VkStridedDeviceAddressRegionKHR:
     // pRaygenShaderBindingTable, pMissShaderBindingTable, pHitShaderBindingTable, pCallableShaderBindingTable
@@ -168,6 +155,42 @@ class VulkanAccelerationStructureBuilder
                                         uint8_t* original_data,
                                         uint8_t* runtime_data);
 
+    VkDeviceAddress GetActualDeviceAddress(VkAccelerationStructureKHR handle);
+
+    void RegisterInstanceBufferStagingUpdate(VkCommandBuffer                       command_buffer,
+                                             VulkanResourceAllocator::ResourceData src_buffer_allocator_data,
+                                             VkDeviceSize                          src_offset,
+                                             VkBuffer                              dst_buffer);
+
+  private:
+    // TODO: Just use device table?
+    void InitializeFunctionPointers(const encode::VulkanDeviceTable* device_table);
+    struct Functions
+    {
+        PFN_vkGetAccelerationStructureBuildSizesKHR       get_acceleration_structure_build_sizes{ nullptr };
+        PFN_vkCreateAccelerationStructureKHR              create_acceleration_structure{ nullptr };
+        PFN_vkCmdBuildAccelerationStructuresKHR           cmd_build_acceleration_structures{ nullptr };
+        PFN_vkGetAccelerationStructureDeviceAddressKHR    get_acceleration_structure_device_address{ nullptr };
+        PFN_vkCmdCopyAccelerationStructureKHR             cmd_copy_acceleration_structure{ nullptr };
+        PFN_vkCmdWriteAccelerationStructuresPropertiesKHR cmd_write_acceleration_structures_properties{ nullptr };
+        PFN_vkDestroyAccelerationStructureKHR             destroy_acceleration_structure{ nullptr };
+        PFN_vkCreateCommandPool                           create_command_pool{ nullptr };
+        PFN_vkDestroyCommandPool                          destroy_command_pool{ nullptr };
+        PFN_vkAllocateCommandBuffers                      allocate_command_buffers{ nullptr };
+        PFN_vkFreeCommandBuffers                          free_command_buffers{ nullptr };
+        PFN_vkGetDeviceQueue                              get_device_queue{ nullptr };
+        PFN_vkBeginCommandBuffer                          begin_command_buffer{ nullptr };
+        PFN_vkEndCommandBuffer                            end_command_buffer{ nullptr };
+        PFN_vkResetCommandBuffer                          reset_command_buffer{ nullptr };
+        PFN_vkQueueSubmit                                 queue_submit{ nullptr };
+        PFN_vkQueueWaitIdle                               queue_wait_idle{ nullptr };
+        PFN_vkUpdateDescriptorSets                        update_descriptor_sets{ nullptr };
+        PFN_vkGetQueryPoolResults                         get_query_pool_results{ nullptr };
+        PFN_vkCmdCopyQueryPoolResults                     cmd_copy_query_pool_results{ nullptr };
+        PFN_vkCmdPipelineBarrier                          cmd_pipeline_barrier{ nullptr };
+        PFN_vkCreateQueryPool                             create_query_pool{ nullptr };
+    };
+
   private:
     struct ShaderGroupHandleEntry
     {
@@ -179,40 +202,6 @@ class VulkanAccelerationStructureBuilder
     };
     std::vector<ShaderGroupHandleEntry> shader_group_handle_entries_;
 
-    // Tracking buffers and acceleration structures is required to correctly replace the device addresses and handles
-    struct BufferEntry
-    {
-        VkDeviceAddress                       original_address_;
-        VkDeviceAddress                       new_address_;
-        format::HandleId                      capture_id_{ format::kNullHandleId };
-        VkBuffer                              handle_{ VK_NULL_HANDLE };
-        VulkanResourceAllocator::ResourceData allocator_data_{ 0 };
-        VulkanResourceAllocator*              allocator_;
-
-        BufferEntry(VkDeviceAddress          original_address,
-                    VkDeviceAddress          new_address,
-                    VulkanResourceAllocator* allocator,
-                    BufferInfo*              buffer_info) :
-            original_address_(original_address),
-            new_address_(new_address), allocator_(allocator), capture_id_(buffer_info->capture_id),
-            handle_(buffer_info->handle), allocator_data_(buffer_info->allocator_data)
-        {}
-
-        BufferEntry(VkDeviceAddress original_address, VkDeviceAddress new_address, VulkanResourceAllocator* allocator) :
-
-            original_address_(original_address), new_address_(new_address), allocator_(allocator)
-        {}
-
-        ~BufferEntry()
-        {
-            // We own the data if buffer is internal
-            if (capture_id_ == format::kNullHandleId)
-            {
-                allocator_->DestroyBuffer(handle_, nullptr, allocator_data_);
-            }
-        }
-    };
-
     // Stores basic information about the tracked acceleration structures
     struct AccelerationStructureEntry
     {
@@ -220,14 +209,13 @@ class VulkanAccelerationStructureBuilder
         VkDeviceAddress                             original_address_;
         // Device address of acceleration structure recorded at replay
         VkDeviceAddress                             new_address_;
-        VkAccelerationStructureKHR                  handle_;
+        std::set<VkAccelerationStructureKHR>        handles_;
         VkAccelerationStructureTypeKHR              type_;
         VkAccelerationStructureBuildSizesInfoKHR    size_info_;
         // Stores AS that should be used instead of the one pointed by handle_
         std::unique_ptr<AccelerationStructureEntry> replacement_acceleration_struct_;
 
-        std::unique_ptr<BufferEntry> storage_;
-        std::unique_ptr<BufferEntry> scratch_;
+        std::unique_ptr<VulkanInternalBufferManager::BufferInfoWrapper> storage_;
 
         AccelerationStructureEntry(VkDeviceAddress                          original_address,
                                    VkDeviceAddress                          new_address,
@@ -235,8 +223,12 @@ class VulkanAccelerationStructureBuilder
                                    VkAccelerationStructureTypeKHR           type,
                                    VkAccelerationStructureBuildSizesInfoKHR size_info) :
             original_address_(original_address),
-            new_address_(new_address), handle_(handle), type_(type), size_info_(size_info)
-        {}
+            new_address_(new_address), type_(type), size_info_(size_info)
+        {
+            handles_.insert(handle);
+        }
+
+        bool IsAlias(VkAccelerationStructureKHR handle) { return handles_.count(handle) > 0; }
     };
 
     // Store the minimum required data to perform vkUpdateDescriptorSets with correct acceleration
@@ -266,14 +258,15 @@ class VulkanAccelerationStructureBuilder
                             const VkDescriptorUpdateTemplateEntryKHR&          template_update_entry,
                             gfxrecon::decode::DescriptorUpdateTemplateDecoder* data)
         {
-            write_      = VkWriteDescriptorSet{ .sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
-                                                .pNext           = nullptr,
-                                                .dstSet          = descriptor_set,
-                                                .dstBinding      = template_update_entry.dstBinding,
-                                                .dstArrayElement = template_update_entry.dstArrayElement,
-                                                .descriptorCount =
+            write_ = VkWriteDescriptorSet{ .sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET,
+                                           .pNext           = nullptr,
+                                           .dstSet          = descriptor_set,
+                                           .dstBinding      = template_update_entry.dstBinding,
+                                           .dstArrayElement = template_update_entry.dstArrayElement,
+                                           .descriptorCount =
                                                static_cast<uint32_t>(data->GetAccelerationStructureKHRCount()),
-                                                .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR };
+                                           .descriptorType = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR };
+
             p_next_data = VkWriteDescriptorSetAccelerationStructureKHR{
                 .sType                      = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
                 .pNext                      = nullptr,
@@ -291,6 +284,17 @@ class VulkanAccelerationStructureBuilder
         }
     };
 
+    struct DescriptorUpdateBufferEntries
+    {
+        DescriptorUpdateBufferEntries() = default;
+        DescriptorUpdateBufferEntries(uint32_t size) : size_(size), infos_(size), offsets_(size), ranges_(size) {}
+
+        uint32_t                  size_{};
+        std::vector<BufferInfo*>  infos_;
+        std::vector<VkDeviceSize> offsets_;
+        std::vector<VkDeviceSize> ranges_;
+    };
+
     // This objects are internal and responsible for executing the state recreation meta commands
     struct CommandExecuteObjects
     {
@@ -299,9 +303,11 @@ class VulkanAccelerationStructureBuilder
         {
             if (initialized_)
             {
+                free_command_buffers_(device_, pool_, 1, &command_buffer_);
                 destroy_command_pool_(device_, pool_, nullptr);
             }
         }
+        PFN_vkFreeCommandBuffers free_command_buffers_{ nullptr };
         PFN_vkDestroyCommandPool destroy_command_pool_{ nullptr };
 
         VkDevice        device_{ VK_NULL_HANDLE };
@@ -313,13 +319,32 @@ class VulkanAccelerationStructureBuilder
 
   private:
     Functions                        functions_;
+    const PhysicalDeviceInfo*        physical_device_info_;
     VkDevice                         device_;
     VulkanResourceAllocator*         allocator_;
     VkPhysicalDeviceMemoryProperties physical_device_memory_properties_;
 
-    std::vector<std::unique_ptr<AccelerationStructureEntry>>            acceleration_structures_;
-    std::vector<std::unique_ptr<BufferEntry>>                           buffers_;
-    std::unordered_map<VkAccelerationStructureKHR, DescriptorWriteData> cached_descriptor_write;
+    VulkanBufferTracker* buffer_tracker_;
+    // TODO: buffers_ is only used by fast forwarding flow. Check if it's necessary and remove if possible
+    std::vector<BufferInfo*>* buffers_;
+
+    VulkanInternalBufferManager internal_buffer_manager_;
+
+    VkQueue                                                  queue_with_buffer_write_ = VK_NULL_HANDLE;
+    std::vector<std::unique_ptr<AccelerationStructureEntry>> acceleration_structures_;
+
+    std::unordered_map<VkAccelerationStructureKHR, DescriptorWriteData> cached_descriptor_write_;
+    std::vector<DescriptorUpdateBufferEntries>                          deferred_inspection_buffers_;
+
+    struct DoubleBufferScratch
+    {
+        std::unordered_map<format::HandleId,
+                           std::vector<std::unique_ptr<VulkanInternalBufferManager::BufferInfoWrapper>>>
+            scratches_previous;
+        std::unordered_map<format::HandleId,
+                           std::vector<std::unique_ptr<VulkanInternalBufferManager::BufferInfoWrapper>>>
+            scratches_current;
+    } scratch_double_buffer_;
 
     struct RaytracingPipelineProperties
     {
@@ -348,14 +373,22 @@ class VulkanAccelerationStructureBuilder
             std::tuple<VulkanResourceAllocator::ResourceData, VkDeviceSize, VkAccelerationStructureBuildRangeInfoKHR>>>
         instance_buffer_updates_;
 
+    // holds data needed in the scenario of instance data being passed through a staging buffer:
+    // instance data gets written to buffer A and then copied via vkCmdCopyBuffer to buffer B, whilst being in
+    // the same command buffer as the tlas build command using that data
+    std::unordered_map<VkCommandBuffer,
+                       std::vector<std::tuple<VulkanResourceAllocator::ResourceData, VkDeviceSize, VkBuffer>>>
+        instance_buffer_staging_updates_;
+
     // holds information gathered during vkCmdCopyQueryPoolResults that needs to be processed before
     // vkCmdCopyAccelerationStructureKHR in order to know replacement AS compressed sizes
-    std::unordered_map<
-        VkQueryPool,
-        std::vector<std::tuple<uint32_t, std::unique_ptr<BufferEntry>, std::vector<VkAccelerationStructureKHR>>>>
-        compacted_sizes_unprocessed;
+    std::unordered_map<VkQueryPool,
+                       std::vector<std::tuple<uint32_t,
+                                              std::unique_ptr<VulkanInternalBufferManager::BufferInfoWrapper>,
+                                              std::vector<VkAccelerationStructureKHR>>>>
+        compacted_sizes_unprocessed_;
     // map containing relation between uncompacted AS capture id and the size of compacted AS
-    std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize> compacted_sizes_processed;
+    std::unordered_map<VkAccelerationStructureKHR, VkDeviceSize> compacted_sizes_processed_;
 
     // This object is internal and responsible for executing the state recreation meta commands
     CommandExecuteObjects cmd_execute_obj_;
@@ -364,19 +397,12 @@ class VulkanAccelerationStructureBuilder
     VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_features_;
 
   private:
-    std::unique_ptr<BufferEntry> CreateBuffer(VkDeviceSize          size,
-                                              VkBufferUsageFlags    usage,
-                                              VkMemoryPropertyFlags mem_prop_flags = {});
-
     AccelerationStructureEntry* GetAccelerationStructureEntry(VkAccelerationStructureKHR acceleration_struct);
-    void                        UpdateAccelerationStructDeviceAddress(VkDeviceAddress& address);
-    void                        UpdateBufferDeviceAddress(VkDeviceAddress& address);
+    bool                        UpdateAccelerationStructDeviceAddress(VkDeviceAddress& address);
     void                        UpdateDeviceAddress(VkCommandBuffer                              command_buffer,
                                                     VkAccelerationStructureBuildGeometryInfoKHR& build_geometry,
                                                     VkAccelerationStructureBuildRangeInfoKHR*    range_infos);
-    BufferEntry*                GetBufferByRuntimeDeviceAddress(VkDeviceAddress runtime_address);
-    BufferEntry*                GetBufferByCaptureDeviceAddress(VkDeviceAddress original_address);
-    VkDeviceAddress             GetBufferDeviceAddress(VkBuffer buffer);
+
     VkDeviceAddress GetAccelerationStructureDeviceAddress(VkAccelerationStructureKHR acceleration_structure);
 
     VkAccelerationStructureKHR CreateAccelerationStructure(VkAccelerationStructureBuildGeometryInfoKHR& geometry_info,
@@ -400,6 +426,8 @@ class VulkanAccelerationStructureBuilder
     void BeginCommandBuffer();
     void ExecuteCommandBuffer();
     void UpdateShaderBindingTable(const VkStridedDeviceAddressRegionKHR& sbt_entry);
+    void UpdateScratchDeviceAddress(VkAccelerationStructureBuildGeometryInfoKHR& geometry_infos,
+                                    VkDeviceSize                                 scratch_size);
 };
 
 GFXRECON_END_NAMESPACE(decode)

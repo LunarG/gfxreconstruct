@@ -707,6 +707,7 @@ struct VulkanLayerTable
 {
     PFN_vkCreateInstance CreateInstance{ nullptr };
     PFN_vkCreateDevice CreateDevice{ nullptr };
+    PFN_vkEnumerateInstanceExtensionProperties EnumerateInstanceExtensionProperties{ nullptr };
 };
 
 struct VulkanInstanceTable

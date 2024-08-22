@@ -41,6 +41,7 @@
 #include <set>
 #include <unordered_map>
 #include <vector>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -181,9 +182,9 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
     format::HandleId hardware_buffer_memory_id{ format::kNullHandleId };
 
     // State tracking info for memory with device addresses.
-    format::HandleId                                    device_id{ format::kNullHandleId };
-    VkDeviceAddress                                     address{ 0 };
-    std::unordered_map<VkDeviceAddress, BufferWrapper*> bound_buffers;
+    format::HandleId         device_id{ format::kNullHandleId };
+    VkDeviceAddress          address{ 0 };
+    std::set<BufferWrapper*> bound_buffers;
 };
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>
@@ -196,6 +197,8 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
     VkDeviceSize     created_size{ 0 };
+
+    VkBufferUsageFlags usage{ 0 };
 
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
@@ -340,10 +343,11 @@ struct PipelineWrapper : public HandleWrapper<VkPipeline>
         layout_dependencies; // Shared with PipelineLayoutWrapper
 
     // Ray tracing pipeline's shader group handle data
+    DeviceWrapper*                          device;
     format::HandleId                        device_id{ format::kNullHandleId };
     std::vector<uint8_t>                    shader_group_handle_data;
     vulkan_state_info::CreateDependencyInfo deferred_operation;
-
+    uint32_t                                group_count;
     // TODO: Base pipeline
     // TODO: Pipeline cache
 };
@@ -487,31 +491,61 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
     // State tracking info for buffers with device addresses.
+    DeviceWrapper*   device;
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
 
     // List of BLASes this AS references. Used only while tracking.
     std::vector<AccelerationStructureKHRWrapper*> blas;
 
+    VkAccelerationStructureTypeKHR type_;
     // Only used when tracking
+
+    struct ASInputBuffer
+    {
+        // Required data to correctly create a buffer
+        VkBuffer           handle{ VK_NULL_HANDLE };
+        format::HandleId   handle_id{ format::kNullHandleId };
+        DeviceWrapper*     bind_device{ nullptr };
+        uint32_t           queue_family_index{ 0 };
+        VkDeviceSize       created_size{ 0 };
+        VkBufferUsageFlags usage{ 0 };
+
+        bool destroyed{ false };
+
+        VkDeviceAddress capture_address{ 0 };
+        VkDeviceAddress actual_address{ 0 };
+
+        std::vector<uint8_t> bytes;
+
+        VkMemoryRequirements memory_requirements{};
+        format::HandleId     bind_memory{};
+        VkDeviceMemory       bind_memory_handle{ VK_NULL_HANDLE };
+    };
+
     struct AccelerationStructureKHRBuildCommandData
     {
-        format::HandleId                                      device;
         VkAccelerationStructureBuildGeometryInfoKHR           geometry_info;
         HandleUnwrapMemory                                    geometry_info_memory;
         std::vector<VkAccelerationStructureBuildRangeInfoKHR> build_range_infos;
-        std::vector<VkAccelerationStructureInstanceKHR>       instance_buffer_data;
+        std::vector<ASInputBuffer>                            input_buffers;
     };
-    std::unique_ptr<AccelerationStructureKHRBuildCommandData> latest_update_command_;
-    std::unique_ptr<AccelerationStructureKHRBuildCommandData> latest_build_command_;
+    std::optional<AccelerationStructureKHRBuildCommandData> latest_update_command_{ std::nullopt };
+    std::optional<AccelerationStructureKHRBuildCommandData> latest_build_command_{ std::nullopt };
 
     struct AccelerationStructureCopyCommandData
     {
         format::HandleId                   device;
         VkCopyAccelerationStructureInfoKHR info;
-        HandleUnwrapMemory                 p_next_memory;
     };
-    std::unique_ptr<AccelerationStructureCopyCommandData> latest_copy_command;
+    std::optional<AccelerationStructureCopyCommandData> latest_copy_command_{ std::nullopt };
+
+    struct AccelerationStructureWritePropertiesCommandData
+    {
+        format::HandleId device;
+        VkQueryType      query_type;
+    };
+    std::optional<AccelerationStructureWritePropertiesCommandData> latest_write_properties_command_{ std::nullopt };
 };
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>

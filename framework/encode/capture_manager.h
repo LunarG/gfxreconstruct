@@ -283,7 +283,10 @@ class CommonCaptureManager
 
     void WriteFillMemoryCmd(
         format::ApiFamilyId api_family, format::HandleId memory_id, uint64_t offset, uint64_t size, const void* data);
-
+    void WriteFixDeviceAddressCmd(format::ApiFamilyId          api_family,
+                                  format::HandleId             relation_id,
+                                  uint64_t                     num_of_locations,
+                                  format::AddressLocationInfo* locations);
     void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
 
     void WriteToFile(const void* data, size_t size);
@@ -310,6 +313,11 @@ class CommonCaptureManager
     {
         block_index_ += blocks;
         GetThreadData()->block_index_ = block_index_;
+    }
+
+    std::vector<uint64_t> GetBufferUsagesToIgnore()
+    {
+        return buffer_usages_to_ignore_;
     }
 
   protected:
@@ -382,7 +390,7 @@ class CommonCaptureManager
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
     bool                                    experimental_raytracing_fastforwarding_;
-
+    std::vector<uint64_t>                   buffer_usages_to_ignore_;
     struct
     {
         bool     rv_annotation{ false };

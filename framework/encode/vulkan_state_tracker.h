@@ -35,6 +35,7 @@
 #include "util/defines.h"
 #include "util/logging.h"
 #include "util/memory_output_stream.h"
+#include "graphics/vulkan_resources_util.h"
 
 #include "vulkan/vulkan.h"
 
@@ -396,7 +397,8 @@ class VulkanStateTracker
 
     void TrackDeviceMemoryDeviceAddress(VkDevice device, VkDeviceMemory memory, VkDeviceAddress address);
 
-    void TrackRayTracingShaderGroupHandles(VkDevice device, VkPipeline pipeline, size_t data_size, const void* data);
+        void TrackRayTracingShaderGroupHandles(
+        VkDevice device, VkPipeline pipeline, uint32_t group_count, size_t data_size, const void* data);
 
     void TrackAcquireFullScreenExclusiveMode(VkDevice device, VkSwapchainKHR swapchain);
 
@@ -412,10 +414,19 @@ class VulkanStateTracker
 
     void TrackTlasToBlasDependencies(uint32_t command_buffer_count, const VkCommandBuffer* command_buffers);
 
-    void SetExperimentalRaytracingFastforwarding(bool value) { experimental_raytracing_fastforwarding = value; };
+    void SetExperimentalRaytracingFastforwarding(bool value) { experimental_raytracing_fastforwarding_ = value; };
 
     void TrackAccelerationStructureCopyCommand(VkCommandBuffer                           command_buffer,
                                                const VkCopyAccelerationStructureInfoKHR* info);
+
+    void TrackWriteAccelerationStructuresPropertiesCommand(VkCommandBuffer                   commandBuffer,
+                                                           uint32_t                          accelerationStructureCount,
+                                                           const VkAccelerationStructureKHR* pAccelerationStructures,
+                                                           VkQueryType                       queryType,
+                                                           VkQueryPool                       queryPool,
+                                                           uint32_t                          firstQuery);
+
+    void TrackGetBufferDeviceAddress(VkDeviceAddress address, const VkBufferDeviceAddressInfo* pInfo);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
@@ -482,6 +493,8 @@ class VulkanStateTracker
 
     void DestroyState(vulkan_wrappers::AccelerationStructureKHRWrapper* wrapper);
 
+    void DestroyState(vulkan_wrappers::BufferWrapper* wrapper);
+
     void TrackQuerySubmissions(vulkan_wrappers::CommandBufferWrapper* command_wrapper);
 
     std::mutex       state_table_mutex_;
@@ -492,8 +505,10 @@ class VulkanStateTracker
 
     // Keeps track of acceleration structures' device addresses
     std::unordered_map<VkDeviceAddress, vulkan_wrappers::AccelerationStructureKHRWrapper*> as_device_addresses_map;
+    std::unordered_map<VkBuffer, std::pair<VkDeviceAddress, VkDeviceAddress>>              buffer_addresses_map;
 
-    bool experimental_raytracing_fastforwarding{ false };
+    bool                                                                experimental_raytracing_fastforwarding_{ true };
+    std::unordered_map<format::HandleId, graphics::VulkanResourcesUtil> resource_utils;
 };
 
 GFXRECON_END_NAMESPACE(encode)

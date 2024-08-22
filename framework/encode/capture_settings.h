@@ -130,6 +130,8 @@ class CaptureSettings
         bool iunknown_wrapping{ false };
 
         ResourveValueAnnotationInfo rv_anotation_info{};
+
+        std::vector<uint64_t> buffer_usages_to_ignore{};
     };
 
   public:
@@ -195,6 +197,8 @@ class CaptureSettings
     static util::ScreenshotFormat ParseScreenshotFormatString(const std::string&     value_string,
                                                               util::ScreenshotFormat default_value);
 
+    static std::vector<uint64_t> ParseBufferUsages(const std::string& value_string);
+    
   private:
     TraceSettings       trace_settings_;
     util::Log::Settings log_settings_;

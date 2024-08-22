@@ -40,6 +40,8 @@ class MetadataConsumerBase
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
+    virtual void ProcessFixDeviceAddresCommand(const format::FixDeviceAddressCommandHeader& header,
+                                               const format::AddressLocationInfo*           infos){};
     virtual void
     ProcessFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
                                           const uint8_t*                                      data)
@@ -120,7 +122,9 @@ class MetadataConsumerBase
     virtual void ProcessCopyVulkanAccelerationStructuresMetaCommand(
         format::HandleId device_id, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos)
     {}
-
+    virtual void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(
+        format::HandleId device_id, VkQueryType query_type, format::HandleId acceleration_structure_id)
+    {}
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 
   protected:

@@ -309,7 +309,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     queue_zero_only_                        = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_        = trace_settings.allow_pipeline_compile_required;
     experimental_raytracing_fastforwarding_ = trace_settings.experimental_raytracing_fastforwarding;
-
+    buffer_usages_to_ignore_                = trace_settings.buffer_usages_to_ignore;
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
 
@@ -1243,6 +1243,28 @@ void CommonCaptureManager::WriteFillMemoryCmd(
 
             CombineAndWriteToFile({ { &fill_cmd, header_size }, { uncompressed_data, uncompressed_size } });
         }
+    }
+}
+
+void CommonCaptureManager::WriteFixDeviceAddressCmd(format::ApiFamilyId          api_family,
+                                                    format::HandleId             relation_id,
+                                                    uint64_t                     num_of_locations,
+                                                    format::AddressLocationInfo* locations)
+{
+    if ((capture_mode_ & kModeWrite) == kModeWrite)
+    {
+        format::FixDeviceAddressCommandHeader fix_cmd;
+        auto                                  thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+        fix_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+        fix_cmd.meta_header.block_header.size =
+            format::GetMetaDataBlockBaseSize(fix_cmd) + (num_of_locations * sizeof(format::AddressLocationInfo));
+        fix_cmd.meta_header.meta_data_id =
+            format::MakeMetaDataId(api_family, format::MetaDataType::kFixDeviceAddressCommand);
+        fix_cmd.relation_id      = relation_id;
+        fix_cmd.num_of_locations = num_of_locations;
+        CombineAndWriteToFile({ { &fix_cmd, sizeof(format::FixDeviceAddressCommandHeader) },
+                                { locations, num_of_locations * sizeof(format::AddressLocationInfo) } });
     }
 }
 

@@ -27,6 +27,7 @@
 #include "util/defines.h"
 #include "util/file_path.h"
 #include "format/format_json.h"
+#include "generated/generated_vulkan_struct_to_json.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -67,8 +68,7 @@ class MetadataJsonConsumer : public Base
         WriteBlockEnd();
     }
 
-    virtual void
-    ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override
+    virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override
     {
         const util::JsonOptions& json_options = GetOptions();
         auto&                    jdata        = WriteMetaCommandStart("FillMemoryCommand");
@@ -76,6 +76,23 @@ class MetadataJsonConsumer : public Base
         FieldToJson(jdata["offset"], offset, json_options);
         FieldToJson(jdata["size"], size, json_options);
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "fill_memory.bin", size, data);
+        WriteBlockEnd();
+    }
+
+    virtual void ProcessFixDeviceAddresCommand(const format::FixDeviceAddressCommandHeader& header,
+                                               const format::AddressLocationInfo*           infos) override
+    {
+        using namespace util;
+        const JsonOptions& json_options = GetOptions();
+        auto&              jdata        = WriteMetaCommandStart("FixDeviceAddresCommand");
+        HandleToJson(jdata["relation_id"], header.relation_id, json_options);
+        for (int i = 0; i < header.num_of_locations; i++)
+        {
+            HandleToJson(jdata["location"][i]["buffer_id"], infos[i].id, json_options);
+            FieldToJson(jdata["location"][i]["original_address"], infos[i].original_address, json_options);
+            FieldToJson(jdata["location"][i]["adjusted_address"], infos[i].adjusted_address, json_options);
+            FieldToJson(jdata["location"][i]["offset_in_memory"], infos[i].offset_in_memory, json_options);
+        }
         WriteBlockEnd();
     }
 
@@ -276,6 +293,58 @@ class MetadataJsonConsumer : public Base
         FieldToJson(jdata["layout"], layout, json_options);
         FieldToJson(jdata["level_sizes"], "not available", json_options);
         RepresentBinaryFile(*(this->writer_), jdata[format::kNameData], "init_image.bin", data_size, data);
+        WriteBlockEnd();
+    }
+
+    void ProcessSetTlasToBlasRelationCommand(format::HandleId tlas, const std::vector<format::HandleId>& blases)
+    {
+        const JsonOptions& json_options = GetJsonOptions();
+        auto&              jdata        = WriteMetaCommandStart("SetTLAStoBLASRelationCommand");
+        HandleToJson(jdata["TLAS_id"], tlas, json_options);
+        for (const auto& blas_id : blases)
+        {
+            jdata["BLAS_ids"].push_back(blas_id);
+        }
+        WriteBlockEnd();
+    }
+
+    void ProcessBuildVulkanAccelerationStructuresMetaCommand(
+        format::HandleId                                                           device,
+        uint32_t                                                                   info_count,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppRangeInfos,
+        std::vector<std::vector<VkAccelerationStructureInstanceKHR>>&              instance_buffers_data)
+    {
+        GFXRECON_UNREFERENCED_PARAMETER(instance_buffers_data);
+        const JsonOptions& json_options = GetJsonOptions();
+        auto&              jdata        = WriteMetaCommandStart("VulkanBuildAccelerationStructuresMetaCommand");
+
+        HandleToJson(jdata["device"], device, json_options);
+        FieldToJson(jdata["infoCount"], info_count, json_options);
+        FieldToJson(jdata["pInfos"], pInfos, json_options);
+        FieldToJson(jdata["ppBuildRangeInfos"], ppRangeInfos, json_options);
+        WriteBlockEnd();
+    }
+    void ProcessCopyVulkanAccelerationStructuresMetaCommand(
+        format::HandleId device, StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* copy_infos)
+    {
+        const JsonOptions& json_options = GetJsonOptions();
+        auto&              jdata        = WriteMetaCommandStart("VulkanCopyAccelerationStructuresMetaCommand");
+        HandleToJson(jdata["device"], device, json_options);
+        FieldToJson(jdata["infoCount"], copy_infos->GetLength(), json_options);
+        FieldToJson(jdata["pInfos"], copy_infos, json_options);
+        WriteBlockEnd();
+    }
+
+    void ProcessVulkanAccelerationStructuresWritePropertiesMetaCommand(format::HandleId device_id,
+                                                                       VkQueryType      query_type,
+                                                                       format::HandleId acceleration_structure_id)
+    {
+        const JsonOptions& json_options = GetJsonOptions();
+        auto&              jdata = WriteMetaCommandStart("VulkanAccelerationStructuresWritePropertiesMetaCommand");
+        HandleToJson(jdata["device"], device_id, json_options);
+        FieldToJson(jdata["query_type"], query_type, json_options);
+        FieldToJson(jdata["acceleration_structure"], acceleration_structure_id, json_options);
         WriteBlockEnd();
     }
 

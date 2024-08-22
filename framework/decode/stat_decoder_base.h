@@ -77,9 +77,10 @@ class StatDecoderBase : public ApiDecoder
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override {}
 
     virtual void DispatchFillMemoryCommand(
-        format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) override
+        format::ThreadId thread_id, uint64_t memory_id, uint64_t offset, uint64_t size, uint8_t* data) override
     {}
-
+    virtual void DispatchFixDeviceAddresCommand(const format::FixDeviceAddressCommandHeader& header,
+                                                const format::AddressLocationInfo*           infos) override{};
     virtual void
     DispatchFillMemoryResourceValueCommand(const format::FillMemoryResourceValueCommandHeader& command_header,
                                            const uint8_t*                                      data) override
