@@ -81,7 +81,7 @@ class CaptureSettings
 
     struct TrimDrawcalls
     {
-        // 1-based
+        // 0-based
         uint32_t        submit_index{ 0 };
         uint32_t        command_index{ 0 };
         util::UintRange drawcall_indices;
@@ -199,7 +199,8 @@ class CaptureSettings
     static void ParseUintRangeList(const std::string&            value_string,
                                    std::vector<util::UintRange>* frames,
                                    const char*                   option_name,
-                                   bool                          check_overlap_range = true);
+                                   bool                          check_overlap_range = true,
+                                   bool                          allow_zero          = false);
 
     static std::string ParseTrimKeyString(const std::string& value_string);
 

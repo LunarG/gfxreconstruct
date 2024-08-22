@@ -517,32 +517,25 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     if (!trim_drawcalls.empty())
     {
         std::vector<util::UintRange> trim_values;
-        ParseUintRangeList(trim_drawcalls, &trim_values, "capture drawcalls", false);
+        ParseUintRangeList(trim_drawcalls, &trim_values, "capture drawcalls", false, true);
         if (trim_values.size() == 3 || trim_values.size() == 4)
         {
-            if (trim_values[0].first != 0)
+            settings->trace_settings_.trim_drawcalls.submit_index           = trim_values[0].first;
+            settings->trace_settings_.trim_drawcalls.command_index          = trim_values[1].first;
+            settings->trace_settings_.trim_drawcalls.drawcall_indices.first = trim_values[2].first;
+            settings->trace_settings_.trim_drawcalls.drawcall_indices.last  = trim_values[2].last;
+            settings->trace_settings_.trim_boundary                         = TrimBoundary::kDrawcalls;
+
+            if (trim_values.size() == 4)
             {
-                settings->trace_settings_.trim_drawcalls.submit_index = trim_values[0].first;
-                if (trim_values[1].first != 0)
-                {
-                    settings->trace_settings_.trim_drawcalls.command_index = trim_values[1].first;
-                    if (trim_values[2].first != 0)
-                    {
-                        settings->trace_settings_.trim_drawcalls.drawcall_indices.first = trim_values[2].first;
-                        settings->trace_settings_.trim_drawcalls.drawcall_indices.last  = trim_values[2].last;
-                        settings->trace_settings_.trim_boundary                         = TrimBoundary::kDrawcalls;
-
-                        // bundle_drawcall_indices is the 4th arg. The default it 1 if it doesn't set.
-                        settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.first = 1;
-                        settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.last  = 1;
-                    }
-
-                    if (trim_values.size() == 4 && trim_values[3].first != 0)
-                    {
-                        settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.first = trim_values[3].first;
-                        settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.last  = trim_values[3].last;
-                    }
-                }
+                settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.first = trim_values[3].first;
+                settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.last  = trim_values[3].last;
+            }
+            else
+            {
+                // bundle_drawcall_indices is the 4th arg. The default is 0 if it doesn't set.
+                settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.first = 0;
+                settings->trace_settings_.trim_drawcalls.bundle_drawcall_indices.last  = 0;
             }
         }
     }
@@ -884,14 +877,15 @@ util::Log::Severity CaptureSettings::ParseLogLevelString(const std::string&  val
 void CaptureSettings::ParseUintRangeList(const std::string&            value_string,
                                          std::vector<util::UintRange>* frames,
                                          const char*                   option_name,
-                                         bool                          check_overlap_range)
+                                         bool                          check_overlap_range,
+                                         bool                          allow_zero)
 {
     GFXRECON_ASSERT(frames != nullptr);
 
     if (!value_string.empty())
     {
         std::vector<gfxrecon::util::UintRange> frame_ranges =
-            util::GetUintRanges(value_string.c_str(), option_name, check_overlap_range);
+            util::GetUintRanges(value_string.c_str(), option_name, check_overlap_range, allow_zero);
 
         for (uint32_t i = 0; i < frame_ranges.size(); ++i)
         {

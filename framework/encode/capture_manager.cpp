@@ -395,6 +395,13 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
             GFXRECON_ASSERT((trim_boundary_ == CaptureSettings::TrimBoundary::kFrames) ||
                             (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits));
 
+            if (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits)
+            {
+                GFXRECON_LOG_WARNING("Capture has enabled the GFXRECON_CAPTURE_QUEUE_SUBMITS option. This option "
+                                     "currently uses 1-based indexing to identify the queue submit range. In the "
+                                     "future it will be switched to 0-based indexing.");
+            }
+
             trim_ranges_ = trace_settings.trim_ranges;
 
             // Determine if trim starts at the first frame
@@ -910,6 +917,8 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_
 
 void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock)
 {
+    // ++ here means it's 1-based. When it changes to 0-based, it needs to move to the bottom of
+    // CommonCaptureManager::PostQueueSubmit and make sure trimming kQueueSubmits and kDrawcalls work correctly.
     ++queue_submit_count_;
 
     if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
