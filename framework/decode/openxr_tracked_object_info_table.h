@@ -175,7 +175,7 @@ class OpenXrTrackedObjectInfoTable
             }
             else
             {
-                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
+                GFXRECON_LOG_WARNING("GetTrackedXrObjectInfo: Failed to map handle for object id %" PRIu64, id);
             }
         }
 
@@ -201,7 +201,7 @@ class OpenXrTrackedObjectInfoTable
             }
             else
             {
-                GFXRECON_LOG_WARNING("Failed to map handle for object id %" PRIu64, id);
+                GFXRECON_LOG_WARNING("GetTrackedXrObjectInfo: Failed to map handle for object id %" PRIu64, id);
             }
         }
 

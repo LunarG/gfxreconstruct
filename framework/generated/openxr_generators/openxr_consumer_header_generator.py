@@ -100,7 +100,7 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
             'xrNegotiateLoaderApiLayerInterface',
             'xrInitializeLoaderKHR',
             'xrCreateInstance',
-            'xrCreateApiLayerInstance',
+            'xrCreateApiLayerInstance'
         ]
 
     def beginFile(self, gen_opts):

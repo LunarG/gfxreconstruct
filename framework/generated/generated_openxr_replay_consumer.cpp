@@ -1603,24 +1603,6 @@ void OpenXrReplayConsumer::Process_xrDestroyHandTrackerEXT(
     RemoveHandle(handTracker, &CommonObjectInfoTable::RemoveXrHandTrackerEXTInfo);
 }
 
-void OpenXrReplayConsumer::Process_xrLocateHandJointsEXT(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            handTracker,
-    StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
-    StructPointerDecoder<Decoded_XrHandJointLocationsEXT>* locations)
-{
-    XrHandTrackerEXT in_handTracker = MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
-    const XrHandJointsLocateInfoEXT* in_locateInfo = locateInfo->GetPointer();
-    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    XrHandJointLocationsEXT* out_locations = locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_HAND_JOINT_LOCATIONS_EXT, nullptr });
-    InitializeOutputStructNext(locations);
-
-    XrResult replay_result = GetInstanceTable(in_handTracker)->LocateHandJointsEXT(in_handTracker, in_locateInfo, out_locations);
-    CheckResult("xrLocateHandJointsEXT", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::UpdateState(this, call_info, returnValue, handTracker, locateInfo, locations, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrCreateHandMeshSpaceMSFT(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
