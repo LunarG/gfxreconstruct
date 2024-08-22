@@ -766,7 +766,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 if unwrapped_args:
                     unwrapped_args = self.increment_indent(
                         indent
-                    ) + 'this,\n' + unwrapped_args
+                    ) + 'this,\n' + wrapped_args
                 else:
                     unwrapped_args = self.increment_indent(indent) + 'this\n'
             else:

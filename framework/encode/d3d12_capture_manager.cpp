@@ -29,6 +29,7 @@
 #include "encode/dx12_object_wrapper_info.h"
 #include "encode/dx12_state_writer.h"
 #include "generated/generated_dx12_wrapper_creators.h"
+#include "generated/generated_dx12_struct_unwrappers.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -1923,14 +1924,15 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
         auto properties_copy = *heap_properties;
         EnableWriteWatch(heap_flags, properties_copy);
 
-        return device->CreateCommittedResource2(&properties_copy,
-                                                heap_flags,
-                                                desc,
-                                                initial_resource_state,
-                                                optimized_clear_value,
-                                                protected_session,
-                                                riid_resource,
-                                                ppv_resource);
+        return device->CreateCommittedResource2(
+            &properties_copy,
+            heap_flags,
+            desc,
+            initial_resource_state,
+            optimized_clear_value,
+            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(protected_session),
+            riid_resource,
+            ppv_resource);
     }
 
     return device->CreateCommittedResource2(heap_properties,
@@ -1938,7 +1940,7 @@ D3D12CaptureManager::OverrideID3D12Device_CreateCommittedResource2(ID3D12Device8
                                             desc,
                                             initial_resource_state,
                                             optimized_clear_value,
-                                            protected_session,
+                                            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(protected_session),
                                             riid_resource,
                                             ppv_resource);
 }
@@ -2032,11 +2034,13 @@ HRESULT D3D12CaptureManager::OverrideID3D12Device_CreateHeap1(ID3D12Device4_Wrap
         D3D12_HEAP_DESC desc_copy = *desc;
         EnableWriteWatch(desc_copy.Flags, desc_copy.Properties);
 
-        return device->CreateHeap1(&desc_copy, protected_session, riid, heap);
+        return device->CreateHeap1(
+            &desc_copy, encode::GetWrappedObject<ID3D12ProtectedResourceSession>(protected_session), riid, heap);
     }
     else
     {
-        return device->CreateHeap1(desc, protected_session, riid, heap);
+        return device->CreateHeap1(
+            desc, encode::GetWrappedObject<ID3D12ProtectedResourceSession>(protected_session), riid, heap);
     }
 }
 
@@ -2113,8 +2117,12 @@ HRESULT D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForHwnd(
     {
         return E_INVALIDARG;
     }
-    HRESULT result =
-        factory2->CreateSwapChainForHwnd(pDevice, hWnd, pDesc, pFullscreenDesc, pRestrictToOutput, ppSwapChain);
+    HRESULT result = factory2->CreateSwapChainForHwnd(encode::GetWrappedObject<IUnknown>(pDevice),
+                                                      hWnd,
+                                                      pDesc,
+                                                      pFullscreenDesc,
+                                                      encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
+                                                      ppSwapChain);
     UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
     return result;
 }
@@ -2132,7 +2140,11 @@ D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(IDXGIFac
     {
         return E_INVALIDARG;
     }
-    HRESULT result = factory2->CreateSwapChainForCoreWindow(pDevice, pWindow, pDesc, pRestrictToOutput, ppSwapChain);
+    HRESULT result = factory2->CreateSwapChainForCoreWindow(encode::GetWrappedObject<IUnknown>(pDevice),
+                                                            encode::GetWrappedObject<IUnknown>(pWindow),
+                                                            pDesc,
+                                                            encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
+                                                            ppSwapChain);
     UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
     return result;
 }
@@ -2149,7 +2161,10 @@ D3D12CaptureManager::OverrideIDXGIFactory2_CreateSwapChainForComposition(IDXGIFa
     {
         return E_INVALIDARG;
     }
-    HRESULT result = factory2->CreateSwapChainForComposition(pDevice, pDesc, pRestrictToOutput, ppSwapChain);
+    HRESULT result = factory2->CreateSwapChainForComposition(encode::GetWrappedObject<IUnknown>(pDevice),
+                                                             pDesc,
+                                                             encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
+                                                             ppSwapChain);
     UpdateSwapChainSize(pDesc->Width, pDesc->Height, *ppSwapChain);
     return result;
 }

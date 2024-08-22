@@ -5345,11 +5345,11 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForHwnd(
 
         result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForHwnd(
             this,
-            encode::GetWrappedObject<IUnknown>(pDevice),
+            pDevice,
             hWnd,
             pDesc,
             pFullscreenDesc,
-            encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
+            pRestrictToOutput,
             ppSwapChain);
 
         if (SUCCEEDED(result))
@@ -5431,10 +5431,10 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForCoreWindow(
 
         result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForCoreWindow(
             this,
-            encode::GetWrappedObject<IUnknown>(pDevice),
-            encode::GetWrappedObject<IUnknown>(pWindow),
+            pDevice,
+            pWindow,
             pDesc,
-            encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
+            pRestrictToOutput,
             ppSwapChain);
 
         if (SUCCEEDED(result))
@@ -5905,9 +5905,9 @@ HRESULT STDMETHODCALLTYPE IDXGIFactory2_Wrapper::CreateSwapChainForComposition(
 
         result = D3D12CaptureManager::Get()->OverrideIDXGIFactory2_CreateSwapChainForComposition(
             this,
-            encode::GetWrappedObject<IUnknown>(pDevice),
+            pDevice,
             pDesc,
-            encode::GetWrappedObject<IDXGIOutput>(pRestrictToOutput),
+            pRestrictToOutput,
             ppSwapChain);
 
         if (SUCCEEDED(result))
@@ -18499,7 +18499,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadGraphicsPipeline(
         result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadGraphicsPipeline(
             this,
             pName,
-            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pDesc,
             riid,
             ppPipelineState);
 
@@ -18577,7 +18577,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary_Wrapper::LoadComputePipeline(
         result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary_LoadComputePipeline(
             this,
             pName,
-            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pDesc,
             riid,
             ppPipelineState);
 
@@ -18763,7 +18763,7 @@ HRESULT STDMETHODCALLTYPE ID3D12PipelineLibrary1_Wrapper::LoadPipeline(
         result = D3D12CaptureManager::Get()->OverrideID3D12PipelineLibrary1_LoadPipeline(
             this,
             pName,
-            UnwrapStructPtrObjects(pDesc, unwrap_memory),
+            pDesc,
             riid,
             ppPipelineState);
 
@@ -19703,7 +19703,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateCommittedResource1(
             pDesc,
             InitialResourceState,
             pOptimizedClearValue,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             riidResource,
             ppvResource);
 
@@ -19791,7 +19791,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device4_Wrapper::CreateHeap1(
         result = D3D12CaptureManager::Get()->OverrideID3D12Device_CreateHeap1(
             this,
             pDesc,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             riid,
             ppvHeap);
 
@@ -22147,7 +22147,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device8_Wrapper::CreateCommittedResource2(
             pDesc,
             InitialResourceState,
             pOptimizedClearValue,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             riidResource,
             ppvResource);
 
@@ -23792,7 +23792,7 @@ HRESULT STDMETHODCALLTYPE ID3D12Device10_Wrapper::CreateCommittedResource3(
             pDesc,
             InitialLayout,
             pOptimizedClearValue,
-            encode::GetWrappedObject<ID3D12ProtectedResourceSession>(pProtectedSession),
+            pProtectedSession,
             NumCastableFormats,
             pCastableFormats,
             riidResource,
