@@ -154,7 +154,8 @@ enum class MetaDataType : uint16_t
     kReserved30                             = 30,
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
-    kExecuteBlocksFromFile                  = 33
+    kExecuteBlocksFromFile                  = 33,
+    kSetBlockIndexCommand                   = 34
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -676,6 +677,14 @@ struct ExecuteBlocksFromFile
 
     // Number of characters in file name
     uint32_t filename_length;
+};
+
+struct SetBlockIndexCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+
+    uint64_t block_index;
 };
 
 // Restore size_t to normal behavior.

@@ -369,7 +369,7 @@ class VulkanStateWriter
 
     void WriteTlasToBlasDependenciesMetadata(const VulkanStateTable& state_table);
 
-    void WriteExecuteFromFile(uint32_t n_blocks, int64_t offset);
+    void WriteExecuteFromFile(const std::string& filename, uint32_t n_blocks, int64_t offset);
 
   private:
     util::FileOutputStream*  output_stream_;

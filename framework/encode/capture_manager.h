@@ -321,6 +321,15 @@ class CommonCaptureManager
 
     bool WriteFrameStateFile();
 
+  private:
+    void WriteExecuteFromFile(util::FileOutputStream& out_stream,
+                              const std::string&      filename,
+                              format::ThreadId        thread_id,
+                              uint32_t                n_blocks,
+                              int64_t                 offset);
+
+    void WriteSetBlockIndex(util::FileOutputStream& out_stream, format::ThreadId thread_id, uint64_t block_index);
+
   protected:
     std::unique_ptr<util::Compressor> compressor_;
     std::mutex                        mapped_memory_lock_;

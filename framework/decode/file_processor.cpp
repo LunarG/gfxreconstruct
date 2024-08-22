@@ -2014,6 +2014,21 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             HandleBlockReadError(kErrorReadingBlockData, "Failed to read runtime info meta-data block");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kSetBlockIndexCommand)
+    {
+        format::SetBlockIndexCommand set_block_index;
+        success = ReadBytes(&set_block_index.thread_id, sizeof(set_block_index.thread_id));
+        success = success && ReadBytes(&set_block_index.block_index, sizeof(set_block_index.block_index));
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                block_index_ = set_block_index.block_index;
+                decoder->SetCurrentBlockIndex(block_index_);
+            }
+        }
+    }
     else
     {
         if ((meta_data_type == format::MetaDataType::kReserved23) ||

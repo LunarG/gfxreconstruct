@@ -23,6 +23,7 @@
 */
 
 #include "encode/capture_settings.h"
+#include "format/format.h"
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 
@@ -1187,6 +1188,44 @@ std::string CommonCaptureManager::CreateFrameStateFilename(const std::string& ba
     return state_filename;
 }
 
+void CommonCaptureManager::WriteExecuteFromFile(util::FileOutputStream& out_stream,
+                                                const std::string&      filename,
+                                                format::ThreadId        thread_id,
+                                                uint32_t                n_blocks,
+                                                int64_t                 offset)
+{
+    const size_t asset_filename_length = filename.length();
+
+    format::ExecuteBlocksFromFile execute_from_file;
+    execute_from_file.meta_header.block_header.size =
+        format::GetMetaDataBlockBaseSize(execute_from_file) + asset_filename_length;
+    execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
+    execute_from_file.meta_header.meta_data_id =
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
+    execute_from_file.thread_id       = thread_id;
+    execute_from_file.n_blocks        = n_blocks;
+    execute_from_file.offset          = offset;
+    execute_from_file.filename_length = asset_filename_length;
+
+    out_stream.Write(&execute_from_file, sizeof(execute_from_file));
+    out_stream.Write(filename.c_str(), asset_filename_length);
+}
+
+void CommonCaptureManager::WriteSetBlockIndex(util::FileOutputStream& out_stream,
+                                              format::ThreadId        thread_id,
+                                              uint64_t                block_index)
+{
+    format::SetBlockIndexCommand set_block_index;
+    set_block_index.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(set_block_index);
+    set_block_index.meta_header.block_header.type = format::kMetaDataBlock;
+    set_block_index.meta_header.meta_data_id =
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetBlockIndexCommand);
+    set_block_index.thread_id   = thread_id;
+    set_block_index.block_index = block_index;
+
+    out_stream.Write(&set_block_index, sizeof(set_block_index));
+}
+
 bool CommonCaptureManager::WriteFrameStateFile()
 {
     assert(write_state_files_);
@@ -1200,10 +1239,12 @@ bool CommonCaptureManager::WriteFrameStateFile()
         return false;
     }
 
-    WriteFileHeader(&state_file_stream);
-
     auto thread_data = GetThreadData();
     assert(thread_data != nullptr);
+
+    WriteFileHeader(&state_file_stream);
+
+    WriteSetBlockIndex(state_file_stream, thread_data->thread_id_, block_index_);
 
     for (auto& manager : api_capture_managers_)
     {
@@ -1211,22 +1252,9 @@ bool CommonCaptureManager::WriteFrameStateFile()
             &state_file_stream, thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
     }
 
-    const std::string& filename        = file_stream_->GetFilename();
-    const size_t       filename_length = filename.length();
+    WriteExecuteFromFile(
+        state_file_stream, file_stream_->GetFilename(), thread_data->thread_id_, 0, file_stream_->GetOffset());
 
-    format::ExecuteBlocksFromFile execute_from_file;
-    execute_from_file.meta_header.block_header.size =
-        format::GetMetaDataBlockBaseSize(execute_from_file) + filename_length;
-    execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
-    execute_from_file.meta_header.meta_data_id =
-        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
-    execute_from_file.thread_id       = thread_data->thread_id_;
-    execute_from_file.n_blocks        = 0; // 0 n_blocks means execute till eof
-    execute_from_file.offset          = file_stream_->GetOffset();
-    execute_from_file.filename_length = filename_length;
-
-    state_file_stream.Write(&execute_from_file, sizeof(execute_from_file));
-    state_file_stream.Write(filename.c_str(), filename_length);
     state_file_stream.Flush();
 
     return true;

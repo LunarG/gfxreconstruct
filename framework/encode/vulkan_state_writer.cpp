@@ -982,7 +982,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                         wrapper->set_layout_dependency.create_call_id, dep_create_parameters, asset_file_stream_);
                     if (output_stream_ != nullptr)
                     {
-                        WriteExecuteFromFile(1, offset);
+                        WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
                     }
                 }
                 else
@@ -991,7 +991,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                     {
                         assert((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end());
                         const int64_t offset = (*asset_file_offsets_)[wrapper->handle_id];
-                        WriteExecuteFromFile(1, offset);
+                        WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
                     }
                 }
             }
@@ -1098,7 +1098,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
         // as execute till the end of file
         if (output_stream_ != nullptr && n_blocks)
         {
-            WriteExecuteFromFile(n_blocks, offset);
+            WriteExecuteFromFile(asset_file_stream_->GetFilename(), n_blocks, offset);
         }
 
         if (wrapper->dirty)
@@ -1713,7 +1713,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
 
                 if (output_stream_ != nullptr)
                 {
-                    WriteExecuteFromFile(1, offset);
+                    WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
                 }
 
                 ++blocks_written_;
@@ -1735,7 +1735,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
             {
                 assert((*asset_file_offsets_).find(buffer_wrapper->handle_id) != (*asset_file_offsets_).end());
                 const int64_t offset = (*asset_file_offsets_)[buffer_wrapper->handle_id];
-                WriteExecuteFromFile(1, offset);
+                WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
             }
         }
     }
@@ -2033,7 +2033,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
                     if (output_stream_ != nullptr)
                     {
-                        WriteExecuteFromFile(1, offset);
+                        WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
                     }
 
                     if (!snapshot_entry.need_staging_copy && memory_wrapper->mapped_data == nullptr)
@@ -2063,7 +2063,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
             {
                 assert((*asset_file_offsets_).find(image_wrapper->handle_id) != (*asset_file_offsets_).end());
                 const int64_t offset = (*asset_file_offsets_)[image_wrapper->handle_id];
-                WriteExecuteFromFile(1, offset);
+                WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
             }
         }
     }
@@ -3879,9 +3879,9 @@ bool VulkanStateWriter::IsFramebufferValid(const vulkan_wrappers::FramebufferWra
     return valid;
 }
 
-void VulkanStateWriter::WriteExecuteFromFile(uint32_t n_blocks, int64_t offset)
+void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32_t n_blocks, int64_t offset)
 {
-    const size_t asset_filename_length = asset_file_stream_->GetFilename().length();
+    const size_t asset_filename_length = filename.length();
 
     format::ExecuteBlocksFromFile execute_from_file;
     execute_from_file.meta_header.block_header.size =
@@ -3895,7 +3895,7 @@ void VulkanStateWriter::WriteExecuteFromFile(uint32_t n_blocks, int64_t offset)
     execute_from_file.filename_length = asset_filename_length;
 
     output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
-    output_stream_->Write(asset_file_stream_->GetFilename().c_str(), asset_filename_length);
+    output_stream_->Write(filename.c_str(), asset_filename_length);
 }
 
 GFXRECON_END_NAMESPACE(encode)
