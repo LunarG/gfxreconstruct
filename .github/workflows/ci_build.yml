@@ -211,6 +211,11 @@ jobs:
     - name: Update submodules
       run: |
         git submodule update --init
+    - name: Set up Java
+      uses: actions/setup-java@v2
+      with:
+        java-version: 17
+        distribution: "oracle"
     - name: Gradle build
       run: |
         cd android
