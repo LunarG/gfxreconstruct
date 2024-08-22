@@ -215,9 +215,9 @@ static float Ufloat10ToFloat(uint16_t val)
     }
 }
 
-#define CheckFwriteRetVal(_val_, _expected_, _file_)                                                  \
+#define CheckFwriteRetVal(_val_, _file_)                                                              \
     {                                                                                                 \
-        if (_val_ != _expected_)                                                                      \
+        if (!_val_)                                                                                   \
         {                                                                                             \
             GFXRECON_LOG_ERROR("%s() (%u): fwrite failed (%s)", __func__, __LINE__, strerror(errno)); \
             util::platform::FileClose(_file_);                                                        \
@@ -711,11 +711,11 @@ bool WriteBmpImage(const std::string& filename,
         info_header.clr_used         = 0;
         info_header.clr_important    = 0;
 
-        size_t ret = util::platform::FileWrite(&file_header, sizeof(file_header), 1, file);
-        CheckFwriteRetVal(ret, 1, file);
+        bool ret = util::platform::FileWrite(&file_header, sizeof(file_header), file);
+        CheckFwriteRetVal(ret, file);
 
-        ret = util::platform::FileWrite(&info_header, sizeof(info_header), 1, file);
-        CheckFwriteRetVal(ret, 1, file);
+        ret = util::platform::FileWrite(&info_header, sizeof(info_header), file);
+        CheckFwriteRetVal(ret, file);
 
         // Y needs to be inverted when writing the bitmap data.
         auto height_1 = height - 1;
@@ -725,8 +725,8 @@ bool WriteBmpImage(const std::string& filename,
             for (uint32_t y = 0; y < height; ++y)
             {
                 const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
-                ret = util::platform::FileWrite(&bytes[(height_1 - y) * data_pitch], 1, data_pitch, file);
-                CheckFwriteRetVal(ret, bmp_pitch, file);
+                ret                  = util::platform::FileWrite(&bytes[(height_1 - y) * data_pitch], data_pitch, file);
+                CheckFwriteRetVal(ret, file);
             }
         }
         else
@@ -735,8 +735,8 @@ bool WriteBmpImage(const std::string& filename,
                 ConvertIntoTemporaryBuffer(width, height, data, data_pitch, format, false, write_alpha);
             for (uint32_t y = 0; y < height; ++y)
             {
-                ret = util::platform::FileWrite(&bytes[(height_1 - y) * bmp_pitch], 1, bmp_pitch, file);
-                CheckFwriteRetVal(ret, bmp_pitch, file);
+                ret = util::platform::FileWrite(&bytes[(height_1 - y) * bmp_pitch], bmp_pitch, file);
+                CheckFwriteRetVal(ret, file);
             }
         }
 
@@ -845,12 +845,12 @@ bool WriteAstcImage(const std::string& filename,
     if (!result && file != nullptr)
     {
         // Write the header
-        int ret = util::platform::FileWrite(&header, sizeof(header), 1, file);
-        CheckFwriteRetVal(ret, 1, file);
+        bool ret = util::platform::FileWrite(&header, sizeof(header), file);
+        CheckFwriteRetVal(ret, file);
 
         // Write the binary payload
-        ret = util::platform::FileWrite(data, size, 1, file);
-        CheckFwriteRetVal(ret, 1, file);
+        ret = util::platform::FileWrite(data, size, file);
+        CheckFwriteRetVal(ret, file);
 
         if (!ferror(file))
         {

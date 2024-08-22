@@ -5641,7 +5641,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShaderModule(
         size_t file_size = static_cast<size_t>(util::platform::FileTell(fp));
         file_code        = std::make_unique<char[]>(file_size);
         util::platform::FileSeek(fp, 0L, util::platform::FileSeekSet);
-        util::platform::FileRead(file_code.get(), sizeof(char), file_size, fp);
+        util::platform::FileRead(file_code.get(), file_size, fp);
         override_info.pCode    = (uint32_t*)file_code.get();
         override_info.codeSize = file_size;
         GFXRECON_LOG_INFO("Replacement shader found: %s", file_path.c_str());

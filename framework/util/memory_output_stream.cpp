@@ -46,12 +46,12 @@ MemoryOutputStream::MemoryOutputStream(const void* initial_data, size_t initial_
 
 MemoryOutputStream::~MemoryOutputStream() {}
 
-size_t MemoryOutputStream::Write(const void* data, size_t len)
+bool MemoryOutputStream::Write(const void* data, size_t len)
 {
     const uint8_t* bytes = reinterpret_cast<const uint8_t*>(data);
     buffer_.insert(buffer_.end(), bytes, bytes + len);
 
-    return len;
+    return true;
 }
 
 GFXRECON_END_NAMESPACE(util)

@@ -335,7 +335,7 @@ bool PreloadFileProcessor::ReadBytes(void* buffer, size_t buffer_size)
     }
     else
     {
-        bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
+        bytes_read = util::platform::FileRead(buffer, buffer_size, file_descriptor_);
         bytes_read_ += bytes_read;
     }
     return bytes_read == buffer_size;

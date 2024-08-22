@@ -51,7 +51,7 @@ class MemoryOutputStream : public OutputStream
 
     virtual void Clear() { buffer_.clear(); };
 
-    virtual size_t Write(const void* data, size_t len) override;
+    virtual bool Write(const void* data, size_t len) override;
 
     virtual const uint8_t* GetData() const { return buffer_.data(); }
 

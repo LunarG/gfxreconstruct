@@ -69,14 +69,14 @@ void FileOutputStream::Reset(FILE* file)
     file_ = file;
 }
 
-size_t FileOutputStream::Write(const void* data, size_t len)
+bool FileOutputStream::Write(const void* data, size_t len)
 {
-    return platform::FileWrite(data, 1, len, file_);
+    return platform::FileWrite(data, len, file_);
 }
 
-size_t FileNoLockOutputStream::Write(const void* data, size_t len)
+bool FileNoLockOutputStream::Write(const void* data, size_t len)
 {
-    return platform::FileWriteNoLock(data, 1, len, file_);
+    return platform::FileWriteNoLock(data, len, file_);
 }
 
 GFXRECON_END_NAMESPACE(util)
