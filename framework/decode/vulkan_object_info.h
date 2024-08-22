@@ -618,6 +618,16 @@ struct RenderPassInfo : public VulkanObjectInfo<VkRenderPass>
     std::vector<SubpassReferences> subpass_refs;
 
     std::vector<VkSubpassDependency> dependencies;
+
+    // Multiview info
+    bool has_multiview;
+
+    struct
+    {
+        std::vector<uint32_t> view_masks;
+        std::vector<int32_t>  view_offsets;
+        std::vector<uint32_t> correlation_masks;
+    } multiview;
 };
 
 struct DescriptorSetLayoutInfo : public VulkanObjectInfo<VkDescriptorSetLayout>

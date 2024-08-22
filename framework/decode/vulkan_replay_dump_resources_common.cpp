@@ -546,7 +546,6 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                 const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, aspects[i]);
                 const uint32_t stride     = texel_size * scaled_extent.width;
 
-                filename += ImageFileExtension(image_info->format, image_file_format);
                 if (output_image_format == util::imagewriter::DataFormats::kFormat_ASTC)
                 {
                     VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);
@@ -628,7 +627,6 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                         const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, aspect);
                         const uint32_t stride     = texel_size * scaled_extent.width;
 
-                        filename += ImageFileExtension(image_info->format, image_file_format);
                         if (output_image_format == util::imagewriter::DataFormats::kFormat_ASTC)
                         {
                             VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);

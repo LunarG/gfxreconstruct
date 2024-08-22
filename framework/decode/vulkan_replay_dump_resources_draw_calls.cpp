@@ -33,6 +33,7 @@
 #include "util/logging.h"
 #include "util/platform.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -896,60 +897,68 @@ VkResult DrawCallsDumpingContext::DumpDrawCalls(
 
 #define DEPTH_ATTACHMENT ~0
 
-std::vector<std::string> DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat format,
-                                                                                    uint64_t cmd_buf_index,
-                                                                                    uint64_t qs_index,
-                                                                                    uint64_t bcb_index,
-                                                                                    uint64_t dc_index,
-                                                                                    int      attachment_index) const
+std::string DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat              format,
+                                                                       VkImageAspectFlagBits aspect,
+                                                                       uint32_t              mip_level,
+                                                                       uint32_t              layer,
+                                                                       uint64_t              cmd_buf_index,
+                                                                       uint64_t              qs_index,
+                                                                       uint64_t              bcb_index,
+                                                                       uint64_t              dc_index,
+                                                                       int                   attachment_index) const
 {
-    std::vector<VkImageAspectFlagBits> aspects;
-    graphics::GetFormatAspects(format, &aspects);
+    std::string aspect_str = ImageAspectToStr(aspect);
+    std::string attachment_str =
+        attachment_index != DEPTH_ATTACHMENT ? "_att_" + std::to_string(attachment_index) : "_depth_att";
 
-    std::vector<std::string> filenames(aspects.size());
-
-    for (size_t i = 0; i < aspects.size(); ++i)
+    std::stringstream filename;
+    filename << capture_filename << "_";
+    if (VkFormatToImageWriterDataFormat(format) != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
     {
-        std::string aspect_str = ImageAspectToStr(aspects[i]);
-        std::string attachment_str =
-            attachment_index != DEPTH_ATTACHMENT ? "_att_" + std::to_string(attachment_index) : "_depth_att";
-
-        std::stringstream filename;
-        filename << capture_filename << "_";
-        if (VkFormatToImageWriterDataFormat(format) != util::imagewriter::DataFormats::kFormat_UNSPECIFIED)
+        if (dump_resources_before)
         {
-            if (dump_resources_before)
-            {
-                filename << "draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
-                         << "_bcb_" << bcb_index << attachment_str << "_aspect_" << aspect_str;
-            }
-            else
-            {
-                filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << attachment_str
-                         << "_aspect_" << aspect_str;
-            }
+            filename << "draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
+                     << "_bcb_" << bcb_index << attachment_str << "_aspect_" << aspect_str;
         }
         else
         {
-            if (dump_resources_before)
-            {
-                filename << "draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
-                         << "_bcb_" << bcb_index << "_" << qs_index << "_" << bcb_index << "_" << attachment_str
-                         << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
-            }
-            else
-            {
-                filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dc_"
-                         << attachment_str << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
-            }
+            filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << attachment_str
+                     << "_aspect_" << aspect_str;
         }
+    }
+    else
+    {
+        if (dump_resources_before)
+        {
+            filename << "draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
+                     << "_bcb_" << bcb_index << "_" << qs_index << "_" << bcb_index << "_" << attachment_str
+                     << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
+        }
+        else
+        {
+            filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << attachment_str
+                     << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
+        }
+    }
+
+    if (dump_all_image_subresources)
+    {
+        std::stringstream subresource_sting;
+        subresource_sting << "_mip_" << mip_level << "_layer_" << layer;
+        subresource_sting << ImageFileExtension(format, image_file_format);
+
+        std::filesystem::path filedirname(dump_resource_path);
+        std::filesystem::path filebasename(filename.str() + subresource_sting.str());
+        return (filedirname / filebasename).string();
+    }
+    else
+    {
+        filename << ImageFileExtension(format, image_file_format);
 
         std::filesystem::path filedirname(dump_resource_path);
         std::filesystem::path filebasename(filename.str());
-        filenames[i] = (filedirname / filebasename).string();
+        return (filedirname / filebasename).string();
     }
-
-    return filenames;
 }
 
 void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
@@ -1098,6 +1107,7 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
     {
         auto& rt_entries = draw_call_entry["colorAttachments"];
 
+        size_t f = 0;
         for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
         {
             if (color_attachment_to_dump != kUnspecifiedColorAttachment &&
@@ -1106,32 +1116,79 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                 continue;
             }
 
-            const ImageInfo*         image_info = render_targets[rp][sp].color_att_imgs[i];
-            std::vector<std::string> filenamesBefore, filenamesAfter;
-            std::vector<std::string> filenamesBeforeAfter;
-            bool                     scaling_failed;
-            if (dump_resources_before)
+            const ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
+            assert(image_info != nullptr);
+
+            std::vector<VkImageAspectFlagBits> aspects;
+            graphics::GetFormatAspects(image_info->format, &aspects);
+
+            for (auto aspect : aspects)
             {
-                filenamesBefore = GenerateRenderTargetImageFilename(
-                    image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
-                filenamesAfter = GenerateRenderTargetImageFilename(
-                    image_info->format, cmd_buf_index + 1, qs_index, bcb_index, dc_index, i);
-                scaling_failed = ImageFailedScaling(filenamesBefore[0]);
-                filenamesBeforeAfter.resize(2);
-                filenamesBeforeAfter[0] =
-                    filenamesBefore[0] + ImageFileExtension(image_info->format, image_file_format);
-                filenamesBeforeAfter[1] = filenamesAfter[0] + ImageFileExtension(image_info->format, image_file_format);
+                // Dumping stencil is not supported at the moment
+                if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+                {
+                    continue;
+                }
+
+                for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
+                {
+                    for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+                    {
+                        std::string filenameBefore;
+                        if (dump_resources_before)
+                        {
+                            filenameBefore = GenerateRenderTargetImageFilename(image_info->format,
+                                                                               aspect,
+                                                                               mip,
+                                                                               layer,
+                                                                               cmd_buf_index,
+                                                                               qs_index,
+                                                                               bcb_index,
+                                                                               dc_index,
+                                                                               i);
+                        }
+
+                        std::string filenameAfter =
+                            GenerateRenderTargetImageFilename(image_info->format,
+                                                              aspect,
+                                                              mip,
+                                                              layer,
+                                                              cmd_buf_index + dump_resources_before,
+                                                              qs_index,
+                                                              bcb_index,
+                                                              dc_index,
+                                                              i);
+
+                        const VkExtent3D extent = { std::max(1u, image_info->extent.width >> mip),
+                                                    std::max(1u, image_info->extent.height >> mip),
+                                                    image_info->extent.depth };
+
+                        dump_json.InsertImageInfo(rt_entries[f++],
+                                                  image_info->format,
+                                                  image_info->type,
+                                                  image_info->capture_id,
+                                                  extent,
+                                                  filenameAfter,
+                                                  aspect,
+                                                  ImageFailedScaling(filenameAfter),
+                                                  mip,
+                                                  layer,
+                                                  dump_resources_before ? &filenameBefore : nullptr);
+
+                        // Skip rest of layers
+                        if (!dump_all_image_subresources)
+                        {
+                            break;
+                        }
+                    }
+
+                    // Skip rest of mip map levels
+                    if (!dump_all_image_subresources)
+                    {
+                        break;
+                    }
+                }
             }
-            else
-            {
-                filenamesAfter = GenerateRenderTargetImageFilename(
-                    image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
-                scaling_failed = ImageFailedScaling(filenamesAfter[0]);
-                filenamesBeforeAfter.resize(1);
-                filenamesBeforeAfter[0] = filenamesAfter[0] + ImageFileExtension(image_info->format, image_file_format);
-            }
-            dump_json.InsertImageInfo(
-                rt_entries[i], image_info, filenamesBeforeAfter, VK_IMAGE_ASPECT_COLOR_BIT, scaling_failed);
         }
     }
 
@@ -1140,48 +1197,77 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
     {
         auto& depth_entries = draw_call_entry["depthAttachments"];
 
-        const ImageInfo*         image_info = render_targets[rp][sp].depth_att_img;
-        std::vector<std::string> filenamesBefore, filenamesAfter;
-        if (dump_resources_before)
-        {
-            filenamesBefore = GenerateRenderTargetImageFilename(
-                image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
-            filenamesAfter = GenerateRenderTargetImageFilename(
-                image_info->format, cmd_buf_index + 1, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
-        }
-        else
-        {
-            filenamesAfter = GenerateRenderTargetImageFilename(
-                image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
-        }
+        const ImageInfo* image_info = render_targets[rp][sp].depth_att_img;
 
         std::vector<VkImageAspectFlagBits> aspects;
         graphics::GetFormatAspects(image_info->format, &aspects);
 
-        for (size_t i = 0; i < filenamesAfter.size(); ++i)
+        size_t f = 0;
+        for (auto aspect : aspects)
         {
-            std::vector<std::string> filenamesBeforeAfter;
-            bool                     scaling_failed;
-
-            // We don't support stencil output yet
-            if (filenamesAfter[i].find("stencil") != std::string::npos)
+            // Dumping stencil is not supported at the moment
+            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+            {
                 continue;
+            }
 
-            if (dump_resources_before)
+            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
             {
-                filenamesBeforeAfter.resize(2);
-                scaling_failed = ImageFailedScaling(filenamesBefore[i]);
-                filenamesBeforeAfter[0] =
-                    filenamesBefore[i] + ImageFileExtension(image_info->format, image_file_format);
-                filenamesBeforeAfter[1] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
+                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+                {
+                    std::string filenameBefore;
+                    if (dump_resources_before)
+                    {
+                        filenameBefore = GenerateRenderTargetImageFilename(image_info->format,
+                                                                           aspect,
+                                                                           mip,
+                                                                           layer,
+                                                                           cmd_buf_index,
+                                                                           qs_index,
+                                                                           bcb_index,
+                                                                           dc_index,
+                                                                           DEPTH_ATTACHMENT);
+                    }
+
+                    std::string filenameAfter = GenerateRenderTargetImageFilename(image_info->format,
+                                                                                  aspect,
+                                                                                  mip,
+                                                                                  layer,
+                                                                                  cmd_buf_index + dump_resources_before,
+                                                                                  qs_index,
+                                                                                  bcb_index,
+                                                                                  dc_index,
+                                                                                  DEPTH_ATTACHMENT);
+
+                    const VkExtent3D extent = { std::max(1u, image_info->extent.width >> mip),
+                                                std::max(1u, image_info->extent.height >> mip),
+                                                image_info->extent.depth };
+
+                    dump_json.InsertImageInfo(depth_entries[f++],
+                                              image_info->format,
+                                              image_info->type,
+                                              image_info->capture_id,
+                                              extent,
+                                              filenameAfter,
+                                              aspect,
+                                              ImageFailedScaling(filenameAfter),
+                                              mip,
+                                              layer,
+                                              dump_resources_before ? &filenameBefore : nullptr);
+
+                    // Skip rest of layers
+                    if (!dump_all_image_subresources)
+                    {
+                        break;
+                    }
+                }
+
+                // Skip rest of mip map levels
+                if (!dump_all_image_subresources)
+                {
+                    break;
+                }
             }
-            else
-            {
-                filenamesBeforeAfter.resize(1);
-                scaling_failed          = ImageFailedScaling(filenamesAfter[i]);
-                filenamesBeforeAfter[0] = filenamesAfter[i] + ImageFileExtension(image_info->format, image_file_format);
-            }
-            dump_json.InsertImageInfo(depth_entries[i], image_info, filenamesBeforeAfter, aspects[i], scaling_failed);
         }
     }
 
@@ -1257,40 +1343,80 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                             {
                                 for (size_t img = 0; img < desc_binding.second.image_info.size(); ++img)
                                 {
-                                    if (desc_binding.second.image_info[img].image_view_info != nullptr)
+                                    if (desc_binding.second.image_info[img].image_view_info == nullptr)
                                     {
-                                        auto& desc_shader_stage_json_entry =
-                                            draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
-                                        auto& desc_shader_binding_json_entry =
-                                            desc_shader_stage_json_entry[stage_entry_index++];
+                                        continue;
+                                    }
 
-                                        desc_shader_binding_json_entry["type"] =
-                                            util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
-                                        desc_shader_binding_json_entry["set"]        = desc_set_index;
-                                        desc_shader_binding_json_entry["binding"]    = desc_set_binding_index;
-                                        desc_shader_binding_json_entry["arrayIndex"] = img;
+                                    auto& desc_shader_stage_json_entry =
+                                        draw_call_entry["descriptors"][ShaderStageToStr(shader_stage.first)];
+                                    auto& desc_shader_binding_json_entry =
+                                        desc_shader_stage_json_entry[stage_entry_index++];
 
-                                        const ImageInfo* img_info = object_info_table.GetImageInfo(
-                                            desc_binding.second.image_info[img].image_view_info->image_id);
-                                        assert(img_info != nullptr);
+                                    desc_shader_binding_json_entry["type"] =
+                                        util::ToString<VkDescriptorType>(desc_binding.second.desc_type);
+                                    desc_shader_binding_json_entry["set"]        = desc_set_index;
+                                    desc_shader_binding_json_entry["binding"]    = desc_set_binding_index;
+                                    desc_shader_binding_json_entry["arrayIndex"] = img;
 
-                                        std::vector<std::string> filenames =
-                                            GenerateImageDescriptorFilename(qs_index, bcb_index, rp, img_info);
+                                    const ImageInfo* image_info = object_info_table.GetImageInfo(
+                                        desc_binding.second.image_info[img].image_view_info->image_id);
+                                    assert(image_info != nullptr);
 
-                                        std::vector<VkImageAspectFlagBits> aspects;
-                                        graphics::GetFormatAspects(img_info->format, &aspects);
+                                    std::vector<VkImageAspectFlagBits> aspects;
+                                    graphics::GetFormatAspects(image_info->format, &aspects);
 
-                                        auto& image_descriptor_json_entry =
-                                            desc_shader_binding_json_entry["descriptor"];
-                                        for (size_t f = 0; f < filenames.size(); ++f)
+                                    size_t f = 0;
+                                    for (auto aspect : aspects)
+                                    {
+                                        // Dumping stencil is not supported at the moment
+                                        if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
                                         {
-                                            const bool scaling_failed = ImageFailedScaling(filenames[f]);
-                                            filenames[f] += ImageFileExtension(img_info->format, image_file_format);
-                                            dump_json.InsertImageInfo(image_descriptor_json_entry[f],
-                                                                      img_info,
-                                                                      { filenames[f] },
-                                                                      aspects[f],
-                                                                      scaling_failed);
+                                            continue;
+                                        }
+
+                                        for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
+                                        {
+                                            for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+                                            {
+                                                std::string filename =
+                                                    GenerateImageDescriptorFilename(image_info->format,
+                                                                                    aspect,
+                                                                                    image_info->capture_id,
+                                                                                    mip,
+                                                                                    layer,
+                                                                                    qs_index,
+                                                                                    bcb_index,
+                                                                                    rp);
+                                                const VkExtent3D extent = {
+                                                    std::max(1u, image_info->extent.width >> mip),
+                                                    std::max(1u, image_info->extent.height >> mip),
+                                                    image_info->extent.depth
+                                                };
+
+                                                auto& image_descriptor_json_entry =
+                                                    desc_shader_binding_json_entry["descriptor"];
+                                                dump_json.InsertImageInfo(image_descriptor_json_entry[f++],
+                                                                          image_info->format,
+                                                                          image_info->type,
+                                                                          image_info->capture_id,
+                                                                          extent,
+                                                                          filename,
+                                                                          aspect,
+                                                                          ImageFailedScaling(filename),
+                                                                          mip,
+                                                                          layer);
+
+                                                if (!dump_all_image_subresources)
+                                                {
+                                                    break;
+                                                }
+                                            }
+
+                                            if (!dump_all_image_subresources)
+                                            {
+                                                break;
+                                            }
                                         }
                                     }
                                 }
@@ -1517,15 +1643,6 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info);
 
-    const PhysicalDeviceInfo* phys_dev_info = object_info_table.GetPhysicalDeviceInfo(device_info->parent_id);
-    assert(phys_dev_info);
-
-    graphics::VulkanResourcesUtil resource_util(device_info->handle,
-                                                device_info->parent,
-                                                *device_table,
-                                                *instance_table,
-                                                *phys_dev_info->replay_device_info->memory_properties);
-
     // Dump color attachments
     for (size_t i = 0; i < render_targets[rp][sp].color_att_imgs.size(); ++i)
     {
@@ -1537,8 +1654,42 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
 
         const ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
 
-        const std::vector<std::string> filenames =
-            GenerateRenderTargetImageFilename(image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+        std::vector<VkImageAspectFlagBits> aspects;
+        graphics::GetFormatAspects(image_info->format, &aspects);
+
+        const size_t total_files = dump_all_image_subresources
+                                       ? (aspects.size() * image_info->layer_count * image_info->level_count)
+                                       : aspects.size();
+
+        std::vector<std::string> filenames(total_files);
+        size_t                   f = 0;
+        for (auto aspect : aspects)
+        {
+            // Dumping stencil is not supported at the moment
+            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+            {
+                continue;
+            }
+
+            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
+            {
+                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+                {
+                    filenames[f++] = GenerateRenderTargetImageFilename(
+                        image_info->format, aspect, mip, layer, cmd_buf_index, qs_index, bcb_index, dc_index, i);
+
+                    if (!dump_all_image_subresources)
+                    {
+                        break;
+                    }
+                }
+
+                if (!dump_all_image_subresources)
+                {
+                    break;
+                }
+            }
+        }
 
         const VkExtent3D  extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
         std::vector<bool> scaling_supported(filenames.size());
@@ -1576,12 +1727,49 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     {
         const ImageInfo* image_info = render_targets[rp][sp].depth_att_img;
 
-        std::vector<uint8_t>  data;
-        std::vector<uint64_t> subresource_offsets;
-        std::vector<uint64_t> subresource_sizes;
+        std::vector<VkImageAspectFlagBits> aspects;
+        graphics::GetFormatAspects(image_info->format, &aspects);
 
-        const std::vector<std::string> filenames = GenerateRenderTargetImageFilename(
-            image_info->format, cmd_buf_index, qs_index, bcb_index, dc_index, DEPTH_ATTACHMENT);
+        const size_t total_files = dump_all_image_subresources
+                                       ? (aspects.size() * image_info->layer_count * image_info->level_count)
+                                       : aspects.size();
+
+        std::vector<std::string> filenames(total_files);
+        size_t                   f = 0;
+        for (auto aspect : aspects)
+        {
+            // Dumping stencil is not supported at the moment
+            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+            {
+                continue;
+            }
+
+            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
+            {
+                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+                {
+                    filenames[f++] = GenerateRenderTargetImageFilename(image_info->format,
+                                                                       aspect,
+                                                                       mip,
+                                                                       layer,
+                                                                       cmd_buf_index,
+                                                                       qs_index,
+                                                                       bcb_index,
+                                                                       dc_index,
+                                                                       DEPTH_ATTACHMENT);
+
+                    if (!dump_all_image_subresources)
+                    {
+                        break;
+                    }
+                }
+
+                if (!dump_all_image_subresources)
+                {
+                    break;
+                }
+            }
+        }
 
         const VkExtent3D  extent{ render_area[rp].extent.width, render_area[rp].extent.height, 1 };
         std::vector<bool> scaling_supported(filenames.size());
@@ -1617,68 +1805,52 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
     return VK_SUCCESS;
 }
 
-std::vector<std::string> DrawCallsDumpingContext::GenerateImageDescriptorFilename(uint64_t         qs_index,
-                                                                                  uint64_t         bcb_index,
-                                                                                  uint64_t         rp,
-                                                                                  const ImageInfo* img_info) const
+std::string DrawCallsDumpingContext::GenerateImageDescriptorFilename(VkFormat              format,
+                                                                     VkImageAspectFlagBits aspect,
+                                                                     format::HandleId      image_id,
+                                                                     uint32_t              level,
+                                                                     uint32_t              layer,
+                                                                     uint64_t              qs_index,
+                                                                     uint64_t              bcb_index,
+                                                                     uint64_t              rp) const
 {
-    assert(img_info != nullptr);
+    std::string       aspect_str = ImageAspectToStr(aspect);
+    std::stringstream base_filename;
+    base_filename << capture_filename << "_";
 
-    std::vector<VkImageAspectFlagBits> aspects;
-    graphics::GetFormatAspects(img_info->format, &aspects);
-
-    const uint32_t total_files =
-        dump_all_image_subresources ? (aspects.size() * img_info->level_count * img_info->layer_count) : aspects.size();
-    std::vector<std::string> filenames(total_files);
-
-    uint32_t f = 0;
-    for (size_t i = 0; i < aspects.size(); ++i)
+    const util::imagewriter::DataFormats output_format = VkFormatToImageWriterDataFormat(format);
+    if (output_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED &&
+        output_format != util::imagewriter::DataFormats::kFormat_ASTC)
     {
-        std::string       aspect_str = ImageAspectToStr(aspects[i]);
-        std::stringstream base_filename;
-        base_filename << capture_filename << "_";
+        base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp
+                      << "_aspect_" << aspect_str;
+    }
+    else
+    {
+        std::string whole_format_name = util::ToString<VkFormat>(format);
+        std::string format_name(whole_format_name.begin() + 10, whole_format_name.end());
 
-        const util::imagewriter::DataFormats output_format = VkFormatToImageWriterDataFormat(img_info->format);
-        if (output_format != util::imagewriter::DataFormats::kFormat_UNSPECIFIED &&
-            output_format != util::imagewriter::DataFormats::kFormat_ASTC)
-        {
-            base_filename << "image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_"
-                          << rp << "_aspect_" << aspect_str;
-        }
-        else
-        {
-            std::string whole_format_name = util::ToString<VkFormat>(img_info->format);
-            std::string format_name(whole_format_name.begin() + 10, whole_format_name.end());
-
-            base_filename << "image_" << img_info->capture_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_"
-                          << rp << "_" << format_name << "_aspect_" << aspect_str;
-        }
-
-        if (dump_all_image_subresources && (img_info->level_count > 1 || img_info->layer_count > 1))
-        {
-            for (uint32_t level = 0; level < img_info->level_count; ++level)
-            {
-                for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
-                {
-                    std::stringstream sub_resources_str;
-                    sub_resources_str << base_filename.str() << "_mip_" << level << "_layer_" << layer;
-                    std::filesystem::path filedirname(dump_resource_path);
-                    std::filesystem::path filebasename(sub_resources_str.str());
-                    filenames[f++] = (filedirname / filebasename).string();
-                }
-            }
-        }
-        else
-        {
-            std::filesystem::path filedirname(dump_resource_path);
-            std::filesystem::path filebasename(base_filename.str());
-            filenames[f++] = (filedirname / filebasename).string();
-        }
+        base_filename << "image_" << image_id << "_qs_" << qs_index << "_bcb_" << bcb_index << "_rp_" << rp << "_"
+                      << format_name << "_aspect_" << aspect_str;
     }
 
-    assert(f == total_files);
+    if (dump_all_image_subresources)
+    {
+        std::stringstream sub_resources_str;
+        sub_resources_str << base_filename.str() << "_mip_" << level << "_layer_" << layer;
+        sub_resources_str << ImageFileExtension(format, image_file_format);
 
-    return filenames;
+        std::filesystem::path filedirname(dump_resource_path);
+        std::filesystem::path filebasename(sub_resources_str.str());
+        return (filedirname / filebasename).string();
+    }
+    else
+    {
+        base_filename << ImageFileExtension(format, image_file_format);
+        std::filesystem::path filedirname(dump_resource_path);
+        std::filesystem::path filebasename(base_filename.str());
+        return (filedirname / filebasename).string();
+    }
 }
 
 std::string DrawCallsDumpingContext::GenerateBufferDescriptorFilename(uint64_t         qs_index,
@@ -1833,11 +2005,48 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
     assert(device_info);
 
-    for (const auto& img_info : image_descriptors)
+    for (const auto& image_info : image_descriptors)
     {
-        const std::vector<std::string> filenames = GenerateImageDescriptorFilename(qs_index, bcb_index, rp, img_info);
-        std::vector<bool>              scaling_supported(filenames.size());
-        VkResult                       res = DumpImageToFile(img_info,
+        std::vector<VkImageAspectFlagBits> aspects;
+        graphics::GetFormatAspects(image_info->format, &aspects);
+
+        const size_t total_files = dump_all_image_subresources
+                                       ? (aspects.size() * image_info->layer_count * image_info->level_count)
+                                       : aspects.size();
+
+        std::vector<std::string> filenames(total_files);
+
+        size_t f = 0;
+        for (auto aspect : aspects)
+        {
+            // Dumping stencil is not supported at the moment
+            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
+            {
+                continue;
+            }
+
+            for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
+            {
+                for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
+                {
+                    filenames[f++] = GenerateImageDescriptorFilename(
+                        image_info->format, aspect, image_info->capture_id, mip, layer, qs_index, bcb_index, rp);
+
+                    if (!dump_all_image_subresources)
+                    {
+                        break;
+                    }
+                }
+
+                if (!dump_all_image_subresources)
+                {
+                    break;
+                }
+            }
+        }
+
+        std::vector<bool> scaling_supported(total_files);
+        VkResult          res = DumpImageToFile(image_info,
                                        device_info,
                                        device_table,
                                        instance_table,
@@ -2712,7 +2921,6 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
 
         VkRenderPassCreateInfo ci;
         ci.sType           = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        ci.pNext           = nullptr;
         ci.flags           = VkRenderPassCreateFlags(0);
         ci.attachmentCount = modified_attachemnts.size();
         ci.pAttachments    = modified_attachemnts.size() ? modified_attachemnts.data() : nullptr;
@@ -2723,6 +2931,31 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
 
         ci.dependencyCount = modified_dependencies.size();
         ci.pDependencies   = modified_dependencies.size() ? modified_dependencies.data() : nullptr;
+
+        VkRenderPassMultiviewCreateInfo renderPassMultiviewCI;
+        if (original_render_pass->has_multiview)
+        {
+            renderPassMultiviewCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO;
+
+            renderPassMultiviewCI.subpassCount         = original_render_pass->multiview.view_masks.size();
+            renderPassMultiviewCI.pViewMasks           = original_render_pass->multiview.view_masks.empty()
+                                                             ? nullptr
+                                                             : original_render_pass->multiview.view_masks.data();
+            renderPassMultiviewCI.dependencyCount      = original_render_pass->multiview.view_offsets.size();
+            renderPassMultiviewCI.pViewOffsets         = original_render_pass->multiview.view_offsets.empty()
+                                                             ? nullptr
+                                                             : original_render_pass->multiview.view_offsets.data();
+            renderPassMultiviewCI.correlationMaskCount = original_render_pass->multiview.correlation_masks.size();
+            renderPassMultiviewCI.pCorrelationMasks    = original_render_pass->multiview.correlation_masks.empty()
+                                                             ? nullptr
+                                                             : original_render_pass->multiview.correlation_masks.data();
+
+            ci.pNext = &renderPassMultiviewCI;
+        }
+        else
+        {
+            ci.pNext = nullptr;
+        }
 
         const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
         VkDevice          device      = device_info->handle;
