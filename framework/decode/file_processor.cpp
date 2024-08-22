@@ -467,9 +467,12 @@ bool FileProcessor::ReadCompressedParameterBuffer(size_t  compressed_buffer_size
 
 bool FileProcessor::ReadBytes(void* buffer, size_t buffer_size)
 {
-    size_t bytes_read = util::platform::FileRead(buffer, 1, buffer_size, file_descriptor_);
-    bytes_read_ += bytes_read;
-    return (bytes_read == buffer_size);
+    if (util::platform::FileRead(buffer, buffer_size, file_descriptor_))
+    {
+        bytes_read_ += buffer_size;
+        return true;
+    }
+    return false;
 }
 
 bool FileProcessor::SkipBytes(size_t skip_size)

@@ -352,15 +352,10 @@ static bool WriteBinaryFile(const std::string& filename, uint64_t data_size, con
     bool  written_all = false;
     if (util::platform::FileOpen(&file_output, filename.c_str(), "wb") == 0)
     {
-        const uint64_t written = util::platform::FileWrite(data, 1, static_cast<size_t>(data_size), file_output);
-        if (written >= data_size)
+        written_all = util::platform::FileWrite(data, static_cast<size_t>(data_size), file_output);
+        if (!written_all)
         {
-            written_all = true;
-        }
-        else
-        {
-            GFXRECON_LOG_ERROR(
-                "Only wrote %" PRIu64 " bytes of %" PRIu64 " data to file %s.", written, data_size, filename.c_str());
+            GFXRECON_LOG_ERROR("Failed to write %" PRIu64 " bytes to file %s.", data_size, filename.c_str());
         }
         util::platform::FileClose(file_output);
     }
