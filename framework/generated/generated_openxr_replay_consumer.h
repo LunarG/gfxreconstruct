@@ -933,12 +933,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         format::HandleId                            session,
         XrColorSpaceFB                              colorSpace) override;
 
-    virtual void Process_xrGetHandMeshFB(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            handTracker,
-        StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
-
     virtual void Process_xrCreateSpatialAnchorFB(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

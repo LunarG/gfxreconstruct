@@ -136,6 +136,11 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                        StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
                                        StructPointerDecoder<Decoded_XrHandJointLocationsEXT>*   locations) override;
 
+    void Process_xrGetHandMeshFB(const ApiCallInfo&                                  call_info,
+                                 XrResult                                            returnValue,
+                                 format::HandleId                                    handTracker,
+                                 StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
+
     const OpenXrReplayOptions options_;
 
   protected:
