@@ -90,7 +90,6 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         self.all_structs = []
         self.all_struct_members = OrderedDict()
 
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -293,11 +292,10 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
 
         for struct in self.get_filtered_struct_names():
             self.all_structs.append(struct)
-            self.all_struct_members[struct] = self.feature_struct_members[struct]
+            self.all_struct_members[struct] = self.feature_struct_members[
+                struct]
 
-    def make_struct_handle_unwrappings(
-        self, name, handle_members
-    ):
+    def make_struct_handle_unwrappings(self, name, handle_members):
         """Generating expressions for unwrapping struct handles before an API call."""
         body = ''
 
@@ -313,8 +311,12 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                     if 'const' in member.full_type:
                         temp_type = member.full_type
                         full_type_non_const = re.sub(' const ', '', temp_type)
-                        full_type_non_const = re.sub('const ', '', full_type_non_const)
-                        full_type_non_const = re.sub(' const', '', full_type_non_const)
+                        full_type_non_const = re.sub(
+                            'const ', '', full_type_non_const
+                        )
+                        full_type_non_const = re.sub(
+                            ' const', '', full_type_non_const
+                        )
                         variable_name = f'const_cast<{full_type_non_const}>(value->{member.name})'
                     else:
                         variable_name = f'value->{member.name}'

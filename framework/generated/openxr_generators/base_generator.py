@@ -1605,7 +1605,10 @@ class BaseGenerator(OutputGenerator):
                 return self.is_has_specific_key_word_in_type(value, key_word)
         return False
 
-    def make_child_struct_switch(self, base_struct, value, initial_indent, switch_expression, fn_emit_default, fn_emit_case):
+    def make_child_struct_switch(
+        self, base_struct, value, initial_indent, switch_expression,
+        fn_emit_default, fn_emit_case
+    ):
         """ Base structs are abstract, need to case to specific child struct based on type """
         indent = '    '
         indent1 = initial_indent
@@ -1618,16 +1621,23 @@ class BaseGenerator(OutputGenerator):
         body += f'{indent1}{{\n'
         body += f'{indent2}default:\n'
         body += f'{indent2}{{\n'
-        body += '\n'.join([ indent3 + line for line in fn_emit_default(base_struct, value)])
+        body += '\n'.join(
+            [indent3 + line for line in fn_emit_default(base_struct, value)]
+        )
         body += f'\n{indent2}}}\n'
 
         for child_struct in self.base_header_structs[base_struct]:
             struct_type_name = self.struct_type_enums[child_struct]
             body += f'{indent2}case {struct_type_name}:\n'
             body += f'{indent2}{{\n'
-            body += '\n'.join([ indent3 + line for line in fn_emit_case(base_struct, child_struct, struct_type_name, value)])
+            body += '\n'.join(
+                [
+                    indent3 + line for line in fn_emit_case(
+                        base_struct, child_struct, struct_type_name, value
+                    )
+                ]
+            )
             body += f'\n{indent2}}}\n'
 
         body += f'{indent1}}}\n'
         return body
-

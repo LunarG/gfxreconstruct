@@ -46,7 +46,7 @@ class OpenXrConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         prefix_text='',
         protect_file=False,
         protect_feature=True,
-        extraOpenXrHeaders=[], 
+        extraOpenXrHeaders=[],
         extra_skip_cmds=[]
     ):
         BaseGeneratorOptions.__init__(
@@ -97,10 +97,8 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
         # These functions should be manual if anything, not code-gened
         self.skip_cmds = [
             'xrNegotiateLoaderRuntimeInterface',
-            'xrNegotiateLoaderApiLayerInterface',
-            'xrInitializeLoaderKHR',
-            'xrCreateInstance',
-            'xrCreateApiLayerInstance'
+            'xrNegotiateLoaderApiLayerInterface', 'xrInitializeLoaderKHR',
+            'xrCreateInstance', 'xrCreateApiLayerInstance'
         ]
 
     def beginFile(self, gen_opts):

@@ -115,16 +115,21 @@ class OpenXrReplayConsumerBodyGenerator(
         if gen_opts.replay_overrides:
             self.__load_replay_overrides(gen_opts.replay_overrides)
 
-        write("\n".join([
-            '#include "decode/custom_openxr_struct_handle_mappers.h"',
-            '#include "decode/custom_vulkan_struct_handle_mappers.h"',
-            '#include "decode/openxr_handle_mapping_util.h"',
-            '#include "decode/vulkan_handle_mapping_util.h"',
-            '#include "generated/generated_openxr_dispatch_table.h"',
-            '#include "generated/generated_openxr_replay_consumer.h"',
-            '#include "generated/generated_openxr_struct_handle_mappers.h"',
-            '#include "util/defines.h"'
-            ]), file=self.outFile)
+        write(
+            "\n".join(
+                [
+                    '#include "decode/custom_openxr_struct_handle_mappers.h"',
+                    '#include "decode/custom_vulkan_struct_handle_mappers.h"',
+                    '#include "decode/openxr_handle_mapping_util.h"',
+                    '#include "decode/vulkan_handle_mapping_util.h"',
+                    '#include "generated/generated_openxr_dispatch_table.h"',
+                    '#include "generated/generated_openxr_replay_consumer.h"',
+                    '#include "generated/generated_openxr_struct_handle_mappers.h"',
+                    '#include "util/defines.h"'
+                ]
+            ),
+            file=self.outFile
+        )
 
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -260,21 +265,18 @@ class OpenXrReplayConsumerBodyGenerator(
             )
             body += '\n'
 
-
         # add custom call t
-        api_call='format::ApiCallId::ApiCall_{}'.format(name)
-        custom_update_args = [
-            "this",
-            "call_info"
-            ]
+        api_call = 'format::ApiCallId::ApiCall_{}'.format(name)
+        custom_update_args = ["this", "call_info"]
 
         if return_type != 'void':
             custom_update_args.append("returnValue")
         custom_update_args.extend([value.name for value in values])
         if return_type == 'XrResult':
             custom_update_args.append("replay_result")
-        body += "    CustomProcess<{}>::UpdateState({});\n".format(api_call, ", ".join(custom_update_args))
-
+        body += "    CustomProcess<{}>::UpdateState({});\n".format(
+            api_call, ", ".join(custom_update_args)
+        )
 
         cleanup_expr = self.make_remove_handle_expression(name, values)
         if cleanup_expr:

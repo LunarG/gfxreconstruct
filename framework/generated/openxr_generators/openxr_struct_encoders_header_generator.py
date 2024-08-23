@@ -51,6 +51,7 @@ class OpenXrStructEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
             extraOpenXrHeaders=extraOpenXrHeaders
         )
 
+
 class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
     """OpenXrStructEncodersHeaderGenerator - subclass of BaseGenerator.
     Generates C++ type and function declarations for encoding OpenXR API structures.
@@ -124,12 +125,14 @@ class OpenXrStructEncodersHeaderGenerator(BaseGenerator):
             key for key in feature_struct_members
             if not self.is_struct_black_listed(key)
         ]:
-            content.append(f'void EncodeStruct(ParameterEncoder* encoder, const {struct}& value);')
+            content.append(
+                f'void EncodeStruct(ParameterEncoder* encoder, const {struct}& value);'
+            )
             if struct in self.base_header_structs:
-                content.append(f'template <>\nvoid EncodeStructArrayLoop<{struct}>(ParameterEncoder* encoder, const {struct}* value, size_t len);')
+                content.append(
+                    f'template <>\nvoid EncodeStructArrayLoop<{struct}>(ParameterEncoder* encoder, const {struct}* value, size_t len);'
+                )
 
         if len(content):
-            write('\n'.join(content),
-                    file=self.outFile
-            )
+            write('\n'.join(content), file=self.outFile)
         self.newline()

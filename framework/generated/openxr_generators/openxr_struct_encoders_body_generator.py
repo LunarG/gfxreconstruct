@@ -157,13 +157,15 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
             body += '{\n'
             if struct in self.base_header_structs:
                 body += self.make_child_struct_cast_switch(struct, value_name)
-                array_loop_specialization = self.make_child_loop_cast_switch(struct)
+                array_loop_specialization = self.make_child_loop_cast_switch(
+                    struct
+                )
             else:
                 body += self.make_struct_body(
                     struct, feature_struct_members[struct], value_ref
                 )
             body += '}'
-            if (array_loop_specialization) :
+            if (array_loop_specialization):
                 body += '\n\n' + array_loop_specialization
             write(body, file=self.outFile)
 
@@ -171,13 +173,17 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
         default_case = f'GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", {value}.type);'
         break_string = 'break;'
         switch_expression = 'value.type'
-        fn_emit_default = lambda base_struct, value_name: [ default_case, break_string ]
+        fn_emit_default = lambda base_struct, value_name: [
+            default_case, break_string
+        ]
         fn_emit_case = lambda base_struct, child_struct, child_enum, value_name: [
             f'const {child_struct}& child_value = reinterpret_cast<const {child_struct}&>({value_name});',
-            f'EncodeStruct(encoder, child_value);',
-            break_string
+            f'EncodeStruct(encoder, child_value);', break_string
         ]
-        return self.make_child_struct_switch(base_struct, value, '    ', switch_expression, fn_emit_default, fn_emit_case)
+        return self.make_child_struct_switch(
+            base_struct, value, '    ', switch_expression, fn_emit_default,
+            fn_emit_case
+        )
 
     def make_child_loop_cast_switch(self, base_struct):
         func = 'EncodeStructArrayLoop'
@@ -185,7 +191,9 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
         switch_expression = 'value->type'
         default_case = f'GFXRECON_LOG_WARNING("{func}: unrecognized Base Header child structure type %d", {value}->type);'
         break_string = 'break;'
-        fn_emit_default = lambda base_struct, value_name: [ default_case, break_string ]
+        fn_emit_default = lambda base_struct, value_name: [
+            default_case, break_string
+        ]
         fn_emit_case = lambda base_struct, child_struct, child_enum, value_name: [
             f'{func}<{child_struct}>(encoder, reinterpret_cast<const {child_struct} *>({value_name}), len);',
             break_string
@@ -194,7 +202,10 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
         body += 'template <>\n'
         body += f'void EncodeStructArrayLoop<{base_struct}>(ParameterEncoder* encoder, const {base_struct}* {value}, size_t len)\n'
         body += '{\n'
-        body += self.make_child_struct_switch(base_struct, value, '    ', switch_expression, fn_emit_default, fn_emit_case)
+        body += self.make_child_struct_switch(
+            base_struct, value, '    ', switch_expression, fn_emit_default,
+            fn_emit_case
+        )
 
         body += '}\n'
         return body

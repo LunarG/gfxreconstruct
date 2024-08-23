@@ -127,6 +127,7 @@ class BaseStructHandleMappersBodyGenerator():
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
+        platform_type = self.get_api_prefix()
         object_table_prefix = 'Common'
         map_types = 'Handles'
         map_table = ''
@@ -151,6 +152,11 @@ class BaseStructHandleMappersBodyGenerator():
                     handle_members.extend(
                         self.structs_with_map_data[struct].copy()
                     )
+
+                if not self.is_dx12_class() and platform_type == 'OpenXr':
+                    for member in self.feature_struct_members[struct]:
+                        if member.name == 'next':
+                            handle_members.append(member)
 
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
@@ -232,8 +238,12 @@ class BaseStructHandleMappersBodyGenerator():
             base_type = 'handle'
             given_object = ''
 
+        if 'XrCompositionLayer' in name:
+            print(f'{name}')
         body = ''
         for member in handle_members:
+            if 'XrCompositionLayer' in name:
+                print(f'       {member.name}')
             body += '\n'
             map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
 
