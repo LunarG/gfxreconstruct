@@ -862,11 +862,107 @@ void OpenXrReplayConsumerBase::Process_xrLocateHandJointsEXT(
         locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_HAND_JOINT_LOCATIONS_EXT, nullptr });
     InitializeOutputStructNext(locations);
 
+    // Set capacity vars and allocate arrays based on captured data.
+    if (out_locations != nullptr)
+    {
+        XrHandJointLocationsEXT* in_locations = locations->GetPointer();
+        Decoded_XrHandJointLocationsEXT* meta_locations = locations->GetMetaStructPointer();
+
+        out_locations->jointCount = in_locations->jointCount;
+        out_locations->jointLocations = nullptr;
+        if (in_locations->jointCount > 0 && in_locations->jointLocations != nullptr) {
+            out_locations->jointLocations = meta_locations->jointLocations->AllocateOutputData(out_locations->jointCount);
+        }
+#if 0 // TODO: Need to figure out how to allocate output data (and pass in the initialization info) for items in the `next` chain
+        Decoded_XrHandJointVelocitiesEXT* hand_joint_velocities = GetNextMetaStruct<Decoded_XrHandJointVelocitiesEXT>(meta_locations->next);
+        if (hand_joint_velocities != nullptr) {
+            XrHandJointVelocitiesEXT* output_hand_joint_vel = hand_joint_velocities->decoded_value();
+            output_hand_joint_vel->jointCount = hand_joint_velocities->GetPointer()->jointCount;
+            if (output_hand_joint_vel->jointCount > 0) {
+                output_hand_joint_vel->jointVelocities = hand_joint_velocities->jointVelocities->AllocateOutputData(output_hand_joint_vel->jointCount);
+            }
+        }
+#endif
+    }
+
     XrResult replay_result =
         GetInstanceTable(in_handTracker)->LocateHandJointsEXT(in_handTracker, in_locateInfo, out_locations);
     CheckResult("xrLocateHandJointsEXT", returnValue, replay_result, call_info, false);
     CustomProcess<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::UpdateState(
         this, call_info, returnValue, handTracker, locateInfo, locations, replay_result);
+}
+
+void OpenXrReplayConsumerBase::Process_xrGetHandMeshFB(const ApiCallInfo&                                  call_info,
+                                                       XrResult                                            returnValue,
+                                                       format::HandleId                                    handTracker,
+                                                       StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh)
+{
+    XrHandTrackerEXT in_handTracker =
+        MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
+    XrHandTrackingMeshFB* out_mesh =
+        mesh->IsNull() ? nullptr : mesh->AllocateOutputData(1, { XR_TYPE_HAND_TRACKING_MESH_FB, nullptr });
+    InitializeOutputStructNext(mesh);
+
+    // Set capacity vars and allocate arrays based on captured data.
+    if (out_mesh != nullptr)
+    {
+        XrHandTrackingMeshFB* in_mesh = mesh->GetPointer();
+        Decoded_XrHandTrackingMeshFB* meta_mesh = mesh->GetMetaStructPointer();
+
+        out_mesh->jointCapacityInput = in_mesh->jointCapacityInput;
+        out_mesh->jointBindPoses = nullptr;
+        out_mesh->jointRadii = nullptr;
+        out_mesh->jointParents = nullptr;
+        if (in_mesh->jointCapacityInput > 0)
+        {
+            if (in_mesh->jointBindPoses != nullptr) {
+                out_mesh->jointBindPoses = meta_mesh->jointBindPoses->AllocateOutputData(out_mesh->jointCapacityInput);
+            }
+            if (in_mesh->jointRadii != nullptr) {
+            out_mesh->jointRadii = meta_mesh->jointRadii.AllocateOutputData(out_mesh->jointCapacityInput);
+            }
+            if (in_mesh->jointParents != nullptr) {
+            out_mesh->jointParents = meta_mesh->jointParents.AllocateOutputData(out_mesh->jointCapacityInput);
+            }
+        }
+
+        out_mesh->vertexCapacityInput = in_mesh->vertexCapacityInput;
+        out_mesh->vertexPositions           = nullptr;
+        out_mesh->vertexNormals      = nullptr;
+        out_mesh->vertexUVs          = nullptr;
+        out_mesh->vertexBlendIndices = nullptr;
+        out_mesh->vertexBlendWeights = nullptr;
+        if (in_mesh->vertexCapacityInput > 0)
+        {
+            if (in_mesh->vertexPositions != nullptr) {
+            out_mesh->vertexPositions = meta_mesh->vertexPositions->AllocateOutputData(out_mesh->vertexCapacityInput);
+            }
+            if (in_mesh->vertexNormals != nullptr) {
+            out_mesh->vertexNormals = meta_mesh->vertexNormals->AllocateOutputData(out_mesh->vertexCapacityInput);
+            }
+            if (in_mesh->vertexUVs != nullptr) {
+            out_mesh->vertexUVs = meta_mesh->vertexUVs->AllocateOutputData(out_mesh->vertexCapacityInput);
+            }
+            if (in_mesh->vertexBlendIndices != nullptr) {
+            out_mesh->vertexBlendIndices = meta_mesh->vertexBlendIndices->AllocateOutputData(out_mesh->vertexCapacityInput);
+            }
+            if (in_mesh->vertexBlendWeights != nullptr) {
+            out_mesh->vertexBlendWeights = meta_mesh->vertexBlendWeights->AllocateOutputData(out_mesh->vertexCapacityInput);
+            }
+        }
+
+        out_mesh->indexCapacityInput = in_mesh->indexCapacityInput;
+        out_mesh->indices = nullptr;
+        if (in_mesh->indexCapacityInput > 0 && in_mesh->indices != nullptr)
+        {
+            out_mesh->indices = meta_mesh->indices.AllocateOutputData(out_mesh->indexCapacityInput, 0);
+        }
+    }
+
+    XrResult replay_result = GetInstanceTable(in_handTracker)->GetHandMeshFB(in_handTracker, out_mesh);
+    CheckResult("xrGetHandMeshFB", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrGetHandMeshFB>::UpdateState(
+        this, call_info, returnValue, handTracker, mesh, replay_result);
 }
 
 void OpenXrReplayConsumerBase::CheckResult(const char*                func_name,

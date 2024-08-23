@@ -2210,20 +2210,6 @@ void OpenXrReplayConsumer::Process_xrSetColorSpaceFB(
     CustomProcess<format::ApiCallId::ApiCall_xrSetColorSpaceFB>::UpdateState(this, call_info, returnValue, session, colorSpace, replay_result);
 }
 
-void OpenXrReplayConsumer::Process_xrGetHandMeshFB(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            handTracker,
-    StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh)
-{
-    XrHandTrackerEXT in_handTracker = MapHandle<OpenXrHandTrackerEXTInfo>(handTracker, &CommonObjectInfoTable::GetXrHandTrackerEXTInfo);
-    XrHandTrackingMeshFB* out_mesh = mesh->IsNull() ? nullptr : mesh->AllocateOutputData(1, { XR_TYPE_HAND_TRACKING_MESH_FB, nullptr });
-    InitializeOutputStructNext(mesh);
-
-    XrResult replay_result = GetInstanceTable(in_handTracker)->GetHandMeshFB(in_handTracker, out_mesh);
-    CheckResult("xrGetHandMeshFB", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrGetHandMeshFB>::UpdateState(this, call_info, returnValue, handTracker, mesh, replay_result);
-}
 
 void OpenXrReplayConsumer::Process_xrCreateSpatialAnchorFB(
     const ApiCallInfo&                          call_info,

@@ -123,11 +123,17 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
                                             uint32_t                  imageCapacityInput,
                                             PointerDecoder<uint32_t>* imageCountOutput,
                                             StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images);
+
     void Process_xrLocateHandJointsEXT(const ApiCallInfo&                                       call_info,
                                        XrResult                                                 returnValue,
                                        format::HandleId                                         handTracker,
                                        StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
                                        StructPointerDecoder<Decoded_XrHandJointLocationsEXT>*   locations) override;
+
+    void Process_xrGetHandMeshFB(const ApiCallInfo&                                  call_info,
+                                 XrResult                                            returnValue,
+                                 format::HandleId                                    handTracker,
+                                 StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
 
     uint32_t submit_index_{ 0 }; // index of submissions across the trace
 
