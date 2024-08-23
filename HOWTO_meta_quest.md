@@ -15,7 +15,9 @@ Copyright &copy; 2024 LunarG, Inc.
 
 1. [Purpose](#purpose)
 2. [Building IGL with the Capture Layer](#building-igl-with-the-capture-layer)
-3. [Capturing Vulkan Samples](#capturing-vulkan-samples)
+3. [Capturing the IGL Content](#capturing-the-igl-content)
+4. [Replaying the IGL Content](#replaying-the-igl-content)
+5. [Capturing the Replay Content](#capturing-the-replay-content)
 
 ## Purpose
 
@@ -28,7 +30,7 @@ Many of these examples are given based on using a Windows system as the build
 and/or host since the Meta Quest Developer Hub tools work on Windows and not
 Linux.
 
-## Building IGL with the Vulkan Capture Layer
+## Building IGL with the Capture Layer
 
 Let's look at adding the GFXReconstruct layer as a requirement of the
 [Meta IGL](https://github.com/facebook/igl) project.
@@ -135,7 +137,7 @@ Update to at least sha1 of "be392bf6949adeeabad5082aa79d12aacbda781f".
  2. Click on the hamburger menu (top left), select the `Build` menu and then `Rebuild` under that
 
 
-## Capturing the Vulkan IGL Content
+## Capturing the IGL Content
 
 The example that follows uses the Meta IGL OpenXr Vulkan Sample built above and assumes
 that you built the debug version.
@@ -225,7 +227,7 @@ adb shell "setprop debug.vulkan.layers ''"
 adb shell "settings put global gpu_debug_layers ''"
 ```
 
-## Replaying the Vulkan IGL Content
+## Replaying the IGL Content
 
 
 ### 1. Install the replay application
@@ -272,3 +274,72 @@ python3 android\\scripts\\gfxrecon.py replay \
 Replacing "openxr_capture_frames_1_through_30_20240812T132918.gfxr" with
 the name of the most recent capture file discovered when performing step
 [6. Verify the capture file](#6-verify-the-capture-file) above.
+
+
+## Capturing the Replay Content
+
+To capture a replay requires some additional changes.
+
+### 1. Update the quest_replay Gradle file
+
+Add the capture layer as a dependency of the replay application by modifying
+`android\tools\quest_replay\build.gradle`:
+
+```bash
+ dependencies {
+     implementation fileTree(dir: 'libs', include: ['*.jar'])
+     implementation 'com.android.support:appcompat-v7:27.1.1'
+     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
++    implementation project(':layer')
+ }
+```
+
+### 2. Change the Debug app to the GFXRecon Quest replay app
+
+If you haven't already done so, first follow the instructions to enable
+the debug layer in section
+[3. Enable GFXReconstruct](#3-enable-gfxreconstruct)
+in the Capturing IGL Content section above.
+
+One change is to make sure that we:
+* Capture the correct application (here it is the replay application)
+* Adjust the capture file to use a different name than
+the one being replayed (or you will overwrite what you're reading)
+
+```bash
+adb shell settings put global gpu_debug_app com.lunarg.gfxreconstruct.replay
+adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/replay_capture.gfxr'"
+```
+
+### 3. Install the Quest replay application
+
+(Follow instructions in section
+[1. Install the replay application](#1-install-the-replay-application))
+in the Replay section above if you have not already done so.
+
+As well as modifying the permissions as noted in section
+[2. Force External Storage Permissions](#2-force-external-storage-permissions)
+in the Replay section above.
+
+### 4. Run Logcat
+
+```bash
+adb logcat -s IGL vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon
+```
+
+### 5. Upload the Replay Capture
+
+If the replay capture file is not already on the device, you will need to push it up using:
+
+```bash
+adb push {capture_file_name} /sdcard/Download
+```
+
+### 6. Run the quest_replay Application
+
+Run the replay using the `gfxrecon.py` script:
+
+```bash
+python3 android\\scripts\\gfxrecon.py replay \
+     /sdcard/Download/{original_capture_file_name}
+```
