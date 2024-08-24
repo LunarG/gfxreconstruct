@@ -228,6 +228,7 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
     static constexpr char             kObjectType[] = "IDXGISwapChain";
     DxgiSwapchainInfo() : DxObjectExtraInfo(kType) {}
 
+    uint32_t init_buffer_index{ 0 };
     Window*  window{ nullptr }; ///< Pointer to the platform-specific window object associated with the swapchain.
     uint64_t hwnd_id{ 0 };      ///< Capture ID for the HWND handle used with swapchain creation.
 
@@ -386,6 +387,7 @@ struct D3D12ResourceInfo : DxObjectExtraInfo
 
     D3D12_RESOURCE_DESC1 desc = {};
     format::HandleId     swap_chain_id{ format::kNullHandleId };
+    uint32_t             buffer_index{ 0 };
 
     size_t                                         subresource_count{ 0 };
     std::vector<graphics::dx12::ResourceStateInfo> resource_state_infos;

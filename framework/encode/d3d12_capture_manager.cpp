@@ -232,7 +232,7 @@ void D3D12CaptureManager::PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrap
 
                     // Initialize members of ID3D12ResourceInfo for resource_wrapper in order to track swap chain buffer
                     // state.
-                    InitializeSwapChainBufferResourceInfo(resource_wrapper, D3D12_RESOURCE_STATE_PRESENT);
+                    InitializeSwapChainBufferResourceInfo(wrapper, resource_wrapper, D3D12_RESOURCE_STATE_PRESENT);
                 }
                 else
                 {
@@ -383,19 +383,29 @@ void D3D12CaptureManager::InitializeID3D12ResourceInfo(ID3D12Device_Wrapper*    
     }
 }
 
-void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(ID3D12Resource_Wrapper* resource_wrapper,
+void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(IDXGISwapChain_Wrapper* wrapper,
+                                                                ID3D12Resource_Wrapper* resource_wrapper,
                                                                 D3D12_RESOURCE_STATES   initial_state)
 {
     GFXRECON_ASSERT(resource_wrapper != nullptr);
     GFXRECON_ASSERT(resource_wrapper->GetObjectInfo() != nullptr);
 
     auto info = resource_wrapper->GetObjectInfo();
+    GFXRECON_ASSERT(info);
+
+    // Get the swapchain's native ID3D12Device
+    graphics::dx12::ID3D12DeviceComPtr device;
+    wrapper->GetDevice(IID_PPV_ARGS(&device));
+
+    // Get the ID3D12Device_Wrapper
+    ID3D12Device_Wrapper* device_wrapper = ID3D12Device_Wrapper::GetExistingWrapper(device);
 
     // Not all fields of ID3D12ResourceInfo are used for swap chain buffers.
     info->num_subresources     = 1;
     info->mapped_subresources  = std::make_unique<MappedSubresource[]>(info->num_subresources);
     info->subresource_sizes    = std::make_unique<uint64_t[]>(info->num_subresources);
     info->subresource_sizes[0] = 0;
+    info->device_wrapper       = device_wrapper;
 
     if (IsCaptureModeTrack())
     {
