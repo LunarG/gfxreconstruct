@@ -621,7 +621,7 @@ void Dx12StateWriter::WriteResourceCreationState(
             GFXRECON_LOG_DEBUG_ONCE(
                 "Skipping resource data capture for ray tracing acceleration structure resource(s).");
         }
-        else if (!resource_info->is_swapchain_buffer) // swapchain buffer state is handled separately.
+        else
         {
             // Store resource wrappers and max resource sizes.
             ResourceSnapshotInfo snapshot_info;

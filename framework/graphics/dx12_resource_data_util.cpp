@@ -611,12 +611,18 @@ bool Dx12ResourceDataUtil::CopyMappableResource(ID3D12Resource*              tar
     return SUCCEEDED(result);
 }
 
-HRESULT Dx12ResourceDataUtil::ExecuteAndWaitForCommandList()
+HRESULT Dx12ResourceDataUtil::ExecuteAndWaitForCommandList(ID3D12CommandQueue* queue)
 {
     // Execute the command list and wait for completion.
     ID3D12CommandList* cmd_lists[] = { command_list_ };
-    command_queue_->ExecuteCommandLists(1, cmd_lists);
-    return dx12::WaitForQueue(command_queue_, command_fence_, ++fence_value_);
+
+    ID3D12CommandQueue* command_queue = queue;
+    if (command_queue == nullptr)
+    {
+        command_queue = command_queue_;
+    }
+    command_queue->ExecuteCommandLists(1, cmd_lists);
+    return dx12::WaitForQueue(command_queue, command_fence_, ++fence_value_);
 
     // MakeResident and Evict are ref-counted. Remove the ref count added by MakeResident.
     for (auto resource : resident_resources)
@@ -665,7 +671,7 @@ Dx12ResourceDataUtil::RecordCommandsToCopyResource(
 {
     const dx12::ResourceStateInfo common_state = { D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_BARRIER_FLAG_NONE };
     const dx12::ResourceStateInfo copy_state   = { copy_type == kCopyTypeRead ? D3D12_RESOURCE_STATE_COPY_SOURCE
-                                                                            : D3D12_RESOURCE_STATE_COPY_DEST,
+                                                                              : D3D12_RESOURCE_STATE_COPY_DEST,
                                                  D3D12_RESOURCE_BARRIER_FLAG_NONE };
 
     uint64_t subresource_count = subresource_layouts.size();

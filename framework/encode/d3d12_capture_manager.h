@@ -793,7 +793,8 @@ class D3D12CaptureManager : public ApiCaptureManager
                                       ID3D12Heap_Wrapper*      heap_wrapper,
                                       uint64_t                 heap_offset);
 
-    void InitializeSwapChainBufferResourceInfo(ID3D12Resource_Wrapper* resource_wrapper,
+    void InitializeSwapChainBufferResourceInfo(IDXGISwapChain_Wrapper* wrapper,
+                                               ID3D12Resource_Wrapper* resource_wrapper,
                                                D3D12_RESOURCE_STATES   initial_state);
 
     void InitializeID3D12DeviceInfo(IUnknown* pAdapter, void** device);

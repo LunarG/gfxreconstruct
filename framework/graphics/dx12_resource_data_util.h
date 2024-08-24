@@ -99,7 +99,7 @@ class Dx12ResourceDataUtil
     dx12::ID3D12ResourceComPtr GetStagingBuffer(CopyType type, uint64_t required_buffer_size);
     dx12::ID3D12ResourceComPtr CreateStagingBuffer(CopyType type, uint64_t required_buffer_size);
 
-    HRESULT ExecuteAndWaitForCommandList();
+    HRESULT ExecuteAndWaitForCommandList(ID3D12CommandQueue* queue = nullptr);
 
     // Build and execute a command list that copies data to or from the target_resource.
     HRESULT ResetCommandList();
