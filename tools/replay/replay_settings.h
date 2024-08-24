@@ -43,7 +43,7 @@ const char kArguments[] =
     "force-windowed,--fwo|--force-windowed-origin,--batching-memory-usage,--measurement-file,--swapchain,--sgfs|--skip-"
     "get-fence-status,--sgfr|--"
     "skip-get-fence-ranges,--dump-resources,--dump-resources-scale,--dump-resources-image-format,--dump-resources-dir,"
-    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs,--override-path,--state-file";
+    "--dump-resources-dump-color-attachment-index,--pbis,--pcj|--pipeline-creation-jobs";
 
 static void PrintUsage(const char* exe_name)
 {
@@ -164,8 +164,6 @@ static void PrintUsage(const char* exe_name)
     GFXRECON_WRITE_CONSOLE("          \t\tReplay may fail if the specified device is not compatible with the");
     GFXRECON_WRITE_CONSOLE("          \t\toriginal capture devices.");
     GFXRECON_WRITE_CONSOLE("  --pbi-all\t\tPrint all block information.");
-    GFXRECON_WRITE_CONSOLE("  --asset-file-path\t\tProvide an alternative path for the asset file.");
-    GFXRECON_WRITE_CONSOLE("  --state-file\t\tPath to state file");
     GFXRECON_WRITE_CONSOLE(
         "  --pbis <index1,index2>\t\tPrint block information between block index1 and block index2.");
 #if defined(WIN32)

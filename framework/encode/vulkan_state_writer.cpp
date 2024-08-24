@@ -3881,21 +3881,33 @@ bool VulkanStateWriter::IsFramebufferValid(const vulkan_wrappers::FramebufferWra
 
 void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32_t n_blocks, int64_t offset)
 {
-    const size_t asset_filename_length = filename.length();
+    // Remove path from filename
+    std::string  absolute_file;
+    const size_t last_slash_pos = filename.find_last_of("\\/");
+    if (last_slash_pos != std::string::npos)
+    {
+        absolute_file = filename.substr(last_slash_pos + 1);
+    }
+    else
+    {
+        absolute_file = filename;
+    }
+
+    const size_t filename_length = absolute_file.length();
 
     format::ExecuteBlocksFromFile execute_from_file;
     execute_from_file.meta_header.block_header.size =
-        format::GetMetaDataBlockBaseSize(execute_from_file) + asset_filename_length;
+        format::GetMetaDataBlockBaseSize(execute_from_file) + filename_length;
     execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
     execute_from_file.meta_header.meta_data_id =
         format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
     execute_from_file.thread_id       = thread_id_;
     execute_from_file.n_blocks        = n_blocks;
     execute_from_file.offset          = offset;
-    execute_from_file.filename_length = asset_filename_length;
+    execute_from_file.filename_length = filename_length;
 
     output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
-    output_stream_->Write(filename.c_str(), asset_filename_length);
+    output_stream_->Write(absolute_file.c_str(), filename_length);
 }
 
 GFXRECON_END_NAMESPACE(encode)

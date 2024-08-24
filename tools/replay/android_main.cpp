@@ -107,14 +107,7 @@ void android_main(struct android_app* app)
                     ? std::make_unique<gfxrecon::decode::PreloadFileProcessor>()
                     : std::make_unique<gfxrecon::decode::FileProcessor>();
 
-            const bool  use_path_override = arg_parser.IsArgumentSet(kOverridePathArgument);
-            std::string override_path;
-            if (use_path_override)
-            {
-                override_path = arg_parser.GetArgumentValue(kOverridePathArgument);
-            }
-
-            if (!file_processor->Initialize(filename, use_path_override ? &override_path : nullptr))
+            if (!file_processor->Initialize(filename))
             {
                 GFXRECON_WRITE_CONSOLE("Failed to load file %s.", filename.c_str());
             }

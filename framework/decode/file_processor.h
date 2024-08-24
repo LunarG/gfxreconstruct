@@ -86,7 +86,7 @@ class FileProcessor
         decoders_.erase(std::remove(decoders_.begin(), decoders_.end(), decoder), decoders_.end());
     }
 
-    bool Initialize(const std::string& filename, const std::string* override_path = nullptr);
+    bool Initialize(const std::string& filename);
 
     // Returns true if there are more frames to process, false if all frames have been processed or an error has
     // occurred.  Use GetErrorState() to determine error condition.
@@ -267,7 +267,7 @@ class FileProcessor
 
     void DecrementRemainingCommands();
 
-    std::string ApplyOverrideFilePath(const std::string& file);
+    std::string ApplyAbsolutePath(const std::string& file);
 
   private:
     format::EnabledOptions enabled_options_;
@@ -307,7 +307,7 @@ class FileProcessor
     };
     std::stack<ActiveFileContext> file_stack_;
 
-    std::string override_path_;
+    std::string absolute_path_;
 
   private:
     ActiveFileContext& GetCurrentFile()
