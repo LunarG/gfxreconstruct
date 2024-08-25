@@ -108,6 +108,13 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrGetHandMeshFB',
         ]
 
+        # These structures require a customized manager when they are an output struct
+        # in a `Next` chain
+        self.OUTPUT_NEXT_OVERRIDES = [
+            'XrBindingModificationsKHR',
+            'XrHandJointVelocitiesEXT',
+        ]
+
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -149,7 +156,20 @@ class OpenXrReplayConsumerBodyGenerator(
         write('        {', file=self.outFile)
         for struct in self.type_values:
             struct_type = self.type_values[struct]
-            if not struct_type in self.SKIP_NEXT_STRUCT_TYPES:
+            if struct in self.OUTPUT_NEXT_OVERRIDES:
+                write(
+                    '            case {}:'.format(struct_type),
+                    file=self.outFile
+                )
+                write('            {', file=self.outFile)
+                write(
+                    '                output_struct->next = OverrideOutputStructNext_{}(in_next, output_struct);'
+                    .format(struct),
+                    file=self.outFile
+                )
+                write('                break;', file=self.outFile)
+                write('            }', file=self.outFile)
+            elif not struct_type in self.SKIP_NEXT_STRUCT_TYPES:
                 write(
                     '            case {}:'.format(struct_type),
                     file=self.outFile

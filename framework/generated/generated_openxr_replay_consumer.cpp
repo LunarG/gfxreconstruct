@@ -4745,7 +4745,7 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             }
             case XR_TYPE_BINDING_MODIFICATIONS_KHR:
             {
-                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrBindingModificationsKHR>());
+                output_struct->next = OverrideOutputStructNext_XrBindingModificationsKHR(in_next, output_struct);
                 break;
             }
             case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
@@ -4865,7 +4865,7 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             }
             case XR_TYPE_HAND_JOINT_VELOCITIES_EXT:
             {
-                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrHandJointVelocitiesEXT>());
+                output_struct->next = OverrideOutputStructNext_XrHandJointVelocitiesEXT(in_next, output_struct);
                 break;
             }
             case XR_TYPE_SYSTEM_HAND_TRACKING_MESH_PROPERTIES_MSFT:

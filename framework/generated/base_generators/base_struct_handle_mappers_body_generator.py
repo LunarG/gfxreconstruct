@@ -238,12 +238,8 @@ class BaseStructHandleMappersBodyGenerator():
             base_type = 'handle'
             given_object = ''
 
-        if 'XrCompositionLayer' in name:
-            print(f'{name}')
         body = ''
         for member in handle_members:
-            if 'XrCompositionLayer' in name:
-                print(f'       {member.name}')
             body += '\n'
             map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
 

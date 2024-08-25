@@ -55,7 +55,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 OpenXrReplayConsumerBase::OpenXrReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const OpenXrReplayOptions&                options) :
-    application_(application), options_(options), get_instance_proc_addr_(nullptr)
+    application_(application),
+    options_(options), get_instance_proc_addr_(nullptr)
 {
     assert(application_ != nullptr);
     object_info_table_ = CommonObjectInfoTable::GetSingleton();
@@ -842,11 +843,6 @@ void OpenXrReplayConsumerBase::PostProcessExternalObject(
     GFXRECON_UNREFERENCED_PARAMETER(call_name);
 }
 
-// TODO: Process_xrLocateHandJointsEXT should be moved back to automatic
-// generation once the reason for the validation failure on Quest headsets
-// is diagnosed and figured out.
-// For now, we set the CheckResult assert_flag to false so we can continue
-// on even with this error.
 void OpenXrReplayConsumerBase::Process_xrLocateHandJointsEXT(
     const ApiCallInfo&                                       call_info,
     XrResult                                                 returnValue,
@@ -862,32 +858,25 @@ void OpenXrReplayConsumerBase::Process_xrLocateHandJointsEXT(
         locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_HAND_JOINT_LOCATIONS_EXT, nullptr });
     InitializeOutputStructNext(locations);
 
-    // Set capacity vars and allocate arrays based on captured data.
+    // We have to create allocated space for the joint data to be written to, otherwise,
+    // it will try to write  to a non-existent output location.
     if (out_locations != nullptr)
     {
-        XrHandJointLocationsEXT* in_locations = locations->GetPointer();
+        XrHandJointLocationsEXT*         in_locations   = locations->GetPointer();
         Decoded_XrHandJointLocationsEXT* meta_locations = locations->GetMetaStructPointer();
 
-        out_locations->jointCount = in_locations->jointCount;
+        out_locations->jointCount     = in_locations->jointCount;
         out_locations->jointLocations = nullptr;
-        if (in_locations->jointCount > 0 && in_locations->jointLocations != nullptr) {
-            out_locations->jointLocations = meta_locations->jointLocations->AllocateOutputData(out_locations->jointCount);
+        if (in_locations->jointCount > 0 && in_locations->jointLocations != nullptr)
+        {
+            out_locations->jointLocations =
+                meta_locations->jointLocations->AllocateOutputData(out_locations->jointCount);
         }
-#if 0 // TODO: Need to figure out how to allocate output data (and pass in the initialization info) for items in the `next` chain
-        Decoded_XrHandJointVelocitiesEXT* hand_joint_velocities = GetNextMetaStruct<Decoded_XrHandJointVelocitiesEXT>(meta_locations->next);
-        if (hand_joint_velocities != nullptr) {
-            XrHandJointVelocitiesEXT* output_hand_joint_vel = hand_joint_velocities->decoded_value();
-            output_hand_joint_vel->jointCount = hand_joint_velocities->GetPointer()->jointCount;
-            if (output_hand_joint_vel->jointCount > 0) {
-                output_hand_joint_vel->jointVelocities = hand_joint_velocities->jointVelocities->AllocateOutputData(output_hand_joint_vel->jointCount);
-            }
-        }
-#endif
     }
 
     XrResult replay_result =
         GetInstanceTable(in_handTracker)->LocateHandJointsEXT(in_handTracker, in_locateInfo, out_locations);
-    CheckResult("xrLocateHandJointsEXT", returnValue, replay_result, call_info, false);
+    CheckResult("xrLocateHandJointsEXT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrLocateHandJointsEXT>::UpdateState(
         this, call_info, returnValue, handTracker, locateInfo, locations, replay_result);
 }
@@ -903,56 +892,68 @@ void OpenXrReplayConsumerBase::Process_xrGetHandMeshFB(const ApiCallInfo&       
         mesh->IsNull() ? nullptr : mesh->AllocateOutputData(1, { XR_TYPE_HAND_TRACKING_MESH_FB, nullptr });
     InitializeOutputStructNext(mesh);
 
-    // Set capacity vars and allocate arrays based on captured data.
+    // We have to create allocated space for the mesh data to be written to, otherwise,
+    // it will try to write  to a non-existent output location.
     if (out_mesh != nullptr)
     {
-        XrHandTrackingMeshFB* in_mesh = mesh->GetPointer();
+        XrHandTrackingMeshFB*         in_mesh   = mesh->GetPointer();
         Decoded_XrHandTrackingMeshFB* meta_mesh = mesh->GetMetaStructPointer();
 
         out_mesh->jointCapacityInput = in_mesh->jointCapacityInput;
-        out_mesh->jointBindPoses = nullptr;
-        out_mesh->jointRadii = nullptr;
-        out_mesh->jointParents = nullptr;
+        out_mesh->jointBindPoses     = nullptr;
+        out_mesh->jointRadii         = nullptr;
+        out_mesh->jointParents       = nullptr;
         if (in_mesh->jointCapacityInput > 0)
         {
-            if (in_mesh->jointBindPoses != nullptr) {
+            if (in_mesh->jointBindPoses != nullptr)
+            {
                 out_mesh->jointBindPoses = meta_mesh->jointBindPoses->AllocateOutputData(out_mesh->jointCapacityInput);
             }
-            if (in_mesh->jointRadii != nullptr) {
-            out_mesh->jointRadii = meta_mesh->jointRadii.AllocateOutputData(out_mesh->jointCapacityInput);
+            if (in_mesh->jointRadii != nullptr)
+            {
+                out_mesh->jointRadii = meta_mesh->jointRadii.AllocateOutputData(out_mesh->jointCapacityInput);
             }
-            if (in_mesh->jointParents != nullptr) {
-            out_mesh->jointParents = meta_mesh->jointParents.AllocateOutputData(out_mesh->jointCapacityInput);
+            if (in_mesh->jointParents != nullptr)
+            {
+                out_mesh->jointParents = meta_mesh->jointParents.AllocateOutputData(out_mesh->jointCapacityInput);
             }
         }
 
         out_mesh->vertexCapacityInput = in_mesh->vertexCapacityInput;
-        out_mesh->vertexPositions           = nullptr;
-        out_mesh->vertexNormals      = nullptr;
-        out_mesh->vertexUVs          = nullptr;
-        out_mesh->vertexBlendIndices = nullptr;
-        out_mesh->vertexBlendWeights = nullptr;
+        out_mesh->vertexPositions     = nullptr;
+        out_mesh->vertexNormals       = nullptr;
+        out_mesh->vertexUVs           = nullptr;
+        out_mesh->vertexBlendIndices  = nullptr;
+        out_mesh->vertexBlendWeights  = nullptr;
         if (in_mesh->vertexCapacityInput > 0)
         {
-            if (in_mesh->vertexPositions != nullptr) {
-            out_mesh->vertexPositions = meta_mesh->vertexPositions->AllocateOutputData(out_mesh->vertexCapacityInput);
+            if (in_mesh->vertexPositions != nullptr)
+            {
+                out_mesh->vertexPositions =
+                    meta_mesh->vertexPositions->AllocateOutputData(out_mesh->vertexCapacityInput);
             }
-            if (in_mesh->vertexNormals != nullptr) {
-            out_mesh->vertexNormals = meta_mesh->vertexNormals->AllocateOutputData(out_mesh->vertexCapacityInput);
+            if (in_mesh->vertexNormals != nullptr)
+            {
+                out_mesh->vertexNormals = meta_mesh->vertexNormals->AllocateOutputData(out_mesh->vertexCapacityInput);
             }
-            if (in_mesh->vertexUVs != nullptr) {
-            out_mesh->vertexUVs = meta_mesh->vertexUVs->AllocateOutputData(out_mesh->vertexCapacityInput);
+            if (in_mesh->vertexUVs != nullptr)
+            {
+                out_mesh->vertexUVs = meta_mesh->vertexUVs->AllocateOutputData(out_mesh->vertexCapacityInput);
             }
-            if (in_mesh->vertexBlendIndices != nullptr) {
-            out_mesh->vertexBlendIndices = meta_mesh->vertexBlendIndices->AllocateOutputData(out_mesh->vertexCapacityInput);
+            if (in_mesh->vertexBlendIndices != nullptr)
+            {
+                out_mesh->vertexBlendIndices =
+                    meta_mesh->vertexBlendIndices->AllocateOutputData(out_mesh->vertexCapacityInput);
             }
-            if (in_mesh->vertexBlendWeights != nullptr) {
-            out_mesh->vertexBlendWeights = meta_mesh->vertexBlendWeights->AllocateOutputData(out_mesh->vertexCapacityInput);
+            if (in_mesh->vertexBlendWeights != nullptr)
+            {
+                out_mesh->vertexBlendWeights =
+                    meta_mesh->vertexBlendWeights->AllocateOutputData(out_mesh->vertexCapacityInput);
             }
         }
 
         out_mesh->indexCapacityInput = in_mesh->indexCapacityInput;
-        out_mesh->indices = nullptr;
+        out_mesh->indices            = nullptr;
         if (in_mesh->indexCapacityInput > 0 && in_mesh->indices != nullptr)
         {
             out_mesh->indices = meta_mesh->indices.AllocateOutputData(out_mesh->indexCapacityInput, 0);
@@ -1664,8 +1665,8 @@ OpenXrReplayConsumerBase::MakeGraphicsBinding(Decoded_XrSessionCreateInfo* creat
 
 OpenXrReplayConsumerBase::VulkanGraphicsBinding::VulkanGraphicsBinding(
     VulkanReplayConsumerBase& vulkan_consumer, const Decoded_XrGraphicsBindingVulkanKHR& xr_binding) :
-    XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value), vulkan_consumer(&vulkan_consumer),
-    instance_table(vulkan_consumer.GetInstanceTable(physicalDevice)),
+    XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value),
+    vulkan_consumer(&vulkan_consumer), instance_table(vulkan_consumer.GetInstanceTable(physicalDevice)),
     device_table(vulkan_consumer.GetDeviceTable(device)), instance_id(xr_binding.instance),
     physicalDevice_id(xr_binding.physicalDevice), device_id(xr_binding.device)
 {
@@ -1709,6 +1710,393 @@ void OpenXrReplayConsumerBase::SessionData::AddReferenceSpaces(uint32_t         
     {
         reference_spaces_.insert(replay_spaces[space]);
     }
+}
+
+// Override the handling of the XrBindingModificationsKHR structure when found in a 'next' chain.
+// The problem is that it is an output structure, but it needs initialization done for it to be
+// properly filled in by the API.  This includes, setting proper array sizes, and creating
+// storage space for those arrays.  Unfortunately, this is complicated by the fact that some of the
+// arrays of structures are for "BaseHeader" type place-holders which need to be deciphered, and then
+// those also have arrays of content as well.
+XrBaseOutStructure* OverrideOutputStructNext_XrBindingModificationsKHR(const XrBaseInStructure* in_next,
+                                                                       XrBaseOutStructure*      output_struct)
+{
+    XrBindingModificationsKHR* out_binding_mod_parent = DecodeAllocator::Allocate<XrBindingModificationsKHR>();
+    if (out_binding_mod_parent != nullptr)
+    {
+        const XrBindingModificationsKHR* in_binding_mod_parent =
+            reinterpret_cast<const XrBindingModificationsKHR*>(in_next);
+        out_binding_mod_parent->type                     = in_binding_mod_parent->type;
+        out_binding_mod_parent->next                     = nullptr;
+        out_binding_mod_parent->bindingModificationCount = in_binding_mod_parent->bindingModificationCount;
+        if (in_binding_mod_parent->bindingModificationCount > 0)
+        {
+            XrBindingModificationBaseHeaderKHR** out_binding_mods =
+                DecodeAllocator::Allocate<XrBindingModificationBaseHeaderKHR*>(
+                    in_binding_mod_parent->bindingModificationCount);
+            const XrBindingModificationBaseHeaderKHR* const* in_binding_mods =
+                in_binding_mod_parent->bindingModifications;
+            for (uint32_t iii = 0; iii < in_binding_mod_parent->bindingModificationCount; ++iii)
+            {
+                switch (in_binding_mods[iii]->type)
+                {
+                    default:
+                        out_binding_mods[iii]       = DecodeAllocator::Allocate<XrBindingModificationBaseHeaderKHR>();
+                        out_binding_mods[iii]->type = in_binding_mods[iii]->type;
+                        GFXRECON_LOG_ERROR(
+                            "Unknown bindingModification structure type %u for XrBindingModificationsKHR index %u",
+                            in_binding_mods[iii]->type,
+                            iii);
+                        break;
+                    case XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT:
+                    {
+                        XrInteractionProfileDpadBindingEXT* out_dpad_binding =
+                            DecodeAllocator::Allocate<XrInteractionProfileDpadBindingEXT>();
+                        const XrInteractionProfileDpadBindingEXT* in_dpad_binding =
+                            reinterpret_cast<const XrInteractionProfileDpadBindingEXT*>(in_binding_mods[iii]);
+                        memcpy(out_dpad_binding, in_dpad_binding, sizeof(XrInteractionProfileDpadBindingEXT));
+                        if (out_dpad_binding->onHaptic != nullptr)
+                        {
+                            switch (in_dpad_binding->onHaptic->type)
+                            {
+                                default:
+                                {
+                                    XrHapticBaseHeader* out_haptic_base =
+                                        DecodeAllocator::Allocate<XrHapticBaseHeader>();
+                                    out_haptic_base->type = in_dpad_binding->onHaptic->type;
+                                    GFXRECON_LOG_ERROR(
+                                        "Unknown onHaptic structure type %u for XrBindingModificationsKHR index %u",
+                                        in_dpad_binding->onHaptic->type,
+                                        iii);
+                                    out_dpad_binding->onHaptic = out_haptic_base;
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_VIBRATION:
+                                {
+                                    XrHapticVibration* out_haptic_vib = DecodeAllocator::Allocate<XrHapticVibration>();
+                                    memcpy(out_haptic_vib, in_dpad_binding->onHaptic, sizeof(XrHapticVibration));
+                                    out_dpad_binding->onHaptic = reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+                                {
+                                    XrHapticAmplitudeEnvelopeVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticAmplitudeEnvelopeVibrationFB>();
+                                    const XrHapticAmplitudeEnvelopeVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticAmplitudeEnvelopeVibrationFB*>(
+                                            in_dpad_binding->onHaptic);
+                                    memcpy(out_haptic_vib, in_haptic_vib, sizeof(XrHapticAmplitudeEnvelopeVibrationFB));
+
+                                    if (out_haptic_vib->amplitudeCount > 0)
+                                    {
+                                        float* out_amplitudes =
+                                            DecodeAllocator::Allocate<float>(in_haptic_vib->amplitudeCount);
+                                        memcpy(out_amplitudes,
+                                               in_haptic_vib->amplitudes,
+                                               sizeof(float) * in_haptic_vib->amplitudeCount);
+                                        out_haptic_vib->amplitudes = out_amplitudes;
+                                    }
+
+                                    out_dpad_binding->onHaptic = reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+                                {
+                                    XrHapticPcmVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticPcmVibrationFB>();
+                                    const XrHapticPcmVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticPcmVibrationFB*>(in_dpad_binding->onHaptic);
+                                    memcpy(out_haptic_vib, in_haptic_vib, sizeof(XrHapticPcmVibrationFB));
+
+                                    if (in_haptic_vib->samplesConsumed != nullptr)
+                                    {
+                                        out_haptic_vib->samplesConsumed  = DecodeAllocator::Allocate<uint32_t>();
+                                        *out_haptic_vib->samplesConsumed = *in_haptic_vib->samplesConsumed;
+                                    }
+
+                                    if (in_haptic_vib->bufferSize > 0)
+                                    {
+                                        float* out_buffer = DecodeAllocator::Allocate<float>(in_haptic_vib->bufferSize);
+                                        memcpy(out_buffer,
+                                               in_haptic_vib->buffer,
+                                               sizeof(float) * in_haptic_vib->bufferSize);
+                                        out_haptic_vib->buffer = out_buffer;
+                                    }
+
+                                    out_dpad_binding->onHaptic = reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                            }
+                        }
+                        if (out_dpad_binding->offHaptic != nullptr)
+                        {
+                            switch (out_dpad_binding->offHaptic->type)
+                            {
+                                default:
+                                {
+                                    XrHapticBaseHeader* out_haptic_base =
+                                        DecodeAllocator::Allocate<XrHapticBaseHeader>();
+                                    out_haptic_base->type = in_dpad_binding->offHaptic->type;
+                                    GFXRECON_LOG_ERROR(
+                                        "Unknown offHaptic structure type %u for XrBindingModificationsKHR index %u",
+                                        in_dpad_binding->offHaptic->type,
+                                        iii);
+                                    out_dpad_binding->offHaptic = out_haptic_base;
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_VIBRATION:
+                                {
+                                    XrHapticVibration* out_haptic_vib = DecodeAllocator::Allocate<XrHapticVibration>();
+                                    memcpy(out_haptic_vib, in_dpad_binding->offHaptic, sizeof(XrHapticVibration));
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+                                {
+                                    XrHapticAmplitudeEnvelopeVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticAmplitudeEnvelopeVibrationFB>();
+                                    const XrHapticAmplitudeEnvelopeVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticAmplitudeEnvelopeVibrationFB*>(
+                                            in_dpad_binding->offHaptic);
+                                    memcpy(out_haptic_vib, in_haptic_vib, sizeof(XrHapticAmplitudeEnvelopeVibrationFB));
+
+                                    if (in_haptic_vib->amplitudeCount > 0)
+                                    {
+                                        float* out_amplitudes =
+                                            DecodeAllocator::Allocate<float>(in_haptic_vib->amplitudeCount);
+                                        memcpy(out_amplitudes,
+                                               in_haptic_vib->amplitudes,
+                                               sizeof(float) * in_haptic_vib->amplitudeCount);
+                                        out_haptic_vib->amplitudes = out_amplitudes;
+                                    }
+
+                                    out_dpad_binding->offHaptic = reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+                                {
+                                    XrHapticPcmVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticPcmVibrationFB>();
+                                    const XrHapticPcmVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticPcmVibrationFB*>(in_dpad_binding->offHaptic);
+                                    memcpy(out_haptic_vib, in_haptic_vib, sizeof(XrHapticPcmVibrationFB));
+
+                                    if (in_haptic_vib->samplesConsumed != nullptr)
+                                    {
+                                        out_haptic_vib->samplesConsumed  = DecodeAllocator::Allocate<uint32_t>();
+                                        *out_haptic_vib->samplesConsumed = *in_haptic_vib->samplesConsumed;
+                                    }
+
+                                    if (in_haptic_vib->bufferSize > 0)
+                                    {
+                                        float* out_buffer = DecodeAllocator::Allocate<float>(in_haptic_vib->bufferSize);
+                                        ;
+                                        memcpy(out_buffer,
+                                               in_haptic_vib->buffer,
+                                               sizeof(float) * in_haptic_vib->bufferSize);
+                                        out_haptic_vib->buffer = out_buffer;
+                                    }
+
+                                    out_dpad_binding->offHaptic = reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                            }
+                        }
+                        out_binding_mods[iii] = reinterpret_cast<XrBindingModificationBaseHeaderKHR*>(out_dpad_binding);
+                        break;
+                    }
+
+                    case XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE:
+                    {
+                        XrInteractionProfileAnalogThresholdVALVE* out_thresh_binding =
+                            DecodeAllocator::Allocate<XrInteractionProfileAnalogThresholdVALVE>();
+                        const XrInteractionProfileAnalogThresholdVALVE* in_thresh_binding =
+                            reinterpret_cast<const XrInteractionProfileAnalogThresholdVALVE*>(in_binding_mods[iii]);
+                        memcpy(out_thresh_binding, in_thresh_binding, sizeof(XrInteractionProfileAnalogThresholdVALVE));
+                        if (out_thresh_binding->onHaptic != nullptr)
+                        {
+                            switch (out_thresh_binding->onHaptic->type)
+                            {
+                                default:
+                                {
+                                    XrHapticBaseHeader* out_haptic_base =
+                                        DecodeAllocator::Allocate<XrHapticBaseHeader>();
+                                    out_haptic_base->type = in_thresh_binding->onHaptic->type;
+                                    GFXRECON_LOG_ERROR(
+                                        "Unknown onHaptic structure type %u for XrBindingModificationsKHR index %u",
+                                        in_thresh_binding->onHaptic->type,
+                                        iii);
+                                    out_thresh_binding->onHaptic = out_haptic_base;
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_VIBRATION:
+                                {
+                                    XrHapticVibration* out_haptic_vib = DecodeAllocator::Allocate<XrHapticVibration>();
+                                    memcpy(out_haptic_vib, in_thresh_binding->onHaptic, sizeof(XrHapticVibration));
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+                                {
+                                    XrHapticAmplitudeEnvelopeVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticAmplitudeEnvelopeVibrationFB>();
+                                    const XrHapticAmplitudeEnvelopeVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticAmplitudeEnvelopeVibrationFB*>(
+                                            in_thresh_binding->onHaptic);
+                                    memcpy(out_haptic_vib, in_haptic_vib, sizeof(XrHapticAmplitudeEnvelopeVibrationFB));
+
+                                    if (in_haptic_vib->amplitudeCount > 0)
+                                    {
+                                        float* out_amplitudes =
+                                            DecodeAllocator::Allocate<float>(in_haptic_vib->amplitudeCount);
+                                        memcpy(out_amplitudes,
+                                               in_haptic_vib->amplitudes,
+                                               sizeof(float) * in_haptic_vib->amplitudeCount);
+                                        out_haptic_vib->amplitudes = out_amplitudes;
+                                    }
+
+                                    out_thresh_binding->onHaptic =
+                                        reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+                                {
+                                    XrHapticPcmVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticPcmVibrationFB>();
+                                    const XrHapticPcmVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticPcmVibrationFB*>(in_thresh_binding->onHaptic);
+                                    memcpy(out_haptic_vib, in_thresh_binding->onHaptic, sizeof(XrHapticPcmVibrationFB));
+
+                                    if (in_haptic_vib->samplesConsumed != nullptr)
+                                    {
+                                        out_haptic_vib->samplesConsumed  = DecodeAllocator::Allocate<uint32_t>();
+                                        *out_haptic_vib->samplesConsumed = *in_haptic_vib->samplesConsumed;
+                                    }
+
+                                    if (in_haptic_vib->bufferSize > 0)
+                                    {
+                                        float* out_buffer = DecodeAllocator::Allocate<float>(in_haptic_vib->bufferSize);
+                                        memcpy(out_buffer,
+                                               in_haptic_vib->buffer,
+                                               sizeof(float) * in_haptic_vib->bufferSize);
+                                        out_haptic_vib->buffer = out_buffer;
+                                    }
+
+                                    out_thresh_binding->onHaptic =
+                                        reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                            }
+                        }
+                        if (out_thresh_binding->offHaptic != nullptr)
+                        {
+                            switch (out_thresh_binding->offHaptic->type)
+                            {
+                                default:
+                                {
+                                    XrHapticBaseHeader* out_haptic_base =
+                                        DecodeAllocator::Allocate<XrHapticBaseHeader>();
+                                    out_haptic_base->type = in_thresh_binding->offHaptic->type;
+                                    GFXRECON_LOG_ERROR(
+                                        "Unknown offHaptic structure type %u for XrBindingModificationsKHR index %u",
+                                        in_thresh_binding->offHaptic->type,
+                                        iii);
+                                    out_thresh_binding->offHaptic = out_haptic_base;
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_VIBRATION:
+                                {
+                                    XrHapticVibration* out_haptic_vib = DecodeAllocator::Allocate<XrHapticVibration>();
+                                    memcpy(out_haptic_vib, in_thresh_binding->offHaptic, sizeof(XrHapticVibration));
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB:
+                                {
+                                    XrHapticAmplitudeEnvelopeVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticAmplitudeEnvelopeVibrationFB>();
+                                    const XrHapticAmplitudeEnvelopeVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticAmplitudeEnvelopeVibrationFB*>(
+                                            in_thresh_binding->offHaptic);
+                                    memcpy(out_haptic_vib, in_haptic_vib, sizeof(XrHapticAmplitudeEnvelopeVibrationFB));
+
+                                    if (in_haptic_vib->amplitudeCount > 0)
+                                    {
+                                        float* out_amplitudes =
+                                            DecodeAllocator::Allocate<float>(in_haptic_vib->amplitudeCount);
+                                        memcpy(out_amplitudes,
+                                               in_haptic_vib->amplitudes,
+                                               sizeof(float) * in_haptic_vib->amplitudeCount);
+                                        out_haptic_vib->amplitudes = out_amplitudes;
+                                    }
+
+                                    out_thresh_binding->offHaptic =
+                                        reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                                case XR_TYPE_HAPTIC_PCM_VIBRATION_FB:
+                                {
+                                    XrHapticPcmVibrationFB* out_haptic_vib =
+                                        DecodeAllocator::Allocate<XrHapticPcmVibrationFB>();
+                                    const XrHapticPcmVibrationFB* in_haptic_vib =
+                                        reinterpret_cast<const XrHapticPcmVibrationFB*>(in_thresh_binding->offHaptic);
+                                    memcpy(
+                                        out_haptic_vib, in_thresh_binding->offHaptic, sizeof(XrHapticPcmVibrationFB));
+
+                                    if (in_haptic_vib->samplesConsumed != nullptr)
+                                    {
+                                        out_haptic_vib->samplesConsumed  = DecodeAllocator::Allocate<uint32_t>();
+                                        *out_haptic_vib->samplesConsumed = *in_haptic_vib->samplesConsumed;
+                                    }
+
+                                    if (in_haptic_vib->bufferSize > 0)
+                                    {
+                                        float* out_buffer = DecodeAllocator::Allocate<float>(in_haptic_vib->bufferSize);
+                                        memcpy(out_buffer,
+                                               in_haptic_vib->buffer,
+                                               sizeof(float) * in_haptic_vib->bufferSize);
+                                        out_haptic_vib->buffer = out_buffer;
+                                    }
+
+                                    out_thresh_binding->offHaptic =
+                                        reinterpret_cast<XrHapticBaseHeader*>(out_haptic_vib);
+                                    break;
+                                }
+                            }
+                        }
+                        out_binding_mods[iii] =
+                            reinterpret_cast<XrBindingModificationBaseHeaderKHR*>(out_thresh_binding);
+                        break;
+                    }
+                }
+            }
+            out_binding_mod_parent->bindingModifications =
+                reinterpret_cast<const XrBindingModificationBaseHeaderKHR* const*>(out_binding_mods);
+        }
+    }
+    return reinterpret_cast<XrBaseOutStructure*>(out_binding_mod_parent);
+}
+
+// Override the handling of the XrHandJointVelocitiesEXT structure when found in a 'next' chain.
+// The problem is that it is an output structure, but it needs initialization done for it to be
+// properly filled in by the API.  This includes, setting proper array sizes, and creating
+// storage space for those arrays.
+XrBaseOutStructure* OverrideOutputStructNext_XrHandJointVelocitiesEXT(const XrBaseInStructure* in_next,
+                                                                      XrBaseOutStructure*      output_struct)
+{
+    XrHandJointVelocitiesEXT* out_hand_joint_velocities = DecodeAllocator::Allocate<XrHandJointVelocitiesEXT>();
+    if (out_hand_joint_velocities != nullptr)
+    {
+        const XrHandJointVelocitiesEXT* in_hand_joint_velocities =
+            reinterpret_cast<const XrHandJointVelocitiesEXT*>(in_next);
+        out_hand_joint_velocities->jointCount = in_hand_joint_velocities->jointCount;
+        if (out_hand_joint_velocities->jointCount > 0)
+        {
+            out_hand_joint_velocities->jointVelocities =
+                DecodeAllocator::Allocate<XrHandJointVelocityEXT>(in_hand_joint_velocities->jointCount);
+            memcpy(out_hand_joint_velocities->jointVelocities,
+                   in_hand_joint_velocities->jointVelocities,
+                   sizeof(XrHandJointVelocityEXT) * in_hand_joint_velocities->jointCount);
+        }
+    }
+    return reinterpret_cast<XrBaseOutStructure*>(out_hand_joint_velocities);
 }
 
 GFXRECON_END_NAMESPACE(decode)

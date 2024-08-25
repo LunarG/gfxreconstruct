@@ -74,7 +74,10 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     void SetVulkanReplayConsumer(VulkanReplayConsumerBase* vulkan_replay_consumer);
 
 #if defined(__ANDROID__)
-    void SetAndroidApp(struct android_app* app) { android_app_ = app; }
+    void SetAndroidApp(struct android_app* app)
+    {
+        android_app_ = app;
+    }
 #endif
 
     virtual void
@@ -92,7 +95,10 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                      format::HandleId                                 instance,
                                      StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
 
-    void SetFatalErrorHandler(std::function<void(const char*)> handler) { fatal_error_handler_ = handler; }
+    void SetFatalErrorHandler(std::function<void(const char*)> handler)
+    {
+        fatal_error_handler_ = handler;
+    }
 
     void UpdateState_xrCreateSession(const ApiCallInfo&                                 call_info,
                                      XrResult                                           returnValue,
@@ -144,9 +150,15 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     const OpenXrReplayOptions options_;
 
   protected:
-    const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
+    const CommonObjectInfoTable& GetObjectInfoTable() const
+    {
+        return *object_info_table_;
+    }
 
-    CommonObjectInfoTable& GetObjectInfoTable() { return *object_info_table_; }
+    CommonObjectInfoTable& GetObjectInfoTable()
+    {
+        return *object_info_table_;
+    }
 
     void AddInstanceTable(XrInstance instance);
 
@@ -421,7 +433,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     class GraphicsBinding
     {
       public:
-        GraphicsBinding() : type(GraphicsBindingType::kUnknown) {};
+        GraphicsBinding() : type(GraphicsBindingType::kUnknown){};
         GraphicsBinding(const VulkanGraphicsBinding& binding) : type(GraphicsBindingType::kVulkan)
         {
             vulkan_binding.emplace(binding);
@@ -512,11 +524,23 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         return find_it->second;
     }
 
-    SessionData&   AddSessionData(XrSession session) { return AddHandleData(session, session_data_)->second; }
-    SwapchainData& AddSwapchainData(XrSwapchain swapchain) { return AddHandleData(swapchain, swapchain_data_)->second; }
+    SessionData& AddSessionData(XrSession session)
+    {
+        return AddHandleData(session, session_data_)->second;
+    }
+    SwapchainData& AddSwapchainData(XrSwapchain swapchain)
+    {
+        return AddHandleData(swapchain, swapchain_data_)->second;
+    }
 
-    SessionData&   GetSessionData(XrSession session) { return GetHandleData(session, session_data_); }
-    SwapchainData& GetSwapchainData(XrSwapchain swapchain) { return GetHandleData(swapchain, swapchain_data_); }
+    SessionData& GetSessionData(XrSession session)
+    {
+        return GetHandleData(session, session_data_);
+    }
+    SwapchainData& GetSwapchainData(XrSwapchain swapchain)
+    {
+        return GetHandleData(swapchain, swapchain_data_);
+    }
 
     SessionDataMap   session_data_;
     SwapchainDataMap swapchain_data_;
@@ -569,6 +593,11 @@ struct CustomProcess<format::ApiCallId::ApiCall_xrEnumerateSwapchainImages>
         consumer->UpdateState_xrEnumerateSwapchainImages(args...);
     }
 };
+
+XrBaseOutStructure* OverrideOutputStructNext_XrBindingModificationsKHR(const XrBaseInStructure* in_next,
+                                                                       XrBaseOutStructure*      output_struct);
+XrBaseOutStructure* OverrideOutputStructNext_XrHandJointVelocitiesEXT(const XrBaseInStructure* in_next,
+                                                                      XrBaseOutStructure*      output_struct);
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
