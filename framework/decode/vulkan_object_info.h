@@ -42,6 +42,7 @@
 #include <unordered_set>
 #include <vector>
 #include <future>
+#include <optional>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -158,8 +159,11 @@ enum ValidationCacheEXTArrayIndices : uint32_t
 
 struct ReplayDeviceInfo
 {
-    std::unique_ptr<VkPhysicalDeviceProperties>       properties;
-    std::unique_ptr<VkPhysicalDeviceMemoryProperties> memory_properties;
+    std::optional<VkPhysicalDeviceProperties>       properties;
+    std::optional<VkPhysicalDeviceMemoryProperties> memory_properties;
+
+    // extensions
+    std::optional<VkPhysicalDeviceRayTracingPipelinePropertiesKHR> raytracing_properties;
 };
 
 template <typename T>
@@ -258,6 +262,12 @@ struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
     uint8_t                          capture_pipeline_cache_uuid[format::kUuidSize]{};
     std::string                      capture_device_name;
     VkPhysicalDeviceMemoryProperties capture_memory_properties{};
+
+    // capture raytracing shader-binding-table properties
+    // extracted from VkPhysicalDeviceRayTracingPipelinePropertiesKHR
+    uint32_t shaderGroupHandleSize = 0;
+    uint32_t shaderGroupBaseAlignment = 0;
+    uint32_t shaderGroupHandleAlignment = 0;
 
     // Closest matching replay device.
     ReplayDeviceInfo* replay_device_info{ nullptr };

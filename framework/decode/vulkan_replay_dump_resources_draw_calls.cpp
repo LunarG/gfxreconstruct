@@ -2492,8 +2492,8 @@ VkResult DrawCallsDumpingContext::CloneCommandBuffer(CommandBufferInfo*         
     assert(phys_dev_info);
 
     assert(phys_dev_info->replay_device_info);
-    assert(phys_dev_info->replay_device_info->memory_properties.get());
-    replay_device_phys_mem_props = phys_dev_info->replay_device_info->memory_properties.get();
+    assert(phys_dev_info->replay_device_info->memory_properties);
+    replay_device_phys_mem_props = &phys_dev_info->replay_device_info->memory_properties.value();
 
     // Allocate auxiliary command buffer
     VkResult res = device_table->AllocateCommandBuffers(dev_info->handle, &ai, &aux_command_buffer);

@@ -1296,6 +1296,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                      const VkPhysicalDeviceProperties* capture_properties,
                                      const VkPhysicalDeviceProperties* replay_properties);
 
+    void SetPhysicalDeviceProperties(PhysicalDeviceInfo*                physical_device_info,
+                                     const VkPhysicalDeviceProperties2* capture_properties,
+                                     const VkPhysicalDeviceProperties2* replay_properties);
+
     void SetPhysicalDeviceMemoryProperties(PhysicalDeviceInfo*                     physical_device_info,
                                            const VkPhysicalDeviceMemoryProperties* capture_properties,
                                            const VkPhysicalDeviceMemoryProperties* replay_properties);
