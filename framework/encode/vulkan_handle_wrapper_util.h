@@ -90,7 +90,7 @@ format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrappedId() couldn't find Handle: %" PRIu64
+        GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrappedId() couldn't find Handle: 0x%" PRIx64
                              "'s wrapper. It might have been destroyed",
                              handle);
         return format::kNullHandleId;
@@ -108,7 +108,7 @@ Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrapper() couldn't find Handle: %" PRIu64
+        GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrapper() couldn't find Handle: 0x%" PRIx64
                              "'s wrapper. It might have been destroyed",
                              handle);
     }
