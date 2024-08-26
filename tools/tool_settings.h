@@ -129,7 +129,6 @@ const char kDxTwoPassReplay[]             = "--dx12-two-pass-replay";
 const char kDxOverrideObjectNames[]       = "--dx12-override-object-names";
 const char kBatchingMemoryUsageArgument[] = "--batching-memory-usage";
 #endif
-const char kOverridePathArgument[] = "--override-path";
 
 const char kDumpResourcesArgument[]               = "--dump-resources";
 const char kDumpResourcesBeforeDrawOption[]       = "--dump-resources-before-draw";
@@ -922,11 +921,6 @@ static void GetReplayOptions(gfxrecon::decode::ReplayOptions&      options,
     if (arg_parser.IsArgumentSet(kNumPipelineCreationJobs))
     {
         options.num_pipeline_creation_jobs = std::stoi(arg_parser.GetArgumentValue(kNumPipelineCreationJobs));
-    }
-
-    if (arg_parser.IsArgumentSet(kOverridePathArgument))
-    {
-        options.override_path = arg_parser.GetArgumentValue(kOverridePathArgument);
     }
 
     const auto& override_gpu = arg_parser.GetArgumentValue(kOverrideGpuArgument);
