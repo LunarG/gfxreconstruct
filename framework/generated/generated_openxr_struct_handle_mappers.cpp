@@ -137,6 +137,11 @@ void MapStructHandles(Decoded_XrFrameEndInfo* wrapper, const CommonObjectInfoTab
 {
     if (wrapper != nullptr)
     {
+        if (wrapper->next)
+        {
+            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
+        }
+
         MapStructPtrArrayHandles<Decoded_XrCompositionLayerBaseHeader*>(wrapper->layers->GetMetaStructPointer(), wrapper->layers->GetLength(), object_info_table);
 
         if (wrapper->next)
@@ -268,6 +273,11 @@ void MapStructHandles(Decoded_XrActionsSyncInfo* wrapper, const CommonObjectInfo
 {
     if (wrapper != nullptr)
     {
+        if (wrapper->next)
+        {
+            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
+        }
+
         MapStructArrayHandles<Decoded_XrActiveActionSet>(wrapper->activeActionSets->GetMetaStructPointer(), wrapper->activeActionSets->GetLength(), object_info_table);
 
         if (wrapper->next)
@@ -338,6 +348,11 @@ void MapStructHandles(Decoded_XrCompositionLayerProjectionView* wrapper, const C
 {
     if (wrapper != nullptr)
     {
+        if (wrapper->next)
+        {
+            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
+        }
+
         MapStructHandles(wrapper->subImage, object_info_table);
 
         if (wrapper->next)

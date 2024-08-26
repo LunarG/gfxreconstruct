@@ -356,9 +356,9 @@ class BaseGenerator(OutputGenerator):
             )  # Map of per-feature struct names to lists of per-member ValueInfo
             self.feature_struct_aliases = OrderedDict(
             )  # Map of struct names to aliases
-            self.extension_structs_with_handles = OrderedDict(
+            self._structs_with_handles = OrderedDict(
             )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self.extension_structs_with_handle_ptrs = OrderedDict(
+            self._structs_with_handle_ptrs = OrderedDict(
             )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
         if self.process_cmds:
             self.feature_cmd_params = OrderedDict(
@@ -941,80 +941,21 @@ class BaseGenerator(OutputGenerator):
 
     def check_struct_next_handles(self, typename):
         """Determines if the specified struct type can reference next extension structs that contain handles."""
-        found_handles = False
-        found_handle_ptrs = False
+        has_handles = False
+        has_handle_ptrs = False
         valid_extension_structs = self.registry.validextensionstructs.get(
             typename
         )
         if valid_extension_structs:
             # Need to search the XML tree for next structures that have not been processed yet.
             for struct_name in valid_extension_structs:
-                # Check for cached results from a previous check for this struct
-                if struct_name in self.extension_structs_with_handles:
-                    if self.extension_structs_with_handles[struct_name]:
-                        found_handles = True
-                    if self.extension_structs_with_handle_ptrs[struct_name]:
-                        found_handle_ptrs = True
-                else:
-                    # If a pre-existing result was not found, check the XML registry for the struct
-                    has_handles = False
-                    hasHandlePtrs = False
-                    type_info = self.registry.lookupElementInfo(
-                        struct_name, self.registry.typedict
-                    )
-                    if type_info:
-                        member_infos = [
-                            member for member in
-                            type_info.elem.findall('.//member/type')
-                        ]
-                        if member_infos:
-                            for member_info in member_infos:
-                                # Check to see if this is a handle
-                                found_handle = self.registry.tree.find(
-                                    "types/type/[name='" + member_info.text
-                                    + "'][@category='handle']"
-                                )
+                found_handles, found_handle_ptrs = self.struct_has_handles(struct_name)
+                has_handles = has_handles or found_handles
+                has_handle_ptrs = has_handle_ptrs or found_handle_ptrs
+                if has_handles and has_handle_ptrs:
+                    break
 
-                                # Check for Vulkan handles as well.
-                                if member_info.text in self.handle_names:
-                                    found_handle = True
-
-                                # Also check to see if this is an atom
-                                base_type = self.registry.tree.find(
-                                    "types/type/[name='" + member_info.text
-                                    + "'][@category='basetype']"
-                                )
-                                found_atom = False
-                                if base_type is not None:
-                                    base_type_type = base_type.find('type')
-                                    if base_type_type is not None and base_type_type.text is not None and base_type_type.text == 'XR_DEFINE_ATOM':
-                                        found_atom = True
-
-                                if found_handle or found_atom:
-                                    has_handles = True
-                                    self.extension_structs_with_handles[
-                                        struct_name] = True
-                                    if member_info.tail and (
-                                        '*' in member_info.tail
-                                    ):
-                                        self.extension_structs_with_handle_ptrs[
-                                            struct_name] = True
-                                        hasHandlePtrs = True
-                                    else:
-                                        self.extension_structs_with_handle_ptrs[
-                                            struct_name] = False
-
-                    if has_handles:
-                        found_handles = True
-                        if hasHandlePtrs:
-                            found_handle_ptrs = True
-                    else:
-                        self.extension_structs_with_handles[struct_name
-                                                            ] = False
-                        self.extension_structs_with_handle_ptrs[struct_name
-                                                                ] = False
-
-        return found_handles, found_handle_ptrs
+        return has_handles, has_handle_ptrs
 
     def check_struct_member_handles(
         self,
@@ -1023,16 +964,21 @@ class BaseGenerator(OutputGenerator):
         structs_with_handle_ptrs=None,
         ignore_output=False,
         structs_with_map_data=None,
-        extra_types=None
+        extra_types=None,
+        struct_members=None
     ):
         """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
         Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
         An optional list of structure types that contain handle members with pointer types may also be generated.
         """
+        # Allow the caller to use a different member list
+        if not struct_members:
+            struct_members = self.feature_struct_members[typename]
+
         handles = []
         has_handle_pointer = False
         map_data = []
-        for value in self.feature_struct_members[typename]:
+        for value in struct_members:
             if self.is_handle(value.base_type) or self.is_atom(
                 value.base_type
             ) or self.is_class(value) or (
@@ -1045,17 +991,14 @@ class BaseGenerator(OutputGenerator):
                     and (value.is_pointer or value.is_array)
                 ):
                     has_handle_pointer = True
-            elif self.is_struct(value.base_type) and (
-                (value.base_type in structs_with_handles) and
-                ((not ignore_output) or (not '_Out_' in value.full_type))
-            ):
-                # The member is a struct that contains a handle.
-                handles.append(value)
-                if (
-                    (structs_with_handle_ptrs is not None)
-                    and (value.name in structs_with_handle_ptrs)
-                ):
-                    has_handle_pointer = True
+            elif self.is_struct(value.base_type):
+                has_handles, has_handle_ptrs = self.struct_has_handles(value.base_type)
+                if has_handles and ((not ignore_output) or (not '_Out_' in value.full_type)):
+                    # The member is a struct that contains a handle.
+                    handles.append(value)
+                    if (structs_with_handle_ptrs is not None) and has_handle_ptrs:
+                        has_handle_pointer = True
+
             elif self.is_union(value.base_type):
                 # Check the anonymous union for objects.
                 union_members = self.get_union_members(value.base_type)
@@ -1102,7 +1045,7 @@ class BaseGenerator(OutputGenerator):
             # struct type contains members that are handles/objects.  Any
             # struct members that have the same type as the struct must be
             # added to the handle member list.
-            for value in self.feature_struct_members[typename]:
+            for value in struct_members:
                 if (value.base_type == typename) and (
                     (not ignore_output) or (not '_Out_' in value.full_type)
                 ):
@@ -1641,3 +1584,85 @@ class BaseGenerator(OutputGenerator):
 
         body += f'{indent1}}}\n'
         return body
+
+    def struct_has_handles(self, struct_name):
+        """Determines if the struct has handles and handle_ptrs, and caches check"""
+        # Check for cached results from a previous check for this struct
+        has_handles = False
+        has_handle_ptrs = False
+
+        if struct_name in self._structs_with_handles:
+            has_handles = self._structs_with_handles[struct_name]
+            has_handle_ptrs = self._structs_with_handle_ptrs[struct_name]
+            return has_handles, has_handle_ptrs
+
+        # If a pre-existing result was not found, check the XML registry for the struct
+        # Prevent recurance
+        self._structs_with_handles[struct_name] = False;
+        self._structs_with_handle_ptrs[struct_name] = False;
+
+        type_info = self.registry.lookupElementInfo(
+            struct_name, self.registry.typedict
+        )
+        if not type_info:
+            return has_handles, has_handle_ptrs
+
+        member_infos = [
+            member for member in
+            type_info.elem.findall('.//member/type')
+        ]
+        if not member_infos:
+            return has_handles, has_handle_ptrs
+
+        member_type_infos = [
+            self.registry.lookupElementInfo( member_info.text, self.registry.typedict)
+            for member_info in member_infos
+        ]
+
+        for member_type_info in member_type_infos:
+            # Note: member_info.text is the type name
+            member_elem = member_type_info.elem
+            member_type = member_elem.attrib['name']
+            #member_category = member_elem.attrib.get('category', '')
+            member_category = member_elem.get('category')
+
+            # Check to see if this is a struct and recur
+            if member_category == 'struct':
+                # For compound types we recur
+                found_handles, found_handle_ptrs = self.struct_has_handles(member_type)
+                has_handles = has_handles or found_handles
+                has_handle_ptrs = has_handle_ptrs or found_handle_ptrs
+            else:
+                # Check to see if this is a handle
+                found_handle = member_category == 'handle'
+
+                # Check for Vulkan handles as well.
+                if member_type in self.handle_names:
+                    found_handle = True
+
+                # Also check to see if this is an atom
+                found_atom = False
+
+                if member_category == 'basetype':
+                    base_type = self.registry.tree.find(
+                        "types/type/[name='" + member_type
+                        + "'][@category='basetype']"
+                    )
+                    base_type_type = base_type.find('type')
+                    if base_type_type is not None and base_type_type.text is not None and base_type_type.text == 'XR_DEFINE_ATOM':
+                        found_atom = True
+
+                if found_handle or found_atom:
+                    has_handles = True
+                    if member_elem.tail and (
+                        '*' in member_elem.tail
+                    ):
+                        has_handle_ptrs = True
+
+            if has_handles and has_handle_ptrs:
+                # Nothing more to be learned
+                break
+
+        self._structs_with_handles[struct_name] = has_handles
+        self._structs_with_handle_ptrs[struct_name] = has_handle_ptrs
+        return has_handles, has_handle_ptrs

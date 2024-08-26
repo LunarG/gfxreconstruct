@@ -124,6 +124,10 @@ void UnwrapStructHandles(XrFrameEndInfo* value, HandleUnwrapMemory* unwrap_memor
 {
     if (value != nullptr)
     {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
         value->layers = UnwrapStructPtrArrayHandles(const_cast<XrCompositionLayerBaseHeader**>(value->layers), value->layerCount, unwrap_memory);
     }
 }
@@ -189,6 +193,10 @@ void UnwrapStructHandles(XrActionsSyncInfo* value, HandleUnwrapMemory* unwrap_me
 {
     if (value != nullptr)
     {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
         value->activeActionSets = UnwrapStructArrayHandles(const_cast<XrActiveActionSet*>(value->activeActionSets), value->countActiveActionSets, unwrap_memory);
     }
 }
@@ -225,6 +233,10 @@ void UnwrapStructHandles(XrCompositionLayerProjectionView* value, HandleUnwrapMe
 {
     if (value != nullptr)
     {
+        if (value->next != nullptr)
+        {
+            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
+        }
         UnwrapStructHandles(&value->subImage, unwrap_memory);
     }
 }
