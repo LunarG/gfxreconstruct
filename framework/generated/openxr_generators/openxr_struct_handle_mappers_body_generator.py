@@ -74,19 +74,10 @@ class OpenXrStructHandleMappersBodyGenerator(
             warn_file=warn_file,
             diag_file=diag_file
         )
+        BaseStructHandleMappersBodyGenerator.__init__(self)
 
-        # Map of OpenXR structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        self.pnext_structs_with_handles = dict(
-        )  # Map of OpenXR structure types to type value for structs that can be part of a next chain and contain handles.
-        self.pnext_structs = dict(
-        )  # Map of OpenXR structure types to sType value for structs that can be part of a pNext chain.
-        # List of structs containing handles that are also used as output parameters for a command
-        self.output_structs_with_handles = []
-        self.structs_with_map_data = dict()
+        self.gen_struct_replay_info = []
+        self.gen_cmd_replay_info = []
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -122,14 +113,31 @@ class OpenXrStructHandleMappersBodyGenerator(
 
     def endFile(self):
         """Method override."""
+
+        # Execute the deferred gen struct operations
+        for (typeinfo, typename, alias) in self.gen_struct_replay_info:
+            BaseGenerator.genStruct(self, typeinfo, typename, alias, True, False)
+            self.local_gen_struct(typeinfo, typename, alias)
+
+        for (cmdinfo, name, alias) in self.gen_cmd_replay_info:
+            BaseGenerator.genCmd(self, cmdinfo, name, alias, True, False)
+            self.local_gen_cmd(cmdinfo, name, alias)
+
+        # Create the struct handle mappers for all features
+        self.generate_struct_mappers(self.get_filtered_all_feature_struct_names())
+
         BaseStructHandleMappersBodyGenerator.endFile(self)
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
+        BaseGenerator.genStruct(self, typeinfo, typename, alias, False, True)
 
+        self.gen_struct_replay_info.append([typeinfo, typename, alias])
+        #self.local_gen_struct(typeinfo, typename, alias)
+
+    def local_gen_struct(self, typeinfo, typename, alias):
         if not alias:
             has_handles = self.check_struct_member_handles(
                 typename, self.structs_with_handles
@@ -147,13 +155,15 @@ class OpenXrStructHandleMappersBodyGenerator(
 
     def genCmd(self, cmdinfo, name, alias):
         """Method override."""
-        BaseGenerator.genCmd(self, cmdinfo, name, alias)
+        BaseGenerator.genCmd(self, cmdinfo, name, alias, False, True)
+        self.gen_cmd_replay_info.append([cmdinfo, name, alias])
 
+    def local_gen_cmd(self, cmdinfo, name, alias):
         # Look for output structs that contain handles and add to list
         if not alias:
             for value_info in self.feature_cmd_params[name][2]:
                 if self.is_output_parameter(value_info) and (
-                    value_info.base_type in self.get_filtered_struct_names()
+                    value_info.base_type in self.get_filtered_feature_struct_names()
                 ) and (value_info.base_type in self.structs_with_handles) and (
                     value_info.base_type
                     not in self.output_structs_with_handles
@@ -177,7 +187,3 @@ class OpenXrStructHandleMappersBodyGenerator(
         if self.feature_struct_members:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        BaseStructHandleMappersBodyGenerator.generate_feature(self)

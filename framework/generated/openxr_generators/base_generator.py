@@ -257,11 +257,6 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.code_generator = True
         self.extraOpenXrHeaders = extraOpenXrHeaders
 
-        # Not used for Vulkan
-        self.base_header_structs = dict(
-        )  # Map of base header struct names to lists of child struct names
-
-
 class BaseGenerator(OutputGenerator):
     """BaseGenerator - subclass of OutputGenerator.
     Base class providing common operations used to generate C++-language code for framework
@@ -345,13 +340,16 @@ class BaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
-            self.all_structs = list()  # List of all struct names
+            self.all_structs = list()  # List of all struct names -- filtered by blacklist. TODO: DRY this
             self.all_struct_aliases = OrderedDict(
             )  # Map of struct names to aliases
+            self.cumulative_struct_members = OrderedDict(
+            )  # Map of all struct names to lists of per-member ValueInfo cumulative for all features
             self.all_struct_members = OrderedDict(
-            )  # Map of all struct names to lists of per-member ValueInfo
+            )  # Map of all struct names to lists of per-member ValueInfo -- filtered by blacklist. TODO: DRY this
             self.base_header_structs = OrderedDict(
             )  # Map of base header struct names to lists of child struct names
+            self.struct_extends = dict() # Map of the struct this struct extends
             self.feature_struct_members = OrderedDict(
             )  # Map of per-feature struct names to lists of per-member ValueInfo
             self.feature_struct_aliases = OrderedDict(
@@ -532,7 +530,7 @@ class BaseGenerator(OutputGenerator):
                 if not name == 'XrTime':
                     self.base_types[name] = type_info
 
-    def genStruct(self, typeinfo, typename, alias):
+    def genStruct(self, typeinfo, typename, alias, supress_base_call=False, supress_local_processing=False):
         """Method override.
         Struct (e.g. C "struct" type) generation.
         This is a special case of the <type> tag where the contents are
@@ -540,7 +538,11 @@ class BaseGenerator(OutputGenerator):
         C type declarations. The <member> tags are just like <param>
         tags - they are a declaration of a struct or union member.
         """
-        OutputGenerator.genStruct(self, typeinfo, typename, alias)
+        if not supress_base_call:
+            OutputGenerator.genStruct(self, typeinfo, typename, alias)
+
+        if supress_local_processing:
+            return
 
         struct_type_enum = self.make_structure_type_enum(typeinfo, typename)
         if struct_type_enum is not None and struct_type_enum in self.enumEnumerants[
@@ -555,6 +557,11 @@ class BaseGenerator(OutputGenerator):
                     typeinfo.elem.findall('.//member')
                 )
 
+                # As feature is cleared per feature, keep running copy here
+                # NOTE: blacklist is not applied here, intentionally as data about blacklisted structs
+                #       may still be needed by non blacklisted structs
+                self.cumulative_struct_members[typename] = self.feature_struct_members[typename] 
+
                 # If this struct has a parent name, keep track of all
                 # the parents and their children
                 parent_name = typeinfo.elem.get('parentstruct')
@@ -565,6 +572,11 @@ class BaseGenerator(OutputGenerator):
                         self.base_header_structs[parent_name] = []
 
                     self.base_header_structs[parent_name].append(typename)
+                    
+
+                extended_struct = typeinfo.elem.get('structextends')
+                if extended_struct:
+                    self.struct_extends[typename] = extended_struct
             else:
                 self.feature_struct_aliases[typename] = alias
                 self.all_struct_aliases[typename] = alias
@@ -605,10 +617,12 @@ class BaseGenerator(OutputGenerator):
         """
         OutputGenerator.genEnum(self, enuminfo, name, alias)
 
-    def genCmd(self, cmdinfo, name, alias):
+    def genCmd(self, cmdinfo, name, alias, supress_base_call=False, supress_local_processing=False):
         """Method override. Command generation."""
-        OutputGenerator.genCmd(self, cmdinfo, name, alias)
-        if self.process_cmds:
+        if not supress_base_call:
+            OutputGenerator.genCmd(self, cmdinfo, name, alias)
+
+        if self.process_cmds and not supress_local_processing:
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
             proto_decl = self.genOpts.apicall + noneStr(proto.text)
@@ -915,10 +929,20 @@ class BaseGenerator(OutputGenerator):
             'ReplayDumpResources' in self.__class__.__name__
         ) else False
 
-    def get_filtered_struct_names(self):
+    def get_filtered_feature_struct_names(self):
         """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
         return [
             key for key in self.feature_struct_members
+            if not self.is_struct_black_listed(key)
+        ]
+
+    def get_filtered_struct_names(self):
+        return self.get_filtered_feature_struct_names()
+
+    def get_filtered_all_feature_struct_names(self):
+        """Retrieves a filtered list of keys from self.all_feature_struct_memebers with blacklisted items removed."""
+        return [
+            key for key in self.cumulative_struct_members
             if not self.is_struct_black_listed(key)
         ]
 
@@ -954,6 +978,10 @@ class BaseGenerator(OutputGenerator):
                 has_handle_ptrs = has_handle_ptrs or found_handle_ptrs
                 if has_handles and has_handle_ptrs:
                     break
+
+        if typename in self.struct_extends:
+            # If struct has a extends another, then its "next" has the same has_* as the parent
+                has_handles, has_handle_ptrs = self.check_struct_next_handles(self.struct_extends[typename])
 
         return has_handles, has_handle_ptrs
 

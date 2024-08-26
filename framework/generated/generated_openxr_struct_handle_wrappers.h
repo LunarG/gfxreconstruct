@@ -103,19 +103,43 @@ void UnwrapStructHandles(XrCompositionLayerCylinderKHR* value, HandleUnwrapMemor
 
 void UnwrapStructHandles(XrCompositionLayerEquirectKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrGraphicsBindingOpenGLWin32KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrGraphicsBindingOpenGLXlibKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrGraphicsBindingOpenGLXcbKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrGraphicsBindingOpenGLWaylandKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrGraphicsBindingOpenGLESAndroidKHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrGraphicsBindingVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSwapchainImageVulkanKHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrGraphicsBindingD3D11KHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrGraphicsBindingD3D12KHR* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrCompositionLayerColorScaleBiasKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerEquirect2KHR* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrSessionCreateInfoOverlayEXTX* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrSpatialAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrCompositionLayerImageLayoutFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrCompositionLayerAlphaBlendFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrGraphicsBindingEGLMNDX* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSpatialGraphStaticNodeBindingCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -126,6 +150,10 @@ void UnwrapStructHandles(XrSecondaryViewConfigurationLayerInfoMSFT* value, Handl
 void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrControllerModelKeyStateMSFT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrHolographicWindowAttachmentMSFT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrCompositionLayerSecureContentFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -161,11 +189,21 @@ void UnwrapStructHandles(XrGeometryInstanceTransformFB* value, HandleUnwrapMemor
 
 void UnwrapStructHandles(XrPassthroughStyleFB* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrPassthroughColorMapMonoToRgbaFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrPassthroughColorMapMonoToMonoFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrPassthroughBrightnessContrastSaturationFB* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrRenderModelPathInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrRenderModelPropertiesFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrRenderModelLoadInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrFrameEndInfoML* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrGlobalDimmerFrameEndInfoML* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrMarkerSpaceCreateInfoML* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -202,6 +240,12 @@ void UnwrapStructHandles(XrCompositionLayerSpaceWarpInfoFB* value, HandleUnwrapM
 void UnwrapStructHandles(XrEventDataSceneCaptureCompleteFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrCompositionLayerSettingsFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrCompositionLayerDepthTestFB* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrLocalDimmingFrameEndInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrVirtualKeyboardSpaceCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 

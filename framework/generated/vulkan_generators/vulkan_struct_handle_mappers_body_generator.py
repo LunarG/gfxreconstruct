@@ -74,17 +74,7 @@ class VulkanStructHandleMappersBodyGenerator(
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-        # Map of Vulkan structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
-        # member that contains handles).
-        self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        self.pnext_structs = dict(
-        )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
-        # List of structs containing handles that are also used as output parameters for a command
-        self.output_structs_with_handles = []
-        self.structs_with_map_data = dict()
+        BaseStructHandleMappersBodyGenerator.__init__(self)
 
     def beginFile(self, gen_opts):
         """Method override."""

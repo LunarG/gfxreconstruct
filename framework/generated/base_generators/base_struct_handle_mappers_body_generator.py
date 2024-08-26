@@ -29,7 +29,30 @@ from base_generator import write
 class BaseStructHandleMappersBodyGenerator():
     """Base class for generating struct handle mappers body code."""
 
+    def __init__(self, structs_with_handles=dict()):
+
+        # Map of structs containing handles to a list values for handle members or struct members
+        # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
+        # member that contains handles).
+        self.structs_with_handles = structs_with_handles
+
+        # TODO: Add comment
+        self.structs_with_handle_ptrs = []
+
+        # Map of structure types to type value for structs that can be part of a pNext (or next) chain and contain handles.
+        self.pnext_structs_with_handles = dict()
+
+        # Map of structure types to sType (or type) value for structs that can be part of a pNext (or next) chain.
+        self.pnext_structs = dict()
+
+        # List of structs containing handles that are also used as output parameters for a command
+        self.output_structs_with_handles = []
+
+        # TODO: Add comment
+        self.structs_with_map_data = dict()
+
     def endFile(self):
+
         platform_type = self.get_api_prefix()
         if not self.is_dx12_class():
             if platform_type == 'Vulkan':
@@ -127,16 +150,20 @@ class BaseStructHandleMappersBodyGenerator():
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        platform_type = self.get_api_prefix()
+        self.generate_struct_mappers(self.get_filtered_struct_names())
+
+    def generate_struct_mappers(self, struct_list):
+        """Performs C++ code generation for the file."""
         object_table_prefix = 'Common'
         map_types = 'Handles'
         map_table = ''
+
         if self.is_dx12_class():
             object_table_prefix = 'Dx12'
             map_types = 'Objects'
             map_table = ', const graphics::Dx12GpuVaMap& gpu_va_map'
 
-        for struct in self.get_filtered_struct_names():
+        for struct in struct_list:
             if (
                 (struct in self.structs_with_handles)
                 or (struct in self.GENERIC_HANDLE_STRUCTS)
@@ -152,11 +179,6 @@ class BaseStructHandleMappersBodyGenerator():
                     handle_members.extend(
                         self.structs_with_map_data[struct].copy()
                     )
-
-                if not self.is_dx12_class() and platform_type == 'OpenXr':
-                    for member in self.feature_struct_members[struct]:
-                        if member.name == 'next':
-                            handle_members.append(member)
 
                 if struct in self.GENERIC_HANDLE_STRUCTS:
                     generic_handle_members = self.GENERIC_HANDLE_STRUCTS[struct
