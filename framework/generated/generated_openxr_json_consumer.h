@@ -62,12 +62,6 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         format::HandleId                            instance,
         StructPointerDecoder<Decoded_XrInstanceProperties>* instanceProperties) override;
 
-    virtual void Process_xrPollEvent(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            instance,
-        StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
-
     virtual void Process_xrResultToString(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

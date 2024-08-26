@@ -134,6 +134,10 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
                                  XrResult                                            returnValue,
                                  format::HandleId                                    handTracker,
                                  StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
+    void Process_xrPollEvent(const ApiCallInfo&                               call_info,
+                             XrResult                                         returnValue,
+                             format::HandleId                                 instance,
+                             StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
 
     uint32_t submit_index_{ 0 }; // index of submissions across the trace
 

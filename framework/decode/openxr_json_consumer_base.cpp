@@ -203,6 +203,158 @@ void OpenXrExportJsonConsumerBase::Process_xrGetHandMeshFB(const ApiCallInfo& ca
     WriteBlockEnd();
 }
 
+void OpenXrExportJsonConsumerBase::Process_xrPollEvent(const ApiCallInfo&                               call_info,
+                                                       XrResult                                         returnValue,
+                                                       format::HandleId                                 instance,
+                                                       StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData)
+{
+    nlohmann::ordered_json& jdata        = WriteApiCallStart(call_info, "xrPollEvent");
+    const JsonOptions&      json_options = GetJsonOptions();
+    FieldToJson(jdata[NameReturn()], returnValue, json_options);
+    if (returnValue != XR_EVENT_UNAVAILABLE)
+    {
+        auto& args = jdata[NameArgs()];
+        HandleToJson(args["instance"], instance, json_options);
+        switch (eventData->GetPointer()->type)
+        {
+            default:
+                FieldToJson(args["eventData"], eventData, json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_EVENTS_LOST:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataEventsLost>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataInstanceLossPending>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSessionStateChanged>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataReferenceSpaceChangePending>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_PERF_SETTINGS_EXT:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataPerfSettingsEXT>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataVisibilityMaskChangedKHR>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataInteractionProfileChanged>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_MAIN_SESSION_VISIBILITY_CHANGED_EXTX:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataMainSessionVisibilityChangedEXTX>*>(
+                        eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_DISPLAY_REFRESH_RATE_CHANGED_FB:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataDisplayRefreshRateChangedFB>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpatialAnchorCreateCompleteFB>*>(
+                                eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpaceSetStatusCompleteFB>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpaceQueryResultsAvailableFB>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpaceQueryCompleteFB>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpaceSaveCompleteFB>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpaceEraseCompleteFB>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpaceShareCompleteFB>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataSpaceListSaveCompleteFB>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_VIVE_TRACKER_CONNECTED_HTCX:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataViveTrackerConnectedHTCX>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataMarkerTrackingUpdateVARJO>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_VIRTUAL_KEYBOARD_COMMIT_TEXT_META:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataVirtualKeyboardCommitTextMETA>*>(
+                                eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML:
+                FieldToJson(args["eventData"],
+                            reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataHeadsetFitChangedML>*>(eventData),
+                            json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_EYE_CALIBRATION_CHANGED_ML:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataEyeCalibrationChangedML>*>(eventData),
+                    json_options);
+                break;
+            case XR_TYPE_EVENT_DATA_LOCALIZATION_CHANGED_ML:
+                FieldToJson(
+                    args["eventData"],
+                    reinterpret_cast<StructPointerDecoder<Decoded_XrEventDataLocalizationChangedML>*>(eventData),
+                    json_options);
+                break;
+        }
+    }
+    WriteBlockEnd();
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

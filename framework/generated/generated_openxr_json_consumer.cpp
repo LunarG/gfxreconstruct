@@ -72,21 +72,6 @@ void OpenXrExportJsonConsumer::Process_xrGetInstanceProperties(
     WriteBlockEnd();
 }
 
-void OpenXrExportJsonConsumer::Process_xrPollEvent(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            instance,
-    StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrPollEvent");
-    const JsonOptions& json_options = GetJsonOptions();
-    FieldToJson(jdata[NameReturn()], returnValue, json_options);
-    auto& args = jdata[NameArgs()];
-    HandleToJson(args["instance"], instance, json_options);
-    FieldToJson(args["eventData"], eventData, json_options);
-    WriteBlockEnd();
-}
-
 void OpenXrExportJsonConsumer::Process_xrResultToString(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
