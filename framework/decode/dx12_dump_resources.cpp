@@ -1351,9 +1351,11 @@ std::vector<graphics::dx12::CommandSet> Dx12DumpResources::GetCommandListsForDum
             }
             break;
         }
-        // It has to ensure that the splited command list has a pair of BeginQuery and EndQuery.
+        // It has to ensure that the splited command list has a pair of Queries and Events.
         case format::ApiCall_ID3D12GraphicsCommandList_BeginQuery:
         case format::ApiCall_ID3D12GraphicsCommandList_EndQuery:
+        case format::ApiCall_ID3D12GraphicsCommandList_BeginEvent:
+        case format::ApiCall_ID3D12GraphicsCommandList_EndEvent:
         case format::ApiCall_ID3D12GraphicsCommandList_Close:
         {
             cmd_sets.insert(cmd_sets.end(), command_sets->begin(), command_sets->end());
