@@ -1927,7 +1927,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                     for (uint32_t i = 0; i < binding.count; ++i)
                     {
                         vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
-                            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(binding.images[i].imageView);
+                            vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(binding.images[i].imageView,
+                                                                                           false);
                         if (image_view_wrapper != nullptr)
                         {
                             auto img_view_desc_entry = image_view_wrapper->descriptor_sets_bound_to.find(wrapper);
@@ -1953,7 +1954,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                         for (uint32_t i = 0; i < binding.count; ++i)
                         {
                             vulkan_wrappers::SamplerWrapper* sampler_wrapper =
-                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(binding.images[i].sampler);
+                                vulkan_wrappers::GetWrapper<vulkan_wrappers::SamplerWrapper>(binding.images[i].sampler,
+                                                                                             false);
                             if (sampler_wrapper != nullptr)
                             {
                                 auto desc_entry = sampler_wrapper->descriptor_sets_bound_to.find(wrapper);
@@ -1977,7 +1979,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                 {
                     vulkan_wrappers::ImageViewWrapper* image_view_wrapper =
                         vulkan_wrappers::GetWrapper<vulkan_wrappers::ImageViewWrapper>(
-                            binding.storage_images[i].imageView);
+                            binding.storage_images[i].imageView, false);
                     if (image_view_wrapper != nullptr)
                     {
                         auto img_view_desc_entry = image_view_wrapper->descriptor_sets_bound_to.find(wrapper);
@@ -2012,7 +2014,8 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                 {
                     vulkan_wrappers::BufferViewWrapper* buf_view_wrapper =
                         vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferViewWrapper>(
-                            is_storage ? binding.storage_texel_buffer_views[i] : binding.uniform_texel_buffer_views[i]);
+                            is_storage ? binding.storage_texel_buffer_views[i] : binding.uniform_texel_buffer_views[i],
+                            false);
                     if (buf_view_wrapper != nullptr)
                     {
                         auto view_entry = buf_view_wrapper->descriptor_sets_bound_to.find(wrapper);
@@ -2049,7 +2052,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                 {
                     vulkan_wrappers::BufferWrapper* buf_wrapper =
                         vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(
-                            is_storage ? binding.storage_buffers[i].buffer : binding.buffers[i].buffer);
+                            is_storage ? binding.storage_buffers[i].buffer : binding.buffers[i].buffer, false);
                     if (buf_wrapper != nullptr)
                     {
                         auto entry = buf_wrapper->descriptor_sets_bound_to.find(wrapper);
@@ -2071,7 +2074,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::DescriptorSetWrapper* wra
                 {
                     vulkan_wrappers::AccelerationStructureKHRWrapper* accel_wrapper =
                         vulkan_wrappers::GetWrapper<vulkan_wrappers::AccelerationStructureKHRWrapper>(
-                            binding.acceleration_structures[i]);
+                            binding.acceleration_structures[i], false);
                     if (accel_wrapper != nullptr)
                     {
                         auto entry = accel_wrapper->descriptor_sets_bound_to.find(wrapper);
