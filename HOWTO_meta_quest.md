@@ -174,13 +174,9 @@ enable the GFXReconstruct layer only for the application using the global
 settings:
 
 ```bash
-adb shell
-
-(logs into device)
-
-settings put global enable_gpu_debug_layers 1
-settings put global gpu_debug_app com.facebook.igl.shell.openxr.vulkan
-settings put global gpu_debug_layers "VK_LAYER_LUNARG_gfxreconstruct"
+adb shell "settings put global enable_gpu_debug_layers 1"
+adb shell "settings put global gpu_debug_app com.facebook.igl.shell.openxr.vulkan"
+adb shell "settings put global gpu_debug_layers 'VK_LAYER_LUNARG_gfxreconstruct'"
 ```
 
 ### 4. Set the Capture Options
@@ -189,27 +185,48 @@ Now, set the command to capture frames 1-100 so we can see what's happening
 and write the file to the `/sdcard/Download` folder:
 
 ```bash
-adb shell
-
-(logs into device)
-
-setprop debug.gfxrecon.capture_file  '/sdcard/Download/openxr_capture.gfxr'
-setprop debug.gfxrecon.capture_frames '1-30'
+adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/openxr_capture.gfxr'"
+adb shell "setprop debug.gfxrecon.capture_frames '1-500'"
 ```
 
 More capture options can be found in the [USAGE_android.md](./USAGE_android.md)
 under the [Capture Options](./USAGE_android.md#capture-options) section.
 
-### 5. Re-Run the Application
+### 5. Disable Re-Entrant Cases
+
+By default, GFXReconstruct attempts to filter out what we call "re-entrant"
+calls, it may still happen.
+A "re-entrant" call is when the application calls the OpenXR runtime, which
+then creates some graphics API commands (for example Vulkan commands) to
+perform some additional work like composition.
+If the application is also capturing Vulkan commands with GFXReconstruct
+these commands would show up, but shouldn't because they are not part of
+what is intended to be recorded.
+To avoid this, we disable recording any calls while an OpenXR command is
+in the process of being recorded and executed.
+However, some calls may continue to occur outside of these OpenXR calls.
+In some cases, the OpenXR runtime may have a separate thread waiting on
+VkFences that were triggered during an OpenXR call.
+These additional fences would be completely unknown to GFXR because they
+would have been created and used initially outside of its view.
+Therefore, we need to disable recording any Vulkan commands that have
+content we don't recognize.
+This is done by setting the following option:
+
+```bash
+adb shell "setprop debug.gfxrecon.skip_threads_with_invalid_data  '1'"
+```
+
+### 6. Run the Application
 
 Repeat the steps from section 2. above.
 
 This time, however, you should see a generated capture file after exiting the
 application in the `/sdcard/Download` folder called
-`openxr_capture_frames_1_to_30.gfxr` since you have selected to save
+`openxr_capture_frames_1_to_500.gfxr` since you have selected to save
 only some of the frames.
 
-### 6. Verify the capture file
+### 7. Verify the capture file
 
 Check that the above file exists:
 
@@ -217,7 +234,7 @@ Check that the above file exists:
 adb shell ls /sdcard/Download/openxr_capture*.gfxr
 ```
 
-### 7. Disable the capture layer
+### 8. Disable the capture layer
 
 Disable the capture layer globally and also restore the Vulkan usage of the
 HWUI:
@@ -268,12 +285,12 @@ Run the replay using the `gfxrecon.py` script:
 
 ```bash
 python3 android\\scripts\\gfxrecon.py replay \
-     /sdcard/Download/openxr_capture_frames_1_through_30_20240812T132918.gfxr
+     /sdcard/Download/openxr_capture_frames_1_through_500_20240812T132918.gfxr
 ```
 
-Replacing "openxr_capture_frames_1_through_30_20240812T132918.gfxr" with
+Replacing "openxr_capture_frames_1_through_500_20240812T132918.gfxr" with
 the name of the most recent capture file discovered when performing step
-[6. Verify the capture file](#6-verify-the-capture-file) above.
+[7. Verify the capture file](#7-verify-the-capture-file) above.
 
 
 ## Capturing the Replay Content

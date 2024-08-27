@@ -1270,6 +1270,54 @@ class VulkanCaptureManager : public ApiCaptureManager
                                           const VkAllocationCallbacks*    pAllocator,
                                           VkShaderModule*                 pShaderModule);
 
+#if ENABLE_OPENXR_SUPPORT
+
+    // Track which fences are valid by seeing which ones are created in the
+    // threads we're tracking.  Since we disable re-entrant command tracking
+    // (i.e. OpenXR runtime using Vulkan commands) we may have not see
+    // fence creation but we still may encounter fences being used that we
+    // don't know about.  Because of this, we will not record those and we will
+    // also stop tracking the content of those threads once we've encountered
+    // this situation.
+    inline void AddValidFence(VkFence fence)
+    {
+        if (fence != VK_NULL_HANDLE && common_manager_->IsCaptureModeWrite())
+        {
+            valid_fences_.push_back(fence);
+        }
+    }
+
+    inline void RemoveValidFence(VkFence fence)
+    {
+        if (fence != VK_NULL_HANDLE)
+        {
+            valid_fences_.erase(std::remove(valid_fences_.begin(), valid_fences_.end(), fence), valid_fences_.end());
+        }
+    }
+
+    inline bool IsValidFence(VkFence fence)
+    {
+        if (fence == VK_NULL_HANDLE)
+        {
+            return true;
+        }
+        return std::find(valid_fences_.begin(), valid_fences_.end(), fence) != valid_fences_.end();
+    }
+
+    inline bool AreAllValidFences(uint32_t count, const VkFence* fences)
+    {
+        for (uint32_t fence = 0; fence < count; ++fence)
+        {
+            if (!IsValidFence(fences[fence]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+#endif // ENABLE_OPENXR_SUPPORT
+
 #if defined(__ANDROID__)
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
@@ -1354,6 +1402,10 @@ class VulkanCaptureManager : public ApiCaptureManager
     std::unique_ptr<VulkanStateTracker>             state_tracker_;
     HardwareBufferMap                               hardware_buffers_;
     std::mutex                                      deferred_operation_mutex;
+
+#if ENABLE_OPENXR_SUPPORT
+    std::vector<VkFence> valid_fences_;
+#endif
 };
 
 GFXRECON_END_NAMESPACE(encode)

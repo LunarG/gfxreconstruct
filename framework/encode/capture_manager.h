@@ -41,7 +41,9 @@
 #include <cassert>
 #include <mutex>
 #include <optional>
+#include <set>
 #include <shared_mutex>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -90,10 +92,9 @@ class CommonCaptureManager
         thread_data->handle_unwrap_memory_.Reset();
         return &thread_data->handle_unwrap_memory_;
     }
-
     ParameterEncoder* BeginTrackedApiCallCapture(format::ApiCallId call_id)
     {
-        if (capture_mode_ != kModeDisabled)
+        if (!IsCaptureModeDisabled())
         {
             return InitApiCallCapture(call_id);
         }
@@ -103,9 +104,54 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginApiCallCapture(format::ApiCallId call_id)
     {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        if (IsCaptureModeWrite())
         {
-            return InitApiCallCapture(call_id);
+
+#if ENABLE_OPENXR_SUPPORT
+            if (IsCaptureSkippingCurrentThread())
+            {
+                uint32_t            call_id_uint = static_cast<uint32_t>(call_id);
+                format::ApiFamilyId family  = static_cast<format::ApiFamilyId>(format::GetApiCallFamily(call_id_uint));
+                std::string         message = "Skipping ";
+
+                switch (family)
+                {
+                    default:
+                        break;
+                    case format::ApiFamily_Vulkan:
+                        message += "Vulkan ";
+                        break;
+                    case format::ApiFamily_Dxgi:
+                        message += "Dxgi ";
+                        break;
+                    case format::ApiFamily_D3D12:
+                        message += "D3D12 ";
+                        break;
+                    case format::ApiFamily_AGS:
+                        message += "AGS ";
+                        break;
+                    case format::ApiFamily_D3D11:
+                        message += "D3D11 ";
+                        break;
+                    case format::ApiFamily_D3D11On12:
+                        message += "D3D11On12 ";
+                        break;
+                    case format::ApiFamily_OpenXR:
+                        message += "OpenXR ";
+                        break;
+                }
+                std::stringstream stream;
+                stream << std::hex << call_id_uint;
+                message += "ApiCall ID 0x";
+                message += stream.str();
+                message += " because it occurred in a thread with invalid data";
+                WriteDisplayMessageCmd(family, message.c_str());
+            }
+            else
+#endif // ENABLE_OPENXR_SUPPORT
+            {
+                return InitApiCallCapture(call_id);
+            }
         }
 
         return nullptr;
@@ -113,7 +159,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginTrackedMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
-        if (capture_mode_ != kModeDisabled)
+        if (!IsCaptureModeDisabled())
         {
             return InitMethodCallCapture(call_id, object_id);
         }
@@ -123,7 +169,7 @@ class CommonCaptureManager
 
     ParameterEncoder* BeginMethodCallCapture(format::ApiCallId call_id, format::HandleId object_id)
     {
-        if ((capture_mode_ & kModeWrite) == kModeWrite)
+        if (IsCaptureModeWrite())
         {
             return InitMethodCallCapture(call_id, object_id);
         }
@@ -176,11 +222,15 @@ class CommonCaptureManager
     auto GetForceCommandSerialization() const { return force_command_serialization_; }
     auto GetQueueZeroOnly() const { return queue_zero_only_; }
     auto GetAllowPipelineCompileRequired() const { return allow_pipeline_compile_required_; }
-
     bool     IsAnnotated() const { return rv_annotation_info_.rv_annotation; }
     uint16_t GetGPUVAMask() const { return rv_annotation_info_.gpuva_mask; }
     uint16_t GetDescriptorMask() const { return rv_annotation_info_.descriptor_mask; }
     uint64_t GetShaderIDMask() const { return rv_annotation_info_.shaderid_mask; }
+
+    auto GetSkipThreadsWithInvalidData() const
+    {
+        return skip_threads_with_invalid_data_;
+    }
 
     uint64_t GetBlockIndex()
     {
@@ -224,6 +274,28 @@ class CommonCaptureManager
 
         std::vector<uint8_t>& GetScratchBuffer() { return scratch_buffer_; }
 
+#if ENABLE_OPENXR_SUPPORT
+        void EnableSkipCurrentThreadInFuture()
+        {
+            // If not already in the list, add this thread ID to the list of IDs we
+            // will skip content for.
+            if (skip_threads_.find(thread_id_) == skip_threads_.end())
+            {
+                GFXRECON_LOG_INFO("WriteToFile: Adding thread 0x%x to skip list", thread_id_);
+                skip_threads_.insert(thread_id_);
+            }
+        }
+
+        bool SkipCurrentThread() const
+        {
+            if (skip_threads_.find(thread_id_) != skip_threads_.end())
+            {
+                return true;
+            }
+            return false;
+        }
+#endif
+
       public:
         const format::ThreadId                   thread_id_;
         format::ApiCallId                        call_id_;
@@ -245,11 +317,18 @@ class CommonCaptureManager
       private:
         // Used for combining multiple buffers for a single file write.
         std::vector<uint8_t> scratch_buffer_;
+
+#if ENABLE_OPENXR_SUPPORT
+        // Used to skip threads we have determined have bad data
+        std::set<format::ThreadId> skip_threads_;
+#endif
     };
 
     ThreadData* GetThreadData();
     bool        IsCaptureModeTrack() const;
     bool        IsCaptureModeWrite() const;
+    bool        IsCaptureModeDisabled() const;
+    bool        IsCaptureSkippingCurrentThread() const;
 
     void DestroyInstance(ApiCaptureManager* singleton);
 
@@ -401,6 +480,7 @@ class CommonCaptureManager
     bool                                    queue_zero_only_;
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
+    bool                                    skip_threads_with_invalid_data_;
 
     struct
     {

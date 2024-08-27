@@ -19,7 +19,14 @@
     "vkCreateComputePipelines",
     "vkCreateGraphicsPipelines",
     "vkCreateRayTracingPipelinesNV",
-    "vkCreateRayTracingPipelinesKHR"
+    "vkCreateRayTracingPipelinesKHR",
+    "vkCreateFence",
+    "vkDestroyFence",
+    "vkResetFences",
+    "vkGetFenceStatus",
+    "vkWaitForFences",
+    "vkImportFenceWin32HandleKHR",
+    "vkImportFenceFdKHR"
   ],
   "functions-decoder": [
     "vkDeferredOperationJoinKHR"

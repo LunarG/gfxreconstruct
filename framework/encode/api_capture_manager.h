@@ -51,6 +51,8 @@ class ApiCaptureManager
     format::ApiFamilyId GetApiFamily() const { return api_family_; }
     bool                IsCaptureModeTrack() const { return common_manager_->IsCaptureModeTrack(); }
     bool                IsCaptureModeWrite() const { return common_manager_->IsCaptureModeWrite(); }
+    bool                IsCaptureModeDisabled() const { return common_manager_->IsCaptureModeDisabled(); }
+    bool IsCaptureSkippingCurrentThread() const { return common_manager_->IsCaptureSkippingCurrentThread(); }
 
     bool IsPageGuardMemoryModeDisabled() const
     {
@@ -149,6 +151,7 @@ class ApiCaptureManager
     auto GetForceCommandSerialization() const { return common_manager_->GetForceCommandSerialization(); }
     auto GetQueueZeroOnly() const { return common_manager_->GetQueueZeroOnly(); }
     auto GetAllowPipelineCompileRequired() const { return common_manager_->GetAllowPipelineCompileRequired(); }
+    auto GetSkipThreadsWithInvalidData() const { return common_manager_->GetSkipThreadsWithInvalidData(); }
 
     bool     IsAnnotated() const { return common_manager_->IsAnnotated(); }
     uint16_t GetGPUVAMask() const { return common_manager_->GetGPUVAMask(); }
@@ -172,7 +175,7 @@ class ApiCaptureManager
     uint32_t                          GetCurrentFrame() const { return common_manager_->GetCurrentFrame(); }
     CommonCaptureManager::CaptureMode GetCaptureMode() const { return common_manager_->GetCaptureMode(); }
     void SetCaptureMode(CommonCaptureManager::CaptureMode mode) { common_manager_->SetCaptureMode(mode); }
-    bool                              GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
+    bool GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
     bool GetDebugDeviceLostSetting() const { return common_manager_->GetDebugDeviceLostSetting(); }
     bool GetDisableDxrSetting() const { return common_manager_->GetDisableDxrSetting(); }
     auto GetAccelStructPaddingSetting() const { return common_manager_->GetAccelStructPaddingSetting(); }

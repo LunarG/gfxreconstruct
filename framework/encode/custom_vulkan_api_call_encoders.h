@@ -24,6 +24,7 @@
 #ifndef GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
 #define GFXRECON_ENCODE_CUSTOM_VULKAN_API_CALL_ENCODERS_H
 
+#include "format/platform_types.h"
 #include "util/defines.h"
 #include "format/format.h"
 
@@ -92,6 +93,25 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRayTracingPipelinesKHR(VkDevice            
                                                             const VkRayTracingPipelineCreateInfoKHR* pCreateInfos,
                                                             const VkAllocationCallbacks*             pAllocator,
                                                             VkPipeline*                              pPipelines);
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateFence(VkDevice                     device,
+                                           const VkFenceCreateInfo*     pCreateInfo,
+                                           const VkAllocationCallbacks* pAllocator,
+                                           VkFence*                     pFence);
+
+VKAPI_ATTR void VKAPI_CALL DestroyFence(VkDevice device, VkFence fence, const VkAllocationCallbacks* pAllocator);
+
+VKAPI_ATTR VkResult VKAPI_CALL ResetFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(VkDevice device, VkFence fence);
+
+VKAPI_ATTR VkResult VKAPI_CALL
+WaitForFences(VkDevice device, uint32_t fenceCount, const VkFence* pFences, VkBool32 waitAll, uint64_t timeout);
+
+VKAPI_ATTR VkResult VKAPI_CALL
+ImportFenceWin32HandleKHR(VkDevice device, const VkImportFenceWin32HandleInfoKHR* pImportFenceWin32HandleInfo);
+
+VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(VkDevice device, const VkImportFenceFdInfoKHR* pImportFenceFdInfo);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
