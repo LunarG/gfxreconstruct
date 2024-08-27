@@ -1453,10 +1453,10 @@ bool VulkanReplayConsumerBase::GetOverrideDevice(InstanceInfo* instance_info, Ph
 
         if (replay_device_info->properties == std::nullopt)
         {
-            auto table = GetInstanceTable(physical_device_info->handle);
-            assert(table != nullptr);
-            replay_device_info->properties = VkPhysicalDeviceProperties();
-            table->GetPhysicalDeviceProperties(physical_device_info->handle, &replay_device_info->properties.value());
+            graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                                  GetInstanceTable(physical_device_info->handle),
+                                                                  physical_device_info->handle,
+                                                                  replay_device_info);
         }
 
         std::string replay_device_name = replay_device_info->properties->deviceName;
@@ -1539,12 +1539,10 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(InstanceInfo*             
 
             if (replay_device_info->properties == std::nullopt)
             {
-                auto table = GetInstanceTable(physical_device_info->handle);
-                assert(table != nullptr);
-
-                replay_device_info->properties = VkPhysicalDeviceProperties();
-                table->GetPhysicalDeviceProperties(physical_device_info->handle,
-                                                   &replay_device_info->properties.value());
+                graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                                      GetInstanceTable(physical_device_info->handle),
+                                                                      physical_device_info->handle,
+                                                                      replay_device_info);
             }
 
             std::string replay_device_name = replay_device_info->properties->deviceName;
@@ -1588,8 +1586,10 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
 
     if (replay_device_info->properties == std::nullopt)
     {
-        replay_device_info->properties = VkPhysicalDeviceProperties();
-        table->GetPhysicalDeviceProperties(physical_device_info->handle, &replay_device_info->properties.value());
+        graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                              GetInstanceTable(physical_device_info->handle),
+                                                              physical_device_info->handle,
+                                                              replay_device_info);
     }
 
     if ((physical_device_info->capture_vendor_id != replay_device_info->properties->vendorID) ||
@@ -1603,25 +1603,26 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
         // intercept calls to vkEnumeratePhysicalDevices before the list of physical devices is modified, while
         // replay receives the modified list.  So, we check for a match before logical device creation to ensure
         // capture and replay use the same physical device when both are performed on the same system.
-        for (auto& [physical_device, info] : instance_info->replay_device_info)
+        for (auto& [physical_device, replay_info] : instance_info->replay_device_info)
         {
             // Skip the current physical device, which we already know is not a match.
             if (physical_device != current_device)
             {
-                if (info.properties == std::nullopt)
+                if (replay_info.properties == std::nullopt)
                 {
-                    info.properties = VkPhysicalDeviceProperties();
-                    table->GetPhysicalDeviceProperties(physical_device, &info.properties.value());
+                    graphics::VulkanDeviceUtil::GetReplayDeviceProperties(
+                        physical_device_info->parent_api_version,
+                        GetInstanceTable(physical_device_info->handle),
+                        physical_device_info->handle,
+                        &replay_info);
                 }
 
-//                replay_properties = entry.second.properties.get();
-
-                if ((physical_device_info->capture_vendor_id == info.properties->vendorID) ||
-                    (physical_device_info->capture_device_id == info.properties->deviceID))
+                if ((physical_device_info->capture_vendor_id == replay_info.properties->vendorID) ||
+                    (physical_device_info->capture_device_id == replay_info.properties->deviceID))
                 {
                     // A match has been found.
                     physical_device_info->handle             = physical_device;
-                    physical_device_info->replay_device_info = &info;
+                    physical_device_info->replay_device_info = &replay_info;
                     break;
                 }
             }
@@ -1708,7 +1709,7 @@ void VulkanReplayConsumerBase::CheckPhysicalDeviceCompatibility(PhysicalDeviceIn
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
-    const auto &replay_properties = replay_device_info->properties;
+    const auto& replay_properties = replay_device_info->properties;
 
     // Warn about potential incompatibilities when replay device type does not match capture device type.
     if ((physical_device_info->capture_vendor_id != 0) && (physical_device_info->capture_device_id != 0) &&
