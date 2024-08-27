@@ -294,7 +294,8 @@ class PageGuardManager
     static std::atomic<bool>     is_uffd_handler_thread_running_;
     static std::atomic<bool>     stop_uffd_handler_thread_;
     std::unique_ptr<uint8_t[]>   uffd_page_size_tmp_buff_;
-    std::unordered_set<uint64_t> uffd_fault_causing_threads;
+    std::unordered_set<uint64_t> uffd_fault_causing_threads_;
+    std::mutex                   thread_set_mutex_;
 #endif
 
     bool     InitializeUserFaultFd();
