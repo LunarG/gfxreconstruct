@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -313,11 +313,16 @@ void Dx12StateTracker::TrackResourceGpuVa(ID3D12Resource_Wrapper* resource_wrapp
 
 void Dx12StateTracker::TrackCommandListCreation(ID3D12CommandList_Wrapper* list_wrapper,
                                                 bool                       created_closed,
-                                                D3D12_COMMAND_LIST_TYPE    command_list_type)
+                                                D3D12_COMMAND_LIST_TYPE    command_list_type,
+                                                ID3D12CommandAllocator*    pCommandAllocator)
 {
+    auto cmd_alloc_wrapper       = reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(pCommandAllocator);
+
     auto list_info               = list_wrapper->GetObjectInfo();
     list_info->is_closed         = created_closed;
     list_info->command_list_type = command_list_type;
+    list_info->create_command_allocator_id   = GetDx12WrappedId(pCommandAllocator);
+    list_info->create_command_allocator_info = cmd_alloc_wrapper->GetObjectInfo();
 }
 
 void Dx12StateTracker::TrackDescriptorCreation(ID3D12Device_Wrapper*           create_object_wrapper,
