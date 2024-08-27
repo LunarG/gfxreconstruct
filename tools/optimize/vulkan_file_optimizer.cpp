@@ -91,6 +91,9 @@ bool VulkanFileOptimizer::ProcessFunctionCall(const format::BlockHeader& block_h
     // This vector owns new call data to be inserted before currently processed call
     std::vector<std::unique_ptr<util::CallModifierBase::NewCallData>> new_pre_calls;
 
+    // This vector owns new call data to be inserted after currently processed call
+    std::vector<std::unique_ptr<util::CallModifierBase::NewCallData>> new_post_calls;
+
     for (auto& modifier : optimization_data_->modifiers)
     {
         modifier->SetParameterBuffer(&buffer);
@@ -101,6 +104,7 @@ bool VulkanFileOptimizer::ProcessFunctionCall(const format::BlockHeader& block_h
         decoder.RemoveConsumer(modifier.get());
         delete_current_call |= modifier->GetDeleteCurrentCall();
         modifier->AppendPreCalls(new_pre_calls);
+        modifier->AppendPostCalls(new_post_calls);
     }
 
     for (auto& new_call : new_pre_calls)
@@ -113,7 +117,10 @@ bool VulkanFileOptimizer::ProcessFunctionCall(const format::BlockHeader& block_h
         WriteFunctionCall(call_id, call_info.thread_id, &buffer);
     }
 
-    // TODO: Write buffer with calls to add post current call
+    for (auto& new_call : new_post_calls)
+    {
+        WriteFunctionCall(new_call->call_id, new_call->thread_id, &(new_call->parameter_buffer));
+    }
 
     return success;
 }

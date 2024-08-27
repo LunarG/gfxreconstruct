@@ -55,6 +55,16 @@ class CallModifierBase
         new_pre_calls_.clear();
     }
 
+    // Move new call data to the end of input vector
+    // The source data becomes invalid and its container is cleared
+    virtual void AppendPostCalls(std::vector<std::unique_ptr<NewCallData>>& post_calls)
+    {
+        post_calls.insert(post_calls.end(),
+                          std::make_move_iterator(new_post_calls_.begin()),
+                          std::make_move_iterator(new_post_calls_.end()));
+        new_post_calls_.clear();
+    }
+
     virtual bool GetDeleteCurrentCall()
     {
         bool result = delete_current_call;
@@ -72,6 +82,12 @@ class CallModifierBase
         return new_pre_calls_.back().get();
     }
 
+    NewCallData* CreatePostCall()
+    {
+        new_post_calls_.push_back(std::make_unique<NewCallData>());
+        return new_post_calls_.back().get();
+    }
+
     // Points to parameter buffer that can be modified
     encode::ParameterBuffer* parameter_buffer_ = nullptr;
 
@@ -80,6 +96,9 @@ class CallModifierBase
 
     // Vector of new calls to add before currently processed call
     std::vector<std::unique_ptr<NewCallData>> new_pre_calls_;
+
+    // Vector of new calls to add before currently processed call
+    std::vector<std::unique_ptr<NewCallData>> new_post_calls_;
 };
 
 GFXRECON_END_NAMESPACE(util)
