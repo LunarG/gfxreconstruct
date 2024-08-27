@@ -34,7 +34,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
-std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
+std::vector<UintRange> GetUintRanges(const char* args, const char* option_name, bool include_frame_zero)
 {
     std::vector<UintRange> ranges;
 
@@ -118,7 +118,7 @@ std::vector<UintRange> GetUintRanges(const char* args, const char* option_name)
             }
 
             // Check for invalid start range.
-            if (uint_range.first == 0)
+            if (uint_range.first == 0 && !include_frame_zero)
             {
                 GFXRECON_LOG_WARNING(
                     "Ignoring invalid range \"%s\" for %s, with range start equal to zero", range.c_str(), option_name);
