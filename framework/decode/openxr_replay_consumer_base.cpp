@@ -652,11 +652,13 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
     XrResult replay_result;
 
     // WIP: Put this constant somewhere interesting
-    const uint32_t kRetryLimit = 10000;
-    uint32_t       retry_count = 0;
+    const uint32_t kRetryLimit      = 10000;
+    const int64_t  kMaxSleepLimitNs = 500000000; // 500ms
+    uint32_t       retry_count      = 0;
 
     if (out_eventData && capture_event)
     {
+        int64_t sleep_time = 1;
         do
         {
             *out_eventData = XrEventDataBuffer{ XR_TYPE_EVENT_DATA_BUFFER };
@@ -685,10 +687,27 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
                         received_events_.erase(received_events_.begin(), received_events_.begin() + 100);
                     }
                 }
-                else
+                else if (replay_result == XR_EVENT_UNAVAILABLE)
                 {
                     // Yield and retry
-                    std::this_thread::sleep_for(std::chrono::nanoseconds(1));
+                    std::this_thread::sleep_for(std::chrono::nanoseconds(sleep_time));
+
+                    if (sleep_time < kMaxSleepLimitNs)
+                    {
+                        // Next time, sleep for double what we initially slept for.  This way if we're just
+                        // spinning, we spin less and less each time.
+                        sleep_time *= 2;
+                    }
+                    // Clamp it to the max (should stay here from this point forward)
+                    if (sleep_time > kMaxSleepLimitNs)
+                    {
+                        sleep_time = kMaxSleepLimitNs;
+                    }
+                }
+                else
+                {
+                    GFXRECON_LOG_ERROR("xrPollEvent encountered an error of type 0x%x", replay_result);
+                    break;
                 }
             }
         } while ((retry_count < kRetryLimit) && capture_event->type != out_eventData->type);
