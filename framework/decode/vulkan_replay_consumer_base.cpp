@@ -7845,11 +7845,36 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
             "device does not support this feature, so replay may fail.");
     }
 
-    VkDevice   device      = device_info->handle;
-    VkPipeline pipeline    = pipeline_info->handle;
-    uint8_t*   output_data = pData->GetOutputPointer();
+    VkDevice       device        = device_info->handle;
+    VkPipeline     pipeline      = pipeline_info->handle;
+    uint8_t*       output_data   = pData->GetOutputPointer();
+    const uint8_t* captured_data = pData->GetPointer();
+    VkResult       result        = func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
 
-    return func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
+    if (result == VK_SUCCESS)
+    {
+        auto physical_device_info = GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
+
+        // in practice: always 32 bytes
+        uint32_t capture_handle_size = physical_device_info->shaderGroupHandleSize;
+        uint32_t replay_handle_size =
+            physical_device_info->replay_device_info->raytracing_properties->shaderGroupHandleSize;
+
+        // make a map of capture-time group handles to handles we just got back in replay
+        for (int group = 0; group < groupCount; group++)
+        {
+            auto                            captured_handle_begin = captured_data + group * capture_handle_size;
+            graphics::shader_group_handle_t capture_handle        = { captured_handle_begin, capture_handle_size };
+
+            auto                            replay_handle_begin = output_data + group * replay_handle_size;
+            graphics::shader_group_handle_t replay_handle       = { replay_handle_begin, replay_handle_size };
+
+            auto& shader_group_handle_map =
+                GetObjectInfoTable().GetPipelineInfo(pipeline_info->capture_id)->shader_group_handle_map;
+            shader_group_handle_map[capture_handle] = replay_handle;
+        }
+    }
+    return result;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesANDROID(

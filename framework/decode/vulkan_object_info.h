@@ -30,7 +30,9 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_shader_group_handle.h"
 #include "util/defines.h"
+#include "util/hash.h"
 
 #include "vulkan/vulkan.h"
 
@@ -265,8 +267,8 @@ struct PhysicalDeviceInfo : public VulkanObjectInfo<VkPhysicalDevice>
 
     // capture raytracing shader-binding-table properties
     // extracted from VkPhysicalDeviceRayTracingPipelinePropertiesKHR
-    uint32_t shaderGroupHandleSize = 0;
-    uint32_t shaderGroupBaseAlignment = 0;
+    uint32_t shaderGroupHandleSize      = 0;
+    uint32_t shaderGroupBaseAlignment   = 0;
     uint32_t shaderGroupHandleAlignment = 0;
 
     // Closest matching replay device.
@@ -471,6 +473,9 @@ struct PipelineInfo : public VulkanObjectInfoAsync<VkPipeline>
 
     // Is VK_DYNAMIC_STATE_VERTEX_INPUT_BINDING_STRIDE_EXT enabled
     bool dynamic_vertex_binding_stride{ false };
+
+    // map capture- to replay-time shader-group-handles
+    std::unordered_map<graphics::shader_group_handle_t, graphics::shader_group_handle_t> shader_group_handle_map;
 };
 
 struct DescriptorPoolInfo : public VulkanPoolInfo<VkDescriptorPool>

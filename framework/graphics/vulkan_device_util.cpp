@@ -251,11 +251,7 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(uint32_t                       
     VkPhysicalDeviceProperties2 device_properties2;
     device_properties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 
-    auto get_props2_fn = instance_api_version >= VK_MAKE_VERSION(1, 1, 0)
-                             ? instance_table->GetPhysicalDeviceProperties2
-                             : instance_table->GetPhysicalDeviceProperties2KHR;
-
-    if (get_props2_fn != nullptr)
+    if (instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
     {
         // pNext-chaining
         VkPhysicalDeviceRayTracingPipelinePropertiesKHR raytracing_properties;
@@ -263,7 +259,7 @@ void VulkanDeviceUtil::GetReplayDeviceProperties(uint32_t                       
         raytracing_properties.pNext = nullptr;
         device_properties2.pNext    = &raytracing_properties;
 
-        get_props2_fn(physical_device, &device_properties2);
+        instance_table->GetPhysicalDeviceProperties2(physical_device, &device_properties2);
         replay_device_info->raytracing_properties = raytracing_properties;
     }
     else

@@ -61,6 +61,40 @@ Type GenerateCheckSum(const uint8_t* code, size_t code_size)
     return current_sum;
 }
 
+/**
+ * @brief       hash_combine can be used to combine two hashes.
+ *
+ * @tparam  T       value template-type
+ * @param   seed    a provided reference to a seed. will be combined with the newly created value-hash.
+ * @param   v       a provided value
+ */
+template <class T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
+}
+
+/**
+ * @brief       hash_range can be used to create hash-values for arbitrary ranges.
+ *              requires an existing std::hash overload for the range's element-type.
+ *
+ * @tparam It   iterator template-type
+ * @param first iterator to the beginning of a range
+ * @param last  iterator to the end of the same range
+ * @return      a newly created hash-value for the entire range.
+ */
+template <typename It>
+std::size_t hash_range(It first, It last)
+{
+    std::size_t seed = 0;
+    for (; first != last; ++first)
+    {
+        hash_combine(seed, *first);
+    }
+    return seed;
+}
+
 GFXRECON_END_NAMESPACE(hash)
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)
