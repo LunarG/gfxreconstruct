@@ -149,6 +149,11 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                     format::HandleId                                           swapchain,
                                     StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
 
+    virtual void Process_xrEndFrame(const ApiCallInfo&                            call_info,
+                                    XrResult                                      returnValue,
+                                    format::HandleId                              session,
+                                    StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo) override;
+
     void Process_xrLocateHandJointsEXT(const ApiCallInfo&                                       call_info,
                                        XrResult                                                 returnValue,
                                        format::HandleId                                         handTracker,

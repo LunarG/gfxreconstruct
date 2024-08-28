@@ -105,6 +105,7 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrPollEvent',
             'xrCreateSwapchain',
             'xrReleaseSwapchainImage',
+            'xrEndFrame',
             'xrLocateHandJointsEXT',
             'xrGetHandMeshFB',
         ]

@@ -501,21 +501,6 @@ void OpenXrReplayConsumer::Process_xrBeginFrame(
     CustomProcess<format::ApiCallId::ApiCall_xrBeginFrame>::UpdateState(this, call_info, returnValue, session, frameBeginInfo, replay_result);
 }
 
-void OpenXrReplayConsumer::Process_xrEndFrame(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            session,
-    StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo)
-{
-    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
-    const XrFrameEndInfo* in_frameEndInfo = frameEndInfo->GetPointer();
-    MapStructHandles(frameEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
-
-    XrResult replay_result = GetInstanceTable(in_session)->EndFrame(in_session, in_frameEndInfo);
-    CheckResult("xrEndFrame", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrEndFrame>::UpdateState(this, call_info, returnValue, session, frameEndInfo, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrLocateViews(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
