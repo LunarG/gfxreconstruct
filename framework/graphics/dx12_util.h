@@ -35,6 +35,8 @@
 #include <comdef.h>
 #include <d3d12.h>
 #include <dxgi1_4.h>
+#include <d3d12shader.h>
+#include <dxcapi.h>
 #include <vector>
 #include <unordered_map>
 #include <map>
@@ -69,6 +71,12 @@ typedef _com_ptr_t<
     _com_IIID<ID3D12VersionedRootSignatureDeserializer, &__uuidof(ID3D12VersionedRootSignatureDeserializer)>>
                                                                      ID3D12VersionedRootSignatureDeserializerComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12Object, &__uuidof(ID3D12Object)>> ID3D12ObjectComPtr;
+typedef _com_ptr_t<_com_IIID<IDxcUtils, &__uuidof(IDxcUtils)>>       IDxcUtilsComPtr;
+typedef _com_ptr_t<_com_IIID<IDxcContainerReflection, &__uuidof(IDxcContainerReflection)>>
+                                                                             IDxcContainerReflectionComPtr;
+typedef _com_ptr_t<_com_IIID<IDxcBlobEncoding, &__uuidof(IDxcBlobEncoding)>> IDxcBlobEncodingComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12LibraryReflection, &__uuidof(ID3D12LibraryReflection)>>
+    ID3D12LibraryReflectionComPtr;
 
 struct ActiveAdapterInfo
 {
