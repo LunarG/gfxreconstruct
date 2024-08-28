@@ -710,6 +710,7 @@ def make_gen_opts(args):
             extra_skip_cmds=[
                 'xrPollEvent',
                 'xrCreateSwapchain',
+                'xrReleaseSwapchainImage',
                 'xrLocateHandJointsEXT',
                 'xrGetHandMeshFB',
             ]
