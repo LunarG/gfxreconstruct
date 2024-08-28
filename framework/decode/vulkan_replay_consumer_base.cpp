@@ -1610,11 +1610,10 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
             {
                 if (replay_info.properties == std::nullopt)
                 {
-                    graphics::VulkanDeviceUtil::GetReplayDeviceProperties(
-                        physical_device_info->parent_api_version,
-                        GetInstanceTable(physical_device_info->handle),
-                        physical_device_info->handle,
-                        &replay_info);
+                    graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                                          GetInstanceTable(physical_device),
+                                                                          physical_device,
+                                                                          &replay_info);
                 }
 
                 if ((physical_device_info->capture_vendor_id == replay_info.properties->vendorID) ||

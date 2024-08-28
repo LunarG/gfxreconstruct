@@ -62,7 +62,9 @@ Type GenerateCheckSum(const uint8_t* code, size_t code_size)
 }
 
 /**
- * @brief       hash_combine can be used to combine two hashes.
+ * @brief       hash_combine can be used to create a hash-value and combine with an existing hash-value.
+ *
+ * Called repeatedly to incrementally create a hash value from several variables.
  *
  * @tparam  T       value template-type
  * @param   seed    a provided reference to a seed. will be combined with the newly created value-hash.
@@ -77,7 +79,8 @@ inline void hash_combine(std::size_t& seed, const T& v)
 
 /**
  * @brief       hash_range can be used to create hash-values for arbitrary ranges.
- *              requires an existing std::hash overload for the range's element-type.
+ *
+ * Requires an existing std::hash overload for the range's element-type.
  *
  * @tparam It   iterator template-type
  * @param first iterator to the beginning of a range

@@ -32,7 +32,6 @@
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_shader_group_handle.h"
 #include "util/defines.h"
-#include "util/hash.h"
 
 #include "vulkan/vulkan.h"
 
