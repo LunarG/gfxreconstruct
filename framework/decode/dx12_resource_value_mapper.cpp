@@ -1,5 +1,5 @@
 /*
-** Copyright (c) 2022 LunarG, Inc.
+** Copyright (c) 2022-2024 LunarG, Inc.
 ** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
@@ -26,6 +26,13 @@
 #include "decode/custom_dx12_struct_decoders.h"
 #include "decode/dx12_experimental_resource_value_tracker.h"
 #include "decode/dx12_object_mapping_util.h"
+
+#if defined(GFXRECON_DXC_SUPPORT)
+#include <d3d12shader.h>
+#include <dxcapi.h>
+#endif
+
+#include <codecvt>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -139,6 +146,30 @@ void CopyMappedResourceValuesFromSrcToDst(std::map<uint64_t, T>&                
         auto dst_offset = (src_iter->first - copy_info.src_offset) + copy_info.dst_offset;
         dst[dst_offset] = src_iter->second;
     }
+}
+
+std::string DemangleDxilExportName(const std::string& mangled_name)
+{
+    size_t demangled_name_start = mangled_name.find_first_of("?");
+    size_t demangled_name_end   = mangled_name.find_first_of("@");
+
+    std::string demangled_name = "";
+    if (demangled_name_start != std::string::npos && demangled_name_end != std::string::npos)
+    {
+        // The char after '?' is the first char of the unmangled name so increment start pos.
+        ++demangled_name_start;
+        demangled_name = mangled_name.substr(demangled_name_start, demangled_name_end - demangled_name_start);
+    }
+
+    if (!demangled_name.empty())
+    {
+        GFXRECON_LOG_DEBUG("Found demangled DXIL export name '%s'.", demangled_name.c_str());
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Failed to demangle DXIL export name '%s'.", mangled_name.c_str());
+    }
+    return demangled_name;
 }
 
 } // namespace
@@ -1690,7 +1721,8 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
         }
         else if (subobject_type == D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY)
         {
-            // TODO: Parse local root signatures and their shader associations from the DXIL library.
+            // TODO: DXIL libraries can also contain local root signature definitions as well as subobject associations.
+            // That information should be parsed here as well to ensure correct LRS handling.
             GFXRECON_LOG_DEBUG_ONCE("A state object is being created with a DXIL library subobject. Some usages of "
                                     "DXIL library subobjects may not be fully supported by GFXR replay.");
 
@@ -1699,10 +1731,90 @@ void Dx12ResourceValueMapper::GetStateObjectLrsAssociationInfo(
             auto num_exports           = dxil_lib_desc_decoder->GetPointer()->NumExports;
             if (num_exports == 0)
             {
-                // TODO: Parse the names of all shaders exported from the DXIL library.
+#if defined(GFXRECON_DXC_SUPPORT)
+                // If D3D12_DXIL_LIBRARY_DESC::NumExports == 0, everything in the DXIL library is exported. Use
+                // reflection to get the list of exported shader names.
+                HRESULT                         hr;
+                graphics::dx12::IDxcUtilsComPtr dxc_utils = nullptr;
+                hr                                        = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(&dxc_utils));
+                if (SUCCEEDED(hr))
+                {
+                    graphics::dx12::IDxcContainerReflectionComPtr dxc_container_reflection = nullptr;
+                    DxcCreateInstance(CLSID_DxcContainerReflection, IID_PPV_ARGS(&dxc_container_reflection));
+                    if (SUCCEEDED(hr))
+                    {
+                        // Create a DXC blob from the DXIL library's bytes.
+                        graphics::dx12::IDxcBlobEncodingComPtr dxc_blob_encoding;
+                        hr = dxc_utils->CreateBlobFromPinned(
+                            dxil_lib_desc_decoder->GetPointer()->DXILLibrary.pShaderBytecode,
+                            dxil_lib_desc_decoder->GetPointer()->DXILLibrary.BytecodeLength,
+                            DXC_CP_ACP,
+                            &dxc_blob_encoding);
+                        if (SUCCEEDED(hr))
+                        {
+                            // Load the DXIL library blob into the container reflection object.
+                            hr = dxc_container_reflection->Load(dxc_blob_encoding);
+                            if (SUCCEEDED(hr))
+                            {
+                                // Get the DXIL library reflection object.
+                                UINT32 dxil_part;
+                                hr = dxc_container_reflection->FindFirstPartKind(DXC_PART_DXIL, &dxil_part);
+                                if (SUCCEEDED(hr))
+                                {
+                                    graphics::dx12::ID3D12LibraryReflectionComPtr library_reflection;
+                                    hr = dxc_container_reflection->GetPartReflection(dxil_part,
+                                                                                     IID_PPV_ARGS(&library_reflection));
+                                    if (SUCCEEDED(hr))
+                                    {
+                                        // Parse all exported function/shader names from the DXIL library.
+                                        D3D12_LIBRARY_DESC library_desc;
+                                        hr = library_reflection->GetDesc(&library_desc);
+                                        if (SUCCEEDED(hr))
+                                        {
+                                            for (UINT i = 0; i < library_desc.FunctionCount; i++)
+                                            {
+                                                // The pointer returned by GetFunctionByIndex is owned by the
+                                                // ID3D12LibraryReflection object and does not need to be memory managed
+                                                // in this scope.
+                                                ID3D12FunctionReflection* function_reflection =
+                                                    library_reflection->GetFunctionByIndex(i);
+
+                                                D3D12_FUNCTION_DESC function_desc;
+                                                hr = function_reflection->GetDesc(&function_desc);
+                                                if (SUCCEEDED(hr))
+                                                {
+                                                    // Export names are mangled so parse the unmangled name.
+                                                    auto function_name = DemangleDxilExportName(function_desc.Name);
+                                                    if (!function_name.empty())
+                                                    {
+                                                        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>>
+                                                            converter;
+                                                        export_names.insert(converter.from_bytes(function_name));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (FAILED(hr))
+                {
+                    GFXRECON_LOG_WARNING("Failed to parse shader exports from the DXIL subobject. Shader ID to LRS "
+                                         "associations may be incorrect.");
+                }
+#else  // GFXRECON_DXC_SUPPORT
+                GFXRECON_LOG_WARNING_ONCE(
+                    "GFXReconstruct was built without DirectX Shader Compiler support and cannot parse the exports "
+                    "from DXIL_LIBRARY subobjects. This may lead to incorrect DXR behavior. To fix this, be sure that "
+                    "the DXC depedency is successfully found during CMake project configuration.");
+#endif // GFXRECON_DXC_SUPPORT
             }
             else
             {
+                // Get the shader names specified explicitly in the D3D12_DXIL_LIBRARY_DESC.
                 for (UINT j = 0; j < num_exports; ++j)
                 {
                     export_names.insert(dxil_lib_desc_decoder->GetMetaStructPointer()
