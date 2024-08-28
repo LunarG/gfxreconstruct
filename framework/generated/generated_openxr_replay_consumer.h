@@ -212,12 +212,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         format::HandleId                            swapchain,
         StructPointerDecoder<Decoded_XrSwapchainImageWaitInfo>* waitInfo) override;
 
-    virtual void Process_xrReleaseSwapchainImage(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            swapchain,
-        StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
-
     virtual void Process_xrBeginSession(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

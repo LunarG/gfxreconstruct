@@ -432,20 +432,6 @@ void OpenXrReplayConsumer::Process_xrWaitSwapchainImage(
     CustomProcess<format::ApiCallId::ApiCall_xrWaitSwapchainImage>::UpdateState(this, call_info, returnValue, swapchain, waitInfo, replay_result);
 }
 
-void OpenXrReplayConsumer::Process_xrReleaseSwapchainImage(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            swapchain,
-    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo)
-{
-    XrSwapchain in_swapchain = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
-    const XrSwapchainImageReleaseInfo* in_releaseInfo = releaseInfo->GetPointer();
-
-    XrResult replay_result = GetInstanceTable(in_swapchain)->ReleaseSwapchainImage(in_swapchain, in_releaseInfo);
-    CheckResult("xrReleaseSwapchainImage", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrReleaseSwapchainImage>::UpdateState(this, call_info, returnValue, swapchain, releaseInfo, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrBeginSession(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,

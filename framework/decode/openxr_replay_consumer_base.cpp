@@ -810,6 +810,38 @@ void OpenXrReplayConsumerBase::UpdateState_xrEnumerateSwapchainImages(
     }
 }
 
+void OpenXrReplayConsumerBase::UpdateState_xrAcquireSwapchainImage(
+    const ApiCallInfo&                                         call_info,
+    XrResult                                                   returnValue,
+    format::HandleId                                           swapchain,
+    StructPointerDecoder<Decoded_XrSwapchainImageAcquireInfo>* acquireInfo,
+    PointerDecoder<uint32_t>*                                  index,
+    XrResult                                                   replay_result)
+{
+    XrSwapchain in_swapchain  = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
+    uint32_t    capture_index = *index->GetPointer();
+    uint32_t    out_index     = *index->GetOutputPointer();
+
+    auto& swapchain_data = GetSwapchainData(in_swapchain);
+    replay_result        = swapchain_data.AcquireSwapchainImage(capture_index, out_index);
+}
+
+void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
+    const ApiCallInfo&                                         call_info,
+    XrResult                                                   returnValue,
+    format::HandleId                                           swapchain,
+    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo)
+{
+    XrSwapchain in_swapchain = MapHandle<OpenXrSwapchainInfo>(swapchain, &CommonObjectInfoTable::GetXrSwapchainInfo);
+    const XrSwapchainImageReleaseInfo* in_releaseInfo = releaseInfo->GetPointer();
+
+    auto& swapchain_data = GetSwapchainData(in_swapchain);
+    swapchain_data.ReleaseSwapchainImage(releaseInfo);
+
+    XrResult replay_result = GetInstanceTable(in_swapchain)->ReleaseSwapchainImage(in_swapchain, in_releaseInfo);
+    CheckResult("xrReleaseSwapchainImage", returnValue, replay_result, call_info);
+}
+
 void* OpenXrReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
                                                          format::ApiCallId call_id,
                                                          const char*       call_name)

@@ -136,6 +136,19 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                                 StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images,
                                                 XrResult replay_result);
 
+    void UpdateState_xrAcquireSwapchainImage(const ApiCallInfo&                                         call_info,
+                                             XrResult                                                   returnValue,
+                                             format::HandleId                                           swapchain,
+                                             StructPointerDecoder<Decoded_XrSwapchainImageAcquireInfo>* acquireInfo,
+                                             PointerDecoder<uint32_t>*                                  index,
+                                             XrResult                                                   replay_result);
+
+    void
+    Process_xrReleaseSwapchainImage(const ApiCallInfo&                                         call_info,
+                                    XrResult                                                   returnValue,
+                                    format::HandleId                                           swapchain,
+                                    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
+
     void Process_xrLocateHandJointsEXT(const ApiCallInfo&                                       call_info,
                                        XrResult                                                 returnValue,
                                        format::HandleId                                         handTracker,
@@ -591,6 +604,16 @@ struct CustomProcess<format::ApiCallId::ApiCall_xrEnumerateSwapchainImages>
     static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
     {
         consumer->UpdateState_xrEnumerateSwapchainImages(args...);
+    }
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrAcquireSwapchainImage(args...);
     }
 };
 
