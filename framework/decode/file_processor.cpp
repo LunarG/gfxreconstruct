@@ -1985,6 +1985,13 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
             {
                 std::string filename = ApplyAbsolutePath(filename_c_str);
 
+                // Check for self references
+                if (!filename.compare(file_stack_.top().filename))
+                {
+                    GFXRECON_LOG_WARNING(
+                        "ExecuteBlocksFromFile is referencing itself. Probably this is not intentional.");
+                }
+
                 success = OpenFile(filename);
                 if (success)
                 {
