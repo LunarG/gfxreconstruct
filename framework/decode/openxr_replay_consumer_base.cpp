@@ -842,6 +842,33 @@ void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
     CheckResult("xrReleaseSwapchainImage", returnValue, replay_result, call_info);
 }
 
+void OpenXrReplayConsumerBase::Process_xrEndFrame(const ApiCallInfo&                            call_info,
+                                                  XrResult                                      returnValue,
+                                                  format::HandleId                              session,
+                                                  StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo)
+{
+    XrSession             in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    const XrFrameEndInfo* in_frameEndInfo = frameEndInfo->GetPointer();
+    MapStructHandles(frameEndInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    XrFrameEndInfo replay_frame_end_info = *in_frameEndInfo;
+    SessionData&   session_data          = GetSessionData(in_session);
+
+    // The display time must be based on the time given by the runtime at replay time, as the recorded diplayTime
+    // may not be a valid time at replay.
+    //
+    // A first approximation of this is simply using the XrFrameState::predictedDisplayTime
+    //
+    // NOTE: A closer approximation of the capture would be having the displayTime be at the same offset of
+    // the replay predictedDisplayTime, as the recorded displayTime has from the recorded predictedDisplayTime.
+    replay_frame_end_info.displayTime    = session_data.GetDisplayTime();
+
+    XrResult replay_result = GetInstanceTable(in_session)->EndFrame(in_session, &replay_frame_end_info);
+    CheckResult("xrEndFrame", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrEndFrame>::UpdateState(
+        this, call_info, returnValue, session, frameEndInfo, replay_result);
+}
+
 void* OpenXrReplayConsumerBase::PreProcessExternalObject(uint64_t          object_id,
                                                          format::ApiCallId call_id,
                                                          const char*       call_name)

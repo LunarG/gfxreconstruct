@@ -711,6 +711,7 @@ def make_gen_opts(args):
                 'xrPollEvent',
                 'xrCreateSwapchain',
                 'xrReleaseSwapchainImage',
+                'xrEndFrame',
                 'xrLocateHandJointsEXT',
                 'xrGetHandMeshFB',
             ]

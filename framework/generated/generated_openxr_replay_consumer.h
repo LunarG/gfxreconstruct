@@ -241,12 +241,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         format::HandleId                            session,
         StructPointerDecoder<Decoded_XrFrameBeginInfo>* frameBeginInfo) override;
 
-    virtual void Process_xrEndFrame(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            session,
-        StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo) override;
-
     virtual void Process_xrLocateViews(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
