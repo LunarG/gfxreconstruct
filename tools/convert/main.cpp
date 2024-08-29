@@ -180,10 +180,10 @@ int main(int argc, const char** argv)
     bool detected_vulkan = false;
     gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
 
-    if (detected_d3d12)
+    if (!detected_vulkan)
     {
         GFXRECON_LOG_INFO(
-            "Capture file contains D3D12 content but gfxrecon-convert is not compiled with D3D12 support.");
+            "Capture file does not contain Vulkan content.  D3D12 content may be present but gfxrecon-convert is not compiled with D3D12 support.");
         goto exit;
     }
 #endif
