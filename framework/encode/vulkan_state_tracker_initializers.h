@@ -648,6 +648,17 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
+
+    auto next = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
+    while (next)
+    {
+        if (next->sType == VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID)
+        {
+            auto external_format_android = reinterpret_cast<const VkExternalFormatANDROID*>(next);
+            wrapper->external_format     = external_format_android->externalFormat;
+        }
+        next = next->pNext;
+    }
 }
 
 template <>

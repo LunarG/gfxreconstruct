@@ -358,6 +358,8 @@ struct ImageInfo : public VulkanObjectInfo<VkImage>
     VkImageUsageFlags     usage{ 0 };
     VkImageType           type{};
     VkFormat              format{};
+    // VkExternalFormatANDROID
+    uint64_t              external_format{ 0 };
     VkExtent3D            extent{ 0, 0, 0 };
     VkImageTiling         tiling{};
     VkSampleCountFlagBits sample_count{};

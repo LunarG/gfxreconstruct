@@ -83,6 +83,7 @@ class VulkanResourcesUtil
     // Return value is the total size of the image.
     uint64_t GetImageResourceSizesOptimal(VkImage                image,
                                           VkFormat               format,
+                                          uint64_t               external_format,
                                           VkImageType            type,
                                           const VkExtent3D&      extent,
                                           uint32_t               mip_levels,
@@ -100,6 +101,7 @@ class VulkanResourcesUtil
     // GetImageResourceSizesOptimal()
     VkResult ReadFromImageResourceStaging(VkImage                image,
                                           VkFormat               format,
+                                          uint64_t               external_format,
                                           VkImageType            type,
                                           const VkExtent3D&      extent,
                                           uint32_t               mip_levels,

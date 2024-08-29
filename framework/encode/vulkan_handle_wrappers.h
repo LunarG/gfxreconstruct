@@ -211,6 +211,8 @@ struct ImageWrapper : public HandleWrapper<VkImage>
     uint32_t                 queue_family_index{ 0 };
     VkImageType              image_type{ VK_IMAGE_TYPE_2D };
     VkFormat                 format{ VK_FORMAT_UNDEFINED };
+    // VkExternalFormatANDROID
+    uint64_t                 external_format{ 0 };
     VkExtent3D               extent{ 0, 0, 0 };
     uint32_t                 mip_levels{ 0 };
     uint32_t                 array_layers{ 0 };

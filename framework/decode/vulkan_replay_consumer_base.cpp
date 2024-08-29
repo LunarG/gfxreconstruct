@@ -4921,6 +4921,13 @@ VulkanReplayConsumerBase::OverrideCreateImage(PFN_vkCreateImage                 
         {
             image_info->queue_family_index = 0;
         }
+
+        auto external_format_android = graphics::GetPNextStruct<VkExternalFormatANDROID, VkImageCreateInfo>(
+            replay_create_info, VK_STRUCTURE_TYPE_EXTERNAL_FORMAT_ANDROID);
+        if (external_format_android)
+        {
+            image_info->external_format = external_format_android->externalFormat;
+        }
     }
 
     return result;
