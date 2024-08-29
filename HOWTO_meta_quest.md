@@ -154,19 +154,7 @@ of the Android tools (such as ADB)
 adb logcat -s IGL vulkan VulkanLoader VulkanLoaderAndroid OpenXR OpenXR-Loader gfxrecon
 ```
 
-### 2. Install and Run the Application
-
- 1. Open Android Studio
- 2. Connect the headset to your development machine using a USB plug
-    a. Make sure the headset is detected by Android Stduio
- 3. Select the headset in the target
- 4. Make sure "app-openxr-vulkan" is selected
- 5. Press the "Play" triangle to run
-    a. You may have to first select to enable commands from the host system on the headset
-
-This shows that you can run the application on the target.
-
-### 3. Enable GFXReconstruct
+### 2. Enable GFXReconstruct
 
 Using the ADB installed from the Meta Quest Developer Hub
 ("C:\Program Files\Meta Quest Developer Hub\resources\bin\adb.exe" on some systems),
@@ -174,14 +162,18 @@ enable the GFXReconstruct layer only for the application using the global
 settings:
 
 ```bash
+
 adb shell "settings put global enable_gpu_debug_layers 1"
 adb shell "settings put global gpu_debug_app com.facebook.igl.shell.openxr.vulkan"
 adb shell "settings put global gpu_debug_layers 'VK_LAYER_LUNARG_gfxreconstruct'"
 ```
 
-### 4. Set the Capture Options
+NOTE: You can also just log into `adb shell` and execute the commands as they
+appear in the quotes if that is easier for you.
 
-Now, set the command to capture frames 1-100 so we can see what's happening
+### 3. Set the Capture Options
+
+Now, set the command to capture frames 1-500 so we can see what's happening
 and write the file to the `/sdcard/Download` folder:
 
 ```bash
@@ -189,10 +181,23 @@ adb shell "setprop debug.gfxrecon.capture_file  '/sdcard/Download/openxr_capture
 adb shell "setprop debug.gfxrecon.capture_frames '1-500'"
 ```
 
-More capture options can be found in the [USAGE_android.md](./USAGE_android.md)
-under the [Capture Options](./USAGE_android.md#capture-options) section.
+#### Disable Timestamp on capture file
 
-### 5. Disable Re-Entrant Cases
+By default, in order to avoid conflicting capture file names, GFXR will add
+a timestamp onto the end of the capture file, such as:
+
+```bash
+/sdcard/Download/openxr_capture_frames_1_through_500_20240812T132918.gfxr
+```
+
+If you find GFXR adding the timestamp on the end of the capture file to be
+problematic, you can disable that with the following:
+
+```bash
+adb shell "setprop debug.gfxrecon.capture_file_timestamp 0"
+```
+
+#### Disable Re-Entrant Cases
 
 By default, GFXReconstruct attempts to filter out what we call "re-entrant"
 calls, it may still happen.
@@ -217,7 +222,24 @@ This is done by setting the following option:
 adb shell "setprop debug.gfxrecon.skip_threads_with_invalid_data  '1'"
 ```
 
-### 6. Run the Application
+#### Additional Options
+
+More capture options can be found in the [USAGE_android.md](./USAGE_android.md)
+under the [Capture Options](./USAGE_android.md#capture-options) section.
+
+### 4. Install and Run the Application
+
+ 1. Open Android Studio
+ 2. Connect the headset to your development machine using a USB plug
+    a. Make sure the headset is detected by Android Stduio
+ 3. Select the headset in the target
+ 4. Make sure "app-openxr-vulkan" is selected
+ 5. Press the "Play" triangle to run
+    a. You may have to first select to enable commands from the host system on the headset
+
+This shows that you can run the application on the target.
+
+### 5. Run the Application
 
 Repeat the steps from section 2. above.
 
@@ -226,7 +248,7 @@ application in the `/sdcard/Download` folder called
 `openxr_capture_frames_1_to_500.gfxr` since you have selected to save
 only some of the frames.
 
-### 7. Verify the capture file
+### 6. Verify the capture file
 
 Check that the above file exists:
 
@@ -234,13 +256,14 @@ Check that the above file exists:
 adb shell ls /sdcard/Download/openxr_capture*.gfxr
 ```
 
-### 8. Disable the capture layer
+### 7. Disable the capture layer
 
 Disable the capture layer globally and also restore the Vulkan usage of the
 HWUI:
 
 ```bash
 adb shell "setprop debug.vulkan.layers ''"
+adb shell "settings put global gpu_debug_app ''"
 adb shell "settings put global gpu_debug_layers ''"
 ```
 
@@ -290,7 +313,7 @@ python3 android\\scripts\\gfxrecon.py replay \
 
 Replacing "openxr_capture_frames_1_through_500_20240812T132918.gfxr" with
 the name of the most recent capture file discovered when performing step
-[7. Verify the capture file](#7-verify-the-capture-file) above.
+[6. Verify the capture file](#6-verify-the-capture-file) above.
 
 
 ## Capturing the Replay Content
