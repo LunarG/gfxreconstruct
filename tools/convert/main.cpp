@@ -33,13 +33,17 @@
 #include "generated/generated_vulkan_json_consumer.h"
 #include "decode/marker_json_consumer.h"
 #include "decode/metadata_json_consumer.h"
+#if defined(D3D12_SUPPORT)
 #include "generated/generated_dx12_json_consumer.h"
+#endif
 
 using gfxrecon::util::JsonFormat;
 using VulkanJsonConsumer = gfxrecon::decode::MetadataJsonConsumer<
     gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::VulkanExportJsonConsumer>>;
+#if defined(D3D12_SUPPORT)
 using Dx12JsonConsumer =
     gfxrecon::decode::MetadataJsonConsumer<gfxrecon::decode::MarkerJsonConsumer<gfxrecon::decode::Dx12JsonConsumer>>;
+#endif
 const char kOptions[] = "-h|--help,--version,--no-debug-popup,--file-per-frame,--include-binaries,--expand-flags";
 
 const char kArguments[] = "--output,--format";
@@ -171,6 +175,17 @@ int main(int argc, const char** argv)
 
     gfxrecon::decode::FileProcessor file_processor;
 
+#ifndef D3D12_SUPPORT 
+    bool detected_d3d12  = false;
+    bool detected_vulkan = false;
+    gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
+
+    if (detected_d3d12)
+    {
+        GFXRECON_LOG_INFO("Capture file contains D3D12 content but gfxrecon-convert is not compiled with D3D12 support.");
+        goto exit;
+    }
+#endif
     if (file_per_frame && output_to_stdout)
     {
         GFXRECON_LOG_WARNING("Outputting a file per frame is not consistent with outputting to stdout.");
@@ -235,6 +250,8 @@ int main(int argc, const char** argv)
             json_consumer.Initialize(&json_writer, vulkan_version);
             json_writer.StartStream(&out_stream);
 
+            // If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
+#ifdef D3D12_SUPPORT
             Dx12JsonConsumer              dx12_json_consumer;
             gfxrecon::decode::Dx12Decoder dx12_decoder;
 
@@ -243,6 +260,7 @@ int main(int argc, const char** argv)
             auto dx12_json_flags = output_format == JsonFormat::JSON ? gfxrecon::util::kToString_Formatted
                                                                      : gfxrecon::util::kToString_Unformatted;
             dx12_json_consumer.Initialize(&json_writer);
+#endif
 
             while (success)
             {
@@ -268,7 +286,10 @@ int main(int argc, const char** argv)
                 }
             }
             json_consumer.Destroy();
+            // If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
+#ifdef D3D12_SUPPORT
             dx12_json_consumer.Destroy();
+#endif
             if (!output_to_stdout)
             {
                 gfxrecon::util::platform::FileClose(out_file_handle);
