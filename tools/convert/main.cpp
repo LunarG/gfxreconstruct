@@ -175,14 +175,15 @@ int main(int argc, const char** argv)
 
     gfxrecon::decode::FileProcessor file_processor;
 
-#ifndef D3D12_SUPPORT 
+#ifndef D3D12_SUPPORT
     bool detected_d3d12  = false;
     bool detected_vulkan = false;
     gfxrecon::decode::DetectAPIs(input_filename, detected_d3d12, detected_vulkan);
 
     if (detected_d3d12)
     {
-        GFXRECON_LOG_INFO("Capture file contains D3D12 content but gfxrecon-convert is not compiled with D3D12 support.");
+        GFXRECON_LOG_INFO(
+            "Capture file contains D3D12 content but gfxrecon-convert is not compiled with D3D12 support.");
         goto exit;
     }
 #endif
