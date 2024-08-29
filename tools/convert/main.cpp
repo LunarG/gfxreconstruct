@@ -182,8 +182,8 @@ int main(int argc, const char** argv)
 
     if (!detected_vulkan)
     {
-        GFXRECON_LOG_INFO(
-            "Capture file does not contain Vulkan content.  D3D12 content may be present but gfxrecon-convert is not compiled with D3D12 support.");
+        GFXRECON_LOG_INFO("Capture file does not contain Vulkan content.  D3D12 content may be present but "
+                          "gfxrecon-convert is not compiled with D3D12 support.");
         goto exit;
     }
 #endif
