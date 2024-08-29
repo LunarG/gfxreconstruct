@@ -685,8 +685,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             expr += indent + '{\n'
             indent = self.increment_indent(indent)
 
-            if class_name.startswith("IDXGISwapChain"
-                                     ) and method_name.startswith("Present"):
+            if (class_name.startswith("IDXGISwapChain") and method_name.startswith("Present")) or (
+                class_name == "ID3D12GraphicsCommandList4" and method_name == "BuildRaytracingAccelerationStructure") or (
+                    class_name == "ID3D12GraphicsCommandList4" and method_name == "CopyRaytracingAccelerationStructure"):
                 expr += indent + 'auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();\n'
             else:
                 expr += indent + 'auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();\n'

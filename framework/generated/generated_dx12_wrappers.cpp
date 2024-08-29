@@ -22961,17 +22961,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
 
     if (call_scope == 1)
     {
-        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-        if (force_command_serialization)
-        {
-            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
-        }
-        else
-        {
-            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
-        }
+        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
 
         std::unique_ptr<D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC> pDesc_unannotated = nullptr;
         std::unique_ptr<D3D12_RAYTRACING_GEOMETRY_DESC[]> pDesc_dependency = nullptr;
@@ -23106,17 +23096,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
 
     if (call_scope == 1)
     {
-        auto force_command_serialization = D3D12CaptureManager::Get()->GetForceCommandSerialization();
-        std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
-        std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
-        if (force_command_serialization)
-        {
-            exclusive_api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
-        }
-        else
-        {
-            shared_api_call_lock = D3D12CaptureManager::AcquireSharedApiCallLock();
-        }
+        auto api_call_lock = D3D12CaptureManager::AcquireExclusiveApiCallLock();
 
         RvAnnotationUtil::RemoveRvAnnotation(DestAccelerationStructureData);
 
