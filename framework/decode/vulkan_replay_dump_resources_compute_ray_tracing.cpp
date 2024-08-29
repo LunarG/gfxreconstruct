@@ -152,8 +152,8 @@ VkResult DispatchTraceRaysDumpingContext::CloneCommandBuffer(CommandBufferInfo* 
     parent_device = device_info->handle;
 
     assert(phys_dev_info->replay_device_info);
-    assert(phys_dev_info->replay_device_info->memory_properties.get());
-    replay_device_phys_mem_props = phys_dev_info->replay_device_info->memory_properties.get();
+    assert(phys_dev_info->replay_device_info->memory_properties);
+    replay_device_phys_mem_props = &phys_dev_info->replay_device_info->memory_properties.value();
 
     return VK_SUCCESS;
 }

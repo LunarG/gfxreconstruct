@@ -1288,10 +1288,45 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*  
     CheckReplayDeviceInfo(physical_device_info);
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
+    replay_device_info->properties = *replay_properties;
+}
 
-    if (replay_device_info->properties == nullptr)
+void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*                physical_device_info,
+                                                           const VkPhysicalDeviceProperties2* capture_properties,
+                                                           const VkPhysicalDeviceProperties2* replay_properties)
+{
+    SetPhysicalDeviceProperties(physical_device_info, &capture_properties->properties, &replay_properties->properties);
+
+    auto get_ray_properties =
+        [](const VkPhysicalDeviceProperties2* device_props) -> const VkPhysicalDeviceRayTracingPipelinePropertiesKHR* {
+        if (device_props != nullptr)
+        {
+            const void* pNext = device_props->pNext;
+
+            while (pNext != nullptr)
+            {
+                auto base = reinterpret_cast<const VkBaseInStructure*>(pNext);
+                if (base->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR)
+                {
+                    return reinterpret_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(base);
+                }
+                pNext = base->pNext;
+            }
+        }
+        return nullptr;
+    };
+
+    if (auto ray_capture_props = get_ray_properties(capture_properties))
     {
-        replay_device_info->properties = std::make_unique<VkPhysicalDeviceProperties>(*replay_properties);
+        physical_device_info->shaderGroupBaseAlignment   = ray_capture_props->shaderGroupBaseAlignment;
+        physical_device_info->shaderGroupHandleAlignment = ray_capture_props->shaderGroupHandleAlignment;
+        physical_device_info->shaderGroupHandleSize      = ray_capture_props->shaderGroupHandleSize;
+    }
+
+    if (auto ray_replay_props = get_ray_properties(replay_properties))
+    {
+        physical_device_info->replay_device_info->raytracing_properties        = *ray_replay_props;
+        physical_device_info->replay_device_info->raytracing_properties->pNext = nullptr;
     }
 }
 
@@ -1310,11 +1345,7 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceMemoryProperties(
     CheckReplayDeviceInfo(physical_device_info);
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
-
-    if (replay_device_info->memory_properties == nullptr)
-    {
-        replay_device_info->memory_properties = std::make_unique<VkPhysicalDeviceMemoryProperties>(*replay_properties);
-    }
+    replay_device_info->memory_properties = *replay_properties;
 }
 
 void VulkanReplayConsumerBase::SelectPhysicalDevice(PhysicalDeviceInfo* physical_device_info)
@@ -1420,13 +1451,12 @@ bool VulkanReplayConsumerBase::GetOverrideDevice(InstanceInfo* instance_info, Ph
         VkPhysicalDevice replay_device      = replay_devices[i];
         auto             replay_device_info = &instance_info->replay_device_info[replay_device];
 
-        if (replay_device_info->properties == nullptr)
+        if (replay_device_info->properties == std::nullopt)
         {
-            auto table = GetInstanceTable(physical_device_info->handle);
-            assert(table != nullptr);
-
-            replay_device_info->properties = std::make_unique<VkPhysicalDeviceProperties>();
-            table->GetPhysicalDeviceProperties(physical_device_info->handle, replay_device_info->properties.get());
+            graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                                  GetInstanceTable(physical_device_info->handle),
+                                                                  physical_device_info->handle,
+                                                                  replay_device_info);
         }
 
         std::string replay_device_name = replay_device_info->properties->deviceName;
@@ -1507,13 +1537,12 @@ bool VulkanReplayConsumerBase::GetOverrideDeviceGroup(InstanceInfo*             
             auto replay_device      = replay_group_prop.physicalDevices[j];
             auto replay_device_info = &instance_info->replay_device_info[replay_device];
 
-            if (replay_device_info->properties == nullptr)
+            if (replay_device_info->properties == std::nullopt)
             {
-                auto table = GetInstanceTable(physical_device_info->handle);
-                assert(table != nullptr);
-
-                replay_device_info->properties = std::make_unique<VkPhysicalDeviceProperties>();
-                table->GetPhysicalDeviceProperties(physical_device_info->handle, replay_device_info->properties.get());
+                graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                                      GetInstanceTable(physical_device_info->handle),
+                                                                      physical_device_info->handle,
+                                                                      replay_device_info);
             }
 
             std::string replay_device_name = replay_device_info->properties->deviceName;
@@ -1555,16 +1584,16 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
-    if (replay_device_info->properties == nullptr)
+    if (replay_device_info->properties == std::nullopt)
     {
-        replay_device_info->properties = std::make_unique<VkPhysicalDeviceProperties>();
-        table->GetPhysicalDeviceProperties(physical_device_info->handle, replay_device_info->properties.get());
+        graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                              GetInstanceTable(physical_device_info->handle),
+                                                              physical_device_info->handle,
+                                                              replay_device_info);
     }
 
-    auto replay_properties = replay_device_info->properties.get();
-
-    if ((physical_device_info->capture_vendor_id != replay_properties->vendorID) ||
-        (physical_device_info->capture_device_id != replay_properties->deviceID))
+    if ((physical_device_info->capture_vendor_id != replay_device_info->properties->vendorID) ||
+        (physical_device_info->capture_device_id != replay_device_info->properties->deviceID))
     {
         VkPhysicalDevice current_device = physical_device_info->handle;
 
@@ -1574,25 +1603,25 @@ void VulkanReplayConsumerBase::GetMatchingDevice(InstanceInfo* instance_info, Ph
         // intercept calls to vkEnumeratePhysicalDevices before the list of physical devices is modified, while
         // replay receives the modified list.  So, we check for a match before logical device creation to ensure
         // capture and replay use the same physical device when both are performed on the same system.
-        for (auto& entry : instance_info->replay_device_info)
+        for (auto& [physical_device, replay_info] : instance_info->replay_device_info)
         {
             // Skip the current physical device, which we already know is not a match.
-            if (entry.first != current_device)
+            if (physical_device != current_device)
             {
-                if (entry.second.properties == nullptr)
+                if (replay_info.properties == std::nullopt)
                 {
-                    entry.second.properties = std::make_unique<VkPhysicalDeviceProperties>();
-                    table->GetPhysicalDeviceProperties(entry.first, entry.second.properties.get());
+                    graphics::VulkanDeviceUtil::GetReplayDeviceProperties(physical_device_info->parent_api_version,
+                                                                          GetInstanceTable(physical_device),
+                                                                          physical_device,
+                                                                          &replay_info);
                 }
 
-                replay_properties = entry.second.properties.get();
-
-                if ((physical_device_info->capture_vendor_id == replay_properties->vendorID) ||
-                    (physical_device_info->capture_device_id == replay_properties->deviceID))
+                if ((physical_device_info->capture_vendor_id == replay_info.properties->vendorID) ||
+                    (physical_device_info->capture_device_id == replay_info.properties->deviceID))
                 {
                     // A match has been found.
-                    physical_device_info->handle             = entry.first;
-                    physical_device_info->replay_device_info = &entry.second;
+                    physical_device_info->handle             = physical_device;
+                    physical_device_info->replay_device_info = &replay_info;
                     break;
                 }
             }
@@ -1679,7 +1708,7 @@ void VulkanReplayConsumerBase::CheckPhysicalDeviceCompatibility(PhysicalDeviceIn
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
-    auto replay_properties = replay_device_info->properties.get();
+    const auto& replay_properties = replay_device_info->properties;
 
     // Warn about potential incompatibilities when replay device type does not match capture device type.
     if ((physical_device_info->capture_vendor_id != 0) && (physical_device_info->capture_device_id != 0) &&
@@ -1719,8 +1748,8 @@ void VulkanReplayConsumerBase::CheckPhysicalDeviceGroupCompatibility(
             auto capture_info = GetObjectInfoTable().GetPhysicalDeviceInfo(capture_device_group[i]);
             if (i < replay_size)
             {
-                auto* replay_device_info = &instance_info->replay_device_info[replay_device_group[i]];
-                auto  replay_properties  = replay_device_info->properties.get();
+                auto*       replay_device_info = &instance_info->replay_device_info[replay_device_group[i]];
+                const auto& replay_properties  = replay_device_info->properties;
 
                 if ((capture_info->capture_vendor_id != 0) && (capture_info->capture_device_id != 0) &&
                     ((capture_info->capture_vendor_id != replay_properties->vendorID) ||
@@ -1755,12 +1784,11 @@ void VulkanReplayConsumerBase::CheckPhysicalDeviceGroupCompatibility(
         for (size_t i = 0; i < replay_size; ++i)
         {
             auto* replay_device_info = &instance_info->replay_device_info[replay_device_group[i]];
-            auto  replay_properties  = replay_device_info->properties.get();
 
             std::ostringstream string_stream;
-            string_stream << "[vendorID = " << replay_properties->vendorID
-                          << ", deviceId = " << replay_properties->deviceID
-                          << ", deviceName = " << replay_properties->deviceName << "]";
+            string_stream << "[vendorID = " << replay_device_info->properties->vendorID
+                          << ", deviceId = " << replay_device_info->properties->deviceID
+                          << ", deviceName = " << replay_device_info->properties->deviceName << "]";
 
             GFXRECON_LOG_WARNING("\t%s", string_stream.str().c_str());
         }
@@ -1896,7 +1924,7 @@ void VulkanReplayConsumerBase::InitializeResourceAllocator(const PhysicalDeviceI
     }
 
     auto replay_device_info = physical_device_info->replay_device_info;
-    assert(replay_device_info->memory_properties != nullptr);
+    assert(replay_device_info->memory_properties);
 
     VkResult result = allocator->Initialize(std::min(physical_device_info->parent_api_version,
                                                      physical_device_info->replay_device_info->properties->apiVersion),
@@ -2703,14 +2731,14 @@ VulkanReplayConsumerBase::OverrideCreateDevice(VkResult            original_resu
     auto replay_device_info = physical_device_info->replay_device_info;
     assert(replay_device_info != nullptr);
 
-    if (replay_device_info->memory_properties == nullptr)
+    if (replay_device_info->memory_properties == std::nullopt)
     {
         // Memory properties weren't queried before device creation, so retrieve them now.
         auto table = GetInstanceTable(physical_device);
         assert(table != nullptr);
 
-        replay_device_info->memory_properties = std::make_unique<VkPhysicalDeviceMemoryProperties>();
-        table->GetPhysicalDeviceMemoryProperties(physical_device, replay_device_info->memory_properties.get());
+        replay_device_info->memory_properties = VkPhysicalDeviceMemoryProperties();
+        table->GetPhysicalDeviceMemoryProperties(physical_device, &replay_device_info->memory_properties.value());
     }
 
     auto allocator = options_.create_resource_allocator();
@@ -3057,7 +3085,7 @@ void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceProperties2(
 
     // This can be set by ProcessSetDevicePropertiesCommand, but older files will not contain that data.
     auto capture_properties = pProperties->GetPointer();
-    SetPhysicalDeviceProperties(physical_device_info, &capture_properties->properties, &replay_properties->properties);
+    SetPhysicalDeviceProperties(physical_device_info, capture_properties, replay_properties);
 }
 
 void VulkanReplayConsumerBase::OverrideGetPhysicalDeviceMemoryProperties(
@@ -7816,11 +7844,36 @@ VulkanReplayConsumerBase::OverrideGetRayTracingShaderGroupHandlesKHR(PFN_vkGetRa
             "device does not support this feature, so replay may fail.");
     }
 
-    VkDevice   device      = device_info->handle;
-    VkPipeline pipeline    = pipeline_info->handle;
-    uint8_t*   output_data = pData->GetOutputPointer();
+    VkDevice       device        = device_info->handle;
+    VkPipeline     pipeline      = pipeline_info->handle;
+    uint8_t*       output_data   = pData->GetOutputPointer();
+    const uint8_t* captured_data = pData->GetPointer();
+    VkResult       result        = func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
 
-    return func(device, pipeline, firstGroup, groupCount, dataSize, output_data);
+    if (result == VK_SUCCESS)
+    {
+        auto physical_device_info = GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
+
+        // in practice: always 32 bytes
+        uint32_t capture_handle_size = physical_device_info->shaderGroupHandleSize;
+        uint32_t replay_handle_size =
+            physical_device_info->replay_device_info->raytracing_properties->shaderGroupHandleSize;
+
+        // make a map of capture-time group handles to handles we just got back in replay
+        for (int group = 0; group < groupCount; group++)
+        {
+            auto                            captured_handle_begin = captured_data + group * capture_handle_size;
+            graphics::shader_group_handle_t capture_handle        = { captured_handle_begin, capture_handle_size };
+
+            auto                            replay_handle_begin = output_data + group * replay_handle_size;
+            graphics::shader_group_handle_t replay_handle       = { replay_handle_begin, replay_handle_size };
+
+            auto& shader_group_handle_map =
+                GetObjectInfoTable().GetPipelineInfo(pipeline_info->capture_id)->shader_group_handle_map;
+            shader_group_handle_map[capture_handle] = replay_handle;
+        }
+    }
+    return result;
 }
 
 VkResult VulkanReplayConsumerBase::OverrideGetAndroidHardwareBufferPropertiesANDROID(
