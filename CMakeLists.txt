@@ -167,14 +167,8 @@ if(MSVC)
     # Add option to enable/disable launcher and interceptor.
     option(BUILD_LAUNCHER_AND_INTERCEPTOR "Build launcher and interceptor" OFF)
 
-    # Add option to enable/disable D3D12 gfxrecon-convert support.
-    option(CONVERT_EXPERIMENTAL_D3D12 "Build with convert DX12 enabled" OFF)
-
     if(${D3D12_SUPPORT})
         add_definitions(-DD3D12_SUPPORT)
-        if(${CONVERT_EXPERIMENTAL_D3D12})
-            add_definitions(-DCONVERT_EXPERIMENTAL_D3D12)
-        endif()
 
         # Check Windows SDK version and print warning if there is a mismatch.
         set(EXPECTED_WIN_SDK_VER "10.0.20348.0")
