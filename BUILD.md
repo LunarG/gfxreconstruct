@@ -411,7 +411,7 @@ Additional requirements for building from the Linux command-line:
   - For example:
 
 ```bash
-        export ANDROID_HOME=$HOME/Android/Sdk`
+        export ANDROID_HOME=$HOME/Android/Sdk
 ```
 
 - Define JAVA_HOME to the path to the directory of the JDK.
