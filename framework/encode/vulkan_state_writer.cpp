@@ -1015,9 +1015,9 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
 
         // Filter duplicate calls to vkAllocateDescriptorSets for descriptor sets that were allocated by the same
         // API call and reference the same parameter buffer.
-        if (processed.find(wrapper->create_parameters.get()) == processed.end())
+        const auto new_entry = processed.insert(wrapper->create_parameters.get());
+        if (new_entry.second)
         {
-            processed.insert(wrapper->create_parameters.get());
             if (wrapper->dirty)
             {
                 // Write descriptor set creation call and add the parameter buffer to the processed set.
@@ -3882,18 +3882,18 @@ bool VulkanStateWriter::IsFramebufferValid(const vulkan_wrappers::FramebufferWra
 void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32_t n_blocks, int64_t offset)
 {
     // Remove path from filename
-    std::string  absolute_file;
+    std::string  relative_file;
     const size_t last_slash_pos = filename.find_last_of("\\/");
     if (last_slash_pos != std::string::npos)
     {
-        absolute_file = filename.substr(last_slash_pos + 1);
+        relative_file = filename.substr(last_slash_pos + 1);
     }
     else
     {
-        absolute_file = filename;
+        relative_file = filename;
     }
 
-    const size_t filename_length = absolute_file.length();
+    const size_t filename_length = relative_file.length();
 
     format::ExecuteBlocksFromFile execute_from_file;
     execute_from_file.meta_header.block_header.size =
@@ -3907,7 +3907,7 @@ void VulkanStateWriter::WriteExecuteFromFile(const std::string& filename, uint32
     execute_from_file.filename_length = filename_length;
 
     output_stream_->Write(&execute_from_file, sizeof(execute_from_file));
-    output_stream_->Write(absolute_file.c_str(), filename_length);
+    output_stream_->Write(relative_file.c_str(), filename_length);
 }
 
 GFXRECON_END_NAMESPACE(encode)

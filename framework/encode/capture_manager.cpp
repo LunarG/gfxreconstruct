@@ -1195,18 +1195,18 @@ void CommonCaptureManager::WriteExecuteFromFile(util::FileOutputStream& out_stre
                                                 int64_t                 offset)
 {
     // Remove path from filename
-    std::string  absolute_file;
+    std::string  relative_file;
     const size_t last_slash_pos = filename.find_last_of("\\/");
     if (last_slash_pos != std::string::npos)
     {
-        absolute_file = filename.substr(last_slash_pos + 1);
+        relative_file = filename.substr(last_slash_pos + 1);
     }
     else
     {
-        absolute_file = filename;
+        relative_file = filename;
     }
 
-    const size_t filename_length = absolute_file.length();
+    const size_t filename_length = relative_file.length();
 
     format::ExecuteBlocksFromFile execute_from_file;
     execute_from_file.meta_header.block_header.size =
@@ -1220,7 +1220,7 @@ void CommonCaptureManager::WriteExecuteFromFile(util::FileOutputStream& out_stre
     execute_from_file.filename_length = filename_length;
 
     out_stream.Write(&execute_from_file, sizeof(execute_from_file));
-    out_stream.Write(absolute_file.c_str(), filename_length);
+    out_stream.Write(relative_file.c_str(), filename_length);
 }
 
 void CommonCaptureManager::WriteSetBlockIndex(util::FileOutputStream& out_stream,
