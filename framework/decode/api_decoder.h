@@ -78,7 +78,7 @@ class ApiDecoder
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) = 0;
 
-    virtual void DispatchFrameBeginMarker(uint64_t frame_number) {};
+    virtual void DispatchFrameBeginMarker(uint64_t frame_number){};
 
     virtual void DispatchFrameEndMarker(uint64_t frame_number) = 0;
 
@@ -198,6 +198,8 @@ class ApiDecoder
                                                const std::string& filename){};
 
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
+
+    virtual void SetCurrentFileOffset(int64_t offset){};
 
     virtual void SetCurrentApiCallId(format::ApiCallId api_call_id){};
 

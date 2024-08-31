@@ -576,6 +576,14 @@ void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
+void VulkanDecoderBase::SetCurrentFileOffset(int64_t offset)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->SetCurrentFileOffset(offset);
+    }
+}
+
 void VulkanDecoderBase::DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
                                                       uint32_t           n_blocks,
                                                       int64_t            offset,

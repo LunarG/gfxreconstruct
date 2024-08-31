@@ -303,6 +303,11 @@ bool FileProcessor::ProcessBlocks()
 
         if (success)
         {
+            for (auto decoder : decoders_)
+            {
+                decoder->SetCurrentFileOffset(util::platform::FileTell(GetFileDescriptor()));
+            }
+
             success = ReadBlockHeader(&block_header);
 
             for (auto decoder : decoders_)

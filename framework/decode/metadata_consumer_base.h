@@ -26,6 +26,7 @@
 
 #include "util/defines.h"
 #include "format/format.h"
+#include <cstdint>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
@@ -35,6 +36,8 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class MetadataConsumerBase
 {
   public:
+    MetadataConsumerBase() : block_index_(0), block_header_file_offset_(0) {}
+
     virtual void Process_ExeFileInfo(util::filepath::FileInfo& info_record) {}
     virtual void ProcessDisplayMessageCommand(const std::string& message) {}
     virtual void ProcessFillMemoryCommand(uint64_t memory_id, uint64_t offset, uint64_t size, const uint8_t* data) {}
@@ -104,15 +107,17 @@ class MetadataConsumerBase
     virtual void ProcessInitSubresourceCommand(const format::InitSubresourceCommandHeader& command_header,
                                                const uint8_t*                              data)
     {}
-    virtual void ProcessExecuteBlocksFromFile(uint32_t           n_blocks,
-                                              int64_t            offset,
-                                              const std::string& filename)
-    {}
+    virtual void ProcessExecuteBlocksFromFile(uint32_t n_blocks, int64_t offset, const std::string& filename) {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
 
+    virtual void SetCurrentFileOffset(int64_t offset) {}
+
   protected:
     uint64_t block_index_;
+
+    // Stores the file offset of the last block header
+    int64_t block_header_file_offset_;
 };
 
 GFXRECON_END_NAMESPACE(decode)

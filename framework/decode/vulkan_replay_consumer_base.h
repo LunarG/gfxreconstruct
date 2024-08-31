@@ -77,6 +77,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void SetCurrentBlockIndex(uint64_t block_index) override;
 
+    virtual void SetCurrentFileOffset(int64_t offset) override;
+
     void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
     {
         gfxrecon::util::filepath::CheckReplayerName(info_record.AppName);

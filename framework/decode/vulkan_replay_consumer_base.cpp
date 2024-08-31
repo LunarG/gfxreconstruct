@@ -9632,5 +9632,10 @@ void VulkanReplayConsumerBase::SetCurrentBlockIndex(uint64_t block_index)
     main_thread_queue_.poll();
 }
 
+void VulkanReplayConsumerBase::SetCurrentFileOffset(int64_t offset)
+{
+    VulkanConsumer::SetCurrentFileOffset(offset);
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
