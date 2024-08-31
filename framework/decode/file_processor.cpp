@@ -2071,6 +2071,10 @@ bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
             {
                 decoder->DispatchFrameEndMarker(frame_number);
             }
+            else if (marker_type == format::kBeginMarker)
+            {
+                decoder->DispatchFrameBeginMarker(frame_number);
+            }
             else
             {
                 GFXRECON_LOG_WARNING("Skipping unrecognized frame marker with type %u", marker_type);

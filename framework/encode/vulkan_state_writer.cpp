@@ -95,9 +95,28 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                outp
 
 VulkanStateWriter::~VulkanStateWriter() {}
 
-uint64_t VulkanStateWriter::WriteAssets(const VulkanStateTable& state_table)
+static void
+WriteFrameMarker(format::MarkerType marker_type, uint64_t frame_number, util::FileOutputStream* output_stream)
 {
+    assert(output_stream != nullptr);
+
+    format::Marker marker_cmd;
+    uint64_t       header_size = sizeof(format::Marker);
+    marker_cmd.header.size     = sizeof(marker_cmd.marker_type) + sizeof(marker_cmd.frame_number);
+    marker_cmd.header.type     = format::BlockType::kFrameMarkerBlock;
+    marker_cmd.marker_type     = marker_type;
+    marker_cmd.frame_number    = frame_number;
+
+    output_stream->Write(&marker_cmd, sizeof(marker_cmd));
+}
+
+uint64_t VulkanStateWriter::WriteAssets(const VulkanStateTable& state_table, uint64_t frame_number)
+{
+    assert(asset_file_stream_ != nullptr);
+
     blocks_written_ = 0;
+
+    WriteFrameMarker(format::MarkerType::kBeginMarker, frame_number, asset_file_stream_);
 
     WriteResourceMemoryState(state_table, false);
     WriteDescriptorSetStateWithAssetFile(state_table);
@@ -121,6 +140,11 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // For the Begin Marker meta command
     ++blocks_written_;
+
+    if (asset_file_stream_ != nullptr)
+    {
+        WriteFrameMarker(format::MarkerType::kBeginMarker, frame_number, asset_file_stream_);
+    }
 
     // Instance, device, and queue creation.
     StandardCreateWrite<vulkan_wrappers::InstanceWrapper>(state_table);

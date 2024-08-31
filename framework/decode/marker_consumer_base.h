@@ -40,6 +40,8 @@ class MarkerConsumerBase
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) {}
 
+    virtual void ProcessFrameBeginMarker(uint64_t frame_number) {}
+
     virtual void ProcessFrameEndMarker(uint64_t frame_number) {}
 };
 

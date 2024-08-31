@@ -60,7 +60,7 @@ class VulkanStateWriter
     // Returns number of blocks written to the output_stream.
     uint64_t WriteState(const VulkanStateTable& state_table, uint64_t frame_number);
 
-    uint64_t WriteAssets(const VulkanStateTable& state_table);
+    uint64_t WriteAssets(const VulkanStateTable& state_table, uint64_t frame_number);
 
   private:
     // Data structures for processing resource memory snapshots.

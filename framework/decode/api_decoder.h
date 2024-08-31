@@ -78,6 +78,8 @@ class ApiDecoder
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) = 0;
 
+    virtual void DispatchFrameBeginMarker(uint64_t frame_number) {};
+
     virtual void DispatchFrameEndMarker(uint64_t frame_number) = 0;
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) = 0;
