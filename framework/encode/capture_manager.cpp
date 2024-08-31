@@ -1001,12 +1001,12 @@ std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_fi
     {
         if (base_filename.substr(dot_pos) == ".gfxr")
         {
-            asset_filename.insert(dot_pos, "_asset_file");
+            asset_filename.replace(dot_pos, 16, "_asset_file.gfxa");
         }
     }
     else
     {
-        asset_filename += std::string("_asset_file");
+        asset_filename += std::string("_asset_file.gfxa");
     }
 
     return asset_filename;
