@@ -575,7 +575,7 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
         ParseBoolString(FindOption(options, kOptionKeyCaptureUseAssetFile), settings->trace_settings_.use_asset_file);
 
     settings->trace_settings_.write_state_files = ParseBoolString(FindOption(options, kOptionKeyCaptureWriteStateFiles),
-                                                                  settings->trace_settings_.use_asset_file);
+                                                                  settings->trace_settings_.write_state_files);
 
     // Page guard environment variables
     settings->trace_settings_.page_guard_copy_on_map = ParseBoolString(
