@@ -33,7 +33,9 @@
 #include "util/driver_info.h"
 
 #include <cinttypes>
+#include <map>
 #include <type_traits>
+#include <unordered_map>
 
 #define GFXRECON_FOURCC GFXRECON_MAKE_FOURCC('G', 'F', 'X', 'R')
 #define GFXRECON_FILE_EXTENSION ".gfxr"
@@ -57,6 +59,11 @@ typedef uint32_t FormatEncodeType;
 
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
+typedef uint64_t         FrameNumber;
+
+typedef std::unordered_map<HandleId, int64_t> FrameAssetFileOffsets;
+// This must be an ordered map
+typedef std::map<FrameNumber, FrameAssetFileOffsets> AssetFileOffsets;
 
 const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;

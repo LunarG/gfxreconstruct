@@ -38,6 +38,20 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 void AssetFileConsumer::ProcessFrameBeginMarker(uint64_t frame_number)
 {
     current_frame_ = frame_number;
+
+    if (!asset_file_offsets_.empty())
+    {
+        auto entry = asset_file_offsets_.find(frame_number);
+        if (entry != asset_file_offsets_.end())
+        {
+            GFXRECON_LOG_ERROR("Dublicate asset file entries for frame %" PRIu64 "?", frame_number);
+        }
+
+        // Copy all entries from previous frame
+        auto last_frame_entry             = asset_file_offsets_.rbegin();
+        asset_file_offsets_[frame_number] = last_frame_entry->second;
+    }
+
     fprintf(debug_, "%s() %" PRId64 "\n", __func__, frame_number);
     fsync(fileno(debug_));
 }
@@ -51,8 +65,8 @@ void AssetFileConsumer::ProcessInitBufferCommand(format::HandleId device_id,
     GFXRECON_UNREFERENCED_PARAMETER(data_size);
     GFXRECON_UNREFERENCED_PARAMETER(data);
 
-    FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
-    frame_offsets[buffer_id]             = block_header_file_offset_;
+    format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
+    frame_offsets[buffer_id]                     = block_header_file_offset_;
     fprintf(debug_, "buffer %" PRIu64 " -> %" PRId64 "\n", buffer_id, block_header_file_offset_);
     fsync(fileno(debug_));
 }
@@ -72,8 +86,8 @@ void AssetFileConsumer::ProcessInitImageCommand(format::HandleId             dev
     GFXRECON_UNREFERENCED_PARAMETER(level_sizes);
     GFXRECON_UNREFERENCED_PARAMETER(data);
 
-    FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
-    frame_offsets[image_id]              = block_header_file_offset_;
+    format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
+    frame_offsets[image_id]                      = block_header_file_offset_;
     fprintf(debug_, "image %" PRIu64 " -> %" PRId64 "\n", image_id, block_header_file_offset_);
     fsync(fileno(debug_));
 }
@@ -95,9 +109,9 @@ void AssetFileConsumer::Process_vkAllocateDescriptorSets(
         // Get only the first one
         const format::HandleId desc_id = pDescriptorSets->GetPointer()[0];
 
-        FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
-        frame_offsets[desc_id]               = block_header_file_offset_;
-        fprintf(debug_, "AllocateDescSet %" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
+        format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
+        frame_offsets[desc_id]                       = block_header_file_offset_;
+        fprintf(debug_, "%" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
         fsync(fileno(debug_));
     }
 }
@@ -117,11 +131,11 @@ void AssetFileConsumer::Process_vkUpdateDescriptorSets(
         {
             const format::HandleId desc_id = writes_meta->dstSet;
 
-            FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
-            const auto             new_entry     = frame_offsets.insert({ desc_id, block_header_file_offset_ });
+            format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
+            const auto                     new_entry     = frame_offsets.insert({ desc_id, block_header_file_offset_ });
             if (new_entry.second)
             {
-                fprintf(debug_, "Update %" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
+                fprintf(debug_, "%" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
                 fsync(fileno(debug_));
             }
         }

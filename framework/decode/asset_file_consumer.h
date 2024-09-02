@@ -39,10 +39,6 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 
 class AssetFileConsumer : public VulkanConsumer
 {
-    using FrameNumber           = uint64_t;
-    using FrameAssetFileOffsets = std::unordered_map<format::HandleId, int64_t>;
-    using AssetFileOffsets      = std::map<FrameNumber, FrameAssetFileOffsets>;
-
   public:
     AssetFileConsumer() : current_frame_(0)
     {
@@ -82,12 +78,12 @@ class AssetFileConsumer : public VulkanConsumer
                                    uint32_t                                            descriptorCopyCount,
                                    StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies) override;
 
-    void GetFrameAssetFileOffsets(FrameNumber frame_number, FrameAssetFileOffsets& frame_asset_file_offsets);
+    const format::AssetFileOffsets* GetFrameAssetFileOffsets() { return &asset_file_offsets_; }
 
   private:
-    AssetFileOffsets asset_file_offsets_;
-    FrameNumber      current_frame_;
-    FILE*            debug_;
+    format::AssetFileOffsets asset_file_offsets_;
+    format::FrameNumber      current_frame_;
+    FILE*                    debug_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

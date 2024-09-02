@@ -49,11 +49,11 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class VulkanStateWriter
 {
   public:
-    VulkanStateWriter(util::FileOutputStream*                output_stream,
-                      util::Compressor*                      compressor,
-                      format::ThreadId                       thread_id,
-                      util::FileOutputStream*                asset_file_stream  = nullptr,
-                      std::unordered_map<uint64_t, int64_t>* asset_file_offsets = nullptr);
+    VulkanStateWriter(util::FileOutputStream*        output_stream,
+                      util::Compressor*              compressor,
+                      format::ThreadId               thread_id,
+                      util::FileOutputStream*        asset_file_stream        = nullptr,
+                      format::FrameAssetFileOffsets* frame_asset_file_offsets = nullptr);
 
     ~VulkanStateWriter();
 

@@ -60,11 +60,13 @@ class VulkanStateTracker
                         util::Compressor*       compressor,
                         uint64_t                frame_number)
     {
+        CopyAssetFileOffsetsFromLastFrame(frame_number);
+
         VulkanStateWriter state_writer(file_stream,
                                        compressor,
                                        thread_id,
                                        asset_file_stream,
-                                       asset_file_stream != nullptr ? &asset_file_offsets_ : nullptr);
+                                       asset_file_stream != nullptr ? &asset_file_offsets_[frame_number] : nullptr);
 
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         return state_writer.WriteState(state_table_, frame_number);
@@ -77,7 +79,10 @@ class VulkanStateTracker
     {
         assert(asset_file_stream != nullptr);
 
-        VulkanStateWriter state_writer(nullptr, compressor, thread_id, asset_file_stream, &asset_file_offsets_);
+        CopyAssetFileOffsetsFromLastFrame(frame_number);
+
+        VulkanStateWriter state_writer(
+            nullptr, compressor, thread_id, asset_file_stream, &asset_file_offsets_[frame_number]);
 
         std::unique_lock<std::mutex> lock(state_table_mutex_);
         return state_writer.WriteAssets(state_table_, frame_number);
@@ -681,6 +686,8 @@ class VulkanStateTracker
 
     void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
 
+    void LoadAssetFileOffsets(const format::AssetFileOffsets& offsets);
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                        parent_handle,
@@ -773,6 +780,22 @@ class VulkanStateTracker
 
     void MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBufferWrapper* cmd_buf_wrapper);
 
+    void CopyAssetFileOffsetsFromLastFrame(format::FrameNumber frame_number)
+    {
+        if (!asset_file_offsets_.empty())
+        {
+            auto entry = asset_file_offsets_.find(frame_number);
+            if (entry != asset_file_offsets_.end())
+            {
+                GFXRECON_LOG_ERROR("Dublicate asset file entries for frame %" PRIu64 "?", frame_number);
+            }
+
+            // Copy all entries from previous frame
+            auto last_frame_entry             = asset_file_offsets_.rbegin();
+            asset_file_offsets_[frame_number] = last_frame_entry->second;
+        }
+    }
+
     std::mutex       state_table_mutex_;
     VulkanStateTable state_table_;
 
@@ -782,7 +805,7 @@ class VulkanStateTracker
     // Keeps track of acceleration structures' device addresses
     std::unordered_map<VkDeviceAddress, vulkan_wrappers::AccelerationStructureKHRWrapper*> as_device_addresses_map;
 
-    std::unordered_map<uint64_t, int64_t> asset_file_offsets_;
+    format::AssetFileOffsets asset_file_offsets_;
 };
 
 GFXRECON_END_NAMESPACE(encode)
