@@ -99,6 +99,7 @@ class OpenXrObjectInfoTableHeaderGenerator(BaseGenerator):
         all_items = set()
         all_items.update(self.handle_names)
         all_items.update(self.atom_names)
+        all_items.update(self.opaque_names)
         for handle_name in sorted(all_items):
             if handle_name.startswith('Vk') or  handle_name in self.DUPLICATE_HANDLE_TYPES:
                 continue

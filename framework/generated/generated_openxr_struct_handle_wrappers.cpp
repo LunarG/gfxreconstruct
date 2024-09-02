@@ -105,6 +105,12 @@ void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory
                 // Return here because we processed the appropriate data in
                 // the correct structure type
                 return;
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+                UnwrapStructHandles(reinterpret_cast<XrCompositionLayerPassthroughFB*>(value),
+                                 unwrap_memory);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
             case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
                 UnwrapStructHandles(reinterpret_cast<XrCompositionLayerPassthroughHTC*>(value),
                                  unwrap_memory);
@@ -113,10 +119,6 @@ void UnwrapStructHandles(XrCompositionLayerBaseHeader* value, HandleUnwrapMemory
                 return;
         }
 
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
     }
 }
 
@@ -278,6 +280,13 @@ void UnwrapStructHandles(XrEventDataInteractionProfileChanged* value, HandleUnwr
     }
 }
 
+void UnwrapStructHandles(XrSpacesLocateInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -412,14 +421,7 @@ void UnwrapStructHandles(XrGraphicsBindingD3D12KHR* value, HandleUnwrapMemory* u
     }
 }
 
-void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerColorScaleBiasKHR* value, HandleUnwrapMemory* unwrap_memory)
+void UnwrapStructHandles(XrGraphicsBindingMetalKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -427,6 +429,13 @@ void UnwrapStructHandles(XrCompositionLayerColorScaleBiasKHR* value, HandleUnwra
         {
             value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
         }
+    }
+}
+
+void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
     }
 }
 
@@ -467,28 +476,6 @@ void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrap
 {
     if (value != nullptr)
     {
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerImageLayoutFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerAlphaBlendFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
     }
 }
 
@@ -545,17 +532,6 @@ void UnwrapStructHandles(XrControllerModelKeyStateMSFT* value, HandleUnwrapMemor
 }
 
 void UnwrapStructHandles(XrHolographicWindowAttachmentMSFT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerSecureContentFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
     {
@@ -663,10 +639,6 @@ void UnwrapStructHandles(XrCompositionLayerPassthroughFB* value, HandleUnwrapMem
 {
     if (value != nullptr)
     {
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
     }
 }
 
@@ -908,28 +880,6 @@ void UnwrapStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_mem
     }
 }
 
-void UnwrapStructHandles(XrCompositionLayerSettingsFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
-    }
-}
-
-void UnwrapStructHandles(XrCompositionLayerDepthTestFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value != nullptr)
-    {
-        if (value->next != nullptr)
-        {
-            value->next = UnwrapNextStructHandles(value->next, unwrap_memory);
-        }
-    }
-}
-
 void UnwrapStructHandles(XrLocalDimmingFrameEndInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -1041,6 +991,13 @@ void UnwrapStructHandles(XrPassthroughColorMapInterpolatedLutMETA* value, Handle
     }
 }
 
+void UnwrapStructHandles(XrEnvironmentDepthImageAcquireInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrPassthroughMeshTransformInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -1111,6 +1068,20 @@ void UnwrapStructHandles(XrPlaneDetectorGetInfoEXT* value, HandleUnwrapMemory* u
     }
 }
 
+void UnwrapStructHandles(XrFutureCancelInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
+void UnwrapStructHandles(XrFuturePollInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value != nullptr)
+    {
+    }
+}
+
 void UnwrapStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value != nullptr)
@@ -1130,6 +1101,9 @@ XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMem
         break;
     case XR_TYPE_SPACE_VELOCITY:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrSpaceVelocity*>(base), 1, unwrap_memory));
+        break;
+    case XR_TYPE_SPACE_VELOCITIES:
+        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrSpaceVelocities*>(base), 1, unwrap_memory));
         break;
     case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrInstanceCreateInfoAndroidKHR*>(base), 1, unwrap_memory));
@@ -1160,6 +1134,9 @@ XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMem
         break;
     case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrGraphicsBindingD3D12KHR*>(base), 1, unwrap_memory));
+        break;
+    case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrGraphicsBindingMetalKHR*>(base), 1, unwrap_memory));
         break;
     case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrCompositionLayerColorScaleBiasKHR*>(base), 1, unwrap_memory));
@@ -1293,9 +1270,6 @@ XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMem
     case XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES2_FB:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrSystemPassthroughProperties2FB*>(base), 1, unwrap_memory));
         break;
-    case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrCompositionLayerPassthroughFB*>(base), 1, unwrap_memory));
-        break;
     case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrPassthroughColorMapMonoToRgbaFB*>(base), 1, unwrap_memory));
         break;
@@ -1410,6 +1384,9 @@ XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMem
     case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES2_FB:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrSystemFaceTrackingProperties2FB*>(base), 1, unwrap_memory));
         break;
+    case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+        copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrSystemEnvironmentDepthPropertiesMETA*>(base), 1, unwrap_memory));
+        break;
     case XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC:
         copy = reinterpret_cast<XrBaseInStructure*>(MakeUnwrapStructs(reinterpret_cast<const XrPassthroughMeshTransformInfoHTC*>(base), 1, unwrap_memory));
         break;
@@ -1481,24 +1458,16 @@ void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memo
             return UnwrapStructPtrHandles(reinterpret_cast<const XrGraphicsBindingD3D11KHR*>(base), unwrap_memory);
         case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrGraphicsBindingD3D12KHR*>(base), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerColorScaleBiasKHR*>(base), unwrap_memory);
+        case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+            return UnwrapStructPtrHandles(reinterpret_cast<const XrGraphicsBindingMetalKHR*>(base), unwrap_memory);
         case XR_TYPE_SESSION_CREATE_INFO_OVERLAY_EXTX:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrSessionCreateInfoOverlayEXTX*>(base), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_IMAGE_LAYOUT_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerImageLayoutFB*>(base), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_ALPHA_BLEND_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerAlphaBlendFB*>(base), unwrap_memory);
         case XR_TYPE_GRAPHICS_BINDING_EGL_MNDX:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrGraphicsBindingEGLMNDX*>(base), unwrap_memory);
         case XR_TYPE_SECONDARY_VIEW_CONFIGURATION_FRAME_END_INFO_MSFT:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrSecondaryViewConfigurationFrameEndInfoMSFT*>(base), unwrap_memory);
         case XR_TYPE_HOLOGRAPHIC_WINDOW_ATTACHMENT_MSFT:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrHolographicWindowAttachmentMSFT*>(base), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerSecureContentFB*>(base), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerPassthroughFB*>(base), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrPassthroughColorMapMonoToRgbaFB*>(base), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_MONO_FB:
@@ -1513,10 +1482,6 @@ void* UnwrapNextStructHandles(const void* value, HandleUnwrapMemory* unwrap_memo
             return UnwrapStructPtrHandles(reinterpret_cast<const XrSwapchainImageFoveationVulkanFB*>(base), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerSpaceWarpInfoFB*>(base), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_SETTINGS_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerSettingsFB*>(base), unwrap_memory);
-        case XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_FB:
-            return UnwrapStructPtrHandles(reinterpret_cast<const XrCompositionLayerDepthTestFB*>(base), unwrap_memory);
         case XR_TYPE_LOCAL_DIMMING_FRAME_END_INFO_META:
             return UnwrapStructPtrHandles(reinterpret_cast<const XrLocalDimmingFrameEndInfoMETA*>(base), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_LUT_META:

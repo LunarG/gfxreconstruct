@@ -56,6 +56,8 @@ struct XrCompositionLayerSpaceWarpInfoFlagsFB_t { };
 struct XrDebugUtilsMessageSeverityFlagsEXT_t { };
 struct XrDebugUtilsMessageTypeFlagsEXT_t { };
 struct XrDigitalLensControlFlagsALMALENCE_t { };
+struct XrEnvironmentDepthProviderCreateFlagsMETA_t { };
+struct XrEnvironmentDepthSwapchainCreateFlagsMETA_t { };
 struct XrExternalCameraStatusFlagsOCULUS_t { };
 struct XrFoveationDynamicFlagsHTC_t { };
 struct XrFoveationEyeTrackedProfileCreateFlagsMETA_t { };
@@ -119,6 +121,7 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationDynamicFB& valu
 void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelFB& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationLevelHTC& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const XrHandEXT& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const XrHandForearmJointULTRALEAP& value, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(nlohmann::ordered_json& jdata, const XrHandJointEXT& value, const util::JsonOptions& options = util::JsonOptions());
@@ -190,6 +193,8 @@ void FieldToJson(XrCompositionLayerSpaceWarpInfoFlagsFB_t, nlohmann::ordered_jso
 void FieldToJson(XrDebugUtilsMessageSeverityFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(XrDebugUtilsMessageTypeFlagsEXT_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(XrDigitalLensControlFlagsALMALENCE_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(XrEnvironmentDepthProviderCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());
+void FieldToJson(XrEnvironmentDepthSwapchainCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(XrFoveationDynamicFlagsHTC_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());
 void FieldToJson(XrFoveationEyeTrackedProfileCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const util::JsonOptions& options = util::JsonOptions());

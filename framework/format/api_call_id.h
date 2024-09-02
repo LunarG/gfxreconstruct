@@ -1527,6 +1527,21 @@ enum ApiCallId : uint32_t
     ApiCall_xrGetPlaneDetectionsEXT                                                               = MakeApiCallId(ApiFamily_OpenXR, 0x110f),
     ApiCall_xrGetPlanePolygonBufferEXT                                                            = MakeApiCallId(ApiFamily_OpenXR, 0x1110),
     ApiCall_xrEnableUserCalibrationEventsML                                                       = MakeApiCallId(ApiFamily_OpenXR, 0x1111),
+    ApiCall_xrLocateSpacesKHR                                                                     = MakeApiCallId(ApiFamily_OpenXR, 0x1112),
+    ApiCall_xrLocateSpaces                                                                        = MakeApiCallId(ApiFamily_OpenXR, 0x1113),
+    ApiCall_xrGetMetalGraphicsRequirementsKHR                                                     = MakeApiCallId(ApiFamily_OpenXR, 0x1114),
+    ApiCall_xrCreateEnvironmentDepthProviderMETA                                                  = MakeApiCallId(ApiFamily_OpenXR, 0x1115),
+    ApiCall_xrDestroyEnvironmentDepthProviderMETA                                                 = MakeApiCallId(ApiFamily_OpenXR, 0x1116),
+    ApiCall_xrStartEnvironmentDepthProviderMETA                                                   = MakeApiCallId(ApiFamily_OpenXR, 0x1117),
+    ApiCall_xrStopEnvironmentDepthProviderMETA                                                    = MakeApiCallId(ApiFamily_OpenXR, 0x1118),
+    ApiCall_xrCreateEnvironmentDepthSwapchainMETA                                                 = MakeApiCallId(ApiFamily_OpenXR, 0x1119),
+    ApiCall_xrDestroyEnvironmentDepthSwapchainMETA                                                = MakeApiCallId(ApiFamily_OpenXR, 0x111a),
+    ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA                                        = MakeApiCallId(ApiFamily_OpenXR, 0x111b),
+    ApiCall_xrGetEnvironmentDepthSwapchainStateMETA                                               = MakeApiCallId(ApiFamily_OpenXR, 0x111c),
+    ApiCall_xrAcquireEnvironmentDepthImageMETA                                                    = MakeApiCallId(ApiFamily_OpenXR, 0x111d),
+    ApiCall_xrSetEnvironmentDepthHandRemovalMETA                                                  = MakeApiCallId(ApiFamily_OpenXR, 0x111e),
+    ApiCall_xrPollFutureEXT                                                                       = MakeApiCallId(ApiFamily_OpenXR, 0x111f),
+    ApiCall_xrCancelFutureEXT                                                                     = MakeApiCallId(ApiFamily_OpenXR, 0x1120),
 
     // clang-format on
 };

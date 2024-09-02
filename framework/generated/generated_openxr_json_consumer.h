@@ -394,6 +394,12 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         StructPointerDecoder<Decoded_XrInstanceCreateInfo>* info,
         StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* layerInfo,
         HandlePointerDecoder<XrInstance>*           instance) override;
+    virtual void Process_xrLocateSpaces(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+        StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations) override;
     virtual void Process_xrSetAndroidApplicationThreadKHR(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
@@ -463,6 +469,12 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         format::HandleId                            instance,
         format::HandleId                            systemId,
         StructPointerDecoder<Decoded_XrGraphicsRequirementsD3D12KHR>* graphicsRequirements) override;
+    virtual void Process_xrGetMetalGraphicsRequirementsKHR(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            instance,
+        format::HandleId                            systemId,
+        StructPointerDecoder<Decoded_XrGraphicsRequirementsMetalKHR>* graphicsRequirements) override;
     virtual void Process_xrGetVisibilityMaskKHR(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
@@ -530,6 +542,12 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         format::HandleId                            instance,
         format::HandleId                            systemId,
         StructPointerDecoder<Decoded_XrGraphicsRequirementsVulkanKHR>* graphicsRequirements) override;
+    virtual void Process_xrLocateSpacesKHR(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+        StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations) override;
     virtual void Process_xrPerfSettingsSetPerformanceLevelEXT(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
@@ -937,7 +955,7 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
         format::HandleId                            space,
-        StructPointerDecoder<Decoded_XrUuidEXT>*    uuid) override;
+        StructPointerDecoder<Decoded_XrUuid>*       uuid) override;
 
     virtual void Process_xrEnumerateSpaceSupportedComponentsFB(
         const ApiCallInfo&                          call_info,
@@ -1237,13 +1255,13 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         XrResult                                    returnValue,
         format::HandleId                            session,
         StructPointerDecoder<Decoded_XrLocalizationMapImportInfoML>* importInfo,
-        StructPointerDecoder<Decoded_XrUuidEXT>*    mapUuid) override;
+        StructPointerDecoder<Decoded_XrUuid>*       mapUuid) override;
 
     virtual void Process_xrCreateExportedLocalizationMapML(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
         format::HandleId                            session,
-        StructPointerDecoder<Decoded_XrUuidEXT>*    mapUuid,
+        StructPointerDecoder<Decoded_XrUuid>*       mapUuid,
         HandlePointerDecoder<XrExportedLocalizationMapML>* map) override;
 
     virtual void Process_xrDestroyExportedLocalizationMapML(
@@ -1642,6 +1660,66 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         format::HandleId                            faceTracker,
         StructPointerDecoder<Decoded_XrFaceExpressionInfo2FB>* expressionInfo,
         StructPointerDecoder<Decoded_XrFaceExpressionWeights2FB>* expressionWeights) override;
+    virtual void Process_xrCreateEnvironmentDepthProviderMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            session,
+        StructPointerDecoder<Decoded_XrEnvironmentDepthProviderCreateInfoMETA>* createInfo,
+        HandlePointerDecoder<XrEnvironmentDepthProviderMETA>* environmentDepthProvider) override;
+
+    virtual void Process_xrDestroyEnvironmentDepthProviderMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            environmentDepthProvider) override;
+
+    virtual void Process_xrStartEnvironmentDepthProviderMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            environmentDepthProvider) override;
+
+    virtual void Process_xrStopEnvironmentDepthProviderMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            environmentDepthProvider) override;
+
+    virtual void Process_xrCreateEnvironmentDepthSwapchainMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            environmentDepthProvider,
+        StructPointerDecoder<Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA>* createInfo,
+        HandlePointerDecoder<XrEnvironmentDepthSwapchainMETA>* swapchain) override;
+
+    virtual void Process_xrDestroyEnvironmentDepthSwapchainMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            swapchain) override;
+
+    virtual void Process_xrEnumerateEnvironmentDepthSwapchainImagesMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            swapchain,
+        uint32_t                                    imageCapacityInput,
+        PointerDecoder<uint32_t>*                   imageCountOutput,
+        StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images) override;
+
+    virtual void Process_xrGetEnvironmentDepthSwapchainStateMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            swapchain,
+        StructPointerDecoder<Decoded_XrEnvironmentDepthSwapchainStateMETA>* state) override;
+
+    virtual void Process_xrAcquireEnvironmentDepthImageMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            environmentDepthProvider,
+        StructPointerDecoder<Decoded_XrEnvironmentDepthImageAcquireInfoMETA>* acquireInfo,
+        StructPointerDecoder<Decoded_XrEnvironmentDepthImageMETA>* environmentDepthImage) override;
+
+    virtual void Process_xrSetEnvironmentDepthHandRemovalMETA(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            environmentDepthProvider,
+        StructPointerDecoder<Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA>* setInfo) override;
     virtual void Process_xrSetTrackingOptimizationSettingsHintQCOM(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,
@@ -1719,6 +1797,18 @@ class OpenXrExportJsonConsumer : public OpenXrExportJsonConsumerBase
         uint64_t                                    planeId,
         uint32_t                                    polygonBufferIndex,
         StructPointerDecoder<Decoded_XrPlaneDetectorPolygonBufferEXT>* polygonBuffer) override;
+    virtual void Process_xrPollFutureEXT(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            instance,
+        StructPointerDecoder<Decoded_XrFuturePollInfoEXT>* pollInfo,
+        StructPointerDecoder<Decoded_XrFuturePollResultEXT>* pollResult) override;
+
+    virtual void Process_xrCancelFutureEXT(
+        const ApiCallInfo&                          call_info,
+        XrResult                                    returnValue,
+        format::HandleId                            instance,
+        StructPointerDecoder<Decoded_XrFutureCancelInfoEXT>* cancelInfo) override;
     virtual void Process_xrEnableUserCalibrationEventsML(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

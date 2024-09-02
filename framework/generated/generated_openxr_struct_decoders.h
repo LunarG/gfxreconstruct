@@ -738,6 +738,108 @@ struct Decoded_XrNegotiateApiLayerRequest
     uint64_t createApiLayerInstance{ 0 };
 };
 
+struct Decoded_XrColor3f
+{
+    using struct_type = XrColor3f;
+
+    XrColor3f* decoded_value{ nullptr };
+};
+
+struct Decoded_XrExtent3Df
+{
+    using struct_type = XrExtent3Df;
+
+    XrExtent3Df* decoded_value{ nullptr };
+};
+
+struct Decoded_XrSpheref
+{
+    using struct_type = XrSpheref;
+
+    XrSpheref* decoded_value{ nullptr };
+
+    Decoded_XrPosef* center{ nullptr };
+};
+
+struct Decoded_XrBoxf
+{
+    using struct_type = XrBoxf;
+
+    XrBoxf* decoded_value{ nullptr };
+
+    Decoded_XrPosef* center{ nullptr };
+    Decoded_XrExtent3Df* extents{ nullptr };
+};
+
+struct Decoded_XrFrustumf
+{
+    using struct_type = XrFrustumf;
+
+    XrFrustumf* decoded_value{ nullptr };
+
+    Decoded_XrPosef* pose{ nullptr };
+    Decoded_XrFovf* fov{ nullptr };
+};
+
+struct Decoded_XrUuid
+{
+    using struct_type = XrUuid;
+
+    XrUuid* decoded_value{ nullptr };
+
+    PointerDecoder<uint8_t> data;
+};
+
+struct Decoded_XrSpacesLocateInfo
+{
+    using struct_type = XrSpacesLocateInfo;
+
+    XrSpacesLocateInfo* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    format::HandleId baseSpace{ format::kNullHandleId };
+    HandlePointerDecoder<XrSpace> spaces;
+};
+
+struct Decoded_XrSpaceLocationData
+{
+    using struct_type = XrSpaceLocationData;
+
+    XrSpaceLocationData* decoded_value{ nullptr };
+
+    Decoded_XrPosef* pose{ nullptr };
+};
+
+struct Decoded_XrSpaceLocations
+{
+    using struct_type = XrSpaceLocations;
+
+    XrSpaceLocations* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    StructPointerDecoder<Decoded_XrSpaceLocationData>* locations{ nullptr };
+};
+
+struct Decoded_XrSpaceVelocityData
+{
+    using struct_type = XrSpaceVelocityData;
+
+    XrSpaceVelocityData* decoded_value{ nullptr };
+
+    Decoded_XrVector3f* linearVelocity{ nullptr };
+    Decoded_XrVector3f* angularVelocity{ nullptr };
+};
+
+struct Decoded_XrSpaceVelocities
+{
+    using struct_type = XrSpaceVelocities;
+
+    XrSpaceVelocities* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    StructPointerDecoder<Decoded_XrSpaceVelocityData>* velocities{ nullptr };
+};
+
 struct Decoded_XrCompositionLayerCubeKHR
 {
     using struct_type = XrCompositionLayerCubeKHR;
@@ -986,6 +1088,36 @@ struct Decoded_XrGraphicsRequirementsD3D12KHR
     XrGraphicsRequirementsD3D12KHR* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
+};
+
+struct Decoded_XrGraphicsBindingMetalKHR
+{
+    using struct_type = XrGraphicsBindingMetalKHR;
+
+    XrGraphicsBindingMetalKHR* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    uint64_t commandQueue{ 0 };
+};
+
+struct Decoded_XrSwapchainImageMetalKHR
+{
+    using struct_type = XrSwapchainImageMetalKHR;
+
+    XrSwapchainImageMetalKHR* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    uint64_t texture{ 0 };
+};
+
+struct Decoded_XrGraphicsRequirementsMetalKHR
+{
+    using struct_type = XrGraphicsRequirementsMetalKHR;
+
+    XrGraphicsRequirementsMetalKHR* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    uint64_t metalDevice{ 0 };
 };
 
 struct Decoded_XrVisibilityMaskKHR
@@ -2147,15 +2279,6 @@ struct Decoded_XrSpaceComponentStatusFB
     OpenXrNextNode* next{ nullptr };
 };
 
-struct Decoded_XrUuidEXT
-{
-    using struct_type = XrUuidEXT;
-
-    XrUuidEXT* decoded_value{ nullptr };
-
-    PointerDecoder<uint8_t> data;
-};
-
 struct Decoded_XrEventDataSpatialAnchorCreateCompleteFB
 {
     using struct_type = XrEventDataSpatialAnchorCreateCompleteFB;
@@ -2165,7 +2288,7 @@ struct Decoded_XrEventDataSpatialAnchorCreateCompleteFB
     OpenXrNextNode* next{ nullptr };
     format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
-    Decoded_XrUuidEXT* uuid{ nullptr };
+    Decoded_XrUuid* uuid{ nullptr };
 };
 
 struct Decoded_XrEventDataSpaceSetStatusCompleteFB
@@ -2177,7 +2300,7 @@ struct Decoded_XrEventDataSpaceSetStatusCompleteFB
     OpenXrNextNode* next{ nullptr };
     format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
-    Decoded_XrUuidEXT* uuid{ nullptr };
+    Decoded_XrUuid* uuid{ nullptr };
 };
 
 struct Decoded_XrFoveationProfileCreateInfoFB
@@ -2630,7 +2753,7 @@ struct Decoded_XrLocalizationMapML
 
     OpenXrNextNode* next{ nullptr };
     StringDecoder name;
-    Decoded_XrUuidEXT* mapUuid{ nullptr };
+    Decoded_XrUuid* mapUuid{ nullptr };
 };
 
 struct Decoded_XrEventDataLocalizationChangedML
@@ -2660,7 +2783,7 @@ struct Decoded_XrMapLocalizationRequestInfoML
     XrMapLocalizationRequestInfoML* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    Decoded_XrUuidEXT* mapUuid{ nullptr };
+    Decoded_XrUuid* mapUuid{ nullptr };
 };
 
 struct Decoded_XrLocalizationMapImportInfoML
@@ -2787,7 +2910,7 @@ struct Decoded_XrSpaceUuidFilterInfoFB
     XrSpaceUuidFilterInfoFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    StructPointerDecoder<Decoded_XrUuidEXT>* uuids{ nullptr };
+    StructPointerDecoder<Decoded_XrUuid>* uuids{ nullptr };
 };
 
 struct Decoded_XrSpaceComponentFilterInfoFB
@@ -2806,7 +2929,7 @@ struct Decoded_XrSpaceQueryResultFB
     XrSpaceQueryResultFB* decoded_value{ nullptr };
 
     format::HandleId space{ format::kNullHandleId };
-    Decoded_XrUuidEXT* uuid{ nullptr };
+    Decoded_XrUuid* uuid{ nullptr };
 };
 
 struct Decoded_XrSpaceQueryResultsFB
@@ -2868,7 +2991,7 @@ struct Decoded_XrEventDataSpaceSaveCompleteFB
     OpenXrNextNode* next{ nullptr };
     format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
-    Decoded_XrUuidEXT* uuid{ nullptr };
+    Decoded_XrUuid* uuid{ nullptr };
 };
 
 struct Decoded_XrEventDataSpaceEraseCompleteFB
@@ -2880,7 +3003,7 @@ struct Decoded_XrEventDataSpaceEraseCompleteFB
     OpenXrNextNode* next{ nullptr };
     format::HandleId requestId{ format::kNullHandleId };
     format::HandleId space{ format::kNullHandleId };
-    Decoded_XrUuidEXT* uuid{ nullptr };
+    Decoded_XrUuid* uuid{ nullptr };
 };
 
 struct Decoded_XrSwapchainImageFoveationVulkanFB
@@ -2974,13 +3097,6 @@ struct Decoded_XrHapticAmplitudeEnvelopeVibrationFB
     PointerDecoder<float> amplitudes;
 };
 
-struct Decoded_XrExtent3DfFB
-{
-    using struct_type = XrExtent3DfFB;
-
-    XrExtent3DfFB* decoded_value{ nullptr };
-};
-
 struct Decoded_XrOffset3DfFB
 {
     using struct_type = XrOffset3DfFB;
@@ -2995,7 +3111,7 @@ struct Decoded_XrRect3DfFB
     XrRect3DfFB* decoded_value{ nullptr };
 
     Decoded_XrOffset3DfFB* offset{ nullptr };
-    Decoded_XrExtent3DfFB* extent{ nullptr };
+    Decoded_XrExtent3Df* extent{ nullptr };
 };
 
 struct Decoded_XrSemanticLabelsFB
@@ -3015,9 +3131,9 @@ struct Decoded_XrRoomLayoutFB
     XrRoomLayoutFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    Decoded_XrUuidEXT* floorUuid{ nullptr };
-    Decoded_XrUuidEXT* ceilingUuid{ nullptr };
-    StructPointerDecoder<Decoded_XrUuidEXT>* wallUuids{ nullptr };
+    Decoded_XrUuid* floorUuid{ nullptr };
+    Decoded_XrUuid* ceilingUuid{ nullptr };
+    StructPointerDecoder<Decoded_XrUuid>* wallUuids{ nullptr };
 };
 
 struct Decoded_XrBoundary2DFB
@@ -3076,7 +3192,7 @@ struct Decoded_XrSpaceContainerFB
     XrSpaceContainerFB* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    StructPointerDecoder<Decoded_XrUuidEXT>* uuids{ nullptr };
+    StructPointerDecoder<Decoded_XrUuid>* uuids{ nullptr };
 };
 
 struct Decoded_XrFoveationEyeTrackedProfileCreateInfoMETA
@@ -3509,7 +3625,7 @@ struct Decoded_XrSystemHeadsetIdPropertiesMETA
     XrSystemHeadsetIdPropertiesMETA* decoded_value{ nullptr };
 
     OpenXrNextNode* next{ nullptr };
-    Decoded_XrUuidEXT* id{ nullptr };
+    Decoded_XrUuid* id{ nullptr };
 };
 
 struct Decoded_XrRecommendedLayerResolutionMETA
@@ -3648,6 +3764,82 @@ struct Decoded_XrFaceExpressionWeights2FB
     OpenXrNextNode* next{ nullptr };
     PointerDecoder<float> weights;
     PointerDecoder<float> confidences;
+};
+
+struct Decoded_XrEnvironmentDepthProviderCreateInfoMETA
+{
+    using struct_type = XrEnvironmentDepthProviderCreateInfoMETA;
+
+    XrEnvironmentDepthProviderCreateInfoMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+struct Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA
+{
+    using struct_type = XrEnvironmentDepthSwapchainCreateInfoMETA;
+
+    XrEnvironmentDepthSwapchainCreateInfoMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+struct Decoded_XrEnvironmentDepthSwapchainStateMETA
+{
+    using struct_type = XrEnvironmentDepthSwapchainStateMETA;
+
+    XrEnvironmentDepthSwapchainStateMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+struct Decoded_XrEnvironmentDepthImageAcquireInfoMETA
+{
+    using struct_type = XrEnvironmentDepthImageAcquireInfoMETA;
+
+    XrEnvironmentDepthImageAcquireInfoMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    format::HandleId space{ format::kNullHandleId };
+};
+
+struct Decoded_XrEnvironmentDepthImageViewMETA
+{
+    using struct_type = XrEnvironmentDepthImageViewMETA;
+
+    XrEnvironmentDepthImageViewMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    Decoded_XrFovf* fov{ nullptr };
+    Decoded_XrPosef* pose{ nullptr };
+};
+
+struct Decoded_XrEnvironmentDepthImageMETA
+{
+    using struct_type = XrEnvironmentDepthImageMETA;
+
+    XrEnvironmentDepthImageMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    StructPointerDecoder<Decoded_XrEnvironmentDepthImageViewMETA>* views{ nullptr };
+};
+
+struct Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA
+{
+    using struct_type = XrEnvironmentDepthHandRemovalSetInfoMETA;
+
+    XrEnvironmentDepthHandRemovalSetInfoMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+struct Decoded_XrSystemEnvironmentDepthPropertiesMETA
+{
+    using struct_type = XrSystemEnvironmentDepthPropertiesMETA;
+
+    XrSystemEnvironmentDepthPropertiesMETA* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
 };
 
 struct Decoded_XrPassthroughCreateInfoHTC
@@ -3844,13 +4036,6 @@ struct Decoded_XrPlaneDetectorCreateInfoEXT
     OpenXrNextNode* next{ nullptr };
 };
 
-struct Decoded_XrExtent3DfEXT
-{
-    using struct_type = XrExtent3DfEXT;
-
-    XrExtent3DfEXT* decoded_value{ nullptr };
-};
-
 struct Decoded_XrPlaneDetectorBeginInfoEXT
 {
     using struct_type = XrPlaneDetectorBeginInfoEXT;
@@ -3862,7 +4047,7 @@ struct Decoded_XrPlaneDetectorBeginInfoEXT
     PointerDecoder<XrPlaneDetectorOrientationEXT> orientations;
     PointerDecoder<XrPlaneDetectorSemanticTypeEXT> semanticTypes;
     Decoded_XrPosef* boundingBoxPose{ nullptr };
-    Decoded_XrExtent3DfEXT* boundingBoxExtent{ nullptr };
+    Decoded_XrExtent3Df* boundingBoxExtent{ nullptr };
 };
 
 struct Decoded_XrPlaneDetectorGetInfoEXT
@@ -3904,6 +4089,44 @@ struct Decoded_XrPlaneDetectorPolygonBufferEXT
 
     OpenXrNextNode* next{ nullptr };
     StructPointerDecoder<Decoded_XrVector2f>* vertices{ nullptr };
+};
+
+struct Decoded_XrFutureCancelInfoEXT
+{
+    using struct_type = XrFutureCancelInfoEXT;
+
+    XrFutureCancelInfoEXT* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    format::HandleId future{ format::kNullHandleId };
+};
+
+struct Decoded_XrFuturePollInfoEXT
+{
+    using struct_type = XrFuturePollInfoEXT;
+
+    XrFuturePollInfoEXT* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+    format::HandleId future{ format::kNullHandleId };
+};
+
+struct Decoded_XrFutureCompletionEXT
+{
+    using struct_type = XrFutureCompletionEXT;
+
+    XrFutureCompletionEXT* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+struct Decoded_XrFuturePollResultEXT
+{
+    using struct_type = XrFuturePollResultEXT;
+
+    XrFuturePollResultEXT* decoded_value{ nullptr };
+
+    OpenXrNextNode* next{ nullptr };
 };
 
 struct Decoded_XrEventDataUserPresenceChangedEXT
@@ -4126,7 +4349,8 @@ union XrCompositionLayerBaseHeaderSizeUnion
     XrCompositionLayerCylinderKHR d;
     XrCompositionLayerEquirectKHR e;
     XrCompositionLayerEquirect2KHR f;
-    XrCompositionLayerPassthroughHTC g;
+    XrCompositionLayerPassthroughFB g;
+    XrCompositionLayerPassthroughHTC h;
 };
 
 struct Decoded_XrCompositionLayerBaseHeader
@@ -4167,6 +4391,9 @@ struct Decoded_XrCompositionLayerBaseHeader
              break;
          case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
              return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerEquirect2KHR>(len, initialize));
+             break;
+         case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+             return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerPassthroughFB>(len, initialize));
              break;
          case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
              return_type = reinterpret_cast<Decoded_XrCompositionLayerBaseHeader*>(DecodeAllocator::Allocate<Decoded_XrCompositionLayerPassthroughHTC>(len, initialize));
@@ -4222,6 +4449,12 @@ struct Decoded_XrCompositionLayerBaseHeader
             case XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR:
             {
                 Decoded_XrCompositionLayerEquirect2KHR* local_dest = reinterpret_cast<Decoded_XrCompositionLayerEquirect2KHR*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+            {
+                Decoded_XrCompositionLayerPassthroughFB* local_dest = reinterpret_cast<Decoded_XrCompositionLayerPassthroughFB*>(dest);
                 bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
                 break;
             }
@@ -4302,6 +4535,16 @@ struct Decoded_XrCompositionLayerBaseHeader
                 for (size_t i=0; i < len; i++)
                 {
                     allocation[i] = XrCompositionLayerEquirect2KHR{ XR_TYPE_COMPOSITION_LAYER_EQUIRECT2_KHR };
+                }
+                output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
+                break;
+            }
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrCompositionLayerPassthroughFB>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrCompositionLayerPassthroughFB{ XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB };
                 }
                 output_data = reinterpret_cast<XrCompositionLayerBaseHeader*>(allocation);
                 break;
@@ -5477,6 +5720,92 @@ struct Decoded_XrSpaceFilterInfoBaseHeaderFB
                     allocation[i] = XrSpaceComponentFilterInfoFB{ XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB };
                 }
                 output_data = reinterpret_cast<XrSpaceFilterInfoBaseHeaderFB*>(allocation);
+                break;
+            }
+        }
+        return output_data;
+    }
+
+
+    OpenXrNextNode* next{ nullptr };
+};
+
+union XrFutureCompletionBaseHeaderEXTSizeUnion
+{
+    XrFutureCompletionEXT a;
+};
+
+struct Decoded_XrFutureCompletionBaseHeaderEXT
+{
+    using struct_type = XrFutureCompletionBaseHeaderEXT;
+    using union_size_type = XrFutureCompletionBaseHeaderEXTSizeUnion;
+
+    XrFutureCompletionBaseHeaderEXT* decoded_value{ nullptr };
+
+    static Decoded_XrFutureCompletionBaseHeaderEXT* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)
+    {
+        Decoded_XrFutureCompletionBaseHeaderEXT* return_type = nullptr;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                return_type = DecodeAllocator::Allocate<Decoded_XrFutureCompletionBaseHeaderEXT>(len, initialize);
+                break;
+         case XR_TYPE_FUTURE_COMPLETION_EXT:
+             return_type = reinterpret_cast<Decoded_XrFutureCompletionBaseHeaderEXT*>(DecodeAllocator::Allocate<Decoded_XrFutureCompletionEXT>(len, initialize));
+             break;
+        }
+        return return_type;
+    }
+
+    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_XrFutureCompletionBaseHeaderEXT* dest)
+    {
+        size_t   bytes_read          = 0;
+
+        // Peek at the actual structure type
+        uint32_t peek_structure_type = 0;
+        ValueDecoder::DecodeUInt32Value(buffer, buffer_size, &peek_structure_type);
+        XrStructureType xr_type = static_cast<XrStructureType>(peek_structure_type);
+
+        switch (xr_type)
+        {
+            default:
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);
+                break;
+            case XR_TYPE_FUTURE_COMPLETION_EXT:
+            {
+                Decoded_XrFutureCompletionEXT* local_dest = reinterpret_cast<Decoded_XrFutureCompletionEXT*>(dest);
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);
+                break;
+            }
+        }
+        return bytes_read;
+    }
+
+    XrFutureCompletionBaseHeaderEXT *AllocateOutputData(size_t len)
+    {
+        assert(decoded_value);
+        XrStructureType struct_type = decoded_value->type;
+        XrFutureCompletionBaseHeaderEXT *output_data = nullptr;
+
+        switch (struct_type)
+        {
+            default:
+                output_data = DecodeAllocator::Allocate<XrFutureCompletionBaseHeaderEXT>(len);
+                break;
+            case XR_TYPE_FUTURE_COMPLETION_EXT:
+            {
+                auto *allocation = DecodeAllocator::Allocate<XrFutureCompletionEXT>(len);
+                for (size_t i=0; i < len; i++)
+                {
+                    allocation[i] = XrFutureCompletionEXT{ XR_TYPE_FUTURE_COMPLETION_EXT };
+                }
+                output_data = reinterpret_cast<XrFutureCompletionBaseHeaderEXT*>(allocation);
                 break;
             }
         }

@@ -291,6 +291,23 @@ const encode::OpenXrInstanceTable* OpenXrReplayConsumerBase::GetInstanceTable(Xr
     assert(instance != trianglemeshFB_to_instance_.end());
     return (instance != trianglemeshFB_to_instance_.end()) ? GetInstanceTable(instance->second) : nullptr;
 }
+
+const encode::OpenXrInstanceTable*
+OpenXrReplayConsumerBase::GetInstanceTable(XrEnvironmentDepthProviderMETA handle) const
+{
+    auto instance = envdepthproviderMETA_to_instance_.find(handle);
+    assert(instance != envdepthproviderMETA_to_instance_.end());
+    return (instance != envdepthproviderMETA_to_instance_.end()) ? GetInstanceTable(instance->second) : nullptr;
+}
+
+const encode::OpenXrInstanceTable*
+OpenXrReplayConsumerBase::GetInstanceTable(XrEnvironmentDepthSwapchainMETA handle) const
+{
+    auto instance = envdepthswapchainMETA_to_instance_.find(handle);
+    assert(instance != envdepthswapchainMETA_to_instance_.end());
+    return (instance != envdepthswapchainMETA_to_instance_.end()) ? GetInstanceTable(instance->second) : nullptr;
+}
+
 #endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
 void OpenXrReplayConsumerBase::AssociateParent(XrSession session, XrInstance instance)
@@ -448,6 +465,18 @@ void OpenXrReplayConsumerBase::AssociateParent(XrSpatialGraphNodeBindingMSFT gra
 void OpenXrReplayConsumerBase::AssociateParent(XrTriangleMeshFB triangle_mesh, XrSession session)
 {
     trianglemeshFB_to_instance_[triangle_mesh] = session_to_instance_[session];
+}
+
+void OpenXrReplayConsumerBase::AssociateParent(XrEnvironmentDepthProviderMETA env_depth_provider, XrSession session)
+{
+    envdepthproviderMETA_to_instance_[env_depth_provider] = session_to_instance_[session];
+}
+
+void OpenXrReplayConsumerBase::AssociateParent(XrEnvironmentDepthSwapchainMETA env_depth_swapchain,
+                                               XrEnvironmentDepthProviderMETA  environment_depth_provider)
+{
+    envdepthswapchainMETA_to_instance_[env_depth_swapchain] =
+        envdepthproviderMETA_to_instance_[environment_depth_provider];
 }
 
 #endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
@@ -880,7 +909,7 @@ void OpenXrReplayConsumerBase::Process_xrEndFrame(const ApiCallInfo&            
     //
     // NOTE: A closer approximation of the capture would be having the displayTime be at the same offset of
     // the replay predictedDisplayTime, as the recorded displayTime has from the recorded predictedDisplayTime.
-    replay_frame_end_info.displayTime    = session_data.GetDisplayTime();
+    replay_frame_end_info.displayTime = session_data.GetDisplayTime();
 
     XrResult replay_result = GetInstanceTable(in_session)->EndFrame(in_session, &replay_frame_end_info);
     CheckResult("xrEndFrame", returnValue, replay_result, call_info);

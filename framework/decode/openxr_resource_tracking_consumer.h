@@ -307,7 +307,7 @@ class OpenXrResourceTrackingConsumer : public OpenXrConsumer
     void Process_xrCreateExportedLocalizationMapML(const ApiCallInfo&                                 call_info,
                                                    XrResult                                           returnValue,
                                                    format::HandleId                                   session,
-                                                   StructPointerDecoder<Decoded_XrUuidEXT>*           mapUuid,
+                                                   StructPointerDecoder<Decoded_XrUuid>*              mapUuid,
                                                    HandlePointerDecoder<XrExportedLocalizationMapML>* map) override;
 
     void Process_xrDestroyExportedLocalizationMapML(const ApiCallInfo& call_info,

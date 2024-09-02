@@ -96,6 +96,9 @@ XrEventDataSessionStateChanged* TrackStruct(const XrEventDataSessionStateChanged
 XrEventDataReferenceSpaceChangePending* TrackStruct(const XrEventDataReferenceSpaceChangePending* value, HandleUnwrapMemory* unwrap_memory);
 XrEventDataInteractionProfileChanged* TrackStruct(const XrEventDataInteractionProfileChanged* value, HandleUnwrapMemory* unwrap_memory);
 XrHapticVibration* TrackStruct(const XrHapticVibration* value, HandleUnwrapMemory* unwrap_memory);
+XrSpacesLocateInfo* TrackStruct(const XrSpacesLocateInfo* value, HandleUnwrapMemory* unwrap_memory);
+XrSpaceLocations* TrackStruct(const XrSpaceLocations* value, HandleUnwrapMemory* unwrap_memory);
+XrSpaceVelocities* TrackStruct(const XrSpaceVelocities* value, HandleUnwrapMemory* unwrap_memory);
 XrCompositionLayerCubeKHR* TrackStruct(const XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory);
 XrInstanceCreateInfoAndroidKHR* TrackStruct(const XrInstanceCreateInfoAndroidKHR* value, HandleUnwrapMemory* unwrap_memory);
 XrCompositionLayerDepthInfoKHR* TrackStruct(const XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
@@ -120,6 +123,9 @@ XrGraphicsRequirementsD3D11KHR* TrackStruct(const XrGraphicsRequirementsD3D11KHR
 XrGraphicsBindingD3D12KHR* TrackStruct(const XrGraphicsBindingD3D12KHR* value, HandleUnwrapMemory* unwrap_memory);
 XrSwapchainImageD3D12KHR* TrackStruct(const XrSwapchainImageD3D12KHR* value, HandleUnwrapMemory* unwrap_memory);
 XrGraphicsRequirementsD3D12KHR* TrackStruct(const XrGraphicsRequirementsD3D12KHR* value, HandleUnwrapMemory* unwrap_memory);
+XrGraphicsBindingMetalKHR* TrackStruct(const XrGraphicsBindingMetalKHR* value, HandleUnwrapMemory* unwrap_memory);
+XrSwapchainImageMetalKHR* TrackStruct(const XrSwapchainImageMetalKHR* value, HandleUnwrapMemory* unwrap_memory);
+XrGraphicsRequirementsMetalKHR* TrackStruct(const XrGraphicsRequirementsMetalKHR* value, HandleUnwrapMemory* unwrap_memory);
 XrVisibilityMaskKHR* TrackStruct(const XrVisibilityMaskKHR* value, HandleUnwrapMemory* unwrap_memory);
 XrEventDataVisibilityMaskChangedKHR* TrackStruct(const XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory);
 XrCompositionLayerColorScaleBiasKHR* TrackStruct(const XrCompositionLayerColorScaleBiasKHR* value, HandleUnwrapMemory* unwrap_memory);
@@ -364,6 +370,14 @@ XrSystemFaceTrackingProperties2FB* TrackStruct(const XrSystemFaceTrackingPropert
 XrFaceTrackerCreateInfo2FB* TrackStruct(const XrFaceTrackerCreateInfo2FB* value, HandleUnwrapMemory* unwrap_memory);
 XrFaceExpressionInfo2FB* TrackStruct(const XrFaceExpressionInfo2FB* value, HandleUnwrapMemory* unwrap_memory);
 XrFaceExpressionWeights2FB* TrackStruct(const XrFaceExpressionWeights2FB* value, HandleUnwrapMemory* unwrap_memory);
+XrEnvironmentDepthProviderCreateInfoMETA* TrackStruct(const XrEnvironmentDepthProviderCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+XrEnvironmentDepthSwapchainCreateInfoMETA* TrackStruct(const XrEnvironmentDepthSwapchainCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+XrEnvironmentDepthSwapchainStateMETA* TrackStruct(const XrEnvironmentDepthSwapchainStateMETA* value, HandleUnwrapMemory* unwrap_memory);
+XrEnvironmentDepthImageAcquireInfoMETA* TrackStruct(const XrEnvironmentDepthImageAcquireInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+XrEnvironmentDepthImageViewMETA* TrackStruct(const XrEnvironmentDepthImageViewMETA* value, HandleUnwrapMemory* unwrap_memory);
+XrEnvironmentDepthImageMETA* TrackStruct(const XrEnvironmentDepthImageMETA* value, HandleUnwrapMemory* unwrap_memory);
+XrEnvironmentDepthHandRemovalSetInfoMETA* TrackStruct(const XrEnvironmentDepthHandRemovalSetInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+XrSystemEnvironmentDepthPropertiesMETA* TrackStruct(const XrSystemEnvironmentDepthPropertiesMETA* value, HandleUnwrapMemory* unwrap_memory);
 XrPassthroughCreateInfoHTC* TrackStruct(const XrPassthroughCreateInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
 XrPassthroughColorHTC* TrackStruct(const XrPassthroughColorHTC* value, HandleUnwrapMemory* unwrap_memory);
 XrPassthroughMeshTransformInfoHTC* TrackStruct(const XrPassthroughMeshTransformInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
@@ -385,6 +399,11 @@ XrPlaneDetectorGetInfoEXT* TrackStruct(const XrPlaneDetectorGetInfoEXT* value, H
 XrPlaneDetectorLocationEXT* TrackStruct(const XrPlaneDetectorLocationEXT* value, HandleUnwrapMemory* unwrap_memory);
 XrPlaneDetectorLocationsEXT* TrackStruct(const XrPlaneDetectorLocationsEXT* value, HandleUnwrapMemory* unwrap_memory);
 XrPlaneDetectorPolygonBufferEXT* TrackStruct(const XrPlaneDetectorPolygonBufferEXT* value, HandleUnwrapMemory* unwrap_memory);
+XrFutureCancelInfoEXT* TrackStruct(const XrFutureCancelInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+XrFuturePollInfoEXT* TrackStruct(const XrFuturePollInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+XrFutureCompletionBaseHeaderEXT* TrackStruct(const XrFutureCompletionBaseHeaderEXT* value, HandleUnwrapMemory* unwrap_memory);
+XrFutureCompletionEXT* TrackStruct(const XrFutureCompletionEXT* value, HandleUnwrapMemory* unwrap_memory);
+XrFuturePollResultEXT* TrackStruct(const XrFuturePollResultEXT* value, HandleUnwrapMemory* unwrap_memory);
 XrEventDataUserPresenceChangedEXT* TrackStruct(const XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory);
 XrSystemUserPresencePropertiesEXT* TrackStruct(const XrSystemUserPresencePropertiesEXT* value, HandleUnwrapMemory* unwrap_memory);
 XrEventDataHeadsetFitChangedML* TrackStruct(const XrEventDataHeadsetFitChangedML* value, HandleUnwrapMemory* unwrap_memory);

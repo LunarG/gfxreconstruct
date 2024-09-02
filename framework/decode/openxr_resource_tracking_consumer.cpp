@@ -1545,7 +1545,7 @@ void OpenXrResourceTrackingConsumer::Process_xrCreateExportedLocalizationMapML(
     const ApiCallInfo&                                 call_info,
     XrResult                                           returnValue,
     format::HandleId                                   session,
-    StructPointerDecoder<Decoded_XrUuidEXT>*           mapUuid,
+    StructPointerDecoder<Decoded_XrUuid>*              mapUuid,
     HandlePointerDecoder<XrExportedLocalizationMapML>* map)
 {
     GFXRECON_UNREFERENCED_PARAMETER(returnValue);

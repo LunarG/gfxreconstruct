@@ -2273,6 +2273,54 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
     return result;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpaces(
+    XrSession                                   session,
+    const XrSpacesLocateInfo*                   locateInfo,
+    XrSpaceLocations*                           spaceLocations)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpacesLocateInfo* locateInfo_unwrapped = nullptr;
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSpaces>::Dispatch(manager, session, locateInfo, spaceLocations);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSpaces>::PreLockReentrant(manager, session, locateInfo, spaceLocations);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->LocateSpaces(session, locateInfo_unwrapped, spaceLocations);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSpaces);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
+        EncodeStructPtr(encoder, locateInfo);
+        EncodeStructPtr(encoder, spaceLocations, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrLocateSpaces>::Dispatch(manager, result, session, locateInfo, spaceLocations);
+
+    return result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(
     XrSession                                   session,
     XrAndroidThreadTypeKHR                      threadType,
@@ -2669,6 +2717,49 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D12GraphicsRequirementsKHR(
     return result;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMetalGraphicsRequirementsKHR(
+    XrInstance                                  instance,
+    XrSystemId                                  systemId,
+    XrGraphicsRequirementsMetalKHR*             graphicsRequirements)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR>::Dispatch(manager, instance, systemId, graphicsRequirements);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR>::PreLockReentrant(manager, instance, systemId, graphicsRequirements);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetMetalGraphicsRequirementsKHR(instance, systemId, graphicsRequirements);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        encoder->EncodeOpenXrAtomValue<openxr_wrappers::SystemIdWrapper>(systemId);
+        EncodeStructPtr(encoder, graphicsRequirements, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR>::Dispatch(manager, result, instance, systemId, graphicsRequirements);
+
+    return result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrGetVisibilityMaskKHR(
     XrSession                                   session,
     XrViewConfigurationType                     viewConfigurationType,
@@ -2927,6 +3018,54 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR>::Dispatch(manager, result, instance, systemId, graphicsRequirements);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpacesKHR(
+    XrSession                                   session,
+    const XrSpacesLocateInfo*                   locateInfo,
+    XrSpaceLocations*                           spaceLocations)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrSpacesLocateInfo* locateInfo_unwrapped = nullptr;
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSpacesKHR>::Dispatch(manager, session, locateInfo, spaceLocations);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        locateInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(locateInfo, handle_unwrap_memory);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrLocateSpacesKHR>::PreLockReentrant(manager, session, locateInfo, spaceLocations);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->LocateSpacesKHR(session, locateInfo_unwrapped, spaceLocations);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrLocateSpacesKHR);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
+        EncodeStructPtr(encoder, locateInfo);
+        EncodeStructPtr(encoder, spaceLocations, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrLocateSpacesKHR>::Dispatch(manager, result, session, locateInfo, spaceLocations);
 
     return result;
 }
@@ -10418,6 +10557,409 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(
     return result;
 }
 
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthProviderMETA(
+    XrSession                                   session,
+    const XrEnvironmentDepthProviderCreateInfoMETA* createInfo,
+    XrEnvironmentDepthProviderMETA*             environmentDepthProvider)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA>::Dispatch(manager, session, createInfo, environmentDepthProvider);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA>::PreLockReentrant(manager, session, createInfo, environmentDepthProvider);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->CreateEnvironmentDepthProviderMETA(session, createInfo, environmentDepthProvider);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedHandle<openxr_wrappers::SessionWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(session, openxr_wrappers::NoParentWrapper::kHandleValue, environmentDepthProvider, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::SessionWrapper>(session);
+        EncodeStructPtr(encoder, createInfo);
+        encoder->EncodeOpenXrHandlePtr<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<XrSession, openxr_wrappers::EnvironmentDepthProviderMETAWrapper, XrEnvironmentDepthProviderCreateInfoMETA>(result, session, environmentDepthProvider, createInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA>::Dispatch(manager, result, session, createInfo, environmentDepthProvider);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEnvironmentDepthProviderMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthProviderMETA>::Dispatch(manager, environmentDepthProvider);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthProviderMETA>::PreLockReentrant(manager, environmentDepthProvider);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    ScopedDestroyLock exclusive_scoped_lock;
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->DestroyEnvironmentDepthProviderMETA(environmentDepthProvider);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthProviderMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+        encoder->EncodeEnumValue(result);
+        manager->EndDestroyApiCallCapture<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthProviderMETA>::Dispatch(manager, result, environmentDepthProvider);
+
+    openxr_wrappers::DestroyWrappedHandle<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrStartEnvironmentDepthProviderMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStartEnvironmentDepthProviderMETA>::Dispatch(manager, environmentDepthProvider);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStartEnvironmentDepthProviderMETA>::PreLockReentrant(manager, environmentDepthProvider);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->StartEnvironmentDepthProviderMETA(environmentDepthProvider);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrStartEnvironmentDepthProviderMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrStartEnvironmentDepthProviderMETA>::Dispatch(manager, result, environmentDepthProvider);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrStopEnvironmentDepthProviderMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStopEnvironmentDepthProviderMETA>::Dispatch(manager, environmentDepthProvider);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrStopEnvironmentDepthProviderMETA>::PreLockReentrant(manager, environmentDepthProvider);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->StopEnvironmentDepthProviderMETA(environmentDepthProvider);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrStopEnvironmentDepthProviderMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrStopEnvironmentDepthProviderMETA>::Dispatch(manager, result, environmentDepthProvider);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthSwapchainMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider,
+    const XrEnvironmentDepthSwapchainCreateInfoMETA* createInfo,
+    XrEnvironmentDepthSwapchainMETA*            swapchain)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA>::Dispatch(manager, environmentDepthProvider, createInfo, swapchain);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA>::PreLockReentrant(manager, environmentDepthProvider, createInfo, swapchain);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->CreateEnvironmentDepthSwapchainMETA(environmentDepthProvider, createInfo, swapchain);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    if (result >= 0)
+    {
+        openxr_wrappers::CreateWrappedHandle<openxr_wrappers::EnvironmentDepthProviderMETAWrapper, openxr_wrappers::NoParentWrapper, openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(environmentDepthProvider, openxr_wrappers::NoParentWrapper::kHandleValue, swapchain, OpenXrCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+        EncodeStructPtr(encoder, createInfo);
+        encoder->EncodeOpenXrHandlePtr<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(swapchain, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<XrEnvironmentDepthProviderMETA, openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper, XrEnvironmentDepthSwapchainCreateInfoMETA>(result, environmentDepthProvider, swapchain, createInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA>::Dispatch(manager, result, environmentDepthProvider, createInfo, swapchain);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEnvironmentDepthSwapchainMETA(
+    XrEnvironmentDepthSwapchainMETA             swapchain)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthSwapchainMETA>::Dispatch(manager, swapchain);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthSwapchainMETA>::PreLockReentrant(manager, swapchain);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    ScopedDestroyLock exclusive_scoped_lock;
+    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->DestroyEnvironmentDepthSwapchainMETA(swapchain);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthSwapchainMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(swapchain);
+        encoder->EncodeEnumValue(result);
+        manager->EndDestroyApiCallCapture<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(swapchain);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthSwapchainMETA>::Dispatch(manager, result, swapchain);
+
+    openxr_wrappers::DestroyWrappedHandle<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(swapchain);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentDepthSwapchainImagesMETA(
+    XrEnvironmentDepthSwapchainMETA             swapchain,
+    uint32_t                                    imageCapacityInput,
+    uint32_t*                                   imageCountOutput,
+    XrSwapchainImageBaseHeader*                 images)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA>::Dispatch(manager, swapchain, imageCapacityInput, imageCountOutput, images);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA>::PreLockReentrant(manager, swapchain, imageCapacityInput, imageCountOutput, images);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->EnumerateEnvironmentDepthSwapchainImagesMETA(swapchain, imageCapacityInput, imageCountOutput, images);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(swapchain);
+        encoder->EncodeUInt32Value(imageCapacityInput);
+        encoder->EncodeUInt32Ptr(imageCountOutput, omit_output_data);
+        EncodeStructArray(encoder, images, imageCapacityInput, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA>::Dispatch(manager, result, swapchain, imageCapacityInput, imageCountOutput, images);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetEnvironmentDepthSwapchainStateMETA(
+    XrEnvironmentDepthSwapchainMETA             swapchain,
+    XrEnvironmentDepthSwapchainStateMETA*       state)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA>::Dispatch(manager, swapchain, state);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA>::PreLockReentrant(manager, swapchain, state);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(swapchain)->GetEnvironmentDepthSwapchainStateMETA(swapchain, state);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(swapchain);
+        EncodeStructPtr(encoder, state, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA>::Dispatch(manager, result, swapchain, state);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrAcquireEnvironmentDepthImageMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider,
+    const XrEnvironmentDepthImageAcquireInfoMETA* acquireInfo,
+    XrEnvironmentDepthImageMETA*                environmentDepthImage)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrEnvironmentDepthImageAcquireInfoMETA* acquireInfo_unwrapped = nullptr;
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA>::Dispatch(manager, environmentDepthProvider, acquireInfo, environmentDepthImage);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        acquireInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(acquireInfo, handle_unwrap_memory);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA>::PreLockReentrant(manager, environmentDepthProvider, acquireInfo, environmentDepthImage);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->AcquireEnvironmentDepthImageMETA(environmentDepthProvider, acquireInfo_unwrapped, environmentDepthImage);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+        EncodeStructPtr(encoder, acquireInfo);
+        EncodeStructPtr(encoder, environmentDepthImage, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA>::Dispatch(manager, result, environmentDepthProvider, acquireInfo, environmentDepthImage);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrSetEnvironmentDepthHandRemovalMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider,
+    const XrEnvironmentDepthHandRemovalSetInfoMETA* setInfo)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA>::Dispatch(manager, environmentDepthProvider, setInfo);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA>::PreLockReentrant(manager, environmentDepthProvider, setInfo);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(environmentDepthProvider)->SetEnvironmentDepthHandRemovalMETA(environmentDepthProvider, setInfo);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(environmentDepthProvider);
+        EncodeStructPtr(encoder, setInfo);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA>::Dispatch(manager, result, environmentDepthProvider, setInfo);
+
+    return result;
+}
+
 XRAPI_ATTR XrResult XRAPI_CALL xrSetTrackingOptimizationSettingsHintQCOM(
     XrSession                                   session,
     XrTrackingOptimizationSettingsDomainQCOM    domain,
@@ -10962,6 +11504,94 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlanePolygonBufferEXT(
     }
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT>::Dispatch(manager, result, planeDetector, planeId, polygonBufferIndex, polygonBuffer);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrPollFutureEXT(
+    XrInstance                                  instance,
+    const XrFuturePollInfoEXT*                  pollInfo,
+    XrFuturePollResultEXT*                      pollResult)
+{
+    bool omit_output_data = false;
+
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFuturePollInfoEXT* pollInfo_unwrapped = nullptr;
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPollFutureEXT>::Dispatch(manager, instance, pollInfo, pollResult);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        pollInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(pollInfo, handle_unwrap_memory);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrPollFutureEXT>::PreLockReentrant(manager, instance, pollInfo, pollResult);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->PollFutureEXT(instance, pollInfo_unwrapped, pollResult);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+    if (result < 0)
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrPollFutureEXT);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, pollInfo);
+        EncodeStructPtr(encoder, pollResult, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrPollFutureEXT>::Dispatch(manager, result, instance, pollInfo, pollResult);
+
+    return result;
+}
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCancelFutureEXT(
+    XrInstance                                  instance,
+    const XrFutureCancelInfoEXT*                cancelInfo)
+{
+    OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    HandleUnwrapMemory* handle_unwrap_memory = nullptr;
+    const XrFutureCancelInfoEXT* cancelInfo_unwrapped = nullptr;
+    CommonCaptureManager::CaptureMode save_capture_mode;
+    {
+        auto call_lock = manager->AcquireCallLock();
+
+        CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCancelFutureEXT>::Dispatch(manager, instance, cancelInfo);
+
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        cancelInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(cancelInfo, handle_unwrap_memory);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCancelFutureEXT>::PreLockReentrant(manager, instance, cancelInfo);
+        save_capture_mode = manager->GetCaptureMode();
+        manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
+    }
+
+    XrResult result = openxr_wrappers::GetInstanceTable(instance)->CancelFutureEXT(instance, cancelInfo_unwrapped);
+
+    auto call_lock = manager->AcquireCallLock();
+    manager->SetCaptureMode(save_capture_mode);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_xrCancelFutureEXT);
+    if (encoder)
+    {
+        encoder->EncodeOpenXrHandleValue<openxr_wrappers::InstanceWrapper>(instance);
+        EncodeStructPtr(encoder, cancelInfo);
+        encoder->EncodeEnumValue(result);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCancelFutureEXT>::Dispatch(manager, result, instance, cancelInfo);
 
     return result;
 }

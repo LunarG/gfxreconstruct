@@ -159,6 +159,8 @@ class OpenXrDecoder : public OpenXrDecoderBase
 
     size_t Decode_xrCreateApiLayerInstance(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_xrLocateSpaces(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_xrSetAndroidApplicationThreadKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrCreateSwapchainAndroidSurfaceKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -179,6 +181,8 @@ class OpenXrDecoder : public OpenXrDecoderBase
 
     size_t Decode_xrGetD3D12GraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_xrGetMetalGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_xrGetVisibilityMaskKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrConvertWin32PerformanceCounterToTimeKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -198,6 +202,8 @@ class OpenXrDecoder : public OpenXrDecoderBase
     size_t Decode_xrGetVulkanGraphicsDevice2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrGetVulkanGraphicsRequirements2KHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrLocateSpacesKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrPerfSettingsSetPerformanceLevelEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
@@ -551,6 +557,26 @@ class OpenXrDecoder : public OpenXrDecoderBase
 
     size_t Decode_xrGetFaceExpressionWeights2FB(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
+    size_t Decode_xrCreateEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrDestroyEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrStartEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrStopEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrCreateEnvironmentDepthSwapchainMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrDestroyEnvironmentDepthSwapchainMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrEnumerateEnvironmentDepthSwapchainImagesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrGetEnvironmentDepthSwapchainStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrAcquireEnvironmentDepthImageMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrSetEnvironmentDepthHandRemovalMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
     size_t Decode_xrSetTrackingOptimizationSettingsHintQCOM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrCreatePassthroughHTC(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
@@ -576,6 +602,10 @@ class OpenXrDecoder : public OpenXrDecoderBase
     size_t Decode_xrGetPlaneDetectionsEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrGetPlanePolygonBufferEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrPollFutureEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
+
+    size_t Decode_xrCancelFutureEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 
     size_t Decode_xrEnableUserCalibrationEventsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);
 

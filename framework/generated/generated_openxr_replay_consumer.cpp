@@ -843,6 +843,24 @@ void OpenXrReplayConsumer::Process_xrStopHapticFeedback(
 }
 
 
+void OpenXrReplayConsumer::Process_xrLocateSpaces(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            session,
+    StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+    StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations)
+{
+    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    const XrSpacesLocateInfo* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrSpaceLocations* out_spaceLocations = spaceLocations->IsNull() ? nullptr : spaceLocations->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATIONS, nullptr });
+    InitializeOutputStructNext(spaceLocations);
+
+    XrResult replay_result = GetInstanceTable(in_session)->LocateSpaces(in_session, in_locateInfo, out_spaceLocations);
+    CheckResult("xrLocateSpaces", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateSpaces>::UpdateState(this, call_info, returnValue, session, locateInfo, spaceLocations, replay_result);
+}
+
 void OpenXrReplayConsumer::Process_xrSetAndroidApplicationThreadKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -1024,6 +1042,23 @@ void OpenXrReplayConsumer::Process_xrGetD3D12GraphicsRequirementsKHR(
     CustomProcess<format::ApiCallId::ApiCall_xrGetD3D12GraphicsRequirementsKHR>::UpdateState(this, call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
 }
 
+void OpenXrReplayConsumer::Process_xrGetMetalGraphicsRequirementsKHR(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            instance,
+    format::HandleId                            systemId,
+    StructPointerDecoder<Decoded_XrGraphicsRequirementsMetalKHR>* graphicsRequirements)
+{
+    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    XrSystemId in_systemId = MapHandle<OpenXrSystemIdInfo>(systemId, &CommonObjectInfoTable::GetXrSystemIdInfo);
+    XrGraphicsRequirementsMetalKHR* out_graphicsRequirements = graphicsRequirements->IsNull() ? nullptr : graphicsRequirements->AllocateOutputData(1, { XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR, nullptr });
+    InitializeOutputStructNext(graphicsRequirements);
+
+    XrResult replay_result = GetInstanceTable(in_instance)->GetMetalGraphicsRequirementsKHR(in_instance, in_systemId, out_graphicsRequirements);
+    CheckResult("xrGetMetalGraphicsRequirementsKHR", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR>::UpdateState(this, call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
+}
+
 void OpenXrReplayConsumer::Process_xrGetVisibilityMaskKHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -1184,6 +1219,24 @@ void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsRequirements2KHR(
     XrResult replay_result = GetInstanceTable(in_instance)->GetVulkanGraphicsRequirements2KHR(in_instance, in_systemId, out_graphicsRequirements);
     CheckResult("xrGetVulkanGraphicsRequirements2KHR", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR>::UpdateState(this, call_info, returnValue, instance, systemId, graphicsRequirements, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrLocateSpacesKHR(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            session,
+    StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+    StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations)
+{
+    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    const XrSpacesLocateInfo* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrSpaceLocations* out_spaceLocations = spaceLocations->IsNull() ? nullptr : spaceLocations->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATIONS, nullptr });
+    InitializeOutputStructNext(spaceLocations);
+
+    XrResult replay_result = GetInstanceTable(in_session)->LocateSpacesKHR(in_session, in_locateInfo, out_spaceLocations);
+    CheckResult("xrLocateSpacesKHR", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateSpacesKHR>::UpdateState(this, call_info, returnValue, session, locateInfo, spaceLocations, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrPerfSettingsSetPerformanceLevelEXT(
@@ -2206,7 +2259,7 @@ void OpenXrReplayConsumer::Process_xrGetSpaceUuidFB(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            space,
-    StructPointerDecoder<Decoded_XrUuidEXT>*    uuid)
+    StructPointerDecoder<Decoded_XrUuid>*       uuid)
 {
     XrSpace in_space = MapHandle<OpenXrSpaceInfo>(space, &CommonObjectInfoTable::GetXrSpaceInfo);
     XrUuidEXT* out_uuid = uuid->IsNull() ? nullptr : uuid->AllocateOutputData(1);
@@ -2978,7 +3031,7 @@ void OpenXrReplayConsumer::Process_xrImportLocalizationMapML(
     XrResult                                    returnValue,
     format::HandleId                            session,
     StructPointerDecoder<Decoded_XrLocalizationMapImportInfoML>* importInfo,
-    StructPointerDecoder<Decoded_XrUuidEXT>*    mapUuid)
+    StructPointerDecoder<Decoded_XrUuid>*       mapUuid)
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
     const XrLocalizationMapImportInfoML* in_importInfo = importInfo->GetPointer();
@@ -2993,7 +3046,7 @@ void OpenXrReplayConsumer::Process_xrCreateExportedLocalizationMapML(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
     format::HandleId                            session,
-    StructPointerDecoder<Decoded_XrUuidEXT>*    mapUuid,
+    StructPointerDecoder<Decoded_XrUuid>*       mapUuid,
     HandlePointerDecoder<XrExportedLocalizationMapML>* map)
 {
     XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
@@ -4078,6 +4131,162 @@ void OpenXrReplayConsumer::Process_xrGetFaceExpressionWeights2FB(
     CustomProcess<format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB>::UpdateState(this, call_info, returnValue, faceTracker, expressionInfo, expressionWeights, replay_result);
 }
 
+void OpenXrReplayConsumer::Process_xrCreateEnvironmentDepthProviderMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            session,
+    StructPointerDecoder<Decoded_XrEnvironmentDepthProviderCreateInfoMETA>* createInfo,
+    HandlePointerDecoder<XrEnvironmentDepthProviderMETA>* environmentDepthProvider)
+{
+    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    const XrEnvironmentDepthProviderCreateInfoMETA* in_createInfo = createInfo->GetPointer();
+    if (!environmentDepthProvider->IsNull()) { environmentDepthProvider->SetHandleLength(1); }
+    XrEnvironmentDepthProviderMETA* out_environmentDepthProvider = environmentDepthProvider->GetHandlePointer();
+
+    XrResult replay_result = GetInstanceTable(in_session)->CreateEnvironmentDepthProviderMETA(in_session, in_createInfo, out_environmentDepthProvider);
+    CheckResult("xrCreateEnvironmentDepthProviderMETA", returnValue, replay_result, call_info);
+
+    AddHandle<OpenXrEnvironmentDepthProviderMETAInfo>(session, environmentDepthProvider->GetPointer(), out_environmentDepthProvider, &CommonObjectInfoTable::AddXrEnvironmentDepthProviderMETAInfo);
+    
+    AssociateParent(*out_environmentDepthProvider, in_session);
+    CustomProcess<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA>::UpdateState(this, call_info, returnValue, session, createInfo, environmentDepthProvider, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrDestroyEnvironmentDepthProviderMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            environmentDepthProvider)
+{
+    XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
+
+    XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->DestroyEnvironmentDepthProviderMETA(in_environmentDepthProvider);
+    CheckResult("xrDestroyEnvironmentDepthProviderMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthProviderMETA>::UpdateState(this, call_info, returnValue, environmentDepthProvider, replay_result);
+    RemoveHandle(environmentDepthProvider, &CommonObjectInfoTable::RemoveXrEnvironmentDepthProviderMETAInfo);
+}
+
+void OpenXrReplayConsumer::Process_xrStartEnvironmentDepthProviderMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            environmentDepthProvider)
+{
+    XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
+
+    XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->StartEnvironmentDepthProviderMETA(in_environmentDepthProvider);
+    CheckResult("xrStartEnvironmentDepthProviderMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrStartEnvironmentDepthProviderMETA>::UpdateState(this, call_info, returnValue, environmentDepthProvider, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrStopEnvironmentDepthProviderMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            environmentDepthProvider)
+{
+    XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
+
+    XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->StopEnvironmentDepthProviderMETA(in_environmentDepthProvider);
+    CheckResult("xrStopEnvironmentDepthProviderMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrStopEnvironmentDepthProviderMETA>::UpdateState(this, call_info, returnValue, environmentDepthProvider, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrCreateEnvironmentDepthSwapchainMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            environmentDepthProvider,
+    StructPointerDecoder<Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA>* createInfo,
+    HandlePointerDecoder<XrEnvironmentDepthSwapchainMETA>* swapchain)
+{
+    XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
+    const XrEnvironmentDepthSwapchainCreateInfoMETA* in_createInfo = createInfo->GetPointer();
+    if (!swapchain->IsNull()) { swapchain->SetHandleLength(1); }
+    XrEnvironmentDepthSwapchainMETA* out_swapchain = swapchain->GetHandlePointer();
+
+    XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->CreateEnvironmentDepthSwapchainMETA(in_environmentDepthProvider, in_createInfo, out_swapchain);
+    CheckResult("xrCreateEnvironmentDepthSwapchainMETA", returnValue, replay_result, call_info);
+
+    AddHandle<OpenXrEnvironmentDepthSwapchainMETAInfo>(environmentDepthProvider, swapchain->GetPointer(), out_swapchain, &CommonObjectInfoTable::AddXrEnvironmentDepthSwapchainMETAInfo);
+    
+    AssociateParent(*out_swapchain, in_environmentDepthProvider);
+    CustomProcess<format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA>::UpdateState(this, call_info, returnValue, environmentDepthProvider, createInfo, swapchain, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrDestroyEnvironmentDepthSwapchainMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            swapchain)
+{
+    XrEnvironmentDepthSwapchainMETA in_swapchain = MapHandle<OpenXrEnvironmentDepthSwapchainMETAInfo>(swapchain, &CommonObjectInfoTable::GetXrEnvironmentDepthSwapchainMETAInfo);
+
+    XrResult replay_result = GetInstanceTable(in_swapchain)->DestroyEnvironmentDepthSwapchainMETA(in_swapchain);
+    CheckResult("xrDestroyEnvironmentDepthSwapchainMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthSwapchainMETA>::UpdateState(this, call_info, returnValue, swapchain, replay_result);
+    RemoveHandle(swapchain, &CommonObjectInfoTable::RemoveXrEnvironmentDepthSwapchainMETAInfo);
+}
+
+void OpenXrReplayConsumer::Process_xrEnumerateEnvironmentDepthSwapchainImagesMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            swapchain,
+    uint32_t                                    imageCapacityInput,
+    PointerDecoder<uint32_t>*                   imageCountOutput,
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images)
+{
+    XrEnvironmentDepthSwapchainMETA in_swapchain = MapHandle<OpenXrEnvironmentDepthSwapchainMETAInfo>(swapchain, &CommonObjectInfoTable::GetXrEnvironmentDepthSwapchainMETAInfo);
+    uint32_t* out_imageCountOutput = imageCountOutput->IsNull() ? nullptr : imageCountOutput->AllocateOutputData(1, static_cast<uint32_t>(0));
+    XrSwapchainImageBaseHeader* out_images = images->IsNull() ? nullptr : images->AllocateOutputData(imageCapacityInput);
+
+    XrResult replay_result = GetInstanceTable(in_swapchain)->EnumerateEnvironmentDepthSwapchainImagesMETA(in_swapchain, imageCapacityInput, out_imageCountOutput, out_images);
+    CheckResult("xrEnumerateEnvironmentDepthSwapchainImagesMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA>::UpdateState(this, call_info, returnValue, swapchain, imageCapacityInput, imageCountOutput, images, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrGetEnvironmentDepthSwapchainStateMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            swapchain,
+    StructPointerDecoder<Decoded_XrEnvironmentDepthSwapchainStateMETA>* state)
+{
+    XrEnvironmentDepthSwapchainMETA in_swapchain = MapHandle<OpenXrEnvironmentDepthSwapchainMETAInfo>(swapchain, &CommonObjectInfoTable::GetXrEnvironmentDepthSwapchainMETAInfo);
+    XrEnvironmentDepthSwapchainStateMETA* out_state = state->IsNull() ? nullptr : state->AllocateOutputData(1, { XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META, nullptr });
+    InitializeOutputStructNext(state);
+
+    XrResult replay_result = GetInstanceTable(in_swapchain)->GetEnvironmentDepthSwapchainStateMETA(in_swapchain, out_state);
+    CheckResult("xrGetEnvironmentDepthSwapchainStateMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA>::UpdateState(this, call_info, returnValue, swapchain, state, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrAcquireEnvironmentDepthImageMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            environmentDepthProvider,
+    StructPointerDecoder<Decoded_XrEnvironmentDepthImageAcquireInfoMETA>* acquireInfo,
+    StructPointerDecoder<Decoded_XrEnvironmentDepthImageMETA>* environmentDepthImage)
+{
+    XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
+    const XrEnvironmentDepthImageAcquireInfoMETA* in_acquireInfo = acquireInfo->GetPointer();
+    MapStructHandles(acquireInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrEnvironmentDepthImageMETA* out_environmentDepthImage = environmentDepthImage->IsNull() ? nullptr : environmentDepthImage->AllocateOutputData(1, { XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META, nullptr });
+    InitializeOutputStructNext(environmentDepthImage);
+
+    XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->AcquireEnvironmentDepthImageMETA(in_environmentDepthProvider, in_acquireInfo, out_environmentDepthImage);
+    CheckResult("xrAcquireEnvironmentDepthImageMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA>::UpdateState(this, call_info, returnValue, environmentDepthProvider, acquireInfo, environmentDepthImage, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrSetEnvironmentDepthHandRemovalMETA(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            environmentDepthProvider,
+    StructPointerDecoder<Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA>* setInfo)
+{
+    XrEnvironmentDepthProviderMETA in_environmentDepthProvider = MapHandle<OpenXrEnvironmentDepthProviderMETAInfo>(environmentDepthProvider, &CommonObjectInfoTable::GetXrEnvironmentDepthProviderMETAInfo);
+    const XrEnvironmentDepthHandRemovalSetInfoMETA* in_setInfo = setInfo->GetPointer();
+
+    XrResult replay_result = GetInstanceTable(in_environmentDepthProvider)->SetEnvironmentDepthHandRemovalMETA(in_environmentDepthProvider, in_setInfo);
+    CheckResult("xrSetEnvironmentDepthHandRemovalMETA", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA>::UpdateState(this, call_info, returnValue, environmentDepthProvider, setInfo, replay_result);
+}
+
 void OpenXrReplayConsumer::Process_xrSetTrackingOptimizationSettingsHintQCOM(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -4287,6 +4496,39 @@ void OpenXrReplayConsumer::Process_xrGetPlanePolygonBufferEXT(
     XrResult replay_result = GetInstanceTable(in_planeDetector)->GetPlanePolygonBufferEXT(in_planeDetector, planeId, polygonBufferIndex, out_polygonBuffer);
     CheckResult("xrGetPlanePolygonBufferEXT", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT>::UpdateState(this, call_info, returnValue, planeDetector, planeId, polygonBufferIndex, polygonBuffer, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrPollFutureEXT(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            instance,
+    StructPointerDecoder<Decoded_XrFuturePollInfoEXT>* pollInfo,
+    StructPointerDecoder<Decoded_XrFuturePollResultEXT>* pollResult)
+{
+    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    const XrFuturePollInfoEXT* in_pollInfo = pollInfo->GetPointer();
+    MapStructHandles(pollInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrFuturePollResultEXT* out_pollResult = pollResult->IsNull() ? nullptr : pollResult->AllocateOutputData(1, { XR_TYPE_FUTURE_POLL_RESULT_EXT, nullptr });
+    InitializeOutputStructNext(pollResult);
+
+    XrResult replay_result = GetInstanceTable(in_instance)->PollFutureEXT(in_instance, in_pollInfo, out_pollResult);
+    CheckResult("xrPollFutureEXT", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrPollFutureEXT>::UpdateState(this, call_info, returnValue, instance, pollInfo, pollResult, replay_result);
+}
+
+void OpenXrReplayConsumer::Process_xrCancelFutureEXT(
+    const ApiCallInfo&                          call_info,
+    XrResult                                    returnValue,
+    format::HandleId                            instance,
+    StructPointerDecoder<Decoded_XrFutureCancelInfoEXT>* cancelInfo)
+{
+    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    const XrFutureCancelInfoEXT* in_cancelInfo = cancelInfo->GetPointer();
+    MapStructHandles(cancelInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    XrResult replay_result = GetInstanceTable(in_instance)->CancelFutureEXT(in_instance, in_cancelInfo);
+    CheckResult("xrCancelFutureEXT", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrCancelFutureEXT>::UpdateState(this, call_info, returnValue, instance, cancelInfo, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrEnableUserCalibrationEventsML(
@@ -4554,6 +4796,21 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
                 output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrHapticVibration>());
                 break;
             }
+            case XR_TYPE_SPACES_LOCATE_INFO:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrSpacesLocateInfo>());
+                break;
+            }
+            case XR_TYPE_SPACE_LOCATIONS:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrSpaceLocations>());
+                break;
+            }
+            case XR_TYPE_SPACE_VELOCITIES:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrSpaceVelocities>());
+                break;
+            }
             case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
             {
                 output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrCompositionLayerCubeKHR>());
@@ -4672,6 +4929,21 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR:
             {
                 output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrGraphicsRequirementsD3D12KHR>());
+                break;
+            }
+            case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrGraphicsBindingMetalKHR>());
+                break;
+            }
+            case XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrSwapchainImageMetalKHR>());
+                break;
+            }
+            case XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrGraphicsRequirementsMetalKHR>());
                 break;
             }
             case XR_TYPE_VISIBILITY_MASK_KHR:
@@ -5864,6 +6136,46 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
                 output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrFaceExpressionWeights2FB>());
                 break;
             }
+            case XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrEnvironmentDepthProviderCreateInfoMETA>());
+                break;
+            }
+            case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrEnvironmentDepthSwapchainCreateInfoMETA>());
+                break;
+            }
+            case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrEnvironmentDepthSwapchainStateMETA>());
+                break;
+            }
+            case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrEnvironmentDepthImageAcquireInfoMETA>());
+                break;
+            }
+            case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrEnvironmentDepthImageViewMETA>());
+                break;
+            }
+            case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrEnvironmentDepthImageMETA>());
+                break;
+            }
+            case XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrEnvironmentDepthHandRemovalSetInfoMETA>());
+                break;
+            }
+            case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrSystemEnvironmentDepthPropertiesMETA>());
+                break;
+            }
             case XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC:
             {
                 output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrPassthroughCreateInfoHTC>());
@@ -5967,6 +6279,26 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             case XR_TYPE_PLANE_DETECTOR_POLYGON_BUFFER_EXT:
             {
                 output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrPlaneDetectorPolygonBufferEXT>());
+                break;
+            }
+            case XR_TYPE_FUTURE_CANCEL_INFO_EXT:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrFutureCancelInfoEXT>());
+                break;
+            }
+            case XR_TYPE_FUTURE_POLL_INFO_EXT:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrFuturePollInfoEXT>());
+                break;
+            }
+            case XR_TYPE_FUTURE_COMPLETION_EXT:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrFutureCompletionEXT>());
+                break;
+            }
+            case XR_TYPE_FUTURE_POLL_RESULT_EXT:
+            {
+                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrFuturePollResultEXT>());
                 break;
             }
             case XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT:

@@ -129,10 +129,27 @@ uint64_t GetWrappedId(uint64_t object, OpenXrAtomName atom_type)
 
         case OPENXR_ATOM_NAME_UNKNOWN:
             // No conversion will be performed for unknown objects.
-            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unknown OpenXr atom type.");
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unknown OpenXR Atom type.");
             return object;
         default:
-            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized OpenXr atom type %d", atom_type);
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized OpenXR Atom type %d", atom_type);
+            return object;
+    }
+}
+
+uint64_t GetWrappedId(uint64_t object, OpenXrOpaqueName opaque_type)
+{
+    switch (opaque_type)
+    {
+        case OPENXR_OPAQUE_NAME_FUTURE_EXT:
+            return GetOpaqueWrappedId<FutureEXTWrapper>(format::FromHandleId<XrFutureEXT>(object));
+
+        case OPENXR_OPAQUE_NAME_UNKNOWN:
+            // No conversion will be performed for unknown objects.
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unknown OpenXR Opaque type.");
+            return object;
+        default:
+            GFXRECON_LOG_WARNING("Skipping handle unwrapping for unrecognized OpenXR Opaque type %d", opaque_type);
             return object;
     }
 }

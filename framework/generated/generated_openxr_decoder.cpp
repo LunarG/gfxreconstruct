@@ -1238,6 +1238,28 @@ size_t OpenXrDecoder::Decode_xrCreateApiLayerInstance(const ApiCallInfo& call_in
     return bytes_read;
 }
 
+size_t OpenXrDecoder::Decode_xrLocateSpaces(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId session;
+    StructPointerDecoder<Decoded_XrSpacesLocateInfo> locateInfo;
+    StructPointerDecoder<Decoded_XrSpaceLocations> spaceLocations;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
+    bytes_read += locateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += spaceLocations.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrLocateSpaces(call_info, return_value, session, &locateInfo, &spaceLocations);
+    }
+
+    return bytes_read;
+}
+
 size_t OpenXrDecoder::Decode_xrSetAndroidApplicationThreadKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -1490,6 +1512,28 @@ size_t OpenXrDecoder::Decode_xrGetD3D12GraphicsRequirementsKHR(const ApiCallInfo
     return bytes_read;
 }
 
+size_t OpenXrDecoder::Decode_xrGetMetalGraphicsRequirementsKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId instance;
+    format::HandleId systemId;
+    StructPointerDecoder<Decoded_XrGraphicsRequirementsMetalKHR> graphicsRequirements;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &systemId);
+    bytes_read += graphicsRequirements.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrGetMetalGraphicsRequirementsKHR(call_info, return_value, instance, systemId, &graphicsRequirements);
+    }
+
+    return bytes_read;
+}
+
 size_t OpenXrDecoder::Decode_xrGetVisibilityMaskKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -1736,6 +1780,28 @@ size_t OpenXrDecoder::Decode_xrGetVulkanGraphicsRequirements2KHR(const ApiCallIn
     for (auto consumer : GetConsumers())
     {
         consumer->Process_xrGetVulkanGraphicsRequirements2KHR(call_info, return_value, instance, systemId, &graphicsRequirements);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrLocateSpacesKHR(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId session;
+    StructPointerDecoder<Decoded_XrSpacesLocateInfo> locateInfo;
+    StructPointerDecoder<Decoded_XrSpaceLocations> spaceLocations;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
+    bytes_read += locateInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += spaceLocations.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrLocateSpacesKHR(call_info, return_value, session, &locateInfo, &spaceLocations);
     }
 
     return bytes_read;
@@ -3176,7 +3242,7 @@ size_t OpenXrDecoder::Decode_xrGetSpaceUuidFB(const ApiCallInfo& call_info, cons
     size_t bytes_read = 0;
 
     format::HandleId space;
-    StructPointerDecoder<Decoded_XrUuidEXT> uuid;
+    StructPointerDecoder<Decoded_XrUuid> uuid;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &space);
@@ -4191,7 +4257,7 @@ size_t OpenXrDecoder::Decode_xrImportLocalizationMapML(const ApiCallInfo& call_i
 
     format::HandleId session;
     StructPointerDecoder<Decoded_XrLocalizationMapImportInfoML> importInfo;
-    StructPointerDecoder<Decoded_XrUuidEXT> mapUuid;
+    StructPointerDecoder<Decoded_XrUuid> mapUuid;
     XrResult return_value;
 
     bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
@@ -4212,7 +4278,7 @@ size_t OpenXrDecoder::Decode_xrCreateExportedLocalizationMapML(const ApiCallInfo
     size_t bytes_read = 0;
 
     format::HandleId session;
-    StructPointerDecoder<Decoded_XrUuidEXT> mapUuid;
+    StructPointerDecoder<Decoded_XrUuid> mapUuid;
     HandlePointerDecoder<XrExportedLocalizationMapML> map;
     XrResult return_value;
 
@@ -5652,6 +5718,255 @@ size_t OpenXrDecoder::Decode_xrGetFaceExpressionWeights2FB(const ApiCallInfo& ca
     return bytes_read;
 }
 
+size_t OpenXrDecoder::Decode_xrCreateEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId session;
+    StructPointerDecoder<Decoded_XrEnvironmentDepthProviderCreateInfoMETA> createInfo;
+    HandlePointerDecoder<XrEnvironmentDepthProviderMETA> environmentDepthProvider;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &session);
+    bytes_read += createInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += environmentDepthProvider.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrCreateEnvironmentDepthProviderMETA(call_info, return_value, session, &createInfo, &environmentDepthProvider);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrDestroyEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId environmentDepthProvider;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &environmentDepthProvider);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrDestroyEnvironmentDepthProviderMETA(call_info, return_value, environmentDepthProvider);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrStartEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId environmentDepthProvider;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &environmentDepthProvider);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrStartEnvironmentDepthProviderMETA(call_info, return_value, environmentDepthProvider);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrStopEnvironmentDepthProviderMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId environmentDepthProvider;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &environmentDepthProvider);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrStopEnvironmentDepthProviderMETA(call_info, return_value, environmentDepthProvider);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrCreateEnvironmentDepthSwapchainMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId environmentDepthProvider;
+    StructPointerDecoder<Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA> createInfo;
+    HandlePointerDecoder<XrEnvironmentDepthSwapchainMETA> swapchain;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &environmentDepthProvider);
+    bytes_read += createInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += swapchain.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrCreateEnvironmentDepthSwapchainMETA(call_info, return_value, environmentDepthProvider, &createInfo, &swapchain);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrDestroyEnvironmentDepthSwapchainMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId swapchain;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrDestroyEnvironmentDepthSwapchainMETA(call_info, return_value, swapchain);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrEnumerateEnvironmentDepthSwapchainImagesMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId swapchain;
+    uint32_t imageCapacityInput;
+    PointerDecoder<uint32_t> imageCountOutput;
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images;
+    StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader> swapchain_image_base_header;
+    StructPointerDecoder<Decoded_XrSwapchainImageOpenGLKHR> swapchain_image_open_glkhr;
+    StructPointerDecoder<Decoded_XrSwapchainImageOpenGLESKHR> swapchain_image_open_gleskhr;
+    StructPointerDecoder<Decoded_XrSwapchainImageVulkanKHR> swapchain_image_vulkan_khr;
+    StructPointerDecoder<Decoded_XrSwapchainImageD3D11KHR> swapchain_image_d3_d11_khr;
+    StructPointerDecoder<Decoded_XrSwapchainImageD3D12KHR> swapchain_image_d3_d12_khr;
+    XrResult return_value;
+
+    bool     peak_is_null    = false;
+    bool     peak_is_struct  = false;
+    bool     peak_has_length = false;
+    size_t   peak_length{};
+    uint32_t peak_structure_type = 0;
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += ValueDecoder::DecodeUInt32Value((parameter_buffer + bytes_read), (buffer_size - bytes_read), &imageCapacityInput);
+    bytes_read += imageCountOutput.DecodeUInt32((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    if (PointerDecoderBase::PeekAttributesAndType((parameter_buffer + bytes_read),
+                                                   (buffer_size - bytes_read),
+                                                   peak_is_null,
+                                                   peak_is_struct,
+                                                   peak_has_length,
+                                                   peak_length,
+                                                   peak_structure_type))
+     {
+         XrStructureType xr_type = static_cast<XrStructureType>(peak_structure_type);
+         switch (xr_type)
+         {
+             case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_KHR:
+                 bytes_read += swapchain_image_open_glkhr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 images = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&swapchain_image_open_glkhr);
+                 break;
+             case XR_TYPE_SWAPCHAIN_IMAGE_OPENGL_ES_KHR:
+                 bytes_read += swapchain_image_open_gleskhr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 images = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&swapchain_image_open_gleskhr);
+                 break;
+             case XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR:
+                 bytes_read += swapchain_image_vulkan_khr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 images = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&swapchain_image_vulkan_khr);
+                 break;
+             case XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR:
+                 bytes_read += swapchain_image_d3_d11_khr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 images = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&swapchain_image_d3_d11_khr);
+                 break;
+             case XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR:
+                 bytes_read += swapchain_image_d3_d12_khr.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 images = reinterpret_cast<StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>*>(&swapchain_image_d3_d12_khr);
+                 break;
+             default:
+                 bytes_read += swapchain_image_base_header.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+                 images = &swapchain_image_base_header;
+                 break;
+         }
+     }
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrEnumerateEnvironmentDepthSwapchainImagesMETA(call_info, return_value, swapchain, imageCapacityInput, &imageCountOutput, images);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrGetEnvironmentDepthSwapchainStateMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId swapchain;
+    StructPointerDecoder<Decoded_XrEnvironmentDepthSwapchainStateMETA> state;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &swapchain);
+    bytes_read += state.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrGetEnvironmentDepthSwapchainStateMETA(call_info, return_value, swapchain, &state);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrAcquireEnvironmentDepthImageMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId environmentDepthProvider;
+    StructPointerDecoder<Decoded_XrEnvironmentDepthImageAcquireInfoMETA> acquireInfo;
+    StructPointerDecoder<Decoded_XrEnvironmentDepthImageMETA> environmentDepthImage;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &environmentDepthProvider);
+    bytes_read += acquireInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += environmentDepthImage.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrAcquireEnvironmentDepthImageMETA(call_info, return_value, environmentDepthProvider, &acquireInfo, &environmentDepthImage);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrSetEnvironmentDepthHandRemovalMETA(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId environmentDepthProvider;
+    StructPointerDecoder<Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA> setInfo;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &environmentDepthProvider);
+    bytes_read += setInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrSetEnvironmentDepthHandRemovalMETA(call_info, return_value, environmentDepthProvider, &setInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t OpenXrDecoder::Decode_xrSetTrackingOptimizationSettingsHintQCOM(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -5922,6 +6237,48 @@ size_t OpenXrDecoder::Decode_xrGetPlanePolygonBufferEXT(const ApiCallInfo& call_
     return bytes_read;
 }
 
+size_t OpenXrDecoder::Decode_xrPollFutureEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId instance;
+    StructPointerDecoder<Decoded_XrFuturePollInfoEXT> pollInfo;
+    StructPointerDecoder<Decoded_XrFuturePollResultEXT> pollResult;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
+    bytes_read += pollInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += pollResult.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrPollFutureEXT(call_info, return_value, instance, &pollInfo, &pollResult);
+    }
+
+    return bytes_read;
+}
+
+size_t OpenXrDecoder::Decode_xrCancelFutureEXT(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
+{
+    size_t bytes_read = 0;
+
+    format::HandleId instance;
+    StructPointerDecoder<Decoded_XrFutureCancelInfoEXT> cancelInfo;
+    XrResult return_value;
+
+    bytes_read += ValueDecoder::DecodeHandleIdValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &instance);
+    bytes_read += cancelInfo.Decode((parameter_buffer + bytes_read), (buffer_size - bytes_read));
+    bytes_read += ValueDecoder::DecodeEnumValue((parameter_buffer + bytes_read), (buffer_size - bytes_read), &return_value);
+
+    for (auto consumer : GetConsumers())
+    {
+        consumer->Process_xrCancelFutureEXT(call_info, return_value, instance, &cancelInfo);
+    }
+
+    return bytes_read;
+}
+
 size_t OpenXrDecoder::Decode_xrEnableUserCalibrationEventsML(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size)
 {
     size_t bytes_read = 0;
@@ -6109,6 +6466,9 @@ void OpenXrDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_xrCreateApiLayerInstance:
         Decode_xrCreateApiLayerInstance(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_xrLocateSpaces:
+        Decode_xrLocateSpaces(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_xrSetAndroidApplicationThreadKHR:
         Decode_xrSetAndroidApplicationThreadKHR(call_info, parameter_buffer, buffer_size);
         break;
@@ -6139,6 +6499,9 @@ void OpenXrDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_xrGetD3D12GraphicsRequirementsKHR:
         Decode_xrGetD3D12GraphicsRequirementsKHR(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_xrGetMetalGraphicsRequirementsKHR:
+        Decode_xrGetMetalGraphicsRequirementsKHR(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_xrGetVisibilityMaskKHR:
         Decode_xrGetVisibilityMaskKHR(call_info, parameter_buffer, buffer_size);
         break;
@@ -6168,6 +6531,9 @@ void OpenXrDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_xrGetVulkanGraphicsRequirements2KHR:
         Decode_xrGetVulkanGraphicsRequirements2KHR(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrLocateSpacesKHR:
+        Decode_xrLocateSpacesKHR(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_xrPerfSettingsSetPerformanceLevelEXT:
         Decode_xrPerfSettingsSetPerformanceLevelEXT(call_info, parameter_buffer, buffer_size);
@@ -6697,6 +7063,36 @@ void OpenXrDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
     case format::ApiCallId::ApiCall_xrGetFaceExpressionWeights2FB:
         Decode_xrGetFaceExpressionWeights2FB(call_info, parameter_buffer, buffer_size);
         break;
+    case format::ApiCallId::ApiCall_xrCreateEnvironmentDepthProviderMETA:
+        Decode_xrCreateEnvironmentDepthProviderMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthProviderMETA:
+        Decode_xrDestroyEnvironmentDepthProviderMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrStartEnvironmentDepthProviderMETA:
+        Decode_xrStartEnvironmentDepthProviderMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrStopEnvironmentDepthProviderMETA:
+        Decode_xrStopEnvironmentDepthProviderMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrCreateEnvironmentDepthSwapchainMETA:
+        Decode_xrCreateEnvironmentDepthSwapchainMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrDestroyEnvironmentDepthSwapchainMETA:
+        Decode_xrDestroyEnvironmentDepthSwapchainMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrEnumerateEnvironmentDepthSwapchainImagesMETA:
+        Decode_xrEnumerateEnvironmentDepthSwapchainImagesMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrGetEnvironmentDepthSwapchainStateMETA:
+        Decode_xrGetEnvironmentDepthSwapchainStateMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrAcquireEnvironmentDepthImageMETA:
+        Decode_xrAcquireEnvironmentDepthImageMETA(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrSetEnvironmentDepthHandRemovalMETA:
+        Decode_xrSetEnvironmentDepthHandRemovalMETA(call_info, parameter_buffer, buffer_size);
+        break;
     case format::ApiCallId::ApiCall_xrSetTrackingOptimizationSettingsHintQCOM:
         Decode_xrSetTrackingOptimizationSettingsHintQCOM(call_info, parameter_buffer, buffer_size);
         break;
@@ -6735,6 +7131,12 @@ void OpenXrDecoder::DecodeFunctionCall(format::ApiCallId             call_id,
         break;
     case format::ApiCallId::ApiCall_xrGetPlanePolygonBufferEXT:
         Decode_xrGetPlanePolygonBufferEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrPollFutureEXT:
+        Decode_xrPollFutureEXT(call_info, parameter_buffer, buffer_size);
+        break;
+    case format::ApiCallId::ApiCall_xrCancelFutureEXT:
+        Decode_xrCancelFutureEXT(call_info, parameter_buffer, buffer_size);
         break;
     case format::ApiCallId::ApiCall_xrEnableUserCalibrationEventsML:
         Decode_xrEnableUserCalibrationEventsML(call_info, parameter_buffer, buffer_size);

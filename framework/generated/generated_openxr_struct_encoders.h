@@ -134,6 +134,18 @@ void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerNextInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrApiLayerCreateInfo& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrNegotiateApiLayerRequest& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const XrColor3f& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrExtent3Df& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSpheref& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrBoxf& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrFrustumf& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrUuid& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSpacesLocateInfo& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSpaceLocationData& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSpaceLocations& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSpaceVelocityData& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSpaceVelocities& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const XrCompositionLayerCubeKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrInstanceCreateInfoAndroidKHR& value);
@@ -168,6 +180,10 @@ void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D11KH
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingD3D12KHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageD3D12KHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsD3D12KHR& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsBindingMetalKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSwapchainImageMetalKHR& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrGraphicsRequirementsMetalKHR& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrVisibilityMaskKHR& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataVisibilityMaskChangedKHR& value);
@@ -335,7 +351,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemSpatialEntityProperti
 void EncodeStruct(ParameterEncoder* encoder, const XrSpatialAnchorCreateInfoFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceComponentStatusSetInfoFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSpaceComponentStatusFB& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrUuidEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpatialAnchorCreateCompleteFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataSpaceSetStatusCompleteFB& value);
 
@@ -451,7 +466,6 @@ void EncodeStruct(ParameterEncoder* encoder, const XrSystemSpaceWarpPropertiesFB
 
 void EncodeStruct(ParameterEncoder* encoder, const XrHapticAmplitudeEnvelopeVibrationFB& value);
 
-void EncodeStruct(ParameterEncoder* encoder, const XrExtent3DfFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrOffset3DfFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrRect3DfFB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSemanticLabelsFB& value);
@@ -545,6 +559,15 @@ void EncodeStruct(ParameterEncoder* encoder, const XrFaceTrackerCreateInfo2FB& v
 void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionInfo2FB& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrFaceExpressionWeights2FB& value);
 
+void EncodeStruct(ParameterEncoder* encoder, const XrEnvironmentDepthProviderCreateInfoMETA& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrEnvironmentDepthSwapchainCreateInfoMETA& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrEnvironmentDepthSwapchainStateMETA& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrEnvironmentDepthImageAcquireInfoMETA& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrEnvironmentDepthImageViewMETA& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrEnvironmentDepthImageMETA& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrEnvironmentDepthHandRemovalSetInfoMETA& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrSystemEnvironmentDepthPropertiesMETA& value);
+
 void EncodeStruct(ParameterEncoder* encoder, const XrPassthroughCreateInfoHTC& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPassthroughColorHTC& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPassthroughMeshTransformInfoHTC& value);
@@ -571,12 +594,19 @@ void EncodeStruct(ParameterEncoder* encoder, const XrHandTrackingDataSourceState
 
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemPlaneDetectionPropertiesEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorCreateInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const XrExtent3DfEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorBeginInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorGetInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorLocationEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorLocationsEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrPlaneDetectorPolygonBufferEXT& value);
+
+void EncodeStruct(ParameterEncoder* encoder, const XrFutureCancelInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrFuturePollInfoEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrFutureCompletionBaseHeaderEXT& value);
+template <>
+void EncodeStructArrayLoop<XrFutureCompletionBaseHeaderEXT>(ParameterEncoder* encoder, const XrFutureCompletionBaseHeaderEXT* value, size_t len);
+void EncodeStruct(ParameterEncoder* encoder, const XrFutureCompletionEXT& value);
+void EncodeStruct(ParameterEncoder* encoder, const XrFuturePollResultEXT& value);
 
 void EncodeStruct(ParameterEncoder* encoder, const XrEventDataUserPresenceChangedEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const XrSystemUserPresencePropertiesEXT& value);

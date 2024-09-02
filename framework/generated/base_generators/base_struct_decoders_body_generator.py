@@ -100,6 +100,7 @@ class BaseStructDecodersBodyGenerator():
         is_handle = False
         is_enum = False
         is_atom = False
+        is_opaque = False
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -115,6 +116,8 @@ class BaseStructDecodersBodyGenerator():
             is_handle = True
         elif self.is_atom(value.base_type):
             is_atom = True
+        elif self.is_opaque(value.base_type):
+            is_opaque  = True
         elif type_name == 'Enum':
             is_enum = True
 
@@ -165,7 +168,7 @@ class BaseStructDecodersBodyGenerator():
                             arraylen=value.array_capacity
                         )
 
-                    if is_struct or is_string or is_handle or is_atom or (
+                    if is_struct or is_string or is_handle or is_atom or is_opaque or (
                         is_class and value.pointer_count > 1
                     ):
                         main_body += '    bytes_read += wrapper->{}{}Decode({});\n'.format(
@@ -186,7 +189,7 @@ class BaseStructDecodersBodyGenerator():
                         )
 
                     if not is_static_array:
-                        if is_handle or is_atom or is_class:
+                        if is_handle or is_atom or is_opaque or is_class:
                             # Point the real struct's member pointer to the handle pointer decoder's handle memory.
                             main_body += '    value->{} = nullptr;\n'.format(value.name)
                         else:
@@ -261,7 +264,7 @@ class BaseStructDecodersBodyGenerator():
                     buffer_args, value.name
                 )
                 main_body += '    value->{} = nullptr;\n'.format(value.name)
-            elif is_handle or is_atom:
+            elif is_handle or is_atom or is_opaque:
                 main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &(wrapper->{}));\n'.format(
                     buffer_args, value.name
                 )

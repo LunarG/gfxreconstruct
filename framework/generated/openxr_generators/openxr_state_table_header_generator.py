@@ -150,6 +150,8 @@ class OpenXrStateTableHeaderGenerator(BaseGenerator):
             self.add_wrapper_funcs(xr_handle_name)
         for xr_atom in sorted(self.atom_names):
             self.add_wrapper_funcs(xr_atom)
+        for xr_opaque in sorted(self.opaque_names):
+            self.add_wrapper_funcs(xr_opaque)
 
         self.newline()
         code = 'class OpenXrStateTable : OpenXrStateTableBase\n'

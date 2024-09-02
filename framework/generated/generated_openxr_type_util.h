@@ -98,6 +98,9 @@ template <> constexpr XrStructureType GetType<XrEventDataSessionStateChanged>(){
 template <> constexpr XrStructureType GetType<XrEventDataReferenceSpaceChangePending>(){ return XR_TYPE_EVENT_DATA_REFERENCE_SPACE_CHANGE_PENDING; }
 template <> constexpr XrStructureType GetType<XrEventDataInteractionProfileChanged>(){ return XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED; }
 template <> constexpr XrStructureType GetType<XrHapticVibration>(){ return XR_TYPE_HAPTIC_VIBRATION; }
+template <> constexpr XrStructureType GetType<XrSpacesLocateInfo>(){ return XR_TYPE_SPACES_LOCATE_INFO; }
+template <> constexpr XrStructureType GetType<XrSpaceLocations>(){ return XR_TYPE_SPACE_LOCATIONS; }
+template <> constexpr XrStructureType GetType<XrSpaceVelocities>(){ return XR_TYPE_SPACE_VELOCITIES; }
 template <> constexpr XrStructureType GetType<XrCompositionLayerCubeKHR>(){ return XR_TYPE_COMPOSITION_LAYER_CUBE_KHR; }
 template <> constexpr XrStructureType GetType<XrInstanceCreateInfoAndroidKHR>(){ return XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR; }
 template <> constexpr XrStructureType GetType<XrCompositionLayerDepthInfoKHR>(){ return XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR; }
@@ -122,6 +125,9 @@ template <> constexpr XrStructureType GetType<XrGraphicsRequirementsD3D11KHR>(){
 template <> constexpr XrStructureType GetType<XrGraphicsBindingD3D12KHR>(){ return XR_TYPE_GRAPHICS_BINDING_D3D12_KHR; }
 template <> constexpr XrStructureType GetType<XrSwapchainImageD3D12KHR>(){ return XR_TYPE_SWAPCHAIN_IMAGE_D3D12_KHR; }
 template <> constexpr XrStructureType GetType<XrGraphicsRequirementsD3D12KHR>(){ return XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR; }
+template <> constexpr XrStructureType GetType<XrGraphicsBindingMetalKHR>(){ return XR_TYPE_GRAPHICS_BINDING_METAL_KHR; }
+template <> constexpr XrStructureType GetType<XrSwapchainImageMetalKHR>(){ return XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR; }
+template <> constexpr XrStructureType GetType<XrGraphicsRequirementsMetalKHR>(){ return XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR; }
 template <> constexpr XrStructureType GetType<XrVisibilityMaskKHR>(){ return XR_TYPE_VISIBILITY_MASK_KHR; }
 template <> constexpr XrStructureType GetType<XrEventDataVisibilityMaskChangedKHR>(){ return XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR; }
 template <> constexpr XrStructureType GetType<XrCompositionLayerColorScaleBiasKHR>(){ return XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR; }
@@ -360,6 +366,14 @@ template <> constexpr XrStructureType GetType<XrSystemFaceTrackingProperties2FB>
 template <> constexpr XrStructureType GetType<XrFaceTrackerCreateInfo2FB>(){ return XR_TYPE_FACE_TRACKER_CREATE_INFO2_FB; }
 template <> constexpr XrStructureType GetType<XrFaceExpressionInfo2FB>(){ return XR_TYPE_FACE_EXPRESSION_INFO2_FB; }
 template <> constexpr XrStructureType GetType<XrFaceExpressionWeights2FB>(){ return XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB; }
+template <> constexpr XrStructureType GetType<XrEnvironmentDepthProviderCreateInfoMETA>(){ return XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META; }
+template <> constexpr XrStructureType GetType<XrEnvironmentDepthSwapchainCreateInfoMETA>(){ return XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META; }
+template <> constexpr XrStructureType GetType<XrEnvironmentDepthSwapchainStateMETA>(){ return XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META; }
+template <> constexpr XrStructureType GetType<XrEnvironmentDepthImageAcquireInfoMETA>(){ return XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META; }
+template <> constexpr XrStructureType GetType<XrEnvironmentDepthImageViewMETA>(){ return XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META; }
+template <> constexpr XrStructureType GetType<XrEnvironmentDepthImageMETA>(){ return XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META; }
+template <> constexpr XrStructureType GetType<XrEnvironmentDepthHandRemovalSetInfoMETA>(){ return XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META; }
+template <> constexpr XrStructureType GetType<XrSystemEnvironmentDepthPropertiesMETA>(){ return XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META; }
 template <> constexpr XrStructureType GetType<XrPassthroughCreateInfoHTC>(){ return XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC; }
 template <> constexpr XrStructureType GetType<XrPassthroughColorHTC>(){ return XR_TYPE_PASSTHROUGH_COLOR_HTC; }
 template <> constexpr XrStructureType GetType<XrPassthroughMeshTransformInfoHTC>(){ return XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC; }
@@ -381,6 +395,10 @@ template <> constexpr XrStructureType GetType<XrPlaneDetectorGetInfoEXT>(){ retu
 template <> constexpr XrStructureType GetType<XrPlaneDetectorLocationEXT>(){ return XR_TYPE_PLANE_DETECTOR_LOCATION_EXT; }
 template <> constexpr XrStructureType GetType<XrPlaneDetectorLocationsEXT>(){ return XR_TYPE_PLANE_DETECTOR_LOCATIONS_EXT; }
 template <> constexpr XrStructureType GetType<XrPlaneDetectorPolygonBufferEXT>(){ return XR_TYPE_PLANE_DETECTOR_POLYGON_BUFFER_EXT; }
+template <> constexpr XrStructureType GetType<XrFutureCancelInfoEXT>(){ return XR_TYPE_FUTURE_CANCEL_INFO_EXT; }
+template <> constexpr XrStructureType GetType<XrFuturePollInfoEXT>(){ return XR_TYPE_FUTURE_POLL_INFO_EXT; }
+template <> constexpr XrStructureType GetType<XrFutureCompletionEXT>(){ return XR_TYPE_FUTURE_COMPLETION_EXT; }
+template <> constexpr XrStructureType GetType<XrFuturePollResultEXT>(){ return XR_TYPE_FUTURE_POLL_RESULT_EXT; }
 template <> constexpr XrStructureType GetType<XrEventDataUserPresenceChangedEXT>(){ return XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT; }
 template <> constexpr XrStructureType GetType<XrSystemUserPresencePropertiesEXT>(){ return XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT; }
 template <> constexpr XrStructureType GetType<XrEventDataHeadsetFitChangedML>(){ return XR_TYPE_EVENT_DATA_HEADSET_FIT_CHANGED_ML; }

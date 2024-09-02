@@ -58,6 +58,8 @@ class OpenXrStateTable : OpenXrStateTableBase
     bool InsertWrapper(format::HandleId id, openxr_wrappers::ActionSetWrapper* wrapper) { return InsertEntry(id, wrapper, x_actionSet_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::BodyTrackerFBWrapper* wrapper) { return InsertEntry(id, wrapper, x_bodyTrackerFB_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { return InsertEntry(id, wrapper, x_debugUtilsMessengerEXT_map_); }
+    bool InsertWrapper(format::HandleId id, openxr_wrappers::EnvironmentDepthProviderMETAWrapper* wrapper) { return InsertEntry(id, wrapper, x_environmentDepthProviderMETA_map_); }
+    bool InsertWrapper(format::HandleId id, openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* wrapper) { return InsertEntry(id, wrapper, x_environmentDepthSwapchainMETA_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::ExportedLocalizationMapMLWrapper* wrapper) { return InsertEntry(id, wrapper, x_exportedLocalizationMapML_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::EyeTrackerFBWrapper* wrapper) { return InsertEntry(id, wrapper, x_eyeTrackerFB_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::FaceTracker2FBWrapper* wrapper) { return InsertEntry(id, wrapper, x_faceTracker2FB_map_); }
@@ -90,6 +92,7 @@ class OpenXrStateTable : OpenXrStateTableBase
     bool InsertWrapper(format::HandleId id, openxr_wrappers::PathWrapper* wrapper) { return InsertEntry(id, wrapper, x_path_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::RenderModelKeyFBWrapper* wrapper) { return InsertEntry(id, wrapper, x_renderModelKeyFB_map_); }
     bool InsertWrapper(format::HandleId id, openxr_wrappers::SystemIdWrapper* wrapper) { return InsertEntry(id, wrapper, x_systemId_map_); }
+    bool InsertWrapper(format::HandleId id, openxr_wrappers::FutureEXTWrapper* wrapper) { return InsertEntry(id, wrapper, x_futureEXT_map_); }
 
     bool RemoveWrapper(const vulkan_wrappers::CommandBufferWrapper* wrapper) { return RemoveEntry(wrapper, v_commandBuffer_map_); }
     bool RemoveWrapper(const vulkan_wrappers::DeviceWrapper* wrapper) { return RemoveEntry(wrapper, v_device_map_); }
@@ -103,6 +106,8 @@ class OpenXrStateTable : OpenXrStateTableBase
     bool RemoveWrapper(const openxr_wrappers::ActionSetWrapper* wrapper) { return RemoveEntry(wrapper, x_actionSet_map_); }
     bool RemoveWrapper(const openxr_wrappers::BodyTrackerFBWrapper* wrapper) { return RemoveEntry(wrapper, x_bodyTrackerFB_map_); }
     bool RemoveWrapper(const openxr_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { return RemoveEntry(wrapper, x_debugUtilsMessengerEXT_map_); }
+    bool RemoveWrapper(const openxr_wrappers::EnvironmentDepthProviderMETAWrapper* wrapper) { return RemoveEntry(wrapper, x_environmentDepthProviderMETA_map_); }
+    bool RemoveWrapper(const openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* wrapper) { return RemoveEntry(wrapper, x_environmentDepthSwapchainMETA_map_); }
     bool RemoveWrapper(const openxr_wrappers::ExportedLocalizationMapMLWrapper* wrapper) { return RemoveEntry(wrapper, x_exportedLocalizationMapML_map_); }
     bool RemoveWrapper(const openxr_wrappers::EyeTrackerFBWrapper* wrapper) { return RemoveEntry(wrapper, x_eyeTrackerFB_map_); }
     bool RemoveWrapper(const openxr_wrappers::FaceTracker2FBWrapper* wrapper) { return RemoveEntry(wrapper, x_faceTracker2FB_map_); }
@@ -135,6 +140,7 @@ class OpenXrStateTable : OpenXrStateTableBase
     bool RemoveWrapper(const openxr_wrappers::PathWrapper* wrapper) { return RemoveEntry(wrapper, x_path_map_); }
     bool RemoveWrapper(const openxr_wrappers::RenderModelKeyFBWrapper* wrapper) { return RemoveEntry(wrapper, x_renderModelKeyFB_map_); }
     bool RemoveWrapper(const openxr_wrappers::SystemIdWrapper* wrapper) { return RemoveEntry(wrapper, x_systemId_map_); }
+    bool RemoveWrapper(const openxr_wrappers::FutureEXTWrapper* wrapper) { return RemoveEntry(wrapper, x_futureEXT_map_); }
 
     const vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, v_commandBuffer_map_); }
     const vulkan_wrappers::DeviceWrapper* GetVulkanDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, v_device_map_); }
@@ -148,6 +154,8 @@ class OpenXrStateTable : OpenXrStateTableBase
     const openxr_wrappers::ActionSetWrapper* GetOpenXrActionSetWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::ActionSetWrapper>(id, x_actionSet_map_); }
     const openxr_wrappers::BodyTrackerFBWrapper* GetOpenXrBodyTrackerFBWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::BodyTrackerFBWrapper>(id, x_bodyTrackerFB_map_); }
     const openxr_wrappers::DebugUtilsMessengerEXTWrapper* GetOpenXrDebugUtilsMessengerEXTWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(id, x_debugUtilsMessengerEXT_map_); }
+    const openxr_wrappers::EnvironmentDepthProviderMETAWrapper* GetOpenXrEnvironmentDepthProviderMETAWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(id, x_environmentDepthProviderMETA_map_); }
+    const openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* GetOpenXrEnvironmentDepthSwapchainMETAWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(id, x_environmentDepthSwapchainMETA_map_); }
     const openxr_wrappers::ExportedLocalizationMapMLWrapper* GetOpenXrExportedLocalizationMapMLWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::ExportedLocalizationMapMLWrapper>(id, x_exportedLocalizationMapML_map_); }
     const openxr_wrappers::EyeTrackerFBWrapper* GetOpenXrEyeTrackerFBWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::EyeTrackerFBWrapper>(id, x_eyeTrackerFB_map_); }
     const openxr_wrappers::FaceTracker2FBWrapper* GetOpenXrFaceTracker2FBWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::FaceTracker2FBWrapper>(id, x_faceTracker2FB_map_); }
@@ -180,6 +188,7 @@ class OpenXrStateTable : OpenXrStateTableBase
     const openxr_wrappers::PathWrapper* GetOpenXrPathWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::PathWrapper>(id, x_path_map_); }
     const openxr_wrappers::RenderModelKeyFBWrapper* GetOpenXrRenderModelKeyFBWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(id, x_renderModelKeyFB_map_); }
     const openxr_wrappers::SystemIdWrapper* GetOpenXrSystemIdWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::SystemIdWrapper>(id, x_systemId_map_); }
+    const openxr_wrappers::FutureEXTWrapper* GetOpenXrFutureEXTWrapper(format::HandleId id) const { return GetWrapper<openxr_wrappers::FutureEXTWrapper>(id, x_futureEXT_map_); }
 
     vulkan_wrappers::CommandBufferWrapper* GetVulkanCommandBufferWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::CommandBufferWrapper>(id, v_commandBuffer_map_); }
     vulkan_wrappers::DeviceWrapper* GetVulkanDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::DeviceWrapper>(id, v_device_map_); }
@@ -193,6 +202,8 @@ class OpenXrStateTable : OpenXrStateTableBase
     openxr_wrappers::ActionSetWrapper* GetOpenXrActionSetWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::ActionSetWrapper>(id, x_actionSet_map_); }
     openxr_wrappers::BodyTrackerFBWrapper* GetOpenXrBodyTrackerFBWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::BodyTrackerFBWrapper>(id, x_bodyTrackerFB_map_); }
     openxr_wrappers::DebugUtilsMessengerEXTWrapper* GetOpenXrDebugUtilsMessengerEXTWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(id, x_debugUtilsMessengerEXT_map_); }
+    openxr_wrappers::EnvironmentDepthProviderMETAWrapper* GetOpenXrEnvironmentDepthProviderMETAWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(id, x_environmentDepthProviderMETA_map_); }
+    openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* GetOpenXrEnvironmentDepthSwapchainMETAWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(id, x_environmentDepthSwapchainMETA_map_); }
     openxr_wrappers::ExportedLocalizationMapMLWrapper* GetOpenXrExportedLocalizationMapMLWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::ExportedLocalizationMapMLWrapper>(id, x_exportedLocalizationMapML_map_); }
     openxr_wrappers::EyeTrackerFBWrapper* GetOpenXrEyeTrackerFBWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::EyeTrackerFBWrapper>(id, x_eyeTrackerFB_map_); }
     openxr_wrappers::FaceTracker2FBWrapper* GetOpenXrFaceTracker2FBWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::FaceTracker2FBWrapper>(id, x_faceTracker2FB_map_); }
@@ -225,6 +236,7 @@ class OpenXrStateTable : OpenXrStateTableBase
     openxr_wrappers::PathWrapper* GetOpenXrPathWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::PathWrapper>(id, x_path_map_); }
     openxr_wrappers::RenderModelKeyFBWrapper* GetOpenXrRenderModelKeyFBWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(id, x_renderModelKeyFB_map_); }
     openxr_wrappers::SystemIdWrapper* GetOpenXrSystemIdWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::SystemIdWrapper>(id, x_systemId_map_); }
+    openxr_wrappers::FutureEXTWrapper* GetOpenXrFutureEXTWrapper(format::HandleId id) { return GetWrapper<openxr_wrappers::FutureEXTWrapper>(id, x_futureEXT_map_); }
 
     void VisitWrappers(std::function<void(vulkan_wrappers::CommandBufferWrapper*)> visitor) const { for (auto entry : v_commandBuffer_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::DeviceWrapper*)> visitor) const { for (auto entry : v_device_map_) { visitor(entry.second); } }
@@ -238,6 +250,8 @@ class OpenXrStateTable : OpenXrStateTableBase
     void VisitWrappers(std::function<void(openxr_wrappers::ActionSetWrapper*)> visitor) const { for (auto entry : x_actionSet_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::BodyTrackerFBWrapper*)> visitor) const { for (auto entry : x_bodyTrackerFB_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::DebugUtilsMessengerEXTWrapper*)> visitor) const { for (auto entry : x_debugUtilsMessengerEXT_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(openxr_wrappers::EnvironmentDepthProviderMETAWrapper*)> visitor) const { for (auto entry : x_environmentDepthProviderMETA_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper*)> visitor) const { for (auto entry : x_environmentDepthSwapchainMETA_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::ExportedLocalizationMapMLWrapper*)> visitor) const { for (auto entry : x_exportedLocalizationMapML_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::EyeTrackerFBWrapper*)> visitor) const { for (auto entry : x_eyeTrackerFB_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::FaceTracker2FBWrapper*)> visitor) const { for (auto entry : x_faceTracker2FB_map_) { visitor(entry.second); } }
@@ -270,6 +284,7 @@ class OpenXrStateTable : OpenXrStateTableBase
     void VisitWrappers(std::function<void(openxr_wrappers::PathWrapper*)> visitor) const { for (auto entry : x_path_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::RenderModelKeyFBWrapper*)> visitor) const { for (auto entry : x_renderModelKeyFB_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(openxr_wrappers::SystemIdWrapper*)> visitor) const { for (auto entry : x_systemId_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(openxr_wrappers::FutureEXTWrapper*)> visitor) const { for (auto entry : x_futureEXT_map_) { visitor(entry.second); } }
 
   private:
     std::map<format::HandleId, vulkan_wrappers::CommandBufferWrapper*> v_commandBuffer_map_;
@@ -284,6 +299,8 @@ class OpenXrStateTable : OpenXrStateTableBase
     std::map<format::HandleId, openxr_wrappers::ActionSetWrapper*> x_actionSet_map_;
     std::map<format::HandleId, openxr_wrappers::BodyTrackerFBWrapper*> x_bodyTrackerFB_map_;
     std::map<format::HandleId, openxr_wrappers::DebugUtilsMessengerEXTWrapper*> x_debugUtilsMessengerEXT_map_;
+    std::map<format::HandleId, openxr_wrappers::EnvironmentDepthProviderMETAWrapper*> x_environmentDepthProviderMETA_map_;
+    std::map<format::HandleId, openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper*> x_environmentDepthSwapchainMETA_map_;
     std::map<format::HandleId, openxr_wrappers::ExportedLocalizationMapMLWrapper*> x_exportedLocalizationMapML_map_;
     std::map<format::HandleId, openxr_wrappers::EyeTrackerFBWrapper*> x_eyeTrackerFB_map_;
     std::map<format::HandleId, openxr_wrappers::FaceTracker2FBWrapper*> x_faceTracker2FB_map_;
@@ -316,6 +333,7 @@ class OpenXrStateTable : OpenXrStateTableBase
     std::map<format::HandleId, openxr_wrappers::PathWrapper*> x_path_map_;
     std::map<format::HandleId, openxr_wrappers::RenderModelKeyFBWrapper*> x_renderModelKeyFB_map_;
     std::map<format::HandleId, openxr_wrappers::SystemIdWrapper*> x_systemId_map_;
+    std::map<format::HandleId, openxr_wrappers::FutureEXTWrapper*> x_futureEXT_map_;
 };
 
 class OpenXrStateHandleTable : OpenXrStateTableBase
@@ -336,6 +354,8 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     bool InsertWrapper(openxr_wrappers::ActionSetWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_actionSet_map_); }
     bool InsertWrapper(openxr_wrappers::BodyTrackerFBWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_bodyTrackerFB_map_); }
     bool InsertWrapper(openxr_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_debugUtilsMessengerEXT_map_); }
+    bool InsertWrapper(openxr_wrappers::EnvironmentDepthProviderMETAWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_environmentDepthProviderMETA_map_); }
+    bool InsertWrapper(openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_environmentDepthSwapchainMETA_map_); }
     bool InsertWrapper(openxr_wrappers::ExportedLocalizationMapMLWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_exportedLocalizationMapML_map_); }
     bool InsertWrapper(openxr_wrappers::EyeTrackerFBWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_eyeTrackerFB_map_); }
     bool InsertWrapper(openxr_wrappers::FaceTracker2FBWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_faceTracker2FB_map_); }
@@ -368,6 +388,7 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     bool InsertWrapper(openxr_wrappers::PathWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_path_map_); }
     bool InsertWrapper(openxr_wrappers::RenderModelKeyFBWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_renderModelKeyFB_map_); }
     bool InsertWrapper(openxr_wrappers::SystemIdWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_systemId_map_); }
+    bool InsertWrapper(openxr_wrappers::FutureEXTWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, x_futureEXT_map_); }
 
     bool RemoveWrapper(const vulkan_wrappers::CommandBufferWrapper* wrapper) {
          if (wrapper == nullptr) return false;
@@ -416,6 +437,14 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     bool RemoveWrapper(const openxr_wrappers::DebugUtilsMessengerEXTWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, x_debugUtilsMessengerEXT_map_);
+    }
+    bool RemoveWrapper(const openxr_wrappers::EnvironmentDepthProviderMETAWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, x_environmentDepthProviderMETA_map_);
+    }
+    bool RemoveWrapper(const openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, x_environmentDepthSwapchainMETA_map_);
     }
     bool RemoveWrapper(const openxr_wrappers::ExportedLocalizationMapMLWrapper* wrapper) {
          if (wrapper == nullptr) return false;
@@ -545,6 +574,10 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, x_systemId_map_);
     }
+    bool RemoveWrapper(const openxr_wrappers::FutureEXTWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, x_futureEXT_map_);
+    }
 
     template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }
 
@@ -563,6 +596,8 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     std::unordered_map<XrActionSet, openxr_wrappers::ActionSetWrapper*> x_actionSet_map_;
     std::unordered_map<XrBodyTrackerFB, openxr_wrappers::BodyTrackerFBWrapper*> x_bodyTrackerFB_map_;
     std::unordered_map<XrDebugUtilsMessengerEXT, openxr_wrappers::DebugUtilsMessengerEXTWrapper*> x_debugUtilsMessengerEXT_map_;
+    std::unordered_map<XrEnvironmentDepthProviderMETA, openxr_wrappers::EnvironmentDepthProviderMETAWrapper*> x_environmentDepthProviderMETA_map_;
+    std::unordered_map<XrEnvironmentDepthSwapchainMETA, openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper*> x_environmentDepthSwapchainMETA_map_;
     std::unordered_map<XrExportedLocalizationMapML, openxr_wrappers::ExportedLocalizationMapMLWrapper*> x_exportedLocalizationMapML_map_;
     std::unordered_map<XrEyeTrackerFB, openxr_wrappers::EyeTrackerFBWrapper*> x_eyeTrackerFB_map_;
     std::unordered_map<XrFaceTracker2FB, openxr_wrappers::FaceTracker2FBWrapper*> x_faceTracker2FB_map_;
@@ -595,6 +630,7 @@ class OpenXrStateHandleTable : OpenXrStateTableBase
     std::unordered_map<XrPath, openxr_wrappers::PathWrapper*> x_path_map_;
     std::unordered_map<XrRenderModelKeyFB, openxr_wrappers::RenderModelKeyFBWrapper*> x_renderModelKeyFB_map_;
     std::unordered_map<XrSystemId, openxr_wrappers::SystemIdWrapper*> x_systemId_map_;
+    std::unordered_map<XrFutureEXT, openxr_wrappers::FutureEXTWrapper*> x_futureEXT_map_;
 };
 
 template<> inline const vulkan_wrappers::CommandBufferWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(VkCommandBuffer handle) const { return OpenXrStateTableBase::GetWrapper(handle, v_commandBuffer_map_); }
@@ -609,6 +645,8 @@ template<> inline const openxr_wrappers::ActionWrapper* OpenXrStateHandleTable::
 template<> inline const openxr_wrappers::ActionSetWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ActionSetWrapper>(XrActionSet handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_actionSet_map_); }
 template<> inline const openxr_wrappers::BodyTrackerFBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::BodyTrackerFBWrapper>(XrBodyTrackerFB handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_bodyTrackerFB_map_); }
 template<> inline const openxr_wrappers::DebugUtilsMessengerEXTWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(XrDebugUtilsMessengerEXT handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_debugUtilsMessengerEXT_map_); }
+template<> inline const openxr_wrappers::EnvironmentDepthProviderMETAWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(XrEnvironmentDepthProviderMETA handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_environmentDepthProviderMETA_map_); }
+template<> inline const openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(XrEnvironmentDepthSwapchainMETA handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_environmentDepthSwapchainMETA_map_); }
 template<> inline const openxr_wrappers::ExportedLocalizationMapMLWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ExportedLocalizationMapMLWrapper>(XrExportedLocalizationMapML handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_exportedLocalizationMapML_map_); }
 template<> inline const openxr_wrappers::EyeTrackerFBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::EyeTrackerFBWrapper>(XrEyeTrackerFB handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_eyeTrackerFB_map_); }
 template<> inline const openxr_wrappers::FaceTracker2FBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::FaceTracker2FBWrapper>(XrFaceTracker2FB handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_faceTracker2FB_map_); }
@@ -641,6 +679,7 @@ template<> inline const openxr_wrappers::MarkerMLWrapper* OpenXrStateHandleTable
 template<> inline const openxr_wrappers::PathWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::PathWrapper>(XrPath handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_path_map_); }
 template<> inline const openxr_wrappers::RenderModelKeyFBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(XrRenderModelKeyFB handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_renderModelKeyFB_map_); }
 template<> inline const openxr_wrappers::SystemIdWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::SystemIdWrapper>(XrSystemId handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_systemId_map_); }
+template<> inline const openxr_wrappers::FutureEXTWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::FutureEXTWrapper>(XrFutureEXT handle) const { return OpenXrStateTableBase::GetWrapper(handle, x_futureEXT_map_); }
 
 template<> inline vulkan_wrappers::CommandBufferWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(VkCommandBuffer handle) { return OpenXrStateTableBase::GetWrapper(handle, v_commandBuffer_map_); }
 template<> inline vulkan_wrappers::DeviceWrapper* OpenXrStateHandleTable::GetWrapper<vulkan_wrappers::DeviceWrapper>(VkDevice handle) { return OpenXrStateTableBase::GetWrapper(handle, v_device_map_); }
@@ -654,6 +693,8 @@ template<> inline openxr_wrappers::ActionWrapper* OpenXrStateHandleTable::GetWra
 template<> inline openxr_wrappers::ActionSetWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ActionSetWrapper>(XrActionSet handle) { return OpenXrStateTableBase::GetWrapper(handle, x_actionSet_map_); }
 template<> inline openxr_wrappers::BodyTrackerFBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::BodyTrackerFBWrapper>(XrBodyTrackerFB handle) { return OpenXrStateTableBase::GetWrapper(handle, x_bodyTrackerFB_map_); }
 template<> inline openxr_wrappers::DebugUtilsMessengerEXTWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::DebugUtilsMessengerEXTWrapper>(XrDebugUtilsMessengerEXT handle) { return OpenXrStateTableBase::GetWrapper(handle, x_debugUtilsMessengerEXT_map_); }
+template<> inline openxr_wrappers::EnvironmentDepthProviderMETAWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::EnvironmentDepthProviderMETAWrapper>(XrEnvironmentDepthProviderMETA handle) { return OpenXrStateTableBase::GetWrapper(handle, x_environmentDepthProviderMETA_map_); }
+template<> inline openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::EnvironmentDepthSwapchainMETAWrapper>(XrEnvironmentDepthSwapchainMETA handle) { return OpenXrStateTableBase::GetWrapper(handle, x_environmentDepthSwapchainMETA_map_); }
 template<> inline openxr_wrappers::ExportedLocalizationMapMLWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::ExportedLocalizationMapMLWrapper>(XrExportedLocalizationMapML handle) { return OpenXrStateTableBase::GetWrapper(handle, x_exportedLocalizationMapML_map_); }
 template<> inline openxr_wrappers::EyeTrackerFBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::EyeTrackerFBWrapper>(XrEyeTrackerFB handle) { return OpenXrStateTableBase::GetWrapper(handle, x_eyeTrackerFB_map_); }
 template<> inline openxr_wrappers::FaceTracker2FBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::FaceTracker2FBWrapper>(XrFaceTracker2FB handle) { return OpenXrStateTableBase::GetWrapper(handle, x_faceTracker2FB_map_); }
@@ -686,6 +727,7 @@ template<> inline openxr_wrappers::MarkerMLWrapper* OpenXrStateHandleTable::GetW
 template<> inline openxr_wrappers::PathWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::PathWrapper>(XrPath handle) { return OpenXrStateTableBase::GetWrapper(handle, x_path_map_); }
 template<> inline openxr_wrappers::RenderModelKeyFBWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::RenderModelKeyFBWrapper>(XrRenderModelKeyFB handle) { return OpenXrStateTableBase::GetWrapper(handle, x_renderModelKeyFB_map_); }
 template<> inline openxr_wrappers::SystemIdWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::SystemIdWrapper>(XrSystemId handle) { return OpenXrStateTableBase::GetWrapper(handle, x_systemId_map_); }
+template<> inline openxr_wrappers::FutureEXTWrapper* OpenXrStateHandleTable::GetWrapper<openxr_wrappers::FutureEXTWrapper>(XrFutureEXT handle) { return OpenXrStateTableBase::GetWrapper(handle, x_futureEXT_map_); }
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

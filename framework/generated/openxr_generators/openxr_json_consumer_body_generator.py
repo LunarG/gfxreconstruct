@@ -193,7 +193,7 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         if 'XrBool32' == return_type:
             # Output as JSON boolean type true/false without quotes:
             body += '            Bool32ToJson(jdata[NameReturn()], returnValue, json_options);\n'
-        elif self.is_handle(return_type) or self.is_atom(return_type):
+        elif (self.is_handle(return_type) or self.is_atom(return_type) or self.is_opaque(return_type)):
             body += '    HandleToJson(jdata[NameReturn()], returnValue, json_options);\n'
         # Enums, ints, etc. handled by default and static dispatch based on C++ type:
         elif not 'void' in return_type:
@@ -243,7 +243,7 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                 # Special cases:
                 if 'XrBool32' == value.base_type:
                     to_json = 'Bool32ToJson(args["{0}"], {0}, json_options)'
-                elif self.is_handle(value.base_type) or self.is_atom(value.base_type):
+                elif (self.is_handle(value.base_type) or self.is_atom(value.base_type) or self.is_opaque(value.base_type)):
                     to_json = 'HandleToJson(args["{0}"], {0}, json_options)'
                 elif self.is_flags(value.base_type):
                     if value.base_type in self.flagsTypeAlias:

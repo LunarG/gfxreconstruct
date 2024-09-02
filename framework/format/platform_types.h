@@ -1664,7 +1664,7 @@ extern "C"
     typedef XrResult(XRAPI_PTR* PFN_xrGetD3D11GraphicsRequirementsKHR)(
         XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D11KHR* graphicsRequirements);
 } // extern "C"
-#endif // XR_USE_GRAPHICS_API_D3D11
+#endif // !XR_USE_GRAPHICS_API_D3D11
 
 #ifndef XR_USE_GRAPHICS_API_D3D12
 typedef struct XrGraphicsBindingD3D12KHR
@@ -1695,7 +1695,39 @@ extern "C"
     typedef XrResult(XRAPI_PTR* PFN_xrGetD3D12GraphicsRequirementsKHR)(
         XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsD3D12KHR* graphicsRequirements);
 } // extern "C"
-#endif // XR_USE_GRAPHICS_API_D3D12
+#endif // !XR_USE_GRAPHICS_API_D3D12
+
+#ifndef XR_USE_GRAPHICS_API_METAL
+
+// XrGraphicsBindingMetalKHR extends XrSessionCreateInfo
+typedef struct XrGraphicsBindingMetalKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    void* XR_MAY_ALIAS       commandQueue;
+} XrGraphicsBindingMetalKHR;
+
+typedef struct XrSwapchainImageMetalKHR
+{
+    XrStructureType          type;
+    const void* XR_MAY_ALIAS next;
+    void* XR_MAY_ALIAS       texture;
+} XrSwapchainImageMetalKHR;
+
+typedef struct XrGraphicsRequirementsMetalKHR
+{
+    XrStructureType    type;
+    void* XR_MAY_ALIAS next;
+    void* XR_MAY_ALIAS metalDevice;
+} XrGraphicsRequirementsMetalKHR;
+
+extern "C"
+{
+    typedef XrResult(XRAPI_PTR* PFN_xrGetMetalGraphicsRequirementsKHR)(
+        XrInstance instance, XrSystemId systemId, XrGraphicsRequirementsMetalKHR* graphicsRequirements);
+} // extern "C"
+
+#endif // !XR_USE_GRAPHICS_API_METAL
 
 #ifndef XR_USE_PLATFORM_WIN32
 #define XR_MAX_AUDIO_DEVICE_STR_SIZE_OCULUS 128

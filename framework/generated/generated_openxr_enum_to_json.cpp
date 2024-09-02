@@ -1215,6 +1215,21 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrFoveationModeHTC& value,
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const XrFutureStateEXT& value, const JsonOptions& options)
+{
+    switch (value) {
+        case XR_FUTURE_STATE_PENDING_EXT:
+            jdata = "XR_FUTURE_STATE_PENDING_EXT";
+            break;
+        case XR_FUTURE_STATE_READY_EXT:
+            jdata = "XR_FUTURE_STATE_READY_EXT";
+            break;
+        default:
+            jdata = to_hex_fixed_width(value);
+            break;
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const XrHandEXT& value, const JsonOptions& options)
 {
     switch (value) {
@@ -2064,6 +2079,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrObjectType& value, const
         case XR_OBJECT_TYPE_FACE_TRACKER2_FB:
             jdata = "XR_OBJECT_TYPE_FACE_TRACKER2_FB";
             break;
+        case XR_OBJECT_TYPE_ENVIRONMENT_DEPTH_PROVIDER_META:
+            jdata = "XR_OBJECT_TYPE_ENVIRONMENT_DEPTH_PROVIDER_META";
+            break;
+        case XR_OBJECT_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_META:
+            jdata = "XR_OBJECT_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_META";
+            break;
         case XR_OBJECT_TYPE_PASSTHROUGH_HTC:
             jdata = "XR_OBJECT_TYPE_PASSTHROUGH_HTC";
             break;
@@ -2304,6 +2325,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& valu
         case XR_REFERENCE_SPACE_TYPE_STAGE:
             jdata = "XR_REFERENCE_SPACE_TYPE_STAGE";
             break;
+        case XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR:
+            jdata = "XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR";
+            break;
         case XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT:
             jdata = "XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT";
             break;
@@ -2312,9 +2336,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrReferenceSpaceType& valu
             break;
         case XR_REFERENCE_SPACE_TYPE_LOCALIZATION_MAP_ML:
             jdata = "XR_REFERENCE_SPACE_TYPE_LOCALIZATION_MAP_ML";
-            break;
-        case XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT:
-            jdata = "XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -2511,6 +2532,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrResult& value, const Jso
         case XR_ERROR_RUNTIME_UNAVAILABLE:
             jdata = "XR_ERROR_RUNTIME_UNAVAILABLE";
             break;
+        case XR_ERROR_EXTENSION_DEPENDENCY_NOT_ENABLED:
+            jdata = "XR_ERROR_EXTENSION_DEPENDENCY_NOT_ENABLED";
+            break;
+        case XR_ERROR_PERMISSION_INSUFFICIENT:
+            jdata = "XR_ERROR_PERMISSION_INSUFFICIENT";
+            break;
         case XR_ERROR_ANDROID_THREAD_SETTINGS_ID_INVALID_KHR:
             jdata = "XR_ERROR_ANDROID_THREAD_SETTINGS_ID_INVALID_KHR";
             break;
@@ -2658,6 +2685,9 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrResult& value, const Jso
         case XR_ERROR_PASSTHROUGH_COLOR_LUT_BUFFER_SIZE_MISMATCH_META:
             jdata = "XR_ERROR_PASSTHROUGH_COLOR_LUT_BUFFER_SIZE_MISMATCH_META";
             break;
+        case XR_ENVIRONMENT_DEPTH_NOT_AVAILABLE_META:
+            jdata = "XR_ENVIRONMENT_DEPTH_NOT_AVAILABLE_META";
+            break;
         case XR_ERROR_HINT_ALREADY_SET_QCOM:
             jdata = "XR_ERROR_HINT_ALREADY_SET_QCOM";
             break;
@@ -2669,6 +2699,12 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrResult& value, const Jso
             break;
         case XR_ERROR_PLANE_DETECTION_PERMISSION_DENIED_EXT:
             jdata = "XR_ERROR_PLANE_DETECTION_PERMISSION_DENIED_EXT";
+            break;
+        case XR_ERROR_FUTURE_PENDING_EXT:
+            jdata = "XR_ERROR_FUTURE_PENDING_EXT";
+            break;
+        case XR_ERROR_FUTURE_INVALID_EXT:
+            jdata = "XR_ERROR_FUTURE_INVALID_EXT";
             break;
         default:
             jdata = to_hex_fixed_width(value);
@@ -3132,6 +3168,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value, co
         case XR_TYPE_INPUT_SOURCE_LOCALIZED_NAME_GET_INFO:
             jdata = "XR_TYPE_INPUT_SOURCE_LOCALIZED_NAME_GET_INFO";
             break;
+        case XR_TYPE_SPACES_LOCATE_INFO:
+            jdata = "XR_TYPE_SPACES_LOCATE_INFO";
+            break;
+        case XR_TYPE_SPACE_LOCATIONS:
+            jdata = "XR_TYPE_SPACE_LOCATIONS";
+            break;
+        case XR_TYPE_SPACE_VELOCITIES:
+            jdata = "XR_TYPE_SPACE_VELOCITIES";
+            break;
         case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
             jdata = "XR_TYPE_COMPOSITION_LAYER_CUBE_KHR";
             break;
@@ -3218,6 +3263,15 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value, co
             break;
         case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR:
             jdata = "XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR";
+            break;
+        case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+            jdata = "XR_TYPE_GRAPHICS_BINDING_METAL_KHR";
+            break;
+        case XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR:
+            jdata = "XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR";
+            break;
+        case XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR:
+            jdata = "XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR";
             break;
         case XR_TYPE_SYSTEM_EYE_GAZE_INTERACTION_PROPERTIES_EXT:
             jdata = "XR_TYPE_SYSTEM_EYE_GAZE_INTERACTION_PROPERTIES_EXT";
@@ -3927,6 +3981,30 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value, co
         case XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB:
             jdata = "XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB";
             break;
+        case XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META:
+            jdata = "XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META";
+            break;
+        case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META:
+            jdata = "XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META";
+            break;
+        case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META:
+            jdata = "XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META";
+            break;
+        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META:
+            jdata = "XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META";
+            break;
+        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META:
+            jdata = "XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META";
+            break;
+        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META:
+            jdata = "XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META";
+            break;
+        case XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META:
+            jdata = "XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META";
+            break;
+        case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+            jdata = "XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META";
+            break;
         case XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC:
             jdata = "XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC";
             break;
@@ -3990,6 +4068,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrStructureType& value, co
         case XR_TYPE_SYSTEM_PLANE_DETECTION_PROPERTIES_EXT:
             jdata = "XR_TYPE_SYSTEM_PLANE_DETECTION_PROPERTIES_EXT";
             break;
+        case XR_TYPE_FUTURE_CANCEL_INFO_EXT:
+            jdata = "XR_TYPE_FUTURE_CANCEL_INFO_EXT";
+            break;
+        case XR_TYPE_FUTURE_POLL_INFO_EXT:
+            jdata = "XR_TYPE_FUTURE_POLL_INFO_EXT";
+            break;
+        case XR_TYPE_FUTURE_COMPLETION_EXT:
+            jdata = "XR_TYPE_FUTURE_COMPLETION_EXT";
+            break;
+        case XR_TYPE_FUTURE_POLL_RESULT_EXT:
+            jdata = "XR_TYPE_FUTURE_POLL_RESULT_EXT";
+            break;
         case XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT:
             jdata = "XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT";
             break;
@@ -4047,8 +4137,8 @@ void FieldToJson(nlohmann::ordered_json& jdata, const XrViewConfigurationType& v
         case XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO:
             jdata = "XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO";
             break;
-        case XR_VIEW_CONFIGURATION_TYPE_PRIMARY_QUAD_VARJO:
-            jdata = "XR_VIEW_CONFIGURATION_TYPE_PRIMARY_QUAD_VARJO";
+        case XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO_WITH_FOVEATED_INSET:
+            jdata = "XR_VIEW_CONFIGURATION_TYPE_PRIMARY_STEREO_WITH_FOVEATED_INSET";
             break;
         case XR_VIEW_CONFIGURATION_TYPE_SECONDARY_MONO_FIRST_PERSON_OBSERVER_MSFT:
             jdata = "XR_VIEW_CONFIGURATION_TYPE_SECONDARY_MONO_FIRST_PERSON_OBSERVER_MSFT";
@@ -4183,6 +4273,8 @@ void FieldToJson(XrCompositionLayerFlags_t, nlohmann::ordered_json& jdata, const
                 return std::string("XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT");
             case XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT:
                 return std::string("XR_COMPOSITION_LAYER_UNPREMULTIPLIED_ALPHA_BIT");
+            case XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT:
+                return std::string("XR_COMPOSITION_LAYER_INVERTED_ALPHA_BIT_EXT");
         }
         return to_hex_fixed_width(flags);
     });
@@ -4334,6 +4426,16 @@ void FieldToJson(XrDigitalLensControlFlagsALMALENCE_t, nlohmann::ordered_json& j
         }
         return to_hex_fixed_width(flags);
     });
+}
+
+void FieldToJson(XrEnvironmentDepthProviderCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+{
+    jdata = to_hex_fixed_width(flags);
+}
+
+void FieldToJson(XrEnvironmentDepthSwapchainCreateFlagsMETA_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)
+{
+    jdata = to_hex_fixed_width(flags);
 }
 
 void FieldToJson(XrExternalCameraStatusFlagsOCULUS_t, nlohmann::ordered_json& jdata, const XrFlags64 flags, const JsonOptions& options)

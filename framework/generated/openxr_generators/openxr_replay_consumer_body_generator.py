@@ -311,8 +311,11 @@ class OpenXrReplayConsumerBodyGenerator(
     ):
         """Generate expressions to store the result of the count query for an array containing a variable number of values."""
         handle_value = values[0]
-        if self.is_handle(values[1].base_type
-                          ) or self.is_atom(values[1].base_type):
+        if (
+            self.is_handle(values[1].base_type)
+            or self.is_atom(values[1].base_type)
+            or self.is_opaque(values[1].base_type)
+        ):
             handle_value = values[1]
 
         prefix_type = self.get_prefix_from_type(handle_value.base_type)
@@ -336,8 +339,11 @@ class OpenXrReplayConsumerBodyGenerator(
             return_value = 'returnValue'
 
         handle_value = values[0]
-        if self.is_handle(values[1].base_type
-                          ) or self.is_atom(values[1].base_type):
+        if (
+            self.is_handle(values[1].base_type)
+            or self.is_atom(values[1].base_type)
+            or self.is_opaque(values[1].base_type)
+        ):
             handle_value = values[1]
 
         array_name = None
@@ -466,8 +472,11 @@ class OpenXrReplayConsumerBodyGenerator(
                             expr += 'GetAllocationCallbacks({});'.format(
                                 value.name
                             )
-                    elif self.is_handle(value.base_type
-                                        ) or self.is_atom(value.base_type):
+                    elif (
+                        self.is_handle(value.base_type)
+                        or self.is_atom(value.base_type)
+                        or self.is_opaque(values[1].base_type)
+                    ):
                         # We received an array of 64-bit integer IDs from the decoder.
                         expr += 'MapHandles<{prefix_type}{type}Info>({}, {}, &CommonObjectInfoTable::Get{type}Info);'.format(
                             value.name,
@@ -513,8 +522,10 @@ class OpenXrReplayConsumerBodyGenerator(
                                 expr = 'if (!{name}->IsNull()) {{ {name}->AllocateOutputData({}); }}'.format(
                                     length_name, name=value.name
                                 )
-                        elif self.is_handle(value.base_type) or self.is_atom(
-                            value.base_type
+                        elif (
+                            self.is_handle(value.base_type)
+                            or self.is_atom(value.base_type)
+                            or self.is_opaque(value.base_type)
                         ):
                             # Add mappings for the newly created handles.
                             preexpr.append(
@@ -674,8 +685,10 @@ class OpenXrReplayConsumerBodyGenerator(
                                             paramname=value.name, name=name
                                         )
                                     )
-                        elif self.is_handle(value.base_type) or self.is_atom(
-                            value.base_type
+                        elif (
+                            self.is_handle(value.base_type)
+                            or self.is_atom(value.base_type)
+                            or self.is_opaque(value.base_type)
                         ):
                             # Add mapping for the newly created handle
                             preexpr.append(
@@ -808,8 +821,11 @@ class OpenXrReplayConsumerBodyGenerator(
                                 )
                 if expr:
                     preexpr.append(expr)
-            elif self.is_handle(value.base_type
-                                ) or self.is_atom(value.base_type):
+            elif (
+                self.is_handle(value.base_type)
+                or self.is_atom(value.base_type)
+                or self.is_opaque(value.base_type)
+            ):
                 # Handles need to be mapped.
                 arg_name = 'in_' + value.name
                 args.append(arg_name)
