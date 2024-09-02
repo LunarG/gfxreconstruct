@@ -237,7 +237,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         if name != "vkCreateInstance":
             body += indent + 'VulkanCaptureManager* manager = VulkanCaptureManager::Get();\n'
             body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
-        if name == "vkCreateInstance" or name == "vkQueuePresentKHR":
+        if name == "vkCreateInstance":
             body += indent + 'auto api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();\n'
         else:
             body += indent + 'auto force_command_serialization = manager->GetForceCommandSerialization();\n'
