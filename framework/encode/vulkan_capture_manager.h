@@ -1333,9 +1333,6 @@ class VulkanCaptureManager : public ApiCaptureManager
     VkMemoryPropertyFlags GetMemoryProperties(vulkan_wrappers::DeviceWrapper* device_wrapper,
                                               uint32_t                        memory_type_index);
 
-    const VkImportAndroidHardwareBufferInfoANDROID*
-    FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info);
-
     void ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer);
     void ProcessImportAndroidHardwareBuffer(VkDevice device, VkDeviceMemory memory, AHardwareBuffer* hardware_buffer);
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
