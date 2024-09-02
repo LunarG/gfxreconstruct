@@ -66,7 +66,7 @@ class OpenXrDecoderHeaderGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=False,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
@@ -76,6 +76,7 @@ class OpenXrDecoderHeaderGenerator(BaseGenerator):
         self.MANUALLY_GENERATED_COMMANDS = [
             'xrEnumerateSwapchainImages',
         ]
+        self.command_names = []
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -113,10 +114,13 @@ class OpenXrDecoderHeaderGenerator(BaseGenerator):
             '                                    size_t                        buffer_size) override;\n',
             file=self.outFile
         )
-        write('  private:', end='', file=self.outFile)
+        write('  private:\n', end='', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+        for cmd in self.command_names:
+            cmddef = f'    size_t Decode_{cmd}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);\n'
+            write(cmddef, file=self.outFile)
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -133,14 +137,7 @@ class OpenXrDecoderHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
             if self.is_manually_generated_cmd_name(cmd):
                 continue
-
-            cmddef = '' if first else '\n'
-            cmddef += '    size_t Decode_{}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'.format(
-                cmd
-            )
-            write(cmddef, file=self.outFile)
-            first = False
+            self.command_names.append(cmd)

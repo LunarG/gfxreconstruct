@@ -116,7 +116,9 @@ class OpenXrStructHandleMappersBodyGenerator(
 
         # Execute the deferred gen struct operations
         for (typeinfo, typename, alias) in self.gen_struct_replay_info:
-            BaseGenerator.genStruct(self, typeinfo, typename, alias, True, False)
+            BaseGenerator.genStruct(
+                self, typeinfo, typename, alias, True, False
+            )
             self.local_gen_struct(typeinfo, typename, alias)
 
         for (cmdinfo, name, alias) in self.gen_cmd_replay_info:
@@ -124,7 +126,9 @@ class OpenXrStructHandleMappersBodyGenerator(
             self.local_gen_cmd(cmdinfo, name, alias)
 
         # Create the struct handle mappers for all features
-        self.generate_struct_mappers(self.get_filtered_all_feature_struct_names())
+        self.generate_struct_mappers(
+            self.get_filtered_all_feature_struct_names()
+        )
 
         BaseStructHandleMappersBodyGenerator.endFile(self)
         # Finish processing in superclass
@@ -163,7 +167,8 @@ class OpenXrStructHandleMappersBodyGenerator(
         if not alias:
             for value_info in self.feature_cmd_params[name][2]:
                 if self.is_output_parameter(value_info) and (
-                    value_info.base_type in self.get_filtered_feature_struct_names()
+                    value_info.base_type
+                    in self.get_filtered_feature_struct_names()
                 ) and (value_info.base_type in self.structs_with_handles) and (
                     value_info.base_type
                     not in self.output_structs_with_handles

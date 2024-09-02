@@ -372,7 +372,6 @@ XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToTimespecTimeKHR(
     XrTime                                      time,
     struct timespec*                            timespecTime);
 
-
 XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,

@@ -111,7 +111,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
 
             #include "format/api_call_id.h"
 
-            #include "generated/generated_openxr_base_header_struct_encoders.h"
             #include "generated/generated_openxr_api_call_encoders.h"
             #include "generated/generated_openxr_struct_handle_wrappers.h"
             #include "generated/generated_vulkan_struct_handle_wrappers.h"
@@ -307,7 +306,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::PreLockReentrant({}, {});\n'.format(
                 name, capture_manager, arg_list
             )
-
 
             # Disable capture for reentrance
             body += top_indent + 'save_capture_mode = manager->GetCaptureMode();\n'
