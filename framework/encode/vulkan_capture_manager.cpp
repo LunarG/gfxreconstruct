@@ -1118,7 +1118,7 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         if (auto import_ahb_info =
-                graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(*pAllocateInfo_unwrapped))
+                graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(pAllocateInfo_unwrapped))
         {
             if (import_ahb_info->buffer != nullptr)
             {

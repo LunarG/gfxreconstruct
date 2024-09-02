@@ -1950,9 +1950,9 @@ void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
     const Decoded_VkSwapchainCreateInfoKHR* swapchain_info)
 {
     assert(swapchain_info != nullptr);
-    auto pnext = reinterpret_cast<VkBaseOutStructure*>(swapchain_info->pNext->GetPointer());
 
-    if (auto full_screen_info = graphics::vulkan_struct_get_pnext<VkSurfaceFullScreenExclusiveWin32InfoEXT>(pnext))
+    if (auto full_screen_info =
+            graphics::vulkan_struct_get_pnext<VkSurfaceFullScreenExclusiveWin32InfoEXT>(swapchain_info->decoded_value))
     {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
         // Get the surface info from the Decoded_VkSwapchainCreateInfoKHR handle id.
