@@ -35,8 +35,7 @@ struct is_vulkan_struct : std::false_type
 {};
 
 template <typename T>
-struct is_vulkan_struct<T, decltype((void)T::sType, 0)>
-    : std::is_same<decltype(T::sType), VkStructureType>
+struct is_vulkan_struct<T, decltype((void)T::sType, 0)> : std::is_same<decltype(T::sType), VkStructureType>
 {};
 
 template <typename T>
