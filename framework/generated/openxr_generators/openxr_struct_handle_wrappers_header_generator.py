@@ -368,6 +368,20 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
                                 body += '        CreateWrappedAtom<ParentWrapper, {}>(parent, &value->{}, get_id);\n'.format(
                                     member_wrapper_type, member.name
                                 )
+                        elif self.is_opaque(member.base_type):
+                            if member.is_array:
+                                body += '        CreateWrappedOpaques<ParentWrapper, {}>(parent, value->{}, value->{}, get_id);\n'.format(
+                                    member_wrapper_type, member.name,
+                                    member.array_length
+                                )
+                            elif member.is_pointer:
+                                body += '        CreateWrappedOpaque<ParentWrapper, {}>(parent, value->{}, get_id);\n'.format(
+                                    member_wrapper_type, member.name
+                                )
+                            else:
+                                body += '        CreateWrappedOpaque<ParentWrapper, {}>(parent, &value->{}, get_id);\n'.format(
+                                    member_wrapper_type, member.name
+                                )
 
             body += '    }\n'
             body += '}\n'

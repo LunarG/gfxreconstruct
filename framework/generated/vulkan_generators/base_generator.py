@@ -789,6 +789,9 @@ class BaseGenerator(OutputGenerator):
     def is_atom(self, base_type):
         return False
 
+    def is_opaque(self, base_type):
+        return False
+
     def get_default_handle_atom_value(self, base_type):
         return 'VK_NULL_HANDLE'
 

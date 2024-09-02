@@ -295,6 +295,11 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateApiLayerInstance(
     const XrApiLayerCreateInfo*                 layerInfo,
     XrInstance*                                 instance);
 
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpaces(
+    XrSession                                   session,
+    const XrSpacesLocateInfo*                   locateInfo,
+    XrSpaceLocations*                           spaceLocations);
+
 XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(
     XrSession                                   session,
     XrAndroidThreadTypeKHR                      threadType,
@@ -345,6 +350,11 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D12GraphicsRequirementsKHR(
     XrSystemId                                  systemId,
     XrGraphicsRequirementsD3D12KHR*             graphicsRequirements);
 
+XRAPI_ATTR XrResult XRAPI_CALL xrGetMetalGraphicsRequirementsKHR(
+    XrInstance                                  instance,
+    XrSystemId                                  systemId,
+    XrGraphicsRequirementsMetalKHR*             graphicsRequirements);
+
 XRAPI_ATTR XrResult XRAPI_CALL xrGetVisibilityMaskKHR(
     XrSession                                   session,
     XrViewConfigurationType                     viewConfigurationType,
@@ -376,6 +386,11 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(
     XrInstance                                  instance,
     XrSystemId                                  systemId,
     XrGraphicsRequirementsVulkanKHR*            graphicsRequirements);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpacesKHR(
+    XrSession                                   session,
+    const XrSpacesLocateInfo*                   locateInfo,
+    XrSpaceLocations*                           spaceLocations);
 
 XRAPI_ATTR XrResult XRAPI_CALL xrPerfSettingsSetPerformanceLevelEXT(
     XrSession                                   session,
@@ -1194,6 +1209,47 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(
     const XrFaceExpressionInfo2FB*              expressionInfo,
     XrFaceExpressionWeights2FB*                 expressionWeights);
 
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthProviderMETA(
+    XrSession                                   session,
+    const XrEnvironmentDepthProviderCreateInfoMETA* createInfo,
+    XrEnvironmentDepthProviderMETA*             environmentDepthProvider);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEnvironmentDepthProviderMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrStartEnvironmentDepthProviderMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrStopEnvironmentDepthProviderMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthSwapchainMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider,
+    const XrEnvironmentDepthSwapchainCreateInfoMETA* createInfo,
+    XrEnvironmentDepthSwapchainMETA*            swapchain);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEnvironmentDepthSwapchainMETA(
+    XrEnvironmentDepthSwapchainMETA             swapchain);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentDepthSwapchainImagesMETA(
+    XrEnvironmentDepthSwapchainMETA             swapchain,
+    uint32_t                                    imageCapacityInput,
+    uint32_t*                                   imageCountOutput,
+    XrSwapchainImageBaseHeader*                 images);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetEnvironmentDepthSwapchainStateMETA(
+    XrEnvironmentDepthSwapchainMETA             swapchain,
+    XrEnvironmentDepthSwapchainStateMETA*       state);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrAcquireEnvironmentDepthImageMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider,
+    const XrEnvironmentDepthImageAcquireInfoMETA* acquireInfo,
+    XrEnvironmentDepthImageMETA*                environmentDepthImage);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrSetEnvironmentDepthHandRemovalMETA(
+    XrEnvironmentDepthProviderMETA              environmentDepthProvider,
+    const XrEnvironmentDepthHandRemovalSetInfoMETA* setInfo);
+
 XRAPI_ATTR XrResult XRAPI_CALL xrSetTrackingOptimizationSettingsHintQCOM(
     XrSession                                   session,
     XrTrackingOptimizationSettingsDomainQCOM    domain,
@@ -1250,6 +1306,15 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetPlanePolygonBufferEXT(
     uint64_t                                    planeId,
     uint32_t                                    polygonBufferIndex,
     XrPlaneDetectorPolygonBufferEXT*            polygonBuffer);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrPollFutureEXT(
+    XrInstance                                  instance,
+    const XrFuturePollInfoEXT*                  pollInfo,
+    XrFuturePollResultEXT*                      pollResult);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrCancelFutureEXT(
+    XrInstance                                  instance,
+    const XrFutureCancelInfoEXT*                cancelInfo);
 
 XRAPI_ATTR XrResult XRAPI_CALL xrEnableUserCalibrationEventsML(
     XrInstance                                  instance,

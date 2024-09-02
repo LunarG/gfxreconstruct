@@ -100,6 +100,7 @@ static XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateBoundSourcesForAction(XrSession
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetInputSourceLocalizedName(XrSession, const XrInputSourceLocalizedNameGetInfo*, uint32_t, uint32_t*, char*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetInputSourceLocalizedName was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrApplyHapticFeedback(XrSession, const XrHapticActionInfo*, const XrHapticBaseHeader*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrApplyHapticFeedback was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrStopHapticFeedback(XrSession, const XrHapticActionInfo*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrStopHapticFeedback was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpaces(XrSession, const XrSpacesLocateInfo*, XrSpaceLocations*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrLocateSpaces was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrSetAndroidApplicationThreadKHR(XrSession, XrAndroidThreadTypeKHR, uint32_t) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrSetAndroidApplicationThreadKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrCreateSwapchainAndroidSurfaceKHR(XrSession, const XrSwapchainCreateInfo*, XrSwapchain*, jobject*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrCreateSwapchainAndroidSurfaceKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetOpenGLGraphicsRequirementsKHR(XrInstance, XrSystemId, XrGraphicsRequirementsOpenGLKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetOpenGLGraphicsRequirementsKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
@@ -110,6 +111,7 @@ static XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDeviceKHR(XrInstance, X
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirementsKHR(XrInstance, XrSystemId, XrGraphicsRequirementsVulkanKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetVulkanGraphicsRequirementsKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D11GraphicsRequirementsKHR(XrInstance, XrSystemId, XrGraphicsRequirementsD3D11KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetD3D11GraphicsRequirementsKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetD3D12GraphicsRequirementsKHR(XrInstance, XrSystemId, XrGraphicsRequirementsD3D12KHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetD3D12GraphicsRequirementsKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrGetMetalGraphicsRequirementsKHR(XrInstance, XrSystemId, XrGraphicsRequirementsMetalKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetMetalGraphicsRequirementsKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetVisibilityMaskKHR(XrSession, XrViewConfigurationType, uint32_t, XrVisibilityMaskTypeKHR, XrVisibilityMaskKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetVisibilityMaskKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrConvertWin32PerformanceCounterToTimeKHR(XrInstance, const LARGE_INTEGER*, XrTime*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrConvertWin32PerformanceCounterToTimeKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrConvertTimeToWin32PerformanceCounterKHR(XrInstance, XrTime, LARGE_INTEGER*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrConvertTimeToWin32PerformanceCounterKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
@@ -119,6 +121,7 @@ static XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanInstanceKHR(XrInstance, cons
 static XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance, const XrVulkanDeviceCreateInfoKHR*, VkDevice*, VkResult*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrCreateVulkanDeviceKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance, const XrVulkanGraphicsDeviceGetInfoKHR*, VkPhysicalDevice*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetVulkanGraphicsDevice2KHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsRequirements2KHR(XrInstance, XrSystemId, XrGraphicsRequirementsVulkanKHR*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetVulkanGraphicsRequirements2KHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrLocateSpacesKHR(XrSession, const XrSpacesLocateInfo*, XrSpaceLocations*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrLocateSpacesKHR was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrPerfSettingsSetPerformanceLevelEXT(XrSession, XrPerfSettingsDomainEXT, XrPerfSettingsLevelEXT) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrPerfSettingsSetPerformanceLevelEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrThermalGetTemperatureTrendEXT(XrSession, XrPerfSettingsDomainEXT, XrPerfSettingsNotificationLevelEXT*, float*, float*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrThermalGetTemperatureTrendEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrSetDebugUtilsObjectNameEXT(XrInstance, const XrDebugUtilsObjectNameInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrSetDebugUtilsObjectNameEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
@@ -299,6 +302,16 @@ static XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceTriangleMeshMETA(XrSpace, const 
 static XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTracker2FB(XrSession, const XrFaceTrackerCreateInfo2FB*, XrFaceTracker2FB*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrCreateFaceTracker2FB was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTracker2FB(XrFaceTracker2FB) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrDestroyFaceTracker2FB was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeights2FB(XrFaceTracker2FB, const XrFaceExpressionInfo2FB*, XrFaceExpressionWeights2FB*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetFaceExpressionWeights2FB was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthProviderMETA(XrSession, const XrEnvironmentDepthProviderCreateInfoMETA*, XrEnvironmentDepthProviderMETA*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrCreateEnvironmentDepthProviderMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEnvironmentDepthProviderMETA(XrEnvironmentDepthProviderMETA) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrDestroyEnvironmentDepthProviderMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrStartEnvironmentDepthProviderMETA(XrEnvironmentDepthProviderMETA) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrStartEnvironmentDepthProviderMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrStopEnvironmentDepthProviderMETA(XrEnvironmentDepthProviderMETA) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrStopEnvironmentDepthProviderMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrCreateEnvironmentDepthSwapchainMETA(XrEnvironmentDepthProviderMETA, const XrEnvironmentDepthSwapchainCreateInfoMETA*, XrEnvironmentDepthSwapchainMETA*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrCreateEnvironmentDepthSwapchainMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEnvironmentDepthSwapchainMETA(XrEnvironmentDepthSwapchainMETA) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrDestroyEnvironmentDepthSwapchainMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateEnvironmentDepthSwapchainImagesMETA(XrEnvironmentDepthSwapchainMETA, uint32_t, uint32_t*, XrSwapchainImageBaseHeader*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrEnumerateEnvironmentDepthSwapchainImagesMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrGetEnvironmentDepthSwapchainStateMETA(XrEnvironmentDepthSwapchainMETA, XrEnvironmentDepthSwapchainStateMETA*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetEnvironmentDepthSwapchainStateMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrAcquireEnvironmentDepthImageMETA(XrEnvironmentDepthProviderMETA, const XrEnvironmentDepthImageAcquireInfoMETA*, XrEnvironmentDepthImageMETA*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrAcquireEnvironmentDepthImageMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrSetEnvironmentDepthHandRemovalMETA(XrEnvironmentDepthProviderMETA, const XrEnvironmentDepthHandRemovalSetInfoMETA*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrSetEnvironmentDepthHandRemovalMETA was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrSetTrackingOptimizationSettingsHintQCOM(XrSession, XrTrackingOptimizationSettingsDomainQCOM, XrTrackingOptimizationSettingsHintQCOM) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrSetTrackingOptimizationSettingsHintQCOM was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughHTC(XrSession, const XrPassthroughCreateInfoHTC*, XrPassthroughHTC*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrCreatePassthroughHTC was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughHTC(XrPassthroughHTC) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrDestroyPassthroughHTC was called, resulting in no-op behavior."); return XR_SUCCESS; }
@@ -312,6 +325,8 @@ static XRAPI_ATTR XrResult XRAPI_CALL xrBeginPlaneDetectionEXT(XrPlaneDetectorEX
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionStateEXT(XrPlaneDetectorEXT, XrPlaneDetectionStateEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetPlaneDetectionStateEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetPlaneDetectionsEXT(XrPlaneDetectorEXT, const XrPlaneDetectorGetInfoEXT*, XrPlaneDetectorLocationsEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetPlaneDetectionsEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrGetPlanePolygonBufferEXT(XrPlaneDetectorEXT, uint64_t, uint32_t, XrPlaneDetectorPolygonBufferEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrGetPlanePolygonBufferEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrPollFutureEXT(XrInstance, const XrFuturePollInfoEXT*, XrFuturePollResultEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrPollFutureEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
+static XRAPI_ATTR XrResult XRAPI_CALL xrCancelFutureEXT(XrInstance, const XrFutureCancelInfoEXT*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrCancelFutureEXT was called, resulting in no-op behavior."); return XR_SUCCESS; }
 static XRAPI_ATTR XrResult XRAPI_CALL xrEnableUserCalibrationEventsML(XrInstance, const XrUserCalibrationEnableEventsInfoML*) { GFXRECON_LOG_WARNING_ONCE("Unsupported function xrEnableUserCalibrationEventsML was called, resulting in no-op behavior."); return XR_SUCCESS; }
 // clang-format on
 GFXRECON_END_NAMESPACE(noop)
@@ -375,6 +390,7 @@ struct OpenXrInstanceTable
     PFN_xrGetInputSourceLocalizedName GetInputSourceLocalizedName{ noop::xrGetInputSourceLocalizedName };
     PFN_xrApplyHapticFeedback ApplyHapticFeedback{ noop::xrApplyHapticFeedback };
     PFN_xrStopHapticFeedback StopHapticFeedback{ noop::xrStopHapticFeedback };
+    PFN_xrLocateSpaces LocateSpaces{ noop::xrLocateSpaces };
     PFN_xrSetAndroidApplicationThreadKHR SetAndroidApplicationThreadKHR{ noop::xrSetAndroidApplicationThreadKHR };
     PFN_xrCreateSwapchainAndroidSurfaceKHR CreateSwapchainAndroidSurfaceKHR{ noop::xrCreateSwapchainAndroidSurfaceKHR };
     PFN_xrGetOpenGLGraphicsRequirementsKHR GetOpenGLGraphicsRequirementsKHR{ noop::xrGetOpenGLGraphicsRequirementsKHR };
@@ -385,6 +401,7 @@ struct OpenXrInstanceTable
     PFN_xrGetVulkanGraphicsRequirementsKHR GetVulkanGraphicsRequirementsKHR{ noop::xrGetVulkanGraphicsRequirementsKHR };
     PFN_xrGetD3D11GraphicsRequirementsKHR GetD3D11GraphicsRequirementsKHR{ noop::xrGetD3D11GraphicsRequirementsKHR };
     PFN_xrGetD3D12GraphicsRequirementsKHR GetD3D12GraphicsRequirementsKHR{ noop::xrGetD3D12GraphicsRequirementsKHR };
+    PFN_xrGetMetalGraphicsRequirementsKHR GetMetalGraphicsRequirementsKHR{ noop::xrGetMetalGraphicsRequirementsKHR };
     PFN_xrGetVisibilityMaskKHR GetVisibilityMaskKHR{ noop::xrGetVisibilityMaskKHR };
     PFN_xrConvertWin32PerformanceCounterToTimeKHR ConvertWin32PerformanceCounterToTimeKHR{ noop::xrConvertWin32PerformanceCounterToTimeKHR };
     PFN_xrConvertTimeToWin32PerformanceCounterKHR ConvertTimeToWin32PerformanceCounterKHR{ noop::xrConvertTimeToWin32PerformanceCounterKHR };
@@ -394,6 +411,7 @@ struct OpenXrInstanceTable
     PFN_xrCreateVulkanDeviceKHR CreateVulkanDeviceKHR{ noop::xrCreateVulkanDeviceKHR };
     PFN_xrGetVulkanGraphicsDevice2KHR GetVulkanGraphicsDevice2KHR{ noop::xrGetVulkanGraphicsDevice2KHR };
     PFN_xrGetVulkanGraphicsRequirements2KHR GetVulkanGraphicsRequirements2KHR{ noop::xrGetVulkanGraphicsRequirements2KHR };
+    PFN_xrLocateSpacesKHR LocateSpacesKHR{ noop::xrLocateSpacesKHR };
     PFN_xrPerfSettingsSetPerformanceLevelEXT PerfSettingsSetPerformanceLevelEXT{ noop::xrPerfSettingsSetPerformanceLevelEXT };
     PFN_xrThermalGetTemperatureTrendEXT ThermalGetTemperatureTrendEXT{ noop::xrThermalGetTemperatureTrendEXT };
     PFN_xrSetDebugUtilsObjectNameEXT SetDebugUtilsObjectNameEXT{ noop::xrSetDebugUtilsObjectNameEXT };
@@ -574,6 +592,16 @@ struct OpenXrInstanceTable
     PFN_xrCreateFaceTracker2FB CreateFaceTracker2FB{ noop::xrCreateFaceTracker2FB };
     PFN_xrDestroyFaceTracker2FB DestroyFaceTracker2FB{ noop::xrDestroyFaceTracker2FB };
     PFN_xrGetFaceExpressionWeights2FB GetFaceExpressionWeights2FB{ noop::xrGetFaceExpressionWeights2FB };
+    PFN_xrCreateEnvironmentDepthProviderMETA CreateEnvironmentDepthProviderMETA{ noop::xrCreateEnvironmentDepthProviderMETA };
+    PFN_xrDestroyEnvironmentDepthProviderMETA DestroyEnvironmentDepthProviderMETA{ noop::xrDestroyEnvironmentDepthProviderMETA };
+    PFN_xrStartEnvironmentDepthProviderMETA StartEnvironmentDepthProviderMETA{ noop::xrStartEnvironmentDepthProviderMETA };
+    PFN_xrStopEnvironmentDepthProviderMETA StopEnvironmentDepthProviderMETA{ noop::xrStopEnvironmentDepthProviderMETA };
+    PFN_xrCreateEnvironmentDepthSwapchainMETA CreateEnvironmentDepthSwapchainMETA{ noop::xrCreateEnvironmentDepthSwapchainMETA };
+    PFN_xrDestroyEnvironmentDepthSwapchainMETA DestroyEnvironmentDepthSwapchainMETA{ noop::xrDestroyEnvironmentDepthSwapchainMETA };
+    PFN_xrEnumerateEnvironmentDepthSwapchainImagesMETA EnumerateEnvironmentDepthSwapchainImagesMETA{ noop::xrEnumerateEnvironmentDepthSwapchainImagesMETA };
+    PFN_xrGetEnvironmentDepthSwapchainStateMETA GetEnvironmentDepthSwapchainStateMETA{ noop::xrGetEnvironmentDepthSwapchainStateMETA };
+    PFN_xrAcquireEnvironmentDepthImageMETA AcquireEnvironmentDepthImageMETA{ noop::xrAcquireEnvironmentDepthImageMETA };
+    PFN_xrSetEnvironmentDepthHandRemovalMETA SetEnvironmentDepthHandRemovalMETA{ noop::xrSetEnvironmentDepthHandRemovalMETA };
     PFN_xrSetTrackingOptimizationSettingsHintQCOM SetTrackingOptimizationSettingsHintQCOM{ noop::xrSetTrackingOptimizationSettingsHintQCOM };
     PFN_xrCreatePassthroughHTC CreatePassthroughHTC{ noop::xrCreatePassthroughHTC };
     PFN_xrDestroyPassthroughHTC DestroyPassthroughHTC{ noop::xrDestroyPassthroughHTC };
@@ -587,6 +615,8 @@ struct OpenXrInstanceTable
     PFN_xrGetPlaneDetectionStateEXT GetPlaneDetectionStateEXT{ noop::xrGetPlaneDetectionStateEXT };
     PFN_xrGetPlaneDetectionsEXT GetPlaneDetectionsEXT{ noop::xrGetPlaneDetectionsEXT };
     PFN_xrGetPlanePolygonBufferEXT GetPlanePolygonBufferEXT{ noop::xrGetPlanePolygonBufferEXT };
+    PFN_xrPollFutureEXT PollFutureEXT{ noop::xrPollFutureEXT };
+    PFN_xrCancelFutureEXT CancelFutureEXT{ noop::xrCancelFutureEXT };
     PFN_xrEnableUserCalibrationEventsML EnableUserCalibrationEventsML{ noop::xrEnableUserCalibrationEventsML };
 };
 
@@ -656,6 +686,7 @@ static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance in
     LoadOpenXrFunction(gpa, instance, "xrGetInputSourceLocalizedName", &table->GetInputSourceLocalizedName);
     LoadOpenXrFunction(gpa, instance, "xrApplyHapticFeedback", &table->ApplyHapticFeedback);
     LoadOpenXrFunction(gpa, instance, "xrStopHapticFeedback", &table->StopHapticFeedback);
+    LoadOpenXrFunction(gpa, instance, "xrLocateSpaces", &table->LocateSpaces);
     LoadOpenXrFunction(gpa, instance, "xrSetAndroidApplicationThreadKHR", &table->SetAndroidApplicationThreadKHR);
     LoadOpenXrFunction(gpa, instance, "xrCreateSwapchainAndroidSurfaceKHR", &table->CreateSwapchainAndroidSurfaceKHR);
     LoadOpenXrFunction(gpa, instance, "xrGetOpenGLGraphicsRequirementsKHR", &table->GetOpenGLGraphicsRequirementsKHR);
@@ -666,6 +697,7 @@ static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance in
     LoadOpenXrFunction(gpa, instance, "xrGetVulkanGraphicsRequirementsKHR", &table->GetVulkanGraphicsRequirementsKHR);
     LoadOpenXrFunction(gpa, instance, "xrGetD3D11GraphicsRequirementsKHR", &table->GetD3D11GraphicsRequirementsKHR);
     LoadOpenXrFunction(gpa, instance, "xrGetD3D12GraphicsRequirementsKHR", &table->GetD3D12GraphicsRequirementsKHR);
+    LoadOpenXrFunction(gpa, instance, "xrGetMetalGraphicsRequirementsKHR", &table->GetMetalGraphicsRequirementsKHR);
     LoadOpenXrFunction(gpa, instance, "xrGetVisibilityMaskKHR", &table->GetVisibilityMaskKHR);
     LoadOpenXrFunction(gpa, instance, "xrConvertWin32PerformanceCounterToTimeKHR", &table->ConvertWin32PerformanceCounterToTimeKHR);
     LoadOpenXrFunction(gpa, instance, "xrConvertTimeToWin32PerformanceCounterKHR", &table->ConvertTimeToWin32PerformanceCounterKHR);
@@ -675,6 +707,7 @@ static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance in
     LoadOpenXrFunction(gpa, instance, "xrCreateVulkanDeviceKHR", &table->CreateVulkanDeviceKHR);
     LoadOpenXrFunction(gpa, instance, "xrGetVulkanGraphicsDevice2KHR", &table->GetVulkanGraphicsDevice2KHR);
     LoadOpenXrFunction(gpa, instance, "xrGetVulkanGraphicsRequirements2KHR", &table->GetVulkanGraphicsRequirements2KHR);
+    LoadOpenXrFunction(gpa, instance, "xrLocateSpacesKHR", &table->LocateSpacesKHR);
     LoadOpenXrFunction(gpa, instance, "xrPerfSettingsSetPerformanceLevelEXT", &table->PerfSettingsSetPerformanceLevelEXT);
     LoadOpenXrFunction(gpa, instance, "xrThermalGetTemperatureTrendEXT", &table->ThermalGetTemperatureTrendEXT);
     LoadOpenXrFunction(gpa, instance, "xrSetDebugUtilsObjectNameEXT", &table->SetDebugUtilsObjectNameEXT);
@@ -855,6 +888,16 @@ static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance in
     LoadOpenXrFunction(gpa, instance, "xrCreateFaceTracker2FB", &table->CreateFaceTracker2FB);
     LoadOpenXrFunction(gpa, instance, "xrDestroyFaceTracker2FB", &table->DestroyFaceTracker2FB);
     LoadOpenXrFunction(gpa, instance, "xrGetFaceExpressionWeights2FB", &table->GetFaceExpressionWeights2FB);
+    LoadOpenXrFunction(gpa, instance, "xrCreateEnvironmentDepthProviderMETA", &table->CreateEnvironmentDepthProviderMETA);
+    LoadOpenXrFunction(gpa, instance, "xrDestroyEnvironmentDepthProviderMETA", &table->DestroyEnvironmentDepthProviderMETA);
+    LoadOpenXrFunction(gpa, instance, "xrStartEnvironmentDepthProviderMETA", &table->StartEnvironmentDepthProviderMETA);
+    LoadOpenXrFunction(gpa, instance, "xrStopEnvironmentDepthProviderMETA", &table->StopEnvironmentDepthProviderMETA);
+    LoadOpenXrFunction(gpa, instance, "xrCreateEnvironmentDepthSwapchainMETA", &table->CreateEnvironmentDepthSwapchainMETA);
+    LoadOpenXrFunction(gpa, instance, "xrDestroyEnvironmentDepthSwapchainMETA", &table->DestroyEnvironmentDepthSwapchainMETA);
+    LoadOpenXrFunction(gpa, instance, "xrEnumerateEnvironmentDepthSwapchainImagesMETA", &table->EnumerateEnvironmentDepthSwapchainImagesMETA);
+    LoadOpenXrFunction(gpa, instance, "xrGetEnvironmentDepthSwapchainStateMETA", &table->GetEnvironmentDepthSwapchainStateMETA);
+    LoadOpenXrFunction(gpa, instance, "xrAcquireEnvironmentDepthImageMETA", &table->AcquireEnvironmentDepthImageMETA);
+    LoadOpenXrFunction(gpa, instance, "xrSetEnvironmentDepthHandRemovalMETA", &table->SetEnvironmentDepthHandRemovalMETA);
     LoadOpenXrFunction(gpa, instance, "xrSetTrackingOptimizationSettingsHintQCOM", &table->SetTrackingOptimizationSettingsHintQCOM);
     LoadOpenXrFunction(gpa, instance, "xrCreatePassthroughHTC", &table->CreatePassthroughHTC);
     LoadOpenXrFunction(gpa, instance, "xrDestroyPassthroughHTC", &table->DestroyPassthroughHTC);
@@ -868,6 +911,8 @@ static void LoadOpenXrInstanceTable(PFN_xrGetInstanceProcAddr gpa, XrInstance in
     LoadOpenXrFunction(gpa, instance, "xrGetPlaneDetectionStateEXT", &table->GetPlaneDetectionStateEXT);
     LoadOpenXrFunction(gpa, instance, "xrGetPlaneDetectionsEXT", &table->GetPlaneDetectionsEXT);
     LoadOpenXrFunction(gpa, instance, "xrGetPlanePolygonBufferEXT", &table->GetPlanePolygonBufferEXT);
+    LoadOpenXrFunction(gpa, instance, "xrPollFutureEXT", &table->PollFutureEXT);
+    LoadOpenXrFunction(gpa, instance, "xrCancelFutureEXT", &table->CancelFutureEXT);
     LoadOpenXrFunction(gpa, instance, "xrEnableUserCalibrationEventsML", &table->EnableUserCalibrationEventsML);
 }
 

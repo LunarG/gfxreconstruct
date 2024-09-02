@@ -324,7 +324,8 @@ class BaseGenerator(OutputGenerator):
         self.base_types = dict()  # Set of OpenXR basetypes
         self.struct_names = set()  # Set of OpenXR struct typenames
         self.handle_names = set()  # Set of OpenXR handle typenames
-        self.atom_names = set()  # Set of OpenXR atom typenames
+        self.atom_names = set()  # Set of OpenXR Atom typenames
+        self.opaque_names = set()  # Set of OpenXR Opaque typenames
         self.flags_types = dict(
         )  # Map of flags types to base flag type (VkFlags or VkFlags64)
         self.enum_names = set()  # Set of OpenXR enumeration typenames
@@ -376,6 +377,7 @@ class BaseGenerator(OutputGenerator):
         self.encode_types['uint32_t'] = 'UInt32'
         self.encode_types['uint64_t'] = 'UInt64'
         self.encode_types['XR_DEFINE_ATOM'] = 'UInt64'
+        self.encode_types['XR_DEFINE_OPAQUE_64'] = 'UInt64'
 
         # Add Vulkan handle types to handle list
         self.handle_names.add('VkInstance')
@@ -529,9 +531,10 @@ class BaseGenerator(OutputGenerator):
             type_info = type_elem.find('type').text
             if type_info == 'XR_DEFINE_ATOM':
                 self.atom_names.add(name)
-            else:
-                if not name == 'XrTime':
-                    self.base_types[name] = type_info
+            elif type_info == 'XR_DEFINE_OPAQUE_64':
+                self.opaque_names.add(name)
+            elif not name == 'XrTime':
+                self.base_types[name] = type_info
 
     def genStruct(
         self,
@@ -762,6 +765,11 @@ class BaseGenerator(OutputGenerator):
             return True
         return False
 
+    def is_opaque(self, base_type):
+        if base_type in self.opaque_names:
+            return True
+        return False
+
     def get_default_handle_atom_value(self, base_type):
         if self.is_handle(base_type):
             if base_type.startswith('Vk'):
@@ -783,6 +791,8 @@ class BaseGenerator(OutputGenerator):
             if default_type in no_null_defined:
                 default_type = '0'
             return default_type
+        elif self.is_opaque(base_type):
+            return '0'
 
     def has_basetype(self, base_type):
         if base_type in self.base_types and self.base_types[base_type
@@ -1028,10 +1038,11 @@ class BaseGenerator(OutputGenerator):
         has_handle_pointer = False
         map_data = []
         for value in struct_members:
-            if self.is_handle(value.base_type) or self.is_atom(
-                value.base_type
-            ) or self.is_class(value) or (
-                extra_types and value.base_type in extra_types
+            if (
+                self.is_handle(value.base_type)
+                or self.is_atom(value.base_type)
+                or self.is_opaque(value.base_type) or self.is_class(value)
+                or (extra_types and value.base_type in extra_types)
             ):
                 # The member is a handle.
                 handles.append(value)
@@ -1197,7 +1208,10 @@ class BaseGenerator(OutputGenerator):
         """Convert a type name to a string to be used as part of an encoder/decoder function/method name."""
         if self.is_struct(base_type):
             return base_type
-        elif self.is_handle(base_type) or self.is_atom(base_type):
+        elif (
+            self.is_handle(base_type) or self.is_atom(base_type)
+            or self.is_opaque(base_type)
+        ):
             type_name = self.get_prefix_from_type(base_type)
             type_name += 'Handle'
             return type_name
@@ -1277,7 +1291,10 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
                     type_name = 'uint64_t'
-            elif self.is_handle(type_name) or self.is_atom(type_name):
+            elif (
+                self.is_handle(type_name) or self.is_atom(type_name)
+                or self.is_opaque(type_name)
+            ):
                 type_name = 'HandlePointerDecoder<{}>'.format(type_name)
             else:
                 if count > 1:
@@ -1289,7 +1306,10 @@ class BaseGenerator(OutputGenerator):
             type_name = 'uint64_t'
         elif self.is_struct(type_name):
             type_name = 'Decoded_{}'.format(type_name)
-        elif self.is_handle(type_name) or self.is_atom(type_name):
+        elif (
+            self.is_handle(type_name) or self.is_atom(type_name)
+            or self.is_opaque(type_name)
+        ):
             type_name = 'format::HandleId'
         else:
             type_name = '{}'.format(type_name)
@@ -1470,6 +1490,7 @@ class BaseGenerator(OutputGenerator):
         type_name = self.make_invocation_type_name(value.base_type)
         is_handle = self.is_handle(value.base_type)
         is_atom = self.is_atom(value.base_type)
+        is_opaque = self.is_opaque(value.base_type)
 
         if self.is_struct(type_name):
             args = ['encoder'] + args
@@ -1487,6 +1508,8 @@ class BaseGenerator(OutputGenerator):
                 method_call += 'Flags'
             elif is_atom:
                 method_call += 'OpenXrAtom'
+            elif is_opaque:
+                method_call += 'OpenXrOpaque'
             elif self.has_basetype(type_name):
                 method_call += self.encode_types[self.get_basetype(type_name)]
             else:
@@ -1521,7 +1544,7 @@ class BaseGenerator(OutputGenerator):
             else:
                 method_call += 'Value'
 
-        if is_handle or is_atom:
+        if is_handle or is_atom or is_opaque:
             wrapper_prefix = self.get_wrapper_prefix_from_type(value.base_type)
             method_call += '<{}>'.format(
                 wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper'
@@ -1697,8 +1720,9 @@ class BaseGenerator(OutputGenerator):
                 if member_type in self.handle_names:
                     found_handle = True
 
-                # Also check to see if this is an atom
+                # Also check to see if this is an atom or an opaque type
                 found_atom = False
+                found_opaque = False
 
                 if member_category == 'basetype':
                     base_type = self.registry.tree.find(
@@ -1706,10 +1730,13 @@ class BaseGenerator(OutputGenerator):
                         + "'][@category='basetype']"
                     )
                     base_type_type = base_type.find('type')
-                    if base_type_type is not None and base_type_type.text is not None and base_type_type.text == 'XR_DEFINE_ATOM':
-                        found_atom = True
+                    if base_type_type is not None and base_type_type.text is not None:
+                        if base_type_type.text == 'XR_DEFINE_ATOM':
+                            found_atom = True
+                        if base_type_type.text == 'XR_DEFINE_OPAQUE_64':
+                            found_opaque = True
 
-                if found_handle or found_atom:
+                if found_handle or found_atom or found_opaque:
                     has_handles = True
                     if member_elem.tail and ('*' in member_elem.tail):
                         has_handle_ptrs = True

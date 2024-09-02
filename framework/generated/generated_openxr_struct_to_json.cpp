@@ -529,6 +529,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayer
                 // Return here because we processed the appropriate data in
                 // the correct structure type
                 return;
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrCompositionLayerPassthroughFB*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
             case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
                 FieldToJson(jdata,
                             reinterpret_cast<const Decoded_XrCompositionLayerPassthroughHTC*>(data),
@@ -1311,6 +1318,139 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrNegotiateApiLaye
         FieldToJson(jdata["createApiLayerInstance"], to_hex_variable_width(meta_struct.createApiLayerInstance), options);
     }
 }
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrColor3f* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrColor3f& decoded_value = *data->decoded_value;
+        const Decoded_XrColor3f& meta_struct = *data;
+
+        FieldToJson(jdata["r"], decoded_value.r, options);
+        FieldToJson(jdata["g"], decoded_value.g, options);
+        FieldToJson(jdata["b"], decoded_value.b, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent3Df* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrExtent3Df& decoded_value = *data->decoded_value;
+        const Decoded_XrExtent3Df& meta_struct = *data;
+
+        FieldToJson(jdata["width"], decoded_value.width, options);
+        FieldToJson(jdata["height"], decoded_value.height, options);
+        FieldToJson(jdata["depth"], decoded_value.depth, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpheref* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSpheref& decoded_value = *data->decoded_value;
+        const Decoded_XrSpheref& meta_struct = *data;
+
+        FieldToJson(jdata["center"], meta_struct.center, options);
+        FieldToJson(jdata["radius"], decoded_value.radius, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrBoxf* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrBoxf& decoded_value = *data->decoded_value;
+        const Decoded_XrBoxf& meta_struct = *data;
+
+        FieldToJson(jdata["center"], meta_struct.center, options);
+        FieldToJson(jdata["extents"], meta_struct.extents, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFrustumf* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrFrustumf& decoded_value = *data->decoded_value;
+        const Decoded_XrFrustumf& meta_struct = *data;
+
+        FieldToJson(jdata["pose"], meta_struct.pose, options);
+        FieldToJson(jdata["fov"], meta_struct.fov, options);
+        FieldToJson(jdata["nearZ"], decoded_value.nearZ, options);
+        FieldToJson(jdata["farZ"], decoded_value.farZ, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUuid* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrUuid& decoded_value = *data->decoded_value;
+        const Decoded_XrUuid& meta_struct = *data;
+
+        FieldToJson(jdata["data"], uuid_to_string(sizeof(decoded_value.data), decoded_value.data), options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpacesLocateInfo* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSpacesLocateInfo& decoded_value = *data->decoded_value;
+        const Decoded_XrSpacesLocateInfo& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        HandleToJson(jdata["baseSpace"], meta_struct.baseSpace, options);
+        FieldToJson(jdata["time"], decoded_value.time, options);
+        FieldToJson(jdata["spaceCount"], decoded_value.spaceCount, options);
+        HandleToJson(jdata["spaces"], &meta_struct.spaces, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceLocationData* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSpaceLocationData& decoded_value = *data->decoded_value;
+        const Decoded_XrSpaceLocationData& meta_struct = *data;
+
+        FieldToJson(XrSpaceLocationFlags_t(),jdata["locationFlags"], decoded_value.locationFlags, options);
+        FieldToJson(jdata["pose"], meta_struct.pose, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceLocations* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSpaceLocations& decoded_value = *data->decoded_value;
+        const Decoded_XrSpaceLocations& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["locationCount"], decoded_value.locationCount, options);
+        FieldToJson(jdata["locations"], meta_struct.locations, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceVelocityData* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSpaceVelocityData& decoded_value = *data->decoded_value;
+        const Decoded_XrSpaceVelocityData& meta_struct = *data;
+
+        FieldToJson(XrSpaceVelocityFlags_t(),jdata["velocityFlags"], decoded_value.velocityFlags, options);
+        FieldToJson(jdata["linearVelocity"], meta_struct.linearVelocity, options);
+        FieldToJson(jdata["angularVelocity"], meta_struct.angularVelocity, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceVelocities* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSpaceVelocities& decoded_value = *data->decoded_value;
+        const Decoded_XrSpaceVelocities& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["velocityCount"], decoded_value.velocityCount, options);
+        FieldToJson(jdata["velocities"], meta_struct.velocities, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrCompositionLayerCubeKHR* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -1643,6 +1783,42 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirem
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(jdata["adapterLuid"], decoded_value.adapterLuid, options);
         FieldToJson(jdata["minFeatureLevel"], decoded_value.minFeatureLevel, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsBindingMetalKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrGraphicsBindingMetalKHR& decoded_value = *data->decoded_value;
+        const Decoded_XrGraphicsBindingMetalKHR& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["commandQueue"], meta_struct.commandQueue, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSwapchainImageMetalKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSwapchainImageMetalKHR& decoded_value = *data->decoded_value;
+        const Decoded_XrSwapchainImageMetalKHR& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["texture"], meta_struct.texture, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrGraphicsRequirementsMetalKHR* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrGraphicsRequirementsMetalKHR& decoded_value = *data->decoded_value;
+        const Decoded_XrGraphicsRequirementsMetalKHR& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["metalDevice"], meta_struct.metalDevice, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
@@ -3303,16 +3479,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSpaceComponentSt
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrUuidEXT* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const XrUuidEXT& decoded_value = *data->decoded_value;
-        const Decoded_XrUuidEXT& meta_struct = *data;
-
-        FieldToJson(jdata["data"], uuid_to_string(sizeof(decoded_value.data), decoded_value.data), options);
-    }
-}
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEventDataSpatialAnchorCreateCompleteFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -4480,18 +4646,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrHapticAmplitudeE
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent3DfFB* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const XrExtent3DfFB& decoded_value = *data->decoded_value;
-        const Decoded_XrExtent3DfFB& meta_struct = *data;
-
-        FieldToJson(jdata["width"], decoded_value.width, options);
-        FieldToJson(jdata["height"], decoded_value.height, options);
-        FieldToJson(jdata["depth"], decoded_value.depth, options);
-    }
-}
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrOffset3DfFB* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5391,6 +5545,109 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFaceExpressionWe
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEnvironmentDepthProviderCreateInfoMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrEnvironmentDepthProviderCreateInfoMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrEnvironmentDepthProviderCreateInfoMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(XrEnvironmentDepthProviderCreateFlagsMETA_t(),jdata["createFlags"], decoded_value.createFlags, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrEnvironmentDepthSwapchainCreateInfoMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrEnvironmentDepthSwapchainCreateInfoMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(XrEnvironmentDepthSwapchainCreateFlagsMETA_t(),jdata["createFlags"], decoded_value.createFlags, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEnvironmentDepthSwapchainStateMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrEnvironmentDepthSwapchainStateMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrEnvironmentDepthSwapchainStateMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["width"], decoded_value.width, options);
+        FieldToJson(jdata["height"], decoded_value.height, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEnvironmentDepthImageAcquireInfoMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrEnvironmentDepthImageAcquireInfoMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrEnvironmentDepthImageAcquireInfoMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        HandleToJson(jdata["space"], meta_struct.space, options);
+        FieldToJson(jdata["displayTime"], decoded_value.displayTime, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEnvironmentDepthImageViewMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrEnvironmentDepthImageViewMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrEnvironmentDepthImageViewMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["fov"], meta_struct.fov, options);
+        FieldToJson(jdata["pose"], meta_struct.pose, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEnvironmentDepthImageMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrEnvironmentDepthImageMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrEnvironmentDepthImageMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["swapchainIndex"], decoded_value.swapchainIndex, options);
+        FieldToJson(jdata["nearZ"], decoded_value.nearZ, options);
+        FieldToJson(jdata["farZ"], decoded_value.farZ, options);
+        FieldToJson(jdata["views"], meta_struct.views, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrEnvironmentDepthHandRemovalSetInfoMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrEnvironmentDepthHandRemovalSetInfoMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        jdata["enabled"] = static_cast<bool>(decoded_value.enabled);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrSystemEnvironmentDepthPropertiesMETA* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrSystemEnvironmentDepthPropertiesMETA& decoded_value = *data->decoded_value;
+        const Decoded_XrSystemEnvironmentDepthPropertiesMETA& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        jdata["supportsEnvironmentDepth"] = static_cast<bool>(decoded_value.supportsEnvironmentDepth);
+        jdata["supportsHandRemoval"] = static_cast<bool>(decoded_value.supportsHandRemoval);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPassthroughCreateInfoHTC* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5646,18 +5903,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorCre
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrExtent3DfEXT* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const XrExtent3DfEXT& decoded_value = *data->decoded_value;
-        const Decoded_XrExtent3DfEXT& meta_struct = *data;
-
-        FieldToJson(jdata["width"], decoded_value.width, options);
-        FieldToJson(jdata["height"], decoded_value.height, options);
-        FieldToJson(jdata["depth"], decoded_value.depth, options);
-    }
-}
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorBeginInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -5735,6 +5980,80 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrPlaneDetectorPol
         FieldToJson(jdata["vertexCapacityInput"], decoded_value.vertexCapacityInput, options);
         FieldToJson(jdata["vertexCountOutput"], decoded_value.vertexCountOutput, options);
         FieldToJson(jdata["vertices"], meta_struct.vertices, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFutureCancelInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrFutureCancelInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_XrFutureCancelInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        HandleToJson(jdata["future"], meta_struct.future, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFuturePollInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrFuturePollInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_XrFuturePollInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        HandleToJson(jdata["future"], meta_struct.future, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFutureCompletionBaseHeaderEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrFutureCompletionBaseHeaderEXT& decoded_value = *data->decoded_value;
+        const Decoded_XrFutureCompletionBaseHeaderEXT& meta_struct = *data;
+
+        switch (decoded_value.type)
+        {
+            default:
+                // Handle as base-type below
+                break;
+            case XR_TYPE_FUTURE_COMPLETION_EXT:
+                FieldToJson(jdata,
+                            reinterpret_cast<const Decoded_XrFutureCompletionEXT*>(data),
+                            options);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
+        }
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["futureResult"], decoded_value.futureResult, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFutureCompletionEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrFutureCompletionEXT& decoded_value = *data->decoded_value;
+        const Decoded_XrFutureCompletionEXT& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["futureResult"], decoded_value.futureResult, options);
+        FieldToJson(jdata["next"], meta_struct.next, options);
+    }
+}
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_XrFuturePollResultEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const XrFuturePollResultEXT& decoded_value = *data->decoded_value;
+        const Decoded_XrFuturePollResultEXT& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["state"], decoded_value.state, options);
         FieldToJson(jdata["next"], meta_struct.next, options);
     }
 }
@@ -5816,6 +6135,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
+            case XR_TYPE_SPACE_VELOCITIES:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSpaceVelocities*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
             case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrInstanceCreateInfoAndroidKHR*>(data->GetMetaStructPointer());
@@ -5882,6 +6208,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
             case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrGraphicsBindingD3D12KHR*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrGraphicsBindingMetalKHR*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }
@@ -6194,13 +6527,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
                 break;
             }
 
-            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-            {
-                const auto* next = reinterpret_cast<const Decoded_XrCompositionLayerPassthroughFB*>(data->GetMetaStructPointer());
-                FieldToJson(jdata, next, options);
-                break;
-            }
-
             case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrPassthroughColorMapMonoToRgbaFB*>(data->GetMetaStructPointer());
@@ -6463,6 +6789,13 @@ void FieldToJson(nlohmann::ordered_json& jdata, const OpenXrNextNode* data, cons
             case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES2_FB:
             {
                 const auto* next = reinterpret_cast<const Decoded_XrSystemFaceTrackingProperties2FB*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, next, options);
+                break;
+            }
+
+            case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+            {
+                const auto* next = reinterpret_cast<const Decoded_XrSystemEnvironmentDepthPropertiesMETA*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, next, options);
                 break;
             }

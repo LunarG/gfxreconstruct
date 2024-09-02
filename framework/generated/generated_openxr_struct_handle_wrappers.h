@@ -95,6 +95,8 @@ void UnwrapStructHandles(XrEventDataReferenceSpaceChangePending* value, HandleUn
 
 void UnwrapStructHandles(XrEventDataInteractionProfileChanged* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrSpacesLocateInfo* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerDepthInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
@@ -121,9 +123,9 @@ void UnwrapStructHandles(XrGraphicsBindingD3D11KHR* value, HandleUnwrapMemory* u
 
 void UnwrapStructHandles(XrGraphicsBindingD3D12KHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(XrGraphicsBindingMetalKHR* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerColorScaleBiasKHR* value, HandleUnwrapMemory* unwrap_memory);
+void UnwrapStructHandles(XrEventDataVisibilityMaskChangedKHR* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrVulkanGraphicsDeviceGetInfoKHR* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -134,10 +136,6 @@ void UnwrapStructHandles(XrSessionCreateInfoOverlayEXTX* value, HandleUnwrapMemo
 void UnwrapStructHandles(XrSpatialAnchorCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrSpatialAnchorSpaceCreateInfoMSFT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(XrCompositionLayerImageLayoutFB* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(XrCompositionLayerAlphaBlendFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrGraphicsBindingEGLMNDX* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -152,8 +150,6 @@ void UnwrapStructHandles(XrSecondaryViewConfigurationFrameEndInfoMSFT* value, Ha
 void UnwrapStructHandles(XrControllerModelKeyStateMSFT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrHolographicWindowAttachmentMSFT* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(XrCompositionLayerSecureContentFB* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrBodyJointsLocateInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
@@ -241,10 +237,6 @@ void UnwrapStructHandles(XrEventDataSceneCaptureCompleteFB* value, HandleUnwrapM
 
 void UnwrapStructHandles(XrEyeGazesInfoFB* value, HandleUnwrapMemory* unwrap_memory);
 
-void UnwrapStructHandles(XrCompositionLayerSettingsFB* value, HandleUnwrapMemory* unwrap_memory);
-
-void UnwrapStructHandles(XrCompositionLayerDepthTestFB* value, HandleUnwrapMemory* unwrap_memory);
-
 void UnwrapStructHandles(XrLocalDimmingFrameEndInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrVirtualKeyboardSpaceCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
@@ -273,6 +265,8 @@ void UnwrapStructHandles(XrPassthroughColorMapLutMETA* value, HandleUnwrapMemory
 
 void UnwrapStructHandles(XrPassthroughColorMapInterpolatedLutMETA* value, HandleUnwrapMemory* unwrap_memory);
 
+void UnwrapStructHandles(XrEnvironmentDepthImageAcquireInfoMETA* value, HandleUnwrapMemory* unwrap_memory);
+
 void UnwrapStructHandles(XrPassthroughMeshTransformInfoHTC* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrCompositionLayerPassthroughHTC* value, HandleUnwrapMemory* unwrap_memory);
@@ -288,6 +282,10 @@ void UnwrapStructHandles(XrActiveActionSetPrioritiesEXT* value, HandleUnwrapMemo
 void UnwrapStructHandles(XrPlaneDetectorBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrPlaneDetectorGetInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrFutureCancelInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
+
+void UnwrapStructHandles(XrFuturePollInfoEXT* value, HandleUnwrapMemory* unwrap_memory);
 
 void UnwrapStructHandles(XrEventDataUserPresenceChangedEXT* value, HandleUnwrapMemory* unwrap_memory);
 

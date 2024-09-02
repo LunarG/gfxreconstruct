@@ -206,6 +206,7 @@ class BaseDecoderBodyGenerator():
         is_funcp = False
         is_handle = False
         is_atom = False
+        is_opaque = False
 
         type_name = self.make_invocation_type_name(value.base_type)
 
@@ -221,6 +222,8 @@ class BaseDecoderBodyGenerator():
             is_handle = True
         elif self.is_atom(value.base_type):
             is_atom = True
+        elif self.is_opaque(value.base_type):
+            is_opaque = True
 
         # is_pointer will be False for static arrays.
         if value.is_pointer or value.is_array:
@@ -236,7 +239,7 @@ class BaseDecoderBodyGenerator():
                         buffer_args, value.name
                     )
             else:
-                if is_struct or is_string or is_handle or is_atom or (
+                if is_struct or is_string or is_handle or is_atom or is_opaque or (
                     is_class and value.pointer_count > 1
                 ):
                     if type_name in self.base_header_structs.keys():
@@ -310,7 +313,7 @@ class BaseDecoderBodyGenerator():
                 main_body += '    bytes_read += ValueDecoder::DecodeAddress({}, &{});\n'.format(
                     buffer_args, value.name
                 )
-            elif is_handle or is_atom:
+            elif is_handle or is_atom or is_opaque:
                 main_body += '    bytes_read += ValueDecoder::DecodeHandleIdValue({}, &{});\n'.format(
                     buffer_args, value.name
                 )

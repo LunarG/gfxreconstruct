@@ -586,7 +586,8 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         return decl
 
     def need_wrapping(self, type):
-        return self.is_handle(type) or self.is_atom(type)
+        return self.is_handle(type) or self.is_atom(type
+                                                    ) or self.is_opaque(type)
 
     def make_handle_wrapping(self, values, indent):
         expr = ''
@@ -663,6 +664,15 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                             parent_prefix, parent_type, handle_wrapper,
                             parent_value, value.name, length_name
                         )
+                    elif self.is_opaque(value.base_type):
+
+                        handle_wrapper = self.get_handle_wrapper(
+                            value.base_type
+                        )
+                        expr += indent + '{}CreateWrappedOpaques<{}, {}>({}, {}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, handle_wrapper,
+                            parent_value, value.name, length_name
+                        )
                     elif self.is_struct(
                         value.base_type
                     ) and (value.base_type in self.structs_with_handles):
@@ -674,6 +684,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 else:
                     is_handle = self.is_handle(value.base_type)
                     is_atom = self.is_atom(value.base_type)
+                    is_opaque = self.is_opaque(value.base_type)
                     if self.is_handle(value.base_type):
                         handle_wrapper = self.get_handle_wrapper(
                             value.base_type
@@ -688,6 +699,14 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                             value.base_type
                         )
                         expr += indent + '{}CreateWrappedAtom<{}, {}>({}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
+                            parent_prefix, parent_type, handle_wrapper,
+                            parent_value, value.name
+                        )
+                    elif self.is_opaque(value.base_type):
+                        handle_wrapper = self.get_handle_wrapper(
+                            value.base_type
+                        )
+                        expr += indent + '{}CreateWrappedOpaque<{}, {}>({}, {}, OpenXrCaptureManager::GetUniqueId);\n'.format(
                             parent_prefix, parent_type, handle_wrapper,
                             parent_value, value.name
                         )

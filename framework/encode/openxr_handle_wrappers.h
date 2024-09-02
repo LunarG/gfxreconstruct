@@ -68,6 +68,18 @@ struct AtomWrapper
     openxr_state_info::CreateParameters create_parameters;
 };
 
+template <typename T>
+struct OpaqueWrapper
+{
+    typedef T HandleType;
+
+    // Standard state info required for all handles.
+    HandleType        handle{ 0ULL };                     // Original handle value provided by the driver.
+    format::HandleId  handle_id{ format::kNullHandleId }; // Globally unique ID assigned to the handle by the layer.
+    format::ApiCallId create_call_id{ format::ApiCallId::ApiCall_Unknown };
+    openxr_state_info::CreateParameters create_parameters;
+};
+
 //
 // Container Wrappers
 //
@@ -77,6 +89,7 @@ struct ActionSetWrapper;
 struct PathWrapper;
 struct SystemIdWrapper;
 struct DebugUtilsMessengerEXTWrapper;
+struct FutureEXTWrapper;
 
 struct InstanceWrapper : public HandleWrapper<XrInstance>
 {
@@ -89,6 +102,7 @@ struct InstanceWrapper : public HandleWrapper<XrInstance>
     std::vector<SystemIdWrapper*>               child_systemids;
     std::vector<PathWrapper*>                   child_paths;
     std::vector<DebugUtilsMessengerEXTWrapper*> child_debugutilsmessengers;
+    std::vector<FutureEXTWrapper*>              child_futureexts;
 
     std::unordered_map<VkPhysicalDevice, VkInstance>          vkphysdev_vkinstance_map;
     std::unordered_map<PFN_vkGetInstanceProcAddr, VkInstance> vkgipa_vkinstance_map;
@@ -120,6 +134,7 @@ struct SpatialAnchorStoreConnectionMSFTWrapper;
 struct SpatialGraphNodeBindingMSFTWrapper;
 struct FacialTrackerHTCWrapper;
 struct FoveationProfileFBWrapper;
+struct EnvironmentDepthProviderMETAWrapper;
 
 struct SessionWrapper : public HandleWrapper<XrSession>
 {
@@ -160,6 +175,7 @@ struct SessionWrapper : public HandleWrapper<XrSession>
     std::vector<FaceTracker2FBWrapper*>                   child_facetracker2fbs;
     std::vector<PassthroughHTCWrapper*>                   child_passthroughhtcs;
     std::vector<PlaneDetectorEXTWrapper*>                 child_planedetectorexts;
+    std::vector<EnvironmentDepthProviderMETAWrapper*>     child_envdepthprovidermetas;
 };
 
 struct MarkerMLWrapper;
@@ -214,6 +230,24 @@ struct PassthroughFBWrapper : public HandleWrapper<XrPassthroughFB>
     }
 
     std::vector<PassthroughColorLutMETAWrapper*> child_passthroughcolorlutmetas;
+};
+
+struct EnvironmentDepthSwapchainMETAWrapper;
+
+struct EnvironmentDepthProviderMETAWrapper : public HandleWrapper<XrEnvironmentDepthProviderMETA>
+{
+    OpenXrInstanceTable*  layer_table_ref{ nullptr };
+    SessionWrapper*        parent_wrapper{ nullptr };
+    void                  DeleteFromParent()
+    {
+        if (parent_wrapper != nullptr)
+        {
+            auto& parent_vector = parent_wrapper->child_envdepthprovidermetas;
+            parent_vector.erase(std::remove(parent_vector.begin(), parent_vector.end(), this), parent_vector.end());
+        }
+    }
+
+    std::vector<EnvironmentDepthSwapchainMETAWrapper*>     child_envdepthswapchainmetas;
 };
 
 // Vendor wrappers
@@ -471,6 +505,20 @@ struct PassthroughColorLutMETAWrapper : public HandleWrapper<XrPassthroughColorL
     }
 };
 
+struct EnvironmentDepthSwapchainMETAWrapper : public HandleWrapper<XrEnvironmentDepthSwapchainMETA>
+{
+    OpenXrInstanceTable*  layer_table_ref{ nullptr };
+    EnvironmentDepthProviderMETAWrapper*        parent_wrapper{ nullptr };
+    void                  DeleteFromParent()
+    {
+        if (parent_wrapper != nullptr)
+        {
+            auto& parent_vector = parent_wrapper->child_envdepthswapchainmetas;
+            parent_vector.erase(std::remove(parent_vector.begin(), parent_vector.end(), this), parent_vector.end());
+        }
+    }
+};
+
 // EXT wrappers
 
 struct DebugUtilsMessengerEXTWrapper : public HandleWrapper<XrDebugUtilsMessengerEXT>
@@ -510,6 +558,20 @@ struct PlaneDetectorEXTWrapper : public HandleWrapper<XrPlaneDetectorEXT>
         if (parent_wrapper != nullptr)
         {
             auto& parent_vector = parent_wrapper->child_planedetectorexts;
+            parent_vector.erase(std::remove(parent_vector.begin(), parent_vector.end(), this), parent_vector.end());
+        }
+    }
+};
+
+struct FutureEXTWrapper : public OpaqueWrapper<XrFutureEXT>
+{
+    OpenXrInstanceTable* layer_table_ref{ nullptr };
+    InstanceWrapper*     parent_wrapper{ nullptr };
+    void                 DeleteFromParent()
+    {
+        if (parent_wrapper != nullptr)
+        {
+            auto& parent_vector = parent_wrapper->child_futureexts;
             parent_vector.erase(std::remove(parent_vector.begin(), parent_vector.end(), this), parent_vector.end());
         }
     }

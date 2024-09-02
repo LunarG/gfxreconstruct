@@ -81,6 +81,10 @@ size_t DecodeNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  Op
                 (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrSpaceVelocity>>();
                 bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
                 break;
+            case XR_TYPE_SPACE_VELOCITIES:
+                (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrSpaceVelocities>>();
+                bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
+                break;
             case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
                 (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrInstanceCreateInfoAndroidKHR>>();
                 bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
@@ -119,6 +123,10 @@ size_t DecodeNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  Op
                 break;
             case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
                 (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrGraphicsBindingD3D12KHR>>();
+                bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
+                break;
+            case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+                (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrGraphicsBindingMetalKHR>>();
                 bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
                 break;
             case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
@@ -297,10 +305,6 @@ size_t DecodeNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  Op
                 (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrSystemPassthroughProperties2FB>>();
                 bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
                 break;
-            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-                (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrCompositionLayerPassthroughFB>>();
-                bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
-                break;
             case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
                 (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrPassthroughColorMapMonoToRgbaFB>>();
                 bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
@@ -451,6 +455,10 @@ size_t DecodeNextStruct(const uint8_t* parameter_buffer, size_t buffer_size,  Op
                 break;
             case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES2_FB:
                 (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrSystemFaceTrackingProperties2FB>>();
+                bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
+                break;
+            case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+                (*next) = DecodeAllocator::Allocate<OpenXrNextTypedNode<Decoded_XrSystemEnvironmentDepthPropertiesMETA>>();
                 bytes_read = (*next)->Decode(parameter_buffer, buffer_size);
                 break;
             case XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC:

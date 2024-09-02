@@ -126,17 +126,18 @@ void MapStructHandles(Decoded_XrCompositionLayerBaseHeader* wrapper, const Commo
                 // Return here because we processed the appropriate data in
                 // the correct structure type
                 return;
+            case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
+                MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerPassthroughFB*>(wrapper),
+                                 object_info_table);
+                // Return here because we processed the appropriate data in
+                // the correct structure type
+                return;
             case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC:
                 MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerPassthroughHTC*>(wrapper),
                                  object_info_table);
                 // Return here because we processed the appropriate data in
                 // the correct structure type
                 return;
-        }
-
-        if (wrapper->next)
-        {
-            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
         }
 
         value->space = handle_mapping::MapHandle<OpenXrSpaceInfo>(wrapper->space, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
@@ -366,6 +367,18 @@ void MapStructHandles(Decoded_XrEventDataInteractionProfileChanged* wrapper, con
     }
 }
 
+void MapStructHandles(Decoded_XrSpacesLocateInfo* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        XrSpacesLocateInfo* value = wrapper->decoded_value;
+
+        value->baseSpace = handle_mapping::MapHandle<OpenXrSpaceInfo>(wrapper->baseSpace, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
+
+        value->spaces = handle_mapping::MapHandleArray<OpenXrSpaceInfo>(&wrapper->spaces, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
+    }
+}
+
 void MapStructHandles(Decoded_XrCompositionLayerCubeKHR* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -526,17 +539,7 @@ void MapStructHandles(Decoded_XrGraphicsBindingD3D12KHR* wrapper, const CommonOb
     }
 }
 
-void MapStructHandles(Decoded_XrEventDataVisibilityMaskChangedKHR* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
-    {
-        XrEventDataVisibilityMaskChangedKHR* value = wrapper->decoded_value;
-
-        value->session = handle_mapping::MapHandle<OpenXrSessionInfo>(wrapper->session, object_info_table, &CommonObjectInfoTable::GetXrSessionInfo);
-    }
-}
-
-void MapStructHandles(Decoded_XrCompositionLayerColorScaleBiasKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+void MapStructHandles(Decoded_XrGraphicsBindingMetalKHR* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
@@ -544,6 +547,16 @@ void MapStructHandles(Decoded_XrCompositionLayerColorScaleBiasKHR* wrapper, cons
         {
             MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
         }
+    }
+}
+
+void MapStructHandles(Decoded_XrEventDataVisibilityMaskChangedKHR* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        XrEventDataVisibilityMaskChangedKHR* value = wrapper->decoded_value;
+
+        value->session = handle_mapping::MapHandle<OpenXrSessionInfo>(wrapper->session, object_info_table, &CommonObjectInfoTable::GetXrSessionInfo);
     }
 }
 
@@ -599,28 +612,6 @@ void MapStructHandles(Decoded_XrSpatialAnchorSpaceCreateInfoMSFT* wrapper, const
         XrSpatialAnchorSpaceCreateInfoMSFT* value = wrapper->decoded_value;
 
         value->anchor = handle_mapping::MapHandle<OpenXrSpatialAnchorMSFTInfo>(wrapper->anchor, object_info_table, &CommonObjectInfoTable::GetXrSpatialAnchorMSFTInfo);
-    }
-}
-
-void MapStructHandles(Decoded_XrCompositionLayerImageLayoutFB* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->next)
-        {
-            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_XrCompositionLayerAlphaBlendFB* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->next)
-        {
-            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
-        }
     }
 }
 
@@ -687,17 +678,6 @@ void MapStructHandles(Decoded_XrControllerModelKeyStateMSFT* wrapper, const Comm
 }
 
 void MapStructHandles(Decoded_XrHolographicWindowAttachmentMSFT* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->next)
-        {
-            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_XrCompositionLayerSecureContentFB* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
     {
@@ -849,11 +829,6 @@ void MapStructHandles(Decoded_XrCompositionLayerPassthroughFB* wrapper, const Co
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
         XrCompositionLayerPassthroughFB* value = wrapper->decoded_value;
-
-        if (wrapper->next)
-        {
-            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
-        }
 
         value->space = handle_mapping::MapHandle<OpenXrSpaceInfo>(wrapper->space, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
 
@@ -1177,28 +1152,6 @@ void MapStructHandles(Decoded_XrEyeGazesInfoFB* wrapper, const CommonObjectInfoT
     }
 }
 
-void MapStructHandles(Decoded_XrCompositionLayerSettingsFB* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->next)
-        {
-            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
-        }
-    }
-}
-
-void MapStructHandles(Decoded_XrCompositionLayerDepthTestFB* wrapper, const CommonObjectInfoTable& object_info_table)
-{
-    if (wrapper != nullptr)
-    {
-        if (wrapper->next)
-        {
-            MapNextStructHandles(wrapper->next->GetPointer(), wrapper->next->GetMetaStructPointer(), object_info_table);
-        }
-    }
-}
-
 void MapStructHandles(Decoded_XrLocalDimmingFrameEndInfoMETA* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -1350,6 +1303,16 @@ void MapStructHandles(Decoded_XrPassthroughColorMapInterpolatedLutMETA* wrapper,
     }
 }
 
+void MapStructHandles(Decoded_XrEnvironmentDepthImageAcquireInfoMETA* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        XrEnvironmentDepthImageAcquireInfoMETA* value = wrapper->decoded_value;
+
+        value->space = handle_mapping::MapHandle<OpenXrSpaceInfo>(wrapper->space, object_info_table, &CommonObjectInfoTable::GetXrSpaceInfo);
+    }
+}
+
 void MapStructHandles(Decoded_XrPassthroughMeshTransformInfoHTC* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -1443,6 +1406,26 @@ void MapStructHandles(Decoded_XrPlaneDetectorGetInfoEXT* wrapper, const CommonOb
     }
 }
 
+void MapStructHandles(Decoded_XrFutureCancelInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        XrFutureCancelInfoEXT* value = wrapper->decoded_value;
+
+        value->future = handle_mapping::MapHandle<OpenXrFutureEXTInfo>(wrapper->future, object_info_table, &CommonObjectInfoTable::GetXrFutureEXTInfo);
+    }
+}
+
+void MapStructHandles(Decoded_XrFuturePollInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        XrFuturePollInfoEXT* value = wrapper->decoded_value;
+
+        value->future = handle_mapping::MapHandle<OpenXrFutureEXTInfo>(wrapper->future, object_info_table, &CommonObjectInfoTable::GetXrFutureEXTInfo);
+    }
+}
+
 void MapStructHandles(Decoded_XrEventDataUserPresenceChangedEXT* wrapper, const CommonObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -1491,17 +1474,11 @@ void MapNextStructHandles(const void* value, void* wrapper, const CommonObjectIn
         case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
             MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingD3D12KHR*>(wrapper), object_info_table);
             break;
-        case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerColorScaleBiasKHR*>(wrapper), object_info_table);
+        case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingMetalKHR*>(wrapper), object_info_table);
             break;
         case XR_TYPE_SESSION_CREATE_INFO_OVERLAY_EXTX:
             MapStructHandles(reinterpret_cast<Decoded_XrSessionCreateInfoOverlayEXTX*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_IMAGE_LAYOUT_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerImageLayoutFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_ALPHA_BLEND_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerAlphaBlendFB*>(wrapper), object_info_table);
             break;
         case XR_TYPE_GRAPHICS_BINDING_EGL_MNDX:
             MapStructHandles(reinterpret_cast<Decoded_XrGraphicsBindingEGLMNDX*>(wrapper), object_info_table);
@@ -1511,12 +1488,6 @@ void MapNextStructHandles(const void* value, void* wrapper, const CommonObjectIn
             break;
         case XR_TYPE_HOLOGRAPHIC_WINDOW_ATTACHMENT_MSFT:
             MapStructHandles(reinterpret_cast<Decoded_XrHolographicWindowAttachmentMSFT*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSecureContentFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerPassthroughFB*>(wrapper), object_info_table);
             break;
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
             MapStructHandles(reinterpret_cast<Decoded_XrPassthroughColorMapMonoToRgbaFB*>(wrapper), object_info_table);
@@ -1538,12 +1509,6 @@ void MapNextStructHandles(const void* value, void* wrapper, const CommonObjectIn
             break;
         case XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB:
             MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSpaceWarpInfoFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_SETTINGS_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerSettingsFB*>(wrapper), object_info_table);
-            break;
-        case XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_FB:
-            MapStructHandles(reinterpret_cast<Decoded_XrCompositionLayerDepthTestFB*>(wrapper), object_info_table);
             break;
         case XR_TYPE_LOCAL_DIMMING_FRAME_END_INFO_META:
             MapStructHandles(reinterpret_cast<Decoded_XrLocalDimmingFrameEndInfoMETA*>(wrapper), object_info_table);

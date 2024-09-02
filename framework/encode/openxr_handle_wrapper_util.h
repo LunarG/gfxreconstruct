@@ -103,6 +103,26 @@ format::HandleId GetAtomWrappedId(const typename Wrapper::HandleType& handle)
 }
 
 template <typename Wrapper>
+format::HandleId GetOpaqueWrappedId(const typename Wrapper::HandleType& handle)
+{
+    auto temp_id = GetTempWrapperId<Wrapper>(handle);
+    if (temp_id != 0)
+    {
+        return temp_id;
+    }
+
+    auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
+    if (wrapper == nullptr)
+    {
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetOpaqueWrappedId() couldn't find Opaque: %" PRIu64
+                             "'s wrapper. It might have been destroyed",
+                             handle);
+        return format::kNullHandleId;
+    }
+    return wrapper->handle_id;
+}
+
+template <typename Wrapper>
 Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
 {
     if (handle == XR_NULL_HANDLE)
@@ -137,6 +157,23 @@ Wrapper* GetAtomWrapper(const typename Wrapper::HandleType& handle)
 }
 
 template <typename Wrapper>
+Wrapper* GetOpaqueWrapper(const typename Wrapper::HandleType& handle)
+{
+    if (handle == 0ULL)
+    {
+        return 0;
+    }
+    auto wrapper = openxr_state_handle_table_.GetWrapper<Wrapper>(handle);
+    if (wrapper == nullptr)
+    {
+        GFXRECON_LOG_WARNING("openxr_wrappers::GetOpaqueWrapper() couldn't find Opaque: %" PRIu64
+                             "'s wrapper. It might have been destroyed",
+                             handle);
+    }
+    return wrapper;
+}
+
+template <typename Wrapper>
 bool RemoveWrapper(Wrapper* wrapper)
 {
     return openxr_state_handle_table_.RemoveWrapper(wrapper);
@@ -155,7 +192,15 @@ enum OpenXrAtomName
     OPENXR_ATOM_NAME_CONTROLLER_MODEL_KEY_MSFT,
 };
 
-uint64_t GetWrappedId(uint64_t object, OpenXrAtomName atom_type);
+uint64_t GetWrappedId(uint64_t object, OpenXrAtomName opaque_type);
+
+enum OpenXrOpaqueName
+{
+    OPENXR_OPAQUE_NAME_UNKNOWN = 0,
+    OPENXR_OPAQUE_NAME_FUTURE_EXT,
+};
+
+uint64_t GetWrappedId(uint64_t object, OpenXrOpaqueName atom_type);
 
 inline const OpenXrInstanceTable* GetInstanceTable(XrInstance handle)
 {
@@ -344,6 +389,22 @@ inline const OpenXrInstanceTable* GetInstanceTable(XrVirtualKeyboardMETA handle)
     return wrapper->layer_table_ref;
 }
 
+inline const OpenXrInstanceTable* GetInstanceTable(XrEnvironmentDepthSwapchainMETA handle)
+{
+    assert(handle != XR_NULL_HANDLE);
+    auto wrapper = GetWrapper<EnvironmentDepthSwapchainMETAWrapper>(handle);
+    assert(wrapper->layer_table_ref != nullptr);
+    return wrapper->layer_table_ref;
+}
+
+inline const OpenXrInstanceTable* GetInstanceTable(XrEnvironmentDepthProviderMETA handle)
+{
+    assert(handle != XR_NULL_HANDLE);
+    auto wrapper = GetWrapper<EnvironmentDepthProviderMETAWrapper>(handle);
+    assert(wrapper->layer_table_ref != nullptr);
+    return wrapper->layer_table_ref;
+}
+
 inline const OpenXrInstanceTable* GetInstanceTable(XrExportedLocalizationMapML handle)
 {
     assert(handle != XR_NULL_HANDLE);
@@ -482,6 +543,33 @@ void CreateWrappedAtom(typename ParentWrapper::HandleType, // Unused by default 
                        PFN_GetHandleId               get_id)
 {
     CreateWrappedAtom<Wrapper>(handle, get_id);
+}
+
+template <typename Wrapper>
+void CreateWrappedOpaque(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
+{
+    ScopedDestroyLock shared_scoped_lock(false);
+    assert(handle != nullptr);
+    if ((*handle) != 0ULL)
+    {
+        Wrapper* wrapper   = new Wrapper;
+        wrapper->handle    = (*handle);
+        wrapper->handle_id = get_id();
+        if (!openxr_state_handle_table_.InsertWrapper(wrapper))
+        {
+            GFXRECON_LOG_WARNING("Create a duplicated Opaque: %" PRIu64
+                                 ". This wrapper can't be written into OpenXrStateHandleTable.",
+                                 *handle);
+        }
+    }
+}
+
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedOpaque(typename ParentWrapper::HandleType, // Unused by default case.
+                         typename Wrapper::HandleType* handle,
+                         PFN_GetHandleId               get_id)
+{
+    CreateWrappedOpaque<Wrapper>(handle, get_id);
 }
 
 template <>
@@ -1661,6 +1749,103 @@ inline void CreateWrappedHandle<PassthroughFBWrapper, NoParentWrapper, Passthrou
     }
 }
 
+template <>
+inline void CreateWrappedHandle<SessionWrapper, NoParentWrapper, EnvironmentDepthProviderMETAWrapper>(
+    XrSession parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrEnvironmentDepthProviderMETA* handle,
+    PFN_GetHandleId            get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<SessionWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    EnvironmentDepthProviderMETAWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_envdepthprovidermetas)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<SessionWrapper, EnvironmentDepthProviderMETAWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<EnvironmentDepthProviderMETAWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
+        parent_wrapper->child_envdepthprovidermetas.push_back(wrapper);
+    }
+}
+
+template <>
+inline void CreateWrappedHandle<EnvironmentDepthProviderMETAWrapper, NoParentWrapper, EnvironmentDepthSwapchainMETAWrapper>(
+    XrEnvironmentDepthProviderMETA parent,
+    NoParentWrapper::HandleType, // Does not have a co-parent
+    XrEnvironmentDepthSwapchainMETA* handle,
+    PFN_GetHandleId            get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<EnvironmentDepthProviderMETAWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    EnvironmentDepthSwapchainMETAWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_envdepthswapchainmetas)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedDispatchHandle<EnvironmentDepthProviderMETAWrapper, EnvironmentDepthSwapchainMETAWrapper>(parent, handle, get_id);
+
+        wrapper                  = GetWrapper<EnvironmentDepthSwapchainMETAWrapper>(*handle);
+        wrapper->layer_table_ref = parent_wrapper->layer_table_ref;
+        wrapper->parent_wrapper  = parent_wrapper;
+        parent_wrapper->child_envdepthswapchainmetas.push_back(wrapper);
+    }
+}
+
+template <>
+inline void
+CreateWrappedOpaque<InstanceWrapper, FutureEXTWrapper>(XrInstance parent, XrFutureEXT* handle, PFN_GetHandleId get_id)
+{
+    assert(parent != XR_NULL_HANDLE);
+    assert(handle != nullptr);
+
+    auto parent_wrapper = GetWrapper<InstanceWrapper>(parent);
+
+    // Filter duplicate object retrieval.
+    FutureEXTWrapper* wrapper = nullptr;
+    for (auto entry : parent_wrapper->child_futureexts)
+    {
+        if (entry->handle == (*handle))
+        {
+            wrapper = entry;
+            break;
+        }
+    }
+
+    if (wrapper == nullptr)
+    {
+        CreateWrappedOpaque<FutureEXTWrapper>(handle, get_id);
+
+        wrapper = GetOpaqueWrapper<FutureEXTWrapper>(*handle);
+        parent_wrapper->child_futureexts.push_back(wrapper);
+    }
+}
+
 template <typename ParentWrapper, typename CoParentWrapper, typename Wrapper>
 void CreateWrappedHandles(typename ParentWrapper::HandleType   parent,
                           typename CoParentWrapper::HandleType co_parent,
@@ -1688,6 +1873,21 @@ void CreateWrappedAtoms(typename ParentWrapper::HandleType parent,
         for (uint32_t i = 0; i < count; ++i)
         {
             CreateWrappedAtom<ParentWrapper, Wrapper>(parent, &handles[i], get_id);
+        }
+    }
+}
+
+template <typename ParentWrapper, typename Wrapper>
+void CreateWrappedOpaques(typename ParentWrapper::HandleType parent,
+                          typename Wrapper::HandleType*      handles,
+                          uint32_t                           count,
+                          PFN_GetHandleId                    get_id)
+{
+    if (handles != nullptr)
+    {
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            CreateWrappedOpaque<ParentWrapper, Wrapper>(parent, &handles[i], get_id);
         }
     }
 }
@@ -1735,6 +1935,11 @@ inline void DestroyWrappedHandle<InstanceWrapper>(XrInstance handle)
         for (auto child : wrapper->child_debugutilsmessengers)
         {
             RemoveWrapper<DebugUtilsMessengerEXTWrapper>(child);
+            delete child;
+        }
+        for (auto child : wrapper->child_futureexts)
+        {
+            RemoveWrapper<FutureEXTWrapper>(child);
             delete child;
         }
 

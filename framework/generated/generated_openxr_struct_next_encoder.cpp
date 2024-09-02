@@ -73,6 +73,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_SPACE_VELOCITY:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSpaceVelocity*>(base));
             break;
+        case XR_TYPE_SPACE_VELOCITIES:
+            EncodeStructPtr(encoder, reinterpret_cast<const XrSpaceVelocities*>(base));
+            break;
         case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrInstanceCreateInfoAndroidKHR*>(base));
             break;
@@ -102,6 +105,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case XR_TYPE_GRAPHICS_BINDING_D3D12_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingD3D12KHR*>(base));
+            break;
+        case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+            EncodeStructPtr(encoder, reinterpret_cast<const XrGraphicsBindingMetalKHR*>(base));
             break;
         case XR_TYPE_COMPOSITION_LAYER_COLOR_SCALE_BIAS_KHR:
             EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerColorScaleBiasKHR*>(base));
@@ -235,9 +241,6 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
         case XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES2_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSystemPassthroughProperties2FB*>(base));
             break;
-        case XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB:
-            EncodeStructPtr(encoder, reinterpret_cast<const XrCompositionLayerPassthroughFB*>(base));
-            break;
         case XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrPassthroughColorMapMonoToRgbaFB*>(base));
             break;
@@ -351,6 +354,9 @@ void EncodeNextStruct(ParameterEncoder* encoder, const void* value)
             break;
         case XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES2_FB:
             EncodeStructPtr(encoder, reinterpret_cast<const XrSystemFaceTrackingProperties2FB*>(base));
+            break;
+        case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+            EncodeStructPtr(encoder, reinterpret_cast<const XrSystemEnvironmentDepthPropertiesMETA*>(base));
             break;
         case XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC:
             EncodeStructPtr(encoder, reinterpret_cast<const XrPassthroughMeshTransformInfoHTC*>(base));

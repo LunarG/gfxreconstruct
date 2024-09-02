@@ -93,6 +93,8 @@ void MapStructHandles(Decoded_XrEventDataReferenceSpaceChangePending* wrapper, c
 
 void MapStructHandles(Decoded_XrEventDataInteractionProfileChanged* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_XrSpacesLocateInfo* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_XrCompositionLayerCubeKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrCompositionLayerDepthInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -119,9 +121,9 @@ void MapStructHandles(Decoded_XrGraphicsBindingD3D11KHR* wrapper, const CommonOb
 
 void MapStructHandles(Decoded_XrGraphicsBindingD3D12KHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_XrEventDataVisibilityMaskChangedKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+void MapStructHandles(Decoded_XrGraphicsBindingMetalKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_XrCompositionLayerColorScaleBiasKHR* wrapper, const CommonObjectInfoTable& object_info_table);
+void MapStructHandles(Decoded_XrEventDataVisibilityMaskChangedKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrVulkanGraphicsDeviceGetInfoKHR* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -132,10 +134,6 @@ void MapStructHandles(Decoded_XrSessionCreateInfoOverlayEXTX* wrapper, const Com
 void MapStructHandles(Decoded_XrSpatialAnchorCreateInfoMSFT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrSpatialAnchorSpaceCreateInfoMSFT* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_XrCompositionLayerImageLayoutFB* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_XrCompositionLayerAlphaBlendFB* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrGraphicsBindingEGLMNDX* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -150,8 +148,6 @@ void MapStructHandles(Decoded_XrSecondaryViewConfigurationFrameEndInfoMSFT* wrap
 void MapStructHandles(Decoded_XrControllerModelKeyStateMSFT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrHolographicWindowAttachmentMSFT* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_XrCompositionLayerSecureContentFB* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrBodyJointsLocateInfoFB* wrapper, const CommonObjectInfoTable& object_info_table);
 
@@ -239,10 +235,6 @@ void MapStructHandles(Decoded_XrEventDataSceneCaptureCompleteFB* wrapper, const 
 
 void MapStructHandles(Decoded_XrEyeGazesInfoFB* wrapper, const CommonObjectInfoTable& object_info_table);
 
-void MapStructHandles(Decoded_XrCompositionLayerSettingsFB* wrapper, const CommonObjectInfoTable& object_info_table);
-
-void MapStructHandles(Decoded_XrCompositionLayerDepthTestFB* wrapper, const CommonObjectInfoTable& object_info_table);
-
 void MapStructHandles(Decoded_XrLocalDimmingFrameEndInfoMETA* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrVirtualKeyboardSpaceCreateInfoMETA* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -271,6 +263,8 @@ void MapStructHandles(Decoded_XrPassthroughColorMapLutMETA* wrapper, const Commo
 
 void MapStructHandles(Decoded_XrPassthroughColorMapInterpolatedLutMETA* wrapper, const CommonObjectInfoTable& object_info_table);
 
+void MapStructHandles(Decoded_XrEnvironmentDepthImageAcquireInfoMETA* wrapper, const CommonObjectInfoTable& object_info_table);
+
 void MapStructHandles(Decoded_XrPassthroughMeshTransformInfoHTC* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrCompositionLayerPassthroughHTC* wrapper, const CommonObjectInfoTable& object_info_table);
@@ -286,6 +280,10 @@ void MapStructHandles(Decoded_XrActiveActionSetPrioritiesEXT* wrapper, const Com
 void MapStructHandles(Decoded_XrPlaneDetectorBeginInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrPlaneDetectorGetInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_XrFutureCancelInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
+
+void MapStructHandles(Decoded_XrFuturePollInfoEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 
 void MapStructHandles(Decoded_XrEventDataUserPresenceChangedEXT* wrapper, const CommonObjectInfoTable& object_info_table);
 

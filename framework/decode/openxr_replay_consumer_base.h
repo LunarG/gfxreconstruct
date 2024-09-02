@@ -214,6 +214,8 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     const encode::OpenXrInstanceTable* GetInstanceTable(XrFaceTracker2FB handle) const;
     const encode::OpenXrInstanceTable* GetInstanceTable(XrSpatialGraphNodeBindingMSFT handle) const;
     const encode::OpenXrInstanceTable* GetInstanceTable(XrTriangleMeshFB handle) const;
+    const encode::OpenXrInstanceTable* GetInstanceTable(XrEnvironmentDepthProviderMETA handle) const;
+    const encode::OpenXrInstanceTable* GetInstanceTable(XrEnvironmentDepthSwapchainMETA handle) const;
 #endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
     void AssociateParent(XrSession session, XrInstance instance);
@@ -248,6 +250,9 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     void AssociateParent(XrPlaneDetectorEXT plane_detector, XrSession session);
     void AssociateParent(XrSpatialGraphNodeBindingMSFT graph_node, XrSession session);
     void AssociateParent(XrTriangleMeshFB triangle_mesh, XrSession session);
+    void AssociateParent(XrEnvironmentDepthProviderMETA env_depth_provider, XrSession session);
+    void AssociateParent(XrEnvironmentDepthSwapchainMETA env_depth_swapchain,
+                         XrEnvironmentDepthProviderMETA  environment_depth_provider);
 #endif // defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__)
 
     void* PreProcessExternalObject(uint64_t object_id, format::ApiCallId call_id, const char* call_name);
@@ -390,6 +395,8 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     std::unordered_map<XrFaceTracker2FB, XrInstance>                   facetracker2FB_to_instance_;
     std::unordered_map<XrSpatialGraphNodeBindingMSFT, XrInstance>      spatialgraphnodebindingMSFT_to_instance_;
     std::unordered_map<XrTriangleMeshFB, XrInstance>                   trianglemeshFB_to_instance_;
+    std::unordered_map<XrEnvironmentDepthProviderMETA, XrInstance>     envdepthproviderMETA_to_instance_;
+    std::unordered_map<XrEnvironmentDepthSwapchainMETA, XrInstance>    envdepthswapchainMETA_to_instance_;
 
     VulkanReplayConsumerBase* vulkan_replay_consumer_ = nullptr;
 

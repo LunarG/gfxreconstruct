@@ -96,6 +96,8 @@ class ParameterEncoder
     void EncodeOpenXrHandleValue(typename Wrapper::HandleType value)                                                  { EncodeHandleIdValue(openxr_wrappers::GetWrappedId<Wrapper>(value)); }
     template<typename Wrapper>
     void EncodeOpenXrAtomValue(typename Wrapper::HandleType value)                                                    { EncodeHandleIdValue(openxr_wrappers::GetAtomWrappedId<Wrapper>(value)); }
+    template<typename Wrapper>
+    void EncodeOpenXrOpaqueValue(typename Wrapper::HandleType value)                                                  { EncodeHandleIdValue(openxr_wrappers::GetOpaqueWrappedId<Wrapper>(value)); }
 #endif // ENABLE_OPENXR_SUPPORT
     template<typename T>
     void EncodeEnumValue(T value)                                                                                     { EncodeValue(static_cast<format::EnumEncodeType>(value)); }
@@ -139,6 +141,8 @@ class ParameterEncoder
     void EncodeOpenXrHandlePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedOpenXrHandlePointer<Wrapper>(ptr, omit_data, omit_addr); }
     template<typename Wrapper>
     void EncodeOpenXrAtomPtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)       { EncodeWrappedOpenXrAtomPointer<Wrapper>(ptr, omit_data, omit_addr); }
+    template<typename Wrapper>
+    void EncodeOpenXrOpaquePtr(const typename Wrapper::HandleType* ptr, bool omit_data = false, bool omit_addr = false)     { EncodeWrappedOpenXrOpaquePointer<Wrapper>(ptr, omit_data, omit_addr); }
 #endif // ENABLE_OPENXR_SUPPORT
     template<typename T>
     void EncodeEnumPtr(const T* ptr, bool omit_data = false, bool omit_addr = false)                                  { EncodePointerConverted<format::EnumEncodeType>(ptr, omit_data, omit_addr); }
@@ -174,6 +178,8 @@ class ParameterEncoder
     void EncodeOpenXrHandleArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedOpenXrHandleArray<Wrapper>(arr, len, omit_data, omit_addr); }
     template<typename Wrapper>
     void EncodeOpenXrAtomArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedOpenXrAtomArray<Wrapper>(arr, len, omit_data, omit_addr); }
+    template<typename Wrapper>
+    void EncodeOpenXrOpaqueArray(const typename Wrapper::HandleType* arr, size_t len, bool omit_data = false, bool omit_addr = false) { EncodeWrappedOpenXrOpaqueArray<Wrapper>(arr, len, omit_data, omit_addr); }
 #endif // ENABLE_OPENXR_SUPPORT
     template<typename T>
     void EncodeEnumArray(const T* arr, size_t len, bool omit_data = false, bool omit_addr = false)                    { EncodeArrayConverted<format::EnumEncodeType>(arr, len, omit_data, omit_addr); }
@@ -512,6 +518,30 @@ class ParameterEncoder
         }
     }
 
+    template <typename Wrapper>
+    void EncodeWrappedOpenXrOpaquePointer(const typename Wrapper::HandleType* ptr,
+                                          bool                                omit_data = false,
+                                          bool                                omit_addr = false)
+    {
+        uint32_t pointer_attrib =
+            format::PointerAttributes::kIsSingle | GetPointerAttributeMask(ptr, omit_data, omit_addr);
+
+        output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (ptr != nullptr)
+        {
+            if ((pointer_attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+            {
+                EncodeAddress(ptr);
+            }
+
+            if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
+            {
+                EncodeOpenXrOpaqueValue<Wrapper>(*ptr);
+            }
+        }
+    }
+
 #endif // ENABLE_OPENXR_SUPPORT
 
     template <typename T>
@@ -669,6 +699,37 @@ class ParameterEncoder
                 for (size_t i = 0; i < len; ++i)
                 {
                     EncodeOpenXrAtomValue<Wrapper>(arr[i]);
+                }
+            }
+        }
+    }
+
+    template <typename Wrapper>
+    void EncodeWrappedOpenXrOpaqueArray(const typename Wrapper::HandleType* arr,
+                                        size_t                              len,
+                                        bool                                omit_data = false,
+                                        bool                                omit_addr = false)
+    {
+        uint32_t pointer_attrib =
+            format::PointerAttributes::kIsArray | GetPointerAttributeMask(arr, omit_data, omit_addr);
+
+        output_stream_->Write(&pointer_attrib, sizeof(pointer_attrib));
+
+        if (arr != nullptr)
+        {
+            if ((pointer_attrib & format::PointerAttributes::kHasAddress) == format::PointerAttributes::kHasAddress)
+            {
+                EncodeAddress(arr);
+            }
+
+            // Always write the array size when the pointer is not null.
+            EncodeSizeTValue(len);
+
+            if ((pointer_attrib & format::PointerAttributes::kHasData) == format::PointerAttributes::kHasData)
+            {
+                for (size_t i = 0; i < len; ++i)
+                {
+                    EncodeOpenXrOpaqueValue<Wrapper>(arr[i]);
                 }
             }
         }

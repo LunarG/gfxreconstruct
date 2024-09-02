@@ -1070,6 +1070,161 @@ XrNegotiateApiLayerRequest* TrackStruct(const XrNegotiateApiLayerRequest* value,
     return unwrapped_struct;
 }
 
+XrColor3f* TrackStruct(const XrColor3f* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrColor3f* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrExtent3Df* TrackStruct(const XrExtent3Df* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrExtent3Df* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSpheref* TrackStruct(const XrSpheref* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpheref* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrBoxf* TrackStruct(const XrBoxf* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrBoxf* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrFrustumf* TrackStruct(const XrFrustumf* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFrustumf* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrUuid* TrackStruct(const XrUuid* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrUuid* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSpacesLocateInfo* TrackStruct(const XrSpacesLocateInfo* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpacesLocateInfo* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->spaces)
+    {
+        unwrapped_struct->spaces = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->spaces, unwrapped_struct->spaceCount, unwrap_memory);
+    }
+
+    return unwrapped_struct;
+}
+
+XrSpaceLocationData* TrackStruct(const XrSpaceLocationData* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpaceLocationData* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSpaceLocations* TrackStruct(const XrSpaceLocations* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpaceLocations* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->locations)
+    {
+        unwrapped_struct->locations = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->locations, unwrapped_struct->locationCount, unwrap_memory);
+    }
+
+    return unwrapped_struct;
+}
+
+XrSpaceVelocityData* TrackStruct(const XrSpaceVelocityData* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpaceVelocityData* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSpaceVelocities* TrackStruct(const XrSpaceVelocities* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSpaceVelocities* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+    if (unwrapped_struct->velocities)
+    {
+        unwrapped_struct->velocities = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->velocities, unwrapped_struct->velocityCount, unwrap_memory);
+    }
+
+    return unwrapped_struct;
+}
+
 XrCompositionLayerCubeKHR* TrackStruct(const XrCompositionLayerCubeKHR* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -1381,6 +1536,45 @@ XrGraphicsRequirementsD3D12KHR* TrackStruct(const XrGraphicsRequirementsD3D12KHR
     }
 
     XrGraphicsRequirementsD3D12KHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrGraphicsBindingMetalKHR* TrackStruct(const XrGraphicsBindingMetalKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrGraphicsBindingMetalKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSwapchainImageMetalKHR* TrackStruct(const XrSwapchainImageMetalKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSwapchainImageMetalKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrGraphicsRequirementsMetalKHR* TrackStruct(const XrGraphicsRequirementsMetalKHR* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrGraphicsRequirementsMetalKHR* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
 
 
     return unwrapped_struct;
@@ -3144,19 +3338,6 @@ XrSpaceComponentStatusFB* TrackStruct(const XrSpaceComponentStatusFB* value, Han
     return unwrapped_struct;
 }
 
-XrUuidEXT* TrackStruct(const XrUuidEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    XrUuidEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    return unwrapped_struct;
-}
-
 XrEventDataSpatialAnchorCreateCompleteFB* TrackStruct(const XrEventDataSpatialAnchorCreateCompleteFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -4302,19 +4483,6 @@ XrHapticAmplitudeEnvelopeVibrationFB* TrackStruct(const XrHapticAmplitudeEnvelop
     return unwrapped_struct;
 }
 
-XrExtent3DfFB* TrackStruct(const XrExtent3DfFB* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    XrExtent3DfFB* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    return unwrapped_struct;
-}
-
 XrOffset3DfFB* TrackStruct(const XrOffset3DfFB* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -5280,6 +5448,110 @@ XrFaceExpressionWeights2FB* TrackStruct(const XrFaceExpressionWeights2FB* value,
     return unwrapped_struct;
 }
 
+XrEnvironmentDepthProviderCreateInfoMETA* TrackStruct(const XrEnvironmentDepthProviderCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEnvironmentDepthProviderCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrEnvironmentDepthSwapchainCreateInfoMETA* TrackStruct(const XrEnvironmentDepthSwapchainCreateInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEnvironmentDepthSwapchainCreateInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrEnvironmentDepthSwapchainStateMETA* TrackStruct(const XrEnvironmentDepthSwapchainStateMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEnvironmentDepthSwapchainStateMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrEnvironmentDepthImageAcquireInfoMETA* TrackStruct(const XrEnvironmentDepthImageAcquireInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEnvironmentDepthImageAcquireInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrEnvironmentDepthImageViewMETA* TrackStruct(const XrEnvironmentDepthImageViewMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEnvironmentDepthImageViewMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrEnvironmentDepthImageMETA* TrackStruct(const XrEnvironmentDepthImageMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEnvironmentDepthImageMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrEnvironmentDepthHandRemovalSetInfoMETA* TrackStruct(const XrEnvironmentDepthHandRemovalSetInfoMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrEnvironmentDepthHandRemovalSetInfoMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrSystemEnvironmentDepthPropertiesMETA* TrackStruct(const XrSystemEnvironmentDepthPropertiesMETA* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrSystemEnvironmentDepthPropertiesMETA* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
 XrPassthroughCreateInfoHTC* TrackStruct(const XrPassthroughCreateInfoHTC* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -5568,19 +5840,6 @@ XrPlaneDetectorCreateInfoEXT* TrackStruct(const XrPlaneDetectorCreateInfoEXT* va
     return unwrapped_struct;
 }
 
-XrExtent3DfEXT* TrackStruct(const XrExtent3DfEXT* value, HandleUnwrapMemory* unwrap_memory)
-{
-    if (value == nullptr)
-    {
-        return nullptr;
-    }
-
-    XrExtent3DfEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
-
-
-    return unwrapped_struct;
-}
-
 XrPlaneDetectorBeginInfoEXT* TrackStruct(const XrPlaneDetectorBeginInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
 {
     if (value == nullptr)
@@ -5658,6 +5917,71 @@ XrPlaneDetectorPolygonBufferEXT* TrackStruct(const XrPlaneDetectorPolygonBufferE
     {
         unwrapped_struct->vertices = openxr_wrappers::MakeUnwrapStructs(unwrapped_struct->vertices, unwrapped_struct->vertexCapacityInput, unwrap_memory);
     }
+
+    return unwrapped_struct;
+}
+
+XrFutureCancelInfoEXT* TrackStruct(const XrFutureCancelInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFutureCancelInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrFuturePollInfoEXT* TrackStruct(const XrFuturePollInfoEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFuturePollInfoEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrFutureCompletionBaseHeaderEXT* TrackStruct(const XrFutureCompletionBaseHeaderEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFutureCompletionBaseHeaderEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrFutureCompletionEXT* TrackStruct(const XrFutureCompletionEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFutureCompletionEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
+
+    return unwrapped_struct;
+}
+
+XrFuturePollResultEXT* TrackStruct(const XrFuturePollResultEXT* value, HandleUnwrapMemory* unwrap_memory)
+{
+    if (value == nullptr)
+    {
+        return nullptr;
+    }
+
+    XrFuturePollResultEXT* unwrapped_struct = openxr_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);
+
 
     return unwrapped_struct;
 }
@@ -5836,6 +6160,12 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrEventDataInteractionProfileChanged*>(value), unwrap_memory);
         case XR_TYPE_HAPTIC_VIBRATION:
             return TrackStruct(reinterpret_cast<const XrHapticVibration*>(value), unwrap_memory);
+        case XR_TYPE_SPACES_LOCATE_INFO:
+            return TrackStruct(reinterpret_cast<const XrSpacesLocateInfo*>(value), unwrap_memory);
+        case XR_TYPE_SPACE_LOCATIONS:
+            return TrackStruct(reinterpret_cast<const XrSpaceLocations*>(value), unwrap_memory);
+        case XR_TYPE_SPACE_VELOCITIES:
+            return TrackStruct(reinterpret_cast<const XrSpaceVelocities*>(value), unwrap_memory);
         case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:
             return TrackStruct(reinterpret_cast<const XrCompositionLayerCubeKHR*>(value), unwrap_memory);
         case XR_TYPE_INSTANCE_CREATE_INFO_ANDROID_KHR:
@@ -5884,6 +6214,12 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrSwapchainImageD3D12KHR*>(value), unwrap_memory);
         case XR_TYPE_GRAPHICS_REQUIREMENTS_D3D12_KHR:
             return TrackStruct(reinterpret_cast<const XrGraphicsRequirementsD3D12KHR*>(value), unwrap_memory);
+        case XR_TYPE_GRAPHICS_BINDING_METAL_KHR:
+            return TrackStruct(reinterpret_cast<const XrGraphicsBindingMetalKHR*>(value), unwrap_memory);
+        case XR_TYPE_SWAPCHAIN_IMAGE_METAL_KHR:
+            return TrackStruct(reinterpret_cast<const XrSwapchainImageMetalKHR*>(value), unwrap_memory);
+        case XR_TYPE_GRAPHICS_REQUIREMENTS_METAL_KHR:
+            return TrackStruct(reinterpret_cast<const XrGraphicsRequirementsMetalKHR*>(value), unwrap_memory);
         case XR_TYPE_VISIBILITY_MASK_KHR:
             return TrackStruct(reinterpret_cast<const XrVisibilityMaskKHR*>(value), unwrap_memory);
         case XR_TYPE_EVENT_DATA_VISIBILITY_MASK_CHANGED_KHR:
@@ -6360,6 +6696,22 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrFaceExpressionInfo2FB*>(value), unwrap_memory);
         case XR_TYPE_FACE_EXPRESSION_WEIGHTS2_FB:
             return TrackStruct(reinterpret_cast<const XrFaceExpressionWeights2FB*>(value), unwrap_memory);
+        case XR_TYPE_ENVIRONMENT_DEPTH_PROVIDER_CREATE_INFO_META:
+            return TrackStruct(reinterpret_cast<const XrEnvironmentDepthProviderCreateInfoMETA*>(value), unwrap_memory);
+        case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_CREATE_INFO_META:
+            return TrackStruct(reinterpret_cast<const XrEnvironmentDepthSwapchainCreateInfoMETA*>(value), unwrap_memory);
+        case XR_TYPE_ENVIRONMENT_DEPTH_SWAPCHAIN_STATE_META:
+            return TrackStruct(reinterpret_cast<const XrEnvironmentDepthSwapchainStateMETA*>(value), unwrap_memory);
+        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_ACQUIRE_INFO_META:
+            return TrackStruct(reinterpret_cast<const XrEnvironmentDepthImageAcquireInfoMETA*>(value), unwrap_memory);
+        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_VIEW_META:
+            return TrackStruct(reinterpret_cast<const XrEnvironmentDepthImageViewMETA*>(value), unwrap_memory);
+        case XR_TYPE_ENVIRONMENT_DEPTH_IMAGE_META:
+            return TrackStruct(reinterpret_cast<const XrEnvironmentDepthImageMETA*>(value), unwrap_memory);
+        case XR_TYPE_ENVIRONMENT_DEPTH_HAND_REMOVAL_SET_INFO_META:
+            return TrackStruct(reinterpret_cast<const XrEnvironmentDepthHandRemovalSetInfoMETA*>(value), unwrap_memory);
+        case XR_TYPE_SYSTEM_ENVIRONMENT_DEPTH_PROPERTIES_META:
+            return TrackStruct(reinterpret_cast<const XrSystemEnvironmentDepthPropertiesMETA*>(value), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC:
             return TrackStruct(reinterpret_cast<const XrPassthroughCreateInfoHTC*>(value), unwrap_memory);
         case XR_TYPE_PASSTHROUGH_COLOR_HTC:
@@ -6402,6 +6754,14 @@ void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)
             return TrackStruct(reinterpret_cast<const XrPlaneDetectorLocationsEXT*>(value), unwrap_memory);
         case XR_TYPE_PLANE_DETECTOR_POLYGON_BUFFER_EXT:
             return TrackStruct(reinterpret_cast<const XrPlaneDetectorPolygonBufferEXT*>(value), unwrap_memory);
+        case XR_TYPE_FUTURE_CANCEL_INFO_EXT:
+            return TrackStruct(reinterpret_cast<const XrFutureCancelInfoEXT*>(value), unwrap_memory);
+        case XR_TYPE_FUTURE_POLL_INFO_EXT:
+            return TrackStruct(reinterpret_cast<const XrFuturePollInfoEXT*>(value), unwrap_memory);
+        case XR_TYPE_FUTURE_COMPLETION_EXT:
+            return TrackStruct(reinterpret_cast<const XrFutureCompletionEXT*>(value), unwrap_memory);
+        case XR_TYPE_FUTURE_POLL_RESULT_EXT:
+            return TrackStruct(reinterpret_cast<const XrFuturePollResultEXT*>(value), unwrap_memory);
         case XR_TYPE_EVENT_DATA_USER_PRESENCE_CHANGED_EXT:
             return TrackStruct(reinterpret_cast<const XrEventDataUserPresenceChangedEXT*>(value), unwrap_memory);
         case XR_TYPE_SYSTEM_USER_PRESENCE_PROPERTIES_EXT:

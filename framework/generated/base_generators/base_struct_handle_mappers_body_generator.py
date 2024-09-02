@@ -192,7 +192,8 @@ class BaseStructHandleMappersBodyGenerator():
                 else:
                     for member in handle_members:
                         if (
-                            (self.is_handle(member.base_type) or self.is_atom(member.base_type) or self.is_class(member)) and
+                            (self.is_handle(member.base_type) or self.is_atom(member.base_type) or
+                             self.is_opaque(member.base_type) or self.is_class(member)) and
                             not (member.is_array and not member.is_dynamic)
                         ) or (member.base_type in self.MAP_STRUCT_TYPE):
                             needs_value_ptr = True

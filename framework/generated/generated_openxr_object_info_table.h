@@ -47,12 +47,15 @@ class OpenXrObjectInfoTable : OpenXrObjectInfoTableBase
     void AddXrBodyTrackerFBInfo(OpenXrBodyTrackerFBInfo&& info) { AddXrObjectInfo(std::move(info), &bodyTrackerFB_map_); }
     void AddXrControllerModelKeyMSFTInfo(OpenXrControllerModelKeyMSFTInfo&& info) { AddXrObjectInfo(std::move(info), &controllerModelKeyMSFT_map_); }
     void AddXrDebugUtilsMessengerEXTInfo(OpenXrDebugUtilsMessengerEXTInfo&& info) { AddXrObjectInfo(std::move(info), &debugUtilsMessengerEXT_map_); }
+    void AddXrEnvironmentDepthProviderMETAInfo(OpenXrEnvironmentDepthProviderMETAInfo&& info) { AddXrObjectInfo(std::move(info), &environmentDepthProviderMETA_map_); }
+    void AddXrEnvironmentDepthSwapchainMETAInfo(OpenXrEnvironmentDepthSwapchainMETAInfo&& info) { AddXrObjectInfo(std::move(info), &environmentDepthSwapchainMETA_map_); }
     void AddXrExportedLocalizationMapMLInfo(OpenXrExportedLocalizationMapMLInfo&& info) { AddXrObjectInfo(std::move(info), &exportedLocalizationMapML_map_); }
     void AddXrEyeTrackerFBInfo(OpenXrEyeTrackerFBInfo&& info) { AddXrObjectInfo(std::move(info), &eyeTrackerFB_map_); }
     void AddXrFaceTracker2FBInfo(OpenXrFaceTracker2FBInfo&& info) { AddXrObjectInfo(std::move(info), &faceTracker2FB_map_); }
     void AddXrFaceTrackerFBInfo(OpenXrFaceTrackerFBInfo&& info) { AddXrObjectInfo(std::move(info), &faceTrackerFB_map_); }
     void AddXrFacialTrackerHTCInfo(OpenXrFacialTrackerHTCInfo&& info) { AddXrObjectInfo(std::move(info), &facialTrackerHTC_map_); }
     void AddXrFoveationProfileFBInfo(OpenXrFoveationProfileFBInfo&& info) { AddXrObjectInfo(std::move(info), &foveationProfileFB_map_); }
+    void AddXrFutureEXTInfo(OpenXrFutureEXTInfo&& info) { AddXrObjectInfo(std::move(info), &futureEXT_map_); }
     void AddXrGeometryInstanceFBInfo(OpenXrGeometryInstanceFBInfo&& info) { AddXrObjectInfo(std::move(info), &geometryInstanceFB_map_); }
     void AddXrHandTrackerEXTInfo(OpenXrHandTrackerEXTInfo&& info) { AddXrObjectInfo(std::move(info), &handTrackerEXT_map_); }
     void AddXrInstanceInfo(OpenXrInstanceInfo&& info) { AddXrObjectInfo(std::move(info), &instance_map_); }
@@ -84,12 +87,15 @@ class OpenXrObjectInfoTable : OpenXrObjectInfoTableBase
     void RemoveXrBodyTrackerFBInfo(format::HandleId id) { bodyTrackerFB_map_.erase(id); }
     void RemoveXrControllerModelKeyMSFTInfo(format::HandleId id) { controllerModelKeyMSFT_map_.erase(id); }
     void RemoveXrDebugUtilsMessengerEXTInfo(format::HandleId id) { debugUtilsMessengerEXT_map_.erase(id); }
+    void RemoveXrEnvironmentDepthProviderMETAInfo(format::HandleId id) { environmentDepthProviderMETA_map_.erase(id); }
+    void RemoveXrEnvironmentDepthSwapchainMETAInfo(format::HandleId id) { environmentDepthSwapchainMETA_map_.erase(id); }
     void RemoveXrExportedLocalizationMapMLInfo(format::HandleId id) { exportedLocalizationMapML_map_.erase(id); }
     void RemoveXrEyeTrackerFBInfo(format::HandleId id) { eyeTrackerFB_map_.erase(id); }
     void RemoveXrFaceTracker2FBInfo(format::HandleId id) { faceTracker2FB_map_.erase(id); }
     void RemoveXrFaceTrackerFBInfo(format::HandleId id) { faceTrackerFB_map_.erase(id); }
     void RemoveXrFacialTrackerHTCInfo(format::HandleId id) { facialTrackerHTC_map_.erase(id); }
     void RemoveXrFoveationProfileFBInfo(format::HandleId id) { foveationProfileFB_map_.erase(id); }
+    void RemoveXrFutureEXTInfo(format::HandleId id) { futureEXT_map_.erase(id); }
     void RemoveXrGeometryInstanceFBInfo(format::HandleId id) { geometryInstanceFB_map_.erase(id); }
     void RemoveXrHandTrackerEXTInfo(format::HandleId id) { handTrackerEXT_map_.erase(id); }
     void RemoveXrInstanceInfo(format::HandleId id) { instance_map_.erase(id); }
@@ -121,12 +127,15 @@ class OpenXrObjectInfoTable : OpenXrObjectInfoTableBase
     const OpenXrBodyTrackerFBInfo* GetXrBodyTrackerFBInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrBodyTrackerFBInfo>(id, &bodyTrackerFB_map_); }
     const OpenXrControllerModelKeyMSFTInfo* GetXrControllerModelKeyMSFTInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrControllerModelKeyMSFTInfo>(id, &controllerModelKeyMSFT_map_); }
     const OpenXrDebugUtilsMessengerEXTInfo* GetXrDebugUtilsMessengerEXTInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
+    const OpenXrEnvironmentDepthProviderMETAInfo* GetXrEnvironmentDepthProviderMETAInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrEnvironmentDepthProviderMETAInfo>(id, &environmentDepthProviderMETA_map_); }
+    const OpenXrEnvironmentDepthSwapchainMETAInfo* GetXrEnvironmentDepthSwapchainMETAInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrEnvironmentDepthSwapchainMETAInfo>(id, &environmentDepthSwapchainMETA_map_); }
     const OpenXrExportedLocalizationMapMLInfo* GetXrExportedLocalizationMapMLInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrExportedLocalizationMapMLInfo>(id, &exportedLocalizationMapML_map_); }
     const OpenXrEyeTrackerFBInfo* GetXrEyeTrackerFBInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrEyeTrackerFBInfo>(id, &eyeTrackerFB_map_); }
     const OpenXrFaceTracker2FBInfo* GetXrFaceTracker2FBInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrFaceTracker2FBInfo>(id, &faceTracker2FB_map_); }
     const OpenXrFaceTrackerFBInfo* GetXrFaceTrackerFBInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrFaceTrackerFBInfo>(id, &faceTrackerFB_map_); }
     const OpenXrFacialTrackerHTCInfo* GetXrFacialTrackerHTCInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrFacialTrackerHTCInfo>(id, &facialTrackerHTC_map_); }
     const OpenXrFoveationProfileFBInfo* GetXrFoveationProfileFBInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrFoveationProfileFBInfo>(id, &foveationProfileFB_map_); }
+    const OpenXrFutureEXTInfo* GetXrFutureEXTInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrFutureEXTInfo>(id, &futureEXT_map_); }
     const OpenXrGeometryInstanceFBInfo* GetXrGeometryInstanceFBInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrGeometryInstanceFBInfo>(id, &geometryInstanceFB_map_); }
     const OpenXrHandTrackerEXTInfo* GetXrHandTrackerEXTInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrHandTrackerEXTInfo>(id, &handTrackerEXT_map_); }
     const OpenXrInstanceInfo* GetXrInstanceInfo(format::HandleId id) const { return GetXrObjectInfo<OpenXrInstanceInfo>(id, &instance_map_); }
@@ -158,12 +167,15 @@ class OpenXrObjectInfoTable : OpenXrObjectInfoTableBase
     OpenXrBodyTrackerFBInfo* GetXrBodyTrackerFBInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrBodyTrackerFBInfo>(id, &bodyTrackerFB_map_); }
     OpenXrControllerModelKeyMSFTInfo* GetXrControllerModelKeyMSFTInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrControllerModelKeyMSFTInfo>(id, &controllerModelKeyMSFT_map_); }
     OpenXrDebugUtilsMessengerEXTInfo* GetXrDebugUtilsMessengerEXTInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrDebugUtilsMessengerEXTInfo>(id, &debugUtilsMessengerEXT_map_); }
+    OpenXrEnvironmentDepthProviderMETAInfo* GetXrEnvironmentDepthProviderMETAInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrEnvironmentDepthProviderMETAInfo>(id, &environmentDepthProviderMETA_map_); }
+    OpenXrEnvironmentDepthSwapchainMETAInfo* GetXrEnvironmentDepthSwapchainMETAInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrEnvironmentDepthSwapchainMETAInfo>(id, &environmentDepthSwapchainMETA_map_); }
     OpenXrExportedLocalizationMapMLInfo* GetXrExportedLocalizationMapMLInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrExportedLocalizationMapMLInfo>(id, &exportedLocalizationMapML_map_); }
     OpenXrEyeTrackerFBInfo* GetXrEyeTrackerFBInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrEyeTrackerFBInfo>(id, &eyeTrackerFB_map_); }
     OpenXrFaceTracker2FBInfo* GetXrFaceTracker2FBInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrFaceTracker2FBInfo>(id, &faceTracker2FB_map_); }
     OpenXrFaceTrackerFBInfo* GetXrFaceTrackerFBInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrFaceTrackerFBInfo>(id, &faceTrackerFB_map_); }
     OpenXrFacialTrackerHTCInfo* GetXrFacialTrackerHTCInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrFacialTrackerHTCInfo>(id, &facialTrackerHTC_map_); }
     OpenXrFoveationProfileFBInfo* GetXrFoveationProfileFBInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrFoveationProfileFBInfo>(id, &foveationProfileFB_map_); }
+    OpenXrFutureEXTInfo* GetXrFutureEXTInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrFutureEXTInfo>(id, &futureEXT_map_); }
     OpenXrGeometryInstanceFBInfo* GetXrGeometryInstanceFBInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrGeometryInstanceFBInfo>(id, &geometryInstanceFB_map_); }
     OpenXrHandTrackerEXTInfo* GetXrHandTrackerEXTInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrHandTrackerEXTInfo>(id, &handTrackerEXT_map_); }
     OpenXrInstanceInfo* GetXrInstanceInfo(format::HandleId id) { return GetXrObjectInfo<OpenXrInstanceInfo>(id, &instance_map_); }
@@ -195,12 +207,15 @@ class OpenXrObjectInfoTable : OpenXrObjectInfoTableBase
     void VisitXrBodyTrackerFBInfo(std::function<void(const OpenXrBodyTrackerFBInfo*)> visitor) const {  for (const auto& entry : bodyTrackerFB_map_) { visitor(&entry.second); }  }
     void VisitXrControllerModelKeyMSFTInfo(std::function<void(const OpenXrControllerModelKeyMSFTInfo*)> visitor) const {  for (const auto& entry : controllerModelKeyMSFT_map_) { visitor(&entry.second); }  }
     void VisitXrDebugUtilsMessengerEXTInfo(std::function<void(const OpenXrDebugUtilsMessengerEXTInfo*)> visitor) const {  for (const auto& entry : debugUtilsMessengerEXT_map_) { visitor(&entry.second); }  }
+    void VisitXrEnvironmentDepthProviderMETAInfo(std::function<void(const OpenXrEnvironmentDepthProviderMETAInfo*)> visitor) const {  for (const auto& entry : environmentDepthProviderMETA_map_) { visitor(&entry.second); }  }
+    void VisitXrEnvironmentDepthSwapchainMETAInfo(std::function<void(const OpenXrEnvironmentDepthSwapchainMETAInfo*)> visitor) const {  for (const auto& entry : environmentDepthSwapchainMETA_map_) { visitor(&entry.second); }  }
     void VisitXrExportedLocalizationMapMLInfo(std::function<void(const OpenXrExportedLocalizationMapMLInfo*)> visitor) const {  for (const auto& entry : exportedLocalizationMapML_map_) { visitor(&entry.second); }  }
     void VisitXrEyeTrackerFBInfo(std::function<void(const OpenXrEyeTrackerFBInfo*)> visitor) const {  for (const auto& entry : eyeTrackerFB_map_) { visitor(&entry.second); }  }
     void VisitXrFaceTracker2FBInfo(std::function<void(const OpenXrFaceTracker2FBInfo*)> visitor) const {  for (const auto& entry : faceTracker2FB_map_) { visitor(&entry.second); }  }
     void VisitXrFaceTrackerFBInfo(std::function<void(const OpenXrFaceTrackerFBInfo*)> visitor) const {  for (const auto& entry : faceTrackerFB_map_) { visitor(&entry.second); }  }
     void VisitXrFacialTrackerHTCInfo(std::function<void(const OpenXrFacialTrackerHTCInfo*)> visitor) const {  for (const auto& entry : facialTrackerHTC_map_) { visitor(&entry.second); }  }
     void VisitXrFoveationProfileFBInfo(std::function<void(const OpenXrFoveationProfileFBInfo*)> visitor) const {  for (const auto& entry : foveationProfileFB_map_) { visitor(&entry.second); }  }
+    void VisitXrFutureEXTInfo(std::function<void(const OpenXrFutureEXTInfo*)> visitor) const {  for (const auto& entry : futureEXT_map_) { visitor(&entry.second); }  }
     void VisitXrGeometryInstanceFBInfo(std::function<void(const OpenXrGeometryInstanceFBInfo*)> visitor) const {  for (const auto& entry : geometryInstanceFB_map_) { visitor(&entry.second); }  }
     void VisitXrHandTrackerEXTInfo(std::function<void(const OpenXrHandTrackerEXTInfo*)> visitor) const {  for (const auto& entry : handTrackerEXT_map_) { visitor(&entry.second); }  }
     void VisitXrInstanceInfo(std::function<void(const OpenXrInstanceInfo*)> visitor) const {  for (const auto& entry : instance_map_) { visitor(&entry.second); }  }
@@ -233,12 +248,15 @@ class OpenXrObjectInfoTable : OpenXrObjectInfoTableBase
      std::unordered_map<format::HandleId, OpenXrBodyTrackerFBInfo> bodyTrackerFB_map_;
      std::unordered_map<format::HandleId, OpenXrControllerModelKeyMSFTInfo> controllerModelKeyMSFT_map_;
      std::unordered_map<format::HandleId, OpenXrDebugUtilsMessengerEXTInfo> debugUtilsMessengerEXT_map_;
+     std::unordered_map<format::HandleId, OpenXrEnvironmentDepthProviderMETAInfo> environmentDepthProviderMETA_map_;
+     std::unordered_map<format::HandleId, OpenXrEnvironmentDepthSwapchainMETAInfo> environmentDepthSwapchainMETA_map_;
      std::unordered_map<format::HandleId, OpenXrExportedLocalizationMapMLInfo> exportedLocalizationMapML_map_;
      std::unordered_map<format::HandleId, OpenXrEyeTrackerFBInfo> eyeTrackerFB_map_;
      std::unordered_map<format::HandleId, OpenXrFaceTracker2FBInfo> faceTracker2FB_map_;
      std::unordered_map<format::HandleId, OpenXrFaceTrackerFBInfo> faceTrackerFB_map_;
      std::unordered_map<format::HandleId, OpenXrFacialTrackerHTCInfo> facialTrackerHTC_map_;
      std::unordered_map<format::HandleId, OpenXrFoveationProfileFBInfo> foveationProfileFB_map_;
+     std::unordered_map<format::HandleId, OpenXrFutureEXTInfo> futureEXT_map_;
      std::unordered_map<format::HandleId, OpenXrGeometryInstanceFBInfo> geometryInstanceFB_map_;
      std::unordered_map<format::HandleId, OpenXrHandTrackerEXTInfo> handTrackerEXT_map_;
      std::unordered_map<format::HandleId, OpenXrInstanceInfo> instance_map_;

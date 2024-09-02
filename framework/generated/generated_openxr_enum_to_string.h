@@ -148,6 +148,7 @@ template <> std::string ToString<XrHandTrackingDataSourceEXT>(const XrHandTracki
 template <> std::string ToString<XrPlaneDetectionStateEXT>(const XrPlaneDetectionStateEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrPlaneDetectorOrientationEXT>(const XrPlaneDetectorOrientationEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrPlaneDetectorSemanticTypeEXT>(const XrPlaneDetectorSemanticTypeEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+template <> std::string ToString<XrFutureStateEXT>(const XrFutureStateEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrEyeCalibrationStatusML>(const XrEyeCalibrationStatusML& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<XrHeadsetFitStatusML>(const XrHeadsetFitStatusML& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 GFXRECON_END_NAMESPACE(util)

@@ -70,6 +70,17 @@ struct OpenXrAtomInfo
     format::HandleId parent_id{ format::kNullHandleId };  // ID of the object's parent instance/device object.
 };
 
+template <typename T>
+struct OpenXrOpaqueInfo
+{
+    typedef T HandleType;
+
+    // Standard info stored for all OpenXr objects.
+    HandleType       handle{ 0 };                         // Handle created for the object during replay.
+    format::HandleId capture_id{ format::kNullHandleId }; // ID assigned to the object at capture.
+    format::HandleId parent_id{ format::kNullHandleId };  // ID of the object's parent instance/device object.
+};
+
 //
 // Declarations for OpenXr objects without additional replay state info.
 //
@@ -104,6 +115,8 @@ typedef OpenXrObjectInfo<XrSceneObserverMSFT>                OpenXrSceneObserver
 typedef OpenXrObjectInfo<XrSpatialAnchorMSFT>                OpenXrSpatialAnchorMSFTInfo;
 typedef OpenXrObjectInfo<XrSpatialAnchorStoreConnectionMSFT> OpenXrSpatialAnchorStoreConnectionMSFTInfo;
 typedef OpenXrObjectInfo<XrSpatialGraphNodeBindingMSFT>      OpenXrSpatialGraphNodeBindingMSFTInfo;
+typedef OpenXrObjectInfo<XrEnvironmentDepthProviderMETA>     OpenXrEnvironmentDepthProviderMETAInfo;
+typedef OpenXrObjectInfo<XrEnvironmentDepthSwapchainMETA>    OpenXrEnvironmentDepthSwapchainMETAInfo;
 
 typedef OpenXrAtomInfo<XrSystemId>               OpenXrSystemIdInfo;
 typedef OpenXrAtomInfo<XrPath>                   OpenXrPathInfo;
@@ -111,6 +124,8 @@ typedef OpenXrAtomInfo<XrAsyncRequestIdFB>       OpenXrAsyncRequestIdFBInfo;
 typedef OpenXrAtomInfo<XrRenderModelKeyFB>       OpenXrRenderModelKeyFBInfo;
 typedef OpenXrAtomInfo<XrMarkerML>               OpenXrMarkerMLInfo;
 typedef OpenXrAtomInfo<XrControllerModelKeyMSFT> OpenXrControllerModelKeyMSFTInfo;
+
+typedef OpenXrOpaqueInfo<XrFutureEXT> OpenXrFutureEXTInfo;
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
