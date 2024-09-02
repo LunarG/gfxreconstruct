@@ -39,7 +39,6 @@
 
 #include "format/api_call_id.h"
 
-#include "generated/generated_openxr_base_header_struct_encoders.h"
 #include "generated/generated_openxr_api_call_encoders.h"
 #include "generated/generated_openxr_struct_handle_wrappers.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"

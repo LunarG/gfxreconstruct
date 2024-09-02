@@ -23,6 +23,7 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
+from collections import namedtuple
 
 
 class OpenXrApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -65,11 +66,15 @@ class OpenXrApiCallEncodersHeaderGenerator(BaseGenerator):
             self,
             process_cmds=True,
             process_structs=False,
-            feature_break=True,
+            feature_break=False,
             err_file=err_file,
             warn_file=warn_file,
             diag_file=diag_file
         )
+        self.CommandInfo = namedtuple(
+            "CommandInfo", "proto return_type cmd values"
+        )
+        self.commands_to_process = []
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -82,10 +87,15 @@ class OpenXrApiCallEncodersHeaderGenerator(BaseGenerator):
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
+        self.newline()
 
     def endFile(self):
         """Method override."""
-        self.newline()
+
+        for cmd_info in self.commands_to_process:
+            cmddef = self.make_cmd_decl(cmd_info.proto, cmd_info.values) + '\n'
+            write(cmddef, file=self.outFile)
+
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
@@ -100,17 +110,15 @@ class OpenXrApiCallEncodersHeaderGenerator(BaseGenerator):
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        first = True
         for cmd in self.get_filtered_cmd_names():
             info = self.feature_cmd_params[cmd]
+            return_type = info[0]
             proto = info[1]
             values = info[2]
 
-            cmddef = '' if first else '\n'
-            cmddef += self.make_cmd_decl(proto, values)
-
-            write(cmddef, file=self.outFile)
-            first = False
+            self.commands_to_process.append(
+                self.CommandInfo(proto, return_type, cmd, values)
+            )
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""

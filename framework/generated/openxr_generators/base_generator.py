@@ -257,6 +257,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.code_generator = True
         self.extraOpenXrHeaders = extraOpenXrHeaders
 
+
 class BaseGenerator(OutputGenerator):
     """BaseGenerator - subclass of OutputGenerator.
     Base class providing common operations used to generate C++-language code for framework
@@ -340,7 +341,8 @@ class BaseGenerator(OutputGenerator):
 
         # Command parameter and struct member data for the current feature
         if self.process_structs:
-            self.all_structs = list()  # List of all struct names -- filtered by blacklist. TODO: DRY this
+            self.all_structs = list(
+            )  # List of all struct names -- filtered by blacklist. TODO: DRY this
             self.all_struct_aliases = OrderedDict(
             )  # Map of struct names to aliases
             self.cumulative_struct_members = OrderedDict(
@@ -349,7 +351,8 @@ class BaseGenerator(OutputGenerator):
             )  # Map of all struct names to lists of per-member ValueInfo -- filtered by blacklist. TODO: DRY this
             self.base_header_structs = OrderedDict(
             )  # Map of base header struct names to lists of child struct names
-            self.struct_extends = dict() # Map of the struct this struct extends
+            self.struct_extends = dict(
+            )  # Map of the struct this struct extends
             self.feature_struct_members = OrderedDict(
             )  # Map of per-feature struct names to lists of per-member ValueInfo
             self.feature_struct_aliases = OrderedDict(
@@ -530,7 +533,14 @@ class BaseGenerator(OutputGenerator):
                 if not name == 'XrTime':
                     self.base_types[name] = type_info
 
-    def genStruct(self, typeinfo, typename, alias, supress_base_call=False, supress_local_processing=False):
+    def genStruct(
+        self,
+        typeinfo,
+        typename,
+        alias,
+        supress_base_call=False,
+        supress_local_processing=False
+    ):
         """Method override.
         Struct (e.g. C "struct" type) generation.
         This is a special case of the <type> tag where the contents are
@@ -560,7 +570,8 @@ class BaseGenerator(OutputGenerator):
                 # As feature is cleared per feature, keep running copy here
                 # NOTE: blacklist is not applied here, intentionally as data about blacklisted structs
                 #       may still be needed by non blacklisted structs
-                self.cumulative_struct_members[typename] = self.feature_struct_members[typename] 
+                self.cumulative_struct_members[
+                    typename] = self.feature_struct_members[typename]
 
                 # If this struct has a parent name, keep track of all
                 # the parents and their children
@@ -572,7 +583,6 @@ class BaseGenerator(OutputGenerator):
                         self.base_header_structs[parent_name] = []
 
                     self.base_header_structs[parent_name].append(typename)
-                    
 
                 extended_struct = typeinfo.elem.get('structextends')
                 if extended_struct:
@@ -617,7 +627,14 @@ class BaseGenerator(OutputGenerator):
         """
         OutputGenerator.genEnum(self, enuminfo, name, alias)
 
-    def genCmd(self, cmdinfo, name, alias, supress_base_call=False, supress_local_processing=False):
+    def genCmd(
+        self,
+        cmdinfo,
+        name,
+        alias,
+        supress_base_call=False,
+        supress_local_processing=False
+    ):
         """Method override. Command generation."""
         if not supress_base_call:
             OutputGenerator.genCmd(self, cmdinfo, name, alias)
@@ -973,7 +990,9 @@ class BaseGenerator(OutputGenerator):
         if valid_extension_structs:
             # Need to search the XML tree for next structures that have not been processed yet.
             for struct_name in valid_extension_structs:
-                found_handles, found_handle_ptrs = self.struct_has_handles(struct_name)
+                found_handles, found_handle_ptrs = self.struct_has_handles(
+                    struct_name
+                )
                 has_handles = has_handles or found_handles
                 has_handle_ptrs = has_handle_ptrs or found_handle_ptrs
                 if has_handles and has_handle_ptrs:
@@ -981,7 +1000,9 @@ class BaseGenerator(OutputGenerator):
 
         if typename in self.struct_extends:
             # If struct has a extends another, then its "next" has the same has_* as the parent
-                has_handles, has_handle_ptrs = self.check_struct_next_handles(self.struct_extends[typename])
+            has_handles, has_handle_ptrs = self.check_struct_next_handles(
+                self.struct_extends[typename]
+            )
 
         return has_handles, has_handle_ptrs
 
@@ -1020,11 +1041,17 @@ class BaseGenerator(OutputGenerator):
                 ):
                     has_handle_pointer = True
             elif self.is_struct(value.base_type):
-                has_handles, has_handle_ptrs = self.struct_has_handles(value.base_type)
-                if has_handles and ((not ignore_output) or (not '_Out_' in value.full_type)):
+                has_handles, has_handle_ptrs = self.struct_has_handles(
+                    value.base_type
+                )
+                if has_handles and (
+                    (not ignore_output) or (not '_Out_' in value.full_type)
+                ):
                     # The member is a struct that contains a handle.
                     handles.append(value)
-                    if (structs_with_handle_ptrs is not None) and has_handle_ptrs:
+                    if (
+                        structs_with_handle_ptrs is not None
+                    ) and has_handle_ptrs:
                         has_handle_pointer = True
 
             elif self.is_union(value.base_type):
@@ -1626,8 +1653,8 @@ class BaseGenerator(OutputGenerator):
 
         # If a pre-existing result was not found, check the XML registry for the struct
         # Prevent recurance
-        self._structs_with_handles[struct_name] = False;
-        self._structs_with_handle_ptrs[struct_name] = False;
+        self._structs_with_handles[struct_name] = False
+        self._structs_with_handle_ptrs[struct_name] = False
 
         type_info = self.registry.lookupElementInfo(
             struct_name, self.registry.typedict
@@ -1636,15 +1663,15 @@ class BaseGenerator(OutputGenerator):
             return has_handles, has_handle_ptrs
 
         member_infos = [
-            member for member in
-            type_info.elem.findall('.//member/type')
+            member for member in type_info.elem.findall('.//member/type')
         ]
         if not member_infos:
             return has_handles, has_handle_ptrs
 
         member_type_infos = [
-            self.registry.lookupElementInfo( member_info.text, self.registry.typedict)
-            for member_info in member_infos
+            self.registry.lookupElementInfo(
+                member_info.text, self.registry.typedict
+            ) for member_info in member_infos
         ]
 
         for member_type_info in member_type_infos:
@@ -1657,7 +1684,9 @@ class BaseGenerator(OutputGenerator):
             # Check to see if this is a struct and recur
             if member_category == 'struct':
                 # For compound types we recur
-                found_handles, found_handle_ptrs = self.struct_has_handles(member_type)
+                found_handles, found_handle_ptrs = self.struct_has_handles(
+                    member_type
+                )
                 has_handles = has_handles or found_handles
                 has_handle_ptrs = has_handle_ptrs or found_handle_ptrs
             else:
@@ -1682,9 +1711,7 @@ class BaseGenerator(OutputGenerator):
 
                 if found_handle or found_atom:
                     has_handles = True
-                    if member_elem.tail and (
-                        '*' in member_elem.tail
-                    ):
+                    if member_elem.tail and ('*' in member_elem.tail):
                         has_handle_ptrs = True
 
             if has_handles and has_handle_ptrs:
