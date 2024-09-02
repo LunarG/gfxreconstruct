@@ -30,24 +30,38 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(graphics)
 
+template <typename T, typename = int>
+struct is_vulkan_struct : std::false_type
+{};
+
+template <typename T>
+struct is_vulkan_struct<T, decltype((void)T::sType, 0)>
+    : std::is_same<decltype(T::sType), VkStructureType>
+{};
+
+template <typename T>
+inline constexpr bool is_vulkan_struct_v = is_vulkan_struct<T>::value;
+
 /**
  * @brief   vulkan_struct_get_pnext can be used to retrieve elements of a
  *          provided structure's pNext-chain by their type.
  *
  * Searches through the parent's pNext-chain for the first struct with the requested struct_type.
- * \p T and \p Parent_T must be Vulkan structure-types. Returns nullptr if no matching struct could be found.
+ * @p T and @p Parent_T must be Vulkan structure-types. Returns nullptr if no matching struct could be found.
 
  * @tparam  T           the structure-type to retrieve from pNext-chain
  * @tparam  Parent_T    implicit type of provided structure
- * @param   parent      a provided vulkan-structure containing a pNext-chain.
- * @return  a typed pointer to a structure found in the pNext-chain or nullptr.
+ * @param   parent      pointer to a const vulkan-structure containing a pNext-chain.
+ * @return  a typed const-pointer to a structure found in the pNext-chain or nullptr.
  */
 template <typename T, typename Parent_T>
 static const T* vulkan_struct_get_pnext(const Parent_T* parent)
 {
+    static_assert(is_vulkan_struct<T>() && is_vulkan_struct<Parent_T>());
+
     if (parent != nullptr)
     {
-        auto current_struct = reinterpret_cast<const VkBaseInStructure*>(parent)->pNext;
+        auto current_struct = reinterpret_cast<const VkBaseInStructure*>(parent->pNext);
 
         while (current_struct != nullptr)
         {
@@ -62,16 +76,22 @@ static const T* vulkan_struct_get_pnext(const Parent_T* parent)
 }
 
 /**
- * @brief   vulkan_struct_get_pnext non-const flavor
+ * @brief   vulkan_struct_get_pnext can be used to retrieve elements of a
+ *          provided structure's pNext-chain by their type.
+ *
+ * Searches through the parent's pNext-chain for the first struct with the requested struct_type.
+ * @p T and @p Parent_T must be Vulkan structure-types. Returns nullptr if no matching struct could be found.
  *
  * @tparam  T           the structure-type to retrieve from pNext-chain
  * @tparam  Parent_T    implicit type of provided structure
- * @param   parent      a provided vulkan-structure containing a pNext-chain.
+ * @param   parent      pointer to a non-const vulkan-structure containing a pNext-chain.
  * @return  a typed pointer to a structure found in the pNext-chain or nullptr.
  */
 template <typename T, typename Parent_T>
 static T* vulkan_struct_get_pnext(Parent_T* parent)
 {
+    static_assert(is_vulkan_struct<T>() && is_vulkan_struct<Parent_T>());
+
     if (parent != nullptr)
     {
         auto current_struct = reinterpret_cast<VkBaseOutStructure*>(parent)->pNext;
