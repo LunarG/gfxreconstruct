@@ -1846,6 +1846,9 @@ void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
             ahb_info.reference_count     = 0;
 
             WriteCreateHardwareBufferCmd(memory_id, hardware_buffer, plane_info);
+
+            GFXRECON_LOG_WARNING("AHardwareBuffer cannot be read: hardware buffer data will be omitted "
+                                 "from the capture file");
         }
     }
 #else
