@@ -7771,6 +7771,7 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
 
 VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     PFN_vkGetBufferDeviceAddress                                   func,
+    VkDeviceAddress                                                original_result,
     const DeviceInfo*                                              device_info,
     const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
@@ -7782,22 +7783,36 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
                                 "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
                                 "replay device does not support this feature, so replay may fail.");
     }
+    VkDevice                         device       = device_info->handle;
+    const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
+
+    // retrieve replay-time device-address
+    VkDeviceAddress replay_device_address = func(device, address_info);
 
     if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
+        // TODO: make this warning obsolete by re-mapping addresses (and a whole lot more ...)
         GFXRECON_LOG_WARNING_ONCE(
             "The captured application used vkGetBufferDeviceAddress. The specified replay option '-m rebind' may not "
             "support the replay of captured device addresses, so replay may fail.");
     }
+    else
+    {
+        // opaque device-addresses should match
+        GFXRECON_ASSERT(original_result == replay_device_address);
+    }
 
-    VkDevice                         device       = device_info->handle;
-    const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
-
-    return func(device, address_info);
+    // keep track of old/new addresses in any case
+    format::HandleId buffer      = pInfo->GetMetaStructPointer()->buffer;
+    BufferInfo*      buffer_data = GetObjectInfoTable().GetBufferInfo(buffer);
+    buffer_data->capture_address = original_result;
+    buffer_data->replay_address  = replay_device_address;
+    return replay_device_address;
 }
 
 void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     PFN_vkGetAccelerationStructureDeviceAddressKHR                                   func,
+    VkDeviceAddress                                                                  original_result,
     const DeviceInfo*                                                                device_info,
     const StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
 {

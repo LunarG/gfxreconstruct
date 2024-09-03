@@ -2873,7 +2873,7 @@ void VulkanReplayConsumer::Process_vkGetBufferDeviceAddress(
 
     MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    OverrideGetBufferDeviceAddress(GetDeviceTable(in_device->handle)->GetBufferDeviceAddress, in_device, pInfo);
+    OverrideGetBufferDeviceAddress(GetDeviceTable(in_device->handle)->GetBufferDeviceAddress, returnValue, in_device, pInfo);
 }
 
 void VulkanReplayConsumer::Process_vkGetBufferOpaqueCaptureAddress(
@@ -5397,7 +5397,7 @@ void VulkanReplayConsumer::Process_vkGetBufferDeviceAddressKHR(
 
     MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    OverrideGetBufferDeviceAddress(GetDeviceTable(in_device->handle)->GetBufferDeviceAddressKHR, in_device, pInfo);
+    OverrideGetBufferDeviceAddress(GetDeviceTable(in_device->handle)->GetBufferDeviceAddressKHR, returnValue, in_device, pInfo);
 }
 
 void VulkanReplayConsumer::Process_vkGetBufferOpaqueCaptureAddressKHR(
@@ -10409,7 +10409,7 @@ void VulkanReplayConsumer::Process_vkGetAccelerationStructureDeviceAddressKHR(
 
     MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    OverrideGetAccelerationStructureDeviceAddressKHR(GetDeviceTable(in_device->handle)->GetAccelerationStructureDeviceAddressKHR, in_device, pInfo);
+    OverrideGetAccelerationStructureDeviceAddressKHR(GetDeviceTable(in_device->handle)->GetAccelerationStructureDeviceAddressKHR, returnValue, in_device, pInfo);
 }
 
 void VulkanReplayConsumer::Process_vkCmdWriteAccelerationStructuresPropertiesKHR(

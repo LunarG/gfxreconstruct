@@ -314,7 +314,7 @@ class VulkanReplayConsumerBodyGenerator(
                 call_expr = '{}(returnValue, {})'.format(
                     self.REPLAY_OVERRIDES[name], arglist
                 )
-            elif return_type == 'VkResult':
+            elif return_type in ['VkResult', 'VkDeviceAddress']:
                 # Override functions receive the decoded return value in addition to parameters.
                 if name not in ['vkQueueSubmit', 'vkBeginCommandBuffer']:
                     call_expr = '{}({}, returnValue, {})'.format(

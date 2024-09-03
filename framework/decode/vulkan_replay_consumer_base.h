@@ -1081,11 +1081,13 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VkDeviceAddress
     OverrideGetBufferDeviceAddress(PFN_vkGetBufferDeviceAddress                                   func,
+                                   VkDeviceAddress                                                original_result,
                                    const DeviceInfo*                                              device_info,
                                    const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo);
 
     void OverrideGetAccelerationStructureDeviceAddressKHR(
         PFN_vkGetAccelerationStructureDeviceAddressKHR                                   func,
+        VkDeviceAddress                                                                  original_result,
         const DeviceInfo*                                                                device_info,
         const StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo);
 
