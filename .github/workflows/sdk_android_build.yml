@@ -61,7 +61,7 @@ jobs:
         cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
         cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
@@ -96,7 +96,7 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./release_url
     - name: Upload release URL
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: release_url
         path: ./release_url
@@ -132,7 +132,7 @@ jobs:
         tag_name=`echo "${{ github.ref }}" | cut -d "/" -f 3`
         echo "::set-output name=tag_name::$tag_name"
     - name: Download artifacts
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
@@ -140,7 +140,7 @@ jobs:
       run: |
         ${{ matrix.config.command }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}-${{ matrix.config.suffix }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
     - name: Download release URL
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: release_url
         path: ./
