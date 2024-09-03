@@ -1149,10 +1149,10 @@ static gfxrecon::decode::DxReplayOptions GetDxReplayOptions(const gfxrecon::util
         std::vector<std::string> values = gfxrecon::util::strings::SplitString(dump_resources, ',');
         if (values.size() == 3)
         {
-            replay_options.dump_resources_target.submit_index   = std::stoi(values[0]);
-            replay_options.dump_resources_target.command_index  = std::stoi(values[1]);
-            replay_options.dump_resources_target.drawcall_index = std::stoi(values[2]);
-            replay_options.enable_dump_resources                = true;
+            replay_options.dump_resources_target.submit_index    = std::stoi(values[0]);
+            replay_options.dump_resources_target.command_index   = std::stoi(values[1]);
+            replay_options.dump_resources_target.draw_call_index = std::stoi(values[2]);
+            replay_options.enable_dump_resources                 = true;
         }
     }
 

@@ -74,18 +74,18 @@ class CaptureSettings
         kUnknown,
         kFrames,
         kQueueSubmits,
-        kDrawcalls,
+        kDrawCalls,
     };
 
     const static char kDefaultCaptureFileName[];
 
-    struct TrimDrawcalls
+    struct TrimDrawCalls
     {
         // 0-based
         uint32_t        submit_index{ 0 };
         uint32_t        command_index{ 0 };
-        util::UintRange drawcall_indices;
-        util::UintRange bundle_drawcall_indices;
+        util::UintRange draw_call_indices;
+        util::UintRange bundle_draw_call_indices;
     };
 
     struct ResourveValueAnnotationInfo
@@ -109,7 +109,7 @@ class CaptureSettings
         util::ScreenshotFormat       screenshot_format;
         TrimBoundary                 trim_boundary{ TrimBoundary::kUnknown };
         std::vector<util::UintRange> trim_ranges;
-        TrimDrawcalls                trim_drawcalls;
+        TrimDrawCalls                trim_draw_calls;
         std::string                  trim_key;
         uint32_t                     trim_key_frames{ 0 };
         RuntimeTriggerState          runtime_capture_trigger{ kNotUsed };

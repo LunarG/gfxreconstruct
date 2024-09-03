@@ -374,7 +374,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     }
 
     if (trace_settings.trim_ranges.empty() && trace_settings.trim_key.empty() &&
-        trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kDrawcalls &&
+        trace_settings.trim_boundary != CaptureSettings::TrimBoundary::kDrawCalls &&
         trace_settings.runtime_capture_trigger == CaptureSettings::RuntimeTriggerState::kNotUsed)
     {
         // Use default kModeWrite capture mode.
@@ -447,10 +447,10 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
                 capture_mode_ = kModeTrack;
             }
         }
-        else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawcalls)
+        else if (trim_boundary_ == CaptureSettings::TrimBoundary::kDrawCalls)
         {
-            trim_drawcalls_ = trace_settings.trim_drawcalls;
-            capture_mode_   = kModeTrack;
+            trim_draw_calls_ = trace_settings.trim_draw_calls;
+            capture_mode_    = kModeTrack;
         }
         else
         {
@@ -753,7 +753,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
     }
 }
 
-void CommonCaptureManager::DeactivateTrimmingDrawcalls()
+void CommonCaptureManager::DeactivateTrimmingDrawCalls()
 {
     if (trim_enabled_)
     {
@@ -818,18 +818,18 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId    
     }
 }
 
-void CommonCaptureManager::ActivateTrimmingDrawcalls(format::ApiFamilyId api_family)
+void CommonCaptureManager::ActivateTrimmingDrawCalls(format::ApiFamilyId api_family)
 {
     if (((capture_mode_ & kModeWrite) != kModeWrite) && ((capture_mode_ & kModeTrack) == kModeTrack))
     {
-        bool success = CreateCaptureFile(api_family, CreateTrimDrawcallsFilename(base_filename_, trim_drawcalls_));
+        bool success = CreateCaptureFile(api_family, CreateTrimDrawCallsFilename(base_filename_, trim_draw_calls_));
         if (success)
         {
             ActivateTrimming();
         }
         else
         {
-            GFXRECON_LOG_FATAL("Failed to initialize capture for trim drawcalls; capture has been disabled");
+            GFXRECON_LOG_FATAL("Failed to initialize capture for trim draw calls; capture has been disabled");
             trim_enabled_ = false;
             capture_mode_ = kModeDisabled;
         }
@@ -918,7 +918,7 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_
 void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock)
 {
     // ++ here means it's 1-based. When it changes to 0-based, it needs to move to the bottom of
-    // CommonCaptureManager::PostQueueSubmit and make sure trimming kQueueSubmits and kDrawcalls work correctly.
+    // CommonCaptureManager::PostQueueSubmit and make sure trimming kQueueSubmits and kDrawCalls work correctly.
     ++queue_submit_count_;
 
     if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
@@ -979,31 +979,31 @@ std::string CommonCaptureManager::CreateTrimFilename(const std::string&     base
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
-std::string CommonCaptureManager::CreateTrimDrawcallsFilename(const std::string&                    base_filename,
-                                                              const CaptureSettings::TrimDrawcalls& trim_drawcalls)
+std::string CommonCaptureManager::CreateTrimDrawCallsFilename(const std::string&                    base_filename,
+                                                              const CaptureSettings::TrimDrawCalls& trim_draw_calls)
 {
     std::string range_string = "_";
 
-    uint32_t total = trim_drawcalls.drawcall_indices.last - trim_drawcalls.drawcall_indices.first + 1;
+    uint32_t total = trim_draw_calls.draw_call_indices.last - trim_draw_calls.draw_call_indices.first + 1;
     uint32_t bundle_total =
-        trim_drawcalls.bundle_drawcall_indices.last - trim_drawcalls.bundle_drawcall_indices.first + 1;
-    const char* boundary_str = (total > 1 || bundle_total > 1) ? "drawcalls_" : "drawcall_";
+        trim_draw_calls.bundle_draw_call_indices.last - trim_draw_calls.bundle_draw_call_indices.first + 1;
+    const char* boundary_str = (total > 1 || bundle_total > 1) ? "draw_calls_" : "draw_call_";
 
     range_string += boundary_str;
-    range_string += std::to_string(trim_drawcalls.submit_index) + "_" + std::to_string(trim_drawcalls.command_index) +
-                    "_" + std::to_string(trim_drawcalls.drawcall_indices.first);
+    range_string += std::to_string(trim_draw_calls.submit_index) + "_" + std::to_string(trim_draw_calls.command_index) +
+                    "_" + std::to_string(trim_draw_calls.draw_call_indices.first);
     if (total > 1)
     {
         range_string += "_through_";
-        range_string += std::to_string(trim_drawcalls.drawcall_indices.last);
+        range_string += std::to_string(trim_draw_calls.draw_call_indices.last);
     }
 
-    range_string += "_" + std::to_string(trim_drawcalls.bundle_drawcall_indices.first);
+    range_string += "_" + std::to_string(trim_draw_calls.bundle_draw_call_indices.first);
 
     if (bundle_total > 1)
     {
         range_string += "_through_";
-        range_string += std::to_string(trim_drawcalls.bundle_drawcall_indices.last);
+        range_string += std::to_string(trim_draw_calls.bundle_draw_call_indices.last);
     }
 
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);

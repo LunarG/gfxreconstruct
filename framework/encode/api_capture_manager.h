@@ -211,8 +211,8 @@ class ApiCaptureManager
     util::Keyboard&                   GetKeyboard() { return common_manager_->GetKeyboard(); }
     const std::string&                GetScreenshotPrefix() const { return common_manager_->GetScreenshotPrefix(); }
     util::ScreenshotFormat            GetScreenshotFormat() { return common_manager_->GetScreenshotFormat(); }
-    auto                              GetTrimBundary() const { return common_manager_->GetTrimBundary(); }
-    auto                              GetTrimDrawcalls() const { return common_manager_->GetTrimDrawcalls(); }
+    auto                              GetTrimBoundary() const { return common_manager_->GetTrimBoundary(); }
+    auto                              GetTrimDrawCalls() const { return common_manager_->GetTrimDrawCalls(); }
 
   protected:
     const format::ApiFamilyId api_family_;

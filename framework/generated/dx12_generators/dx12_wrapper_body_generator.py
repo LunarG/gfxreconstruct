@@ -731,8 +731,8 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             wrapped_args = ''
             unwrapped_args = ''
-            trim_drawcalls_wrapped_args = ''
-            trim_drawcalls_unwrapped_args = ''
+            trim_draw_calls_wrapped_args = ''
+            trim_draw_calls_unwrapped_args = ''
             need_unwrap_memory = False
             if parameters:
                 wrapped_args, unused = self.make_arg_list(
@@ -741,10 +741,10 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 unwrapped_args, need_unwrap_memory = self.make_arg_list(
                     parameters, True, self.increment_indent(indent)
                 )
-                trim_drawcalls_wrapped_args, unused = self.make_arg_list(
+                trim_draw_calls_wrapped_args, unused = self.make_arg_list(
                     parameters, False, self.increment_indent(self.increment_indent(self.increment_indent(indent)))
                 )
-                trim_drawcalls_unwrapped_args, need_unwrap_memory = self.make_arg_list(
+                trim_draw_calls_unwrapped_args, need_unwrap_memory = self.make_arg_list(
                     parameters, True, self.increment_indent(self.increment_indent(self.increment_indent(indent)))
                 )
 
@@ -810,11 +810,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 indent3 = self.increment_indent(indent2)
                 indent4 = self.increment_indent(indent3)
                 expr += '\n'
-                expr += indent + 'if(manager->GetTrimBundary() == CaptureSettings::TrimBoundary::kDrawcalls)\n'
+                expr += indent + 'if(manager->GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)\n'
                 expr += indent + '{\n'
                 expr += indent1 + 'manager->DecrementCallScope();\n'
-                expr += indent1 + 'auto trim_drawcalls_command_sets = manager->GetCommandListsForTrimDrawcalls(this, format::ApiCall_{}_{});\n'.format(class_name, method_name)
-                expr += indent1 + 'for(auto& command_set : trim_drawcalls_command_sets)\n'
+                expr += indent1 + 'auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_{}_{});\n'.format(class_name, method_name)
+                expr += indent1 + 'for(auto& command_set : trim_draw_calls_command_sets)\n'
                 expr += indent1 + '{\n'
 
                 if class_name != 'ID3D12GraphicsCommandList':
@@ -827,22 +827,22 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                     expr += indent2 + 'command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));\n'
 
                 if return_type != 'void':
-                    expr += indent2 + 'HRESULT result_trim_drawcalls = wrapper'
+                    expr += indent2 + 'HRESULT result_trim_draw_calls = wrapper'
                 else:
                     expr += indent2 + 'wrapper'
 
                 expr += "->{}(".format(method_name)                
-                if trim_drawcalls_wrapped_args:
+                if trim_draw_calls_wrapped_args:
                     expr += "\n"
-                    expr += trim_drawcalls_wrapped_args
+                    expr += trim_draw_calls_wrapped_args
                 expr += ");\n"
 
                 if return_type != 'void':               
-                    expr += indent2 + 'if (result != result_trim_drawcalls)\n'
+                    expr += indent2 + 'if (result != result_trim_draw_calls)\n'
                     expr += indent2 + '{\n'
                     expr += indent3 + 'GFXRECON_LOG_WARNING("Splitting commandlists of {}::{} get different results: %s and %s",\n'.format(class_name, method_name)
                     expr += indent4 + 'decode::enumutil::GetResultValueString(result).c_str(),\n'
-                    expr += indent4 + 'decode::enumutil::GetResultValueString(result_trim_drawcalls).c_str());\n'
+                    expr += indent4 + 'decode::enumutil::GetResultValueString(result_trim_draw_calls).c_str());\n'
                     expr += indent2 + '}\n'
 
                 expr += indent1 + '}\n'

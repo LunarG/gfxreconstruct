@@ -478,9 +478,9 @@ struct ID3D12CommandListInfo : public DxWrapperInfo
     std::vector<DxAccelerationStructureBuildInfo> acceleration_structure_builds;
     std::vector<DxAccelerationStructureCopyInfo>  acceleration_structure_copies;
 
-    uint32_t drawcall_count{ 0 }; // DrawInstanced, DrawIndexedInstanced, Dispatch, ExecuteIndirect, ExecuteBundle
+    uint32_t draw_call_count{ 0 }; // DrawInstanced, DrawIndexedInstanced, Dispatch, ExecuteIndirect, ExecuteBundle
 
-    // GFXRECON_CAPTURE_DRAWCALLS
+    // GFXRECON_CAPTURE_DRAW_CALLS
     std::array<graphics::dx12::CommandSet, 3> split_command_sets;
     bool                                      is_split_commandlist{ false };
 };

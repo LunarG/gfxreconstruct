@@ -110,7 +110,7 @@ Quit after capturing frame ranges | GFXRECON_QUIT_AFTER_CAPTURE_FRAMES | BOOL | 
 Hotkey Capture Trigger | GFXRECON_CAPTURE_TRIGGER | STRING | Specify a hotkey (any one of F1-F12, TAB, CONTROL) that will be used to start/stop capture.  Example: `F3` will set the capture trigger to F3 hotkey. One capture file will be generated for each pair of start/stop hotkey presses. Default is: Empty string (hotkey capture trigger is disabled).
 Hotkey Capture Trigger Frames | GFXRECON_CAPTURE_TRIGGER_FRAMES | STRING | Specify a limit on the number of frames to be captured via hotkey.  Example: `1` will capture exactly one frame when the trigger key is pressed. Default is: Empty string (no limit)
 Capture Specific GPU Queue Submits | GFXRECON_CAPTURE_QUEUE_SUBMITS | STRING | Specify one or more comma-separated GPU queue submit call ranges to capture.  Queue submit calls are `vkQueueSubmit` for Vulkan and `ID3D12CommandQueue::ExecuteCommandLists` for DX12. Queue submit ranges work as described above in `GFXRECON_CAPTURE_FRAMES` but on GPU queue submit calls instead of frames.  Default is: Empty string (all queue submits are captured).
-Capture Specific Drawcalls | GFXRECON_CAPTURE_DRAWCALLS | STRING | Specify one index or a range indices drawacalls(include dispatch) based on a ExecuteCommandList index and a CommandList index to capture. The index is 0-based. The args are one submit index, one command index, one or a range indices of draw calls, one or a range indices of bundle drawcalls(option), like "0,0,0" or "0,0,0-2" or "0,0,0-2,0". The forth arg is an option for bundle case. If the the 3rd arg is a bundle commandlist, but it doesn't set the 4th arg, it will set 0 as default. Default is: Empty string (all drawcalls are captured).
+Capture Specific Draw Calls | GFXRECON_CAPTURE_DRAW_CALLS | STRING | Specify one index or a range indices drawacalls(include dispatch) based on a ExecuteCommandList index and a CommandList index to capture. The index is 0-based. The args are one submit index, one command index, one or a range indices of draw calls, one or a range indices of bundle draw calls(option), like "0,0,0" or "0,0,0-2" or "0,0,0-2,0". The forth arg is an option for bundle case. If the the 3rd arg is a bundle commandlist, but it doesn't set the 4th arg, it will set 0 as default. Default is: Empty string (all draw calls are captured).
 Capture File Compression Type | GFXRECON_CAPTURE_COMPRESSION_TYPE | STRING | Compression format to use with the capture file.  Valid values are: `LZ4`, `ZLIB`, `ZSTD`, and `NONE`. Default is: `LZ4`
 Capture File Timestamp | GFXRECON_CAPTURE_FILE_TIMESTAMP | BOOL | Add a timestamp to the capture file as described by [Timestamps](#timestamps).  Default is: `true`
 Capture File Flush After Write | GFXRECON_CAPTURE_FILE_FLUSH | BOOL | Flush output stream after each packet is written to the capture file.  Default is: `false`
@@ -212,7 +212,7 @@ Usage:
                         [--fwo <x,y> | --force-windowed-origin <x,y>]
                         [--log-level <level>] [--log-file <file>] [--log-debugview]
                         [--batching-memory-usage <pct>]
-                        [--dump-resources <submit-index,command-index,drawcall-index>] <file>
+                        [--dump-resources <submit-index,command-index,draw-call-index>] <file>
                         [--pbi-all] [--pbis <index1,index2>]
 
 Required arguments:
@@ -339,12 +339,12 @@ D3D12-only:
                                for batching and does not guarantee overall max memory usage.
                                Acceptable values range from 0 to 100 (default: 80). 0 means no batching,
                                100 means use all available system and GPU memory.
-  --dump-resources <submit-index,command-index,drawcall-index>
-                                Output binaray resources for a specific drawcall.
+  --dump-resources <submit-index,command-index,draw-call-index>
+                                Output binaray resources for a specific draw call.
                                 Include vertex, index, const buffer, shader resource, render target,
-                                and depth stencil. And for before and after drawcall.
+                                and depth stencil. And for before and after draw call.
                                 Arguments becomes three indices, submit index, command index,
-                                drawcall index. The command index is based on its in ExecuteCommandLists.
+                                draw call index. The command index is based on its in ExecuteCommandLists.
 ```
 
 

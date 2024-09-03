@@ -633,7 +633,7 @@ void Dx12ReplayConsumerBase::RemoveObject(DxObjectInfo* info)
     }
 }
 
-void Dx12ReplayConsumerBase::SetDumpTarget(TrackDumpDrawcall& track_dump_target)
+void Dx12ReplayConsumerBase::SetDumpTarget(TrackDumpDrawCall& track_dump_target)
 {
     if (!dump_resources_)
     {
@@ -4316,8 +4316,8 @@ void Dx12ReplayConsumerBase::PreCall_ID3D12GraphicsCommandList_ResourceBarrier(
         {
             // It shouldn't change the state here. It should save the AfterState until ExecuteCommandList to change
             // it. It needs to record the code index. The reason is that it needs to know if this ResourceBarrier is
-            // before or after the target drawcall. For dump resources to set the correct state,
-            // it only cares before the target drawcall.
+            // before or after the target draw call. For dump resources to set the correct state,
+            // it only cares before the target draw call.
             ResourceStatesOrder state;
             state.block_index   = call_info.index;
             state.transition    = *barriers[i].Transition->decoded_value;

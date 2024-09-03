@@ -814,7 +814,7 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     int GetAgsVersion() { return ags_version_; }
 
-    std::vector<graphics::dx12::CommandSet> GetCommandListsForTrimDrawcalls(ID3D12CommandList_Wrapper* wrapper,
+    std::vector<graphics::dx12::CommandSet> GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* wrapper,
                                                                             format::ApiCallId          api_call_id);
 
   protected:
