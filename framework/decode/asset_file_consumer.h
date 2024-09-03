@@ -40,7 +40,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class AssetFileConsumer : public VulkanConsumer
 {
   public:
-    AssetFileConsumer() : current_frame_(0)
+    AssetFileConsumer() : current_frame_(0), greatest_id_(0)
     {
         if (util::platform::FileOpen(&debug_, "AssetFileConsumer.txt", "a"))
         {
@@ -80,9 +80,12 @@ class AssetFileConsumer : public VulkanConsumer
 
     const format::AssetFileOffsets* GetFrameAssetFileOffsets() { return &asset_file_offsets_; }
 
+    format::HandleId GetGreatestId() const { return greatest_id_; }
+
   private:
     format::AssetFileOffsets asset_file_offsets_;
     format::FrameNumber      current_frame_;
+    format::HandleId         greatest_id_;
     FILE*                    debug_;
 };
 

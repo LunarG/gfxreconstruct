@@ -69,6 +69,11 @@ void AssetFileConsumer::ProcessInitBufferCommand(format::HandleId device_id,
     frame_offsets[buffer_id]                     = block_header_file_offset_;
     fprintf(debug_, "buffer %" PRIu64 " -> %" PRId64 "\n", buffer_id, block_header_file_offset_);
     fsync(fileno(debug_));
+
+    if (buffer_id > greatest_id_)
+    {
+        greatest_id_ = buffer_id;
+    }
 }
 
 void AssetFileConsumer::ProcessInitImageCommand(format::HandleId             device_id,
@@ -90,6 +95,11 @@ void AssetFileConsumer::ProcessInitImageCommand(format::HandleId             dev
     frame_offsets[image_id]                      = block_header_file_offset_;
     fprintf(debug_, "image %" PRIu64 " -> %" PRId64 "\n", image_id, block_header_file_offset_);
     fsync(fileno(debug_));
+
+    if (image_id > greatest_id_)
+    {
+        greatest_id_ = image_id;
+    }
 }
 
 void AssetFileConsumer::Process_vkAllocateDescriptorSets(
@@ -113,6 +123,11 @@ void AssetFileConsumer::Process_vkAllocateDescriptorSets(
         frame_offsets[desc_id]                       = block_header_file_offset_;
         fprintf(debug_, "%" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
         fsync(fileno(debug_));
+
+        if (desc_id > greatest_id_)
+        {
+            greatest_id_ = desc_id;
+        }
     }
 }
 
@@ -137,6 +152,11 @@ void AssetFileConsumer::Process_vkUpdateDescriptorSets(
             {
                 fprintf(debug_, "%" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
                 fsync(fileno(debug_));
+            }
+
+            if (desc_id > greatest_id_)
+            {
+                greatest_id_ = desc_id;
             }
         }
     }
