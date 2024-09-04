@@ -7798,7 +7798,7 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     }
     else
     {
-        // opaque device-addresses should match
+        // opaque device-addresses are expected to match
         GFXRECON_ASSERT(original_result == replay_device_address);
     }
 
