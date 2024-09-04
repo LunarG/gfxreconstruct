@@ -1163,6 +1163,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                     VkSubpassContents                                    contents);
 
     void
+    OverrideCmdTraceRaysKHR(PFN_vkCmdTraceRaysKHR                                          func,
+                            CommandBufferInfo*                                             command_buffer_info,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+                            StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+                            uint32_t                                                       width,
+                            uint32_t                                                       height,
+                            uint32_t                                                       depth);
+
+    void
     OverrideCmdBeginRenderPass2(PFN_vkCmdBeginRenderPass2                            func,
                                 CommandBufferInfo*                                   command_buffer_info,
                                 StructPointerDecoder<Decoded_VkRenderPassBeginInfo>* render_pass_begin_info_decoder,

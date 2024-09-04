@@ -7811,18 +7811,19 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     buffer_info->capture_address = original_result;
     buffer_info->replay_address  = replay_device_address;
 
-    const auto& buffer_tracker = GetBufferTracker(device);
-
     // pass info to buffer-tracker
     GetBufferTracker(device).TrackBuffer(buffer_info);
 
+    // Fabian tmp
     // request 'some' address anywhere in buffer, assert we get back correct buffers
+    const auto& buffer_tracker = GetBufferTracker(device);
     auto found_capture_info =
         buffer_tracker.GetBufferByCaptureDeviceAddress(buffer_info->capture_address + buffer_info->size / 2);
     auto found_replay_info =
         buffer_tracker.GetBufferByReplayDeviceAddress(buffer_info->replay_address + buffer_info->size / 2);
     GFXRECON_ASSERT(found_capture_info && found_replay_info)
     GFXRECON_ASSERT(found_capture_info == found_replay_info)
+
     return replay_device_address;
 }
 
@@ -8161,6 +8162,60 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     VkCommandBuffer command_buffer = command_buffer_info->handle;
 
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
+    PFN_vkCmdTraceRaysKHR                                          func,
+    CommandBufferInfo*                                             command_buffer_info,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    uint32_t                                                       width,
+    uint32_t                                                       height,
+    uint32_t                                                       depth)
+{
+    if (command_buffer_info != nullptr)
+    {
+        VkCommandBuffer                        commandBuffer                = command_buffer_info->handle;
+        const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable = pRaygenShaderBindingTable->GetPointer();
+        const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable   = pMissShaderBindingTable->GetPointer();
+        const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable    = pHitShaderBindingTable->GetPointer();
+        const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable =
+            pCallableShaderBindingTable->GetPointer();
+
+        // Fabian tmp
+        const DeviceInfo* device_info    = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
+        const auto&       buffer_tracker = GetBufferTracker(device_info->handle);
+        GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pRaygenShaderBindingTable->deviceAddress));
+        GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pMissShaderBindingTable->deviceAddress));
+        GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pHitShaderBindingTable->deviceAddress));
+        GFXRECON_ASSERT(in_pCallableShaderBindingTable->size == 0 ||
+                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pCallableShaderBindingTable->deviceAddress));
+
+        const PhysicalDeviceInfo* physical_device_info =
+            GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
+
+        if (physical_device_info && physical_device_info->replay_device_info->raytracing_properties)
+        {
+            const auto& replay_props = *physical_device_info->replay_device_info->raytracing_properties;
+            if (physical_device_info->shaderGroupHandleSize != replay_props.shaderGroupHandleSize ||
+                physical_device_info->shaderGroupHandleAlignment != replay_props.shaderGroupHandleAlignment ||
+                physical_device_info->shaderGroupBaseAlignment != replay_props.shaderGroupBaseAlignment)
+            {
+                GFXRECON_LOG_WARNING_ONCE("capture/replay have mismatching shader-binding-table size or alignments");
+            }
+        }
+
+        func(commandBuffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             width,
+             height,
+             depth);
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
