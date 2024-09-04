@@ -532,7 +532,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
         shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
     }
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, queue, submitCount, pSubmits, fence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, shared_api_call_lock, queue, submitCount, pSubmits, fence);
 
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkSubmitInfo* pSubmits_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
@@ -550,7 +550,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
         manager->EndApiCallCapture();
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, result, queue, submitCount, pSubmits, fence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit>::Dispatch(manager, shared_api_call_lock, result, queue, submitCount, pSubmits, fence);
 
     return result;
 }
@@ -7246,7 +7246,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2(
         shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
     }
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2>::Dispatch(manager, queue, submitCount, pSubmits, fence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2>::Dispatch(manager, shared_api_call_lock, queue, submitCount, pSubmits, fence);
 
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkSubmitInfo2* pSubmits_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
@@ -7264,7 +7264,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2(
         manager->EndApiCallCapture();
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2>::Dispatch(manager, result, queue, submitCount, pSubmits, fence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2>::Dispatch(manager, shared_api_call_lock, result, queue, submitCount, pSubmits, fence);
 
     return result;
 }
@@ -8601,7 +8601,17 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     GFXRECON_ASSERT(manager != nullptr);
-    auto api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(manager, queue, pPresentInfo);
 
@@ -8619,7 +8629,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(
         manager->EndApiCallCapture();
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(manager, result, queue, pPresentInfo);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueuePresentKHR>::Dispatch(manager, shared_api_call_lock, result, queue, pPresentInfo);
 
     return result;
 }
@@ -13681,7 +13691,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2KHR(
         shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
     }
 
-    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>::Dispatch(manager, queue, submitCount, pSubmits, fence);
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>::Dispatch(manager, shared_api_call_lock, queue, submitCount, pSubmits, fence);
 
     auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
     const VkSubmitInfo2* pSubmits_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pSubmits, submitCount, handle_unwrap_memory);
@@ -13699,7 +13709,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit2KHR(
         manager->EndApiCallCapture();
     }
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>::Dispatch(manager, result, queue, submitCount, pSubmits, fence);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkQueueSubmit2KHR>::Dispatch(manager, shared_api_call_lock, result, queue, submitCount, pSubmits, fence);
 
     return result;
 }
@@ -14900,7 +14910,7 @@ VKAPI_ATTR void VKAPI_CALL FrameBoundaryANDROID(
 
     vulkan_wrappers::GetDeviceTable(device)->FrameBoundaryANDROID(device, semaphore, image);
 
-    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>::Dispatch(manager, device, semaphore, image);
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkFrameBoundaryANDROID>::Dispatch(manager, shared_api_call_lock, device, semaphore, image);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateDebugReportCallbackEXT(

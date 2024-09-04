@@ -2401,10 +2401,11 @@ void VulkanCaptureManager::PostProcess_vkGetDeviceGroupSurfacePresentModes2EXT(
     }
 }
 
-void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
-                                                    uint32_t            submitCount,
-                                                    const VkSubmitInfo* pSubmits,
-                                                    VkFence             fence)
+void VulkanCaptureManager::PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                                    VkQueue                                                queue,
+                                                    uint32_t                                               submitCount,
+                                                    const VkSubmitInfo*                                    pSubmits,
+                                                    VkFence                                                fence)
 {
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
@@ -2413,7 +2414,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
 
     QueueSubmitWriteFillMemoryCmd();
 
-    PreQueueSubmit();
+    PreQueueSubmit(current_lock);
 
     if (IsCaptureModeTrack())
     {
@@ -2428,10 +2429,12 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit(VkQueue             queue,
     }
 }
 
-void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
-                                                     uint32_t             submitCount,
-                                                     const VkSubmitInfo2* pSubmits,
-                                                     VkFence              fence)
+void VulkanCaptureManager::PreProcess_vkQueueSubmit2(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    VkQueue                                                queue,
+    uint32_t                                               submitCount,
+    const VkSubmitInfo2*                                   pSubmits,
+    VkFence                                                fence)
 {
     GFXRECON_UNREFERENCED_PARAMETER(queue);
     GFXRECON_UNREFERENCED_PARAMETER(submitCount);
@@ -2440,7 +2443,7 @@ void VulkanCaptureManager::PreProcess_vkQueueSubmit2(VkQueue              queue,
 
     QueueSubmitWriteFillMemoryCmd();
 
-    PreQueueSubmit();
+    PreQueueSubmit(current_lock);
 
     if (IsCaptureModeTrack())
     {
@@ -2710,25 +2713,27 @@ bool VulkanCaptureManager::CheckBindAlignment(VkDeviceSize memoryOffset)
 }
 
 bool VulkanCaptureManager::CheckCommandBufferWrapperForFrameBoundary(
-    const vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper)
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+    const vulkan_wrappers::CommandBufferWrapper*           command_buffer_wrapper)
 {
     GFXRECON_ASSERT(command_buffer_wrapper != nullptr);
     if (command_buffer_wrapper->is_frame_boundary)
     {
         // Do common capture manager end of frame processing.
-        EndFrame();
+        EndFrame(current_lock);
         return true;
     }
     return false;
 }
 
-bool VulkanCaptureManager::CheckPNextChainForFrameBoundary(const VkBaseInStructure* current)
+bool VulkanCaptureManager::CheckPNextChainForFrameBoundary(
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock, const VkBaseInStructure* current)
 {
     if (auto frame_boundary = graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(current))
     {
         if (frame_boundary->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT)
         {
-            EndFrame();
+            EndFrame(current_lock);
             return true;
         }
     }

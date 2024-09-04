@@ -683,15 +683,16 @@ bool CommonCaptureManager::RuntimeTriggerDisabled()
     return result;
 }
 
-void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId api_family,
-                                                            uint32_t            current_boundary_count)
+void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId              api_family,
+                                                            uint32_t                         current_boundary_count,
+                                                            std::shared_lock<ApiCallMutexT>& current_lock)
 {
     if (!trim_ranges_.empty())
     {
         if (current_boundary_count == (trim_ranges_[trim_current_range_].last + 1))
         {
             // Stop recording and close file.
-            DeactivateTrimming();
+            DeactivateTrimming(current_lock);
             GFXRECON_LOG_INFO("Finished recording graphics API capture");
 
             // Advance to next range
@@ -717,7 +718,7 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                 bool        success    = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_range));
                 if (success)
                 {
-                    ActivateTrimming();
+                    ActivateTrimming(current_lock);
                 }
                 else
                 {
@@ -733,13 +734,14 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
              RuntimeTriggerDisabled())
     {
         // Stop recording and close file.
-        DeactivateTrimming();
+        DeactivateTrimming(current_lock);
         GFXRECON_LOG_INFO("Finished recording graphics API capture");
     }
 }
 
-void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId api_family,
-                                                         uint32_t            current_boundary_count)
+void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId              api_family,
+                                                         uint32_t                         current_boundary_count,
+                                                         std::shared_lock<ApiCallMutexT>& current_lock)
 {
     if (!trim_ranges_.empty())
     {
@@ -749,7 +751,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId api
             bool        success    = CreateCaptureFile(api_family, CreateTrimFilename(base_filename_, trim_range));
             if (success)
             {
-                ActivateTrimming();
+                ActivateTrimming(current_lock);
             }
             else
             {
@@ -767,7 +769,7 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId api
         {
 
             trim_key_first_frame_ = current_boundary_count;
-            ActivateTrimming();
+            ActivateTrimming(current_lock);
         }
         else
         {
@@ -820,7 +822,7 @@ void CommonCaptureManager::WriteFrameMarker(format::MarkerType marker_type)
     }
 }
 
-void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family)
+void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock)
 {
     // Write an end-of-frame marker to the capture file.
     WriteFrameMarker(format::MarkerType::kEndMarker);
@@ -833,13 +835,13 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family)
         {
             // Currently capturing a frame range.
             // Check for end of range or hotkey trigger to stop capture.
-            CheckContinueCaptureForWriteMode(api_family, current_frame_);
+            CheckContinueCaptureForWriteMode(api_family, current_frame_, current_lock);
         }
         else if ((capture_mode_ & kModeTrack) == kModeTrack)
         {
             // Capture is not active.
             // Check for start of capture frame range or hotkey trigger to start capture
-            CheckStartCaptureForTrackMode(api_family, current_frame_);
+            CheckStartCaptureForTrackMode(api_family, current_frame_, current_lock);
         }
     }
 
@@ -857,7 +859,7 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family)
     }
 }
 
-void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family)
+void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock)
 {
     ++queue_submit_count_;
 
@@ -866,12 +868,13 @@ void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family)
         if (((capture_mode_ & kModeWrite) != kModeWrite) && ((capture_mode_ & kModeTrack) == kModeTrack))
         {
             // Capture is not active, check for start of capture frame range.
-            CheckStartCaptureForTrackMode(api_family, queue_submit_count_);
+            CheckStartCaptureForTrackMode(api_family, queue_submit_count_, current_lock);
         }
     }
 }
 
-void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId api_family)
+void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId              api_family,
+                                           std::shared_lock<ApiCallMutexT>& current_lock)
 {
     if (trim_enabled_ && (trim_boundary_ == CaptureSettings::TrimBoundary::kQueueSubmits))
     {
@@ -880,7 +883,7 @@ void CommonCaptureManager::PostQueueSubmit(format::ApiFamilyId api_family)
             // Currently capturing a queue submit range, check for end of range.
             // It checks the boundary count with +1. That is for trim frames.
             // It will write one more QueueSubmit for trim QueueSubmits, so +1.
-            CheckContinueCaptureForWriteMode(api_family, queue_submit_count_ + 1);
+            CheckContinueCaptureForWriteMode(api_family, queue_submit_count_ + 1, current_lock);
         }
     }
 }
@@ -1049,26 +1052,56 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
     return success;
 }
 
-void CommonCaptureManager::ActivateTrimming()
+void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock)
 {
-    capture_mode_ |= kModeWrite;
-
-    auto thread_data = GetThreadData();
-    assert(thread_data != nullptr);
-
-    for (auto& manager : api_capture_managers_)
+    auto has_shared_lock = current_lock.owns_lock();
+    if (has_shared_lock)
     {
-        manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_);
+        current_lock.unlock();
+    }
+
+    {
+        auto state_lock = AcquireExclusiveApiCallLock();
+
+        capture_mode_ |= kModeWrite;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        for (auto& manager : api_capture_managers_)
+        {
+            manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_);
+        }
+    }
+
+    if (has_shared_lock)
+    {
+        current_lock.lock();
     }
 }
 
-void CommonCaptureManager::DeactivateTrimming()
+void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock)
 {
-    capture_mode_ &= ~kModeWrite;
+    auto has_shared_lock = current_lock.owns_lock();
+    if (has_shared_lock)
+    {
+        current_lock.unlock();
+    }
 
-    assert(file_stream_);
-    file_stream_->Flush();
-    file_stream_ = nullptr;
+    {
+        auto state_lock = AcquireExclusiveApiCallLock();
+
+        capture_mode_ &= ~kModeWrite;
+
+        assert(file_stream_);
+        file_stream_->Flush();
+        file_stream_ = nullptr;
+    }
+
+    if (has_shared_lock)
+    {
+        current_lock.lock();
+    }
 }
 
 void CommonCaptureManager::WriteFileHeader()

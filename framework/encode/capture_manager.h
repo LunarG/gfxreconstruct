@@ -117,20 +117,24 @@ class CommonCaptureManager
 
     void WriteFrameMarker(format::MarkerType marker_type);
 
-    void EndFrame(format::ApiFamilyId api_family);
+    void EndFrame(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
 
     // Pre/PostQueueSubmit to be called immediately before and after work is submitted to the GPU by vkQueueSubmit for
     // Vulkan or by ID3D12CommandQueue::ExecuteCommandLists for DX12.
-    void PreQueueSubmit(format::ApiFamilyId api_family);
-    void PostQueueSubmit(format::ApiFamilyId api_family);
+    void PreQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
+    void PostQueueSubmit(format::ApiFamilyId api_family, std::shared_lock<ApiCallMutexT>& current_lock);
 
     bool ShouldTriggerScreenshot();
 
     util::ScreenshotFormat GetScreenshotFormat() { return screenshot_format_; }
 
-    void CheckContinueCaptureForWriteMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
+    void CheckContinueCaptureForWriteMode(format::ApiFamilyId              api_family,
+                                          uint32_t                         current_boundary_count,
+                                          std::shared_lock<ApiCallMutexT>& current_lock);
 
-    void CheckStartCaptureForTrackMode(format::ApiFamilyId api_family, uint32_t current_boundary_count);
+    void CheckStartCaptureForTrackMode(format::ApiFamilyId              api_family,
+                                       uint32_t                         current_boundary_count,
+                                       std::shared_lock<ApiCallMutexT>& current_lock);
 
     bool IsTrimHotkeyPressed();
 
@@ -267,8 +271,8 @@ class CommonCaptureManager
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
-    void        ActivateTrimming();
-    void        DeactivateTrimming();
+    void        ActivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
+    void        DeactivateTrimming(std::shared_lock<ApiCallMutexT>& current_lock);
 
     void WriteFileHeader();
     void BuildOptionList(const format::EnabledOptions&        enabled_options,

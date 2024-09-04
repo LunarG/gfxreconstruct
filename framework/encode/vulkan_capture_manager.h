@@ -513,7 +513,10 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    void PostProcess_vkQueuePresentKHR(VkResult result, VkQueue queue, const VkPresentInfoKHR* pPresentInfo)
+    void PostProcess_vkQueuePresentKHR(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                       VkResult                                               result,
+                                       VkQueue                                                queue,
+                                       const VkPresentInfoKHR*                                pPresentInfo)
     {
         if (IsCaptureModeTrack() && ((result == VK_SUCCESS) || (result == VK_SUBOPTIMAL_KHR)))
         {
@@ -524,7 +527,7 @@ class VulkanCaptureManager : public ApiCaptureManager
                 pPresentInfo->swapchainCount, pPresentInfo->pSwapchains, pPresentInfo->pImageIndices, queue);
         }
 
-        EndFrame();
+        EndFrame(current_lock);
     }
 
     void PostProcess_vkQueueBindSparse(
@@ -907,10 +910,14 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    void
-    PostProcess_vkQueueSubmit(VkResult result, VkQueue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence)
+    void PostProcess_vkQueueSubmit(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                   VkResult                                               result,
+                                   VkQueue,
+                                   uint32_t            submitCount,
+                                   const VkSubmitInfo* pSubmits,
+                                   VkFence)
     {
-        PostQueueSubmit();
+        PostQueueSubmit(current_lock);
 
         if (IsCaptureModeTrack() && (result == VK_SUCCESS))
         {
@@ -930,7 +937,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         // Check whether this queue submission contains a command buffer that should be treated as a frame boundary.
         for (uint32_t i = 0; i < submitCount; ++i)
         {
-            if (CheckPNextChainForFrameBoundary(reinterpret_cast<const VkBaseInStructure*>(pSubmits + i)))
+            if (CheckPNextChainForFrameBoundary(current_lock, reinterpret_cast<const VkBaseInStructure*>(pSubmits + i)))
             {
                 break;
             }
@@ -939,7 +946,7 @@ class VulkanCaptureManager : public ApiCaptureManager
             {
                 auto cmd_buffer_wrapper =
                     vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(pSubmits[i].pCommandBuffers[j]);
-                if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
+                if (CheckCommandBufferWrapperForFrameBoundary(current_lock, cmd_buffer_wrapper))
                 {
                     break;
                 }
@@ -947,10 +954,14 @@ class VulkanCaptureManager : public ApiCaptureManager
         }
     }
 
-    void PostProcess_vkQueueSubmit2(
-        VkResult result, VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence)
+    void PostProcess_vkQueueSubmit2(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                    VkResult                                               result,
+                                    VkQueue                                                queue,
+                                    uint32_t                                               submitCount,
+                                    const VkSubmitInfo2*                                   pSubmits,
+                                    VkFence                                                fence)
     {
-        PostQueueSubmit();
+        PostQueueSubmit(current_lock);
 
         if (IsCaptureModeTrack() && (result == VK_SUCCESS))
         {
@@ -970,7 +981,7 @@ class VulkanCaptureManager : public ApiCaptureManager
         // Check whether this queue submission contains a command buffer that should be treated as a frame boundary.
         for (uint32_t i = 0; i < submitCount; ++i)
         {
-            if (CheckPNextChainForFrameBoundary(reinterpret_cast<const VkBaseInStructure*>(pSubmits + i)))
+            if (CheckPNextChainForFrameBoundary(current_lock, reinterpret_cast<const VkBaseInStructure*>(pSubmits + i)))
             {
                 break;
             }
@@ -979,7 +990,7 @@ class VulkanCaptureManager : public ApiCaptureManager
             {
                 auto cmd_buffer_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::CommandBufferWrapper>(
                     pSubmits[i].pCommandBufferInfos[j].commandBuffer);
-                if (CheckCommandBufferWrapperForFrameBoundary(cmd_buffer_wrapper))
+                if (CheckCommandBufferWrapperForFrameBoundary(current_lock, cmd_buffer_wrapper))
                 {
                     break;
                 }
@@ -1199,9 +1210,17 @@ class VulkanCaptureManager : public ApiCaptureManager
 
     void PostProcess_vkFreeMemory(VkDevice device, VkDeviceMemory memory, const VkAllocationCallbacks* pAllocator);
 
-    void PreProcess_vkQueueSubmit(VkQueue queue, uint32_t submitCount, const VkSubmitInfo* pSubmits, VkFence fence);
+    void PreProcess_vkQueueSubmit(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                  VkQueue                                                queue,
+                                  uint32_t                                               submitCount,
+                                  const VkSubmitInfo*                                    pSubmits,
+                                  VkFence                                                fence);
 
-    void PreProcess_vkQueueSubmit2(VkQueue queue, uint32_t submitCount, const VkSubmitInfo2* pSubmits, VkFence fence);
+    void PreProcess_vkQueueSubmit2(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                   VkQueue                                                queue,
+                                   uint32_t                                               submitCount,
+                                   const VkSubmitInfo2*                                   pSubmits,
+                                   VkFence                                                fence);
 
     void PreProcess_vkCreateDescriptorUpdateTemplate(VkResult                                    result,
                                                      VkDevice                                    device,
@@ -1256,9 +1275,12 @@ class VulkanCaptureManager : public ApiCaptureManager
     void PostProcess_vkCmdDebugMarkerInsertEXT(VkCommandBuffer                   commandBuffer,
                                                const VkDebugMarkerMarkerInfoEXT* pMarkerInfo);
 
-    void PostProcess_vkFrameBoundaryANDROID(VkDevice device, VkSemaphore semaphore, VkImage image)
+    void PostProcess_vkFrameBoundaryANDROID(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                            VkDevice                                               device,
+                                            VkSemaphore                                            semaphore,
+                                            VkImage                                                image)
     {
-        EndFrame();
+        EndFrame(current_lock);
     }
 
     void PostProcess_vkCmdInsertDebugUtilsLabelEXT(VkCommandBuffer             commandBuffer,
@@ -1338,9 +1360,11 @@ class VulkanCaptureManager : public ApiCaptureManager
     void ReleaseAndroidHardwareBuffer(AHardwareBuffer* hardware_buffer);
     bool CheckBindAlignment(VkDeviceSize memoryOffset);
 
-    bool CheckCommandBufferWrapperForFrameBoundary(const vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper);
+    bool CheckCommandBufferWrapperForFrameBoundary(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                                   const vulkan_wrappers::CommandBufferWrapper* command_buffer_wrapper);
 
-    bool CheckPNextChainForFrameBoundary(const VkBaseInStructure* current);
+    bool CheckPNextChainForFrameBoundary(std::shared_lock<CommonCaptureManager::ApiCallMutexT>& current_lock,
+                                         const VkBaseInStructure*                               current);
 
   private:
     void QueueSubmitWriteFillMemoryCmd();
