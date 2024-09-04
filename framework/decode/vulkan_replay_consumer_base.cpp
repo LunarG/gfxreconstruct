@@ -7804,9 +7804,12 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
 
     // keep track of old/new addresses in any case
     format::HandleId buffer      = pInfo->GetMetaStructPointer()->buffer;
-    BufferInfo*      buffer_data = GetObjectInfoTable().GetBufferInfo(buffer);
-    buffer_data->capture_address = original_result;
-    buffer_data->replay_address  = replay_device_address;
+    BufferInfo*      buffer_info = GetObjectInfoTable().GetBufferInfo(buffer);
+    buffer_info->capture_address = original_result;
+    buffer_info->replay_address  = replay_device_address;
+
+    // pass info to buffer-tracker
+    GetBufferTracker(device).TrackBuffer(buffer_info);
     return replay_device_address;
 }
 
@@ -8903,6 +8906,17 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(DescriptorSet
         assert(texel_buffer_view_count == decoder->GetTexelBufferViewCount());
         assert(accel_struct_count == decoder->GetAccelerationStructureKHRCount());
     }
+}
+
+VulkanBufferTracker& VulkanReplayConsumerBase::GetBufferTracker(VkDevice device)
+{
+    auto it = _buffer_trackers.find(device);
+    if (it == _buffer_trackers.end())
+    {
+        auto [new_it, success] = _buffer_trackers.insert({ device, VulkanBufferTracker(object_info_table_) });
+        return new_it->second;
+    }
+    return it->second;
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,

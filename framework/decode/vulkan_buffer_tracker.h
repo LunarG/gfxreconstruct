@@ -36,12 +36,35 @@ class VulkanBufferTracker
   public:
     explicit VulkanBufferTracker(const VulkanObjectInfoTable& object_info_table);
 
+    //! prevent copying
+    VulkanBufferTracker(const VulkanBufferTracker&) = delete;
+
+    //! allow moving
+    VulkanBufferTracker(VulkanBufferTracker&&) = default;
+
     ~VulkanBufferTracker() = default;
 
-    void TrackBuffer(BufferInfo* buffer_info);
+    /**
+     * @brief   Track an existing buffer by its capture- and replay-time VkDeviceAddress.
+     *
+     * @param   buffer_info a provided buffer_info containing a buffer-handle and associated device-addresses.
+     */
+    void TrackBuffer(const BufferInfo* buffer_info);
 
+    /**
+     * @brief   Retrieve a buffer by providing a replay-time VkDeviceAddress within its range.
+     *
+     * @param   replay_address  a replay-time VkDeviceAddress pointing inside a buffer.
+     * @return  a const-pointer to a found BufferInfo or nullptr.
+     */
     [[nodiscard]] const BufferInfo* GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const;
 
+    /**
+     * @brief   Retrieve a buffer by providing a capture-time VkDeviceAddress within its range.
+     *
+     * @param   replay_address  a capture-time VkDeviceAddress pointing inside a buffer.
+     * @return  a const-pointer to a found BufferInfo or nullptr.
+     */
     [[nodiscard]] const BufferInfo* GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const;
 
   private:

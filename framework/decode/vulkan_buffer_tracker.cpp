@@ -30,7 +30,7 @@ VulkanBufferTracker::VulkanBufferTracker(const VulkanObjectInfoTable& object_inf
     _object_info_table(object_info_table)
 {}
 
-void decode::VulkanBufferTracker::TrackBuffer(decode::BufferInfo* buffer_info)
+void decode::VulkanBufferTracker::TrackBuffer(const decode::BufferInfo* buffer_info)
 {
     if (buffer_info != nullptr)
     {
@@ -77,6 +77,7 @@ const BufferInfo* VulkanBufferTracker::GetBufferInfo(VkDeviceAddress            
             // decrement iterator, now pointing to the first VkDeviceAddress that is lower than device_address
             address_it--;
         }
+        // found_address is lower or equal to device_address
         const auto& [found_address, buffer_handle] = *address_it;
         const BufferInfo* found_buffer             = _object_info_table.GetBufferInfo(buffer_handle);
 
