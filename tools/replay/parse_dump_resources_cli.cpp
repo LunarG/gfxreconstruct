@@ -79,8 +79,11 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
     // Indices should be provided sorted
     if (vulkan_replay_options.Draw_Indices.size())
     {
+        bool is_complete = false;
         for (const auto& indices : vulkan_replay_options.Draw_Indices)
         {
+            is_complete |= (indices.size() > 0);
+
             if (!AreIndicesSorted(indices))
             {
                 GFXRECON_LOG_ERROR("ERROR - incorrect --dump-resources parameters");
@@ -88,16 +91,23 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
                 return true;
             }
         }
+
+        if (!is_complete)
+        {
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
+            GFXRECON_LOG_ERROR("Draw indices should be a 2 dimensional array");
+            return true;
+        }
     }
 
     if (vulkan_replay_options.RenderPass_Indices.size())
     {
-        bool is_complete = true;
+        bool is_complete = false;
         for (const auto& indices0 : vulkan_replay_options.RenderPass_Indices)
         {
             for (const auto& indices1 : indices0)
             {
-                is_complete &= (indices1.size() > 0);
+                is_complete |= (indices1.size() > 0);
 
                 if (!AreIndicesSorted(indices1))
                 {
@@ -167,10 +177,11 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
     }
     for (int i = 0; i < vulkan_replay_options.Draw_Indices.size(); i++)
     {
-        if (vulkan_replay_options.Draw_Indices[i].size() != vulkan_replay_options.RenderPass_Indices[i].size())
+        if (!vulkan_replay_options.Draw_Indices[i].empty() && vulkan_replay_options.RenderPass_Indices[i].empty())
         {
             GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
             GFXRECON_LOG_ERROR("Each Draw item must have a corresponding RenderPass item");
+            return true;
         }
     }
 
