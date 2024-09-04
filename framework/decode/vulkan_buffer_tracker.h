@@ -52,6 +52,13 @@ class VulkanBufferTracker
     void TrackBuffer(const BufferInfo* buffer_info);
 
     /**
+     * @brief   RemoveBuffer will stop tracking of a currently tracked buffer.
+     *
+     * @param   buffer_info a provided buffer_info.
+     */
+    void RemoveBuffer(const BufferInfo* buffer_info);
+
+    /**
      * @brief   Retrieve a buffer by providing a replay-time VkDeviceAddress within its range.
      *
      * @param   replay_address  a replay-time VkDeviceAddress pointing inside a buffer.

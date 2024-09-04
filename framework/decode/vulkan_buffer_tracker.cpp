@@ -46,6 +46,15 @@ void decode::VulkanBufferTracker::TrackBuffer(const decode::BufferInfo* buffer_i
     }
 }
 
+void VulkanBufferTracker::RemoveBuffer(const BufferInfo* buffer_info)
+{
+    if (buffer_info != nullptr)
+    {
+        _capture_addresses.erase(buffer_info->capture_address);
+        _replay_addresses.erase(buffer_info->replay_address);
+    }
+}
+
 const decode::BufferInfo*
 decode::VulkanBufferTracker::GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const
 {

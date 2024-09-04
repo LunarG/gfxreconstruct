@@ -4883,6 +4883,9 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     }
 
     allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
+
+    // remove from device-address tracking
+    GetBufferTracker(device_info->handle).RemoveBuffer(buffer_info);
 }
 
 VkResult
@@ -7808,8 +7811,18 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     buffer_info->capture_address = original_result;
     buffer_info->replay_address  = replay_device_address;
 
+    const auto& buffer_tracker = GetBufferTracker(device);
+
     // pass info to buffer-tracker
     GetBufferTracker(device).TrackBuffer(buffer_info);
+
+    // request 'some' address anywhere in buffer, assert we get back correct buffers
+    auto found_capture_info =
+        buffer_tracker.GetBufferByCaptureDeviceAddress(buffer_info->capture_address + buffer_info->size / 2);
+    auto found_replay_info =
+        buffer_tracker.GetBufferByReplayDeviceAddress(buffer_info->replay_address + buffer_info->size / 2);
+    GFXRECON_ASSERT(found_capture_info && found_replay_info)
+    GFXRECON_ASSERT(found_capture_info == found_replay_info)
     return replay_device_address;
 }
 
