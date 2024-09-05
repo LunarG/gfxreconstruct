@@ -56,7 +56,7 @@ inline constexpr bool is_vulkan_struct_v = is_vulkan_struct<T>::value;
 template <typename T, typename Parent_T>
 static const T* vulkan_struct_get_pnext(const Parent_T* parent)
 {
-    static_assert(is_vulkan_struct<T>() && is_vulkan_struct<Parent_T>());
+    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
 
     if (parent != nullptr)
     {
@@ -89,7 +89,7 @@ static const T* vulkan_struct_get_pnext(const Parent_T* parent)
 template <typename T, typename Parent_T>
 static T* vulkan_struct_get_pnext(Parent_T* parent)
 {
-    static_assert(is_vulkan_struct<T>() && is_vulkan_struct<Parent_T>());
+    static_assert(is_vulkan_struct_v<T> && is_vulkan_struct_v<Parent_T>);
 
     if (parent != nullptr)
     {
