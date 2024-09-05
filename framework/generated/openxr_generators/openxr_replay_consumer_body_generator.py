@@ -99,20 +99,23 @@ class OpenXrReplayConsumerBodyGenerator(
         self.APICALL_BLACKLIST += [
             'xrNegotiateLoaderRuntimeInterface',
             'xrNegotiateLoaderApiLayerInterface',
-            'xrInitializeLoaderKHR',
             'xrCreateInstance',
             'xrCreateApiLayerInstance',
             'xrPollEvent',
             'xrCreateSwapchain',
             'xrReleaseSwapchainImage',
             'xrEndFrame',
+            'xrLocateSpaces',
+            'xrInitializeLoaderKHR',
             'xrLocateHandJointsEXT',
             'xrGetHandMeshFB',
+            'xrLocateBodyJointsFB',
         ]
 
         # These structures require a customized manager when they are an output struct
         # in a `Next` chain
         self.OUTPUT_NEXT_OVERRIDES = [
+            'XrSpaceVelocities',
             'XrBindingModificationsKHR',
             'XrHandJointVelocitiesEXT',
         ]

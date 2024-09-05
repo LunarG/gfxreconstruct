@@ -950,6 +950,42 @@ void OpenXrReplayConsumerBase::PostProcessExternalObject(
     GFXRECON_UNREFERENCED_PARAMETER(call_name);
 }
 
+void OpenXrReplayConsumerBase::Process_xrLocateSpaces(const ApiCallInfo&                                call_info,
+                                                      XrResult                                          returnValue,
+                                                      format::HandleId                                  session,
+                                                      StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+                                                      StructPointerDecoder<Decoded_XrSpaceLocations>*   spaceLocations)
+{
+    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    const XrSpacesLocateInfo* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrSpaceLocations* out_spaceLocations =
+        spaceLocations->IsNull() ? nullptr
+                                 : spaceLocations->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATIONS, nullptr });
+    InitializeOutputStructNext(spaceLocations);
+
+    // We have to create allocated space for the space location data to be written to, otherwise,
+    // it will try to write  to a non-existent output location.
+    if (out_spaceLocations != nullptr)
+    {
+        XrSpaceLocations*         in_spaceLocations   = spaceLocations->GetPointer();
+        Decoded_XrSpaceLocations* meta_spaceLocations = spaceLocations->GetMetaStructPointer();
+
+        out_spaceLocations->locationCount = in_spaceLocations->locationCount;
+        out_spaceLocations->locations     = nullptr;
+        if (in_spaceLocations->locationCount > 0 && in_spaceLocations->locations != nullptr)
+        {
+            out_spaceLocations->locations =
+                meta_spaceLocations->locations->AllocateOutputData(out_spaceLocations->locationCount);
+        }
+    }
+
+    XrResult replay_result = GetInstanceTable(in_session)->LocateSpaces(in_session, in_locateInfo, out_spaceLocations);
+    CheckResult("xrLocateSpaces", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateSpaces>::UpdateState(
+        this, call_info, returnValue, session, locateInfo, spaceLocations, replay_result);
+}
+
 void OpenXrReplayConsumerBase::Process_xrLocateHandJointsEXT(
     const ApiCallInfo&                                       call_info,
     XrResult                                                 returnValue,
@@ -1071,6 +1107,44 @@ void OpenXrReplayConsumerBase::Process_xrGetHandMeshFB(const ApiCallInfo&       
     CheckResult("xrGetHandMeshFB", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrGetHandMeshFB>::UpdateState(
         this, call_info, returnValue, handTracker, mesh, replay_result);
+}
+
+void OpenXrReplayConsumerBase::Process_xrLocateBodyJointsFB(
+    const ApiCallInfo&                                      call_info,
+    XrResult                                                returnValue,
+    format::HandleId                                        bodyTracker,
+    StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
+    StructPointerDecoder<Decoded_XrBodyJointLocationsFB>*   locations)
+{
+    XrBodyTrackerFB in_bodyTracker =
+        MapHandle<OpenXrBodyTrackerFBInfo>(bodyTracker, &CommonObjectInfoTable::GetXrBodyTrackerFBInfo);
+    const XrBodyJointsLocateInfoFB* in_locateInfo = locateInfo->GetPointer();
+    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    XrBodyJointLocationsFB* out_locations =
+        locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_BODY_JOINT_LOCATIONS_FB, nullptr });
+    InitializeOutputStructNext(locations);
+
+    // We have to create allocated space for the joint data to be written to, otherwise,
+    // it will try to write  to a non-existent output location.
+    if (out_locations != nullptr)
+    {
+        XrBodyJointLocationsFB*         in_locations   = locations->GetPointer();
+        Decoded_XrBodyJointLocationsFB* meta_locations = locations->GetMetaStructPointer();
+
+        out_locations->jointCount     = in_locations->jointCount;
+        out_locations->jointLocations = nullptr;
+        if (in_locations->jointCount > 0 && in_locations->jointLocations != nullptr)
+        {
+            out_locations->jointLocations =
+                meta_locations->jointLocations->AllocateOutputData(out_locations->jointCount);
+        }
+    }
+
+    XrResult replay_result =
+        GetInstanceTable(in_bodyTracker)->LocateBodyJointsFB(in_bodyTracker, in_locateInfo, out_locations);
+    CheckResult("xrLocateBodyJointsFB", returnValue, replay_result, call_info);
+    CustomProcess<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>::UpdateState(
+        this, call_info, returnValue, bodyTracker, locateInfo, locations, replay_result);
 }
 
 void OpenXrReplayConsumerBase::CheckResult(const char*                func_name,
@@ -1817,6 +1891,30 @@ void OpenXrReplayConsumerBase::SessionData::AddReferenceSpaces(uint32_t         
     {
         reference_spaces_.insert(replay_spaces[space]);
     }
+}
+
+// Override the handling of the XrSpaceVelocities structure when found in a 'next' chain.
+// The problem is that it is an output structure, but it needs initialization done for it to be
+// properly filled in by the API.  This includes, setting proper array sizes, and creating
+// storage space for those arrays.
+XrBaseOutStructure* OverrideOutputStructNext_XrSpaceVelocities(const XrBaseInStructure* in_next,
+                                                               XrBaseOutStructure*      output_struct)
+{
+    XrSpaceVelocities* out_space_velocities = DecodeAllocator::Allocate<XrSpaceVelocities>();
+    if (out_space_velocities != nullptr)
+    {
+        const XrSpaceVelocities* in_space_velocities = reinterpret_cast<const XrSpaceVelocities*>(in_next);
+        out_space_velocities->velocityCount          = in_space_velocities->velocityCount;
+        if (out_space_velocities->velocityCount > 0)
+        {
+            out_space_velocities->velocities =
+                DecodeAllocator::Allocate<XrSpaceVelocityData>(in_space_velocities->velocityCount);
+            memcpy(out_space_velocities->velocities,
+                   in_space_velocities->velocities,
+                   sizeof(XrSpaceVelocityData) * in_space_velocities->velocityCount);
+        }
+    }
+    return reinterpret_cast<XrBaseOutStructure*>(out_space_velocities);
 }
 
 // Override the handling of the XrBindingModificationsKHR structure when found in a 'next' chain.

@@ -843,23 +843,6 @@ void OpenXrReplayConsumer::Process_xrStopHapticFeedback(
 }
 
 
-void OpenXrReplayConsumer::Process_xrLocateSpaces(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            session,
-    StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
-    StructPointerDecoder<Decoded_XrSpaceLocations>* spaceLocations)
-{
-    XrSession in_session = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
-    const XrSpacesLocateInfo* in_locateInfo = locateInfo->GetPointer();
-    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    XrSpaceLocations* out_spaceLocations = spaceLocations->IsNull() ? nullptr : spaceLocations->AllocateOutputData(1, { XR_TYPE_SPACE_LOCATIONS, nullptr });
-    InitializeOutputStructNext(spaceLocations);
-
-    XrResult replay_result = GetInstanceTable(in_session)->LocateSpaces(in_session, in_locateInfo, out_spaceLocations);
-    CheckResult("xrLocateSpaces", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrLocateSpaces>::UpdateState(this, call_info, returnValue, session, locateInfo, spaceLocations, replay_result);
-}
 
 void OpenXrReplayConsumer::Process_xrSetAndroidApplicationThreadKHR(
     const ApiCallInfo&                          call_info,
@@ -1856,24 +1839,6 @@ void OpenXrReplayConsumer::Process_xrDestroyBodyTrackerFB(
     CheckResult("xrDestroyBodyTrackerFB", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrDestroyBodyTrackerFB>::UpdateState(this, call_info, returnValue, bodyTracker, replay_result);
     RemoveHandle(bodyTracker, &CommonObjectInfoTable::RemoveXrBodyTrackerFBInfo);
-}
-
-void OpenXrReplayConsumer::Process_xrLocateBodyJointsFB(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            bodyTracker,
-    StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
-    StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations)
-{
-    XrBodyTrackerFB in_bodyTracker = MapHandle<OpenXrBodyTrackerFBInfo>(bodyTracker, &CommonObjectInfoTable::GetXrBodyTrackerFBInfo);
-    const XrBodyJointsLocateInfoFB* in_locateInfo = locateInfo->GetPointer();
-    MapStructHandles(locateInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    XrBodyJointLocationsFB* out_locations = locations->IsNull() ? nullptr : locations->AllocateOutputData(1, { XR_TYPE_BODY_JOINT_LOCATIONS_FB, nullptr });
-    InitializeOutputStructNext(locations);
-
-    XrResult replay_result = GetInstanceTable(in_bodyTracker)->LocateBodyJointsFB(in_bodyTracker, in_locateInfo, out_locations);
-    CheckResult("xrLocateBodyJointsFB", returnValue, replay_result, call_info);
-    CustomProcess<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>::UpdateState(this, call_info, returnValue, bodyTracker, locateInfo, locations, replay_result);
 }
 
 void OpenXrReplayConsumer::Process_xrGetBodySkeletonFB(
@@ -4808,7 +4773,7 @@ void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutS
             }
             case XR_TYPE_SPACE_VELOCITIES:
             {
-                output_struct->next = reinterpret_cast<XrBaseOutStructure*>(DecodeAllocator::Allocate<XrSpaceVelocities>());
+                output_struct->next = OverrideOutputStructNext_XrSpaceVelocities(in_next, output_struct);
                 break;
             }
             case XR_TYPE_COMPOSITION_LAYER_CUBE_KHR:

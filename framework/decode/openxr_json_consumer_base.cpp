@@ -172,37 +172,6 @@ void OpenXrExportJsonConsumerBase::Process_xrEnumerateSwapchainImages(
     WriteBlockEnd();
 }
 
-void OpenXrExportJsonConsumerBase::Process_xrLocateHandJointsEXT(
-    const ApiCallInfo&                                       call_info,
-    XrResult                                                 returnValue,
-    format::HandleId                                         handTracker,
-    StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
-    StructPointerDecoder<Decoded_XrHandJointLocationsEXT>*   locations)
-{
-    nlohmann::ordered_json& jdata        = WriteApiCallStart(call_info, "xrLocateHandJointsEXT");
-    const JsonOptions&      json_options = GetJsonOptions();
-    FieldToJson(jdata[NameReturn()], returnValue, json_options);
-    auto& args = jdata[NameArgs()];
-    HandleToJson(args["handTracker"], handTracker, json_options);
-    FieldToJson(args["locateInfo"], locateInfo, json_options);
-    FieldToJson(args["locations"], locations, json_options);
-    WriteBlockEnd();
-}
-
-void OpenXrExportJsonConsumerBase::Process_xrGetHandMeshFB(const ApiCallInfo& call_info,
-                                                           XrResult           returnValue,
-                                                           format::HandleId   handTracker,
-                                                           StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh)
-{
-    nlohmann::ordered_json& jdata        = WriteApiCallStart(call_info, "xrGetHandMeshFB");
-    const JsonOptions&      json_options = GetJsonOptions();
-    FieldToJson(jdata[NameReturn()], returnValue, json_options);
-    auto& args = jdata[NameArgs()];
-    HandleToJson(args["handTracker"], handTracker, json_options);
-    FieldToJson(args["mesh"], mesh, json_options);
-    WriteBlockEnd();
-}
-
 void OpenXrExportJsonConsumerBase::Process_xrPollEvent(const ApiCallInfo&                               call_info,
                                                        XrResult                                         returnValue,
                                                        format::HandleId                                 instance,
