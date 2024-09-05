@@ -73,7 +73,7 @@ const BufferInfo* VulkanBufferTracker::GetBufferInfo(VkDeviceAddress            
     if (!address_map.empty())
     {
         // find first address equal or greater
-        auto address_it = address_map.upper_bound(device_address);
+        auto address_it = address_map.lower_bound(device_address);
 
         if (address_it == address_map.end() || address_it->first > device_address)
         {
