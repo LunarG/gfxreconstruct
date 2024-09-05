@@ -90,15 +90,52 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                                   StructPointerDecoder<Decoded_XrInstanceCreateInfo>* info,
                                                   StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
                                                   HandlePointerDecoder<XrInstance>*) override;
+
     virtual void Process_xrPollEvent(const ApiCallInfo&                               call_info,
                                      XrResult                                         returnValue,
                                      format::HandleId                                 instance,
                                      StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
 
-    void SetFatalErrorHandler(std::function<void(const char*)> handler)
-    {
-        fatal_error_handler_ = handler;
-    }
+    virtual void Process_xrCreateSwapchain(const ApiCallInfo&                                   call_info,
+                                           XrResult                                             returnValue,
+                                           format::HandleId                                     session,
+                                           StructPointerDecoder<Decoded_XrSwapchainCreateInfo>* createInfo,
+                                           HandlePointerDecoder<XrSwapchain>*                   swapchain) override;
+
+    void
+    Process_xrReleaseSwapchainImage(const ApiCallInfo&                                         call_info,
+                                    XrResult                                                   returnValue,
+                                    format::HandleId                                           swapchain,
+                                    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
+
+    virtual void Process_xrEndFrame(const ApiCallInfo&                            call_info,
+                                    XrResult                                      returnValue,
+                                    format::HandleId                              session,
+                                    StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo) override;
+
+    virtual void Process_xrLocateSpaces(const ApiCallInfo&                                call_info,
+                                        XrResult                                          returnValue,
+                                        format::HandleId                                  session,
+                                        StructPointerDecoder<Decoded_XrSpacesLocateInfo>* locateInfo,
+                                        StructPointerDecoder<Decoded_XrSpaceLocations>*   spaceLocations) override;
+
+    virtual void
+    Process_xrLocateHandJointsEXT(const ApiCallInfo&                                       call_info,
+                                  XrResult                                                 returnValue,
+                                  format::HandleId                                         handTracker,
+                                  StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
+                                  StructPointerDecoder<Decoded_XrHandJointLocationsEXT>*   locations) override;
+
+    virtual void Process_xrGetHandMeshFB(const ApiCallInfo&                                  call_info,
+                                         XrResult                                            returnValue,
+                                         format::HandleId                                    handTracker,
+                                         StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
+
+    virtual void Process_xrLocateBodyJointsFB(const ApiCallInfo&                                      call_info,
+                                              XrResult                                                returnValue,
+                                              format::HandleId                                        bodyTracker,
+                                              StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
+                                              StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations) override;
 
     void UpdateState_xrCreateSession(const ApiCallInfo&                                 call_info,
                                      XrResult                                           returnValue,
@@ -122,12 +159,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                                 PointerDecoder<XrReferenceSpaceType>* spaces,
                                                 XrResult                              replay_result);
 
-    virtual void Process_xrCreateSwapchain(const ApiCallInfo&                                   call_info,
-                                           XrResult                                             returnValue,
-                                           format::HandleId                                     session,
-                                           StructPointerDecoder<Decoded_XrSwapchainCreateInfo>* createInfo,
-                                           HandlePointerDecoder<XrSwapchain>*                   swapchain) override;
-
     void UpdateState_xrEnumerateSwapchainImages(const ApiCallInfo&        call_info,
                                                 XrResult                  returnValue,
                                                 format::HandleId          swapchain,
@@ -143,27 +174,10 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                              PointerDecoder<uint32_t>*                                  index,
                                              XrResult                                                   replay_result);
 
-    void
-    Process_xrReleaseSwapchainImage(const ApiCallInfo&                                         call_info,
-                                    XrResult                                                   returnValue,
-                                    format::HandleId                                           swapchain,
-                                    StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
-
-    virtual void Process_xrEndFrame(const ApiCallInfo&                            call_info,
-                                    XrResult                                      returnValue,
-                                    format::HandleId                              session,
-                                    StructPointerDecoder<Decoded_XrFrameEndInfo>* frameEndInfo) override;
-
-    void Process_xrLocateHandJointsEXT(const ApiCallInfo&                                       call_info,
-                                       XrResult                                                 returnValue,
-                                       format::HandleId                                         handTracker,
-                                       StructPointerDecoder<Decoded_XrHandJointsLocateInfoEXT>* locateInfo,
-                                       StructPointerDecoder<Decoded_XrHandJointLocationsEXT>*   locations) override;
-
-    void Process_xrGetHandMeshFB(const ApiCallInfo&                                  call_info,
-                                 XrResult                                            returnValue,
-                                 format::HandleId                                    handTracker,
-                                 StructPointerDecoder<Decoded_XrHandTrackingMeshFB>* mesh) override;
+    void SetFatalErrorHandler(std::function<void(const char*)> handler)
+    {
+        fatal_error_handler_ = handler;
+    }
 
     const OpenXrReplayOptions options_;
 
@@ -629,6 +643,8 @@ struct CustomProcess<format::ApiCallId::ApiCall_xrAcquireSwapchainImage>
     }
 };
 
+XrBaseOutStructure* OverrideOutputStructNext_XrSpaceVelocities(const XrBaseInStructure* in_next,
+                                                               XrBaseOutStructure*      output_struct);
 XrBaseOutStructure* OverrideOutputStructNext_XrBindingModificationsKHR(const XrBaseInStructure* in_next,
                                                                        XrBaseOutStructure*      output_struct);
 XrBaseOutStructure* OverrideOutputStructNext_XrHandJointVelocitiesEXT(const XrBaseInStructure* in_next,
