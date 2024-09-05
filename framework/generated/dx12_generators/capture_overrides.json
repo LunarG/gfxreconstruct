@@ -1,6 +1,8 @@
 {
   "functions": {
-    "CreateDXGIFactory2": "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2"
+    "CreateDXGIFactory2": "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2",
+    "D3D11CreateDevice": "D3D12CaptureManager::Get()->OverrideD3D11CreateDevice",
+    "D3D11CreateDeviceAndSwapChain": "D3D12CaptureManager::Get()->OverrideD3D11CreateDeviceAndSwapChain"
   },
   "classmethods": {
     "ID3D12DescriptorHeap": {

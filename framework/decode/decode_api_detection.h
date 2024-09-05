@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2022 LunarG, Inc.
 ** Copyright (c) 2022 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -38,6 +39,7 @@ GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
 bool DetectAPIs(const std::string& input_filename,
+                bool&              dx11_detected,
                 bool&              dx12_detected,
                 bool&              vulkan_detected,
                 bool               no_block_limit = false);

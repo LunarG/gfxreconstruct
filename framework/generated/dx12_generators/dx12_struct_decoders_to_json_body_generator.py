@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2023 Valve Corporation
 # Copyright (c) 2021-2023 LunarG, Inc.
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -80,7 +81,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
         ## * If the JsonOptions::dump_binaries flag is set.
         ## The binary file will be named as follows: <struct_name>.<field_name>-<instance_counter>.bin
         self.binary_blobs = {
-            ('D3D12_SHADER_BYTECODE', 'pShaderBytecode')
+            ('D3D12_SHADER_BYTECODE', 'pShaderBytecode'),
+            ('D3D11_SUBRESOURCE_DATA', 'pSysMem')
         }
 
     def beginFile(self, gen_opts):
@@ -138,7 +140,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
     def generate_feature(self):
         struct_dict = self.source_dict['struct_dict']
         for k, v in struct_dict.items():
-            if not self.is_struct_black_listed(k):
+            if not self.is_struct_black_listed(k) and (not '<anon-' in k):
                 body = format_cpp_code('''
                     void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
                     {{
@@ -180,7 +182,7 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     field_to_json = field_to_json.format(name, value_info.name)
                 else:
                     function_name = self.choose_field_to_json_name(value_info)
-                    if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type)):
+                    if not (value_info.is_pointer or value_info.is_array or self.is_handle(value_info.base_type) or self.is_struct(value_info.base_type) or self.is_union(value_info.base_type)):
                         # Basic data plumbs to raw struct:
                         field_to_json = '        {0}(jdata["{1}"], decoded_value.{1}, options);'
                     else:
@@ -808,6 +810,474 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     }
                 }
                 '''
+            case "D3D11_BUFFER_SRV":
+                if union_index == 0:
+                    field_to_json = '''
+                FieldToJson(jdata["FirstElement"], decoded_value.FirstElement, options);
+                FieldToJson(jdata["ElementOffset"], decoded_value.ElementOffset, options);
+                '''
+                if union_index == 1:
+                    field_to_json = '''
+                FieldToJson(jdata["NumElements"], decoded_value.NumElements, options);
+                FieldToJson(jdata["ElementWidth"], decoded_value.ElementWidth, options);
+                '''
+            case "D3D11_BUFFER_RTV":
+                if union_index == 0:
+                    field_to_json = '''
+                FieldToJson(jdata["FirstElement"], decoded_value.FirstElement, options);
+                FieldToJson(jdata["ElementOffset"], decoded_value.ElementOffset, options);
+                '''
+                if union_index == 1:
+                    field_to_json = '''
+                FieldToJson(jdata["NumElements"], decoded_value.NumElements, options);
+                FieldToJson(jdata["ElementWidth"], decoded_value.ElementWidth, options);
+                '''
+            case "D3D11_SHADER_RESOURCE_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_SRV_DIMENSION_BUFFER:
+                    {
+                        FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+                    {
+                        FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE3D:
+                    {
+                        FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURECUBE:
+                    {
+                        FieldToJson(jdata["TextureCube"], meta_struct.TextureCube, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+                    {
+                        FieldToJson(jdata["TextureCubeArray"], meta_struct.TextureCubeArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_BUFFEREX:
+                    {
+                        FieldToJson(jdata["BufferEx"], meta_struct.BufferEx, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_RENDER_TARGET_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_RTV_DIMENSION_BUFFER:
+                    {
+                        FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+                    {
+                        FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE3D:
+                    {
+                        FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_RENDER_TARGET_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_UAV_DIMENSION_BUFFER:
+                    {
+                        FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE3D:
+                    {
+                        FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_SHADER_RESOURCE_VIEW_DESC1":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_SRV_DIMENSION_BUFFER:
+                    {
+                        FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2DMS:
+                    {
+                        FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE2DMSARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURE3D:
+                    {
+                        FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURECUBE:
+                    {
+                        FieldToJson(jdata["TextureCube"], meta_struct.TextureCube, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_TEXTURECUBEARRAY:
+                    {
+                        FieldToJson(jdata["TextureCubeArray"], meta_struct.TextureCubeArray, options);
+                        break;
+                    }
+                    case D3D11_SRV_DIMENSION_BUFFEREX:
+                    {
+                        FieldToJson(jdata["BufferEx"], meta_struct.BufferEx, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_VIDEO_COLOR":
+                field_to_json = '''
+                auto& rgba = jdata["RGBA"];
+                FieldToJson(rgba["R"], decoded_value.RGBA.R, options);
+                FieldToJson(rgba["G"], decoded_value.RGBA.G, options);
+                FieldToJson(rgba["B"], decoded_value.RGBA.B, options);
+                FieldToJson(rgba["A"], decoded_value.RGBA.A, options);
+                '''
+            case "D3D11_VIDEO_DECODER_OUTPUT_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_VDOV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_VPIV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_VPOV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_VPOV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_UNORDERED_ACCESS_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_UAV_DIMENSION_BUFFER:
+                    {
+                        FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_UAV_DIMENSION_TEXTURE3D:
+                    {
+                        FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_UNORDERED_ACCESS_VIEW_DESC1":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_DSV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE2DMS:
+                    {
+                        FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_DEPTH_STENCIL_VIEW_DESC":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_DSV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE2DMS:
+                    {
+                        FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
+                        break;
+                    }
+                    case D3D11_DSV_DIMENSION_TEXTURE2DMSARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "D3D11_RENDER_TARGET_VIEW_DESC1":
+                field_to_json = '''
+                switch (decoded_value.ViewDimension)
+                {
+                    case D3D11_RTV_DIMENSION_BUFFER:
+                    {
+                        FieldToJson(jdata["Buffer"], meta_struct.Buffer, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE1D:
+                    {
+                        FieldToJson(jdata["Texture1D"], meta_struct.Texture1D, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE1DARRAY:
+                    {
+                        FieldToJson(jdata["Texture1DArray"], meta_struct.Texture1DArray, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2D:
+                    {
+                        FieldToJson(jdata["Texture2D"], meta_struct.Texture2D, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2DARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DArray"], meta_struct.Texture2DArray, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2DMS:
+                    {
+                        FieldToJson(jdata["Texture2DMS"], meta_struct.Texture2DMS, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE2DMSARRAY:
+                    {
+                        FieldToJson(jdata["Texture2DMSArray"], meta_struct.Texture2DMSArray, options);
+                        break;
+                    }
+                    case D3D11_RTV_DIMENSION_TEXTURE3D:
+                    {
+                        FieldToJson(jdata["Texture3D"], meta_struct.Texture3D, options);
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                '''
+            case "":
+                field_to_json = '''
+                '''
             case _:
                 print(message)
         return format_cpp_code(field_to_json, 2)
@@ -948,6 +1418,19 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                     // FieldToJson(jdata[format::kNameInfo], "heap_id and index were copied out of ptr by a custom encoder at capture time, and ptr was never stored in the capture file.", options);
                     FieldToJson(jdata["heap_id"], meta_struct.heap_id, options);
                     FieldToJson(jdata["index"], meta_struct.index, options);
+                }
+            }
+
+            void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_D3D11_AUTHENTICATED_PROTECTION_FLAGS* data, const JsonOptions& options)
+            {
+                if (data && data->decoded_value)
+                {
+                    const auto& decoded_value = *data->decoded_value;
+                    const auto& meta_struct   = *data;
+                    // This is a bitfield defined as an anonymous struct within a union.
+                    FieldToJson(jdata["ProtectionEnabled"], decoded_value.Flags.ProtectionEnabled, options);
+                    FieldToJson(jdata["OverlayOrFullscreenRequired"], decoded_value.Flags.OverlayOrFullscreenRequired, options);
+                    FieldToJson(jdata["Reserved"], decoded_value.Flags.Reserved, options);
                 }
             }
 

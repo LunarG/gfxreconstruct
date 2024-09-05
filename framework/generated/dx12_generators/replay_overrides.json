@@ -1,7 +1,9 @@
 {
   "functions": {
     "CreateDXGIFactory2": "OverrideCreateDXGIFactory2",
-    "D3D12CreateDevice": "OverrideD3D12CreateDevice"
+    "D3D12CreateDevice": "OverrideD3D12CreateDevice",
+    "D3D11CreateDevice": "OverrideD3D11CreateDevice",
+    "D3D11CreateDeviceAndSwapChain": "OverrideD3D11CreateDeviceAndSwapChain"
   },
   "classmethods": {
     "IUnknown": {
@@ -113,6 +115,24 @@
       "DispatchRays": "OverrideDispatchRays",
       "SetPipelineState1": "OverrideSetPipelineState1",
       "BeginRenderPass": "OverrideBeginRenderPass"
+    },
+    "ID3D11DeviceContext": {
+      "GetData": "OverrideDeviceContextGetData",
+      "Map": "OverrideDeviceContextMap",
+      "Unmap": "OverrideDeviceContextUnmap"
+    },
+    "ID3D11Device": {
+      "CreateDeferredContext": "OverrideCreateDeferredContext"
+    },
+    "ID3D11Device1": {
+      "CreateDeferredContext1": "OverrideCreateDeferredContext1"
+    },
+    "ID3D11Device2": {
+      "CreateDeferredContext2": "OverrideCreateDeferredContext2"
+    },
+    "ID3D11Device3": {
+      "CreateDeferredContext3": "OverrideCreateDeferredContext3",
+      "ReadFromSubresource": "OverrideDevice3ReadFromSubresource"
     },
     "IDXGIFactory": {
       "CreateSwapChain": "OverrideCreateSwapChain"

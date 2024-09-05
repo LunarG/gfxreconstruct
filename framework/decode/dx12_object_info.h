@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2023 LunarG, Inc.
 ** Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -65,7 +66,39 @@ enum class DxObjectInfoType : uint32_t
     kID3D12CommandSignatureInfo,
     kID3D12CommandListInfo,
     kID3D12RootSignatureInfo,
-    kID3D12StateObjectInfo
+    kID3D12StateObjectInfo,
+    kID3D11DeviceContextInfo,
+    kID3D11ResourceInfo
+};
+
+//
+// Enumerations for storing variable length array replay sizes.
+//
+enum class VariableLengthArrayIndices : uint32_t
+{
+    kDxgiObjectArrayGetPrivateData = 0,
+    kDxgiOutputArrayGetDisplayModeList,
+    kDxgiOutput1ArrayGetDisplayModeList1,
+    kD3D12ObjectArrayGetPrivateData,
+    kD3D12Device5ArrayEnumerateMetaCommands,
+    kD3D12Device5ArrayEnumerateMetaCommandParameters,
+    kD3D12InfoQueueArrayGetMessage,
+    kD3D12InfoQueueArrayGetStorageFilter,
+    kD3D12InfoQueueArrayGetRetrievalFilter,
+    kD3D12ShaderCacheSessionArrayFindValue,
+    kD3D11DeviceChildArrayGetPrivateData,
+    kD3D11ClassInstanceArrayGetInstanceName,
+    kD3D11ClassInstanceArrayGetTypeName,
+    kD3D11DeviceContextArrayPSGetShader,
+    kD3D11DeviceContextArrayVSGetShader,
+    kD3D11DeviceContextArrayGSGetShader,
+    kD3D11DeviceContextArrayRSGetViewports,
+    kD3D11DeviceContextArrayRSGetScissorRects,
+    kD3D11DeviceContextArrayHSGetShader,
+    kD3D11DeviceContextArrayDSGetShader,
+    kD3D11DeviceContextArrayCSGetShader,
+    kD3D11DeviceArrayCheckCounter,
+    kD3D11DeviceArrayGetPrivateData,
 };
 
 //
@@ -197,11 +230,12 @@ struct DxObjectExtraInfo
 struct DxObjectInfo
 {
     // Standard info stored for all DX objects.
-    IUnknown*                          object{ nullptr };
-    format::HandleId                   capture_id{ format::kNullHandleId };
-    uint64_t                           ref_count{ 1 };
-    uint64_t                           extra_ref{ 0 };
-    std::unique_ptr<DxObjectExtraInfo> extra_info;
+    IUnknown*                                              object{ nullptr };
+    format::HandleId                                       capture_id{ format::kNullHandleId };
+    uint64_t                                               ref_count{ 1 };
+    uint64_t                                               extra_ref{ 0 };
+    std::unique_ptr<DxObjectExtraInfo>                     extra_info;
+    std::unordered_map<VariableLengthArrayIndices, size_t> array_counts;
 };
 
 struct DxgiSwapchainInfo : DxObjectExtraInfo
@@ -219,7 +253,10 @@ struct DxgiSwapchainInfo : DxObjectExtraInfo
 
     graphics::dx12::ID3D12CommandQueueComPtr command_queue{
         nullptr
-    };                           ///< The command queue that was used to create the swapchain.
+    }; ///< The command queue that was used to create the swapchain for d3d12.
+    graphics::dx12::ID3D11DeviceComPtr device{
+        nullptr
+    };                           ///< The device that was used to create the swapchain for d3d11.
     bool is_fullscreen{ false }; ///< Swapchain full screen flag.
 };
 
@@ -425,6 +462,27 @@ struct D3D12StateObjectInfo : DxObjectExtraInfo
 
     std::map<std::wstring, format::HandleId>                              export_name_lrs_map;
     std::map<graphics::Dx12ShaderIdentifier, std::set<ResourceValueInfo>> shader_id_lrs_map;
+};
+
+struct D3D11DeviceContextInfo : DxObjectExtraInfo
+{
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D11DeviceContextInfo;
+    static constexpr char             kObjectType[] = "ID3D11DeviceContext";
+    D3D11DeviceContextInfo() : DxObjectExtraInfo(kType) {}
+
+    bool needs_update_subresource_adjustment{ false };
+};
+
+struct D3D11ResourceInfo : DxObjectExtraInfo
+{
+    static constexpr DxObjectInfoType kType         = DxObjectInfoType::kID3D11ResourceInfo;
+    static constexpr char             kObjectType[] = "ID3D11Resource";
+    D3D11ResourceInfo() : DxObjectExtraInfo(kType) {}
+
+    D3D11_RESOURCE_DIMENSION dimension{ D3D11_RESOURCE_DIMENSION_UNKNOWN };
+    DXGI_FORMAT              format{ DXGI_FORMAT_UNKNOWN };
+    std::unordered_map<uint32_t, std::unordered_map<format::HandleId, MappedMemoryInfo>>
+        mapped_memory_info; ///< Map subresource index to per-context mapped memory info.
 };
 
 GFXRECON_END_NAMESPACE(decode)

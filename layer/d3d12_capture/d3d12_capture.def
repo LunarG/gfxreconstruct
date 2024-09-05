@@ -3,6 +3,8 @@ EXPORTS
 InitializeDxgiCapture
 InitializeD3D12Capture
 InitializeAgsCapture
+InitializeD3D11Capture
 ReleaseDxgiCapture
 ReleaseD3D12Capture
 ReleaseAgsCapture
+ReleaseD3D11Capture

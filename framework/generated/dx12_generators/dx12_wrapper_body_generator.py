@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2021 LunarG, Inc.
 # Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -124,11 +125,9 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
         # Find structs with COM object members, which will need to be
         # unwrapped.
-        struct_dict = self.source_dict['struct_dict']
-        for s in struct_dict:
-            self.check_struct_member_handles(
-                s, self.structs_with_objects, None, True
-            )
+        self.check_all_struct_member_handles(
+            self.structs_with_objects, None, True
+        )
 
         header_dict = self.source_dict['header_dict']
         self.structs_with_wrap_objects = self.collect_struct_with_objects(
@@ -316,8 +315,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                         tuple[0], tuple[1]
                     )
                 else:
+                    array_length = tuple[2]
+                    if array_length.startswith('* '):
+                        array_length = '({} != nullptr) ? {} : 0'.format(
+                            array_length[2:], array_length.replace(' ', '')
+                        )
                     expr += indent + 'WrapObjectArray({}, {}, {}, nullptr);\n'.format(
-                        tuple[0], tuple[1], tuple[2]
+                        tuple[0], tuple[1], array_length
                     )
 
             for value in params_wrap_struct:
@@ -452,9 +456,13 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
     def write_function_def(self, function, indent=''):
         return_type = function['rtnType'].replace(' *', '*')
         name = function['name']
-        table = 'manager->GetD3D12DispatchTable()' if 'D3D12' in name\
-           else 'manager->GetDxgiDispatchTable()'
         parameters = function['parameters']
+
+        table = 'manager->GetDxgiDispatchTable()'
+        if 'D3D12' in name:
+            table = 'manager->GetD3D12DispatchTable()'
+        elif 'D3D11' in name:
+            table = 'manager->GetD3D11DispatchTable()'
 
         expr = indent + '{} {}('.format(return_type, name)
         if parameters:

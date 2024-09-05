@@ -1,6 +1,7 @@
 /*
 ** Copyright (c) 2021-2022 LunarG, Inc.
 ** Copyright (c) 2021-2024 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -37,6 +38,7 @@
 #include "graphics/dx12_gpu_va_map.h"
 #include "graphics/dx12_resource_data_util.h"
 #include "graphics/dx12_image_renderer.h"
+#include "graphics/dx11_image_renderer.h"
 #include "decode/screenshot_handler_base.h"
 #include "graphics/fps_info.h"
 #include "graphics/dx12_util.h"
@@ -105,19 +107,17 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         std::vector<format::InitDx12AccelerationStructureGeometryDesc>& geometry_descs,
         const uint8_t*                                                  build_inputs_data) override;
 
-    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId object_id,
-                                                          HRESULT          original_result,
-                                                          D3D12_FEATURE    feature,
-                                                          const void*      capture_feature_data,
-                                                          void*            replay_feature_data,
-                                                          UINT             feature_data_size) override;
+    virtual void Process_ID3D12Device_CheckFeatureSupport(format::HandleId      object_id,
+                                                          HRESULT               original_result,
+                                                          D3D12_FEATURE         feature,
+                                                          DxFeatureDataDecoder* feature_data,
+                                                          UINT                  feature_data_size) override;
 
-    virtual void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId object_id,
-                                                           HRESULT          original_result,
-                                                           DXGI_FEATURE     feature,
-                                                           const void*      capture_feature_data,
-                                                           void*            replay_feature_data,
-                                                           UINT             feature_data_size) override;
+    virtual void Process_IDXGIFactory5_CheckFeatureSupport(format::HandleId      object_id,
+                                                           HRESULT               original_result,
+                                                           DXGI_FEATURE          feature,
+                                                           DxFeatureDataDecoder* feature_data,
+                                                           UINT                  feature_data_size) override;
 
     virtual void Process_ID3D12Resource_WriteToSubresource(format::HandleId                         object_id,
                                                            HRESULT                                  return_value,
@@ -214,6 +214,88 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                      Decoded_D3D12_CPU_DESCRIPTOR_HANDLE SrcDescriptorRangeStart,
                                                      D3D12_DESCRIPTOR_HEAP_TYPE          DescriptorHeapsType);
 
+    virtual void Process_ID3D11Device_CheckFeatureSupport(const ApiCallInfo&    call_info,
+                                                          format::HandleId      object_id,
+                                                          HRESULT               return_value,
+                                                          D3D11_FEATURE         feature,
+                                                          DxFeatureDataDecoder* feature_data,
+                                                          UINT                  feature_data_size) override;
+
+    virtual void Process_ID3D11Device_CreateBuffer(const ApiCallInfo&                                    call_info,
+                                                   format::HandleId                                      object_id,
+                                                   HRESULT                                               return_value,
+                                                   StructPointerDecoder<Decoded_D3D11_BUFFER_DESC>*      pDesc,
+                                                   StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                                   HandlePointerDecoder<ID3D11Buffer*>* ppBuffer) override;
+
+    virtual void
+    Process_ID3D11Device_CreateTexture1D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE1D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture1D*>*               ppTexture1D) override;
+
+    virtual void
+    Process_ID3D11Device_CreateTexture2D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture2D*>*               ppTexture2D) override;
+
+    virtual void
+    Process_ID3D11Device_CreateTexture3D(const ApiCallInfo&                                    call_info,
+                                         format::HandleId                                      object_id,
+                                         HRESULT                                               return_value,
+                                         StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC>*   pDesc,
+                                         StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                         HandlePointerDecoder<ID3D11Texture3D*>*               ppTexture3D) override;
+
+    virtual void Process_ID3D11DeviceContext_UpdateSubresource(const ApiCallInfo&                       call_info,
+                                                               format::HandleId                         object_id,
+                                                               format::HandleId                         pDstResource,
+                                                               UINT                                     DstSubresource,
+                                                               StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                               PointerDecoder<uint8_t>*                 pSrcData,
+                                                               UINT                                     SrcRowPitch,
+                                                               UINT SrcDepthPitch) override;
+
+    virtual void Process_ID3D11DeviceContext1_UpdateSubresource1(const ApiCallInfo& call_info,
+                                                                 format::HandleId   object_id,
+                                                                 format::HandleId   pDstResource,
+                                                                 UINT               DstSubresource,
+                                                                 StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                                 PointerDecoder<uint8_t>*                 pSrcData,
+                                                                 UINT                                     SrcRowPitch,
+                                                                 UINT                                     SrcDepthPitch,
+                                                                 UINT CopyFlags) override;
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture2D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE2D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture2D1*>*              ppTexture2D) override;
+
+    virtual void
+    Process_ID3D11Device3_CreateTexture3D1(const ApiCallInfo&                                    call_info,
+                                           format::HandleId                                      object_id,
+                                           HRESULT                                               return_value,
+                                           StructPointerDecoder<Decoded_D3D11_TEXTURE3D_DESC1>*  pDesc,
+                                           StructPointerDecoder<Decoded_D3D11_SUBRESOURCE_DATA>* pInitialData,
+                                           HandlePointerDecoder<ID3D11Texture3D1*>*              ppTexture3D) override;
+
+    virtual void Process_ID3D11Device3_WriteToSubresource(const ApiCallInfo&                       call_info,
+                                                          format::HandleId                         object_id,
+                                                          format::HandleId                         pDstResource,
+                                                          UINT                                     DstSubresource,
+                                                          StructPointerDecoder<Decoded_D3D11_BOX>* pDstBox,
+                                                          PointerDecoder<uint8_t>*                 pSrcData,
+                                                          UINT                                     SrcRowPitch,
+                                                          UINT SrcDepthPitch) override;
+
     template <typename T>
     T* MapObject(const format::HandleId id)
     {
@@ -261,7 +343,7 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         if (handles_pointer != nullptr)
         {
             // The handle and ID array sizes are expected to be the same for mapping operations.
-            assert(handles_len == handles_pointer->GetLength());
+            assert((handles_len == handles_pointer->GetLength()) || (handles_len == 0xffffffff));
 
             handles = object_mapping::MapObjectArray(handles_pointer, object_info_table_);
         }
@@ -270,24 +352,51 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
     }
 
     template <typename T>
+    void SetDebugObjectName(T object, const format::HandleId p_id, format::ApiCallId call_id)
+    {
+        GFXRECON_ASSERT(object != nullptr);
+        const std::wstring constructed_name = ConstructObjectName(p_id, call_id);
+
+        HRESULT res = object->SetPrivateData(WKPDID_D3DDebugObjectNameW,
+                                             static_cast<uint32_t>(constructed_name.length() * sizeof(wchar_t)),
+                                             constructed_name.c_str());
+        GFXRECON_ASSERT(SUCCEEDED(res));
+    }
+
+    template <typename T>
     void SetObjectName(const format::HandleId* p_id, T** pp_object, format::ApiCallId call_id)
     {
         if ((p_id != nullptr) && (pp_object != nullptr) && (*pp_object != nullptr))
         {
-            // Restrict ID3D12Object name overriding to D3D12 create calls
-            if (format::GetApiCallFamily(call_id) == format::ApiFamilyId::ApiFamily_D3D12)
+            // Restrict ID3D12Object name overriding to D3D11 and D3D12 create calls
+            auto api_family = format::GetApiCallFamily(call_id);
+            if (api_family == format::ApiFamilyId::ApiFamily_D3D12)
             {
                 IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
 
                 graphics::dx12::ID3D12ObjectComPtr object;
 
                 // See if this is a D3D12Object
-                if (SUCCEEDED(iunknown->QueryInterface(IID_ID3D12Object, reinterpret_cast<void**>(&object))))
+                if (SUCCEEDED(iunknown->QueryInterface(IID_PPV_ARGS(&object))))
                 {
-                    const std::wstring constructed_name = ConstructObjectName(*p_id, call_id);
+                    SetDebugObjectName(object, *p_id, call_id);
+                }
+            }
+            else if (api_family == format::ApiFamilyId::ApiFamily_D3D11)
+            {
+                IUnknown* iunknown = reinterpret_cast<IUnknown*>(*pp_object);
 
-                    HRESULT res = object->SetName(constructed_name.c_str());
-                    GFXRECON_ASSERT(res == S_OK);
+                graphics::dx12::ID3D11DeviceChildComPtr device_child;
+                graphics::dx12::ID3D11DeviceComPtr      device;
+
+                // See if this is a ID3D11DeviceChild or ID3D11Device.
+                if (SUCCEEDED(iunknown->QueryInterface(IID_PPV_ARGS(&device_child))))
+                {
+                    SetDebugObjectName(device_child, *p_id, call_id);
+                }
+                else if (SUCCEEDED(iunknown->QueryInterface(IID_PPV_ARGS(&device))))
+                {
+                    SetDebugObjectName(device, *p_id, call_id);
                 }
             }
         }
@@ -301,6 +410,75 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
         if (options_.override_object_names)
         {
             SetObjectName(p_id, pp_object, call_id);
+        }
+    }
+
+    template <typename T>
+    void AddObjects(
+        const format::HandleId* p_ids, size_t ids_len, T** pp_objects, size_t objects_len, format::ApiCallId call_id)
+    {
+        if ((p_ids != nullptr) && (pp_objects != nullptr))
+        {
+            size_t len = objects_len;
+            if (ids_len < objects_len)
+            {
+                len = ids_len;
+
+                // More objects were retrieved at replay than were retrieved at capture. The additional objects do not
+                // have IDs and cannot be added to the object table. Release the objects to avoid leaking.
+                for (auto i = ids_len; i < objects_len; ++i)
+                {
+                    reinterpret_cast<IUnknown*>(pp_objects[i])->Release();
+                }
+            }
+
+            for (size_t i = 0; i < len; ++i)
+            {
+                object_mapping::AddObject(&p_ids[i], &pp_objects[i], &object_info_table_);
+
+                if (options_.override_object_names)
+                {
+                    SetObjectName(&p_ids[i], &pp_objects[i], call_id);
+                }
+            }
+        }
+    }
+
+    template <typename T>
+    void AddObjects(const format::HandleId* p_ids,
+                    size_t                  ids_len,
+                    T**                     pp_objects,
+                    size_t                  objects_len,
+                    std::vector<T>&&        initial_infos,
+                    format::ApiCallId       call_id)
+    {
+        if ((p_ids != nullptr) && (pp_objects != nullptr))
+        {
+            size_t len = objects_len;
+            if (ids_len < objects_len)
+            {
+                len = ids_len;
+
+                // More objects were retrieved at replay than were retrieved at capture. The additional objects do not
+                // have IDs and cannot be added to the object table. Release the objects to avoid leaking.
+                for (auto i = ids_len; i < objects_len; ++i)
+                {
+                    reinterpret_cast<IUnknown*>(pp_objects[i])->Release();
+                }
+            }
+
+            assert(len <= initial_infos.size());
+
+            for (size_t i = 0; i < len; ++i)
+            {
+                auto info_iter = std::next(initial_infos.begin(), i);
+                object_mapping::AddObject(&p_ids[i], &pp_objects[i], std::move(*info_iter), &object_info_table_);
+
+                if (options_.override_object_names)
+                {
+                    SetObjectName(&p_ids[i], &pp_objects[i], call_id);
+                }
+            }
         }
     }
 
@@ -373,6 +551,32 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                                                    D3D_FEATURE_LEVEL            minimum_feature_level,
                                                    Decoded_GUID                 riid,
                                                    HandlePointerDecoder<void*>* device);
+
+    HRESULT OverrideD3D11CreateDevice(HRESULT                                     original_result,
+                                      DxObjectInfo*                               adapter_info,
+                                      D3D_DRIVER_TYPE                             driver_type,
+                                      uint64_t                                    software,
+                                      UINT                                        flags,
+                                      PointerDecoder<D3D_FEATURE_LEVEL>*          feature_levels,
+                                      UINT                                        num_feature_levels,
+                                      UINT                                        sdk_version,
+                                      HandlePointerDecoder<ID3D11Device*>*        device,
+                                      PointerDecoder<D3D_FEATURE_LEVEL>*          feature_level,
+                                      HandlePointerDecoder<ID3D11DeviceContext*>* immediate_context);
+
+    HRESULT OverrideD3D11CreateDeviceAndSwapChain(HRESULT                            original_result,
+                                                  DxObjectInfo*                      adapter_info,
+                                                  D3D_DRIVER_TYPE                    driver_type,
+                                                  uint64_t                           software,
+                                                  UINT                               flags,
+                                                  PointerDecoder<D3D_FEATURE_LEVEL>* feature_levels,
+                                                  UINT                               num_feature_levels,
+                                                  UINT                               sdk_version,
+                                                  StructPointerDecoder<Decoded_DXGI_SWAP_CHAIN_DESC>* swapchain_desc,
+                                                  HandlePointerDecoder<IDXGISwapChain*>*              swapchain,
+                                                  HandlePointerDecoder<ID3D11Device*>*                device,
+                                                  PointerDecoder<D3D_FEATURE_LEVEL>*                  feature_level,
+                                                  HandlePointerDecoder<ID3D11DeviceContext*>* immediate_context);
 
     void ProcessDxgiAdapterInfo(const format::DxgiAdapterInfoCommandHeader& adapter_info_header);
 
@@ -852,6 +1056,52 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     void OverrideExecuteBundle(DxObjectInfo* replay_object_info, DxObjectInfo* command_list_object_info);
 
+    HRESULT OverrideDeviceContextMap(DxObjectInfo*                                           replay_object_info,
+                                     HRESULT                                                 return_value,
+                                     DxObjectInfo*                                           resource_object_info,
+                                     UINT                                                    subresource,
+                                     D3D11_MAP                                               map_type,
+                                     UINT                                                    map_flags,
+                                     StructPointerDecoder<Decoded_D3D11_MAPPED_SUBRESOURCE>* mapped_resource);
+
+    void
+    OverrideDeviceContextUnmap(DxObjectInfo* replay_object_info, DxObjectInfo* resource_object_info, UINT subresource);
+
+    HRESULT OverrideDeviceContextGetData(DxObjectInfo*            replay_object_info,
+                                         HRESULT                  original_result,
+                                         DxObjectInfo*            async_object_info,
+                                         PointerDecoder<uint8_t>* data,
+                                         UINT                     data_size,
+                                         UINT                     get_data_flags);
+
+    HRESULT OverrideCreateDeferredContext(DxObjectInfo*                               replay_object_info,
+                                          HRESULT                                     original_result,
+                                          UINT                                        context_flags,
+                                          HandlePointerDecoder<ID3D11DeviceContext*>* deferred_context);
+
+    HRESULT OverrideCreateDeferredContext1(DxObjectInfo*                                replay_object_info,
+                                           HRESULT                                      original_result,
+                                           UINT                                         context_flags,
+                                           HandlePointerDecoder<ID3D11DeviceContext1*>* deferred_context);
+
+    HRESULT OverrideCreateDeferredContext2(DxObjectInfo*                                replay_object_info,
+                                           HRESULT                                      original_result,
+                                           UINT                                         context_flags,
+                                           HandlePointerDecoder<ID3D11DeviceContext2*>* deferred_context);
+
+    HRESULT OverrideCreateDeferredContext3(DxObjectInfo*                                replay_object_info,
+                                           HRESULT                                      original_result,
+                                           UINT                                         context_flags,
+                                           HandlePointerDecoder<ID3D11DeviceContext3*>* deferred_context);
+
+    void OverrideDevice3ReadFromSubresource(DxObjectInfo*                            replay_object_info,
+                                            uint64_t                                 dst_data,
+                                            UINT                                     dst_row_pitch,
+                                            UINT                                     dst_depth_pitch,
+                                            DxObjectInfo*                            src_resource,
+                                            UINT                                     src_subresource,
+                                            StructPointerDecoder<Decoded_D3D11_BOX>* src_box);
+
     const Dx12ObjectInfoTable& GetObjectInfoTable() const { return object_info_table_; }
 
     Dx12ObjectInfoTable& GetObjectInfoTable() { return object_info_table_; }
@@ -895,14 +1145,72 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     Dx12ResourceValueMapper* GetResourceValueMapper() { return resource_value_mapper_.get(); }
 
+    template <typename CountT>
+    void SetOutputArrayCount(format::HandleId object_id, VariableLengthArrayIndices index, CountT count)
+    {
+        auto info = GetObjectInfo(object_id);
+        if (info != nullptr)
+        {
+            info->array_counts[index] = static_cast<size_t>(count);
+        }
+    }
+
+    template <typename CountT, typename ArrayT>
+    CountT GetOutputArrayCount(const char*                   func_name,
+                               HRESULT                       original_result,
+                               format::HandleId              object_id,
+                               VariableLengthArrayIndices    index,
+                               const PointerDecoder<CountT>* original_count,
+                               const ArrayT*                 original_array)
+    {
+        assert((original_count != nullptr) && (original_array != nullptr));
+
+        CountT replay_count = 0;
+
+        if (!original_count->IsNull())
+        {
+            // Start with array count set equal to the capture count and then adjust if the replay count is different.
+            replay_count = (*original_count->GetPointer());
+
+            // When the array parameter is not null, adjust the count using the value stored by the previous call with a
+            // null array parameter. But only adjust the replay array count if the call succeeded on capture so that
+            // errors generated at capture continue to be generated at replay.
+            if (!original_array->IsNull() && (original_result == S_OK))
+            {
+                auto info = GetObjectInfo(object_id);
+                if (info != nullptr)
+                {
+                    auto entry = info->array_counts.find(index);
+                    if ((entry != info->array_counts.end()) && (entry->second != replay_count))
+                    {
+                        GFXRECON_LOG_INFO("Replay adjusted the %s array count: capture count = %" PRIuPTR
+                                          ", replay count = %" PRIuPTR,
+                                          func_name,
+                                          static_cast<size_t>(replay_count),
+                                          entry->second);
+                        replay_count = static_cast<CountT>(entry->second);
+                    }
+                }
+            }
+        }
+
+        return replay_count;
+    }
+
+  protected:
     DxReplayOptions                    options_;
     std::unique_ptr<Dx12DumpResources> dump_resources_{ nullptr };
 
   private:
     struct MappedMemoryEntry
     {
-        void*            data_pointer{ 0 };
-        format::HandleId resource_id{ format::kNullHandleId };
+        void*              data_pointer{ 0 };
+        format::HandleId   resource_id{ format::kNullHandleId };
+        D3D11ResourceInfo* resource_info{ nullptr };
+        uint32_t           capture_row_pitch_{ 0 };
+        uint32_t           capture_slice_pitch_{ 0 };
+        uint32_t           replay_row_pitch_{ 0 };
+        uint32_t           replay_slice_pitch_{ 0 };
     };
 
     struct ResourceInitInfo
@@ -950,13 +1258,14 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
                            DxObjectInfo*                                                  restrict_to_output_info,
                            HandlePointerDecoder<IDXGISwapChain1*>*                        swapchain);
 
-    void SetSwapchainInfo(DxObjectInfo* info,
-                          Window*       window,
-                          uint64_t      hwnd_id,
-                          HWND          hwnd,
-                          uint32_t      image_count,
-                          IUnknown*     queue_iunknown,
-                          bool          windowed);
+    void SetSwapchainInfo(DxObjectInfo*    info,
+                          Window*          window,
+                          uint64_t         hwnd_id,
+                          HWND             hwnd,
+                          DXGI_SWAP_EFFECT swap_effect,
+                          uint32_t         image_count,
+                          IUnknown*        queue_iunknown,
+                          bool             windowed);
 
     void ResetSwapchainImages(DxObjectInfo* info, uint32_t buffer_count, uint32_t width, uint32_t height);
 
@@ -1021,7 +1330,8 @@ class Dx12ReplayConsumerBase : public Dx12Consumer
 
     std::wstring ConstructObjectName(format::HandleId capture_id, format::ApiCallId call_id);
 
-    std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer_;
+    std::unique_ptr<graphics::DX11ImageRenderer>          frame_buffer_renderer11_;
+    std::unique_ptr<graphics::DX12ImageRenderer>          frame_buffer_renderer12_;
     Dx12ObjectInfoTable                                   object_info_table_;
     std::shared_ptr<application::Application>             application_;
     std::unordered_set<Window*>                           active_windows_;
