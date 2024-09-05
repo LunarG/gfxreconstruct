@@ -84,7 +84,8 @@ class Dx12ResourceDataUtil
                              std::vector<uint8_t>&                       data,
                              std::vector<uint64_t>&                      subresource_offsets,
                              std::vector<uint64_t>&                      subresource_sizes,
-                             ID3D12Resource*                             staging_buffer_for_batching = nullptr);
+                             ID3D12Resource*                             staging_buffer_for_batching = nullptr,
+                             ID3D12CommandQueue*                         queue                       = nullptr);
 
     HRESULT WriteToResource(ID3D12Resource*                             target_resource,
                             bool                                        try_map_and_copy,
@@ -114,7 +115,8 @@ class Dx12ResourceDataUtil
                            const std::vector<dx12::ResourceStateInfo>&            before_states,
                            const std::vector<dx12::ResourceStateInfo>&            after_states,
                            ID3D12Resource*                                        staging_buffer = nullptr,
-                           bool                                                   batching       = false);
+                           bool                                                   batching       = false,
+                           ID3D12CommandQueue*                                    queue          = nullptr);
 
     // Build and execute a command list to transition the target resource's subresources from before_states to
     // after_states.
