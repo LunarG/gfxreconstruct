@@ -4483,8 +4483,8 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
         auto entry = device_info->opaque_addresses.find(memory_info->capture_id);
         if (entry != device_info->opaque_addresses.end())
         {
-            uint64_t                      memory_device_address   = entry->second;
-            uint64_t                      original_buffer_address = memory_device_address + memoryOffset;
+            uint64_t                  memory_device_address   = entry->second;
+            uint64_t                  original_buffer_address = memory_device_address + memoryOffset;
             VkBufferDeviceAddressInfo info                    = {};
             info.sType                                        = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
             info.pNext                                        = nullptr;
@@ -7835,7 +7835,6 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
 
     // track device-addresses
     GetBufferTracker(device).TrackBuffer(buffer_info);
-    
     return replay_device_address;
 }
 
