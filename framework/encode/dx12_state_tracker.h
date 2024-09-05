@@ -1,6 +1,6 @@
 /*
 ** Copyright (c) 2021 LunarG, Inc.
-** Copyright (c) 2022-2023 Advanced Micro Devices, Inc. All rights reserved.
+** Copyright (c) 2022-2024 Advanced Micro Devices, Inc. All rights reserved.
 **
 ** Permission is hereby granted, free of charge, to any person obtaining a
 ** copy of this software and associated documentation files (the "Software"),
@@ -153,7 +153,8 @@ class Dx12StateTracker
 
     void TrackCommandListCreation(ID3D12CommandList_Wrapper* list_wrapper,
                                   bool                       created_closed,
-                                  D3D12_COMMAND_LIST_TYPE    command_list_type);
+                                  D3D12_COMMAND_LIST_TYPE    command_list_type,
+                                  ID3D12CommandAllocator*    pCommandAllocator);
 
     void TrackAcquireImage(UINT image_index, IDXGISwapChain_Wrapper* wrapper);
 
