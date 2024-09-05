@@ -33,6 +33,7 @@
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_util.h"
 #include "util/compressor.h"
 #include "util/logging.h"
@@ -1001,33 +1002,22 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
     VkMemoryAllocateInfo* pAllocateInfo_unwrapped =
         const_cast<VkMemoryAllocateInfo*>(vulkan_wrappers::UnwrapStructPtrHandles(pAllocateInfo, handle_unwrap_memory));
 
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info =
-        FindAllocateMemoryExtensions(pAllocateInfo_unwrapped);
-#endif
-
     bool                   uses_address         = false;
     VkMemoryAllocateFlags* modified_alloc_flags = nullptr;
     VkMemoryAllocateFlags  incoming_alloc_flags;
     if (device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
     {
-        VkBaseOutStructure* current_struct = reinterpret_cast<VkBaseOutStructure*>(pAllocateInfo_unwrapped)->pNext;
-        while (current_struct != nullptr)
+        if (auto alloc_flags_info =
+                graphics::vulkan_struct_get_pnext<VkMemoryAllocateFlagsInfo>(pAllocateInfo_unwrapped))
         {
-            if (current_struct->sType == VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO)
+            if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
+                VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
             {
-                auto alloc_flags_info = reinterpret_cast<VkMemoryAllocateFlagsInfo*>(current_struct);
-                if ((alloc_flags_info->flags & VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT) ==
-                    VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT)
-                {
-                    uses_address         = true;
-                    incoming_alloc_flags = alloc_flags_info->flags;
-                    alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
-                    modified_alloc_flags = &(alloc_flags_info->flags);
-                }
-                break;
+                uses_address         = true;
+                incoming_alloc_flags = alloc_flags_info->flags;
+                alloc_flags_info->flags |= VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_CAPTURE_REPLAY_BIT;
+                modified_alloc_flags = &(alloc_flags_info->flags);
             }
-            current_struct = current_struct->pNext;
         }
     }
 
@@ -1127,9 +1117,13 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
         }
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        if ((import_ahb_info != nullptr) && (import_ahb_info->buffer != nullptr))
+        if (auto import_ahb_info =
+                graphics::vulkan_struct_get_pnext<VkImportAndroidHardwareBufferInfoANDROID>(pAllocateInfo_unwrapped))
         {
-            ProcessImportAndroidHardwareBuffer(device, *pMemory, import_ahb_info->buffer);
+            if (import_ahb_info->buffer != nullptr)
+            {
+                ProcessImportAndroidHardwareBuffer(device, *pMemory, import_ahb_info->buffer);
+            }
         }
 #endif
     }
@@ -1669,32 +1663,6 @@ VkMemoryPropertyFlags VulkanCaptureManager::GetMemoryProperties(vulkan_wrappers:
     assert(memory_type_index < memory_properties->memoryTypeCount);
 
     return memory_properties->memoryTypes[memory_type_index].propertyFlags;
-}
-
-const VkImportAndroidHardwareBufferInfoANDROID*
-VulkanCaptureManager::FindAllocateMemoryExtensions(const VkMemoryAllocateInfo* allocate_info)
-{
-    const VkImportAndroidHardwareBufferInfoANDROID* import_ahb_info = nullptr;
-
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-    assert(allocate_info != nullptr);
-
-    const VkBaseInStructure* pnext = reinterpret_cast<const VkBaseInStructure*>(allocate_info->pNext);
-    while (pnext != nullptr)
-    {
-        if (pnext->sType == VK_STRUCTURE_TYPE_IMPORT_ANDROID_HARDWARE_BUFFER_INFO_ANDROID)
-        {
-            import_ahb_info = reinterpret_cast<const VkImportAndroidHardwareBufferInfoANDROID*>(pnext);
-            break;
-        }
-
-        pnext = pnext->pNext;
-    }
-#else
-    GFXRECON_UNREFERENCED_PARAMETER(allocate_info);
-#endif
-
-    return import_ahb_info;
 }
 
 void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice device, AHardwareBuffer* hardware_buffer)
@@ -2748,27 +2716,14 @@ bool VulkanCaptureManager::CheckCommandBufferWrapperForFrameBoundary(
 
 bool VulkanCaptureManager::CheckPNextChainForFrameBoundary(const VkBaseInStructure* current)
 {
-    if (current == nullptr)
+    if (auto frame_boundary = graphics::vulkan_struct_get_pnext<VkFrameBoundaryEXT>(current))
     {
-        return false;
-    }
-
-    while (current->sType != VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT && current->pNext != nullptr)
-    {
-        current = current->pNext;
-    }
-
-    if (current->sType == VK_STRUCTURE_TYPE_FRAME_BOUNDARY_EXT)
-    {
-        const VkFrameBoundaryEXT* frame_boundary = reinterpret_cast<const VkFrameBoundaryEXT*>(current);
-
         if (frame_boundary->flags & VK_FRAME_BOUNDARY_FRAME_END_BIT_EXT)
         {
             EndFrame();
             return true;
         }
     }
-
     return false;
 }
 

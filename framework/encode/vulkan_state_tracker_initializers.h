@@ -32,6 +32,7 @@
 #include "util/defines.h"
 #include "util/logging.h"
 #include "util/memory_output_stream.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 
 #include "vulkan/vulkan.h"
 
@@ -272,15 +273,9 @@ inline void InitializeState<VkDevice, vulkan_wrappers::SemaphoreWrapper, VkSemap
 
     wrapper->device = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(parent_handle);
 
-    auto next = reinterpret_cast<const VkBaseInStructure*>(create_info->pNext);
-    while (next)
+    if (auto semaphore_type = graphics::vulkan_struct_get_pnext<VkSemaphoreTypeCreateInfo>(create_info))
     {
-        if (next->sType == VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO)
-        {
-            auto semaphore_type = reinterpret_cast<const VkSemaphoreTypeCreateInfo*>(next);
-            wrapper->type       = semaphore_type->semaphoreType;
-        }
-        next = next->pNext;
+        wrapper->type = semaphore_type->semaphoreType;
     }
 }
 

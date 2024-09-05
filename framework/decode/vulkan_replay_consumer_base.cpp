@@ -41,6 +41,7 @@
 #include "graphics/vulkan_check_buffer_references.h"
 #include "graphics/vulkan_device_util.h"
 #include "graphics/vulkan_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 #include "graphics/vulkan_struct_deep_copy.h"
 #include "graphics/vulkan_struct_extract_handles.h"
 #include "util/file_path.h"
@@ -1297,33 +1298,16 @@ void VulkanReplayConsumerBase::SetPhysicalDeviceProperties(PhysicalDeviceInfo*  
 {
     SetPhysicalDeviceProperties(physical_device_info, &capture_properties->properties, &replay_properties->properties);
 
-    auto get_ray_properties =
-        [](const VkPhysicalDeviceProperties2* device_props) -> const VkPhysicalDeviceRayTracingPipelinePropertiesKHR* {
-        if (device_props != nullptr)
-        {
-            const void* pNext = device_props->pNext;
-
-            while (pNext != nullptr)
-            {
-                auto base = reinterpret_cast<const VkBaseInStructure*>(pNext);
-                if (base->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR)
-                {
-                    return reinterpret_cast<const VkPhysicalDeviceRayTracingPipelinePropertiesKHR*>(base);
-                }
-                pNext = base->pNext;
-            }
-        }
-        return nullptr;
-    };
-
-    if (auto ray_capture_props = get_ray_properties(capture_properties))
+    if (auto ray_capture_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(capture_properties))
     {
         physical_device_info->shaderGroupBaseAlignment   = ray_capture_props->shaderGroupBaseAlignment;
         physical_device_info->shaderGroupHandleAlignment = ray_capture_props->shaderGroupHandleAlignment;
         physical_device_info->shaderGroupHandleSize      = ray_capture_props->shaderGroupHandleSize;
     }
 
-    if (auto ray_replay_props = get_ray_properties(replay_properties))
+    if (auto ray_replay_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(replay_properties))
     {
         physical_device_info->replay_device_info->raytracing_properties        = *ray_replay_props;
         physical_device_info->replay_device_info->raytracing_properties->pNext = nullptr;
@@ -1949,25 +1933,16 @@ void VulkanReplayConsumerBase::ProcessCreateInstanceDebugCallbackInfo(const Deco
 {
     assert(instance_info != nullptr);
 
-    if (instance_info->pNext != nullptr)
+    if (auto debug_report_info =
+            graphics::vulkan_struct_get_pnext<VkDebugReportCallbackCreateInfoEXT>(instance_info->decoded_value))
     {
-        // 'Out' struct for non-const pNext pointers.
-        auto pnext = reinterpret_cast<VkBaseOutStructure*>(instance_info->pNext->GetPointer());
-        while (pnext != nullptr)
-        {
-            if (pnext->sType == VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT)
-            {
-                auto debug_report_info         = reinterpret_cast<VkDebugReportCallbackCreateInfoEXT*>(pnext);
-                debug_report_info->pfnCallback = DebugReportCallback;
-            }
-            else if (pnext->sType == VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT)
-            {
-                auto debug_utils_info             = reinterpret_cast<VkDebugUtilsMessengerCreateInfoEXT*>(pnext);
-                debug_utils_info->pfnUserCallback = DebugUtilsCallback;
-            }
+        debug_report_info->pfnCallback = DebugReportCallback;
+    }
 
-            pnext = pnext->pNext;
-        }
+    if (auto debug_utils_info =
+            graphics::vulkan_struct_get_pnext<VkDebugUtilsMessengerCreateInfoEXT>(instance_info->decoded_value))
+    {
+        debug_utils_info->pfnUserCallback = DebugUtilsCallback;
     }
 }
 
@@ -1976,49 +1951,38 @@ void VulkanReplayConsumerBase::ProcessSwapchainFullScreenExclusiveInfo(
 {
     assert(swapchain_info != nullptr);
 
-    if (swapchain_info->pNext != nullptr)
+    if (auto full_screen_info =
+            graphics::vulkan_struct_get_pnext<VkSurfaceFullScreenExclusiveWin32InfoEXT>(swapchain_info->decoded_value))
     {
-        // 'Out' struct for non-const pNext pointers.
-        auto pnext = reinterpret_cast<VkBaseOutStructure*>(swapchain_info->pNext->GetPointer());
-        while (pnext != nullptr)
-        {
-            if (pnext->sType == VK_STRUCTURE_TYPE_SURFACE_FULL_SCREEN_EXCLUSIVE_WIN32_INFO_EXT)
-            {
 #if defined(VK_USE_PLATFORM_WIN32_KHR)
-                // Get the surface info from the Decoded_VkSwapchainCreateInfoKHR handle id.
-                HMONITOR   hmonitor     = nullptr;
-                const auto surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface);
+        // Get the surface info from the Decoded_VkSwapchainCreateInfoKHR handle id.
+        HMONITOR   hmonitor     = nullptr;
+        const auto surface_info = object_info_table_.GetSurfaceKHRInfo(swapchain_info->surface);
 
-                if ((surface_info != nullptr) && (surface_info->window != nullptr))
-                {
-                    // Try to retrieve an HWND value from the window.
-                    HWND hwnd = nullptr;
-                    if (surface_info->window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
-                    {
-                        hmonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-                    }
-                }
-
-                if (hmonitor != nullptr)
-                {
-                    auto full_screen_info      = reinterpret_cast<VkSurfaceFullScreenExclusiveWin32InfoEXT*>(pnext);
-                    full_screen_info->hmonitor = hmonitor;
-                }
-                else
-                {
-                    GFXRECON_LOG_WARNING(
-                        "Failed to obtain a valid HMONITOR handle for the VkSurfaceFullScreenExclusiveWin32InfoEXT "
-                        "extension structure provided to vkCreateSwapchainKHR")
-                }
-#else
-                GFXRECON_LOG_WARNING("vkCreateSwapchainKHR called with the VkSurfaceFullScreenExclusiveWin32InfoEXT "
-                                     "extension structure, which is not supported by this platform")
-#endif
-                break;
+        if ((surface_info != nullptr) && (surface_info->window != nullptr))
+        {
+            // Try to retrieve an HWND value from the window.
+            HWND hwnd = nullptr;
+            if (surface_info->window->GetNativeHandle(Window::kWin32HWnd, reinterpret_cast<void**>(&hwnd)))
+            {
+                hmonitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
             }
-
-            pnext = pnext->pNext;
         }
+
+        if (hmonitor != nullptr)
+        {
+            full_screen_info->hmonitor = hmonitor;
+        }
+        else
+        {
+            GFXRECON_LOG_WARNING(
+                "Failed to obtain a valid HMONITOR handle for the VkSurfaceFullScreenExclusiveWin32InfoEXT "
+                "extension structure provided to vkCreateSwapchainKHR")
+        }
+#else
+        GFXRECON_LOG_WARNING("vkCreateSwapchainKHR called with the VkSurfaceFullScreenExclusiveWin32InfoEXT "
+                             "extension structure, which is not supported by this platform")
+#endif
     }
 }
 
