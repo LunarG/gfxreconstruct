@@ -45,6 +45,7 @@ struct IUnknown_Wrapper;
 class ID3D12Resource_Wrapper;
 class ID3D12Device_Wrapper;
 class ID3D12Heap_Wrapper;
+class IDXGISwapChain_Wrapper;
 
 struct GUID_Hash
 {
@@ -414,6 +415,8 @@ struct ID3D12ResourceInfo : public DxWrapperInfo
 
     ID3D12Heap_Wrapper* heap_wrapper{ nullptr };
     uint64_t            heap_offset;
+
+    IDXGISwapChain_Wrapper* swapchain_wrapper{ nullptr };
 };
 
 struct ID3D12HeapInfo : public DxWrapperInfo

@@ -388,7 +388,8 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
                                                std::vector<uint8_t>&                       data,
                                                std::vector<uint64_t>&                      subresource_offsets,
                                                std::vector<uint64_t>&                      subresource_sizes,
-                                               ID3D12Resource*                             staging_buffer_for_batching)
+                                               ID3D12Resource*                             staging_buffer_for_batching,
+                                               ID3D12CommandQueue*                         queue)
 {
     HRESULT result = E_FAIL;
 
@@ -441,7 +442,8 @@ HRESULT Dx12ResourceDataUtil::ReadFromResource(ID3D12Resource*                  
                                     before_states,
                                     after_states,
                                     staging_resource,
-                                    batching);
+                                    batching,
+                                    queue);
 
     // After the command list has completed, map the copy resource and read its data.
     if (!batching && SUCCEEDED(result))
@@ -778,7 +780,8 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                                              const std::vector<dx12::ResourceStateInfo>&            before_states,
                                              const std::vector<dx12::ResourceStateInfo>&            after_states,
                                              ID3D12Resource*                                        staging_buffer,
-                                             bool                                                   batching)
+                                             bool                                                   batching,
+                                             ID3D12CommandQueue*                                    queue)
 {
     // Make sure the target resource is resident.
     ID3D12Pageable* const pageable = target_resource;
@@ -822,7 +825,7 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
                 result = command_list_->Close();
                 if (SUCCEEDED(result))
                 {
-                    result = ExecuteAndWaitForCommandList();
+                    result = ExecuteAndWaitForCommandList(queue);
                 }
             }
         }

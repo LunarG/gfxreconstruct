@@ -393,6 +393,8 @@ void D3D12CaptureManager::InitializeSwapChainBufferResourceInfo(IDXGISwapChain_W
     auto info = resource_wrapper->GetObjectInfo();
     GFXRECON_ASSERT(info);
 
+    info->swapchain_wrapper = wrapper;
+
     // Get the swapchain's native ID3D12Device
     graphics::dx12::ID3D12DeviceComPtr device;
     wrapper->GetDevice(IID_PPV_ARGS(&device));
