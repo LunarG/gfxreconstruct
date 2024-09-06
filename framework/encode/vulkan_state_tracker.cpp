@@ -938,9 +938,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     break;
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_NV:
                     {
-                        VkWriteDescriptorSetAccelerationStructureNV* write_accel_struct =
-                            graphics::GetPNextStruct<VkWriteDescriptorSetAccelerationStructureNV>(
-                                write, VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_NV);
+                        const VkWriteDescriptorSetAccelerationStructureNV* write_accel_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureNV>(write);
 
                         if (write_accel_struct != nullptr)
                         {
