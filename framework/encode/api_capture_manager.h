@@ -26,6 +26,8 @@
 #define GFXRECON_ENCODE_API_CAPTURE_MANAGER_H
 
 #include "encode/capture_manager.h"
+#include "format/format.h"
+#include "vulkan/vulkan_core.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -37,7 +39,7 @@ class ApiCaptureManager
     void SetCommonManager(CommonCaptureManager* common_manager) { common_manager_ = common_manager; }
 
     // Forwarded Statics
-    static format::HandleId GetUniqueId() { return CommonCaptureManager::GetUniqueId(); }
+    static format::HandleId GetUniqueId(VkObjectType type) { return CommonCaptureManager::GetUniqueId(type); }
     static auto AcquireSharedApiCallLock() { return std::move(CommonCaptureManager::AcquireSharedApiCallLock()); }
 
     static auto AcquireExclusiveApiCallLock() { return std::move(CommonCaptureManager::AcquireExclusiveApiCallLock()); }
@@ -195,6 +197,18 @@ class ApiCaptureManager
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
     {
         common_manager_->CombineAndWriteToFile<N>(buffers);
+    }
+
+    void SetUniqueIdOffset(format::HandleId id)
+    {
+        assert(common_manager_ != nullptr);
+        common_manager_->SetUniqueIdOffset(id);
+    }
+
+    void OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type)
+    {
+        assert(common_manager_ != nullptr);
+        common_manager_->OverrideIdForNextVulkanObject(id, type);
     }
 
     CommonCaptureManager::ThreadData* GetThreadData() { return common_manager_->GetThreadData(); }

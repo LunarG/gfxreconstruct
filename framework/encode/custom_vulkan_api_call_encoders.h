@@ -26,8 +26,10 @@
 
 #include "util/defines.h"
 #include "format/format.h"
+#include "custom_exported_layer_funcs.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -61,10 +63,6 @@ BuildAccelerationStructuresKHR(VkDevice                                         
 VKAPI_ATTR VkResult VKAPI_CALL CopyAccelerationStructureKHR(VkDevice                                  device,
                                                             VkDeferredOperationKHR                    deferredOperation,
                                                             const VkCopyAccelerationStructureInfoKHR* pInfo);
-
-VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR();
-
-VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR();
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
                                                        VkPipelineCache                     pipelineCache,

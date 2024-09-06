@@ -596,6 +596,18 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
 {
     VkResult result = VK_ERROR_INITIALIZATION_FAILED;
 
+    GFXRECON_WRITE_CONSOLE("[CAPTURE] %s()", __func__)
+    if (pCreateInfo->pApplicationInfo->pApplicationName)
+    {
+        GFXRECON_WRITE_CONSOLE("  pCreateInfo->pApplicationInfo->pApplicationName: %s",
+                               pCreateInfo->pApplicationInfo->pApplicationName)
+    }
+    if (pCreateInfo->pApplicationInfo->pEngineName)
+    {
+        GFXRECON_WRITE_CONSOLE("  pCreateInfo->pApplicationInfo->pEngineName: %s",
+                               pCreateInfo->pApplicationInfo->pEngineName)
+    }
+
     if (CreateInstance())
     {
         if (singleton_->IsPageGuardMemoryModeExternal())
@@ -1729,7 +1741,7 @@ void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
 #endif
 
             // Only store buffer IDs and reference count if a creation command is written to the capture file.
-            format::HandleId memory_id = GetUniqueId();
+            format::HandleId memory_id = GetUniqueId(VK_OBJECT_TYPE_UNKNOWN);
 
             HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
             ahb_info.memory_id           = memory_id;
@@ -1819,7 +1831,7 @@ void VulkanCaptureManager::ProcessReferenceToAndroidHardwareBuffer(VkDevice devi
         {
             // The AHB is not CPU-readable, so store only the creation command.
             // Only store buffer IDs and reference count if a creation command is written to the capture file.
-            format::HandleId memory_id = GetUniqueId();
+            format::HandleId memory_id = GetUniqueId(VK_OBJECT_TYPE_UNKNOWN);
 
             HardwareBufferInfo& ahb_info = hardware_buffers_[hardware_buffer];
             ahb_info.memory_id           = memory_id;
@@ -3532,6 +3544,17 @@ void VulkanCaptureManager::PostProcess_vkCmdBeginRendering(VkCommandBuffer      
     if (IsCaptureModeTrack())
     {
         state_tracker_->TrackBeginRendering(commandBuffer, pRenderingInfo);
+    }
+}
+
+void VulkanCaptureManager::LoadAssetFileOffsets(const format::AssetFileOffsets& offsets)
+{
+    GFXRECON_WRITE_CONSOLE("[CAPTURE] %s()", __func__);
+
+    if (IsCaptureModeTrack())
+    {
+        assert(state_tracker_ != nullptr);
+        state_tracker_->LoadAssetFileOffsets(offsets);
     }
 }
 

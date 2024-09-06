@@ -42,9 +42,21 @@ class AssetFileConsumer : public VulkanConsumer
   public:
     AssetFileConsumer() : current_frame_(0), greatest_id_(0)
     {
+#if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        if (util::platform::FileOpen(&debug_, "/storage/emulated/0/Download/AssetFileConsumer2.txt", "a"))
+#else
         if (util::platform::FileOpen(&debug_, "AssetFileConsumer.txt", "a"))
+#endif
         {
             assert(0);
+        }
+    }
+
+    ~AssetFileConsumer()
+    {
+        if (debug_)
+        {
+            util::platform::FileClose(debug_);
         }
     }
 
@@ -78,7 +90,17 @@ class AssetFileConsumer : public VulkanConsumer
                                    uint32_t                                            descriptorCopyCount,
                                    StructPointerDecoder<Decoded_VkCopyDescriptorSet>*  pDescriptorCopies) override;
 
-    const format::AssetFileOffsets* GetFrameAssetFileOffsets() { return &asset_file_offsets_; }
+    format::AssetFileOffsets GetFrameAssetFileOffsets() const
+    {
+        GFXRECON_WRITE_CONSOLE("%s()", __func__)
+        GFXRECON_WRITE_CONSOLE(" exporting %zu", asset_file_offsets_.size())
+        for (const auto frame : asset_file_offsets_)
+        {
+            GFXRECON_WRITE_CONSOLE("   ... %zu", frame.second.size())
+        }
+
+        return asset_file_offsets_;
+    }
 
     format::HandleId GetGreatestId() const { return greatest_id_; }
 

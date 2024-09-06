@@ -31,6 +31,8 @@
 #include "util/file_path.h"
 #include "util/platform.h"
 
+#include "decode/asset_file_consumer.h"
+
 #include "generated/generated_vulkan_json_consumer.h"
 #include "decode/marker_json_consumer.h"
 #include "decode/metadata_json_consumer.h"
@@ -174,8 +176,8 @@ int main(int argc, const char** argv)
     bool        file_per_frame       = arg_parser.IsOptionSet(kFilePerFrameOption);
     bool        output_to_stdout     = output_filename == "stdout";
 
-    bool is_asset_file = false;
-    size_t last_dot_pos = input_filename.find_last_of(".");
+    bool   is_asset_file = false;
+    size_t last_dot_pos  = input_filename.find_last_of(".");
     if (last_dot_pos != std::string::npos)
     {
         if (!input_filename.compare(last_dot_pos, 5, ".gfxa"))
@@ -240,72 +242,17 @@ int main(int argc, const char** argv)
         else
         {
             gfxrecon::util::FileNoLockOutputStream out_stream{ out_file_handle, false };
-            VulkanJsonConsumer                     json_consumer;
-            gfxrecon::util::JsonOptions            json_options;
+            gfxrecon::decode::AssetFileConsumer    asset_file_consumer;
             gfxrecon::decode::VulkanDecoder        decoder;
-            decoder.AddConsumer(&json_consumer);
+            decoder.AddConsumer(&asset_file_consumer);
             file_processor.AddDecoder(&decoder);
 
-            json_options.root_dir      = output_dir;
-            json_options.data_sub_dir  = filename_stem;
-            json_options.format        = output_format;
-            json_options.dump_binaries = dump_binaries;
-            json_options.expand_flags  = expand_flags;
-
-            gfxrecon::decode::JsonWriter json_writer{ json_options, GFXRECON_PROJECT_VERSION_STRING, input_filename };
-            file_processor.SetAnnotationProcessor(&json_writer);
-
-            bool              success = true;
-            const std::string vulkan_version{ std::to_string(VK_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                              std::to_string(VK_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)) + "." +
-                                              std::to_string(VK_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE)) };
-            json_consumer.Initialize(&json_writer, vulkan_version);
-            json_writer.StartStream(&out_stream);
-
-            // If CONVERT_EXPERIMENTAL_D3D12 was set, then add DX12 consumer/decoder
-#ifdef D3D12_SUPPORT
-            Dx12JsonConsumer              dx12_json_consumer;
-            gfxrecon::decode::Dx12Decoder dx12_decoder;
-
-            dx12_decoder.AddConsumer(&dx12_json_consumer);
-            file_processor.AddDecoder(&dx12_decoder);
-            auto dx12_json_flags = output_format == JsonFormat::JSON ? gfxrecon::util::kToString_Formatted
-                                                                     : gfxrecon::util::kToString_Unformatted;
-            dx12_json_consumer.Initialize(&json_writer);
-#endif
-
+            bool success = true;
             while (success)
             {
                 success = file_processor.ProcessNextFrame();
-                if (success && file_per_frame)
-                {
-                    json_writer.EndStream();
-                    gfxrecon::util::platform::FileClose(out_file_handle);
-                    json_filename = gfxrecon::util::filepath::InsertFilenamePostfix(
-                        output_filename, +"_" + FormatFrameNumber(file_processor.GetCurrentFrameNumber()));
-                    gfxrecon::util::platform::FileOpen(&out_file_handle, json_filename.c_str(), "w");
-                    success = out_file_handle != nullptr;
-                    if (success)
-                    {
-                        out_stream.Reset(out_file_handle);
-                        json_writer.StartStream(&out_stream);
-                    }
-                    else
-                    {
-                        GFXRECON_LOG_ERROR("Failed to create file: '%s'.", json_filename.c_str());
-                        ret_code = 1;
-                    }
-                }
             }
-            json_consumer.Destroy();
-            // If CONVERT_EXPERIMENTAL_D3D12 was set, then cleanup DX12 consumer
-#ifdef D3D12_SUPPORT
-            dx12_json_consumer.Destroy();
-#endif
-            if (!output_to_stdout)
-            {
-                gfxrecon::util::platform::FileClose(out_file_handle);
-            }
+
             if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
             {
                 GFXRECON_LOG_ERROR("Failed to process trace.");

@@ -40,11 +40,16 @@
 #include <atomic>
 #include <cassert>
 #include <mutex>
+#include <stack>
 #include <shared_mutex>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 #include "util/file_path.h"
+#include "util/logging.h"
+#include "util/to_string.h"
+#include "vulkan/vulkan_core.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -57,7 +62,7 @@ class CommonCaptureManager
   public:
     typedef std::shared_mutex ApiCallMutexT;
 
-    static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+    static format::HandleId GetUniqueId(VkObjectType type);
 
     static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }
 
@@ -265,7 +270,7 @@ class CommonCaptureManager
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
     std::string CreateAssetFile();
-    std::string CreateAssetFilename(const std::string& base_filename) const;
+    std::string CreateAssetFilename(const std::string& base_filename);
     std::string CreateFrameStateFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
@@ -321,6 +326,14 @@ class CommonCaptureManager
 
     bool WriteFrameStateFile();
 
+    void SetUniqueIdOffset(format::HandleId id)
+    {
+        GFXRECON_WRITE_CONSOLE("%s(id: %" PRIu64 ")", __func__, id);
+        unique_id_counter_ = id + 1;
+    }
+
+    void OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type);
+
   private:
     void WriteExecuteFromFile(util::FileOutputStream& out_stream,
                               const std::string&      filename,
@@ -342,11 +355,12 @@ class CommonCaptureManager
     static void AtExit();
 
   private:
-    static std::mutex                               instance_lock_;
-    static CommonCaptureManager*                    singleton_;
-    static thread_local std::unique_ptr<ThreadData> thread_data_;
-    static std::atomic<format::HandleId>            unique_id_counter_;
-    static ApiCallMutexT                            api_call_mutex_;
+    static std::mutex                                            instance_lock_;
+    static CommonCaptureManager*                                 singleton_;
+    static thread_local std::unique_ptr<ThreadData>              thread_data_;
+    static std::atomic<format::HandleId>                         unique_id_counter_;
+    static std::stack<std::pair<format::HandleId, VkObjectType>> handle_ids_override;
+    static ApiCallMutexT                                         api_call_mutex_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
@@ -405,6 +419,7 @@ class CommonCaptureManager
     bool                                    write_assets_;
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
+    std::string                             asset_file_name_;
 
     struct
     {

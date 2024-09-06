@@ -68,7 +68,7 @@ void AssetFileConsumer::ProcessInitBufferCommand(format::HandleId device_id,
     format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
     frame_offsets[buffer_id]                     = block_header_file_offset_;
     fprintf(debug_, "buffer %" PRIu64 " -> %" PRId64 "\n", buffer_id, block_header_file_offset_);
-    fsync(fileno(debug_));
+    // fsync(fileno(debug_));
 
     if (buffer_id > greatest_id_)
     {
@@ -94,7 +94,7 @@ void AssetFileConsumer::ProcessInitImageCommand(format::HandleId             dev
     format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
     frame_offsets[image_id]                      = block_header_file_offset_;
     fprintf(debug_, "image %" PRIu64 " -> %" PRId64 "\n", image_id, block_header_file_offset_);
-    fsync(fileno(debug_));
+    // fsync(fileno(debug_));
 
     if (image_id > greatest_id_)
     {
@@ -120,9 +120,9 @@ void AssetFileConsumer::Process_vkAllocateDescriptorSets(
         const format::HandleId desc_id = pDescriptorSets->GetPointer()[0];
 
         format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
-        frame_offsets[desc_id]                       = block_header_file_offset_;
+        asset_file_offsets_[current_frame_][desc_id]                       = block_header_file_offset_;
         fprintf(debug_, "%" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
-        fsync(fileno(debug_));
+        // fsync(fileno(debug_));
 
         if (desc_id > greatest_id_)
         {
@@ -151,7 +151,7 @@ void AssetFileConsumer::Process_vkUpdateDescriptorSets(
             if (new_entry.second)
             {
                 fprintf(debug_, "%" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
-                fsync(fileno(debug_));
+                // fsync(fileno(debug_));
             }
 
             if (desc_id > greatest_id_)

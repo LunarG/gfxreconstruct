@@ -3004,5 +3004,17 @@ void VulkanStateTracker::TrackBeginRendering(VkCommandBuffer commandBuffer, cons
     }
 }
 
+void VulkanStateTracker::LoadAssetFileOffsets(const format::AssetFileOffsets& offsets)
+{
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE(" importing %zu", offsets.size())
+    for (const auto frame : offsets)
+    {
+        GFXRECON_WRITE_CONSOLE("   ... %zu", frame.second.size())
+    }
+
+    asset_file_offsets_ = offsets;
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

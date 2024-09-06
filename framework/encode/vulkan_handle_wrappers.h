@@ -59,6 +59,10 @@ struct HandleWrapper
 {
     typedef T HandleType;
 
+    HandleWrapper(VkObjectType type) : vk_object_type(type) {}
+
+    const VkObjectType vk_object_type;
+
     // Dispatch table key for dispatchable handles. Must be the first struct member to be compatible with the
     // loader defined handles.
     void* dispatch_key{ nullptr };
@@ -74,23 +78,67 @@ struct HandleWrapper
 // Type definitions for handle wrappers that do not require additional state info.
 //
 
-// clang-format off
-struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
-struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
-struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
-struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
-struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
-struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct MicromapEXTWrapper                   : public HandleWrapper<VkMicromapEXT> {};
-struct OpticalFlowSessionNVWrapper          : public HandleWrapper<VkOpticalFlowSessionNV> {};
-struct VideoSessionKHRWrapper               : public HandleWrapper<VkVideoSessionKHR> {};
-struct VideoSessionParametersKHRWrapper     : public HandleWrapper<VkVideoSessionParametersKHR> {};
-struct ShaderEXTWrapper                     : public HandleWrapper<VkShaderEXT> {};
+struct SamplerYcbcrConversionWrapper : public HandleWrapper<VkSamplerYcbcrConversion>
+{
+    SamplerYcbcrConversionWrapper() : HandleWrapper(VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION) {}
+};
 
-// This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
-// handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
-struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR> {};
-// clang-format on
+struct DebugReportCallbackEXTWrapper : public HandleWrapper<VkDebugReportCallbackEXT>
+{
+    DebugReportCallbackEXTWrapper() : HandleWrapper(VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT) {}
+};
+
+struct DebugUtilsMessengerEXTWrapper : public HandleWrapper<VkDebugUtilsMessengerEXT>
+{
+    DebugUtilsMessengerEXTWrapper() : HandleWrapper(VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT) {}
+};
+
+struct ValidationCacheEXTWrapper : public HandleWrapper<VkValidationCacheEXT>
+{
+    ValidationCacheEXTWrapper() : HandleWrapper(VK_OBJECT_TYPE_VALIDATION_CACHE_EXT) {}
+};
+
+struct IndirectCommandsLayoutNVWrapper : public HandleWrapper<VkIndirectCommandsLayoutNV>
+{
+    IndirectCommandsLayoutNVWrapper() : HandleWrapper(VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV) {}
+};
+
+struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL>
+{
+    PerformanceConfigurationINTELWrapper() : HandleWrapper(VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL) {}
+};
+
+struct MicromapEXTWrapper : public HandleWrapper<VkMicromapEXT>
+{
+    MicromapEXTWrapper() : HandleWrapper(VK_OBJECT_TYPE_MICROMAP_EXT) {}
+};
+
+struct OpticalFlowSessionNVWrapper : public HandleWrapper<VkOpticalFlowSessionNV>
+{
+    OpticalFlowSessionNVWrapper() : HandleWrapper(VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV) {}
+};
+
+struct VideoSessionKHRWrapper : public HandleWrapper<VkVideoSessionKHR>
+{
+    VideoSessionKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_VIDEO_SESSION_KHR) {}
+};
+
+struct VideoSessionParametersKHRWrapper : public HandleWrapper<VkVideoSessionParametersKHR>
+{
+    VideoSessionParametersKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR) {}
+};
+
+struct ShaderEXTWrapper : public HandleWrapper<VkShaderEXT>
+{
+    ShaderEXTWrapper() : HandleWrapper(VK_OBJECT_TYPE_SHADER_EXT) {}
+};
+
+// This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent
+// VkDisplayKHR handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
+struct DisplayModeKHRWrapper : public HandleWrapper<VkDisplayModeKHR>
+{
+    DisplayModeKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_DISPLAY_MODE_KHR) {}
+};
 
 //
 // Declarations for handle wrappers that require additional state info.
@@ -98,6 +146,7 @@ struct DisplayModeKHRWrapper            : public HandleWrapper<VkDisplayModeKHR>
 
 struct ShaderModuleWrapper : public HandleWrapper<VkShaderModule>
 {
+    ShaderModuleWrapper() : HandleWrapper(VK_OBJECT_TYPE_SHADER_MODULE) {}
     vulkan_state_info::ShaderReflectionDescriptorSetsInfos used_descriptors_info;
 };
 
@@ -106,6 +155,8 @@ struct ShaderModuleWrapper : public HandleWrapper<VkShaderModule>
 // destroyed.
 struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 {
+    DisplayKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_DISPLAY_KHR) {}
+
     std::vector<DisplayModeKHRWrapper*> child_display_modes;
 };
 
@@ -113,6 +164,8 @@ struct DisplayKHRWrapper : public HandleWrapper<VkDisplayKHR>
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.
 struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 {
+    PhysicalDeviceWrapper() : HandleWrapper(VK_OBJECT_TYPE_PHYSICAL_DEVICE) {}
+
     VulkanInstanceTable*            layer_table_ref{ nullptr };
     std::vector<DisplayKHRWrapper*> child_displays;
     uint32_t                        instance_api_version{ 0 };
@@ -131,6 +184,8 @@ struct PhysicalDeviceWrapper : public HandleWrapper<VkPhysicalDevice>
 
 struct InstanceWrapper : public HandleWrapper<VkInstance>
 {
+    InstanceWrapper() : HandleWrapper(VK_OBJECT_TYPE_INSTANCE) {}
+
     VulkanInstanceTable                 layer_table;
     std::vector<PhysicalDeviceWrapper*> child_physical_devices;
     bool                                have_device_properties{ false };
@@ -139,11 +194,15 @@ struct InstanceWrapper : public HandleWrapper<VkInstance>
 
 struct QueueWrapper : public HandleWrapper<VkQueue>
 {
+    QueueWrapper() : HandleWrapper(VK_OBJECT_TYPE_QUEUE) {}
+
     VulkanDeviceTable* layer_table_ref{ nullptr };
 };
 
 struct DeviceWrapper : public HandleWrapper<VkDevice>
 {
+    DeviceWrapper() : HandleWrapper(VK_OBJECT_TYPE_DEVICE) {}
+
     VulkanDeviceTable          layer_table;
     PhysicalDeviceWrapper*     physical_device{ nullptr };
     std::vector<QueueWrapper*> child_queues;
@@ -155,6 +214,8 @@ struct DeviceWrapper : public HandleWrapper<VkDevice>
 
 struct FenceWrapper : public HandleWrapper<VkFence>
 {
+    FenceWrapper() : HandleWrapper(VK_OBJECT_TYPE_FENCE) {}
+
     // Signaled state at creation to be compared with signaled state at snapshot write. If states are different, the
     // create parameters will need to be modified to reflect the state at snapshot write.
     bool           created_signaled{ false };
@@ -163,6 +224,8 @@ struct FenceWrapper : public HandleWrapper<VkFence>
 
 struct EventWrapper : public HandleWrapper<VkEvent>
 {
+    EventWrapper() : HandleWrapper(VK_OBJECT_TYPE_EVENT) {}
+
     DeviceWrapper* device{ nullptr };
 };
 
@@ -184,6 +247,8 @@ struct AssetWrapperBase
 
 struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 {
+    BufferWrapper() : HandleWrapper(VK_OBJECT_TYPE_BUFFER) {}
+
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
@@ -191,6 +256,8 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>, AssetWrapperBase
 
 struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 {
+    ImageWrapper() : HandleWrapper(VK_OBJECT_TYPE_IMAGE) {}
+
     VkImageType              image_type{ VK_IMAGE_TYPE_2D };
     VkFormat                 format{ VK_FORMAT_UNDEFINED };
     VkExtent3D               extent{ 0, 0, 0 };
@@ -205,11 +272,15 @@ struct ImageWrapper : public HandleWrapper<VkImage>, AssetWrapperBase
 
 struct SamplerWrapper : public HandleWrapper<VkSampler>
 {
+    SamplerWrapper() : HandleWrapper(VK_OBJECT_TYPE_SAMPLER) {}
+
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
 struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 {
+    DeviceMemoryWrapper() : HandleWrapper(VK_OBJECT_TYPE_DEVICE_MEMORY) {}
+
     uint32_t     memory_type_index{ std::numeric_limits<uint32_t>::max() };
     VkDeviceSize allocation_size{ 0 };
     // This is the device which was used to allocate the memory.
@@ -237,6 +308,8 @@ struct DeviceMemoryWrapper : public HandleWrapper<VkDeviceMemory>
 
 struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 {
+    BufferViewWrapper() : HandleWrapper(VK_OBJECT_TYPE_BUFFER_VIEW) {}
+
     format::HandleId buffer_id{ format::kNullHandleId };
     BufferWrapper*   buffer{ nullptr };
 
@@ -245,6 +318,8 @@ struct BufferViewWrapper : public HandleWrapper<VkBufferView>
 
 struct ImageViewWrapper : public HandleWrapper<VkImageView>
 {
+    ImageViewWrapper() : HandleWrapper(VK_OBJECT_TYPE_IMAGE_VIEW) {}
+
     format::HandleId image_id{ format::kNullHandleId };
     ImageWrapper*    image{ nullptr };
 
@@ -253,6 +328,8 @@ struct ImageViewWrapper : public HandleWrapper<VkImageView>
 
 struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 {
+    FramebufferWrapper() : HandleWrapper(VK_OBJECT_TYPE_FRAMEBUFFER) {}
+
     // Creation info for objects used to create the framebuffer, which may have been destroyed after creation.
     format::HandleId                    render_pass_id{ format::kNullHandleId };
     format::ApiCallId                   render_pass_create_call_id{ format::ApiCallId::ApiCall_Unknown };
@@ -266,6 +343,8 @@ struct FramebufferWrapper : public HandleWrapper<VkFramebuffer>
 
 struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
 {
+    SemaphoreWrapper() : HandleWrapper(VK_OBJECT_TYPE_SEMAPHORE) {}
+
     // Track semaphore signaled state. State is signaled when a sempahore is submitted to QueueSubmit, QueueBindSparse,
     // AcquireNextImageKHR, or AcquireNextImage2KHR as a signal semaphore. State is not signaled when a semaphore is
     // submitted to QueueSubmit, QueueBindSparse, or QueuePresentKHR as a wait semaphore. Initial state after creation
@@ -277,6 +356,8 @@ struct SemaphoreWrapper : public HandleWrapper<VkSemaphore>
 
 struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
 {
+    QueryPoolWrapper() : HandleWrapper(VK_OBJECT_TYPE_QUERY_POOL) {}
+
     DeviceWrapper*                            device{ nullptr };
     VkQueryType                               query_type{};
     uint32_t                                  query_count{ 0 };
@@ -285,6 +366,8 @@ struct QueryPoolWrapper : public HandleWrapper<VkQueryPool>
 
 struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
 {
+    RenderPassWrapper() : HandleWrapper(VK_OBJECT_TYPE_RENDER_PASS) {}
+
     struct
     {
         // Final image attachment layouts to be used for processing image layout transitions after calls to
@@ -297,12 +380,16 @@ struct RenderPassWrapper : public HandleWrapper<VkRenderPass>
 
 struct DescriptorUpdateTemplateWrapper : public HandleWrapper<VkDescriptorUpdateTemplate>
 {
+    DescriptorUpdateTemplateWrapper() : HandleWrapper(VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE) {}
+
     // Members for general wrapper support.
     UpdateTemplateInfo info;
 };
 
 struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
 {
+    DescriptorSetLayoutWrapper() : HandleWrapper(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT) {}
+
     // Members for trimming state tracking.
     std::vector<vulkan_state_info::DescriptorBindingInfo> binding_info;
 };
@@ -310,6 +397,8 @@ struct DescriptorSetLayoutWrapper : public HandleWrapper<VkDescriptorSetLayout>
 struct DescriptorPoolWrapper;
 struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 {
+    DescriptorSetWrapper() : HandleWrapper(VK_OBJECT_TYPE_DESCRIPTOR_SET) {}
+
     // Members for general wrapper support.
     // Pool from which set was allocated. The set must be removed from the pool's allocation list when destroyed.
     DescriptorPoolWrapper* parent_pool{ nullptr };
@@ -329,6 +418,8 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
 {
+    DescriptorPoolWrapper() : HandleWrapper(VK_OBJECT_TYPE_DESCRIPTOR_POOL) {}
+
     // Members for general wrapper support.
     // Track descriptor set info, which must be destroyed on descriptor pool reset.
     std::unordered_map<format::HandleId, DescriptorSetWrapper*> child_sets;
@@ -336,6 +427,8 @@ struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
 
 struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
 {
+    PipelineLayoutWrapper() : HandleWrapper(VK_OBJECT_TYPE_PIPELINE_LAYOUT) {}
+
     // Creation info for objects used to create the pipeline layout, which may have been destroyed after pipeline layout
     // creation.
     std::shared_ptr<vulkan_state_info::PipelineLayoutDependencies> layout_dependencies;
@@ -343,6 +436,8 @@ struct PipelineLayoutWrapper : public HandleWrapper<VkPipelineLayout>
 
 struct PipelineWrapper : public HandleWrapper<VkPipeline>
 {
+    PipelineWrapper() : HandleWrapper(VK_OBJECT_TYPE_PIPELINE) {}
+
     // Creation info for objects used to create the pipeline, which may have been destroyed after pipeline creation.
     std::vector<vulkan_state_info::CreateDependencyInfo> shader_module_dependencies;
     vulkan_state_info::CreateDependencyInfo              render_pass_dependency;
@@ -365,6 +460,8 @@ struct AccelerationStructureKHRWrapper;
 struct CommandPoolWrapper;
 struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 {
+    CommandBufferWrapper() : HandleWrapper(VK_OBJECT_TYPE_COMMAND_BUFFER) {}
+
     VulkanDeviceTable* layer_table_ref{ nullptr };
 
     // Members for general wrapper support.
@@ -421,6 +518,8 @@ struct CommandBufferWrapper : public HandleWrapper<VkCommandBuffer>
 
 struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR>
 {
+    DeferredOperationKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR) {}
+
     // Record CreateRayTracingPipelinesKHR parameters for safety.
     HandleUnwrapMemory                             handle_unwrap_memory;
     std::vector<VkRayTracingPipelineCreateInfoKHR> create_infos;
@@ -434,6 +533,8 @@ struct DeferredOperationKHRWrapper : public HandleWrapper<VkDeferredOperationKHR
 
 struct CommandPoolWrapper : public HandleWrapper<VkCommandPool>
 {
+    CommandPoolWrapper() : HandleWrapper(VK_OBJECT_TYPE_COMMAND_POOL) {}
+
     // Members for general wrapper support.
     // Track command buffer info, which must be destroyed on command pool reset.
     std::unordered_map<format::HandleId, CommandBufferWrapper*> child_buffers;
@@ -484,6 +585,8 @@ struct GroupSurfacePresentModes
 
 struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
 {
+    SurfaceKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_SURFACE_KHR) {}
+
     // Track results from calls to vkGetPhysicalDeviceSurfaceSupportKHR to write to the state snapshot after surface
     // creation. The call is only written to the state snapshot if it was previously called by the application.
     // Keys are the VkPhysicalDevice handle ID.
@@ -498,6 +601,8 @@ struct SurfaceKHRWrapper : public HandleWrapper<VkSurfaceKHR>
 
 struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 {
+    SwapchainKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_SWAPCHAIN_KHR) {}
+
     // Members for general wrapper support.
     std::vector<ImageWrapper*> child_images;
 
@@ -519,6 +624,8 @@ struct SwapchainKHRWrapper : public HandleWrapper<VkSwapchainKHR>
 
 struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStructureKHR>
 {
+    AccelerationStructureKHRWrapper() : HandleWrapper(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR) {}
+
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
@@ -531,6 +638,8 @@ struct AccelerationStructureKHRWrapper : public HandleWrapper<VkAccelerationStru
 
 struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStructureNV>
 {
+    AccelerationStructureNVWrapper() : HandleWrapper(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV) {}
+
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 
     // TODO: Determine what additional state tracking is needed.
@@ -538,6 +647,8 @@ struct AccelerationStructureNVWrapper : public HandleWrapper<VkAccelerationStruc
 
 struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
 {
+    PrivateDataSlotWrapper() : HandleWrapper(VK_OBJECT_TYPE_PRIVATE_DATA_SLOT) {}
+
     DeviceWrapper* device{ nullptr };
     VkObjectType   object_type{ VK_OBJECT_TYPE_UNKNOWN };
     uint64_t       object_handle{ 0 };
@@ -546,6 +657,8 @@ struct PrivateDataSlotWrapper : public HandleWrapper<VkPrivateDataSlot>
 
 struct PipelineCacheWrapper : public HandleWrapper<VkPipelineCache>
 {
+    PipelineCacheWrapper() : HandleWrapper(VK_OBJECT_TYPE_PIPELINE_CACHE) {}
+
     DeviceWrapper*            device{ nullptr };
     VkPipelineCacheCreateInfo create_info;
     std::vector<uint8_t>      cache_data;

@@ -22,6 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "decode/asset_file_consumer.h"
+#include "generated/generated_vulkan_decoder.h"
 #include "decode/vulkan_replay_consumer_base.h"
 #include "decode/custom_vulkan_struct_handle_mappers.h"
 #include "decode/descriptor_update_template_decoder.h"
@@ -169,12 +171,16 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 #endif
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
-                                                   const VulkanReplayOptions&                options) :
+                                                   const VulkanReplayOptions&                options,
+                                                   const gfxrecon::format::AssetFileOffsets* asset_file_offsets) :
     resource_dumper(options, object_info_table_),
     loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
     application_(application), options_(options), loading_trim_state_(false), replaying_trimmed_capture_(false),
-    have_imported_semaphores_(false), fps_info_(nullptr), omitted_pipeline_cache_data_(false)
+    have_imported_semaphores_(false), fps_info_(nullptr), omitted_pipeline_cache_data_(false),
+    asset_file_offsets_(asset_file_offsets)
 {
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
 
@@ -280,6 +286,9 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
 
     // If a trace file has the state begin marker, it must be a trim trace file.
     replaying_trimmed_capture_ = true;
+
+    GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
+    GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
@@ -290,6 +299,9 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     {
         fps_info_->ProcessStateEndMarker(frame_number);
     }
+
+    current_frame_ = frame_number + 1;
+    GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
@@ -1049,6 +1061,35 @@ void VulkanReplayConsumerBase::InitializeLoader()
         RaiseFatalError("Failed to load Vulkan runtime library");
     }
 }
+
+// void VulkanReplayConsumerBase::InitializeCaptureLayerCustomFuncs()
+// {
+//     const std::vector<std::string> capture_layer_filename = {
+// #if defined(WIN32)
+//         "libVkLayer_gfxreconstruct.dll"
+// #elif defined(__APPLE__)
+//         "libVkLayer_gfxreconstruct.dylib"
+// #else
+//         "libVkLayer_gfxreconstruct.so"
+// #endif
+//     };
+
+//     util::platform::LibraryHandle capture_layer_handle = util::platform::OpenLibrary(capture_layer_filename);
+
+//     if (capture_layer_handle == nullptr)
+//     {
+//         GFXRECON_LOG_WARNING("Failed to load GFXR capture layer. Layer's custom functions will not be available");
+//         return;
+//     }
+
+//     override_capture_obj_id_fp = reinterpret_cast<encode::OverrideCaptureObjectIdFuncPtr>(
+//         util::platform::GetProcAddress(capture_layer_handle, "OverrideIdForNextVulkanObjectGFXR"));
+
+//     if (override_capture_obj_id_fp != nullptr)
+//     {
+//         GFXRECON_LOG_WARNING("Failed getting address of \"OverrideIdForNextVulkanObjectGFXR\" from capture layer");
+//     }
+// }
 
 void VulkanReplayConsumerBase::AddInstanceTable(VkInstance instance)
 {
@@ -2307,6 +2348,23 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         InitializeLoader();
     }
 
+    GFXRECON_WRITE_CONSOLE("[REPLAY] %s()", __func__)
+    if (replay_create_info->pApplicationInfo->pApplicationName)
+    {
+        GFXRECON_WRITE_CONSOLE("  replay_create_info->pApplicationInfo->pApplicationName: %s",
+                               replay_create_info->pApplicationInfo->pApplicationName)
+    }
+    if (replay_create_info->pApplicationInfo->pEngineName)
+    {
+        GFXRECON_WRITE_CONSOLE("  replay_create_info->pApplicationInfo->pEngineName: %s",
+                               replay_create_info->pApplicationInfo->pEngineName)
+    }
+
+    // if (override_capture_obj_id_fp == nullptr)
+    // {
+    //     InitializeCaptureLayerCustomFuncs();
+    // }
+
     std::vector<const char*> modified_layers;
     std::vector<const char*> modified_extensions;
     VkInstanceCreateInfo     modified_create_info = (*replay_create_info);
@@ -2503,6 +2561,50 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             instance_info->enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
                                                      modified_create_info.ppEnabledExtensionNames +
                                                          modified_create_info.enabledExtensionCount);
+        }
+
+        // Reuse asset file
+        if (!options_.reuse_asset_file.empty())
+        {
+            auto instance_table         = GetInstanceTable(*replay_instance);
+            override_capture_obj_id_fp_ = reinterpret_cast<encode::OverrideCaptureObjectIdFuncPtr>(
+                instance_table->GetInstanceProcAddr(*replay_instance, "OverrideIdForNextVulkanObjectGFXR"));
+
+            if (override_capture_obj_id_fp_ == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Failed to discover OverrideIdForNextVulkanObjectGFXR()");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("override_capture_obj_id_fp: %p: ", override_capture_obj_id_fp_)
+            }
+
+            load_asset_file_offsets_fp_ = reinterpret_cast<encode::LoadAssetFileOffsetsGFXRPtr>(
+                instance_table->GetInstanceProcAddr(*replay_instance, "LoadAssetFileOffsetsGFXR"));
+            if (load_asset_file_offsets_fp_ == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Failed to discover LoadAssetFileOffsetsGFXR()");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("load_asset_file_offsets_fp: %p: ", override_capture_obj_id_fp_)
+            }
+
+            set_unique_id_offset_fp_ = reinterpret_cast<encode::SetUniqueIdOffsetGFXRPtr>(
+                instance_table->GetInstanceProcAddr(*replay_instance, "SetUniqueIdOffsetGFXR"));
+            if (set_unique_id_offset_fp_ == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Failed to discover SetUniqueIdOffsetGFXR()");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("set_unique_id_offset_fp: %p: ", override_capture_obj_id_fp_)
+            }
+
+            if (load_asset_file_offsets_fp_ != nullptr && asset_file_offsets_ != nullptr)
+            {
+                load_asset_file_offsets_fp_(*asset_file_offsets_);
+            }
         }
     }
 
@@ -4230,9 +4332,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
             VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
-                          VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                          modified_allocate_info.pNext,
-                          opaque_address
+                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                modified_allocate_info.pNext,
+                opaque_address
             };
             modified_allocate_info.pNext = &address_info;
 

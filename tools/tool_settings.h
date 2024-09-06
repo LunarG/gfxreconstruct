@@ -141,6 +141,7 @@ const char kDumpResourcesDumpVertexIndexBuffers[] = "--dump-resources-dump-verte
 const char kDumpResourcesJsonPerCommand[]         = "--dump-resources-json-output-per-command";
 const char kDumpResourcesDumpImmutableResources[] = "--dump-resources-dump-immutable-resources";
 const char kDumpResourcesDumpImageSubresources[]  = "--dump-resources-dump-all-image-subresources";
+const char kReuseAssetFileArgument[]              = "--reuse-asset-file";
 
 enum class WsiPlatform
 {
@@ -1094,6 +1095,9 @@ GetVulkanReplayOptions(const gfxrecon::util::ArgumentParser&           arg_parse
     {
         replay_options.dump_resources_color_attachment_index = std::stoi(dr_color_att_idx);
     }
+
+    replay_options.reuse_asset_file = arg_parser.GetArgumentValue(kReuseAssetFileArgument);
+    GFXRECON_WRITE_CONSOLE("%s() reuse_asset_file: %s", __func__, replay_options.reuse_asset_file.c_str());
 
     return replay_options;
 }

@@ -24,6 +24,9 @@
 
 #include "encode/capture_settings.h"
 #include "format/format.h"
+#include "vulkan/vulkan_core.h"
+#include <cstdint>
+#include <stack>
 #include <string>
 #include PROJECT_VERSION_HEADER_FILE
 
@@ -40,6 +43,10 @@
 #include "util/logging.h"
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
+
+#include "decode/file_processor.h"
+#include "decode/asset_file_consumer.h"
+#include "generated/generated_vulkan_decoder.h"
 
 #include <cassert>
 #include <cstdlib>
@@ -65,7 +72,8 @@ std::mutex                                                     CommonCaptureMana
 thread_local std::unique_ptr<CommonCaptureManager::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT                            CommonCaptureManager::api_call_mutex_;
 
-std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ format::kNullHandleId };
+std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ static_cast<format::HandleId>(0) };
+std::stack<std::pair<format::HandleId, VkObjectType>> CommonCaptureManager::handle_ids_override;
 
 CommonCaptureManager::ThreadData::ThreadData() :
     thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown),
@@ -314,6 +322,11 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
     use_asset_file_                  = trace_settings.use_asset_file;
     write_state_files_               = trace_settings.write_state_files;
+
+    if (trace_settings.recapture)
+    {
+        SetUniqueIdOffset(UINT64_MAX - static_cast<uint64_t>(5000));
+    }
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -992,24 +1005,29 @@ std::string CommonCaptureManager::CreateAssetFile()
     return asset_file_name;
 }
 
-std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename) const
+std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename)
 {
-    std::string asset_filename = base_filename;
+    if (!asset_file_name_.empty())
+    {
+        return asset_file_name_;
+    }
+
+    asset_file_name_ = base_filename;
 
     size_t dot_pos = base_filename.rfind('.');
     if (dot_pos != std::string::npos)
     {
         if (base_filename.substr(dot_pos) == ".gfxr")
         {
-            asset_filename.replace(dot_pos, 16, "_asset_file.gfxa");
+            asset_file_name_.replace(dot_pos, 16, "_asset_file.gfxa");
         }
     }
     else
     {
-        asset_filename += std::string("_asset_file.gfxa");
+        asset_file_name_ += std::string("_asset_file.gfxa");
     }
 
-    return asset_filename;
+    return asset_file_name_;
 }
 
 bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
@@ -1650,6 +1668,204 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     operation_annotation += "\": \n    {";
     operation_annotation += buffer;
     operation_annotation += "\n    }";
+}
+
+static const char* VkObjectTypeToStr(VkObjectType type)
+{
+    switch (type)
+    {
+        case VK_OBJECT_TYPE_UNKNOWN:
+            return GFXRECON_STR(VK_OBJECT_TYPE_UNKNOWN);
+            break;
+        case VK_OBJECT_TYPE_INSTANCE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_INSTANCE);
+            break;
+        case VK_OBJECT_TYPE_PHYSICAL_DEVICE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PHYSICAL_DEVICE);
+            break;
+        case VK_OBJECT_TYPE_DEVICE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEVICE);
+            break;
+        case VK_OBJECT_TYPE_QUEUE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_QUEUE);
+            break;
+        case VK_OBJECT_TYPE_SEMAPHORE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SEMAPHORE);
+            break;
+        case VK_OBJECT_TYPE_COMMAND_BUFFER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_COMMAND_BUFFER);
+            break;
+        case VK_OBJECT_TYPE_FENCE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_FENCE);
+            break;
+        case VK_OBJECT_TYPE_DEVICE_MEMORY:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEVICE_MEMORY);
+            break;
+        case VK_OBJECT_TYPE_BUFFER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_BUFFER);
+            break;
+        case VK_OBJECT_TYPE_IMAGE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_IMAGE);
+            break;
+        case VK_OBJECT_TYPE_EVENT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_EVENT);
+            break;
+        case VK_OBJECT_TYPE_QUERY_POOL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_QUERY_POOL);
+            break;
+        case VK_OBJECT_TYPE_BUFFER_VIEW:
+            return GFXRECON_STR(VK_OBJECT_TYPE_BUFFER_VIEW);
+            break;
+        case VK_OBJECT_TYPE_IMAGE_VIEW:
+            return GFXRECON_STR(VK_OBJECT_TYPE_IMAGE_VIEW);
+            break;
+        case VK_OBJECT_TYPE_SHADER_MODULE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SHADER_MODULE);
+            break;
+        case VK_OBJECT_TYPE_PIPELINE_CACHE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PIPELINE_CACHE);
+            break;
+        case VK_OBJECT_TYPE_PIPELINE_LAYOUT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PIPELINE_LAYOUT);
+            break;
+        case VK_OBJECT_TYPE_RENDER_PASS:
+            return GFXRECON_STR(VK_OBJECT_TYPE_RENDER_PASS);
+            break;
+        case VK_OBJECT_TYPE_PIPELINE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PIPELINE);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT);
+            break;
+        case VK_OBJECT_TYPE_SAMPLER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SAMPLER);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_POOL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_POOL);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_SET);
+            break;
+        case VK_OBJECT_TYPE_FRAMEBUFFER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_FRAMEBUFFER);
+            break;
+        case VK_OBJECT_TYPE_COMMAND_POOL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_COMMAND_POOL);
+            break;
+        case VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE);
+            break;
+        case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PRIVATE_DATA_SLOT);
+            break;
+        case VK_OBJECT_TYPE_SURFACE_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SURFACE_KHR);
+            break;
+        case VK_OBJECT_TYPE_SWAPCHAIN_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SWAPCHAIN_KHR);
+            break;
+        case VK_OBJECT_TYPE_DISPLAY_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DISPLAY_KHR);
+            break;
+        case VK_OBJECT_TYPE_DISPLAY_MODE_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DISPLAY_MODE_KHR);
+            break;
+        case VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT);
+            break;
+        case VK_OBJECT_TYPE_VIDEO_SESSION_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_VIDEO_SESSION_KHR);
+            break;
+        case VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR);
+            break;
+        case VK_OBJECT_TYPE_CU_MODULE_NVX:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CU_MODULE_NVX);
+            break;
+        case VK_OBJECT_TYPE_CU_FUNCTION_NVX:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CU_FUNCTION_NVX);
+            break;
+        case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT);
+            break;
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR);
+            break;
+        case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_VALIDATION_CACHE_EXT);
+            break;
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV);
+            break;
+        case VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL);
+            break;
+        case VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR);
+            break;
+        case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV);
+            break;
+        case VK_OBJECT_TYPE_CUDA_MODULE_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CUDA_MODULE_NV);
+            break;
+        case VK_OBJECT_TYPE_CUDA_FUNCTION_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CUDA_FUNCTION_NV);
+            break;
+        case VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA:
+            return GFXRECON_STR(VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA);
+            break;
+        case VK_OBJECT_TYPE_MICROMAP_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_MICROMAP_EXT);
+            break;
+        case VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV);
+            break;
+        case VK_OBJECT_TYPE_SHADER_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SHADER_EXT);
+            break;
+        default:
+            assert(0);
+            return "XXX NULL XXX";
+    }
+}
+
+void CommonCaptureManager::OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type)
+{
+    handle_ids_override.push(std::make_pair(id, type));
+    GFXRECON_WRITE_CONSOLE("[CAPTURE] %s() capture_id: %" PRIu64 " type: %s", __func__, id, VkObjectTypeToStr(type));
+}
+
+format::HandleId CommonCaptureManager::GetUniqueId(VkObjectType type)
+{
+    GFXRECON_WRITE_CONSOLE("%s(type: %s)", __func__, VkObjectTypeToStr(type));
+
+    if (!handle_ids_override.empty())
+    {
+        assert(type != VK_OBJECT_TYPE_UNKNOWN);
+
+        auto top = handle_ids_override.top();
+        if (top.second != type)
+        {
+            GFXRECON_LOG_WARNING("%s() Type mismatch. Expected %s requested %s",
+                                 __func__,
+                                 VkObjectTypeToStr(top.second),
+                                 VkObjectTypeToStr(type))
+        }
+        handle_ids_override.pop();
+
+        GFXRECON_WRITE_CONSOLE("  Removing from stack %" PRIu64 "(%zu)", top.first, handle_ids_override.size());
+
+        return top.first;
+    }
+    else
+    {
+        GFXRECON_WRITE_CONSOLE("  Incrementing %" PRIu64, unique_id_counter_ + 1);
+        return ++unique_id_counter_;
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

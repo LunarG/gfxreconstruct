@@ -38,6 +38,7 @@
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/vulkan_swapchain.h"
 #include "format/api_call_id.h"
+#include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
@@ -47,9 +48,13 @@
 #include "util/logging.h"
 #include "util/threadpool.h"
 
+#include <cstdint>
+#include <encode/custom_exported_layer_funcs.h>
+
 #include "application/application.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <algorithm>
 #include <cassert>
@@ -71,7 +76,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumerBase(std::shared_ptr<application::Application> application, const VulkanReplayOptions& options);
+    VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
+                             const VulkanReplayOptions&                options,
+                             const gfxrecon::format::AssetFileOffsets* asset_file_offsets = nullptr);
 
     ~VulkanReplayConsumerBase() override;
 
@@ -235,7 +242,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     template <typename T>
     typename T::HandleType MapHandle(format::HandleId id,
-                                     const T* (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
+                                     const T*         (VulkanObjectInfoTable::*MapFunc)(format::HandleId) const) const
     {
         return handle_mapping::MapHandle(id, object_info_table_, MapFunc);
     }
@@ -276,7 +283,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                    const format::HandleId*       id,
                    const typename T::HandleType* handle,
                    T&&                           initial_info,
-                   void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                   void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         if ((id != nullptr) && (handle != nullptr))
         {
@@ -289,11 +296,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void AddHandle(format::HandleId              parent_id,
                    const format::HandleId*       id,
                    const typename T::HandleType* handle,
-                   void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                   void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         if ((id != nullptr) && (handle != nullptr))
         {
             handle_mapping::AddHandle(parent_id, *id, *handle, &object_info_table_, AddFunc);
+        }
+    }
+
+    void ForwardIdToCaptureLayer(const format::HandleId* id, VkObjectType type)
+    {
+        if (override_capture_obj_id_fp_ != nullptr && id != nullptr)
+        {
+            override_capture_obj_id_fp_(*id, type);
         }
     }
 
@@ -304,7 +319,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     const typename T::HandleType* handles,
                     size_t                        handles_len,
                     std::vector<T>&&              initial_infos,
-                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                    void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(
             parent_id, ids, ids_len, handles, handles_len, std::move(initial_infos), &object_info_table_, AddFunc);
@@ -316,16 +331,52 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     size_t                        ids_len,
                     const typename T::HandleType* handles,
                     size_t                        handles_len,
-                    void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                    void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+    }
+
+    template <typename T>
+    void ForwardIdsToCaptureLayer(const format::HandleId*       ids,
+                                  size_t                        ids_len,
+                                  const typename T::HandleType* handles,
+                                  size_t                        handles_len,
+                                  VkObjectType                  type)
+    {
+        // GFXRECON_WRITE_CONSOLE("%s()", __func__)
+
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %p", ids);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %zu", ids_len);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %p", handles);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %zu", handles_len);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %u", type);
+
+        if (override_capture_obj_id_fp_ != nullptr && ids != nullptr && handles != nullptr)
+        {
+            size_t len = std::min(ids_len, handles_len);
+            for (size_t i = 0; i < len; ++i)
+            {
+                override_capture_obj_id_fp_(ids[i], type);
+            }
+        }
+    }
+
+    void ForwardIdsToCaptureLayer(const format::HandleId* ids, size_t ids_len, VkObjectType type)
+    {
+        if (override_capture_obj_id_fp_ != nullptr && ids != nullptr)
+        {
+            for (size_t i = 0; i < ids_len; ++i)
+            {
+                override_capture_obj_id_fp_(ids[i], type);
+            }
+        }
     }
 
     template <typename T>
     void AddHandlesAsync(format::HandleId        parent_id,
                          const format::HandleId* ids,
                          size_t                  ids_len,
-                         void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                         void                    (VulkanObjectInfoTable::*AddFunc)(T&&),
                          std::function<handle_create_result_t<typename T::HandleType>()> create_function)
     {
         if (create_function)
@@ -346,7 +397,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                          const format::HandleId* ids,
                          size_t                  ids_len,
                          std::vector<T>&&        initial_infos,
-                         void (VulkanObjectInfoTable::*AddFunc)(T&&),
+                         void                    (VulkanObjectInfoTable::*AddFunc)(T&&),
                          std::function<handle_create_result_t<typename T::HandleType>()> create_function)
     {
         if (create_function)
@@ -364,6 +415,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                 std::move(initial_infos),
                                                 AddFunc,
                                                 std::move(result_future));
+        }
+    }
+
+    void ForwardAsyncIdsToCaptureLayer(const format::HandleId* ids, size_t ids_len, VkObjectType type)
+    {
+        if (override_capture_obj_id_fp_ != nullptr && ids != nullptr)
+        {
+            for (size_t i = 0; i < ids_len; ++i)
+            {
+                override_capture_obj_id_fp_(ids[i], type);
+            }
         }
     }
 
@@ -395,8 +457,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                         const typename T::HandleType* handles,
                         size_t                        handles_len,
                         std::vector<T>&&              initial_infos,
-                        S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                        void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                        S*                            (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                        void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(parent_id,
                                        pool_id,
@@ -417,11 +479,19 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                         size_t                        ids_len,
                         const typename T::HandleType* handles,
                         size_t                        handles_len,
-                        S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                        void (VulkanObjectInfoTable::*AddFunc)(T&&))
+                        S*                            (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                        void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
-        handle_mapping::AddHandleArray(
-            parent_id, pool_id, ids, ids_len, handles, handles_len, &object_info_table_, GetPoolInfoFunc, AddFunc);
+        handle_mapping::AddHandleArray(parent_id,
+                                       pool_id,
+                                       ids,
+                                       ids_len,
+                                       handles,
+                                       handles_len,
+                                       &object_info_table_,
+                                       GetPoolInfoFunc,
+                                       AddFunc,
+                                       override_capture_obj_id_fp_);
     }
 
     void RemoveHandle(format::HandleId id, void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
@@ -431,9 +501,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     template <typename T>
     void RemovePoolHandle(format::HandleId id,
-                          T* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                          void (VulkanObjectInfoTable::*RemovePoolFunc)(format::HandleId),
-                          void (VulkanObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
+                          T*               (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                          void             (VulkanObjectInfoTable::*RemovePoolFunc)(format::HandleId),
+                          void             (VulkanObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
     {
         handle_mapping::RemovePoolHandle(id, &object_info_table_, GetPoolInfoFunc, RemovePoolFunc, RemoveObjectFunc);
     }
@@ -442,7 +512,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void RemovePoolHandles(format::HandleId                                    pool_id,
                            const HandlePointerDecoder<typename T::HandleType>* handles_pointer,
                            size_t                                              handles_len,
-                           S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                           S*   (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
                            void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
     {
         // This parameter is only referenced by debug builds.
@@ -461,7 +531,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void SetOutputArrayCount(format::HandleId handle_id,
                              uint32_t         index,
                              size_t           count,
-                             HandleInfoT* (VulkanObjectInfoTable::*HandleInfoFunc)(format::HandleId))
+                             HandleInfoT*     (VulkanObjectInfoTable::*HandleInfoFunc)(format::HandleId))
     {
         HandleInfoT* info = (object_info_table_.*HandleInfoFunc)(handle_id);
         if (info != nullptr)
@@ -1274,6 +1344,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void InitializeLoader();
 
+    // void InitializeCaptureLayerCustomFuncs();
+
     void AddInstanceTable(VkInstance instance);
 
     void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
@@ -1502,6 +1574,12 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void*                capture_pipeline_cache_data_;
     bool                 matched_replay_cache_data_exist_ = false;
     std::vector<uint8_t> matched_replay_cache_data_;
+    format::FrameNumber  current_frame_ = 1;
+
+    const gfxrecon::format::AssetFileOffsets* asset_file_offsets_         = nullptr;
+    encode::OverrideCaptureObjectIdFuncPtr    override_capture_obj_id_fp_ = nullptr;
+    encode::LoadAssetFileOffsetsGFXRPtr       load_asset_file_offsets_fp_ = nullptr;
+    encode::SetUniqueIdOffsetGFXRPtr          set_unique_id_offset_fp_    = nullptr;
 };
 
 GFXRECON_END_NAMESPACE(decode)

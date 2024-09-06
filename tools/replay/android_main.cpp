@@ -32,10 +32,13 @@
 #include "format/format.h"
 #include "generated/generated_vulkan_decoder.h"
 #include "generated/generated_vulkan_replay_consumer.h"
+#include "decode/asset_file_consumer.h"
 #include "util/argument_parser.h"
 #include "util/logging.h"
 #include "util/platform.h"
 #include "parse_dump_resources_cli.h"
+
+#include "format/format.h"
 
 #include <android_native_app_glue.h>
 #include <android/log.h>
@@ -100,6 +103,40 @@ void android_main(struct android_app* app)
             filename                                             = positional_arguments[0];
         }
 
+        gfxrecon::format::AssetFileOffsets asset_file_offsets;
+        const std::string                  reuse_asset_file = arg_parser.GetArgumentValue(kReuseAssetFileArgument);
+        GFXRECON_WRITE_CONSOLE("%s()", __func__)
+        GFXRECON_WRITE_CONSOLE("   reuse_asset_file: %s", reuse_asset_file.c_str())
+
+        if (!reuse_asset_file.empty())
+        {
+            gfxrecon::decode::FileProcessor file_processor;
+            if (file_processor.Initialize(reuse_asset_file))
+            {
+                gfxrecon::decode::AssetFileConsumer asset_file_consumer;
+                gfxrecon::decode::VulkanDecoder     decoder;
+
+                decoder.AddConsumer(&asset_file_consumer);
+                file_processor.AddDecoder(&decoder);
+
+                bool success = true;
+                while (success)
+                {
+                    success = file_processor.ProcessNextFrame();
+                }
+
+                if (file_processor.GetErrorState() != gfxrecon::decode::FileProcessor::kErrorNone)
+                {
+                    GFXRECON_LOG_ERROR("Failed to process asset file %s.", reuse_asset_file.c_str());
+                }
+                else
+                {
+                    asset_file_offsets                           = asset_file_consumer.GetFrameAssetFileOffsets();
+                    const gfxrecon::format::HandleId greatest_id = asset_file_consumer.GetGreatestId();
+                }
+            }
+        }
+
         try
         {
             std::unique_ptr<gfxrecon::decode::FileProcessor> file_processor =
@@ -129,11 +166,12 @@ void android_main(struct android_app* app)
                     return;
                 }
 
-                gfxrecon::decode::VulkanReplayConsumer replay_consumer(application, replay_options);
-                gfxrecon::decode::VulkanDecoder        decoder;
-                uint32_t                               start_frame, end_frame;
-                bool        has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
-                std::string measurement_file_name;
+                gfxrecon::decode::VulkanReplayConsumer replay_consumer(
+                    application, replay_options, &asset_file_offsets);
+                gfxrecon::decode::VulkanDecoder decoder;
+                uint32_t                        start_frame, end_frame;
+                bool                            has_mfr = GetMeasurementFrameRange(arg_parser, start_frame, end_frame);
+                std::string                     measurement_file_name;
 
                 if (has_mfr)
                 {

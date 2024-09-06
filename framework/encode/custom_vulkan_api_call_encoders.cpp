@@ -36,6 +36,7 @@
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cassert>
 
@@ -407,6 +408,24 @@ VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     manager->SetWriteAssets();
+}
+
+VKAPI_ATTR void VKAPI_CALL LoadAssetFileOffsetsGFXR(const format::AssetFileOffsets& offsets)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->LoadAssetFileOffsets(offsets);
+}
+
+VKAPI_ATTR void VKAPI_CALL SetUniqueIdOffsetGFXR(format::HandleId offset)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->SetUniqueIdOffset(offset);
+}
+
+VKAPI_ATTR void VKAPI_CALL OverrideIdForNextVulkanObjectGFXR(format::HandleId id, VkObjectType type)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->OverrideIdForNextVulkanObject(id, type);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
