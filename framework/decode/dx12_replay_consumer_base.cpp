@@ -2405,7 +2405,15 @@ HRESULT Dx12ReplayConsumerBase::OverrideGetBuffer(DxObjectInfo*                r
             if (swapchain_info->image_ids[buffer] == format::kNullHandleId)
             {
                 auto object_info = static_cast<DxObjectInfo*>(surface->GetConsumerData(0));
-                InitialResourceExtraInfo(surface, D3D12_RESOURCE_STATE_PRESENT, false);
+
+                // Ensure that the retrieved buffer is a D3D12 resource prior to casting to ID3D12Resource.
+                const auto& buffer_iid = *riid.decoded_value;
+                if (IsEqualIID(buffer_iid, __uuidof(ID3D12Resource)) ||
+                    IsEqualIID(buffer_iid, __uuidof(ID3D12Resource1)) ||
+                    IsEqualIID(buffer_iid, __uuidof(ID3D12Resource2)))
+                {
+                    InitialResourceExtraInfo(surface, D3D12_RESOURCE_STATE_PRESENT, false);
+                }
 
                 // Increment the replay reference to prevent the swapchain image info entry from being removed from the
                 // object info table while the swapchain is active.
