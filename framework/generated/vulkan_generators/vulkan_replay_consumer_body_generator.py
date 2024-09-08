@@ -341,14 +341,17 @@ class VulkanReplayConsumerBodyGenerator(
             if is_async:
                 body += '    if (UseAsyncOperations())\n'
                 body += '    {\n'
+                body += '        {}\n'.format(postexpr[0])
                 body += '        auto task = {}(call_info, returnValue, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], arglist)
                 body += '        if(task)\n'
                 body += '        {\n'
-                body += '           {}\n'.format(postexpr[0])
+                body += '           {}\n'.format(postexpr[1])
                 body += '           return;\n'
                 body += '        }\n'
                 body += '    }\n'
-                postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
+                body += '\n'
+                body += '{}\n'.format(postexpr[2])
+                postexpr = postexpr[3:]  # drop async post-expression, don't repeat later
 
             body += '    VkResult replay_result = {};\n'.format(call_expr)
             body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
@@ -756,7 +759,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 else:
                                     # additionally add an asynchronous flavour to postexpr, so both are available later
                                     if name in self.REPLAY_ASYNC_OVERRIDES:
-                                        expr += '\nForwardIdsToCaptureLayer({paramname}->GetPointer(), {paramname}->GetLength(), {});'.format(vk_obj_type, paramname=value.name)
+                                        postexpr.append('ForwardIdsToCaptureLayer({paramname}->GetPointer(), {paramname}->GetLength(), {});'.format(vk_obj_type, paramname=value.name))
                                         postexpr.append(
                                             'AddHandlesAsync<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info, std::move(task));'
                                             .format(
@@ -767,7 +770,9 @@ class VulkanReplayConsumerBodyGenerator(
                                                 basetype=value.base_type[2:]
                                             )
                                         )
-                                    preexpr.append('ForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name))
+                                        postexpr.append('ForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name))
+                                    else:
+                                        preexpr.append('ForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name))
                                     postexpr.append(
                                         'AddHandles<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'
                                         .format(

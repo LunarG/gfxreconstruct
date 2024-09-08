@@ -1058,12 +1058,11 @@ void VulkanReplayConsumer::Process_vkCreateGraphicsPipelines(
     if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
     if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, pCreateInfos->GetPointer());}
     std::vector<PipelineInfo> handle_info(createInfoCount);
-    ForwardIdsToCaptureLayer<PipelineInfo>(pPipelines->GetPointer(), pPipelines->GetLength(), pPipelines->GetHandlePointer(), createInfoCount, VK_OBJECT_TYPE_PIPELINE);
     for (size_t i = 0; i < createInfoCount; ++i) { pPipelines->SetConsumerData(i, &handle_info[i]); }
-ForwardIdsToCaptureLayer(pPipelines->GetPointer(), pPipelines->GetLength(), VK_OBJECT_TYPE_PIPELINE);
 
     if (UseAsyncOperations())
     {
+        ForwardIdsToCaptureLayer(pPipelines->GetPointer(), pPipelines->GetLength(), VK_OBJECT_TYPE_PIPELINE);
         auto task = AsyncCreateGraphicsPipelines(call_info, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         if(task)
         {
@@ -1071,6 +1070,8 @@ ForwardIdsToCaptureLayer(pPipelines->GetPointer(), pPipelines->GetLength(), VK_O
            return;
         }
     }
+
+ForwardIdsToCaptureLayer<PipelineInfo>(pPipelines->GetPointer(), pPipelines->GetLength(), pPipelines->GetHandlePointer(), createInfoCount, VK_OBJECT_TYPE_PIPELINE);
     VkResult replay_result = OverrideCreateGraphicsPipelines(GetDeviceTable(in_device->handle)->CreateGraphicsPipelines, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     CheckResult("vkCreateGraphicsPipelines", returnValue, replay_result, call_info);
 
@@ -1095,12 +1096,11 @@ void VulkanReplayConsumer::Process_vkCreateComputePipelines(
     if (!pPipelines->IsNull()) { pPipelines->SetHandleLength(createInfoCount); }
     if (omitted_pipeline_cache_data_) {AllowCompileDuringPipelineCreation(createInfoCount, pCreateInfos->GetPointer());}
     std::vector<PipelineInfo> handle_info(createInfoCount);
-    ForwardIdsToCaptureLayer<PipelineInfo>(pPipelines->GetPointer(), pPipelines->GetLength(), pPipelines->GetHandlePointer(), createInfoCount, VK_OBJECT_TYPE_PIPELINE);
     for (size_t i = 0; i < createInfoCount; ++i) { pPipelines->SetConsumerData(i, &handle_info[i]); }
-ForwardIdsToCaptureLayer(pPipelines->GetPointer(), pPipelines->GetLength(), VK_OBJECT_TYPE_PIPELINE);
 
     if (UseAsyncOperations())
     {
+        ForwardIdsToCaptureLayer(pPipelines->GetPointer(), pPipelines->GetLength(), VK_OBJECT_TYPE_PIPELINE);
         auto task = AsyncCreateComputePipelines(call_info, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
         if(task)
         {
@@ -1108,6 +1108,8 @@ ForwardIdsToCaptureLayer(pPipelines->GetPointer(), pPipelines->GetLength(), VK_O
            return;
         }
     }
+
+ForwardIdsToCaptureLayer<PipelineInfo>(pPipelines->GetPointer(), pPipelines->GetLength(), pPipelines->GetHandlePointer(), createInfoCount, VK_OBJECT_TYPE_PIPELINE);
     VkResult replay_result = OverrideCreateComputePipelines(GetDeviceTable(in_device->handle)->CreateComputePipelines, returnValue, in_device, in_pipelineCache, createInfoCount, pCreateInfos, pAllocator, pPipelines);
     CheckResult("vkCreateComputePipelines", returnValue, replay_result, call_info);
 
@@ -10670,12 +10672,11 @@ void VulkanReplayConsumer::Process_vkCreateShadersEXT(
     MapStructArrayHandles(pCreateInfos->GetMetaStructPointer(), pCreateInfos->GetLength(), GetObjectInfoTable());
     if (!pShaders->IsNull()) { pShaders->SetHandleLength(createInfoCount); }
     std::vector<ShaderEXTInfo> handle_info(createInfoCount);
-    ForwardIdsToCaptureLayer<ShaderEXTInfo>(pShaders->GetPointer(), pShaders->GetLength(), pShaders->GetHandlePointer(), createInfoCount, VK_OBJECT_TYPE_SHADER_EXT);
     for (size_t i = 0; i < createInfoCount; ++i) { pShaders->SetConsumerData(i, &handle_info[i]); }
-ForwardIdsToCaptureLayer(pShaders->GetPointer(), pShaders->GetLength(), VK_OBJECT_TYPE_SHADER_EXT);
 
     if (UseAsyncOperations())
     {
+        ForwardIdsToCaptureLayer(pShaders->GetPointer(), pShaders->GetLength(), VK_OBJECT_TYPE_SHADER_EXT);
         auto task = AsyncCreateShadersEXT(call_info, returnValue, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
         if(task)
         {
@@ -10683,6 +10684,8 @@ ForwardIdsToCaptureLayer(pShaders->GetPointer(), pShaders->GetLength(), VK_OBJEC
            return;
         }
     }
+
+ForwardIdsToCaptureLayer<ShaderEXTInfo>(pShaders->GetPointer(), pShaders->GetLength(), pShaders->GetHandlePointer(), createInfoCount, VK_OBJECT_TYPE_SHADER_EXT);
     VkResult replay_result = OverrideCreateShadersEXT(GetDeviceTable(in_device->handle)->CreateShadersEXT, returnValue, in_device, createInfoCount, pCreateInfos, pAllocator, pShaders);
     CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
 

@@ -48,7 +48,7 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumer : public VulkanReplayConsumerBase
 {
   public:
-    VulkanReplayConsumer(std::shared_ptr<application::Application> application, const VulkanReplayOptions& options, const gfxrecon::format::AssetFileOffsets* offsets = nullptr) : VulkanReplayConsumerBase(application, options, offsets) { }
+    VulkanReplayConsumer(std::shared_ptr<application::Application> application, const VulkanReplayOptions& options, const gfxrecon::format::AssetFileOffsets* offsets) : VulkanReplayConsumerBase(application, options, offsets) { }
 
     virtual ~VulkanReplayConsumer() override { }
 

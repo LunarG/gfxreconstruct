@@ -216,7 +216,7 @@ int main(int argc, const char** argv)
                                                  preload_measurement_frame_range,
                                                  measurement_file_name);
 
-            gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options);
+            gfxrecon::decode::VulkanReplayConsumer vulkan_replay_consumer(application, vulkan_replay_options, nullptr);
             gfxrecon::decode::VulkanDecoder        vulkan_decoder;
 
             if (vulkan_replay_options.enable_vulkan)
