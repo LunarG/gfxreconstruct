@@ -32,7 +32,7 @@
 #include "decode/vulkan_offscreen_swapchain.h"
 #include "decode/vulkan_address_replacer.h"
 #include "decode/vulkan_enum_util.h"
-#include "decode/vulkan_feature_util.h"
+#include "graphics/vulkan_feature_util.h"
 #include "decode/vulkan_object_cleanup_util.h"
 #include "format/format.h"
 #include "format/format_util.h"
@@ -2707,7 +2707,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
     // If a WSI was specified by CLI but there was none at capture time, it's possible to end up with a surface
     // extension without having VK_KHR_surface. Check for that and fix that.
-    if (!feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
+    if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_KHR_SURFACE_EXTENSION_NAME))
     {
         for (const std::string& current_extension : modified_extensions)
         {
@@ -2721,7 +2721,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
 
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
-    if (feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
+    if (graphics::feature_util::GetInstanceExtensions(instance_extension_proc, &available_extensions) == VK_SUCCESS)
     {
         // Always enable portability enumeration if available
         modified_create_info.flags &= ~VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
@@ -2739,26 +2739,27 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
         if (modified_create_info.pApplicationInfo != nullptr &&
             modified_create_info.pApplicationInfo->apiVersion < VK_MAKE_VERSION(1, 1, 0))
         {
-            feature_util::EnableExtensionIfSupported(
+            graphics::feature_util::EnableExtensionIfSupported(
                 available_extensions, &modified_extensions, VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
         }
 
         if (options_.remove_unsupported_features)
         {
             // Remove enabled extensions that are not available from the replay instance.
-            feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
         }
         else if (options_.use_colorspace_fallback)
         {
             for (auto& extension_name : kColorSpaceExtensionNames)
             {
-                feature_util::RemoveExtensionIfUnsupported(available_extensions, &modified_extensions, extension_name);
+                graphics::feature_util::RemoveExtensionIfUnsupported(
+                    available_extensions, &modified_extensions, extension_name);
             }
         }
         else
         {
             // Remove enabled extensions that are ignorable from the replay instance.
-            feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
         }
     }
     else
@@ -2771,7 +2772,7 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     // debug messages from layers are displayed during replay.
     // Note that if the app also included one or more VkDebugUtilsMessengerCreateInfoEXT structs
     // in the pNext chain, those messengers will also be created.
-    if (feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+    if (graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
     {
         modified_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
@@ -2809,9 +2810,9 @@ void VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
     if (options_.enable_validation_layer)
     {
         std::vector<VkLayerProperties> available_layers;
-        if (feature_util::GetInstanceLayers(instance_layer_proc, &available_layers) == VK_SUCCESS)
+        if (graphics::feature_util::GetInstanceLayers(instance_layer_proc, &available_layers) == VK_SUCCESS)
         {
-            if (feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
+            if (graphics::feature_util::IsSupportedLayer(available_layers, kValidationLayerName))
             {
                 modified_layers.push_back(kValidationLayerName);
             }
@@ -3058,7 +3059,7 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
     // Add VK_EXT_frame_boundary if an option uses it
     if (options_.offscreen_swapchain_frame_boundary)
     {
-        if (!feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
+        if (!graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME))
         {
             modified_extensions.push_back(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
         }
@@ -3066,14 +3067,14 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
 
     // Sanity checks depending on extension availability
     std::vector<VkExtensionProperties> available_extensions;
-    if (feature_util::GetDeviceExtensions(
+    if (graphics::feature_util::GetDeviceExtensions(
             physical_device, instance_table->EnumerateDeviceExtensionProperties, &available_extensions) == VK_SUCCESS)
     {
         // If VK_EXT_frame_boundary is not supported but requested, fake it
         bool ext_frame_boundary_is_supported =
-            feature_util::IsSupportedExtension(available_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+            graphics::feature_util::IsSupportedExtension(available_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
         bool ext_frame_boundary_is_requested =
-            feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
+            graphics::feature_util::IsSupportedExtension(modified_extensions, VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME);
 
         if (ext_frame_boundary_is_requested && !ext_frame_boundary_is_supported)
         {
@@ -3081,17 +3082,31 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
                 return util::platform::StringCompare(VK_EXT_FRAME_BOUNDARY_EXTENSION_NAME, extension) == 0;
             });
             modified_extensions.erase(iter);
+
+            VkBaseOutStructure* current = reinterpret_cast<VkBaseOutStructure*>(&modified_create_info);
+
+            while (current->pNext != nullptr)
+            {
+                if (current->pNext->sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAME_BOUNDARY_FEATURES_EXT)
+                {
+                    current->pNext = current->pNext->pNext;
+                    GFXRECON_LOG_WARNING(
+                        "VkPhysicalDeviceFrameBoundaryFeaturesEXT instance was removed from replay device creation");
+                    break;
+                }
+                current = current->pNext;
+            }
         }
 
         if (options_.remove_unsupported_features)
         {
-            feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveUnsupportedExtensions(available_extensions, &modified_extensions);
         }
         else
         {
             // Remove enabled extensions that are not available on the replay device, but
             // that can still be safely ignored.
-            feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
+            graphics::feature_util::RemoveIgnorableExtensions(available_extensions, &modified_extensions);
         }
     }
     else
@@ -3108,12 +3123,12 @@ void VulkanReplayConsumerBase::ModifyCreateDeviceInfo(
         physical_device_info->parent_info, instance_table, physical_device, &modified_create_info);
 
     // Abort on/Remove unsupported features
-    feature_util::CheckUnsupportedFeatures(physical_device,
-                                           instance_table->GetPhysicalDeviceFeatures,
-                                           instance_table->GetPhysicalDeviceFeatures2,
-                                           modified_create_info.pNext,
-                                           modified_create_info.pEnabledFeatures,
-                                           options_.remove_unsupported_features);
+    graphics::feature_util::CheckUnsupportedFeatures(physical_device,
+                                                     instance_table->GetPhysicalDeviceFeatures,
+                                                     instance_table->GetPhysicalDeviceFeatures2,
+                                                     modified_create_info.pNext,
+                                                     modified_create_info.pEnabledFeatures,
+                                                     options_.remove_unsupported_features);
 }
 
 VkResult VulkanReplayConsumerBase::PostCreateDeviceUpdateState(VulkanPhysicalDeviceInfo* physical_device_info,
