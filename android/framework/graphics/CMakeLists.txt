@@ -14,11 +14,14 @@ target_sources(gfxrecon_graphics
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_resources_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_util.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_feature_util.h
+                    ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_feature_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_deep_copy.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_get_pnext.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_dispatch_table.h
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_deep_copy.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_struct_deep_copy_stype.cpp
+                    ${GFXRECON_SOURCE_DIR}/framework/generated/generated_vulkan_feature_util.cpp
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_extract_handles.h
                     ${GFXRECON_SOURCE_DIR}/framework/graphics/vulkan_struct_extract_handles.cpp
               )
