@@ -29,6 +29,7 @@
 #include "format/format.h"
 #include "format/format_util.h"
 #include "util/logging.h"
+#include "vulkan/vulkan_core.h"
 
 #include <algorithm>
 #include <array>
@@ -83,11 +84,11 @@ static bool IsImageReadable(VkMemoryPropertyFlags                       property
                                                    (memory_wrapper->mapped_size == VK_WHOLE_SIZE)))));
 }
 
-VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*                output_stream,
-                                     util::Compressor*                      compressor,
-                                     format::ThreadId                       thread_id,
-                                     util::FileOutputStream*                asset_file_stream,
-                                     std::unordered_map<uint64_t, int64_t>* asset_file_offsets) :
+VulkanStateWriter::VulkanStateWriter(util::FileOutputStream*        output_stream,
+                                     util::Compressor*              compressor,
+                                     format::ThreadId               thread_id,
+                                     util::FileOutputStream*        asset_file_stream,
+                                     format::FrameAssetFileOffsets* asset_file_offsets) :
     output_stream_(output_stream),
     compressor_(compressor), thread_id_(thread_id), encoder_(&parameter_stream_), asset_file_stream_(asset_file_stream),
     asset_file_offsets_(asset_file_offsets)
@@ -994,6 +995,7 @@ void VulkanStateWriter::WriteDescriptorSetState(const VulkanStateTable& state_ta
 void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTable& state_table)
 {
     assert(asset_file_stream_ != nullptr);
+    assert(asset_file_offsets_ != nullptr);
 
     std::set<util::MemoryOutputStream*> processed;
 

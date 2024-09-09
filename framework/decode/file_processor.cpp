@@ -2072,13 +2072,13 @@ bool FileProcessor::ProcessFrameMarker(const format::BlockHeader& block_header,
 
         for (auto decoder : decoders_)
         {
-            if (marker_type == format::kEndMarker)
-            {
-                decoder->DispatchFrameEndMarker(frame_number);
-            }
-            else if (marker_type == format::kBeginMarker)
+            if (marker_type == format::kBeginMarker)
             {
                 decoder->DispatchFrameBeginMarker(frame_number);
+            }
+            else if (marker_type == format::kEndMarker)
+            {
+                decoder->DispatchFrameEndMarker(frame_number);
             }
             else
             {

@@ -24,8 +24,8 @@
 #ifndef GFXRECON_LAYER_CUSTOM_FUNC_TABLE_H
 #define GFXRECON_LAYER_CUSTOM_FUNC_TABLE_H
 
+#include "encode/custom_exported_layer_funcs.h"
 #include "util/defines.h"
-#include "custom_vulkan_api_call_encoders.h"
 
 #include <unordered_map>
 
@@ -36,7 +36,8 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> custom_func_table = {
     { "DumpAssetsGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::DumpAssetsGFXR) },
     { "SetUniqueIdOffsetGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::SetUniqueIdOffsetGFXR) },
     { "LoadAssetFileOffsetsGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::LoadAssetFileOffsetsGFXR) },
-    { "OverrideIdForNextVulkanObjectGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::OverrideIdForNextVulkanObjectGFXR) }
+    { "OverrideIdForNextVulkanObjectGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::OverrideIdForNextVulkanObjectGFXR) },
+    { "OverrideFrameNumberGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::OverrideFrameNumberGFXR) },
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

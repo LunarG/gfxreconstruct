@@ -121,7 +121,7 @@ class CaptureSettings
         bool                         quit_after_frame_ranges{ false };
         bool                         use_asset_file{ false };
         bool                         write_state_files{ false };
-        bool                         recapture{ false };
+        std::string                  reuse_asset_file;
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a

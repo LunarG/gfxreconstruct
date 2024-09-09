@@ -23,6 +23,7 @@
  */
 
 #include "encode/vulkan_handle_wrappers.h"
+#include "format/format.h"
 #include "vulkan/vulkan_core.h"
 #include <cstdint>
 #include PROJECT_VERSION_HEADER_FILE
@@ -30,6 +31,7 @@
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
 
+#include "encode/capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
 #include "format/format_util.h"
@@ -104,15 +106,22 @@ void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream
                                              format::ThreadId        thread_id,
                                              util::FileOutputStream* asset_file_stream)
 {
-    uint64_t n_blocks =
-        state_tracker_->WriteState(file_stream, thread_id, asset_file_stream, GetCompressor(), GetCurrentFrame());
+    assert(state_tracker_ != nullptr);
+
+    format::FrameNumber frame =
+        GetOverrideFrame() != CommonCaptureManager::kInvalidFrame ? GetOverrideFrame() : GetCurrentFrame();
+
+    uint64_t n_blocks = state_tracker_->WriteState(file_stream, thread_id, asset_file_stream, GetCompressor(), frame);
     common_manager_->IncrementBlockIndex(n_blocks);
 }
 
 void VulkanCaptureManager::WriteAssets(util::FileOutputStream* asset_file_stream, format::ThreadId thread_id)
 {
     assert(state_tracker_ != nullptr);
-    uint64_t n_blocks = state_tracker_->WriteAssets(asset_file_stream, thread_id, GetCompressor(), GetCurrentFrame());
+    format::FrameNumber frame =
+        GetOverrideFrame() != CommonCaptureManager::kInvalidFrame ? GetOverrideFrame() : GetCurrentFrame();
+
+    uint64_t n_blocks = state_tracker_->WriteAssets(asset_file_stream, thread_id, GetCompressor(), frame);
     common_manager_->IncrementBlockIndex(n_blocks);
 }
 

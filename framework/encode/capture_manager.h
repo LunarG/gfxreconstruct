@@ -60,6 +60,11 @@ class ApiCaptureManager;
 class CommonCaptureManager
 {
   public:
+    // One based frame count.
+    static constexpr format::FrameNumber kInvalidFrame         = 0;
+    static constexpr format::FrameNumber kFirstFrame           = 1;
+    static constexpr size_t              kFileStreamBufferSize = 256 * 1024;
+
     typedef std::shared_mutex ApiCallMutexT;
 
     static format::HandleId GetUniqueId(VkObjectType type);
@@ -255,7 +260,8 @@ class CommonCaptureManager
     PageGuardMemoryMode                 GetPageGuardMemoryMode() const { return page_guard_memory_mode_; }
     const std::string&                  GetTrimKey() const { return trim_key_; }
     bool                                IsTrimEnabled() const { return trim_enabled_; }
-    uint32_t                            GetCurrentFrame() const { return current_frame_; }
+    format::FrameNumber                 GetCurrentFrame() const { return current_frame_; }
+    format::FrameNumber                 GetOverrideFrame() const { return override_frame_; }
     CaptureMode                         GetCaptureMode() const { return capture_mode_; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
@@ -269,7 +275,7 @@ class CommonCaptureManager
     util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
-    std::string CreateAssetFile();
+    void        CreateAssetFile();
     std::string CreateAssetFilename(const std::string& base_filename);
     std::string CreateFrameStateFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
@@ -333,6 +339,8 @@ class CommonCaptureManager
     }
 
     void OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type);
+
+    void OverrideFrame(format::FrameNumber frame);
 
   private:
     void WriteExecuteFromFile(util::FileOutputStream& out_stream,
@@ -399,7 +407,8 @@ class CommonCaptureManager
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
-    uint32_t                                current_frame_;
+    format::FrameNumber                     current_frame_;
+    format::FrameNumber                     override_frame_;
     uint32_t                                queue_submit_count_;
     CaptureMode                             capture_mode_;
     bool                                    previous_hotkey_state_;
@@ -420,6 +429,7 @@ class CommonCaptureManager
     bool                                    previous_write_assets_;
     bool                                    write_state_files_;
     std::string                             asset_file_name_;
+    bool                                    reuse_asset_file{ false };
 
     struct
     {

@@ -54,19 +54,19 @@ void VulkanDecoderBase::DispatchStateEndMarker(uint64_t frame_number)
     }
 }
 
-void VulkanDecoderBase::DispatchFrameEndMarker(uint64_t frame_number)
-{
-    for (auto consumer : consumers_)
-    {
-        consumer->ProcessFrameEndMarker(frame_number);
-    }
-}
-
 void VulkanDecoderBase::DispatchFrameBeginMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)
     {
         consumer->ProcessFrameBeginMarker(frame_number);
+    }
+}
+
+void VulkanDecoderBase::DispatchFrameEndMarker(uint64_t frame_number)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessFrameEndMarker(frame_number);
     }
 }
 

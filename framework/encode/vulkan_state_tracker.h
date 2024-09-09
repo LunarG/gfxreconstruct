@@ -112,7 +112,8 @@ class VulkanStateTracker
                     create_info,
                     create_call_id,
                     std::make_shared<util::MemoryOutputStream>(create_parameter_buffer->GetData(),
-                                                               create_parameter_buffer->GetDataSize()));
+                                                               create_parameter_buffer->GetDataSize()),
+                    &asset_file_offsets_);
             }
         }
     }
@@ -142,7 +143,7 @@ class VulkanStateTracker
                 if (state_table_.InsertWrapper(wrapper->handle_id, wrapper))
                 {
                     vulkan_state_tracker::InitializePoolObjectState(
-                        parent_handle, wrapper, i, alloc_info, create_call_id, create_parameters);
+                        parent_handle, wrapper, i, alloc_info, create_call_id, create_parameters, &asset_file_offsets_);
                 }
             }
         }
@@ -686,7 +687,7 @@ class VulkanStateTracker
 
     void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
 
-    void LoadAssetFileOffsets(const format::AssetFileOffsets& offsets);
+    void LoadAssetFileOffsets(const format::AssetFileOffsets& offsets) { asset_file_offsets_ = offsets; }
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
@@ -785,14 +786,16 @@ class VulkanStateTracker
         if (!asset_file_offsets_.empty())
         {
             auto entry = asset_file_offsets_.find(frame_number);
-            if (entry != asset_file_offsets_.end())
+            if (entry == asset_file_offsets_.end())
             {
-                GFXRECON_LOG_ERROR("Dublicate asset file entries for frame %" PRIu64 "?", frame_number);
+                // Copy all entries from previous frame
+                auto last_frame_entry = asset_file_offsets_.rbegin();
+                asset_file_offsets_[frame_number] = last_frame_entry->second;
             }
-
-            // Copy all entries from previous frame
-            auto last_frame_entry             = asset_file_offsets_.rbegin();
-            asset_file_offsets_[frame_number] = last_frame_entry->second;
+            else
+            {
+                GFXRECON_LOG_INFO("Dublicate asset file entries for frame %" PRIu64, frame_number);
+            }
         }
     }
 

@@ -380,8 +380,8 @@ class VulkanStateWriter
     ParameterEncoder         encoder_;
     uint64_t                 blocks_written_;
 
-    util::FileOutputStream*                asset_file_stream_;
-    std::unordered_map<uint64_t, int64_t>* asset_file_offsets_;
+    util::FileOutputStream*        asset_file_stream_;
+    format::FrameAssetFileOffsets* asset_file_offsets_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

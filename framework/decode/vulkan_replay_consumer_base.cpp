@@ -300,8 +300,36 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
         fps_info_->ProcessStateEndMarker(frame_number);
     }
 
+    current_frame_ = frame_number;
+    GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
+
+    if (override_frame_number_fp_ != nullptr)
+    {
+        override_frame_number_fp_(current_frame_);
+    }
+}
+
+void VulkanReplayConsumerBase::ProcessFrameBeginMarker(uint64_t frame_number)
+{
+    GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
+    current_frame_ = frame_number;
+
+    if (override_frame_number_fp_ != nullptr)
+    {
+        override_frame_number_fp_(current_frame_);
+    }
+}
+
+void VulkanReplayConsumerBase::ProcessFrameEndMarker(uint64_t frame_number)
+{
+    GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
     current_frame_ = frame_number + 1;
     GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
+
+    if (override_frame_number_fp_ != nullptr)
+    {
+        override_frame_number_fp_(current_frame_);
+    }
 }
 
 void VulkanReplayConsumerBase::ProcessDisplayMessageCommand(const std::string& message)
@@ -2587,7 +2615,7 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             }
             else
             {
-                GFXRECON_WRITE_CONSOLE("load_asset_file_offsets_fp: %p: ", override_capture_obj_id_fp_)
+                GFXRECON_WRITE_CONSOLE("load_asset_file_offsets_fp: %p: ", load_asset_file_offsets_fp_)
             }
 
             set_unique_id_offset_fp_ = reinterpret_cast<encode::SetUniqueIdOffsetGFXRPtr>(
@@ -2598,7 +2626,18 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             }
             else
             {
-                GFXRECON_WRITE_CONSOLE("set_unique_id_offset_fp: %p: ", override_capture_obj_id_fp_)
+                GFXRECON_WRITE_CONSOLE("set_unique_id_offset_fp: %p: ", set_unique_id_offset_fp_)
+            }
+
+            override_frame_number_fp_ = reinterpret_cast<encode::OverrideFrameNumberGFXRPtr>(
+                instance_table->GetInstanceProcAddr(*replay_instance, "OverrideFrameNumberGFXR"));
+            if (override_frame_number_fp_ == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Failed to discover OverrideFrameNumberGFXR()");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("set_unique_id_offset_fp: %p: ", override_frame_number_fp_)
             }
 
             if (load_asset_file_offsets_fp_ != nullptr && asset_file_offsets_ != nullptr)

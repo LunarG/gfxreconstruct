@@ -173,6 +173,7 @@ class ApiCaptureManager
     const std::string&                GetTrimKey() const { return common_manager_->GetTrimKey(); }
     bool                              IsTrimEnabled() const { return common_manager_->IsTrimEnabled(); }
     uint32_t                          GetCurrentFrame() const { return common_manager_->GetCurrentFrame(); }
+    uint32_t                          GetOverrideFrame() const { return common_manager_->GetOverrideFrame(); }
     CommonCaptureManager::CaptureMode GetCaptureMode() const { return common_manager_->GetCaptureMode(); }
     bool                              GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
     bool GetDebugDeviceLostSetting() const { return common_manager_->GetDebugDeviceLostSetting(); }
@@ -209,6 +210,12 @@ class ApiCaptureManager
     {
         assert(common_manager_ != nullptr);
         common_manager_->OverrideIdForNextVulkanObject(id, type);
+    }
+
+    void OverrideFrameNumber(format::FrameNumber frame)
+    {
+        assert(common_manager_ != nullptr);
+        common_manager_->OverrideFrame(frame);
     }
 
     CommonCaptureManager::ThreadData* GetThreadData() { return common_manager_->GetThreadData(); }

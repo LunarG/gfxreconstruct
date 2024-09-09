@@ -59,10 +59,6 @@ extern char** environ;
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// One based frame count.
-const uint32_t kFirstFrame           = 1;
-const size_t   kFileStreamBufferSize = 256 * 1024;
-
 std::mutex                                     CommonCaptureManager::ThreadData::count_lock_;
 format::ThreadId                               CommonCaptureManager::ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, format::ThreadId> CommonCaptureManager::ThreadData::id_map_;
@@ -110,7 +106,7 @@ CommonCaptureManager::CommonCaptureManager() :
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
-    queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
+    override_frame_(kInvalidFrame), queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
@@ -323,9 +319,11 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     use_asset_file_                  = trace_settings.use_asset_file;
     write_state_files_               = trace_settings.write_state_files;
 
-    if (trace_settings.recapture)
+    if (!trace_settings.reuse_asset_file.empty())
     {
         SetUniqueIdOffset(UINT64_MAX - static_cast<uint64_t>(5000));
+        asset_file_name_ = trace_settings.reuse_asset_file;
+        reuse_asset_file = true;
     }
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
@@ -920,6 +918,8 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family)
         GFXRECON_LOG_INFO("All trim ranges have been captured. Quitting.");
         exit(EXIT_SUCCESS);
     }
+
+    WriteFrameMarker(format::MarkerType::kBeginMarker);
 }
 
 void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family)
@@ -983,26 +983,26 @@ std::string CommonCaptureManager::CreateTrimFilename(const std::string&     base
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
-std::string CommonCaptureManager::CreateAssetFile()
+void CommonCaptureManager::CreateAssetFile()
 {
     std::string asset_file_name = CreateAssetFilename(base_filename_);
 
-    if (timestamp_filename_)
-    {
-        asset_file_name = util::filepath::GenerateTimestampedFilename(asset_file_name);
-    }
+    GFXRECON_WRITE_CONSOLE("%s() asset_file_name: %s", __func__, asset_file_name.c_str())
 
-    asset_file_stream_ = std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize);
+    asset_file_stream_ =
+        std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize, reuse_asset_file);
     if (asset_file_stream_->IsValid())
     {
-        WriteFileHeader(asset_file_stream_.get());
+        if (!reuse_asset_file)
+        {
+            WriteFileHeader(asset_file_stream_.get());
+        }
     }
     else
     {
+        GFXRECON_LOG_ERROR("Failed creating/opening asset file %s", asset_file_name.c_str());
         asset_file_stream_ = nullptr;
     }
-
-    return asset_file_name;
 }
 
 std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename)
@@ -1025,6 +1025,11 @@ std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_fi
     else
     {
         asset_file_name_ += std::string("_asset_file.gfxa");
+    }
+
+    if (timestamp_filename_)
+    {
+        asset_file_name_ = util::filepath::GenerateTimestampedFilename(asset_file_name_);
     }
 
     return asset_file_name_;
@@ -1835,8 +1840,17 @@ static const char* VkObjectTypeToStr(VkObjectType type)
 
 void CommonCaptureManager::OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type)
 {
-    handle_ids_override.push(std::make_pair(id, type));
-    GFXRECON_WRITE_CONSOLE("[CAPTURE] %s() capture_id: %" PRIu64 " type: %s", __func__, id, VkObjectTypeToStr(type));
+    if (id != format::kNullHandleId)
+    {
+        GFXRECON_WRITE_CONSOLE("[CAPTURE] %s() capture_id: %" PRIu64 " type: %s", __func__, id, VkObjectTypeToStr(type));
+        handle_ids_override.push(std::make_pair(id, type));
+    }
+}
+
+void CommonCaptureManager::OverrideFrame(format::FrameNumber frame)
+{
+    GFXRECON_WRITE_CONSOLE("%s(frame: %" PRIu64 ")", __func__, frame)
+    override_frame_ = frame;
 }
 
 format::HandleId CommonCaptureManager::GetUniqueId(VkObjectType type)

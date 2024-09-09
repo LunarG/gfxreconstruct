@@ -33,6 +33,7 @@
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "format/api_call_id.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
@@ -426,6 +427,12 @@ VKAPI_ATTR void VKAPI_CALL OverrideIdForNextVulkanObjectGFXR(format::HandleId id
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     manager->OverrideIdForNextVulkanObject(id, type);
+}
+
+VKAPI_ATTR void VKAPI_CALL OverrideFrameNumberGFXR(format::FrameNumber frame)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->OverrideFrameNumber(frame);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,

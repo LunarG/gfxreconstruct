@@ -212,10 +212,6 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
 template <typename Wrapper>
 void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_GetHandleId get_id)
 {
-    GFXRECON_WRITE_CONSOLE("%s()", __func__)
-    GFXRECON_WRITE_CONSOLE("  handle: %p", handle)
-    GFXRECON_WRITE_CONSOLE("  *handle: %p", *handle)
-
     ScopedDestroyLock shared_scoped_lock(false);
     assert(handle != nullptr);
     if ((*handle) != VK_NULL_HANDLE)
@@ -332,9 +328,6 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
             break;
         }
     }
-
-    GFXRECON_WRITE_CONSOLE("%s()", __func__)
-    GFXRECON_WRITE_CONSOLE("  wrapper: %p", wrapper)
 
     if (wrapper == nullptr)
     {

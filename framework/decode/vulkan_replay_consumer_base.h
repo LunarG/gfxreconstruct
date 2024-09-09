@@ -101,6 +101,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
 
+    virtual void ProcessFrameBeginMarker(uint64_t frame_number) override;
+
+    virtual void ProcessFrameEndMarker(uint64_t frame_number) override;
+
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
     virtual void
@@ -1580,6 +1584,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     encode::OverrideCaptureObjectIdFuncPtr    override_capture_obj_id_fp_ = nullptr;
     encode::LoadAssetFileOffsetsGFXRPtr       load_asset_file_offsets_fp_ = nullptr;
     encode::SetUniqueIdOffsetGFXRPtr          set_unique_id_offset_fp_    = nullptr;
+    encode::OverrideFrameNumberGFXRPtr        override_frame_number_fp_   = nullptr;
 };
 
 GFXRECON_END_NAMESPACE(decode)
