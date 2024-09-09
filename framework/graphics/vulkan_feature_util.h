@@ -30,7 +30,7 @@
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
-GFXRECON_BEGIN_NAMESPACE(decode)
+GFXRECON_BEGIN_NAMESPACE(graphics)
 GFXRECON_BEGIN_NAMESPACE(feature_util)
 
 VkResult GetInstanceLayers(PFN_vkEnumerateInstanceLayerProperties instance_layer_proc,
@@ -71,7 +71,7 @@ void CheckUnsupportedFeatures(VkPhysicalDevice                 physicalDevice,
                               bool                             remove_unsupported);
 
 GFXRECON_END_NAMESPACE(feature_util)
-GFXRECON_END_NAMESPACE(decode)
+GFXRECON_END_NAMESPACE(graphics)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
 #endif // GFXRECON_DECODE_VULKAN_FEATURE_FILTER_UTIL_H
