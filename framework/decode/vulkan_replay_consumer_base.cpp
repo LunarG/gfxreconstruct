@@ -287,8 +287,8 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
     // If a trace file has the state begin marker, it must be a trim trace file.
     replaying_trimmed_capture_ = true;
 
-    GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
-    GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
+    // GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
+    // GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
@@ -301,7 +301,7 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     }
 
     current_frame_ = frame_number;
-    GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
+    // GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
 
     if (override_frame_number_fp_ != nullptr)
     {
@@ -311,7 +311,7 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
 
 void VulkanReplayConsumerBase::ProcessFrameBeginMarker(uint64_t frame_number)
 {
-    GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
+    // GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
     current_frame_ = frame_number;
 
     if (override_frame_number_fp_ != nullptr)
@@ -322,9 +322,9 @@ void VulkanReplayConsumerBase::ProcessFrameBeginMarker(uint64_t frame_number)
 
 void VulkanReplayConsumerBase::ProcessFrameEndMarker(uint64_t frame_number)
 {
-    GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
+    // GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
     current_frame_ = frame_number + 1;
-    GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
+    // GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
 
     if (override_frame_number_fp_ != nullptr)
     {

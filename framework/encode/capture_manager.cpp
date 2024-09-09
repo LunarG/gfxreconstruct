@@ -1855,7 +1855,7 @@ void CommonCaptureManager::OverrideFrame(format::FrameNumber frame)
 
 format::HandleId CommonCaptureManager::GetUniqueId(VkObjectType type)
 {
-    GFXRECON_WRITE_CONSOLE("%s(type: %s)", __func__, VkObjectTypeToStr(type));
+    // GFXRECON_WRITE_CONSOLE("%s(type: %s)", __func__, VkObjectTypeToStr(type));
 
     if (!handle_ids_override.empty())
     {
@@ -1871,13 +1871,13 @@ format::HandleId CommonCaptureManager::GetUniqueId(VkObjectType type)
         }
         handle_ids_override.pop();
 
-        GFXRECON_WRITE_CONSOLE("  Removing from stack %" PRIu64 "(%zu)", top.first, handle_ids_override.size());
+        // GFXRECON_WRITE_CONSOLE("  Removing from stack %" PRIu64 "(%zu)", top.first, handle_ids_override.size());
 
         return top.first;
     }
     else
     {
-        GFXRECON_WRITE_CONSOLE("  Incrementing %" PRIu64, unique_id_counter_ + 1);
+        // GFXRECON_WRITE_CONSOLE("  Incrementing %" PRIu64, unique_id_counter_ + 1);
         return ++unique_id_counter_;
     }
 }

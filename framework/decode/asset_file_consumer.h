@@ -42,22 +42,22 @@ class AssetFileConsumer : public VulkanConsumer
   public:
     AssetFileConsumer() : current_frame_(0), greatest_id_(0)
     {
-#if defined(VK_USE_PLATFORM_ANDROID_KHR)
-        if (util::platform::FileOpen(&debug_, "/storage/emulated/0/Download/AssetFileConsumer2.txt", "a"))
-#else
-        if (util::platform::FileOpen(&debug_, "AssetFileConsumer.txt", "a"))
-#endif
-        {
-            assert(0);
-        }
+// #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+//         if (util::platform::FileOpen(&debug_, "/storage/emulated/0/Download/AssetFileConsumer2.txt", "a"))
+// #else
+//         if (util::platform::FileOpen(&debug_, "AssetFileConsumer.txt", "a"))
+// #endif
+//         {
+//             assert(0);
+//         }
     }
 
     ~AssetFileConsumer()
     {
-        if (debug_)
-        {
-            util::platform::FileClose(debug_);
-        }
+        // if (debug_)
+        // {
+        //     util::platform::FileClose(debug_);
+        // }
     }
 
     virtual void ProcessFrameBeginMarker(uint64_t frame_number) override;
@@ -108,7 +108,7 @@ class AssetFileConsumer : public VulkanConsumer
     format::AssetFileOffsets asset_file_offsets_;
     format::FrameNumber      current_frame_;
     format::HandleId         greatest_id_;
-    FILE*                    debug_;
+    // FILE*                    debug_;
 };
 
 GFXRECON_END_NAMESPACE(gfxrecon)

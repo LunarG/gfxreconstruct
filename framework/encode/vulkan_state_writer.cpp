@@ -46,7 +46,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-static FILE*   debug                    = nullptr;
+// static FILE*   debug                    = nullptr;
 const uint32_t kDefaultQueueFamilyIndex = 0;
 
 static bool IsMemoryCoherent(VkMemoryPropertyFlags property_flags)
@@ -103,7 +103,7 @@ WriteFrameMarker(format::MarkerType marker_type, uint64_t frame_number, util::Fi
 {
     assert(output_stream != nullptr);
 
-    fprintf(debug, "%s() %" PRId64 "\n", __func__, frame_number);
+    // fprintf(debug, "%s() %" PRId64 "\n", __func__, frame_number);
 
     format::Marker marker_cmd;
     uint64_t       header_size = sizeof(format::Marker);
@@ -121,16 +121,21 @@ uint64_t VulkanStateWriter::WriteAssets(const VulkanStateTable& state_table, uin
 
     blocks_written_ = 0;
 
-    debug = fopen("/storage/emulated/0/Download/WriteState.txt", "a");
-    assert(debug);
+// #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+//     debug = fopen("/storage/emulated/0/Download/WriteState.txt", "a");
+// #else
+//     debug = fopen("WriteState.txt", "a");
+// #endif
+
+    // assert(debug);
 
     WriteFrameMarker(format::MarkerType::kBeginMarker, frame_number, asset_file_stream_);
 
     WriteResourceMemoryState(state_table, false);
     WriteDescriptorSetStateWithAssetFile(state_table);
 
-    fsync(fileno(debug));
-    fclose(debug);
+    // fsync(fileno(debug));
+    // fclose(debug);
 
     return blocks_written_;
 }
@@ -140,8 +145,13 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     // clang-format off
     blocks_written_ = 0;
 
-    debug = fopen("/storage/emulated/0/Download/WriteState.txt", "a");
-    assert(debug);
+// #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+//     debug = fopen("/storage/emulated/0/Download/WriteState.txt", "a");
+// #else
+//     debug = fopen("WriteState.txt", "a");
+// #endif
+
+//     assert(debug);
 
     auto started = std::chrono::high_resolution_clock::now();
 
@@ -252,8 +262,8 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
         asset_file_stream_->Flush();
     }
 
-    fsync(fileno(debug));
-    fclose(debug);
+    // fsync(fileno(debug));
+    // fclose(debug);
 
     // For the EndMarker meta command
     ++blocks_written_;
@@ -1161,7 +1171,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             wrapper->dirty                             = false;
             (*asset_file_offsets_)[wrapper->handle_id] = offset;
 
-            fprintf(debug, "%" PRIu64 " -> %" PRId64 "\n", wrapper->handle_id, offset);
+            // fprintf(debug, "%" PRIu64 " -> %" PRId64 "\n", wrapper->handle_id, offset);
         }
         else
         {
@@ -1773,7 +1783,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
                 asset_file_stream_->Write(bytes, data_size);
                 (*asset_file_offsets_)[buffer_wrapper->handle_id] = offset;
 
-                fprintf(debug, "buffer %" PRIu64 " -> %" PRId64 "\n", buffer_wrapper->handle_id, offset);
+                // fprintf(debug, "buffer %" PRIu64 " -> %" PRId64 "\n", buffer_wrapper->handle_id, offset);
 
                 if (output_stream_ != nullptr)
                 {
@@ -2105,7 +2115,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
                     asset_file_stream_->Write(snapshot_entry.level_sizes.data(), levels_size);
                     asset_file_stream_->Write(bytes, data_size);
 
-                    fprintf(debug, "image %" PRIu64 " -> %" PRId64 "\n", image_wrapper->handle_id, offset);
+                    // fprintf(debug, "image %" PRIu64 " -> %" PRId64 "\n", image_wrapper->handle_id, offset);
 
                     if (output_stream_ != nullptr)
                     {
