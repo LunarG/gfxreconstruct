@@ -640,7 +640,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
         auto last_frame_entry = asset_file_offsets->rbegin();
         if (last_frame_entry->second.find(wrapper->handle_id) != last_frame_entry->second.end())
         {
-            wrapper->dirty = false;
+            wrapper->init_from_asset_file = true;
+            wrapper->dirty                = false;
         }
     }
 }
@@ -689,7 +690,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
         auto last_frame_entry = asset_file_offsets->rbegin();
         if (last_frame_entry->second.find(wrapper->handle_id) != last_frame_entry->second.end())
         {
-            wrapper->dirty = false;
+            wrapper->dirty                = false;
+            wrapper->init_from_asset_file = true;
         }
     }
 }
@@ -968,7 +970,8 @@ inline void InitializePoolObjectState(VkDevice                               par
         auto last_frame_entry = asset_file_offsets->rbegin();
         if (last_frame_entry->second.find(wrapper->handle_id) != last_frame_entry->second.end())
         {
-            wrapper->dirty = false;
+            wrapper->init_from_asset_file = true;
+            wrapper->dirty                = false;
         }
     }
 }

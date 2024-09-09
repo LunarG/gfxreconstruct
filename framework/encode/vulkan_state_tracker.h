@@ -687,7 +687,7 @@ class VulkanStateTracker
 
     void TrackBeginRendering(VkCommandBuffer commandBuffer, const VkRenderingInfo* pRenderingInfo);
 
-    void LoadAssetFileOffsets(const format::AssetFileOffsets& offsets) { asset_file_offsets_ = offsets; }
+    void LoadAssetFileOffsets(const format::AssetFileOffsets& offsets);
 
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>

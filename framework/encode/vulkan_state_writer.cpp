@@ -1016,7 +1016,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             // Create a temporary object on first encounter.
             if (dep_inserted.second)
             {
-                if (wrapper->dirty)
+                if (wrapper->dirty && !wrapper->init_from_asset_file)
                 {
                     const int64_t offset                       = asset_file_stream_->GetOffset();
                     (*asset_file_offsets_)[wrapper->handle_id] = offset;
@@ -1031,9 +1031,16 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                 {
                     if (output_stream_ != nullptr)
                     {
-                        assert((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end());
-                        const int64_t offset = (*asset_file_offsets_)[wrapper->handle_id];
-                        WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
+                        if ((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end())
+                        {
+                            const int64_t offset = (*asset_file_offsets_)[wrapper->handle_id];
+                            WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
+                        }
+                        else
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "%s() Desc set %" PRIu64 " was not in offset map", __func__, wrapper->handle_id);
+                        }
                     }
                 }
             }
@@ -1045,14 +1052,20 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
 
         uint32_t n_blocks = 0;
         int64_t  offset;
-        if (wrapper->dirty)
+        if (wrapper->dirty && !wrapper->init_from_asset_file)
         {
             offset = asset_file_stream_->GetOffset();
         }
         else
         {
-            assert((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end());
-            offset = (*asset_file_offsets_)[wrapper->handle_id];
+            if ((*asset_file_offsets_).find(wrapper->handle_id) != (*asset_file_offsets_).end())
+            {
+                offset = (*asset_file_offsets_)[wrapper->handle_id];
+            }
+            else
+            {
+                GFXRECON_LOG_WARNING("%s() Desc set %" PRIu64 " was not in offset map", __func__, wrapper->handle_id);
+            }
         }
 
         // Filter duplicate calls to vkAllocateDescriptorSets for descriptor sets that were allocated by the same
@@ -1060,7 +1073,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
         const auto new_entry = processed.insert(wrapper->create_parameters.get());
         if (new_entry.second)
         {
-            if (wrapper->dirty)
+            if (wrapper->dirty && !wrapper->init_from_asset_file)
             {
                 // Write descriptor set creation call and add the parameter buffer to the processed set.
                 WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get(), asset_file_stream_);
@@ -1098,7 +1111,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                         // End of an active descriptor write range.
                         active                = false;
                         write.descriptorCount = i - write.dstArrayElement;
-                        if (wrapper->dirty)
+                        if (wrapper->dirty && !wrapper->init_from_asset_file)
                         {
                             WriteDescriptorUpdateCommand(
                                 wrapper->device->handle_id, binding, &write, asset_file_stream_);
@@ -1111,7 +1124,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                     // Mutable descriptor type change within an active write range
                     // End current range
                     write.descriptorCount = i - write.dstArrayElement;
-                    if (wrapper->dirty)
+                    if (wrapper->dirty && !wrapper->init_from_asset_file)
                     {
                         WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write, asset_file_stream_);
                     }
@@ -1128,7 +1141,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             {
                 write.descriptorCount = binding->count - write.dstArrayElement;
 
-                if (wrapper->dirty)
+                if (wrapper->dirty && !wrapper->init_from_asset_file)
                 {
                     WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write, asset_file_stream_);
                 }
@@ -1143,12 +1156,17 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             WriteExecuteFromFile(asset_file_stream_->GetFilename(), n_blocks, offset);
         }
 
-        if (wrapper->dirty)
+        if (wrapper->dirty && !wrapper->init_from_asset_file)
         {
             wrapper->dirty                             = false;
             (*asset_file_offsets_)[wrapper->handle_id] = offset;
 
             fprintf(debug, "%" PRIu64 " -> %" PRId64 "\n", wrapper->handle_id, offset);
+        }
+        else
+        {
+            wrapper->dirty                = false;
+            wrapper->init_from_asset_file = false;
         }
     });
 
@@ -1669,7 +1687,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
 
         assert((buffer_wrapper != nullptr));
 
-        if (buffer_wrapper->dirty)
+        if (buffer_wrapper->dirty && !buffer_wrapper->init_from_asset_file)
         {
             assert(memory_wrapper != nullptr);
             buffer_wrapper->dirty = false;
@@ -1777,11 +1795,21 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
         }
         else
         {
+            buffer_wrapper->dirty                = false;
+            buffer_wrapper->init_from_asset_file = false;
+
             if (output_stream_ != nullptr)
             {
-                assert((*asset_file_offsets_).find(buffer_wrapper->handle_id) != (*asset_file_offsets_).end());
-                const int64_t offset = (*asset_file_offsets_)[buffer_wrapper->handle_id];
-                WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
+                if ((*asset_file_offsets_).find(buffer_wrapper->handle_id) != (*asset_file_offsets_).end())
+                {
+                    const int64_t offset = (*asset_file_offsets_)[buffer_wrapper->handle_id];
+                    WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "%s() Buffer %" PRIu64 " was not in offset map", __func__, buffer_wrapper->handle_id);
+                }
             }
         }
     }
@@ -1954,7 +1982,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
         assert(image_wrapper != nullptr);
 
-        if (image_wrapper->dirty)
+        if (image_wrapper->dirty && !image_wrapper->init_from_asset_file)
         {
             assert((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
                    (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr));
@@ -2107,11 +2135,20 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         }
         else
         {
+            image_wrapper->dirty                = false;
+            image_wrapper->init_from_asset_file = false;
             if (output_stream_ != nullptr)
             {
-                assert((*asset_file_offsets_).find(image_wrapper->handle_id) != (*asset_file_offsets_).end());
-                const int64_t offset = (*asset_file_offsets_)[image_wrapper->handle_id];
-                WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
+                if ((*asset_file_offsets_).find(image_wrapper->handle_id) != (*asset_file_offsets_).end())
+                {
+                    const int64_t offset = (*asset_file_offsets_)[image_wrapper->handle_id];
+                    WriteExecuteFromFile(asset_file_stream_->GetFilename(), 1, offset);
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING(
+                        "%s() Image %" PRIu64 " was not in offset map", __func__, image_wrapper->handle_id);
+                }
             }
         }
     }
