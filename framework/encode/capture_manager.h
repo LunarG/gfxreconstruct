@@ -67,6 +67,8 @@ class CommonCaptureManager
 
     typedef std::shared_mutex ApiCallMutexT;
 
+    static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+
     static format::HandleId GetUniqueId(VkObjectType type);
 
     static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }

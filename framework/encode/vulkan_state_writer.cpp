@@ -36,7 +36,6 @@
 #include <cassert>
 #include <cstdint>
 #include <limits>
-#include <unistd.h>
 #include <unordered_map>
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
