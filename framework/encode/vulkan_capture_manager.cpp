@@ -30,7 +30,7 @@
 
 #include "encode/struct_pointer_encoder.h"
 #include "encode/vulkan_capture_manager.h"
-
+#include "encode/custom_layer_func_table.h"
 #include "encode/capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_state_writer.h"
@@ -691,6 +691,41 @@ VkResult VulkanCaptureManager::OverrideCreateInstance(const VkInstanceCreateInfo
                 VK_VERSION_MAJOR(api_version),
                 VK_VERSION_MINOR(api_version),
                 VK_VERSION_PATCH(api_version));
+        }
+
+        const VkLayerSettingsCreateInfoEXT* layer_settings_ext =
+            graphics::vulkan_struct_get_pnext<VkLayerSettingsCreateInfoEXT>(pCreateInfo);
+        if (layer_settings_ext != nullptr && layer_settings_ext->settingCount)
+        {
+            GFXRECON_LOG_INFO("%s() Discovered VkLayerSettingsCreateInfoEXT", __func__)
+
+            for (uint32_t i = 0; i < layer_settings_ext->settingCount; ++i)
+            {
+                if (util::platform::StringCompare(
+                        layer_settings_ext->pSettings[i].pLayerName,
+                        GFXRECON_PROJECT_VULKAN_LAYER_NAME "\0",
+                        util::platform::StringLength(GFXRECON_PROJECT_VULKAN_LAYER_NAME "\0")) ||
+                    !layer_settings_ext->pSettings[i].valueCount)
+                {
+                    continue;
+                }
+
+                auto table_entry = custom_func_table.find(layer_settings_ext->pSettings[i].pSettingName);
+                if (table_entry != custom_func_table.end())
+                {
+                    // Cast the const away
+                    PFN_vkVoidFunction* func_ptr = reinterpret_cast<PFN_vkVoidFunction*>(
+                        const_cast<void*>(layer_settings_ext->pSettings[i].pValues));
+
+                    GFXRECON_WRITE_CONSOLE("  %s -> %p", table_entry->first.c_str(), table_entry->second);
+                    *func_ptr = table_entry->second;
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING("  There is no function named \"%s\" exposed by the capture layer.",
+                                         layer_settings_ext->pSettings[i].pSettingName);
+                }
+            }
         }
     }
 

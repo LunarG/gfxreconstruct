@@ -22,7 +22,8 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
-#include "decode/asset_file_consumer.h"
+#include PROJECT_VERSION_HEADER_FILE
+
 #include "generated/generated_vulkan_decoder.h"
 #include "decode/vulkan_replay_consumer_base.h"
 #include "decode/custom_vulkan_struct_handle_mappers.h"
@@ -50,7 +51,6 @@
 #include "util/hash.h"
 #include "util/platform.h"
 #include "util/logging.h"
-
 #include "spirv_reflect.h"
 
 #include "generated/generated_vulkan_enum_to_string.h"
@@ -2388,11 +2388,6 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                replay_create_info->pApplicationInfo->pEngineName)
     }
 
-    // if (override_capture_obj_id_fp == nullptr)
-    // {
-    //     InitializeCaptureLayerCustomFuncs();
-    // }
-
     std::vector<const char*> modified_layers;
     std::vector<const char*> modified_extensions;
     VkInstanceCreateInfo     modified_create_info = (*replay_create_info);
@@ -2574,6 +2569,38 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         modified_create_info.ppEnabledLayerNames = modified_layers.data();
     }
 
+    // Reuse asset file.
+    // Get proc addresses of capture layer's exposed custom functions.
+    std::vector<VkLayerSettingEXT>  layer_settings;
+    std::vector<PFN_vkVoidFunction> layer_custom_funcs_ptrs;
+    VkLayerSettingsCreateInfoEXT    layer_settings_info;
+    if (!options_.reuse_asset_file.empty())
+    {
+        layer_custom_funcs_ptrs.resize(4);
+        PFN_vkVoidFunction* func_ptr_base      = layer_custom_funcs_ptrs.data();
+        static const char*  layer_func_names[] = { "SetUniqueIdOffsetGFXR",
+                                                   "LoadAssetFileOffsetsGFXR",
+                                                   "OverrideIdForNextVulkanObjectGFXR",
+                                                   "OverrideFrameNumberGFXR" };
+
+        layer_settings.resize(4);
+        for (size_t i = 0; i < layer_settings.size(); ++i)
+        {
+            layer_settings[i].pLayerName   = GFXRECON_PROJECT_VULKAN_LAYER_NAME;
+            layer_settings[i].pSettingName = layer_func_names[i];
+            layer_settings[i].type         = VK_LAYER_SETTING_TYPE_UINT64_EXT;
+            layer_settings[i].valueCount   = 1;
+            layer_settings[i].pValues      = func_ptr_base + i;
+        }
+
+        layer_settings_info.sType        = VK_STRUCTURE_TYPE_LAYER_SETTINGS_CREATE_INFO_EXT;
+        layer_settings_info.pNext        = modified_create_info.pNext;
+        layer_settings_info.settingCount = layer_settings.size();
+        layer_settings_info.pSettings    = layer_settings.data();
+
+        modified_create_info.pNext = &layer_settings_info;
+    }
+
     VkResult result = create_instance_proc_(&modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
 
     if ((replay_instance != nullptr) && (result == VK_SUCCESS))
@@ -2591,35 +2618,11 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                                                          modified_create_info.enabledExtensionCount);
         }
 
-        // Reuse asset file
         if (!options_.reuse_asset_file.empty())
         {
-            auto instance_table         = GetInstanceTable(*replay_instance);
-            override_capture_obj_id_fp_ = reinterpret_cast<encode::OverrideCaptureObjectIdFuncPtr>(
-                instance_table->GetInstanceProcAddr(*replay_instance, "OverrideIdForNextVulkanObjectGFXR"));
+            assert(layer_custom_funcs_ptrs.size() == 4);
 
-            if (override_capture_obj_id_fp_ == nullptr)
-            {
-                GFXRECON_LOG_WARNING("Failed to discover OverrideIdForNextVulkanObjectGFXR()");
-            }
-            else
-            {
-                GFXRECON_WRITE_CONSOLE("override_capture_obj_id_fp: %p: ", override_capture_obj_id_fp_)
-            }
-
-            load_asset_file_offsets_fp_ = reinterpret_cast<encode::LoadAssetFileOffsetsGFXRPtr>(
-                instance_table->GetInstanceProcAddr(*replay_instance, "LoadAssetFileOffsetsGFXR"));
-            if (load_asset_file_offsets_fp_ == nullptr)
-            {
-                GFXRECON_LOG_WARNING("Failed to discover LoadAssetFileOffsetsGFXR()");
-            }
-            else
-            {
-                GFXRECON_WRITE_CONSOLE("load_asset_file_offsets_fp: %p: ", load_asset_file_offsets_fp_)
-            }
-
-            set_unique_id_offset_fp_ = reinterpret_cast<encode::SetUniqueIdOffsetGFXRPtr>(
-                instance_table->GetInstanceProcAddr(*replay_instance, "SetUniqueIdOffsetGFXR"));
+            set_unique_id_offset_fp_ = reinterpret_cast<encode::SetUniqueIdOffsetGFXRPtr>(layer_custom_funcs_ptrs[0]);
             if (set_unique_id_offset_fp_ == nullptr)
             {
                 GFXRECON_LOG_WARNING("Failed to discover SetUniqueIdOffsetGFXR()");
@@ -2629,8 +2632,30 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
                 GFXRECON_WRITE_CONSOLE("set_unique_id_offset_fp: %p: ", set_unique_id_offset_fp_)
             }
 
-            override_frame_number_fp_ = reinterpret_cast<encode::OverrideFrameNumberGFXRPtr>(
-                instance_table->GetInstanceProcAddr(*replay_instance, "OverrideFrameNumberGFXR"));
+            load_asset_file_offsets_fp_ =
+                reinterpret_cast<encode::LoadAssetFileOffsetsGFXRPtr>(layer_custom_funcs_ptrs[1]);
+            if (load_asset_file_offsets_fp_ == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Failed to discover LoadAssetFileOffsetsGFXR()");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("load_asset_file_offsets_fp: %p: ", load_asset_file_offsets_fp_)
+            }
+
+            override_capture_obj_id_fp_ =
+                reinterpret_cast<encode::OverrideCaptureObjectIdFuncPtr>(layer_custom_funcs_ptrs[2]);
+            if (override_capture_obj_id_fp_ == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Failed to discover OverrideIdForNextVulkanObjectGFXR()");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("override_capture_obj_id_fp: %p: ", override_capture_obj_id_fp_)
+            }
+
+            override_frame_number_fp_ =
+                reinterpret_cast<encode::OverrideFrameNumberGFXRPtr>(layer_custom_funcs_ptrs[3]);
             if (override_frame_number_fp_ == nullptr)
             {
                 GFXRECON_LOG_WARNING("Failed to discover OverrideFrameNumberGFXR()");

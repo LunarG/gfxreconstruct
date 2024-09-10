@@ -1581,9 +1581,9 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     format::FrameNumber  current_frame_ = 1;
 
     const gfxrecon::format::AssetFileOffsets* asset_file_offsets_         = nullptr;
-    encode::OverrideCaptureObjectIdFuncPtr    override_capture_obj_id_fp_ = nullptr;
-    encode::LoadAssetFileOffsetsGFXRPtr       load_asset_file_offsets_fp_ = nullptr;
     encode::SetUniqueIdOffsetGFXRPtr          set_unique_id_offset_fp_    = nullptr;
+    encode::LoadAssetFileOffsetsGFXRPtr       load_asset_file_offsets_fp_ = nullptr;
+    encode::OverrideCaptureObjectIdFuncPtr    override_capture_obj_id_fp_ = nullptr;
     encode::OverrideFrameNumberGFXRPtr        override_frame_number_fp_   = nullptr;
 };
 
