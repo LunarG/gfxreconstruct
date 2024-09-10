@@ -86,6 +86,9 @@ class OpenXrDecoderBase : public ApiDecoder
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
 
+    virtual void DispatchViewRelativeLocation(format::ThreadId              thread_id,
+                                              format::ViewRelativeLocation& location) override;
+
     // Unused stubs
     virtual void DecodeFunctionCall(format::ApiCallId  call_id,
                                     const ApiCallInfo& call_options,

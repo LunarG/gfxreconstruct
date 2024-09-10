@@ -47,6 +47,7 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
@@ -182,6 +183,15 @@ class OpenXrCaptureManager : public ApiCaptureManager
                                                    const XrApiLayerCreateInfo* apiLayerInfo,
                                                    XrInstance*                 instance);
 
+    void CreateSessionPostDispatch(XrResult                   result,
+                                   XrInstance                 instance,
+                                   const XrSessionCreateInfo* createInfo,
+                                   XrSession*                 session);
+
+    void EndFramePreDispatch(XrSession session, const XrFrameEndInfo* frameEndInfo);
+
+    using SpaceSet = std::unordered_set<XrSpace>;
+
   protected:
     OpenXrCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_OpenXR) {}
 
@@ -197,6 +207,17 @@ class OpenXrCaptureManager : public ApiCaptureManager
     static OpenXrCaptureManager*        singleton_;
     static OpenXrLayerTable             layer_table_;
     std::unique_ptr<OpenXrStateTracker> state_tracker_;
+
+    void WriteViewRelativeLocationMetadata(XrSession session, const XrFrameEndInfo& frameEndInfo);
+
+    struct SessionCaptureData
+    {
+        XrSpace view_ref_space = XR_NULL_HANDLE;
+    };
+    using SessionDataMap = std::map<XrSession, SessionCaptureData>;
+
+    SessionCaptureData& GetSessionCaptureData(XrSession session);
+    SessionDataMap      session_capture_data_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

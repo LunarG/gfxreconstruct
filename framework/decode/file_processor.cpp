@@ -1815,6 +1815,36 @@ bool FileProcessor::ProcessMetaData(const format::BlockHeader& block_header, for
                                  "Failed to read parent to child dependency meta-data block header");
         }
     }
+    else if (meta_data_type == format::MetaDataType::kViewRelativeLocation)
+    {
+        // This command does not support compression.
+        assert(block_header.type != format::BlockType::kCompressedMetaDataBlock);
+
+        format::ViewRelativeLocation Location;
+        format::ThreadId             thread_id;
+        success = ReadBytes(&thread_id, sizeof(thread_id));
+
+        format::ViewRelativeLocation location;
+        if (success)
+        {
+            success = ReadBytes(&location, sizeof(location));
+        }
+
+        if (success)
+        {
+            for (auto decoder : decoders_)
+            {
+                if (decoder->SupportsMetaDataId(meta_data_id))
+                {
+                    decoder->DispatchViewRelativeLocation(thread_id, location);
+                }
+            }
+        }
+        else
+        {
+            HandleBlockReadError(kErrorReadingBlockHeader, "Failed to ViewRelativeLocation meta-data block");
+        }
+    }
     else
     {
         if ((meta_data_type == format::MetaDataType::kReserved23) ||

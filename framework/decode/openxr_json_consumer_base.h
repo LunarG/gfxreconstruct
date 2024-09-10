@@ -128,6 +128,7 @@ class OpenXrExportJsonConsumerBase : public OpenXrConsumer
                              XrResult                                         returnValue,
                              format::HandleId                                 instance,
                              StructPointerDecoder<Decoded_XrEventDataBuffer>* eventData) override;
+    void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location) override;
 
     uint32_t submit_index_{ 0 }; // index of submissions across the trace
 

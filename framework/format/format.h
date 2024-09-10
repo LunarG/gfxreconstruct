@@ -154,6 +154,7 @@ enum class MetaDataType : uint16_t
     kReserved29                             = 29,
     kReserved30                             = 30,
     kReserved31                             = 31,
+    kViewRelativeLocation                   = 32,
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -647,6 +648,34 @@ struct ParentToChildDependencyHeader
     ParentToChildDependencyType dependency_type;
     format::HandleId            parent_id;
     uint32_t                    child_count;
+};
+
+struct ViewRelativeLocation
+{
+    format::HandleId session_id;
+    format::HandleId space_id;
+
+    // Locate status
+    uint64_t flags;
+
+    // Orientation
+    float qx;
+    float qy;
+    float qz;
+    float qw;
+
+    // Position
+    float x;
+    float y;
+    float z;
+};
+
+struct ViewRelativeLocationCmd
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+
+    ViewRelativeLocation location;
 };
 
 // Restore size_t to normal behavior.

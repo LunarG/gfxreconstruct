@@ -106,6 +106,7 @@ class MetadataConsumerBase
     {}
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) {}
+    virtual void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
 
   protected:
     uint64_t block_index_;
