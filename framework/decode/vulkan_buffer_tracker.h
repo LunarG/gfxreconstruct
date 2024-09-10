@@ -59,14 +59,6 @@ class VulkanBufferTracker
     void RemoveBuffer(const BufferInfo* buffer_info);
 
     /**
-     * @brief   Retrieve a buffer by providing a replay-time VkDeviceAddress within its range.
-     *
-     * @param   replay_address  a replay-time VkDeviceAddress pointing inside a buffer.
-     * @return  a const-pointer to a found BufferInfo or nullptr.
-     */
-    [[nodiscard]] const BufferInfo* GetBufferByReplayDeviceAddress(VkDeviceAddress replay_address) const;
-
-    /**
      * @brief   Retrieve a buffer by providing a capture-time VkDeviceAddress within its range.
      *
      * @param   replay_address  a capture-time VkDeviceAddress pointing inside a buffer.
@@ -82,7 +74,7 @@ class VulkanBufferTracker
                                                   const device_address_map_t& address_map) const;
 
     const VulkanObjectInfoTable& _object_info_table;
-    device_address_map_t         _capture_addresses, _replay_addresses;
+    device_address_map_t         _capture_addresses;
 };
 
 GFXRECON_END_NAMESPACE(decode)
