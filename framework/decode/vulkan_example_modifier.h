@@ -45,9 +45,9 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanExampleModifier : public util::VulkanModifierBase
 {
   public:
-    VulkanExampleModifier(){};
+    VulkanExampleModifier() = default;
 
-    virtual bool CanOptimize() override { return compacted_copies_.empty(); }
+    bool CanOptimize() override { return compacted_copies_.empty(); }
 
     // Example call modification
     // Add debug utils to list of extensions
@@ -55,7 +55,7 @@ class VulkanExampleModifier : public util::VulkanModifierBase
                                   VkResult                                             returnValue,
                                   StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
                                   StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                  HandlePointerDecoder<VkInstance>*                    pInstance)
+                                  HandlePointerDecoder<VkInstance>*                    pInstance) override
     {
         // Just modification pass, nothing to analyze
         if (parameter_buffer_)
@@ -98,11 +98,11 @@ class VulkanExampleModifier : public util::VulkanModifierBase
 
     // Example call deletion
     // Remove other SetName calls targeting the object we want to name
-    virtual void
-    Process_vkSetDebugUtilsObjectNameEXT(const ApiCallInfo&                                           call_info,
-                                         VkResult                                                     returnValue,
-                                         format::HandleId                                             device,
-                                         StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo)
+    void Process_vkSetDebugUtilsObjectNameEXT(
+        const ApiCallInfo&                                           call_info,
+        VkResult                                                     returnValue,
+        format::HandleId                                             device,
+        StructPointerDecoder<Decoded_VkDebugUtilsObjectNameInfoEXT>* pNameInfo) override
     {
         if (parameter_buffer_)
         {
@@ -118,10 +118,10 @@ class VulkanExampleModifier : public util::VulkanModifierBase
     // This override does not modify anything, just stores data required for later modifications.
     // In this case, handles of acceleration structures used for compaction purposes are stored in a map
     // along with the handle of the original non-compacted AS.
-    virtual void
-    Process_vkCmdCopyAccelerationStructureKHR(const ApiCallInfo& call_info,
-                                              format::HandleId   commandBuffer,
-                                              StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
+    void Process_vkCmdCopyAccelerationStructureKHR(
+        const ApiCallInfo&                                                call_info,
+        format::HandleId                                                  commandBuffer,
+        StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo) override
     {
         // Keep track of compacted acceleration structures
         if (!parameter_buffer_)
@@ -139,13 +139,13 @@ class VulkanExampleModifier : public util::VulkanModifierBase
     // When vkCreateAccelerationStructureKHR call is processed in the modification pass
     // and there's a record of the created acceleration structure being used later as compacted
     // copy destination, add vkSetDebugUtilsObjectNameEXT after this call.
-    virtual void Process_vkCreateAccelerationStructureKHR(
+    void Process_vkCreateAccelerationStructureKHR(
         const ApiCallInfo&                                                  call_info,
         VkResult                                                            returnValue,
         format::HandleId                                                    device,
         StructPointerDecoder<Decoded_VkAccelerationStructureCreateInfoKHR>* pCreateInfo,
         StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
-        HandlePointerDecoder<VkAccelerationStructureKHR>*                   pAccelerationStructure)
+        HandlePointerDecoder<VkAccelerationStructureKHR>*                   pAccelerationStructure) override
     {
         // In modification pass, add SetObjectName command after AS creation
         if (parameter_buffer_)
@@ -165,7 +165,7 @@ class VulkanExampleModifier : public util::VulkanModifierBase
                 object_name_info.objectType   = VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR;
                 object_name_info.pObjectName  = new_name.c_str();
                 object_name_info.objectHandle = *pAccelerationStructure->GetPointer();
-                object_name_info.pNext        = NULL;
+                object_name_info.pNext        = nullptr;
                 assert(object_name_info.pNext == nullptr);
 
                 // Encode new call
