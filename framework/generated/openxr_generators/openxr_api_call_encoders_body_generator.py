@@ -237,6 +237,13 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             body += indent + 'OpenXrCaptureManager* manager = OpenXrCaptureManager::Get();\n'
             body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
             if not is_override:
+                # Allow customization that is unlocked and validly reentrant
+                # For example if one needs to record calls into the output stream to add context or state
+                # to allow replay time operations, or handle differences in state tracking between API's (e.g. wrapped handles)
+                body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::PreLockReentrant({}, {});\n'.format(
+                    name, capture_manager, arg_list
+                )
+
                 # Declare for handles that need unwrapping.
                 unwrapped_arg_list, unwrap_list = self.make_handle_unwrapping(
                     name, values
@@ -299,13 +306,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                         for unwrap in unwrap_list
                     ]
                 )
-
-            # Allow customization that is unlocked and validly reentrant
-            # For example if one needs to record calls into the output stream to add context or state
-            # to allow replay time operations, or handle differences in state tracking between API's (e.g. wrapped handles)
-            body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::PreLockReentrant({}, {});\n'.format(
-                name, capture_manager, arg_list
-            )
 
             # Disable capture for reentrance
             body += top_indent + 'save_capture_mode = manager->GetCaptureMode();\n'
