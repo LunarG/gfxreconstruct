@@ -196,6 +196,7 @@ class ApiDecoder
 
     virtual void DispatchSetTlasToBlasDependencyCommand(format::HandleId                     tlas,
                                                         const std::vector<format::HandleId>& blases){};
+    virtual void DispatchViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location){};
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -324,6 +324,30 @@ void OpenXrExportJsonConsumerBase::Process_xrPollEvent(const ApiCallInfo&       
     WriteBlockEnd();
 }
 
+void OpenXrExportJsonConsumerBase::ProcessViewRelativeLocation(format::ThreadId              thread_id,
+                                                               format::ViewRelativeLocation& location)
+{
+    const util::JsonOptions& json_options = writer_->GetOptions();
+    // TODO: Fold this into a override for WriteMetaCommandStart if we add many more meta data blocks
+    writer_->SetCurrentBlockIndex(this->block_index_);
+    auto& jdata = writer_->WriteMetaCommandStart("ViewRelativeLocation");
+
+    FieldToJson(jdata["session"], location.session_id, json_options);
+    FieldToJson(jdata["space"], location.space_id, json_options);
+    FieldToJson(jdata["flags"], location.flags, json_options);
+
+    FieldToJson(jdata["qx"], location.qx, json_options);
+    FieldToJson(jdata["qy"], location.qy, json_options);
+    FieldToJson(jdata["qz"], location.qz, json_options);
+    FieldToJson(jdata["qw"], location.qw, json_options);
+
+    FieldToJson(jdata["x"], location.x, json_options);
+    FieldToJson(jdata["y"], location.y, json_options);
+    FieldToJson(jdata["z"], location.z, json_options);
+
+    writer_->WriteBlockEnd();
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

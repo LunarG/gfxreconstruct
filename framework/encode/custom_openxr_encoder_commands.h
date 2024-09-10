@@ -92,6 +92,32 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_xrDestroyInstance>
     }
 };
 
+// CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSession>::Dispatch(manager, result, instance, createInfo,
+// session); Dispatch custom command to finalize capture at instance destruction.
+template <>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_xrCreateSession>
+{
+    template <typename... Args>
+    static void Dispatch(OpenXrCaptureManager* manager, Args... args)
+    {
+        manager->CreateSessionPostDispatch(args...);
+    }
+};
+
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>
+{
+    template <typename... Args>
+    static void PreLockReentrant(OpenXrCaptureManager* manager, Args...)
+    {}
+
+    template <typename... Args>
+    static void Dispatch(OpenXrCaptureManager* manager, Args... args)
+    {
+        manager->EndFramePreDispatch(args...);
+    }
+};
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

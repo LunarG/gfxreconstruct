@@ -26,6 +26,7 @@
 
 #include PROJECT_VERSION_HEADER_FILE
 
+#include "decode/openxr_next_node.h"
 #include "encode/struct_pointer_encoder.h"
 #include "encode/openxr_capture_manager.h"
 
@@ -152,6 +153,110 @@ XrResult OpenXrCaptureManager::OverrideCreateApiLayerInstance(const XrInstanceCr
     }
 
     return result;
+}
+
+OpenXrCaptureManager::SessionCaptureData& OpenXrCaptureManager::GetSessionCaptureData(const XrSession session)
+{
+    assert(session != XR_NULL_HANDLE);
+    return session_capture_data_[session];
+}
+
+void OpenXrCaptureManager::CreateSessionPostDispatch(XrResult                   result,
+                                                     XrInstance                 instance,
+                                                     const XrSessionCreateInfo* createInfo,
+                                                     XrSession*                 session)
+{
+    if (XR_SUCCEEDED(result))
+    {
+        assert(instance != XR_NULL_HANDLE);
+        assert(session && (*session != XR_NULL_HANDLE));
+        SessionCaptureData& session_data = GetSessionCaptureData(*session);
+        assert(session_data.view_ref_space == XR_NULL_HANDLE);
+        const XrReferenceSpaceCreateInfo view_ref_info = { XR_TYPE_REFERENCE_SPACE_CREATE_INFO,
+                                                           nullptr,
+                                                           XR_REFERENCE_SPACE_TYPE_VIEW,
+                                                           { { 0., 0., 0., 1. }, { 0., 0., 0. } } };
+        XrResult ref_space_result = openxr_wrappers::GetInstanceTable(instance)->CreateReferenceSpace(
+            *session, &view_ref_info, &session_data.view_ref_space);
+        if (!XR_SUCCEEDED(ref_space_result))
+        {
+            GFXRECON_LOG_ERROR(
+                "View tracking reference space cannot be created. Needed for view relative position tracking.");
+        }
+    }
+}
+
+void OpenXrCaptureManager::EndFramePreDispatch(XrSession session, const XrFrameEndInfo* frameEndInfo)
+{
+    assert(frameEndInfo);
+    assert((frameEndInfo->layerCount == 0) || frameEndInfo->layers);
+
+    WriteViewRelativeLocationMetadata(session, *frameEndInfo);
+}
+
+void OpenXrCaptureManager::WriteViewRelativeLocationMetadata(const XrSession       session,
+                                                             const XrFrameEndInfo& frameEndInfo)
+{
+    // If there's nothing to do, we're done
+    if (!IsCaptureModeWrite() || !frameEndInfo.layers || (0 == frameEndInfo.layerCount))
+        return;
+
+    SessionCaptureData& session_data = GetSessionCaptureData(session);
+    if (session_data.view_ref_space == XR_NULL_HANDLE)
+        return;
+
+    SpaceSet found_spaces;
+    const XrCompositionLayerBaseHeader* const* layers = frameEndInfo.layers;
+    for (uint32_t layer_index = 0; layer_index < frameEndInfo.layerCount; layer_index++)
+    {
+        const XrCompositionLayerBaseHeader* layer = layers[layer_index];
+        if (layer && (layer->space != XR_NULL_HANDLE))
+        {
+            found_spaces.insert(layer->space);
+        }
+    }
+
+    const std::vector<XrSpace>       layer_spaces(found_spaces.begin(), found_spaces.end());
+    const uint32_t     space_count = static_cast<uint32_t>(layer_spaces.size());
+    XrSpacesLocateInfo locate_info = { XR_TYPE_SPACES_LOCATE_INFO, nullptr,     session_data.view_ref_space,
+                                       frameEndInfo.displayTime,   space_count, layer_spaces.data() };
+    std::vector<XrSpaceLocationData> location_data(space_count);
+    XrSpaceLocations space_locations = { XR_TYPE_SPACE_LOCATIONS, nullptr, space_count, location_data.data() };
+
+    XrResult result = openxr_wrappers::GetInstanceTable(session)->LocateSpaces(session, &locate_info, &space_locations);
+
+    const auto                      thread_data = GetThreadData();
+    format::ViewRelativeLocationCmd location_cmd;
+    location_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
+    location_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(location_cmd);
+    location_cmd.meta_header.meta_data_id =
+        format::MakeMetaDataId(format::ApiFamily_OpenXR, format::MetaDataType::kViewRelativeLocation);
+    location_cmd.thread_id = thread_data->thread_id_;
+
+    format::ViewRelativeLocation& location = location_cmd.location;
+
+    // Same session for all spaces
+    location.session_id = openxr_wrappers::GetWrappedId<openxr_wrappers::SessionWrapper>(session);
+
+    for (uint32_t space_index = 0; space_index < space_count; space_index++)
+    {
+
+        location.space_id = openxr_wrappers::GetWrappedId<openxr_wrappers::SpaceWrapper>(layer_spaces[space_index]);
+
+        const XrSpaceLocationData& space_location = location_data[space_index];
+        location.flags                            = space_location.locationFlags;
+
+        location.qx = space_location.pose.orientation.x;
+        location.qy = space_location.pose.orientation.y;
+        location.qz = space_location.pose.orientation.z;
+        location.qw = space_location.pose.orientation.w;
+
+        location.x = space_location.pose.position.x;
+        location.y = space_location.pose.position.y;
+        location.z = space_location.pose.position.z;
+
+        WriteToFile(&location_cmd, sizeof(location_cmd));
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

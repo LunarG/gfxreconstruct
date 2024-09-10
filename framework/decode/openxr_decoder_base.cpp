@@ -82,6 +82,14 @@ void OpenXrDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
+void OpenXrDecoderBase::DispatchViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessViewRelativeLocation(thread_id, location);
+    }
+}
+
 size_t OpenXrDecoderBase::Decode_xrEnumerateSwapchainImages(const ApiCallInfo& call_info,
                                                             const uint8_t*     parameter_buffer,
                                                             size_t             buffer_size)
