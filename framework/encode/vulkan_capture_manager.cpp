@@ -109,7 +109,11 @@ void VulkanCaptureManager::WriteTrackedState(util::FileOutputStream* file_stream
     assert(state_tracker_ != nullptr);
 
     format::FrameNumber frame =
-        GetOverrideFrame() != CommonCaptureManager::kInvalidFrame ? GetOverrideFrame() : GetCurrentFrame();
+        GetOverrideFrame() != CommonCaptureManager::kInvalidFrame ? (GetOverrideFrame() + 1) : GetCurrentFrame();
+
+    GFXRECON_WRITE_CONSOLE("%s()", __func__)
+    GFXRECON_WRITE_CONSOLE("  GetOverrideFrame(): %" PRIu64, GetOverrideFrame())
+    GFXRECON_WRITE_CONSOLE("  GetCurrentFrame(): %" PRIu64, GetCurrentFrame())
 
     uint64_t n_blocks = state_tracker_->WriteState(file_stream, thread_id, asset_file_stream, GetCompressor(), frame);
     common_manager_->IncrementBlockIndex(n_blocks);
