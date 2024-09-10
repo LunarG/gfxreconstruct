@@ -50,17 +50,20 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEndFrame(XrSession session, const XrFrameEndInf
     GFXRECON_ASSERT(manager != nullptr);
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>::PreLockReentrant(manager, session, frameEndInfo);
+    HandleUnwrapMemory*   handle_unwrap_memory   = nullptr;
+    const XrFrameEndInfo* frameEndInfo_unwrapped = nullptr;
+
     CommonCaptureManager::CaptureMode save_capture_mode;
     {
         auto call_lock = manager->AcquireCallLock();
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrEndFrame>::Dispatch(manager, session, frameEndInfo);
+        handle_unwrap_memory   = manager->GetHandleUnwrapMemory();
+        frameEndInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
+
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
-    auto                  handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    const XrFrameEndInfo* frameEndInfo_unwrapped =
-        openxr_wrappers::UnwrapStructPtrHandles(frameEndInfo, handle_unwrap_memory);
 
     XrResult result = openxr_wrappers::GetInstanceTable(session)->EndFrame(session, frameEndInfo_unwrapped);
 
@@ -288,11 +291,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateVulkanDeviceKHR(XrInstance               
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::Dispatch(
             manager, instance, createInfo, vulkanDevice, vulkanResult);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
+
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
-    handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    createInfo_unwrapped = openxr_wrappers::UnwrapStructPtrHandles(createInfo, handle_unwrap_memory);
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->CreateVulkanDeviceKHR(
         instance, createInfo_unwrapped, vulkanDevice, vulkanResult);
@@ -356,12 +360,12 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetVulkanGraphicsDevice2KHR(XrInstance         
 
         CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::Dispatch(
             manager, instance, getInfo, vulkanPhysicalDevice);
+        handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+        getInfo_unwrapped    = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
+
         save_capture_mode = manager->GetCaptureMode();
         manager->SetCaptureMode(CommonCaptureManager::CaptureModeFlags::kModeDisabled);
     }
-
-    handle_unwrap_memory = manager->GetHandleUnwrapMemory();
-    getInfo_unwrapped    = openxr_wrappers::UnwrapStructPtrHandles(getInfo, handle_unwrap_memory);
 
     XrResult result = openxr_wrappers::GetInstanceTable(instance)->GetVulkanGraphicsDevice2KHR(
         instance, getInfo_unwrapped, vulkanPhysicalDevice);
