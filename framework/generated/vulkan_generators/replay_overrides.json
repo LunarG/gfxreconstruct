@@ -88,7 +88,6 @@
     "vkGetPhysicalDeviceWaylandPresentationSupportKHR": "OverrideGetPhysicalDeviceWaylandPresentationSupportKHR",
     "vkCreateMetalSurfaceEXT": "OverrideCreateMetalSurfaceEXT",
     "vkDestroySurfaceKHR": "OverrideDestroySurfaceKHR",
-    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
     "vkGetRandROutputDisplayEXT": "OverrideGetRandROutputDisplayEXT",
     "vkGetBufferDeviceAddress": "OverrideGetBufferDeviceAddress",
     "vkGetBufferDeviceAddressKHR": "OverrideGetBufferDeviceAddress",
@@ -122,6 +121,11 @@
     "vkDestroyVideoSessionKHR": "OverrideDestroyVideoSessionKHR",
     "vkBindVideoSessionMemoryKHR": "OverrideBindVideoSessionMemoryKHR",
     "vkCreateShadersEXT": "OverrideCreateShadersEXT",
-    "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR"
+    "vkCmdTraceRaysKHR": "OverrideCmdTraceRaysKHR",
+    "vkCreateAccelerationStructureKHR": "OverrideCreateAccelerationStructureKHR",
+    "vkDestroyAccelerationStructureKHR": "OverrideDestroyAccelerationStructureKHR",
+    "vkCmdBuildAccelerationStructuresKHR": "OverrideCmdBuildAccelerationStructuresKHR",
+    "vkCmdCopyAccelerationStructureKHR" : "OverrideCmdCopyAccelerationStructureKHR",
+    "vkCmdWriteAccelerationStructuresPropertiesKHR" : "OverrideCmdWriteAccelerationStructuresPropertiesKHR"
   }
 }

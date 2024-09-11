@@ -7477,6 +7477,110 @@ VkResult VulkanReplayConsumerBase::OverrideCreateAccelerationStructureKHR(
     return result;
 }
 
+void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureKHR(
+    PFN_vkDestroyAccelerationStructureKHR                func,
+    const DeviceInfo*                                    device_info,
+    const AccelerationStructureKHRInfo*                  acceleration_structure_info,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    GFXRECON_ASSERT(device_info != nullptr);
+
+    auto allocator = device_info->allocator.get();
+    GFXRECON_ASSERT(allocator != nullptr);
+
+    VkAccelerationStructureKHR            acceleration_structure = VK_NULL_HANDLE;
+    VulkanResourceAllocator::ResourceData allocator_data         = 0;
+
+    if (acceleration_structure_info != nullptr)
+    {
+        acceleration_structure = acceleration_structure_info->handle;
+
+        if (!allocator->SupportsOpaqueDeviceAddresses())
+        {
+            //        acceleration_structure_builders_[device_info->capture_id]->OnDestroyAccelerationStructure(
+            //            acceleration_structure_info);
+            //        tracked_addresses_.erase(acceleration_structure_info->capture_id);
+        }
+    }
+
+    func(device_info->handle, acceleration_structure, GetAllocationCallbacks(pAllocator));
+}
+
+void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
+    PFN_vkCmdBuildAccelerationStructuresKHR                                    func,
+    CommandBufferInfo*                                                         command_buffer_info,
+    uint32_t                                                                   infoCount,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+    StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
+{
+    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+    if (device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        VkCommandBuffer                              command_buffer    = command_buffer_info->handle;
+        VkAccelerationStructureBuildGeometryInfoKHR* infos             = pInfos->GetPointer();
+        VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos = ppBuildRangeInfos->GetPointer();
+        func(command_buffer, infoCount, infos, build_range_infos);
+        return;
+    }
+    // Use the builder when the rebind allocator is selected and the trimming is done / not used
+    else if (!loading_trim_state_)
+    {
+        GFXRECON_ASSERT(false);
+//        acceleration_structure_builders_[command_buffer_info->parent_id]->CmdBuildAccelerationStructures(
+//            command_buffer_info->handle, infoCount, pInfos->GetPointer(), ppBuildRangeInfos->GetPointer());
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
+    PFN_vkCmdCopyAccelerationStructureKHR                             func,
+    CommandBufferInfo*                                                command_buffer_info,
+    StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo)
+{
+    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+    if (device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        VkCommandBuffer                     command_buffer = command_buffer_info->handle;
+        VkCopyAccelerationStructureInfoKHR* info           = pInfo->GetPointer();
+        func(command_buffer, info);
+    }
+    else if (!loading_trim_state_)
+    {
+        GFXRECON_ASSERT(false);
+//        acceleration_structure_builders_[command_buffer_info->parent_id]->CmdCopyAccelerationStructure(
+//            command_buffer_info->handle, pInfo->GetPointer());
+    }
+}
+
+void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesKHR(
+    PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
+    CommandBufferInfo*                                command_buffer_info,
+    uint32_t                                          count,
+    HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+    VkQueryType                                       queryType,
+    gfxrecon::decode::QueryPoolInfo*                  query_pool_info,
+    uint32_t                                          firstQuery)
+{
+    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+    if (device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        VkCommandBuffer                   command_buffer       = command_buffer_info->handle;
+        const VkAccelerationStructureKHR* acceleration_structs = pAccelerationStructures->GetHandlePointer();
+        VkQueryPool                       query_pool           = query_pool_info->handle;
+        func(command_buffer, count, acceleration_structs, queryType, query_pool, firstQuery);
+    }
+    else if (!loading_trim_state_)
+    {
+        GFXRECON_ASSERT(false);
+//        acceleration_structure_builders_[command_buffer_info->parent_id]->CmdWriteAccelerationStructuresProperties(
+//            command_buffer_info->handle,
+//            count,
+//            pAccelerationStructures->GetHandlePointer(),
+//            queryType,
+//            query_pool_info->handle,
+//            firstQuery);
+    }
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateRayTracingPipelinesKHR(
     PFN_vkCreateRayTracingPipelinesKHR                                     func,
     VkResult                                                               original_result,
