@@ -45,7 +45,7 @@ class VulkanBufferTracker
     ~VulkanBufferTracker() = default;
 
     /**
-     * @brief   Track an existing buffer by its capture- and replay-time VkDeviceAddress.
+     * @brief   Track an existing buffer by its capture-time VkDeviceAddress.
      *
      * @param   buffer_info a provided buffer_info containing a buffer-handle and associated device-addresses.
      */
