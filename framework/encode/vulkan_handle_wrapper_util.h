@@ -56,7 +56,7 @@ static const VkCommandPool    kTempCommandPool =
     UINT64_TO_VK_HANDLE(VkCommandPool, std::numeric_limits<uint64_t>::max() - 2);
 static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
 static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
-typedef format::HandleId      (*PFN_GetHandleId)(VkObjectType);
+typedef format::HandleId (*PFN_GetHandleId)(VkObjectType);
 
 extern VulkanStateHandleTable state_handle_table_;
 

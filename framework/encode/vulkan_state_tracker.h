@@ -789,7 +789,7 @@ class VulkanStateTracker
             if (entry == asset_file_offsets_.end())
             {
                 // Copy all entries from previous frame
-                auto last_frame_entry = asset_file_offsets_.rbegin();
+                auto last_frame_entry             = asset_file_offsets_.rbegin();
                 asset_file_offsets_[frame_number] = last_frame_entry->second;
             }
             else

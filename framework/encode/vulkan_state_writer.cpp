@@ -120,11 +120,11 @@ uint64_t VulkanStateWriter::WriteAssets(const VulkanStateTable& state_table, uin
 
     blocks_written_ = 0;
 
-// #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-//     debug = fopen("/storage/emulated/0/Download/WriteState.txt", "a");
-// #else
-//     debug = fopen("WriteState.txt", "a");
-// #endif
+    // #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+    //     debug = fopen("/storage/emulated/0/Download/WriteState.txt", "a");
+    // #else
+    //     debug = fopen("WriteState.txt", "a");
+    // #endif
 
     // assert(debug);
 
@@ -150,7 +150,12 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 //     debug = fopen("WriteState.txt", "a");
 // #endif
 
-//     assert(debug);
+    // if(debug == nullptr)
+    // {
+    //     GFXRECON_WRITE_CONSOLE("debug == nullptr")
+    // }
+
+    GFXRECON_WRITE_CONSOLE("%s(frame: %" PRIu64 ")", __func__, frame_number);
 
     auto started = std::chrono::high_resolution_clock::now();
 
@@ -1025,7 +1030,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             // Create a temporary object on first encounter.
             if (dep_inserted.second)
             {
-                if (wrapper->dirty && !wrapper->init_from_asset_file)
+                if (wrapper->dirty)
                 {
                     const int64_t offset                       = asset_file_stream_->GetOffset();
                     (*asset_file_offsets_)[wrapper->handle_id] = offset;
@@ -1061,7 +1066,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
 
         uint32_t n_blocks = 0;
         int64_t  offset;
-        if (wrapper->dirty && !wrapper->init_from_asset_file)
+        if (wrapper->dirty)
         {
             offset = asset_file_stream_->GetOffset();
         }
@@ -1082,7 +1087,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
         const auto new_entry = processed.insert(wrapper->create_parameters.get());
         if (new_entry.second)
         {
-            if (wrapper->dirty && !wrapper->init_from_asset_file)
+            if (wrapper->dirty)
             {
                 // Write descriptor set creation call and add the parameter buffer to the processed set.
                 WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get(), asset_file_stream_);
@@ -1120,7 +1125,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                         // End of an active descriptor write range.
                         active                = false;
                         write.descriptorCount = i - write.dstArrayElement;
-                        if (wrapper->dirty && !wrapper->init_from_asset_file)
+                        if (wrapper->dirty)
                         {
                             WriteDescriptorUpdateCommand(
                                 wrapper->device->handle_id, binding, &write, asset_file_stream_);
@@ -1133,7 +1138,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
                     // Mutable descriptor type change within an active write range
                     // End current range
                     write.descriptorCount = i - write.dstArrayElement;
-                    if (wrapper->dirty && !wrapper->init_from_asset_file)
+                    if (wrapper->dirty)
                     {
                         WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write, asset_file_stream_);
                     }
@@ -1150,7 +1155,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             {
                 write.descriptorCount = binding->count - write.dstArrayElement;
 
-                if (wrapper->dirty && !wrapper->init_from_asset_file)
+                if (wrapper->dirty)
                 {
                     WriteDescriptorUpdateCommand(wrapper->device->handle_id, binding, &write, asset_file_stream_);
                 }
@@ -1165,7 +1170,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
             WriteExecuteFromFile(asset_file_stream_->GetFilename(), n_blocks, offset);
         }
 
-        if (wrapper->dirty && !wrapper->init_from_asset_file)
+        if (wrapper->dirty)
         {
             wrapper->dirty                             = false;
             (*asset_file_offsets_)[wrapper->handle_id] = offset;
@@ -1174,8 +1179,7 @@ void VulkanStateWriter::WriteDescriptorSetStateWithAssetFile(const VulkanStateTa
         }
         else
         {
-            wrapper->dirty                = false;
-            wrapper->init_from_asset_file = false;
+            wrapper->dirty = false;
         }
     });
 
@@ -1696,7 +1700,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
 
         assert((buffer_wrapper != nullptr));
 
-        if (buffer_wrapper->dirty && !buffer_wrapper->init_from_asset_file)
+        if (buffer_wrapper->dirty)
         {
             assert(memory_wrapper != nullptr);
             buffer_wrapper->dirty = false;
@@ -1804,8 +1808,7 @@ void VulkanStateWriter::ProcessBufferMemoryWithAssetFile(const vulkan_wrappers::
         }
         else
         {
-            buffer_wrapper->dirty                = false;
-            buffer_wrapper->init_from_asset_file = false;
+            buffer_wrapper->dirty = false;
 
             if (output_stream_ != nullptr)
             {
@@ -1991,7 +1994,7 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
 
         assert(image_wrapper != nullptr);
 
-        if (image_wrapper->dirty && !image_wrapper->init_from_asset_file)
+        if (image_wrapper->dirty)
         {
             assert((image_wrapper->is_swapchain_image && memory_wrapper == nullptr) ||
                    (!image_wrapper->is_swapchain_image && memory_wrapper != nullptr));
@@ -2144,8 +2147,8 @@ void VulkanStateWriter::ProcessImageMemoryWithAssetFile(const vulkan_wrappers::D
         }
         else
         {
-            image_wrapper->dirty                = false;
-            image_wrapper->init_from_asset_file = false;
+            image_wrapper->dirty = false;
+
             if (output_stream_ != nullptr)
             {
                 if ((*asset_file_offsets_).find(image_wrapper->handle_id) != (*asset_file_offsets_).end())

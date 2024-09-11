@@ -240,9 +240,9 @@ struct AssetWrapperBase
     VkDeviceSize     bind_offset{ 0 };
     uint32_t         queue_family_index{ 0 };
 
-    VkDeviceSize                              size{ 0 };
-    bool                                      dirty{ true };
-    bool                                      init_from_asset_file{ false };
+    VkDeviceSize size{ 0 };
+    bool         dirty{ true };
+
     std::unordered_set<DescriptorSetWrapper*> descriptor_sets_bound_to;
 };
 
@@ -415,7 +415,6 @@ struct DescriptorSetWrapper : public HandleWrapper<VkDescriptorSet>
     vulkan_state_info::CreateDependencyInfo set_layout_dependency;
 
     bool dirty{ true };
-    bool init_from_asset_file{ false };
 };
 
 struct DescriptorPoolWrapper : public HandleWrapper<VkDescriptorPool>
