@@ -1064,6 +1064,32 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*                pAllocator,
         HandlePointerDecoder<VkAccelerationStructureKHR>*                         pAccelerationStructureKHR);
 
+    void OverrideDestroyAccelerationStructureKHR(PFN_vkDestroyAccelerationStructureKHR func,
+                                                 const DeviceInfo*                     device_info,
+                                                 const AccelerationStructureKHRInfo*   acceleration_structure_info,
+                                                 StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator);
+
+    void OverrideCmdBuildAccelerationStructuresKHR(
+        PFN_vkCmdBuildAccelerationStructuresKHR                                    func,
+        CommandBufferInfo*                                                         command_buffer_info,
+        uint32_t                                                                   infoCount,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
+        StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos);
+
+    void
+    OverrideCmdCopyAccelerationStructureKHR(PFN_vkCmdCopyAccelerationStructureKHR func,
+                                            CommandBufferInfo*                    command_buffer_info,
+                                            StructPointerDecoder<Decoded_VkCopyAccelerationStructureInfoKHR>* pInfo);
+
+    void OverrideCmdWriteAccelerationStructuresPropertiesKHR(
+        PFN_vkCmdWriteAccelerationStructuresPropertiesKHR func,
+        CommandBufferInfo*                                command_buffer_info,
+        uint32_t                                          count,
+        HandlePointerDecoder<VkAccelerationStructureKHR>* pAccelerationStructures,
+        VkQueryType                                       queryType,
+        gfxrecon::decode::QueryPoolInfo*                  query_pool_info,
+        uint32_t                                          firstQuery);
+
     VkResult OverrideCreateRayTracingPipelinesKHR(
         PFN_vkCreateRayTracingPipelinesKHR                                     func,
         VkResult                                                               original_result,
@@ -1074,6 +1100,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>* pCreateInfos,
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                      pPipelines);
+
 
     VkResult OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR func,
                                               VkResult                       original_result,
