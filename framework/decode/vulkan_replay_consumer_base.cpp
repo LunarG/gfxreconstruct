@@ -2632,8 +2632,6 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
 
         if (!options_.reuse_asset_file.empty())
         {
-            assert(layer_custom_funcs_ptrs.size() == 4);
-
             set_unique_id_offset_fp_ = reinterpret_cast<encode::SetUniqueIdOffsetGFXRPtr>(layer_custom_funcs_ptrs[0]);
             if (set_unique_id_offset_fp_ == nullptr)
             {

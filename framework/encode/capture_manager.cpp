@@ -1842,7 +1842,8 @@ void CommonCaptureManager::OverrideIdForNextVulkanObject(format::HandleId id, Vk
 {
     if (id != format::kNullHandleId)
     {
-        GFXRECON_WRITE_CONSOLE("[CAPTURE] %s() capture_id: %" PRIu64 " type: %s", __func__, id, VkObjectTypeToStr(type));
+        // GFXRECON_WRITE_CONSOLE(
+        //     "[CAPTURE] %s() capture_id: %" PRIu64 " type: %s", __func__, id, VkObjectTypeToStr(type));
         handle_ids_override.push(std::make_pair(id, type));
     }
 }

@@ -131,7 +131,7 @@ static void AddHandle(format::HandleId             parent_id,
                       const typename T::HandleType handle,
                       T&&                          initial_info,
                       VulkanObjectInfoTable*       object_info_table,
-                      void                         (VulkanObjectInfoTable::*AddFunc)(T&&))
+                      void (VulkanObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -146,7 +146,7 @@ static void AddHandle(format::HandleId       parent_id,
                       format::HandleId       id,
                       typename T::HandleType handle,
                       VulkanObjectInfoTable* object_info_table,
-                      void                   (VulkanObjectInfoTable::*AddFunc)(T&&))
+                      void (VulkanObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -165,7 +165,7 @@ static void AddHandleArray(format::HandleId              parent_id,
                            size_t                        handles_len,
                            std::vector<T>&&              initial_infos,
                            VulkanObjectInfoTable*        object_info_table,
-                           void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -193,7 +193,7 @@ static void AddHandleArray(format::HandleId              parent_id,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
                            VulkanObjectInfoTable*        object_info_table,
-                           void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -216,7 +216,7 @@ static void AddHandleArrayAsync(format::HandleId        parent_id,
                                 const format::HandleId* ids,
                                 size_t                  ids_len,
                                 VulkanObjectInfoTable*  object_info_table,
-                                void                    (VulkanObjectInfoTable::*AddFunc)(T&&),
+                                void (VulkanObjectInfoTable::*AddFunc)(T&&),
                                 std::shared_future<handle_create_result_t<typename T::HandleType>> future)
 {
     static_assert(has_handle_future_v<T>, "handle-type does not support asynchronous creation");
@@ -243,7 +243,7 @@ static void AddHandleArrayAsync(format::HandleId        parent_id,
                                 size_t                  ids_len,
                                 VulkanObjectInfoTable*  object_info_table,
                                 std::vector<T>&&        initial_infos,
-                                void                    (VulkanObjectInfoTable::*AddFunc)(T&&),
+                                void (VulkanObjectInfoTable::*AddFunc)(T&&),
                                 std::shared_future<handle_create_result_t<typename T::HandleType>> future)
 {
     static_assert(has_handle_future_v<T>, "handle-type does not support asynchronous creation");
@@ -275,8 +275,8 @@ static void AddHandleArray(format::HandleId              parent_id,
                            size_t                        handles_len,
                            std::vector<T>&&              initial_infos,
                            VulkanObjectInfoTable*        object_info_table,
-                           S*                            (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                           void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -318,8 +318,8 @@ static void AddHandleArray(format::HandleId              parent_id,
                            const typename T::HandleType* handles,
                            size_t                        handles_len,
                            VulkanObjectInfoTable*        object_info_table,
-                           S*                            (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                           void                          (VulkanObjectInfoTable::*AddFunc)(T&&))
+                           S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                           void (VulkanObjectInfoTable::*AddFunc)(T&&))
 {
     assert(object_info_table != nullptr);
 
@@ -352,7 +352,7 @@ static void AddHandleArray(format::HandleId              parent_id,
 
 inline void RemoveHandle(format::HandleId       id,
                          VulkanObjectInfoTable* object_info_table,
-                         void                   (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
+                         void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
 {
     assert(object_info_table != nullptr);
 
@@ -366,9 +366,9 @@ inline void RemoveHandle(format::HandleId       id,
 template <typename T>
 void RemovePoolHandle(format::HandleId       id,
                       VulkanObjectInfoTable* object_info_table,
-                      T*                     (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
-                      void                   (VulkanObjectInfoTable::*RemovePoolFunc)(format::HandleId),
-                      void                   (VulkanObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
+                      T* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                      void (VulkanObjectInfoTable::*RemovePoolFunc)(format::HandleId),
+                      void (VulkanObjectInfoTable::*RemoveObjectFunc)(format::HandleId))
 {
     assert(object_info_table != nullptr);
 
@@ -389,7 +389,7 @@ template <typename S, typename T>
 void RemoveHandleArray(format::HandleId                                    pool_id,
                        const HandlePointerDecoder<typename T::HandleType>* handles_pointer,
                        VulkanObjectInfoTable*                              object_info_table,
-                       S*   (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
+                       S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
                        void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
 {
     assert((handles_pointer != nullptr) && (object_info_table != nullptr));

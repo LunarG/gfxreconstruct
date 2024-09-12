@@ -42,14 +42,14 @@ class AssetFileConsumer : public VulkanConsumer
   public:
     AssetFileConsumer() : current_frame_(0), greatest_id_(0)
     {
-// #if defined(VK_USE_PLATFORM_ANDROID_KHR)
-//         if (util::platform::FileOpen(&debug_, "/storage/emulated/0/Download/AssetFileConsumer2.txt", "a"))
-// #else
-//         if (util::platform::FileOpen(&debug_, "AssetFileConsumer.txt", "a"))
-// #endif
-//         {
-//             assert(0);
-//         }
+        // #if defined(VK_USE_PLATFORM_ANDROID_KHR)
+        //         if (util::platform::FileOpen(&debug_, "/storage/emulated/0/Download/AssetFileConsumer2.txt", "a"))
+        // #else
+        //         if (util::platform::FileOpen(&debug_, "AssetFileConsumer.txt", "a"))
+        // #endif
+        //         {
+        //             assert(0);
+        //         }
     }
 
     ~AssetFileConsumer()

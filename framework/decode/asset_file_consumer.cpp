@@ -120,7 +120,7 @@ void AssetFileConsumer::Process_vkAllocateDescriptorSets(
         const format::HandleId desc_id = pDescriptorSets->GetPointer()[0];
 
         format::FrameAssetFileOffsets& frame_offsets = asset_file_offsets_[current_frame_];
-        asset_file_offsets_[current_frame_][desc_id]                       = block_header_file_offset_;
+        asset_file_offsets_[current_frame_][desc_id] = block_header_file_offset_;
         // fprintf(debug_, "%" PRIu64 " -> %" PRId64 "\n", desc_id, block_header_file_offset_);
         // fsync(fileno(debug_));
 
