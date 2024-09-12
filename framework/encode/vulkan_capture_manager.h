@@ -1553,14 +1553,23 @@ class VulkanCaptureManager : public ApiCaptureManager
     void OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint32_t* pPresentModeCount, VkPresentModeKHR* pPresentModes);
 #endif
 
+    void NotifyFrameStateSetup(uint32_t is_in_frame_state_setup)
+    {
+        GFXRECON_WRITE_CONSOLE("%s(is_in_frame_state_setup: %u)", __func__, is_in_frame_state_setup)
+        if (state_tracker_ != nullptr)
+        {
+            state_tracker_->NotifyFrameStateSetup(!!is_in_frame_state_setup);
+        }
+    }
+
   protected:
     VulkanCaptureManager() : ApiCaptureManager(format::ApiFamilyId::ApiFamily_Vulkan) {}
 
     virtual ~VulkanCaptureManager() {}
 
-    virtual void CreateStateTracker() override
+    virtual void CreateStateTracker(bool recapturing = false) override
     {
-        state_tracker_ = std::make_unique<VulkanStateTracker>();
+        state_tracker_ = std::make_unique<VulkanStateTracker>(recapturing);
     }
 
     virtual void DestroyStateTracker() override

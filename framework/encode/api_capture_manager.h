@@ -46,7 +46,7 @@ class ApiCaptureManager
     static auto AcquireExclusiveApiCallLock() { return std::move(CommonCaptureManager::AcquireExclusiveApiCallLock()); }
 
     // Virtual interface
-    virtual void CreateStateTracker()                                                               = 0;
+    virtual void CreateStateTracker(bool recapturing = false)                                       = 0;
     virtual void DestroyStateTracker()                                                              = 0;
     virtual void WriteTrackedState(util::FileOutputStream* file_stream,
                                    format::ThreadId        thread_id,

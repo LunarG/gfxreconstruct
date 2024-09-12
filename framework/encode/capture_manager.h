@@ -432,6 +432,7 @@ class CommonCaptureManager
     bool                                    write_state_files_;
     std::string                             asset_file_name_;
     bool                                    reuse_asset_file{ false };
+    bool                                    is_replay_in_frame_state_setup{ false };
 
     struct
     {

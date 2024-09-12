@@ -435,6 +435,12 @@ VKAPI_ATTR void VKAPI_CALL OverrideFrameNumberGFXR(format::FrameNumber frame)
     manager->OverrideFrameNumber(frame);
 }
 
+VKAPI_ATTR void VKAPI_CALL NotifyFrameStateSetupGFXR(uint32_t is_in_frame_state_setup)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->NotifyFrameStateSetup(is_in_frame_state_setup);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,
                                                        VkPipelineCache                     pipelineCache,
                                                        uint32_t                            createInfoCount,

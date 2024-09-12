@@ -288,7 +288,12 @@ void VulkanReplayConsumerBase::ProcessStateBeginMarker(uint64_t frame_number)
     replaying_trimmed_capture_ = true;
 
     // GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
-    // GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
+    GFXRECON_WRITE_CONSOLE("%s() frame_number: %" PRIu64, __func__, frame_number)
+
+    if (notify_frame_state_setup_fp_ != nullptr)
+    {
+        notify_frame_state_setup_fp_(1);
+    }
 }
 
 void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
@@ -301,11 +306,16 @@ void VulkanReplayConsumerBase::ProcessStateEndMarker(uint64_t frame_number)
     }
 
     current_frame_ = frame_number;
-    // GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
+    GFXRECON_WRITE_CONSOLE("%s() current_frame_: %" PRIu64, __func__, current_frame_)
 
     if (override_frame_number_fp_ != nullptr)
     {
         override_frame_number_fp_(current_frame_);
+    }
+
+    if (notify_frame_state_setup_fp_ != nullptr)
+    {
+        notify_frame_state_setup_fp_(0);
     }
 }
 
@@ -2576,14 +2586,16 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
     VkLayerSettingsCreateInfoEXT    layer_settings_info;
     if (!options_.reuse_asset_file.empty())
     {
-        layer_custom_funcs_ptrs.resize(4);
-        PFN_vkVoidFunction* func_ptr_base      = layer_custom_funcs_ptrs.data();
-        static const char*  layer_func_names[] = { "SetUniqueIdOffsetGFXR",
-                                                   "LoadAssetFileOffsetsGFXR",
-                                                   "OverrideIdForNextVulkanObjectGFXR",
-                                                   "OverrideFrameNumberGFXR" };
+        static const char* layer_func_names[] = { "SetUniqueIdOffsetGFXR",
+                                                  "LoadAssetFileOffsetsGFXR",
+                                                  "OverrideIdForNextVulkanObjectGFXR",
+                                                  "OverrideFrameNumberGFXR",
+                                                  "NotifyFrameStateSetupGFXR" };
 
-        layer_settings.resize(4);
+        layer_custom_funcs_ptrs.resize(GFXRECON_ARRAY_ELEMENTS(layer_func_names));
+        PFN_vkVoidFunction* func_ptr_base = layer_custom_funcs_ptrs.data();
+
+        layer_settings.resize(GFXRECON_ARRAY_ELEMENTS(layer_func_names));
         for (size_t i = 0; i < layer_settings.size(); ++i)
         {
             layer_settings[i].pLayerName   = GFXRECON_PROJECT_VULKAN_LAYER_NAME;
@@ -2663,6 +2675,17 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
             else
             {
                 GFXRECON_WRITE_CONSOLE("set_unique_id_offset_fp: %p: ", override_frame_number_fp_)
+            }
+
+            notify_frame_state_setup_fp_ =
+                reinterpret_cast<encode::NotifyFrameStateSetupGFXRPtr>(layer_custom_funcs_ptrs[4]);
+            if (notify_frame_state_setup_fp_ == nullptr)
+            {
+                GFXRECON_LOG_WARNING("Failed to discover NotifyFrameStateSetupGFXR()");
+            }
+            else
+            {
+                GFXRECON_WRITE_CONSOLE("notify_frame_state_setup_fp_: %p: ", notify_frame_state_setup_fp_)
             }
 
             if (load_asset_file_offsets_fp_ != nullptr && asset_file_offsets_ != nullptr)

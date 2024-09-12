@@ -202,7 +202,7 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
         //       state trackers are in the correct state given the differing settings that may be present.
         if ((capture_mode_ & kModeTrack) == kModeTrack || write_state_files_)
         {
-            api_capture_singleton->CreateStateTracker();
+            api_capture_singleton->CreateStateTracker(!capture_settings_.GetTraceSettings().reuse_asset_file.empty());
         }
     }
     else

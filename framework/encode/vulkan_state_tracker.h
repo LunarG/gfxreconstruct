@@ -50,7 +50,7 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 class VulkanStateTracker
 {
   public:
-    VulkanStateTracker();
+    VulkanStateTracker(bool recapturing = false);
 
     ~VulkanStateTracker();
 
@@ -689,6 +689,12 @@ class VulkanStateTracker
 
     void LoadAssetFileOffsets(const format::AssetFileOffsets& offsets);
 
+    void NotifyFrameStateSetup(uint32_t is_in_frame_state_setup)
+    {
+        GFXRECON_WRITE_CONSOLE("%s(is_in_frame_state_setup: %u)", __func__, is_in_frame_state_setup)
+        is_in_frame_state_setup_ = is_in_frame_state_setup;
+    }
+
   private:
     template <typename ParentHandle, typename SecondaryHandle, typename Wrapper, typename CreateInfo>
     void AddGroupHandles(ParentHandle                        parent_handle,
@@ -809,6 +815,7 @@ class VulkanStateTracker
     std::unordered_map<VkDeviceAddress, vulkan_wrappers::AccelerationStructureKHRWrapper*> as_device_addresses_map;
 
     format::AssetFileOffsets asset_file_offsets_;
+    bool                     is_in_frame_state_setup_;
 };
 
 GFXRECON_END_NAMESPACE(encode)

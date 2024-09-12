@@ -39,6 +39,7 @@ const std::unordered_map<std::string, PFN_vkVoidFunction> custom_func_table = {
     { "LoadAssetFileOffsetsGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::LoadAssetFileOffsetsGFXR) },
     { "OverrideIdForNextVulkanObjectGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::OverrideIdForNextVulkanObjectGFXR) },
     { "OverrideFrameNumberGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::OverrideFrameNumberGFXR) },
+    { "NotifyFrameStateSetupGFXR", reinterpret_cast<PFN_vkVoidFunction>(encode::NotifyFrameStateSetupGFXR) },
 };
 // clang-format on
 

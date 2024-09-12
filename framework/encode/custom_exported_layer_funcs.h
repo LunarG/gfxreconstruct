@@ -30,12 +30,15 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-typedef void (*GetBlockIndexGFXR_ptr)(void);
-typedef void (*DumpAssetsGFXR_ptr)(void);
-typedef void (*SetUniqueIdOffsetGFXRPtr)(format::HandleId);
-typedef void (*LoadAssetFileOffsetsGFXRPtr)(const format::AssetFileOffsets&);
-typedef void (*OverrideCaptureObjectIdFuncPtr)(format::HandleId, VkObjectType);
-typedef void (*OverrideFrameNumberGFXRPtr)(format::FrameNumber);
+// clang-format off
+using GetBlockIndexGFXR_ptr          = void(*)(void);
+using DumpAssetsGFXR_ptr             = void(*)(void);
+using SetUniqueIdOffsetGFXRPtr       = void(*)(format::HandleId);
+using LoadAssetFileOffsetsGFXRPtr    = void(*)(const format::AssetFileOffsets&);
+using OverrideCaptureObjectIdFuncPtr = void(*)(format::HandleId, VkObjectType);
+using OverrideFrameNumberGFXRPtr     = void(*)(format::FrameNumber);
+using NotifyFrameStateSetupGFXRPtr   = void(*)(uint32_t);
+// clang-format on
 
 VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR();
 VKAPI_ATTR void VKAPI_CALL     DumpAssetsGFXR();
@@ -43,6 +46,7 @@ VKAPI_ATTR void VKAPI_CALL     SetUniqueIdOffsetGFXR(format::HandleId offset);
 VKAPI_ATTR void VKAPI_CALL     LoadAssetFileOffsetsGFXR(const format::AssetFileOffsets& offsets);
 VKAPI_ATTR void VKAPI_CALL     OverrideIdForNextVulkanObjectGFXR(format::HandleId id, VkObjectType type);
 VKAPI_ATTR void VKAPI_CALL     OverrideFrameNumberGFXR(format::FrameNumber frame);
+VKAPI_ATTR void VKAPI_CALL     NotifyFrameStateSetupGFXR(uint32_t is_in_frame_state_setup);
 
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)

@@ -45,7 +45,7 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-VulkanStateTracker::VulkanStateTracker() {}
+VulkanStateTracker::VulkanStateTracker(bool recapturing) : is_in_frame_state_setup_(recapturing) {}
 
 VulkanStateTracker::~VulkanStateTracker() {}
 
@@ -694,7 +694,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
             assert(wrapper != nullptr);
 
-            wrapper->dirty = true;
+            wrapper->dirty = !is_in_frame_state_setup_;
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to consecutive bindings, where the next binding is dstBinding+1 and
@@ -1021,7 +1021,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
             auto src_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(copy->srcSet);
             assert((dst_wrapper != nullptr) && (src_wrapper != nullptr));
 
-            dst_wrapper->dirty = true;
+            dst_wrapper->dirty = !is_in_frame_state_setup_;
 
             // Descriptor update rules specify that a write descriptorCount that is greater than the binding's count
             // will result in updates to/from consecutive bindings.
@@ -1160,7 +1160,7 @@ void VulkanStateTracker::TrackUpdateDescriptorSetWithTemplate(VkDescriptorSet   
         auto           wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(set);
         const uint8_t* bytes   = reinterpret_cast<const uint8_t*>(data);
 
-        wrapper->dirty = true;
+        wrapper->dirty = !is_in_frame_state_setup_;
 
         for (const auto& entry : template_info->image_info)
         {
@@ -1796,7 +1796,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureKHRW
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
-        entry->dirty = true;
+        entry->dirty = !is_in_frame_state_setup_;
     }
 
     wrapper->descriptor_sets_bound_to.clear();
@@ -1808,7 +1808,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::AccelerationStructureNVWr
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
-        entry->dirty = true;
+        entry->dirty = !is_in_frame_state_setup_;
     }
 
     wrapper->descriptor_sets_bound_to.clear();
@@ -1835,7 +1835,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageWrapper* wrapper)
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
-        entry->dirty = true;
+        entry->dirty = !is_in_frame_state_setup_;
     }
 
     wrapper->descriptor_sets_bound_to.clear();
@@ -1847,7 +1847,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::ImageViewWrapper* wrapper
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
-        entry->dirty = true;
+        entry->dirty = !is_in_frame_state_setup_;
     }
 
     wrapper->descriptor_sets_bound_to.clear();
@@ -1874,7 +1874,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferWrapper* wrapper)
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
-        entry->dirty = true;
+        entry->dirty = !is_in_frame_state_setup_;
     }
 
     wrapper->descriptor_sets_bound_to.clear();
@@ -1886,7 +1886,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::BufferViewWrapper* wrappe
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
-        entry->dirty = true;
+        entry->dirty = !is_in_frame_state_setup_;
     }
 
     wrapper->descriptor_sets_bound_to.clear();
@@ -1898,7 +1898,7 @@ void VulkanStateTracker::DestroyState(vulkan_wrappers::SamplerWrapper* wrapper)
 
     for (auto entry : wrapper->descriptor_sets_bound_to)
     {
-        entry->dirty = true;
+        entry->dirty = !is_in_frame_state_setup_;
     }
 
     wrapper->descriptor_sets_bound_to.clear();
@@ -2612,7 +2612,7 @@ void VulkanStateTracker::TrackMappedAssetsWrites()
             {
                 if (entry.second[page])
                 {
-                    asset->dirty = true;
+                    asset->dirty = !is_in_frame_state_setup_;
                     break;
                 }
             }
@@ -2907,7 +2907,7 @@ void VulkanStateTracker::MarkReferencedAssetsAsDirty(vulkan_wrappers::CommandBuf
     for (auto asset : cmd_buf_wrapper->modified_assets)
     {
         assert(asset);
-        asset->dirty = true;
+        asset->dirty = !is_in_frame_state_setup_;
     }
 }
 
