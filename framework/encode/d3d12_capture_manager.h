@@ -765,7 +765,10 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     virtual ~D3D12CaptureManager() {}
 
-    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<Dx12StateTracker>(); }
+    virtual void CreateStateTracker(bool recapturing = false) override
+    {
+        state_tracker_ = std::make_unique<Dx12StateTracker>();
+    }
 
     virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
