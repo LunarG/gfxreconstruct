@@ -71,20 +71,34 @@ struct HandleWrapper
 //
 
 // clang-format off
-struct ShaderModuleWrapper                  : public HandleWrapper<VkShaderModule> {};
-// struct PipelineCacheWrapper                 : public HandleWrapper<VkPipelineCache> {};
-struct SamplerWrapper                       : public HandleWrapper<VkSampler> {};
-struct SamplerYcbcrConversionWrapper        : public HandleWrapper<VkSamplerYcbcrConversion> {};
-struct DebugReportCallbackEXTWrapper        : public HandleWrapper<VkDebugReportCallbackEXT> {};
-struct DebugUtilsMessengerEXTWrapper        : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
-struct ValidationCacheEXTWrapper            : public HandleWrapper<VkValidationCacheEXT> {};
-struct IndirectCommandsLayoutNVWrapper      : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
-struct PerformanceConfigurationINTELWrapper : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
-struct MicromapEXTWrapper                   : public HandleWrapper<VkMicromapEXT> {};
-struct OpticalFlowSessionNVWrapper          : public HandleWrapper<VkOpticalFlowSessionNV> {};
-struct VideoSessionKHRWrapper               : public HandleWrapper<VkVideoSessionKHR> {};
-struct VideoSessionParametersKHRWrapper     : public HandleWrapper<VkVideoSessionParametersKHR> {};
-struct ShaderEXTWrapper                     : public HandleWrapper<VkShaderEXT> {};
+struct ShaderModuleWrapper                            : public HandleWrapper<VkShaderModule> {};
+// struct PipelineCacheWrapper                           : public HandleWrapper<VkPipelineCache> {};
+struct SamplerWrapper                                 : public HandleWrapper<VkSampler> {};
+struct SamplerYcbcrConversionWrapper                  : public HandleWrapper<VkSamplerYcbcrConversion> {};
+struct DebugReportCallbackEXTWrapper                  : public HandleWrapper<VkDebugReportCallbackEXT> {};
+struct DebugUtilsMessengerEXTWrapper                  : public HandleWrapper<VkDebugUtilsMessengerEXT> {};
+struct ValidationCacheEXTWrapper                      : public HandleWrapper<VkValidationCacheEXT> {};
+struct IndirectCommandsLayoutNVWrapper                : public HandleWrapper<VkIndirectCommandsLayoutNV> {};
+struct PerformanceConfigurationINTELWrapper           : public HandleWrapper<VkPerformanceConfigurationINTEL> {};
+struct MicromapEXTWrapper                             : public HandleWrapper<VkMicromapEXT> {};
+struct OpticalFlowSessionNVWrapper                    : public HandleWrapper<VkOpticalFlowSessionNV> {};
+struct VideoSessionKHRWrapper                         : public HandleWrapper<VkVideoSessionKHR> {};
+struct VideoSessionParametersKHRWrapper               : public HandleWrapper<VkVideoSessionParametersKHR> {};
+struct ShaderEXTWrapper                               : public HandleWrapper<VkShaderEXT> {};
+
+struct PipelineBinaryKHRWrapper                       : public HandleWrapper<VkPipelineBinaryKHR> {};
+struct PipelineBinaryCreateInfoKHRWrapper             : public HandleWrapper<VkPipelineBinaryCreateInfoKHR> {};
+struct PipelineBinaryDataInfoKHRWrapper               : public HandleWrapper<VkPipelineBinaryDataInfoKHR> {};
+struct PipelineBinaryDataKHRWrapper                   : public HandleWrapper<VkPipelineBinaryDataKHR> {};
+struct PipelineBinaryHandlesInfoKHRWrapper            : public HandleWrapper<VkPipelineBinaryHandlesInfoKHR> {};
+struct PipelineBinaryKeyKHRWrapper                    : public HandleWrapper<VkPipelineBinaryKeyKHR> {};
+struct PipelineBinaryKeysAndDataKHRWrapper            : public HandleWrapper<VkPipelineBinaryKeysAndDataKHR> {};
+struct ReleaseCapturedPipelineDataInfoKHRWrapper      : public HandleWrapper<VkReleaseCapturedPipelineDataInfoKHR> {};
+struct DevicePipelineBinaryInternalCacheControlKHRWrapper      : public HandleWrapper<VkDevicePipelineBinaryInternalCacheControlKHR> {};
+struct PipelineBinaryInfoKHRWrapper      : public HandleWrapper<VkPipelineBinaryInfoKHR> {};
+struct PhysicalDevicePipelineBinaryFeaturesKHRWrapper      : public HandleWrapper<VkPhysicalDevicePipelineBinaryFeaturesKHR> {};
+struct PhysicalDevicePipelineBinaryPropertiesKHRWrapper      : public HandleWrapper<VkPhysicalDevicePipelineBinaryPropertiesKHR> {};
+
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR
 // handle wrapper, which will filter duplicate handle retrievals and ensure that the wrapper is destroyed.

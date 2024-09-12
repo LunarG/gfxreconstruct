@@ -258,6 +258,11 @@ void MapStructHandles(Decoded_VkComputePipelineCreateInfo* wrapper, const Vulkan
     {
         VkComputePipelineCreateInfo* value = wrapper->decoded_value;
 
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+        }
+
         MapStructHandles(wrapper->stage, object_info_table);
 
         value->layout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->layout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
@@ -1199,6 +1204,56 @@ void MapStructHandles(Decoded_VkDeviceImageSubresourceInfoKHR* wrapper, const Vu
     }
 }
 
+void MapStructHandles(Decoded_VkPipelineBinaryCreateInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkPipelineBinaryCreateInfoKHR* value = wrapper->decoded_value;
+
+        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineBinaryInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkPipelineBinaryInfoKHR* value = wrapper->decoded_value;
+
+        value->pPipelineBinaries = handle_mapping::MapHandleArray<PipelineBinaryKHRInfo>(&wrapper->pPipelineBinaries, object_info_table, &VulkanObjectInfoTable::GetPipelineBinaryKHRInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkReleaseCapturedPipelineDataInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkReleaseCapturedPipelineDataInfoKHR* value = wrapper->decoded_value;
+
+        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineBinaryDataInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkPipelineBinaryDataInfoKHR* value = wrapper->decoded_value;
+
+        value->pipelineBinary = handle_mapping::MapHandle<PipelineBinaryKHRInfo>(wrapper->pipelineBinary, object_info_table, &VulkanObjectInfoTable::GetPipelineBinaryKHRInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkPipelineBinaryHandlesInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkPipelineBinaryHandlesInfoKHR* value = wrapper->decoded_value;
+
+        value->pPipelineBinaries = handle_mapping::MapHandleArray<PipelineBinaryKHRInfo>(&wrapper->pPipelineBinaries, object_info_table, &VulkanObjectInfoTable::GetPipelineBinaryKHRInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkVideoInlineQueryInfoKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
@@ -1891,6 +1946,11 @@ void MapStructHandles(Decoded_VkRayTracingPipelineCreateInfoKHR* wrapper, const 
     {
         VkRayTracingPipelineCreateInfoKHR* value = wrapper->decoded_value;
 
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+        }
+
         MapStructArrayHandles<Decoded_VkPipelineShaderStageCreateInfo>(wrapper->pStages->GetMetaStructPointer(), wrapper->pStages->GetLength(), object_info_table);
 
         MapStructArrayHandles<Decoded_VkPipelineLibraryCreateInfoKHR>(wrapper->pLibraryInfo->GetMetaStructPointer(), 1, object_info_table);
@@ -1947,6 +2007,9 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectI
             break;
         case VK_STRUCTURE_TYPE_PIPELINE_LIBRARY_CREATE_INFO_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkPipelineLibraryCreateInfoKHR*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_PIPELINE_BINARY_INFO_KHR:
+            MapStructHandles(reinterpret_cast<Decoded_VkPipelineBinaryInfoKHR*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_VIDEO_INLINE_QUERY_INFO_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkVideoInlineQueryInfoKHR*>(wrapper), object_info_table);
@@ -2044,11 +2107,28 @@ void AddStructHandles(format::HandleId parent_id, const Decoded_VkDisplayModePro
     }
 }
 
+void AddStructHandles(format::HandleId parent_id, const Decoded_VkPipelineBinaryHandlesInfoKHR* id_wrapper, const VkPipelineBinaryHandlesInfoKHR* handle_struct, VulkanObjectInfoTable* object_info_table)
+{
+    if (id_wrapper != nullptr)
+    {
+        handle_mapping::AddHandleArray<PipelineBinaryKHRInfo>(parent_id, id_wrapper->pPipelineBinaries.GetPointer(), id_wrapper->pPipelineBinaries.GetLength(), handle_struct->pPipelineBinaries, handle_struct->pipelineBinaryCount, object_info_table, &VulkanObjectInfoTable::AddPipelineBinaryKHRInfo);
+    }
+}
+
 void SetStructHandleLengths(Decoded_VkPhysicalDeviceGroupProperties* wrapper)
 {
     if (wrapper != nullptr)
     {
         wrapper->physicalDevices.SetHandleLength(wrapper->physicalDevices.GetLength());
+    }
+}
+
+void SetStructHandleLengths(Decoded_VkPipelineBinaryHandlesInfoKHR* wrapper)
+{
+    if (wrapper != nullptr)
+    {
+        wrapper->pPipelineBinaries.SetHandleLength(wrapper->pPipelineBinaries.GetLength());
+        value->pPipelineBinaries = wrapper->pPipelineBinaries.GetHandlePointer();
     }
 }
 

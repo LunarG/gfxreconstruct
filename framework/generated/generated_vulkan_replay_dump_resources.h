@@ -969,6 +969,7 @@ void Process_vkCmdBindIndexBuffer2KHR(
 
 
 
+
 void Process_vkCmdSetLineStippleKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetLineStippleKHR                  func,
@@ -1857,6 +1858,7 @@ void Process_vkCmdOpticalFlowExecuteNV(
     VkCommandBuffer                             commandBuffer,
     VkOpticalFlowSessionNV                      session,
     const VkOpticalFlowExecuteInfoNV*           pExecuteInfo);
+
 
 
 void Process_vkCmdBindShadersEXT(

@@ -1949,6 +1949,34 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout2KHR(
     const VkImageSubresource2KHR*               pSubresource,
     VkSubresourceLayout2KHR*                    pLayout);
 
+VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineBinariesKHR(
+    VkDevice                                    device,
+    const VkPipelineBinaryCreateInfoKHR*        pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkPipelineBinaryHandlesInfoKHR*             pBinaries);
+
+VKAPI_ATTR void VKAPI_CALL DestroyPipelineBinaryKHR(
+    VkDevice                                    device,
+    VkPipelineBinaryKHR                         pipelineBinary,
+    const VkAllocationCallbacks*                pAllocator);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPipelineKeyKHR(
+    VkDevice                                    device,
+    const VkPipelineCreateInfoKHR*              pPipelineCreateInfo,
+    VkPipelineBinaryKeyKHR*                     pPipelineKey);
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPipelineBinaryDataKHR(
+    VkDevice                                    device,
+    const VkPipelineBinaryDataInfoKHR*          pInfo,
+    VkPipelineBinaryKeyKHR*                     pPipelineBinaryKey,
+    size_t*                                     pPipelineBinaryDataSize,
+    void*                                       pPipelineBinaryData);
+
+VKAPI_ATTR VkResult VKAPI_CALL ReleaseCapturedPipelineDataKHR(
+    VkDevice                                    device,
+    const VkReleaseCapturedPipelineDataInfoKHR* pInfo,
+    const VkAllocationCallbacks*                pAllocator);
+
 VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     VkPhysicalDevice                            physicalDevice,
     uint32_t*                                   pPropertyCount,
@@ -3188,6 +3216,10 @@ VKAPI_ATTR void VKAPI_CALL CmdOpticalFlowExecuteNV(
     VkCommandBuffer                             commandBuffer,
     VkOpticalFlowSessionNV                      session,
     const VkOpticalFlowExecuteInfoNV*           pExecuteInfo);
+
+VKAPI_ATTR void VKAPI_CALL AntiLagUpdateAMD(
+    VkDevice                                    device,
+    const VkAntiLagDataAMD*                     pData);
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateShadersEXT(
     VkDevice                                    device,

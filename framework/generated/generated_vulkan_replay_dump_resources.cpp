@@ -2752,6 +2752,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2KHR(
 }
 
 
+
 void VulkanReplayDumpResources::Process_vkCmdSetLineStippleKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetLineStippleKHR                  func,
@@ -5855,6 +5856,7 @@ void VulkanReplayDumpResources::Process_vkCmdOpticalFlowExecuteNV(
         }
     }
 }
+
 
 void VulkanReplayDumpResources::Process_vkCmdBindShadersEXT(
     const ApiCallInfo&                          call_info,

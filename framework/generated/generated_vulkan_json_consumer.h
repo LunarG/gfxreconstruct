@@ -2444,6 +2444,43 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         StructPointerDecoder<Decoded_VkImageSubresource2KHR>* pSubresource,
         StructPointerDecoder<Decoded_VkSubresourceLayout2KHR>* pLayout) override;
 
+    virtual void Process_vkCreatePipelineBinariesKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPipelineBinaryCreateInfoKHR>* pCreateInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+        StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries) override;
+
+    virtual void Process_vkDestroyPipelineBinaryKHR(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        format::HandleId                            pipelineBinary,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
+    virtual void Process_vkGetPipelineKeyKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>* pPipelineCreateInfo,
+        StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>* pPipelineKey) override;
+
+    virtual void Process_vkGetPipelineBinaryDataKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkPipelineBinaryDataInfoKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>* pPipelineBinaryKey,
+        PointerDecoder<size_t>*                     pPipelineBinaryDataSize,
+        PointerDecoder<uint8_t>*                    pPipelineBinaryData) override;
+
+    virtual void Process_vkReleaseCapturedPipelineDataKHR(
+        const ApiCallInfo&                          call_info,
+        VkResult                                    returnValue,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkReleaseCapturedPipelineDataInfoKHR>* pInfo,
+        StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator) override;
+
     virtual void Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
         const ApiCallInfo&                          call_info,
         VkResult                                    returnValue,
@@ -4022,6 +4059,11 @@ class VulkanExportJsonConsumer : public VulkanExportJsonConsumerBase
         format::HandleId                            commandBuffer,
         format::HandleId                            session,
         StructPointerDecoder<Decoded_VkOpticalFlowExecuteInfoNV>* pExecuteInfo) override;
+
+    virtual void Process_vkAntiLagUpdateAMD(
+        const ApiCallInfo&                          call_info,
+        format::HandleId                            device,
+        StructPointerDecoder<Decoded_VkAntiLagDataAMD>* pData) override;
 
     virtual void Process_vkCreateShadersEXT(
         const ApiCallInfo&                          call_info,

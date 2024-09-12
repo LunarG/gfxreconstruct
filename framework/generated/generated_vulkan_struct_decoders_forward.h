@@ -1244,6 +1244,32 @@ struct Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRayTracingPositionFetchFeaturesKHR* wrapper);
 
+struct Decoded_VkPhysicalDevicePipelineBinaryFeaturesKHR;
+struct Decoded_VkPhysicalDevicePipelineBinaryPropertiesKHR;
+struct Decoded_VkDevicePipelineBinaryInternalCacheControlKHR;
+struct Decoded_VkPipelineBinaryKeyKHR;
+struct Decoded_VkPipelineBinaryDataKHR;
+struct Decoded_VkPipelineBinaryKeysAndDataKHR;
+struct Decoded_VkPipelineCreateInfoKHR;
+struct Decoded_VkPipelineBinaryCreateInfoKHR;
+struct Decoded_VkPipelineBinaryInfoKHR;
+struct Decoded_VkReleaseCapturedPipelineDataInfoKHR;
+struct Decoded_VkPipelineBinaryDataInfoKHR;
+struct Decoded_VkPipelineBinaryHandlesInfoKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineBinaryFeaturesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDevicePipelineBinaryPropertiesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDevicePipelineBinaryInternalCacheControlKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineBinaryKeyKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineBinaryDataKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineBinaryKeysAndDataKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineBinaryCreateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineBinaryInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkReleaseCapturedPipelineDataInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineBinaryDataInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPipelineBinaryHandlesInfoKHR* wrapper);
+
 struct Decoded_VkCooperativeMatrixPropertiesKHR;
 struct Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR;
 struct Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR;
@@ -1251,6 +1277,12 @@ struct Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR;
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkCooperativeMatrixPropertiesKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCooperativeMatrixFeaturesKHR* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCooperativeMatrixPropertiesKHR* wrapper);
+
+struct Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR;
+struct Decoded_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesKHR* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceComputeShaderDerivativesPropertiesKHR* wrapper);
 
 struct Decoded_VkVideoDecodeAV1ProfileInfoKHR;
 struct Decoded_VkVideoDecodeAV1CapabilitiesKHR;
@@ -1699,10 +1731,6 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 struct Decoded_VkPresentFrameTokenGGP;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPresentFrameTokenGGP* wrapper);
-
-struct Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV;
-
-size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceComputeShaderDerivativesFeaturesNV* wrapper);
 
 struct Decoded_VkPhysicalDeviceMeshShaderFeaturesNV;
 struct Decoded_VkPhysicalDeviceMeshShaderPropertiesNV;
@@ -2430,6 +2458,14 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceExternalFormatResolvePropertiesANDROID* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAndroidHardwareBufferFormatResolvePropertiesANDROID* wrapper);
 
+struct Decoded_VkPhysicalDeviceAntiLagFeaturesAMD;
+struct Decoded_VkAntiLagPresentationInfoAMD;
+struct Decoded_VkAntiLagDataAMD;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceAntiLagFeaturesAMD* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAntiLagPresentationInfoAMD* wrapper);
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkAntiLagDataAMD* wrapper);
+
 struct Decoded_VkPhysicalDeviceShaderObjectFeaturesEXT;
 struct Decoded_VkPhysicalDeviceShaderObjectPropertiesEXT;
 struct Decoded_VkShaderCreateInfoEXT;
@@ -2563,6 +2599,10 @@ size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded
 struct Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceRawAccessChainsFeaturesNV* wrapper);
+
+struct Decoded_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV;
+
+size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPhysicalDeviceCommandBufferInheritanceFeaturesNV* wrapper);
 
 struct Decoded_VkPhysicalDeviceShaderAtomicFloat16VectorFeaturesNV;
 

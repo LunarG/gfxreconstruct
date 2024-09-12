@@ -71,6 +71,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::PerformanceConfigurationINTELWrapper* wrapper) { return InsertEntry(id, wrapper, performanceConfigurationINTEL_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { return InsertEntry(id, wrapper, physicalDevice_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::PipelineWrapper* wrapper) { return InsertEntry(id, wrapper, pipeline_map_); }
+    bool InsertWrapper(format::HandleId id, vulkan_wrappers::PipelineBinaryKHRWrapper* wrapper) { return InsertEntry(id, wrapper, pipelineBinaryKHR_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::PipelineCacheWrapper* wrapper) { return InsertEntry(id, wrapper, pipelineCache_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::PipelineLayoutWrapper* wrapper) { return InsertEntry(id, wrapper, pipelineLayout_map_); }
     bool InsertWrapper(format::HandleId id, vulkan_wrappers::PrivateDataSlotWrapper* wrapper) { return InsertEntry(id, wrapper, privateDataSlot_map_); }
@@ -117,6 +118,7 @@ class VulkanStateTable : VulkanStateTableBase
     bool RemoveWrapper(const vulkan_wrappers::PerformanceConfigurationINTELWrapper* wrapper) { return RemoveEntry(wrapper, performanceConfigurationINTEL_map_); }
     bool RemoveWrapper(const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { return RemoveEntry(wrapper, physicalDevice_map_); }
     bool RemoveWrapper(const vulkan_wrappers::PipelineWrapper* wrapper) { return RemoveEntry(wrapper, pipeline_map_); }
+    bool RemoveWrapper(const vulkan_wrappers::PipelineBinaryKHRWrapper* wrapper) { return RemoveEntry(wrapper, pipelineBinaryKHR_map_); }
     bool RemoveWrapper(const vulkan_wrappers::PipelineCacheWrapper* wrapper) { return RemoveEntry(wrapper, pipelineCache_map_); }
     bool RemoveWrapper(const vulkan_wrappers::PipelineLayoutWrapper* wrapper) { return RemoveEntry(wrapper, pipelineLayout_map_); }
     bool RemoveWrapper(const vulkan_wrappers::PrivateDataSlotWrapper* wrapper) { return RemoveEntry(wrapper, privateDataSlot_map_); }
@@ -163,6 +165,7 @@ class VulkanStateTable : VulkanStateTableBase
     const vulkan_wrappers::PerformanceConfigurationINTELWrapper* GetPerformanceConfigurationINTELWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
     const vulkan_wrappers::PhysicalDeviceWrapper* GetPhysicalDeviceWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, physicalDevice_map_); }
     const vulkan_wrappers::PipelineWrapper* GetPipelineWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineWrapper>(id, pipeline_map_); }
+    const vulkan_wrappers::PipelineBinaryKHRWrapper* GetPipelineBinaryKHRWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineBinaryKHRWrapper>(id, pipelineBinaryKHR_map_); }
     const vulkan_wrappers::PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(id, pipelineCache_map_); }
     const vulkan_wrappers::PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(id, pipelineLayout_map_); }
     const vulkan_wrappers::PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) const { return GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
@@ -209,6 +212,7 @@ class VulkanStateTable : VulkanStateTableBase
     vulkan_wrappers::PerformanceConfigurationINTELWrapper* GetPerformanceConfigurationINTELWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(id, performanceConfigurationINTEL_map_); }
     vulkan_wrappers::PhysicalDeviceWrapper* GetPhysicalDeviceWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(id, physicalDevice_map_); }
     vulkan_wrappers::PipelineWrapper* GetPipelineWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineWrapper>(id, pipeline_map_); }
+    vulkan_wrappers::PipelineBinaryKHRWrapper* GetPipelineBinaryKHRWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineBinaryKHRWrapper>(id, pipelineBinaryKHR_map_); }
     vulkan_wrappers::PipelineCacheWrapper* GetPipelineCacheWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(id, pipelineCache_map_); }
     vulkan_wrappers::PipelineLayoutWrapper* GetPipelineLayoutWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(id, pipelineLayout_map_); }
     vulkan_wrappers::PrivateDataSlotWrapper* GetPrivateDataSlotWrapper(format::HandleId id) { return GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(id, privateDataSlot_map_); }
@@ -255,6 +259,7 @@ class VulkanStateTable : VulkanStateTableBase
     void VisitWrappers(std::function<void(vulkan_wrappers::PerformanceConfigurationINTELWrapper*)> visitor) const { for (auto entry : performanceConfigurationINTEL_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::PhysicalDeviceWrapper*)> visitor) const { for (auto entry : physicalDevice_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::PipelineWrapper*)> visitor) const { for (auto entry : pipeline_map_) { visitor(entry.second); } }
+    void VisitWrappers(std::function<void(vulkan_wrappers::PipelineBinaryKHRWrapper*)> visitor) const { for (auto entry : pipelineBinaryKHR_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::PipelineCacheWrapper*)> visitor) const { for (auto entry : pipelineCache_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::PipelineLayoutWrapper*)> visitor) const { for (auto entry : pipelineLayout_map_) { visitor(entry.second); } }
     void VisitWrappers(std::function<void(vulkan_wrappers::PrivateDataSlotWrapper*)> visitor) const { for (auto entry : privateDataSlot_map_) { visitor(entry.second); } }
@@ -302,6 +307,7 @@ class VulkanStateTable : VulkanStateTableBase
     std::map<format::HandleId, vulkan_wrappers::PerformanceConfigurationINTELWrapper*> performanceConfigurationINTEL_map_;
     std::map<format::HandleId, vulkan_wrappers::PhysicalDeviceWrapper*> physicalDevice_map_;
     std::map<format::HandleId, vulkan_wrappers::PipelineWrapper*> pipeline_map_;
+    std::map<format::HandleId, vulkan_wrappers::PipelineBinaryKHRWrapper*> pipelineBinaryKHR_map_;
     std::map<format::HandleId, vulkan_wrappers::PipelineCacheWrapper*> pipelineCache_map_;
     std::map<format::HandleId, vulkan_wrappers::PipelineLayoutWrapper*> pipelineLayout_map_;
     std::map<format::HandleId, vulkan_wrappers::PrivateDataSlotWrapper*> privateDataSlot_map_;
@@ -355,6 +361,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     bool InsertWrapper(vulkan_wrappers::PerformanceConfigurationINTELWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, performanceConfigurationINTEL_map_); }
     bool InsertWrapper(vulkan_wrappers::PhysicalDeviceWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, physicalDevice_map_); }
     bool InsertWrapper(vulkan_wrappers::PipelineWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, pipeline_map_); }
+    bool InsertWrapper(vulkan_wrappers::PipelineBinaryKHRWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, pipelineBinaryKHR_map_); }
     bool InsertWrapper(vulkan_wrappers::PipelineCacheWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, pipelineCache_map_); }
     bool InsertWrapper(vulkan_wrappers::PipelineLayoutWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, pipelineLayout_map_); }
     bool InsertWrapper(vulkan_wrappers::PrivateDataSlotWrapper* wrapper) { return InsertEntry(wrapper->handle, wrapper, privateDataSlot_map_); }
@@ -488,6 +495,10 @@ class VulkanStateHandleTable : VulkanStateTableBase
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, pipeline_map_);
     }
+    bool RemoveWrapper(const vulkan_wrappers::PipelineBinaryKHRWrapper* wrapper) {
+         if (wrapper == nullptr) return false;
+         return RemoveEntry(wrapper->handle, pipelineBinaryKHR_map_);
+    }
     bool RemoveWrapper(const vulkan_wrappers::PipelineCacheWrapper* wrapper) {
          if (wrapper == nullptr) return false;
          return RemoveEntry(wrapper->handle, pipelineCache_map_);
@@ -587,6 +598,7 @@ class VulkanStateHandleTable : VulkanStateTableBase
     std::unordered_map<VkPerformanceConfigurationINTEL, vulkan_wrappers::PerformanceConfigurationINTELWrapper*> performanceConfigurationINTEL_map_;
     std::unordered_map<VkPhysicalDevice, vulkan_wrappers::PhysicalDeviceWrapper*> physicalDevice_map_;
     std::unordered_map<VkPipeline, vulkan_wrappers::PipelineWrapper*> pipeline_map_;
+    std::unordered_map<VkPipelineBinaryKHR, vulkan_wrappers::PipelineBinaryKHRWrapper*> pipelineBinaryKHR_map_;
     std::unordered_map<VkPipelineCache, vulkan_wrappers::PipelineCacheWrapper*> pipelineCache_map_;
     std::unordered_map<VkPipelineLayout, vulkan_wrappers::PipelineLayoutWrapper*> pipelineLayout_map_;
     std::unordered_map<VkPrivateDataSlot, vulkan_wrappers::PrivateDataSlotWrapper*> privateDataSlot_map_;
@@ -634,6 +646,7 @@ template<> inline const vulkan_wrappers::OpticalFlowSessionNVWrapper* VulkanStat
 template<> inline const vulkan_wrappers::PerformanceConfigurationINTELWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(VkPerformanceConfigurationINTEL handle) const { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
 template<> inline const vulkan_wrappers::PhysicalDeviceWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(VkPhysicalDevice handle) const { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
 template<> inline const vulkan_wrappers::PipelineWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineWrapper>(VkPipeline handle) const { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
+template<> inline const vulkan_wrappers::PipelineBinaryKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineBinaryKHRWrapper>(VkPipelineBinaryKHR handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineBinaryKHR_map_); }
 template<> inline const vulkan_wrappers::PipelineCacheWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(VkPipelineCache handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
 template<> inline const vulkan_wrappers::PipelineLayoutWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(VkPipelineLayout handle) const { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
 template<> inline const vulkan_wrappers::PrivateDataSlotWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(VkPrivateDataSlot handle) const { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
@@ -680,6 +693,7 @@ template<> inline vulkan_wrappers::OpticalFlowSessionNVWrapper* VulkanStateHandl
 template<> inline vulkan_wrappers::PerformanceConfigurationINTELWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PerformanceConfigurationINTELWrapper>(VkPerformanceConfigurationINTEL handle) { return VulkanStateTableBase::GetWrapper(handle, performanceConfigurationINTEL_map_); }
 template<> inline vulkan_wrappers::PhysicalDeviceWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(VkPhysicalDevice handle) { return VulkanStateTableBase::GetWrapper(handle, physicalDevice_map_); }
 template<> inline vulkan_wrappers::PipelineWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineWrapper>(VkPipeline handle) { return VulkanStateTableBase::GetWrapper(handle, pipeline_map_); }
+template<> inline vulkan_wrappers::PipelineBinaryKHRWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineBinaryKHRWrapper>(VkPipelineBinaryKHR handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineBinaryKHR_map_); }
 template<> inline vulkan_wrappers::PipelineCacheWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineCacheWrapper>(VkPipelineCache handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineCache_map_); }
 template<> inline vulkan_wrappers::PipelineLayoutWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PipelineLayoutWrapper>(VkPipelineLayout handle) { return VulkanStateTableBase::GetWrapper(handle, pipelineLayout_map_); }
 template<> inline vulkan_wrappers::PrivateDataSlotWrapper* VulkanStateHandleTable::GetWrapper<vulkan_wrappers::PrivateDataSlotWrapper>(VkPrivateDataSlot handle) { return VulkanStateTableBase::GetWrapper(handle, privateDataSlot_map_); }
