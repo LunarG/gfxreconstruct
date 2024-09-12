@@ -8662,6 +8662,163 @@ void VulkanCppConsumer::Process_vkGetRenderingAreaGranularityKHR(
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetRenderingAreaGranularityKHR);
 }
+void VulkanCppConsumer::Process_vkCreatePipelineBinariesKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPipelineBinaryCreateInfoKHR>* pCreateInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+    StructPointerDecoder<Decoded_VkPipelineBinaryHandlesInfoKHR>* pBinaries)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pcreate_info;
+    std::string pcreate_info_struct = GenerateStruct_VkPipelineBinaryCreateInfoKHR(stream_pcreate_info,
+                                                                                   pCreateInfo->GetPointer(),
+                                                                                   pCreateInfo->GetMetaStructPointer(),
+                                                                                   *this);
+    fprintf(file, "%s", stream_pcreate_info.str().c_str());
+    std::string pbinaries_name = "NULL";
+    if (!pBinaries->IsNull()) {
+        pbinaries_name = "pBinaries_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPipelineBinaryHandlesInfoKHR %s = {};\n", pbinaries_name.c_str());
+        pbinaries_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkCreatePipelineBinariesKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkCreatePipelineBinariesKHR(%s, &%s, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pcreate_info_struct.c_str(),
+            "nullptr",
+            pbinaries_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkCreatePipelineBinariesKHR);
+}
+
+void VulkanCppConsumer::Process_vkDestroyPipelineBinaryKHR(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    format::HandleId                            pipelineBinary,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    pfn_loader_.AddMethodName("vkDestroyPipelineBinaryKHR");
+    fprintf(file,
+            "\t\tloaded_vkDestroyPipelineBinaryKHR(%s, %s, %s);\n",
+            this->GetHandle(device).c_str(),
+            this->GetHandle(pipelineBinary).c_str(),
+            "nullptr");
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkDestroyPipelineBinaryKHR);
+}
+
+void VulkanCppConsumer::Process_vkGetPipelineBinaryDataKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPipelineBinaryDataInfoKHR>* pInfo,
+    StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>* pPipelineBinaryKey,
+    PointerDecoder<size_t>*                     pPipelineBinaryDataSize,
+    PointerDecoder<uint8_t>*                    pPipelineBinaryData)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pinfo;
+    std::string pinfo_struct = GenerateStruct_VkPipelineBinaryDataInfoKHR(stream_pinfo,
+                                                                          pInfo->GetPointer(),
+                                                                          pInfo->GetMetaStructPointer(),
+                                                                          *this);
+    fprintf(file, "%s", stream_pinfo.str().c_str());
+    std::string ppipeline_binary_key_name = "NULL";
+    if (!pPipelineBinaryKey->IsNull()) {
+        ppipeline_binary_key_name = "pPipelineBinaryKey_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPipelineBinaryKeyKHR %s = {};\n", ppipeline_binary_key_name.c_str());
+        ppipeline_binary_key_name.insert(0, "&");
+    }
+    std::string ppipeline_binary_data_size_name = "NULL";
+    if (!pPipelineBinaryDataSize->IsNull()) {
+        ppipeline_binary_data_size_name = "pPipelineBinaryDataSize_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tsize_t %s = %s;\n", ppipeline_binary_data_size_name.c_str(), util::ToString(*pPipelineBinaryDataSize->GetPointer()).c_str());
+        ppipeline_binary_data_size_name.insert(0, "&");
+    }
+    std::string ppipeline_binary_data_name = "NULL";
+    if (!pPipelineBinaryData->IsNull()) {
+        size_t* in_ppipeline_binary_data_size = pPipelineBinaryDataSize->GetPointer();
+        ppipeline_binary_data_name = "pPipelineBinaryData_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tuint8_t %s[%" PRIu64 "] = {};\n", ppipeline_binary_data_name.c_str(), util::platform::SizeTtoUint64(*in_ppipeline_binary_data_size));
+    }
+    pfn_loader_.AddMethodName("vkGetPipelineBinaryDataKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineBinaryDataKHR(%s, &%s, %s, %s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pinfo_struct.c_str(),
+            ppipeline_binary_key_name.c_str(),
+            ppipeline_binary_data_size_name.c_str(),
+            ppipeline_binary_data_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineBinaryDataKHR);
+}
+
+void VulkanCppConsumer::Process_vkGetPipelineKeyKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkPipelineCreateInfoKHR>* pPipelineCreateInfo,
+    StructPointerDecoder<Decoded_VkPipelineBinaryKeyKHR>* pPipelineKey)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_ppipeline_create_info;
+    std::string ppipeline_create_info_struct = GenerateStruct_VkPipelineCreateInfoKHR(stream_ppipeline_create_info,
+                                                                                      pPipelineCreateInfo->GetPointer(),
+                                                                                      pPipelineCreateInfo->GetMetaStructPointer(),
+                                                                                      *this);
+    fprintf(file, "%s", stream_ppipeline_create_info.str().c_str());
+    std::string ppipeline_key_name = "NULL";
+    if (!pPipelineKey->IsNull()) {
+        ppipeline_key_name = "pPipelineKey_" + std::to_string(this->GetNextId());
+        fprintf(file, "\t\tVkPipelineBinaryKeyKHR %s = {};\n", ppipeline_key_name.c_str());
+        ppipeline_key_name.insert(0, "&");
+    }
+    pfn_loader_.AddMethodName("vkGetPipelineKeyKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkGetPipelineKeyKHR(%s, &%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            ppipeline_create_info_struct.c_str(),
+            ppipeline_key_name.c_str(),
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkGetPipelineKeyKHR);
+}
+
+void VulkanCppConsumer::Process_vkReleaseCapturedPipelineDataKHR(
+    const ApiCallInfo&                          call_info,
+    VkResult                                    returnValue,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkReleaseCapturedPipelineDataInfoKHR>* pInfo,
+    StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pinfo;
+    std::string pinfo_struct = GenerateStruct_VkReleaseCapturedPipelineDataInfoKHR(stream_pinfo,
+                                                                                   pInfo->GetPointer(),
+                                                                                   pInfo->GetMetaStructPointer(),
+                                                                                   *this);
+    fprintf(file, "%s", stream_pinfo.str().c_str());
+    pfn_loader_.AddMethodName("vkReleaseCapturedPipelineDataKHR");
+    fprintf(file,
+            "\t\tVK_CALL_CHECK(loaded_vkReleaseCapturedPipelineDataKHR(%s, &%s, %s), %s);\n",
+            this->GetHandle(device).c_str(),
+            pinfo_struct.c_str(),
+            "nullptr",
+            util::ToString<VkResult>(returnValue).c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkReleaseCapturedPipelineDataKHR);
+}
 void VulkanCppConsumer::Process_vkGetPhysicalDeviceCooperativeMatrixPropertiesKHR(
     const ApiCallInfo&                          call_info,
     VkResult                                    returnValue,
@@ -14497,6 +14654,27 @@ void VulkanCppConsumer::Process_vkGetPhysicalDeviceOpticalFlowImageFormatsNV(
             util::ToString<VkResult>(returnValue).c_str());
     fprintf(file, "\t}\n");
     Post_APICall(format::ApiCallId::ApiCall_vkGetPhysicalDeviceOpticalFlowImageFormatsNV);
+}
+void VulkanCppConsumer::Process_vkAntiLagUpdateAMD(
+    const ApiCallInfo&                          call_info,
+    format::HandleId                            device,
+    StructPointerDecoder<Decoded_VkAntiLagDataAMD>* pData)
+{
+    FILE* file = GetFrameFile();
+    fprintf(file, "\t{\n");
+    std::stringstream stream_pdata;
+    std::string pdata_struct = GenerateStruct_VkAntiLagDataAMD(stream_pdata,
+                                                               pData->GetPointer(),
+                                                               pData->GetMetaStructPointer(),
+                                                               *this);
+    fprintf(file, "%s", stream_pdata.str().c_str());
+    pfn_loader_.AddMethodName("vkAntiLagUpdateAMD");
+    fprintf(file,
+            "\t\tloaded_vkAntiLagUpdateAMD(%s, &%s);\n",
+            this->GetHandle(device).c_str(),
+            pdata_struct.c_str());
+    fprintf(file, "\t}\n");
+    Post_APICall(format::ApiCallId::ApiCall_vkAntiLagUpdateAMD);
 }
 void VulkanCppConsumer::Process_vkCmdBindShadersEXT(
     const ApiCallInfo&                          call_info,
