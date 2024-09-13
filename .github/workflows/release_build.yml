@@ -61,7 +61,7 @@ jobs:
         mv build/linux/x64/output/lib*/*.so gfxreconstruct-dev/
         mv build/linux/x64/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
@@ -96,7 +96,7 @@ jobs:
         copy layer\vk_layer_settings.txt build\windows\x64\output\bin\
         move build\windows\x64\output\bin gfxreconstruct-dev
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: .\gfxreconstruct-dev
@@ -143,7 +143,7 @@ jobs:
           mv ${{ matrix.config.build_dir }}/darwin/universal/output/share/vulkan/explicit_layer.d/*.json gfxreconstruct-dev/
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.config.artifact }}
           path: ./gfxreconstruct-dev
@@ -181,12 +181,12 @@ jobs:
         cp LICENSE_ThirdParty.txt gfxreconstruct-dev/
         cp USAGE_android.md gfxreconstruct-dev/
         cp layer/vk_layer_settings.txt gfxreconstruct-dev/
-        cp -r android/layer/build/intermediates/cmake/release/obj/arm64-v8a gfxreconstruct-dev/layer/
-        cp -r android/layer/build/intermediates/cmake/release/obj/armeabi-v7a gfxreconstruct-dev/layer/
+        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/arm64-v8a gfxreconstruct-dev/layer/
+        cp -r android/layer/build/intermediates/cxx/RelWithDebInfo/*/obj/armeabi-v7a gfxreconstruct-dev/layer/
         cp android/tools/replay/build/outputs/apk/debug/replay-debug.apk gfxreconstruct-dev/tools/
         cp android/scripts/gfxrecon.py gfxreconstruct-dev/tools/
     - name: Upload artifacts
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-dev
@@ -226,7 +226,7 @@ jobs:
       run: |
         echo "${{ steps.create_release.outputs.upload_url }}" > ./release_url
     - name: Upload release URL
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v4
       with:
         name: release_url
         path: ./release_url
@@ -278,7 +278,7 @@ jobs:
         tag_name=`echo "${{ github.ref }}" | cut -d "/" -f 3`
         echo "::set-output name=tag_name::$tag_name"
     - name: Download artifacts
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: ${{ matrix.config.artifact }}
         path: ./gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
@@ -286,7 +286,7 @@ jobs:
       run: |
         ${{ matrix.config.command }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}-${{ matrix.config.suffix }} gfxreconstruct-${{ steps.get_tag_name.outputs.tag_name }}
     - name: Download release URL
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v4
       with:
         name: release_url
         path: ./

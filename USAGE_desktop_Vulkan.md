@@ -713,7 +713,7 @@ Optional arguments:
               of instrumentation data on some platforms.
    --dump-resources <arg>
               <arg> is BeginCommandBuffer=<n>,Draw=<m>,BeginRenderPass=<o>,
-              NextSubpass=<p>,Dispatch=<q>,CmdTraceRays=<r>,QueueSubmit=<s>
+              NextSubpass=<p>,Dispatch=<q>,TraceRays=<r>,QueueSubmit=<s>
               GPU resources are dumped after the given vkCmdDraw*,
               vkCmdDispatch, or vkCmdTraceRaysKHR is replayed.
               Dump gpu resources after the given vmCmdDraw*, vkCmdDispatch, or vkCmdTraceRaysKHR is replayed. The parameter for

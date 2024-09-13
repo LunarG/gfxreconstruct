@@ -26,7 +26,7 @@
 #include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_track_struct.h"
-#include "graphics/vulkan_util.h"
+#include "graphics/vulkan_struct_get_pnext.h"
 
 #include <algorithm>
 
@@ -138,33 +138,26 @@ void VulkanStateTracker::TrackPhysicalDeviceQueueFamilyProperties2(format::ApiCa
     // Copy pNext structure and update pNext pointers.
     for (uint32_t i = 0; i < property_count; ++i)
     {
-        if (properties[i].pNext != nullptr)
+        if (auto queue_family_properties_nv =
+                graphics::vulkan_struct_get_pnext<VkQueueFamilyCheckpointPropertiesNV>(properties + i))
         {
-            const VkBaseOutStructure* next = reinterpret_cast<const VkBaseOutStructure*>(properties[i].pNext);
-            if (next->sType == VK_STRUCTURE_TYPE_QUEUE_FAMILY_CHECKPOINT_PROPERTIES_NV)
-            {
-                const VkQueueFamilyCheckpointPropertiesNV* original =
-                    reinterpret_cast<const VkQueueFamilyCheckpointPropertiesNV*>(next);
+            std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV> copy =
+                std::make_unique<VkQueueFamilyCheckpointPropertiesNV>(*queue_family_properties_nv);
 
-                std::unique_ptr<VkQueueFamilyCheckpointPropertiesNV> copy =
-                    std::make_unique<VkQueueFamilyCheckpointPropertiesNV>(*original);
-
-                if (copy->pNext != nullptr)
-                {
-                    // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
-                    copy->pNext = nullptr;
-                    GFXRECON_LOG_WARNING("Omitting unrecognized pNext structure from queue family properties tracking");
-                }
-
-                wrapper->queue_family_properties2[i].pNext = copy.get();
-                wrapper->queue_family_checkpoint_properties.push_back(std::move(copy));
-            }
-            else
+            if (copy->pNext != nullptr)
             {
                 // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
-                wrapper->queue_family_properties2[i].pNext = nullptr;
+                copy->pNext = nullptr;
                 GFXRECON_LOG_WARNING("Omitting unrecognized pNext structure from queue family properties tracking");
             }
+            wrapper->queue_family_properties2[i].pNext = copy.get();
+            wrapper->queue_family_checkpoint_properties.push_back(std::move(copy));
+        }
+        else
+        {
+            // At time of implementation, only VkQueueFamilyCheckpointPropertiesNV was allowed.
+            wrapper->queue_family_properties2[i].pNext = nullptr;
+            GFXRECON_LOG_WARNING("Omitting unrecognized pNext structure from queue family properties tracking");
         }
     }
 }
@@ -631,9 +624,9 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
     // exists at state write time by checking for the ID in the active state table.
     if (writes != nullptr)
     {
-        for (uint32_t i = 0; i < write_count; ++i)
+        for (uint32_t wi = 0; wi < write_count; ++wi)
         {
-            const VkWriteDescriptorSet* write = &writes[i];
+            const VkWriteDescriptorSet* write = &writes[wi];
             auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DescriptorSetWrapper>(write->dstSet);
             assert(wrapper != nullptr);
 
@@ -747,9 +740,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                     }
                     case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                     {
-                        VkWriteDescriptorSetInlineUniformBlock* write_inline_uniform_struct =
-                            graphics::GetPNextStruct<VkWriteDescriptorSetInlineUniformBlock>(
-                                write, VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_INLINE_UNIFORM_BLOCK);
+                        auto write_inline_uniform_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetInlineUniformBlock>(write);
 
                         if (write_inline_uniform_struct != nullptr)
                         {
@@ -765,9 +757,8 @@ void VulkanStateTracker::TrackUpdateDescriptorSets(uint32_t                    w
                         break;
                     case VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
                     {
-                        VkWriteDescriptorSetAccelerationStructureKHR* write_accel_struct =
-                            graphics::GetPNextStruct<VkWriteDescriptorSetAccelerationStructureKHR>(
-                                write, VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR);
+                        auto write_accel_struct =
+                            graphics::vulkan_struct_get_pnext<VkWriteDescriptorSetAccelerationStructureKHR>(write);
 
                         if (write_accel_struct != nullptr)
                         {
