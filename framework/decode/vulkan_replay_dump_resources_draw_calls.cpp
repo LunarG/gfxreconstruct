@@ -2797,8 +2797,9 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
 
     // Create new render passes
     render_pass_clones.emplace_back(std::vector<VkRenderPass>());
-    auto new_render_pass = render_pass_clones.end() - 1;
-    new_render_pass->resize(original_render_pass->subpass_refs.size());
+    std::vector<VkRenderPass>& new_render_pass = render_pass_clones.back();
+    assert(original_render_pass->subpass_refs.size());
+    new_render_pass.resize(original_render_pass->subpass_refs.size());
 
     // Do one quick pass over the subpass references in order to check if the render pass
     // uses color and/or depth attachments. This information might be necessary when
@@ -2960,7 +2961,8 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
         const DeviceInfo* device_info = object_info_table.GetDeviceInfo(original_command_buffer_info->parent_id);
         VkDevice          device      = device_info->handle;
 
-        VkResult res = device_table->CreateRenderPass(device, &ci, nullptr, &new_render_pass->at(sub));
+        assert(sub < new_render_pass.size());
+        VkResult res = device_table->CreateRenderPass(device, &ci, nullptr, &new_render_pass[sub]);
         if (res != VK_SUCCESS)
         {
             GFXRECON_LOG_ERROR("CreateRenderPass failed with %s", util::ToString<VkResult>(res).c_str());
