@@ -47,7 +47,7 @@ const uint32_t kFirstFrame = 0;
 FileProcessor::FileProcessor() :
     current_frame_number_(kFirstFrame), error_state_(kErrorInvalidFileDescriptor), bytes_read_(0),
     annotation_handler_(nullptr), compressor_(nullptr), block_index_(0), api_call_index_(0), block_limit_(0),
-    capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1)
+    capture_uses_frame_markers_(false), first_frame_(kFirstFrame + 1), loading_trimmed_capture_state_(false)
 {}
 
 FileProcessor::FileProcessor(uint64_t block_limit) : FileProcessor()
@@ -2167,11 +2167,13 @@ bool FileProcessor::ProcessStateMarker(const format::BlockHeader& block_header, 
         if (marker_type == format::kBeginMarker)
         {
             GFXRECON_LOG_INFO("Loading state for captured frame %" PRId64, frame_number);
+            loading_trimmed_capture_state_ = true;
         }
         else if (marker_type == format::kEndMarker)
         {
             GFXRECON_LOG_INFO("Finished loading state for captured frame %" PRId64, frame_number);
-            first_frame_ = frame_number;
+            first_frame_                   = frame_number;
+            loading_trimmed_capture_state_ = false;
         }
 
         for (auto decoder : decoders_)

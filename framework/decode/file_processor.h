@@ -98,6 +98,10 @@ class FileProcessor
 
     uint32_t GetCurrentFrameNumber() const { return current_frame_number_; }
 
+    uint64_t GetCurrentBlockIndex() const { return block_index_; }
+
+    bool GetLoadingTrimmedState() const { return loading_trimmed_capture_state_; }
+
     uint64_t GetNumBytesRead() const { return bytes_read_; }
 
     Error GetErrorState() const { return error_state_; }
@@ -238,6 +242,7 @@ class FileProcessor
     bool                                enable_print_block_info_{ false };
     int64_t                             block_index_from_{ 0 };
     int64_t                             block_index_to_{ 0 };
+    bool                                loading_trimmed_capture_state_;
 
     struct ActiveFiles
     {
@@ -271,6 +276,7 @@ class FileProcessor
 
         return file_stack_.back();
     }
+
 };
 
 GFXRECON_END_NAMESPACE(decode)
