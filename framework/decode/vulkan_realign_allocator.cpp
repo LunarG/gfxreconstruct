@@ -691,7 +691,7 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                 }
                 else if (create_info.tiling == VK_IMAGE_TILING_LINEAR)
                 {
-                    // Target application update image data for lenear titling image
+                    // Target application update image data for linear titling image
                     if (entry->GetImageSubresourceLayoutSize() == 0)
                     {
                         update_data_without_change_memory_location = true;
@@ -714,10 +714,10 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                 }
                 else if (create_info.tiling == VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT)
                 {
-                    // It's lenear image if match the condition that Linux DRM format modifier is
+                    // It's linear image if match the condition that Linux DRM format modifier is
                     // DRM_FORMAT_MOD_LINEAR.
 
-                    // TODO: Add process for the following lenear image:
+                    // TODO: Add process for the following linear image:
                     //       VkImage created with VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT and whose Linux DRM format
                     //       modifier is DRM_FORMAT_MOD_LINEAR.
 
@@ -743,7 +743,7 @@ VkResult VulkanRealignAllocator::UpdateResourceData(
                     }
 
                     VkDeviceSize copy_range_start = std::max(resource_start, copy_data_start);
-                    VkDeviceSize copy_range_end   = std::max(resource_end, copy_data_end);
+                    VkDeviceSize copy_range_end   = std::min(resource_end, copy_data_end);
                     copy_size                     = copy_range_end - copy_range_start;
                     mapped_memory_offset          = entry->GetReplayBindOffset() + copy_range_start - resource_start;
                     data_offset                   = copy_range_start - copy_data_start;
