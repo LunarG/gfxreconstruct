@@ -408,8 +408,8 @@ struct ShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
             type(type), readonly(readonly), accessed(accessed), count(count), is_array(is_array)
         {}
 
-        ShaderDescriptorInfo(const ShaderDescriptorInfo& other) = default;
-        ShaderDescriptorInfo& operator =(const ShaderDescriptorInfo& other) = default;
+        ShaderDescriptorInfo(const ShaderDescriptorInfo& other)            = default;
+        ShaderDescriptorInfo& operator=(const ShaderDescriptorInfo& other) = default;
 
         VkDescriptorType type;
         bool             readonly;
@@ -426,7 +426,7 @@ struct ShaderModuleInfo : public VulkanObjectInfo<VkShaderModule>
         capture_id            = other.capture_id;
         used_descriptors_info = other.used_descriptors_info;
     }
-    ShaderModuleInfo& operator =(const ShaderModuleInfo& other) = default;
+    ShaderModuleInfo& operator=(const ShaderModuleInfo& other) = default;
 
     // One entry per descriptor binding
     using ShaderDescriptorSetInfo = std::map<uint32_t, ShaderDescriptorInfo>;
