@@ -227,32 +227,6 @@ size_t vulkan_struct_deep_copy(const VkMemoryBarrier* structs, uint32_t count, u
 }
 
 template <>
-size_t vulkan_struct_deep_copy(const VkAllocationCallbacks* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pUserData, 1);
-    }
-    return offset;
-}
-
-template <>
 size_t vulkan_struct_deep_copy(const VkApplicationInfo* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -6214,10 +6188,7 @@ size_t vulkan_struct_deep_copy(const VkWin32SurfaceCreateInfoKHR* structs, uint3
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.hinstance, 1);
-        handle_pointer_member(base_struct.hwnd, 1);
     }
     return offset;
 }
@@ -7743,7 +7714,6 @@ size_t vulkan_struct_deep_copy(const VkImportMemoryWin32HandleInfoKHR* structs, 
         }
         auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.handle, 1);
         handle_pointer_member(base_struct.name, 1);
     }
     return offset;
@@ -7955,7 +7925,6 @@ size_t vulkan_struct_deep_copy(const VkImportSemaphoreWin32HandleInfoKHR* struct
         }
         auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.handle, 1);
         handle_pointer_member(base_struct.name, 1);
     }
     return offset;
@@ -8217,7 +8186,6 @@ size_t vulkan_struct_deep_copy(const VkImportFenceWin32HandleInfoKHR* structs, u
         }
         auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.handle, 1);
         handle_pointer_member(base_struct.name, 1);
     }
     return offset;
@@ -9905,9 +9873,7 @@ size_t vulkan_struct_deep_copy(const VkCheckpointData2NV* structs, uint32_t coun
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pCheckpointMarker, 1);
     }
     return offset;
 }
@@ -10987,33 +10953,6 @@ size_t vulkan_struct_deep_copy(const VkPushDescriptorSetInfoKHR* structs, uint32
 }
 
 template <>
-size_t vulkan_struct_deep_copy(const VkPushDescriptorSetWithTemplateInfoKHR* structs, uint32_t count, uint8_t* out_data)
-{
-    using struct_type              = std::decay_t<decltype(*structs)>;
-    constexpr uint32_t struct_size = sizeof(struct_type);
-
-    if (structs == nullptr || count == 0)
-    {
-        return 0;
-    }
-    uint64_t offset = struct_size * count;
-
-    for (uint32_t i = 0; i < count; ++i)
-    {
-        const auto& base_struct = structs[i];
-        if (out_data != nullptr)
-        {
-            auto out_structures = reinterpret_cast<struct_type*>(out_data);
-            out_structures[i]   = base_struct;
-        }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
-        handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pData, 1);
-    }
-    return offset;
-}
-
-template <>
 size_t vulkan_struct_deep_copy(const VkSetDescriptorBufferOffsetsInfoEXT* structs, uint32_t count, uint8_t* out_data)
 {
     using struct_type              = std::decay_t<decltype(*structs)>;
@@ -11238,9 +11177,7 @@ size_t vulkan_struct_deep_copy(const VkDebugReportCallbackCreateInfoEXT* structs
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pUserData, 1);
     }
     return offset;
 }
@@ -11696,9 +11633,7 @@ size_t vulkan_struct_deep_copy(const VkImportMemoryWin32HandleInfoNV* structs, u
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.handle, 1);
     }
     return offset;
 }
@@ -11808,9 +11743,7 @@ size_t vulkan_struct_deep_copy(const VkViSurfaceCreateInfoNN* structs, uint32_t 
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.window, 1);
     }
     return offset;
 }
@@ -12468,9 +12401,7 @@ size_t vulkan_struct_deep_copy(const VkIOSSurfaceCreateInfoMVK* structs, uint32_
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pView, 1);
     }
     return offset;
 }
@@ -12495,9 +12426,7 @@ size_t vulkan_struct_deep_copy(const VkMacOSSurfaceCreateInfoMVK* structs, uint3
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pView, 1);
     }
     return offset;
 }
@@ -12607,9 +12536,7 @@ size_t vulkan_struct_deep_copy(const VkDebugUtilsMessengerCreateInfoEXT* structs
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pUserData, 1);
     }
     return offset;
 }
@@ -13870,9 +13797,7 @@ size_t vulkan_struct_deep_copy(const VkImportMemoryHostPointerInfoEXT* structs, 
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pHostPointer, 1);
     }
     return offset;
 }
@@ -14249,9 +14174,7 @@ size_t vulkan_struct_deep_copy(const VkCheckpointDataNV* structs, uint32_t count
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pCheckpointMarker, 1);
     }
     return offset;
 }
@@ -14301,9 +14224,7 @@ size_t vulkan_struct_deep_copy(const VkInitializePerformanceApiInfoINTEL* struct
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pUserData, 1);
     }
     return offset;
 }
@@ -15206,9 +15127,7 @@ size_t vulkan_struct_deep_copy(const VkSurfaceFullScreenExclusiveWin32InfoEXT* s
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.hmonitor, 1);
     }
     return offset;
 }
@@ -15361,9 +15280,7 @@ size_t vulkan_struct_deep_copy(const VkMemoryToImageCopyEXT* structs, uint32_t c
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pHostPointer, 1);
     }
     return offset;
 }
@@ -15388,9 +15305,7 @@ size_t vulkan_struct_deep_copy(const VkImageToMemoryCopyEXT* structs, uint32_t c
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pHostPointer, 1);
     }
     return offset;
 }
@@ -15621,9 +15536,7 @@ size_t vulkan_struct_deep_copy(const VkMemoryMapPlacedInfoEXT* structs, uint32_t
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pPlacedAddress, 1);
     }
     return offset;
 }
@@ -16375,9 +16288,7 @@ size_t vulkan_struct_deep_copy(const VkDeviceDeviceMemoryReportCreateInfoEXT* st
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pUserData, 1);
     }
     return offset;
 }
@@ -16652,9 +16563,7 @@ size_t vulkan_struct_deep_copy(const VkQueryLowLatencySupportNV* structs, uint32
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pQueriedLowLatencyData, 1);
     }
     return offset;
 }
@@ -17210,7 +17119,6 @@ size_t vulkan_struct_deep_copy(const VkDeviceFaultInfoEXT* structs, uint32_t cou
         handle_pnext(base_struct, i, offset, out_data);
         handle_pointer_member(base_struct.pAddressInfos, 1);
         handle_pointer_member(base_struct.pVendorInfos, 1);
-        handle_pointer_member(base_struct.pVendorBinaryData, 1);
     }
     return offset;
 }
@@ -19887,9 +19795,7 @@ size_t vulkan_struct_deep_copy(const VkOpticalFlowSessionCreatePrivateDataInfoNV
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pPrivateData, 1);
     }
     return offset;
 }
@@ -21747,9 +21653,7 @@ size_t vulkan_struct_deep_copy(const VkRayTracingShaderGroupCreateInfoKHR* struc
             auto out_structures = reinterpret_cast<struct_type*>(out_data);
             out_structures[i]   = base_struct;
         }
-        auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.pShaderGroupCaptureReplayHandle, 1);
     }
     return offset;
 }

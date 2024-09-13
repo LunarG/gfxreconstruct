@@ -1689,10 +1689,6 @@ size_t vulkan_struct_deep_copy_stype(const void* pNext, uint8_t* out_data)
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkPushDescriptorSetInfoKHR*>(pNext), 1, out_ptr);
             break;
-        case VK_STRUCTURE_TYPE_PUSH_DESCRIPTOR_SET_WITH_TEMPLATE_INFO_KHR:
-            offset += vulkan_struct_deep_copy(
-                reinterpret_cast<const VkPushDescriptorSetWithTemplateInfoKHR*>(pNext), 1, out_ptr);
-            break;
         case VK_STRUCTURE_TYPE_SET_DESCRIPTOR_BUFFER_OFFSETS_INFO_EXT:
             offset += vulkan_struct_deep_copy(
                 reinterpret_cast<const VkSetDescriptorBufferOffsetsInfoEXT*>(pNext), 1, out_ptr);

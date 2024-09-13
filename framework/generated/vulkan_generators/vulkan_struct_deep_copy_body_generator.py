@@ -223,6 +223,7 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
                         'VkMetalSurfaceCreateInfoEXT',
                         'VkDirectFBSurfaceCreateInfoEXT',
                         'VkScreenSurfaceCreateInfoQNX',
+                        'VkPushDescriptorSetWithTemplateInfoKHR'
                         ]:
             return False
         return True
@@ -239,6 +240,10 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
         else:
             return "1"
 
+    def isExternalObject(self, value):
+        """ external objects are referenced as void* pointers to non-array values. """
+        return (value.is_pointer and not value.is_array) and value.base_type in self.EXTERNAL_OBJECT_TYPES
+
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
@@ -252,7 +257,7 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
         for value in self.feature_struct_members[typename]:
             if value.name == 'pNext':
                 has_pNext = True
-            elif value.is_pointer:
+            elif value.is_pointer and not self.isExternalObject(value):
                 has_pointer_members = True
 
         if not (has_pointer_members or has_pNext):
@@ -285,7 +290,7 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
         for value in self.feature_struct_members[typename]:
             if value.name == 'pNext':
                 write('        handle_pnext(base_struct, i, offset, out_data);', file=self.outFile)
-            elif value.is_pointer:
+            elif value.is_pointer and not self.isExternalObject(value):
                 count_exp = self.getPointerCountExpression(typename, value)
                 if value.pointer_count == 1:
                     write('        handle_pointer_member(base_struct.{0}, {1});'.format(value.name, count_exp), file=self.outFile)
