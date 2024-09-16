@@ -256,6 +256,7 @@ class CommonCaptureManager
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
     bool                                GetDisableDxrSetting() const { return disable_dxr_; }
     auto                                GetAccelStructPaddingSetting() const { return accel_struct_padding_; }
+    bool                                GetForceFifoPresentModeSetting() const { return force_fifo_present_mode_; }
 
     util::Compressor*      GetCompressor() { return compressor_.get(); }
     std::mutex&            GetMappedMemoryLock() { return mapped_memory_lock_; }
@@ -380,6 +381,7 @@ class CommonCaptureManager
     bool                                    queue_zero_only_;
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
+    bool                                    force_fifo_present_mode_;
 
     struct
     {

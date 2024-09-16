@@ -2682,9 +2682,17 @@ void VulkanCaptureManager::OverrideGetPhysicalDeviceSurfacePresentModesKHR(uint3
 {
     assert((pPresentModeCount != nullptr) && (pPresentModes != nullptr));
 
-    for (uint32_t i = 0; i < (*pPresentModeCount); ++i)
+    if (common_manager_->GetForceFifoPresentModeSetting())
     {
-        pPresentModes[i] = VK_PRESENT_MODE_FIFO_KHR;
+        GFXRECON_LOG_WARNING_ONCE(
+            "Force all present modes in vkGetPhysicalDeviceSurfacePresentModesKHR to VK_PRESENT_MODE_FIFO_KHR. "
+            "The application will use VK_PRESENT_MODE_FIFO_KHR present mode in vkCreateSwapchainKHR, which may "
+            "cause an unknown crash if the application does not use VK_PRESENT_MODE_FIFO_KHR present mode");
+
+        for (uint32_t i = 0; i < (*pPresentModeCount); ++i)
+        {
+            pPresentModes[i] = VK_PRESENT_MODE_FIFO_KHR;
+        }
     }
 }
 #endif

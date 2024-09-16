@@ -308,6 +308,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     force_command_serialization_     = trace_settings.force_command_serialization;
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
+    force_fifo_present_mode_         = trace_settings.force_fifo_present_mode;
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -1403,6 +1404,11 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     {
         buffer += "\n    \"queue-zero-only\": ";
         buffer += queue_zero_only_ ? "true," : "false,";
+    }
+    if (force_fifo_present_mode_ != default_settings.force_fifo_present_mode)
+    {
+        buffer += "\n    \"force-fifo-present-mode\": ";
+        buffer += force_fifo_present_mode_ ? "true," : "false,";
     }
 
     if (buffer.empty())
