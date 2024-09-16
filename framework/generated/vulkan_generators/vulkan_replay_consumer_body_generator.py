@@ -341,7 +341,7 @@ class VulkanReplayConsumerBodyGenerator(
             if is_async:
                 body += '    if (UseAsyncOperations())\n'
                 body += '    {\n'
-                body += '        auto task = {}(call_info, returnValue, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], arglist)
+                body += '        auto task = {}({}, returnValue, call_info, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], dispatchfunc, arglist)
                 body += '        if(task)\n'
                 body += '        {\n'
                 body += '           {}\n'.format(postexpr[0])
