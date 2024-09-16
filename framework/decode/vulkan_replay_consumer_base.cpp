@@ -170,10 +170,10 @@ static uint32_t GetHardwareBufferFormatBpp(uint32_t format)
 
 VulkanReplayConsumerBase::VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
                                                    const VulkanReplayOptions&                options) :
-    resource_dumper(options, object_info_table_), loader_handle_(nullptr), get_instance_proc_addr_(nullptr),
-    create_instance_proc_(nullptr), application_(application), options_(options), loading_trim_state_(false),
-    replaying_trimmed_capture_(false), have_imported_semaphores_(false), fps_info_(nullptr),
-    omitted_pipeline_cache_data_(false)
+    resource_dumper(options, object_info_table_),
+    loader_handle_(nullptr), get_instance_proc_addr_(nullptr), create_instance_proc_(nullptr),
+    application_(application), options_(options), loading_trim_state_(false), replaying_trimmed_capture_(false),
+    have_imported_semaphores_(false), fps_info_(nullptr), omitted_pipeline_cache_data_(false)
 {
     assert(application_ != nullptr);
     assert(options.create_resource_allocator != nullptr);
@@ -4230,9 +4230,9 @@ VkResult VulkanReplayConsumerBase::OverrideAllocateMemory(
 
             VkMemoryAllocateInfo                     modified_allocate_info = (*replay_allocate_info);
             VkMemoryOpaqueCaptureAddressAllocateInfo address_info           = {
-                VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
-                modified_allocate_info.pNext,
-                opaque_address
+                          VK_STRUCTURE_TYPE_MEMORY_OPAQUE_CAPTURE_ADDRESS_ALLOCATE_INFO,
+                          modified_allocate_info.pNext,
+                          opaque_address
             };
             modified_allocate_info.pNext = &address_info;
 
@@ -7556,22 +7556,63 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildGeometryInfoKHR>* pInfos,
     StructPointerDecoder<Decoded_VkAccelerationStructureBuildRangeInfoKHR*>*   ppBuildRangeInfos)
 {
-    DeviceInfo* device_info = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
-    if (device_info->allocator->SupportsOpaqueDeviceAddresses())
+    DeviceInfo*     device_info    = object_info_table_.GetDeviceInfo(command_buffer_info->parent_id);
+    VkCommandBuffer command_buffer = command_buffer_info->handle;
+    VkAccelerationStructureBuildGeometryInfoKHR* build_geometry_infos = pInfos->GetPointer();
+    VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos    = ppBuildRangeInfos->GetPointer();
+
+    auto& address_tracker = GetDeviceAddressTracker(device_info->handle);
+
+    auto address_remap = [&address_tracker](const VkDeviceAddress& capture_address) {
+        auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
+        GFXRECON_ASSERT(buffer_info != nullptr);
+
+        uint64_t offset = capture_address - buffer_info->capture_address;
+
+        // in-place address-remap via const-cast
+        auto& dst = *const_cast<VkDeviceAddress*>(&capture_address);
+        dst       = buffer_info->replay_address + offset;
+    };
+
+    for (uint32_t i = 0; i < infoCount; ++i)
     {
-        VkCommandBuffer                              command_buffer    = command_buffer_info->handle;
-        VkAccelerationStructureBuildGeometryInfoKHR* infos             = pInfos->GetPointer();
-        VkAccelerationStructureBuildRangeInfoKHR**   build_range_infos = ppBuildRangeInfos->GetPointer();
-        func(command_buffer, infoCount, infos, build_range_infos);
-        return;
+        const auto& build_geometry_info = build_geometry_infos[i];
+
+        for (uint32_t j = 0; j < build_geometry_info.geometryCount; ++j)
+        {
+            const VkAccelerationStructureGeometryKHR* geometry = build_geometry_info.pGeometries != nullptr
+                                                                     ? build_geometry_info.pGeometries + j
+                                                                     : build_geometry_info.ppGeometries[j];
+
+            switch (geometry->geometryType)
+            {
+                case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
+                {
+                    const auto& triangles = geometry->geometry.triangles;
+                    address_remap(triangles.vertexData.deviceAddress);
+                    address_remap(triangles.indexData.deviceAddress);
+                    break;
+                }
+                case VK_GEOMETRY_TYPE_AABBS_KHR:
+                {
+                    const auto& aabbs = geometry->geometry.aabbs;
+                    address_remap(aabbs.data.deviceAddress);
+                    break;
+                }
+                case VK_GEOMETRY_TYPE_INSTANCES_KHR:
+                {
+                    const auto& instances = geometry->geometry.instances;
+                    // TODO: inside buffer:
+                    // replace all VkAccelerationStructureInstanceKHR::accelerationStructureReference
+                    address_remap(instances.data.deviceAddress);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
     }
-    // Use the builder when the rebind allocator is selected and the trimming is done / not used
-    else if (!loading_trim_state_)
-    {
-        GFXRECON_ASSERT(false);
-        //        acceleration_structure_builders_[command_buffer_info->parent_id]->CmdBuildAccelerationStructures(
-        //            command_buffer_info->handle, infoCount, pInfos->GetPointer(), ppBuildRangeInfos->GetPointer());
-    }
+    func(command_buffer, infoCount, build_geometry_infos, build_range_infos);
 }
 
 void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
