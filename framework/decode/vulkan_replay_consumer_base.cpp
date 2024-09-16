@@ -7899,6 +7899,7 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     // keep track of old/new addresses in any case
     format::HandleId buffer      = pInfo->GetMetaStructPointer()->buffer;
     BufferInfo*      buffer_info = GetObjectInfoTable().GetBufferInfo(buffer);
+    GFXRECON_ASSERT(buffer_info != nullptr);
     buffer_info->capture_address = original_result;
     buffer_info->replay_address  = replay_device_address;
 
@@ -7937,12 +7938,11 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     AccelerationStructureKHRInfo* acceleration_structure_info =
         GetObjectInfoTable().GetAccelerationStructureKHRInfo(pInfo->GetMetaStructPointer()->accelerationStructure);
     GFXRECON_ASSERT(acceleration_structure_info != nullptr);
+    acceleration_structure_info->capture_address = original_result;
+    acceleration_structure_info->replay_address  = replay_address;
 
-    if(acceleration_structure_info != nullptr)
-    {
-        acceleration_structure_info->capture_address = original_result;
-        acceleration_structure_info->replay_address = replay_address;
-    }
+    // track device-address
+    GetBufferTracker(device).TrackAccelerationStructure(acceleration_structure_info);
 }
 
 VkResult

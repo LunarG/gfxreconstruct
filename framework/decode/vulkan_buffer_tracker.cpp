@@ -32,12 +32,9 @@ VulkanBufferTracker::VulkanBufferTracker(const VulkanObjectInfoTable& object_inf
 
 void decode::VulkanBufferTracker::TrackBuffer(const decode::BufferInfo* buffer_info)
 {
-    if (buffer_info != nullptr)
+    if (buffer_info != nullptr && buffer_info->capture_address != 0)
     {
-        if (buffer_info->capture_address != 0)
-        {
-            _capture_addresses[buffer_info->capture_address] = buffer_info->capture_id;
-        }
+        _buffer_capture_addresses[buffer_info->capture_address] = buffer_info->capture_id;
     }
 }
 
@@ -45,18 +42,34 @@ void VulkanBufferTracker::RemoveBuffer(const BufferInfo* buffer_info)
 {
     if (buffer_info != nullptr)
     {
-        _capture_addresses.erase(buffer_info->capture_address);
+        _buffer_capture_addresses.erase(buffer_info->capture_address);
+    }
+}
+
+void VulkanBufferTracker::TrackAccelerationStructure(const AccelerationStructureKHRInfo* acceleration_structure_info)
+{
+    if (acceleration_structure_info != nullptr && acceleration_structure_info->capture_address != 0)
+    {
+        _acceleration_structure_capture_addresses[acceleration_structure_info->capture_address] =
+            acceleration_structure_info->capture_id;
+    }
+}
+void VulkanBufferTracker::RemoveAccelerationStructure(const AccelerationStructureKHRInfo* acceleration_structure_info)
+{
+    if (acceleration_structure_info != nullptr)
+    {
+        _acceleration_structure_capture_addresses.erase(acceleration_structure_info->capture_id);
     }
 }
 
 const decode::BufferInfo*
 decode::VulkanBufferTracker::GetBufferByCaptureDeviceAddress(VkDeviceAddress capture_address) const
 {
-    return GetBufferInfo(capture_address, _capture_addresses);
+    return GetBufferInfo(capture_address, _buffer_capture_addresses);
 }
 
 const BufferInfo* VulkanBufferTracker::GetBufferInfo(VkDeviceAddress                                  device_address,
-                                                     const VulkanBufferTracker::device_address_map_t& address_map) const
+                                                     const VulkanBufferTracker::buffer_address_map_t& address_map) const
 {
     if (!address_map.empty())
     {
@@ -84,6 +97,24 @@ const BufferInfo* VulkanBufferTracker::GetBufferInfo(VkDeviceAddress            
             {
                 return found_buffer;
             }
+        }
+    }
+    return nullptr;
+}
+
+const AccelerationStructureKHRInfo*
+VulkanBufferTracker::GetAccelerationStructureByCaptureDeviceAddress(VkDeviceAddress capture_address) const
+{
+    auto address_it = _acceleration_structure_capture_addresses.find(capture_address);
+    if (address_it != _acceleration_structure_capture_addresses.end())
+    {
+        const auto& [found_address, acceleration_structure_handle] = *address_it;
+        const AccelerationStructureKHRInfo* found_acceleration_structure_info =
+            _object_info_table.GetAccelerationStructureKHRInfo(acceleration_structure_handle);
+
+        if (found_acceleration_structure_info != nullptr)
+        {
+            return found_acceleration_structure_info;
         }
     }
     return nullptr;
