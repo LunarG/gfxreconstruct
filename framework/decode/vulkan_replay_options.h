@@ -101,6 +101,8 @@ struct VulkanReplayOptions : public ReplayOptions
     bool  dump_resources_dump_all_image_subresources{ false };
 
     bool preload_measurement_range{ false };
+
+    std::string reuse_asset_file;
 };
 
 GFXRECON_END_NAMESPACE(decode)

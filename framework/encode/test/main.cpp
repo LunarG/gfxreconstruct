@@ -36,8 +36,10 @@
 const auto                       kBufferHandle = gfxrecon::format::FromHandleId<VkBuffer>(0xabcd);
 const gfxrecon::format::HandleId kBufferId     = 12;
 
-gfxrecon::format::HandleId GetHandleId()
+gfxrecon::format::HandleId GetHandleId(VkObjectType type)
 {
+    GFXRECON_UNREFERENCED_PARAMETER(type);
+
     return kBufferId;
 }
 

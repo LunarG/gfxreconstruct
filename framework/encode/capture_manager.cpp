@@ -22,6 +22,12 @@
 ** DEALINGS IN THE SOFTWARE.
 */
 
+#include "encode/capture_settings.h"
+#include "format/format.h"
+#include "vulkan/vulkan_core.h"
+#include <cstdint>
+#include <stack>
+#include <string>
 #include PROJECT_VERSION_HEADER_FILE
 
 #include "encode/capture_manager.h"
@@ -38,6 +44,10 @@
 #include "util/page_guard_manager.h"
 #include "util/platform.h"
 
+#include "decode/file_processor.h"
+#include "decode/asset_file_consumer.h"
+#include "generated/generated_vulkan_decoder.h"
+
 #include <cassert>
 #include <cstdlib>
 #include <unordered_map>
@@ -49,10 +59,6 @@ extern char** environ;
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
 
-// One based frame count.
-const uint32_t kFirstFrame           = 1;
-const size_t   kFileStreamBufferSize = 256 * 1024;
-
 std::mutex                                     CommonCaptureManager::ThreadData::count_lock_;
 format::ThreadId                               CommonCaptureManager::ThreadData::thread_count_ = 0;
 std::unordered_map<uint64_t, format::ThreadId> CommonCaptureManager::ThreadData::id_map_;
@@ -62,7 +68,8 @@ std::mutex                                                     CommonCaptureMana
 thread_local std::unique_ptr<CommonCaptureManager::ThreadData> CommonCaptureManager::thread_data_;
 CommonCaptureManager::ApiCallMutexT                            CommonCaptureManager::api_call_mutex_;
 
-std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ format::kNullHandleId };
+std::atomic<format::HandleId> CommonCaptureManager::unique_id_counter_{ static_cast<format::HandleId>(0) };
+std::stack<std::pair<format::HandleId, VkObjectType>> CommonCaptureManager::handle_ids_override;
 
 CommonCaptureManager::ThreadData::ThreadData() :
     thread_id_(GetThreadId()), object_id_(format::kNullHandleId), call_id_(format::ApiCallId::ApiCall_Unknown),
@@ -99,11 +106,12 @@ CommonCaptureManager::CommonCaptureManager() :
     page_guard_track_ahb_memory_(false), page_guard_unblock_sigsegv_(false), page_guard_signal_handler_watcher_(false),
     page_guard_memory_mode_(kMemoryModeShadowInternal), page_guard_external_memory_(false), trim_enabled_(false),
     trim_boundary_(CaptureSettings::TrimBoundary::kUnknown), trim_current_range_(0), current_frame_(kFirstFrame),
-    queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
+    override_frame_(kInvalidFrame), queue_submit_count_(0), capture_mode_(kModeWrite), previous_hotkey_state_(false),
     previous_runtime_trigger_state_(CaptureSettings::RuntimeTriggerState::kNotUsed), debug_layer_(false),
     debug_device_lost_(false), screenshot_prefix_(""), screenshots_enabled_(false), disable_dxr_(false),
     accel_struct_padding_(0), iunknown_wrapping_(false), force_command_serialization_(false), queue_zero_only_(false),
-    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), block_index_(0)
+    allow_pipeline_compile_required_(false), quit_after_frame_ranges_(false), use_asset_file_(false), block_index_(0),
+    write_assets_(false), previous_write_assets_(false), write_state_files_(false)
 {}
 
 CommonCaptureManager::~CommonCaptureManager()
@@ -192,9 +200,9 @@ bool CommonCaptureManager::LockedCreateInstance(ApiCaptureManager*           api
         // NOTE: moved here from CaptureTracker::Initialize... DRY'r than putting it into the API specific
         //       CreateInstances. For actual multiple simulatenous API support we need to ensure all API capture manager
         //       state trackers are in the correct state given the differing settings that may be present.
-        if ((capture_mode_ & kModeTrack) == kModeTrack)
+        if ((capture_mode_ & kModeTrack) == kModeTrack || write_state_files_)
         {
-            api_capture_singleton->CreateStateTracker();
+            api_capture_singleton->CreateStateTracker(!capture_settings_.GetTraceSettings().reuse_asset_file.empty());
         }
     }
     else
@@ -308,6 +316,15 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
     force_command_serialization_     = trace_settings.force_command_serialization;
     queue_zero_only_                 = trace_settings.queue_zero_only;
     allow_pipeline_compile_required_ = trace_settings.allow_pipeline_compile_required;
+    use_asset_file_                  = trace_settings.use_asset_file;
+    write_state_files_               = trace_settings.write_state_files;
+
+    if (!trace_settings.reuse_asset_file.empty())
+    {
+        SetUniqueIdOffset(UINT64_MAX - static_cast<uint64_t>(5000));
+        asset_file_name_ = trace_settings.reuse_asset_file;
+        reuse_asset_file = true;
+    }
 
     rv_annotation_info_.gpuva_mask      = trace_settings.rv_anotation_info.gpuva_mask;
     rv_annotation_info_.descriptor_mask = trace_settings.rv_anotation_info.descriptor_mask;
@@ -352,7 +369,7 @@ bool CommonCaptureManager::Initialize(format::ApiFamilyId                   api_
         // External memory takes precedence over shadow memory modes.
         if (use_external_memory)
         {
-            page_guard_memory_mode_ = kMemoryModeExternal;
+            page_guard_memory_mode_     = kMemoryModeExternal;
             page_guard_external_memory_ = true;
         }
         else if (trace_settings.page_guard_persistent_memory)
@@ -493,7 +510,7 @@ CommonCaptureManager::ThreadData* CommonCaptureManager::GetThreadData()
 
 bool CommonCaptureManager::IsCaptureModeTrack() const
 {
-    return (GetCaptureMode() & kModeTrack) == kModeTrack;
+    return ((GetCaptureMode() & kModeTrack) == kModeTrack) || write_state_files_;
 }
 bool CommonCaptureManager::IsCaptureModeWrite() const
 {
@@ -648,17 +665,11 @@ bool CommonCaptureManager::IsTrimHotkeyPressed()
     return hotkey_pressed;
 }
 
-CaptureSettings::RuntimeTriggerState CommonCaptureManager::GetRuntimeTriggerState()
+bool CommonCaptureManager::RuntimeTriggerEnabled()
 {
     CaptureSettings settings;
     CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
-
-    return settings.GetTraceSettings().runtime_capture_trigger;
-}
-
-bool CommonCaptureManager::RuntimeTriggerEnabled()
-{
-    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
 
     bool result = (state == CaptureSettings::RuntimeTriggerState::kEnabled &&
                    (previous_runtime_trigger_state_ == CaptureSettings::RuntimeTriggerState::kDisabled ||
@@ -671,7 +682,9 @@ bool CommonCaptureManager::RuntimeTriggerEnabled()
 
 bool CommonCaptureManager::RuntimeTriggerDisabled()
 {
-    CaptureSettings::RuntimeTriggerState state = GetRuntimeTriggerState();
+    CaptureSettings settings;
+    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
+    CaptureSettings::RuntimeTriggerState state = settings.GetTraceSettings().runtime_capture_trigger;
 
     bool result = ((state == CaptureSettings::RuntimeTriggerState::kDisabled ||
                     state == CaptureSettings::RuntimeTriggerState::kNotUsed) &&
@@ -680,6 +693,24 @@ bool CommonCaptureManager::RuntimeTriggerDisabled()
     previous_runtime_trigger_state_ = state;
 
     return result;
+}
+
+bool CommonCaptureManager::RuntimeWriteAssetsEnabled()
+{
+    CaptureSettings settings;
+    CaptureSettings::LoadRunTimeEnvVarSettings(&settings);
+    bool write_assets = settings.GetTraceSettings().runtime_write_assets;
+
+    if (previous_write_assets_ != write_assets)
+    {
+        write_assets_          = true;
+        previous_write_assets_ = write_assets;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId api_family,
@@ -701,12 +732,20 @@ void CommonCaptureManager::CheckContinueCaptureForWriteMode(format::ApiFamilyId 
                 trim_enabled_  = false;
                 trim_boundary_ = CaptureSettings::TrimBoundary::kUnknown;
                 capture_mode_  = kModeDisabled;
+
+                if (use_asset_file_ && asset_file_stream_)
+                {
+                    asset_file_stream_->Flush();
+                    asset_file_stream_ = nullptr;
+                }
+
                 // Clean up all of the capture manager's state trackers
                 for (auto& manager_it : api_capture_managers_)
                 {
                     manager_it.first->DestroyStateTracker();
                 }
-                compressor_ = nullptr;
+                compressor_        = nullptr;
+                write_state_files_ = false;
             }
             else if (trim_ranges_[trim_current_range_].first == current_boundary_count)
             {
@@ -775,6 +814,26 @@ void CommonCaptureManager::CheckStartCaptureForTrackMode(format::ApiFamilyId api
             capture_mode_ = kModeDisabled;
         }
     }
+    else if ((RuntimeWriteAssetsEnabled() || write_assets_) && capture_mode_ == kModeTrack)
+    {
+        capture_mode_ |= kModeWrite;
+
+        auto thread_data = GetThreadData();
+        assert(thread_data != nullptr);
+
+        if (asset_file_stream_.get() == nullptr)
+        {
+            CreateAssetFile();
+        }
+
+        for (auto& manager : api_capture_managers_)
+        {
+            manager.first->WriteAssets(asset_file_stream_.get(), thread_data->thread_id_);
+        }
+
+        capture_mode_ = kModeTrack;
+        write_assets_ = false;
+    }
 }
 
 bool CommonCaptureManager::ShouldTriggerScreenshot()
@@ -842,6 +901,11 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family)
         }
     }
 
+    if (IsCaptureModeWrite() && write_state_files_)
+    {
+        WriteFrameStateFile();
+    }
+
     // Flush after presents to help avoid capture files with incomplete final blocks.
     if (file_stream_.get() != nullptr)
     {
@@ -854,6 +918,8 @@ void CommonCaptureManager::EndFrame(format::ApiFamilyId api_family)
         GFXRECON_LOG_INFO("All trim ranges have been captured. Quitting.");
         exit(EXIT_SUCCESS);
     }
+
+    WriteFrameMarker(format::MarkerType::kBeginMarker);
 }
 
 void CommonCaptureManager::PreQueueSubmit(format::ApiFamilyId api_family)
@@ -917,21 +983,73 @@ std::string CommonCaptureManager::CreateTrimFilename(const std::string&     base
     return util::filepath::InsertFilenamePostfix(base_filename, range_string);
 }
 
-bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
+void CommonCaptureManager::CreateAssetFile()
 {
-    bool        success          = true;
-    std::string capture_filename = base_filename;
+    std::string asset_file_name = CreateAssetFilename(base_filename_);
+
+    GFXRECON_WRITE_CONSOLE("%s() asset_file_name: %s", __func__, asset_file_name.c_str())
+
+    asset_file_stream_ =
+        std::make_unique<util::FileOutputStream>(asset_file_name, kFileStreamBufferSize, reuse_asset_file);
+    if (asset_file_stream_->IsValid())
+    {
+        if (!reuse_asset_file)
+        {
+            WriteFileHeader(asset_file_stream_.get());
+        }
+    }
+    else
+    {
+        GFXRECON_LOG_ERROR("Failed creating/opening asset file %s", asset_file_name.c_str());
+        asset_file_stream_ = nullptr;
+    }
+}
+
+std::string CommonCaptureManager::CreateAssetFilename(const std::string& base_filename)
+{
+    if (!asset_file_name_.empty())
+    {
+        return asset_file_name_;
+    }
+
+    asset_file_name_ = base_filename;
+
+    size_t dot_pos = base_filename.rfind('.');
+    if (dot_pos != std::string::npos)
+    {
+        if (base_filename.substr(dot_pos) == ".gfxr")
+        {
+            asset_file_name_.replace(dot_pos, 16, "_asset_file.gfxa");
+        }
+    }
+    else
+    {
+        asset_file_name_ += std::string("_asset_file.gfxa");
+    }
 
     if (timestamp_filename_)
     {
-        capture_filename = util::filepath::GenerateTimestampedFilename(capture_filename);
+        asset_file_name_ = util::filepath::GenerateTimestampedFilename(asset_file_name_);
     }
 
-    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename, kFileStreamBufferSize);
+    return asset_file_name_;
+}
+
+bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename)
+{
+    bool success      = true;
+    capture_filename_ = base_filename;
+
+    if (timestamp_filename_)
+    {
+        capture_filename_ = util::filepath::GenerateTimestampedFilename(capture_filename_);
+    }
+
+    file_stream_ = std::make_unique<util::FileOutputStream>(capture_filename_, kFileStreamBufferSize);
 
     if (file_stream_->IsValid())
     {
-        GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename.c_str());
+        GFXRECON_LOG_INFO("Recording graphics API capture to %s", capture_filename_.c_str());
         WriteFileHeader();
 
         gfxrecon::util::filepath::FileInfo info{};
@@ -1045,6 +1163,12 @@ bool CommonCaptureManager::CreateCaptureFile(format::ApiFamilyId api_family, con
         success      = false;
     }
 
+    // Create asset file
+    if (use_asset_file_ && asset_file_stream_.get() == nullptr)
+    {
+        CreateAssetFile();
+    }
+
     return success;
 }
 
@@ -1055,10 +1179,120 @@ void CommonCaptureManager::ActivateTrimming()
     auto thread_data = GetThreadData();
     assert(thread_data != nullptr);
 
+    if (!write_state_files_)
+    {
+        for (auto& manager : api_capture_managers_)
+        {
+            manager.first->WriteTrackedState(
+                file_stream_.get(), thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
+        }
+    }
+}
+
+std::string CommonCaptureManager::CreateFrameStateFilename(const std::string& base_filename) const
+{
+    std::string state_filename = base_filename;
+
+    const std::string state_filename_post = std::string("_state_frame_") + std::to_string(current_frame_);
+
+    size_t dot_pos = base_filename.rfind('.');
+    if (dot_pos != std::string::npos)
+    {
+        if (base_filename.substr(dot_pos) == ".gfxr")
+        {
+            state_filename.insert(dot_pos, state_filename_post);
+        }
+    }
+    else
+    {
+        state_filename += state_filename_post;
+    }
+
+    return state_filename;
+}
+
+void CommonCaptureManager::WriteExecuteFromFile(util::FileOutputStream& out_stream,
+                                                const std::string&      filename,
+                                                format::ThreadId        thread_id,
+                                                uint32_t                n_blocks,
+                                                int64_t                 offset)
+{
+    // Remove path from filename
+    std::string  relative_file;
+    const size_t last_slash_pos = filename.find_last_of("\\/");
+    if (last_slash_pos != std::string::npos)
+    {
+        relative_file = filename.substr(last_slash_pos + 1);
+    }
+    else
+    {
+        relative_file = filename;
+    }
+
+    const size_t filename_length = relative_file.length();
+
+    format::ExecuteBlocksFromFile execute_from_file;
+    execute_from_file.meta_header.block_header.size =
+        format::GetMetaDataBlockBaseSize(execute_from_file) + filename_length;
+    execute_from_file.meta_header.block_header.type = format::kMetaDataBlock;
+    execute_from_file.meta_header.meta_data_id =
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kExecuteBlocksFromFile);
+    execute_from_file.thread_id       = thread_id;
+    execute_from_file.n_blocks        = n_blocks;
+    execute_from_file.offset          = offset;
+    execute_from_file.filename_length = filename_length;
+
+    out_stream.Write(&execute_from_file, sizeof(execute_from_file));
+    out_stream.Write(relative_file.c_str(), filename_length);
+}
+
+void CommonCaptureManager::WriteSetBlockIndex(util::FileOutputStream& out_stream,
+                                              format::ThreadId        thread_id,
+                                              uint64_t                block_index)
+{
+    format::SetBlockIndexCommand set_block_index;
+    set_block_index.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(set_block_index);
+    set_block_index.meta_header.block_header.type = format::kMetaDataBlock;
+    set_block_index.meta_header.meta_data_id =
+        format::MakeMetaDataId(format::ApiFamilyId::ApiFamily_Vulkan, format::MetaDataType::kSetBlockIndexCommand);
+    set_block_index.thread_id   = thread_id;
+    set_block_index.block_index = block_index;
+
+    out_stream.Write(&set_block_index, sizeof(set_block_index));
+}
+
+bool CommonCaptureManager::WriteFrameStateFile()
+{
+    assert(write_state_files_);
+
+    std::string state_filename = CreateFrameStateFilename(capture_filename_);
+
+    util::FileOutputStream state_file_stream(state_filename, kFileStreamBufferSize);
+    if (!state_file_stream.IsValid())
+    {
+        assert(0);
+        return false;
+    }
+
+    auto thread_data = GetThreadData();
+    assert(thread_data != nullptr);
+
+    WriteFileHeader(&state_file_stream);
+
+    WriteSetBlockIndex(state_file_stream, thread_data->thread_id_, block_index_);
+
     for (auto& manager : api_capture_managers_)
     {
-        manager.first->WriteTrackedState(file_stream_.get(), thread_data->thread_id_);
+        manager.first->WriteTrackedState(
+            &state_file_stream, thread_data->thread_id_, use_asset_file_ ? asset_file_stream_.get() : nullptr);
     }
+
+    WriteExecuteFromFile(
+        state_file_stream, file_stream_->GetFilename(), thread_data->thread_id_, 0, file_stream_->GetOffset());
+
+    state_file_stream.Flush();
+
+    return true;
 }
 
 void CommonCaptureManager::DeactivateTrimming()
@@ -1091,6 +1325,24 @@ void CommonCaptureManager::WriteFileHeader()
 
     auto thread_data          = GetThreadData();
     thread_data->block_index_ = block_index_.load();
+}
+
+void CommonCaptureManager::WriteFileHeader(util::FileOutputStream* file_stream)
+{
+    assert(file_stream != nullptr);
+
+    std::vector<format::FileOptionPair> option_list;
+
+    BuildOptionList(file_options_, &option_list);
+
+    format::FileHeader file_header;
+    file_header.fourcc        = GFXRECON_FOURCC;
+    file_header.major_version = 0;
+    file_header.minor_version = 0;
+    file_header.num_options   = static_cast<uint32_t>(option_list.size());
+
+    WriteToFile(&file_header, sizeof(file_header), file_stream);
+    WriteToFile(option_list.data(), option_list.size() * sizeof(format::FileOptionPair), file_stream);
 }
 
 void CommonCaptureManager::BuildOptionList(const format::EnabledOptions&        enabled_options,
@@ -1268,7 +1520,7 @@ void CommonCaptureManager::WriteCreateHeapAllocationCmd(format::ApiFamilyId api_
     }
 }
 
-void CommonCaptureManager::WriteToFile(const void* data, size_t size)
+void CommonCaptureManager::WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream)
 {
     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
     {
@@ -1284,10 +1536,12 @@ void CommonCaptureManager::WriteToFile(const void* data, size_t size)
         }
     }
 
-    file_stream_->Write(data, size);
+    util::FileOutputStream* output_stream = (file_stream != nullptr) ? file_stream : file_stream_.get();
+
+    output_stream->Write(data, size);
     if (force_file_flush_)
     {
-        file_stream_->Flush();
+        output_stream->Flush();
     }
 
     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kUserfaultfd)
@@ -1419,6 +1673,214 @@ void CommonCaptureManager::WriteCaptureOptions(std::string& operation_annotation
     operation_annotation += "\": \n    {";
     operation_annotation += buffer;
     operation_annotation += "\n    }";
+}
+
+static const char* VkObjectTypeToStr(VkObjectType type)
+{
+    switch (type)
+    {
+        case VK_OBJECT_TYPE_UNKNOWN:
+            return GFXRECON_STR(VK_OBJECT_TYPE_UNKNOWN);
+            break;
+        case VK_OBJECT_TYPE_INSTANCE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_INSTANCE);
+            break;
+        case VK_OBJECT_TYPE_PHYSICAL_DEVICE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PHYSICAL_DEVICE);
+            break;
+        case VK_OBJECT_TYPE_DEVICE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEVICE);
+            break;
+        case VK_OBJECT_TYPE_QUEUE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_QUEUE);
+            break;
+        case VK_OBJECT_TYPE_SEMAPHORE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SEMAPHORE);
+            break;
+        case VK_OBJECT_TYPE_COMMAND_BUFFER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_COMMAND_BUFFER);
+            break;
+        case VK_OBJECT_TYPE_FENCE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_FENCE);
+            break;
+        case VK_OBJECT_TYPE_DEVICE_MEMORY:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEVICE_MEMORY);
+            break;
+        case VK_OBJECT_TYPE_BUFFER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_BUFFER);
+            break;
+        case VK_OBJECT_TYPE_IMAGE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_IMAGE);
+            break;
+        case VK_OBJECT_TYPE_EVENT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_EVENT);
+            break;
+        case VK_OBJECT_TYPE_QUERY_POOL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_QUERY_POOL);
+            break;
+        case VK_OBJECT_TYPE_BUFFER_VIEW:
+            return GFXRECON_STR(VK_OBJECT_TYPE_BUFFER_VIEW);
+            break;
+        case VK_OBJECT_TYPE_IMAGE_VIEW:
+            return GFXRECON_STR(VK_OBJECT_TYPE_IMAGE_VIEW);
+            break;
+        case VK_OBJECT_TYPE_SHADER_MODULE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SHADER_MODULE);
+            break;
+        case VK_OBJECT_TYPE_PIPELINE_CACHE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PIPELINE_CACHE);
+            break;
+        case VK_OBJECT_TYPE_PIPELINE_LAYOUT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PIPELINE_LAYOUT);
+            break;
+        case VK_OBJECT_TYPE_RENDER_PASS:
+            return GFXRECON_STR(VK_OBJECT_TYPE_RENDER_PASS);
+            break;
+        case VK_OBJECT_TYPE_PIPELINE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PIPELINE);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT);
+            break;
+        case VK_OBJECT_TYPE_SAMPLER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SAMPLER);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_POOL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_POOL);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_SET:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_SET);
+            break;
+        case VK_OBJECT_TYPE_FRAMEBUFFER:
+            return GFXRECON_STR(VK_OBJECT_TYPE_FRAMEBUFFER);
+            break;
+        case VK_OBJECT_TYPE_COMMAND_POOL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_COMMAND_POOL);
+            break;
+        case VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION);
+            break;
+        case VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE);
+            break;
+        case VK_OBJECT_TYPE_PRIVATE_DATA_SLOT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PRIVATE_DATA_SLOT);
+            break;
+        case VK_OBJECT_TYPE_SURFACE_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SURFACE_KHR);
+            break;
+        case VK_OBJECT_TYPE_SWAPCHAIN_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SWAPCHAIN_KHR);
+            break;
+        case VK_OBJECT_TYPE_DISPLAY_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DISPLAY_KHR);
+            break;
+        case VK_OBJECT_TYPE_DISPLAY_MODE_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DISPLAY_MODE_KHR);
+            break;
+        case VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT);
+            break;
+        case VK_OBJECT_TYPE_VIDEO_SESSION_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_VIDEO_SESSION_KHR);
+            break;
+        case VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR);
+            break;
+        case VK_OBJECT_TYPE_CU_MODULE_NVX:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CU_MODULE_NVX);
+            break;
+        case VK_OBJECT_TYPE_CU_FUNCTION_NVX:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CU_FUNCTION_NVX);
+            break;
+        case VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT);
+            break;
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR);
+            break;
+        case VK_OBJECT_TYPE_VALIDATION_CACHE_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_VALIDATION_CACHE_EXT);
+            break;
+        case VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV);
+            break;
+        case VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL:
+            return GFXRECON_STR(VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL);
+            break;
+        case VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR:
+            return GFXRECON_STR(VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR);
+            break;
+        case VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV);
+            break;
+        case VK_OBJECT_TYPE_CUDA_MODULE_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CUDA_MODULE_NV);
+            break;
+        case VK_OBJECT_TYPE_CUDA_FUNCTION_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_CUDA_FUNCTION_NV);
+            break;
+        case VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA:
+            return GFXRECON_STR(VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA);
+            break;
+        case VK_OBJECT_TYPE_MICROMAP_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_MICROMAP_EXT);
+            break;
+        case VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV:
+            return GFXRECON_STR(VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV);
+            break;
+        case VK_OBJECT_TYPE_SHADER_EXT:
+            return GFXRECON_STR(VK_OBJECT_TYPE_SHADER_EXT);
+            break;
+        default:
+            assert(0);
+            return "XXX NULL XXX";
+    }
+}
+
+void CommonCaptureManager::OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type)
+{
+    if (id != format::kNullHandleId)
+    {
+        // GFXRECON_WRITE_CONSOLE(
+        //     "[CAPTURE] %s() capture_id: %" PRIu64 " type: %s", __func__, id, VkObjectTypeToStr(type));
+        handle_ids_override.push(std::make_pair(id, type));
+    }
+}
+
+void CommonCaptureManager::OverrideFrame(format::FrameNumber frame)
+{
+    GFXRECON_WRITE_CONSOLE("%s(frame: %" PRIu64 ")", __func__, frame)
+    override_frame_ = frame;
+}
+
+format::HandleId CommonCaptureManager::GetUniqueId(VkObjectType type)
+{
+    // GFXRECON_WRITE_CONSOLE("%s(type: %s)", __func__, VkObjectTypeToStr(type));
+
+    if (!handle_ids_override.empty())
+    {
+        assert(type != VK_OBJECT_TYPE_UNKNOWN);
+
+        auto top = handle_ids_override.top();
+        if (top.second != type)
+        {
+            GFXRECON_LOG_WARNING("%s() Type mismatch. Expected %s requested %s",
+                                 __func__,
+                                 VkObjectTypeToStr(top.second),
+                                 VkObjectTypeToStr(type))
+        }
+        handle_ids_override.pop();
+
+        // GFXRECON_WRITE_CONSOLE("  Removing from stack %" PRIu64 "(%zu)", top.first, handle_ids_override.size());
+
+        return top.first;
+    }
+    else
+    {
+        // GFXRECON_WRITE_CONSOLE("  Incrementing %" PRIu64, unique_id_counter_ + 1);
+        return ++unique_id_counter_;
+    }
 }
 
 GFXRECON_END_NAMESPACE(encode)

@@ -233,7 +233,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         capture_manager = 'manager'
         if name == "vkCreateInstance":
             capture_manager = 'VulkanCaptureManager::Get()'
-        body = ''
+        body = 'GFXRECON_WRITE_CONSOLE("[CAPTURE] %s()", __func__)\n'
         if name != "vkCreateInstance":
             body += indent + 'VulkanCaptureManager* manager = VulkanCaptureManager::Get();\n'
             body += indent + 'GFXRECON_ASSERT(manager != nullptr);\n'
@@ -702,7 +702,7 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
                         if value.is_array:
                             expr += indent + '{} {name}_unwrapped = {}::UnwrapStructArrayHandles({name}, {}, handle_unwrap_memory);\n'.format(
                                 value.full_type,
-                                wrapper_prefix, 
+                                wrapper_prefix,
                                 value.array_length,
                                 name=value.name
                             )

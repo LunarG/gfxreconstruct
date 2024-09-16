@@ -45,6 +45,11 @@ class MarkerJsonConsumer : public Base
         this->writer_->WriteMarker(format::kNameState, "EndMarker", frame_number);
     }
 
+    virtual void ProcessFrameBeginMarker(uint64_t frame_number)
+    {
+        this->writer_->WriteMarker(format::kNameFrame, "BeginMarker", frame_number);
+    }
+
     virtual void ProcessFrameEndMarker(uint64_t frame_number)
     {
         this->writer_->WriteMarker(format::kNameFrame, "EndMarker", frame_number);

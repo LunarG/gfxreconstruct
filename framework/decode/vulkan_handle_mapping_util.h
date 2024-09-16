@@ -29,7 +29,10 @@
 #include "util/defines.h"
 #include "util/logging.h"
 
+#include <encode/custom_exported_layer_funcs.h>
+
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cassert>
 

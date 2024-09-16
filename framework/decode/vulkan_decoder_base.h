@@ -83,6 +83,8 @@ class VulkanDecoderBase : public ApiDecoder
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) override;
 
+    virtual void DispatchFrameBeginMarker(uint64_t frame_number) override;
+
     virtual void DispatchFrameEndMarker(uint64_t frame_number) override;
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) override;
@@ -199,6 +201,13 @@ class VulkanDecoderBase : public ApiDecoder
                                                         const char*                             env_string) override;
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override;
+
+    virtual void SetCurrentFileOffset(int64_t offset) override;
+
+    virtual void DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
+                                               uint32_t           n_blocks,
+                                               int64_t            offset,
+                                               const std::string& filename) override;
 
   protected:
     const std::vector<VulkanConsumer*>& GetConsumers() const { return consumers_; }

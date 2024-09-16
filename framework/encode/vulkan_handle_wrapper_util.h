@@ -32,6 +32,8 @@
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_state_table.h"
 #include "util/defines.h"
+#include "util/logging.h"
+#include "vulkan/vulkan_core.h"
 
 #include <algorithm>
 #include <iterator>
@@ -54,7 +56,7 @@ static const VkCommandPool    kTempCommandPool =
     UINT64_TO_VK_HANDLE(VkCommandPool, std::numeric_limits<uint64_t>::max() - 2);
 static const format::HandleId kTempCommandPoolId   = std::numeric_limits<format::HandleId>::max() - 2;
 static const format::HandleId kTempCommandBufferId = std::numeric_limits<format::HandleId>::max() - 3;
-typedef format::HandleId (*PFN_GetHandleId)();
+typedef format::HandleId (*PFN_GetHandleId)(VkObjectType);
 
 extern VulkanStateHandleTable state_handle_table_;
 
@@ -75,7 +77,7 @@ inline format::HandleId GetTempWrapperId<CommandPoolWrapper>(const VkCommandPool
 }
 
 template <typename Wrapper>
-format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
+format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle, bool log_warning = true)
 {
     if (handle == VK_NULL_HANDLE)
     {
@@ -90,16 +92,19 @@ format::HandleId GetWrappedId(const typename Wrapper::HandleType& handle)
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrappedId() couldn't find Handle: %" PRIu64
-                             "'s wrapper. It might have been destroyed",
-                             handle);
+        if (log_warning)
+        {
+            GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrappedId() couldn't find Handle: 0x%" PRIx64
+                                 "'s wrapper. It might have been destroyed",
+                                 handle);
+        }
         return format::kNullHandleId;
     }
     return wrapper->handle_id;
 }
 
 template <typename Wrapper>
-Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
+Wrapper* GetWrapper(const typename Wrapper::HandleType& handle, bool log_warning = true)
 {
     if (handle == VK_NULL_HANDLE)
     {
@@ -108,9 +113,12 @@ Wrapper* GetWrapper(const typename Wrapper::HandleType& handle)
     auto wrapper = state_handle_table_.GetWrapper<Wrapper>(handle);
     if (wrapper == nullptr)
     {
-        GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrapper() couldn't find Handle: %" PRIu64
-                             "'s wrapper. It might have been destroyed",
-                             handle);
+        if (log_warning)
+        {
+            GFXRECON_LOG_WARNING("vulkan_wrappers::GetWrapper() couldn't find Handle: 0x%" PRIx64
+                                 "'s wrapper. It might have been destroyed",
+                                 handle);
+        }
     }
     return wrapper;
 }
@@ -181,7 +189,7 @@ void CreateWrappedDispatchHandle(typename ParentWrapper::HandleType parent,
         Wrapper* wrapper      = new Wrapper;
         wrapper->dispatch_key = *reinterpret_cast<void**>(*handle);
         wrapper->handle       = (*handle);
-        wrapper->handle_id    = get_id();
+        wrapper->handle_id    = get_id(wrapper->vk_object_type);
 
         if (parent != VK_NULL_HANDLE)
         {
@@ -210,7 +218,7 @@ void CreateWrappedNonDispatchHandle(typename Wrapper::HandleType* handle, PFN_Ge
     {
         Wrapper* wrapper   = new Wrapper;
         wrapper->handle    = (*handle);
-        wrapper->handle_id = get_id();
+        wrapper->handle_id = get_id(wrapper->vk_object_type);
         if (!state_handle_table_.InsertWrapper(wrapper))
         {
             GFXRECON_LOG_WARNING("Create a duplicated Handle: %" PRIu64
@@ -270,6 +278,10 @@ inline void CreateWrappedHandle<InstanceWrapper, NoParentWrapper, PhysicalDevice
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_physical_devices.push_back(wrapper);
     }
+    else
+    {
+        get_id(wrapper->vk_object_type);
+    }
 }
 
 template <>
@@ -324,6 +336,10 @@ inline void CreateWrappedHandle<DeviceWrapper, NoParentWrapper, QueueWrapper>(
         wrapper                  = GetWrapper<QueueWrapper>(*handle);
         wrapper->layer_table_ref = &parent_wrapper->layer_table;
         parent_wrapper->child_queues.push_back(wrapper);
+    }
+    else
+    {
+        get_id(wrapper->vk_object_type);
     }
 }
 
@@ -406,6 +422,10 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper, NoParentWrapper, DisplayK
             wrapper = GetWrapper<DisplayKHRWrapper>(*handle);
             parent_wrapper->child_displays.push_back(wrapper);
         }
+        else
+        {
+            get_id(wrapper->vk_object_type);
+        }
     }
 }
 
@@ -443,6 +463,10 @@ inline void CreateWrappedHandle<DeviceWrapper,
         wrapper->parent_swapchains.insert(co_parent);
         parent_wrapper->child_images.push_back(wrapper);
     }
+    else
+    {
+        get_id(wrapper->vk_object_type);
+    }
 }
 
 // Override for display mode creation/retrieval, which requires the handle wrapper to be owned by a parent to ensure
@@ -476,6 +500,10 @@ inline void CreateWrappedHandle<PhysicalDeviceWrapper,
         CreateWrappedNonDispatchHandle<DisplayModeKHRWrapper>(handle, get_id);
         wrapper = GetWrapper<DisplayModeKHRWrapper>(*handle);
         parent_wrapper->child_display_modes.push_back(wrapper);
+    }
+    else
+    {
+        get_id(wrapper->vk_object_type);
     }
 }
 

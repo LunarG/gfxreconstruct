@@ -26,6 +26,8 @@
 #define GFXRECON_ENCODE_API_CAPTURE_MANAGER_H
 
 #include "encode/capture_manager.h"
+#include "format/format.h"
+#include "vulkan/vulkan_core.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -38,14 +40,19 @@ class ApiCaptureManager
 
     // Forwarded Statics
     static format::HandleId GetUniqueId() { return CommonCaptureManager::GetUniqueId(); }
+    static format::HandleId GetUniqueId(VkObjectType type) { return CommonCaptureManager::GetUniqueId(type); }
     static auto AcquireSharedApiCallLock() { return std::move(CommonCaptureManager::AcquireSharedApiCallLock()); }
 
     static auto AcquireExclusiveApiCallLock() { return std::move(CommonCaptureManager::AcquireExclusiveApiCallLock()); }
 
     // Virtual interface
-    virtual void CreateStateTracker()                                                               = 0;
+    virtual void CreateStateTracker(bool recapturing = false)                                       = 0;
     virtual void DestroyStateTracker()                                                              = 0;
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) = 0;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream,
+                                   format::ThreadId        thread_id,
+                                   util::FileOutputStream* asset_file_stream = nullptr)             = 0;
+    virtual void WriteAssets(util::FileOutputStream* asset_file_stream, format::ThreadId thread_id) = 0;
+
     virtual CaptureSettings::TraceSettings GetDefaultTraceSettings();
 
     format::ApiFamilyId GetApiFamily() const { return api_family_; }
@@ -116,8 +123,6 @@ class ApiCaptureManager
 
     bool IsTrimHotkeyPressed() { return common_manager_->IsTrimHotkeyPressed(); }
 
-    CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState() { return common_manager_->GetRuntimeTriggerState(); }
-
     bool RuntimeTriggerEnabled() { return common_manager_->RuntimeTriggerEnabled(); }
 
     bool RuntimeTriggerDisabled() { return common_manager_->RuntimeTriggerDisabled(); }
@@ -153,6 +158,7 @@ class ApiCaptureManager
     uint16_t GetDescriptorMask() const { return common_manager_->GetDescriptorMask(); }
     uint64_t GetShaderIDMask() const { return common_manager_->GetShaderIDMask(); }
     uint64_t GetBlockIndex() const { return common_manager_->GetBlockIndex(); }
+    void     SetWriteAssets() const { return common_manager_->SetWriteAssets(); }
 
     bool                                GetForceFileFlush() const { return common_manager_->GetForceFileFlush(); }
     CaptureSettings::MemoryTrackingMode GetMemoryTrackingMode() const
@@ -168,6 +174,7 @@ class ApiCaptureManager
     const std::string&                GetTrimKey() const { return common_manager_->GetTrimKey(); }
     bool                              IsTrimEnabled() const { return common_manager_->IsTrimEnabled(); }
     uint32_t                          GetCurrentFrame() const { return common_manager_->GetCurrentFrame(); }
+    uint32_t                          GetOverrideFrame() const { return common_manager_->GetOverrideFrame(); }
     CommonCaptureManager::CaptureMode GetCaptureMode() const { return common_manager_->GetCaptureMode(); }
     bool                              GetDebugLayerSetting() const { return common_manager_->GetDebugLayerSetting(); }
     bool GetDebugDeviceLostSetting() const { return common_manager_->GetDebugDeviceLostSetting(); }
@@ -192,6 +199,24 @@ class ApiCaptureManager
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
     {
         common_manager_->CombineAndWriteToFile<N>(buffers);
+    }
+
+    void SetUniqueIdOffset(format::HandleId id)
+    {
+        assert(common_manager_ != nullptr);
+        common_manager_->SetUniqueIdOffset(id);
+    }
+
+    void OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type)
+    {
+        assert(common_manager_ != nullptr);
+        common_manager_->OverrideIdForNextVulkanObject(id, type);
+    }
+
+    void OverrideFrameNumber(format::FrameNumber frame)
+    {
+        assert(common_manager_ != nullptr);
+        common_manager_->OverrideFrame(frame);
     }
 
     CommonCaptureManager::ThreadData* GetThreadData() { return common_manager_->GetThreadData(); }

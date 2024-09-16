@@ -35,6 +35,7 @@
 #include "graphics/vulkan_struct_get_pnext.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cassert>
 #include <algorithm>
@@ -68,7 +69,8 @@ void InitializeState(ParentHandle                        parent_handle,
                      Wrapper*                            wrapper,
                      const CreateInfo*                   create_info,
                      format::ApiCallId                   create_call_id,
-                     vulkan_state_info::CreateParameters create_parameters)
+                     vulkan_state_info::CreateParameters create_parameters,
+                     format::AssetFileOffsets*           asset_file_offsets = nullptr)
 {
     assert(wrapper != nullptr);
     assert(create_parameters != nullptr);
@@ -86,7 +88,8 @@ void InitializeGroupObjectState(ParentHandle                        parent_handl
                                 Wrapper*                            wrapper,
                                 const CreateInfo*                   create_info,
                                 format::ApiCallId                   create_call_id,
-                                vulkan_state_info::CreateParameters create_parameters)
+                                vulkan_state_info::CreateParameters create_parameters,
+                                format::AssetFileOffsets*           asset_file_offsets = nullptr)
 {
     // The secondary handle is only used by sepcializations.
     GFXRECON_UNREFERENCED_PARAMETER(secondary_handle);
@@ -100,7 +103,8 @@ inline void InitializeState<VkPhysicalDevice, vulkan_wrappers::DeviceWrapper, Vk
     vulkan_wrappers::DeviceWrapper*     wrapper,
     const VkDeviceCreateInfo*           create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(parent_handle != VK_NULL_HANDLE);
     assert(wrapper != nullptr);
@@ -120,7 +124,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::PipelineLayoutWrapper, Vk
     vulkan_wrappers::PipelineLayoutWrapper* wrapper,
     const VkPipelineLayoutCreateInfo*       create_info,
     format::ApiCallId                       create_call_id,
-    vulkan_state_info::CreateParameters     create_parameters)
+    vulkan_state_info::CreateParameters     create_parameters,
+    format::AssetFileOffsets*               asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -158,7 +163,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::CommandPoolWrapper, VkCom
     vulkan_wrappers::CommandPoolWrapper* wrapper,
     const VkCommandPoolCreateInfo*       create_info,
     format::ApiCallId                    create_call_id,
-    vulkan_state_info::CreateParameters  create_parameters)
+    vulkan_state_info::CreateParameters  create_parameters,
+    format::AssetFileOffsets*            asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_parameters != nullptr);
@@ -178,7 +184,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::QueryPoolWrapper, VkQuery
     vulkan_wrappers::QueryPoolWrapper*  wrapper,
     const VkQueryPoolCreateInfo*        create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_parameters != nullptr);
@@ -199,7 +206,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::FenceWrapper, VkFenceCrea
     vulkan_wrappers::FenceWrapper*      wrapper,
     const VkFenceCreateInfo*            create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -220,7 +228,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::EventWrapper, VkEventCrea
     vulkan_wrappers::EventWrapper*      wrapper,
     const VkEventCreateInfo*            create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -240,7 +249,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::PipelineCacheWrapper, VkP
     vulkan_wrappers::PipelineCacheWrapper* wrapper,
     const VkPipelineCacheCreateInfo*       create_info,
     format::ApiCallId                      create_call_id,
-    vulkan_state_info::CreateParameters    create_parameters)
+    vulkan_state_info::CreateParameters    create_parameters,
+    format::AssetFileOffsets*              asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -260,7 +270,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::SemaphoreWrapper, VkSemap
     vulkan_wrappers::SemaphoreWrapper*  wrapper,
     const VkSemaphoreCreateInfo*        create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -285,7 +296,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::FramebufferWrapper, VkFra
     vulkan_wrappers::FramebufferWrapper* wrapper,
     const VkFramebufferCreateInfo*       create_info,
     format::ApiCallId                    create_call_id,
-    vulkan_state_info::CreateParameters  create_parameters)
+    vulkan_state_info::CreateParameters  create_parameters,
+    format::AssetFileOffsets*            asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -322,7 +334,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::RenderPassWrapper, VkRend
     vulkan_wrappers::RenderPassWrapper* wrapper,
     const VkRenderPassCreateInfo*       create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -337,7 +350,9 @@ inline void InitializeState<VkDevice, vulkan_wrappers::RenderPassWrapper, VkRend
     {
         for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
         {
-            wrapper->attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.store_op.push_back(create_info->pAttachments[i].storeOp);
+            wrapper->attachment_info.stencil_store_op.push_back(create_info->pAttachments[i].stencilStoreOp);
         }
     }
 }
@@ -348,7 +363,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::RenderPassWrapper, VkRend
     vulkan_wrappers::RenderPassWrapper* wrapper,
     const VkRenderPassCreateInfo2*      create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -363,7 +379,9 @@ inline void InitializeState<VkDevice, vulkan_wrappers::RenderPassWrapper, VkRend
     {
         for (uint32_t i = 0; i < create_info->attachmentCount; ++i)
         {
-            wrapper->attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.attachment_final_layouts.push_back(create_info->pAttachments[i].finalLayout);
+            wrapper->attachment_info.store_op.push_back(create_info->pAttachments[i].storeOp);
+            wrapper->attachment_info.stencil_store_op.push_back(create_info->pAttachments[i].stencilStoreOp);
         }
     }
 }
@@ -376,7 +394,8 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
     vulkan_wrappers::PipelineWrapper*   wrapper,
     const VkGraphicsPipelineCreateInfo* create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -436,7 +455,8 @@ InitializeGroupObjectState<VkDevice, VkPipelineCache, vulkan_wrappers::PipelineW
     vulkan_wrappers::PipelineWrapper*   wrapper,
     const VkComputePipelineCreateInfo*  create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -479,7 +499,8 @@ InitializeGroupObjectState<VkDevice,
                                                              vulkan_wrappers::PipelineWrapper*       wrapper,
                                                              const VkRayTracingPipelineCreateInfoNV* create_info,
                                                              format::ApiCallId                       create_call_id,
-                                                             vulkan_state_info::CreateParameters     create_parameters)
+                                                             vulkan_state_info::CreateParameters     create_parameters,
+                                                             format::AssetFileOffsets*               asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert((create_info != nullptr) && (create_info->pStages != nullptr));
@@ -527,7 +548,8 @@ InitializeGroupObjectState<VkDevice,
                                                               vulkan_wrappers::PipelineWrapper*        wrapper,
                                                               const VkRayTracingPipelineCreateInfoKHR* create_info,
                                                               format::ApiCallId                        create_call_id,
-                                                              vulkan_state_info::CreateParameters create_parameters)
+                                                              vulkan_state_info::CreateParameters create_parameters,
+                                                              format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert((create_info != nullptr) && (create_info->pStages != nullptr));
@@ -571,7 +593,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::DeviceMemoryWrapper, VkMe
     vulkan_wrappers::DeviceMemoryWrapper* wrapper,
     const VkMemoryAllocateInfo*           alloc_info,
     format::ApiCallId                     create_call_id,
-    vulkan_state_info::CreateParameters   create_parameters)
+    vulkan_state_info::CreateParameters   create_parameters,
+    format::AssetFileOffsets*             asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(alloc_info != nullptr);
@@ -592,7 +615,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     vulkan_wrappers::BufferWrapper*     wrapper,
     const VkBufferCreateInfo*           create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -603,12 +627,21 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferWrapper, VkBufferCr
     wrapper->create_call_id    = create_call_id;
     wrapper->create_parameters = std::move(create_parameters);
 
-    wrapper->created_size = create_info->size;
+    wrapper->size = create_info->size;
 
     // TODO: Do we need to track the queue family that the buffer is actually used with?
     if ((create_info->queueFamilyIndexCount > 0) && (create_info->pQueueFamilyIndices != nullptr))
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
+    }
+
+    if (asset_file_offsets != nullptr && !asset_file_offsets->empty())
+    {
+        auto last_frame_entry = asset_file_offsets->rbegin();
+        if (last_frame_entry->second.find(wrapper->handle_id) != last_frame_entry->second.end())
+        {
+            wrapper->dirty = false;
+        }
     }
 }
 
@@ -619,7 +652,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     vulkan_wrappers::ImageWrapper*      wrapper,
     const VkImageCreateInfo*            create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -643,6 +677,21 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageWrapper, VkImageCrea
     {
         wrapper->queue_family_index = create_info->pQueueFamilyIndices[0];
     }
+
+    const VulkanDeviceTable* device_table = vulkan_wrappers::GetDeviceTable(parent_handle);
+    VkMemoryRequirements     image_mem_reqs;
+    assert(wrapper->handle != VK_NULL_HANDLE);
+    device_table->GetImageMemoryRequirements(parent_handle, wrapper->handle, &image_mem_reqs);
+    wrapper->size = image_mem_reqs.size;
+
+    if (asset_file_offsets != nullptr && !asset_file_offsets->empty())
+    {
+        auto last_frame_entry = asset_file_offsets->rbegin();
+        if (last_frame_entry->second.find(wrapper->handle_id) != last_frame_entry->second.end())
+        {
+            wrapper->dirty = false;
+        }
+    }
 }
 
 template <>
@@ -651,7 +700,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::SwapchainKHRWrapper, VkSw
     vulkan_wrappers::SwapchainKHRWrapper* wrapper,
     const VkSwapchainCreateInfoKHR*       create_info,
     format::ApiCallId                     create_call_id,
-    vulkan_state_info::CreateParameters   create_parameters)
+    vulkan_state_info::CreateParameters   create_parameters,
+    format::AssetFileOffsets*             asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -683,7 +733,8 @@ inline void InitializeGroupObjectState<VkDevice, VkSwapchainKHR, vulkan_wrappers
     vulkan_wrappers::ImageWrapper*      wrapper,
     const void*                         create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_parameters != nullptr);
@@ -713,7 +764,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
     vulkan_wrappers::BufferViewWrapper* wrapper,
     const VkBufferViewCreateInfo*       create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -725,6 +777,7 @@ inline void InitializeState<VkDevice, vulkan_wrappers::BufferViewWrapper, VkBuff
     wrapper->create_parameters = std::move(create_parameters);
 
     auto buffer        = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(create_info->buffer);
+    wrapper->buffer    = buffer;
     wrapper->buffer_id = buffer->handle_id;
 }
 
@@ -734,7 +787,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::ImageViewWrapper, VkImage
     vulkan_wrappers::ImageViewWrapper*  wrapper,
     const VkImageViewCreateInfo*        create_info,
     format::ApiCallId                   create_call_id,
-    vulkan_state_info::CreateParameters create_parameters)
+    vulkan_state_info::CreateParameters create_parameters,
+    format::AssetFileOffsets*           asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -756,7 +810,8 @@ inline void InitializeState<VkDevice, vulkan_wrappers::DescriptorSetLayoutWrappe
     vulkan_wrappers::DescriptorSetLayoutWrapper* wrapper,
     const VkDescriptorSetLayoutCreateInfo*       create_info,
     format::ApiCallId                            create_call_id,
-    vulkan_state_info::CreateParameters          create_parameters)
+    vulkan_state_info::CreateParameters          create_parameters,
+    format::AssetFileOffsets*                    asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(create_info != nullptr);
@@ -794,7 +849,8 @@ inline void InitializePoolObjectState(VkDevice                               par
                                       uint32_t                               alloc_index,
                                       const VkCommandBufferAllocateInfo*     alloc_info,
                                       format::ApiCallId                      create_call_id,
-                                      vulkan_state_info::CreateParameters    create_parameters)
+                                      vulkan_state_info::CreateParameters    create_parameters,
+                                      format::AssetFileOffsets*              asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(alloc_info != nullptr);
@@ -814,7 +870,8 @@ inline void InitializePoolObjectState(VkDevice                               par
                                       uint32_t                               alloc_index,
                                       const VkDescriptorSetAllocateInfo*     alloc_info,
                                       format::ApiCallId                      create_call_id,
-                                      vulkan_state_info::CreateParameters    create_parameters)
+                                      vulkan_state_info::CreateParameters    create_parameters,
+                                      format::AssetFileOffsets*              asset_file_offsets)
 {
     assert(wrapper != nullptr);
     assert(alloc_info != nullptr);
@@ -847,20 +904,26 @@ inline void InitializePoolObjectState(VkDevice                               par
             case VK_DESCRIPTOR_TYPE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
             case VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
-            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
             case VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
                 descriptor_info.sampler_ids = std::make_unique<format::HandleId[]>(binding_info.count);
                 descriptor_info.images      = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
                 break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+                descriptor_info.storage_images = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
             case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
-            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
                 descriptor_info.buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
                 break;
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+                descriptor_info.storage_buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                break;
             case VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+                descriptor_info.uniform_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                break;
             case VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
-                descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.storage_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
                 break;
             case VK_DESCRIPTOR_TYPE_INLINE_UNIFORM_BLOCK:
                 descriptor_info.inline_uniform_block = std::make_unique<uint8_t[]>(binding_info.count);
@@ -873,10 +936,13 @@ inline void InitializePoolObjectState(VkDevice                               par
                     std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 break;
             case VK_DESCRIPTOR_TYPE_MUTABLE_VALVE:
-                descriptor_info.sampler_ids        = std::make_unique<format::HandleId[]>(binding_info.count);
-                descriptor_info.images             = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
-                descriptor_info.buffers            = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
-                descriptor_info.texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.sampler_ids     = std::make_unique<format::HandleId[]>(binding_info.count);
+                descriptor_info.images          = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.storage_images  = std::make_unique<VkDescriptorImageInfo[]>(binding_info.count);
+                descriptor_info.buffers         = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.storage_buffers = std::make_unique<VkDescriptorBufferInfo[]>(binding_info.count);
+                descriptor_info.uniform_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
+                descriptor_info.storage_texel_buffer_views = std::make_unique<VkBufferView[]>(binding_info.count);
                 descriptor_info.acceleration_structures =
                     std::make_unique<VkAccelerationStructureKHR[]>(binding_info.count);
                 descriptor_info.mutable_type = std::make_unique<VkDescriptorType[]>(binding_info.count);
@@ -896,6 +962,15 @@ inline void InitializePoolObjectState(VkDevice                               par
     wrapper->set_layout_dependency.handle_id         = layout_wrapper->handle_id;
     wrapper->set_layout_dependency.create_call_id    = layout_wrapper->create_call_id;
     wrapper->set_layout_dependency.create_parameters = layout_wrapper->create_parameters;
+
+    if (asset_file_offsets != nullptr && !asset_file_offsets->empty())
+    {
+        auto last_frame_entry = asset_file_offsets->rbegin();
+        if (last_frame_entry->second.find(wrapper->handle_id) != last_frame_entry->second.end())
+        {
+            wrapper->dirty = false;
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(vulkan_state_tracker)

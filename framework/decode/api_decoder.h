@@ -78,6 +78,8 @@ class ApiDecoder
 
     virtual void DispatchStateEndMarker(uint64_t frame_number) = 0;
 
+    virtual void DispatchFrameBeginMarker(uint64_t frame_number){};
+
     virtual void DispatchFrameEndMarker(uint64_t frame_number) = 0;
 
     virtual void DispatchDisplayMessageCommand(format::ThreadId thread_id, const std::string& message) = 0;
@@ -190,7 +192,14 @@ class ApiDecoder
 
     virtual void DispatchGetDx12RuntimeInfo(const format::Dx12RuntimeInfoCommandHeader& runtime_info_header){};
 
+    virtual void DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
+                                               uint32_t           n_blocks,
+                                               int64_t            offset,
+                                               const std::string& filename){};
+
     virtual void SetCurrentBlockIndex(uint64_t block_index){};
+
+    virtual void SetCurrentFileOffset(int64_t offset){};
 
     virtual void SetCurrentApiCallId(format::ApiCallId api_call_id){};
 

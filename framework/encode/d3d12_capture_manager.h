@@ -765,11 +765,18 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     virtual ~D3D12CaptureManager() {}
 
-    virtual void CreateStateTracker() override { state_tracker_ = std::make_unique<Dx12StateTracker>(); }
+    virtual void CreateStateTracker(bool recapturing = false) override
+    {
+        state_tracker_ = std::make_unique<Dx12StateTracker>();
+    }
 
     virtual void DestroyStateTracker() override { state_tracker_ = nullptr; }
 
-    virtual void WriteTrackedState(util::FileOutputStream* file_stream, format::ThreadId thread_id) override;
+    virtual void WriteTrackedState(util::FileOutputStream* file_stream,
+                                   format::ThreadId        thread_id,
+                                   util::FileOutputStream* asset_file_stream = nullptr) override;
+
+    virtual void WriteAssets(util::FileOutputStream* assert_file_stream, format::ThreadId thread_id) override {}
 
     void PreAcquireSwapChainImages(IDXGISwapChain_Wrapper* wrapper,
                                    IUnknown*               command_queue,

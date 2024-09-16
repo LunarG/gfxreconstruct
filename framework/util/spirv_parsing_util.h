@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "util/defines.h"
+#include "encode/vulkan_state_info.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
@@ -50,6 +51,11 @@ class SpirVParsingUtil
     bool ParseBufferReferences(const uint32_t* spirv_code, size_t spirv_num_bytes);
 
     [[nodiscard]] std::vector<BufferReferenceInfo> GetBufferReferenceInfos() const;
+
+    bool SPIRVReflectPerformReflectionOnShaderModule(
+        size_t                                                          spirv_size,
+        const uint32_t*                                                 spirv_code,
+        encode::vulkan_state_info::ShaderReflectionDescriptorSetsInfos& reflection);
 
   private:
     class Instruction;

@@ -38,6 +38,7 @@
 #include "decode/vulkan_resource_initializer.h"
 #include "decode/vulkan_swapchain.h"
 #include "format/api_call_id.h"
+#include "format/format.h"
 #include "format/platform_types.h"
 #include "generated/generated_vulkan_dispatch_table.h"
 #include "generated/generated_vulkan_consumer.h"
@@ -47,9 +48,13 @@
 #include "util/logging.h"
 #include "util/threadpool.h"
 
+#include <cstdint>
+#include <encode/custom_exported_layer_funcs.h>
+
 #include "application/application.h"
 
 #include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 
 #include <algorithm>
 #include <cassert>
@@ -71,11 +76,15 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanReplayConsumerBase : public VulkanConsumer
 {
   public:
-    VulkanReplayConsumerBase(std::shared_ptr<application::Application> application, const VulkanReplayOptions& options);
+    VulkanReplayConsumerBase(std::shared_ptr<application::Application> application,
+                             const VulkanReplayOptions&                options,
+                             const gfxrecon::format::AssetFileOffsets* asset_file_offsets = nullptr);
 
     ~VulkanReplayConsumerBase() override;
 
     void SetCurrentBlockIndex(uint64_t block_index) override;
+
+    virtual void SetCurrentFileOffset(int64_t offset) override;
 
     void Process_ExeFileInfo(util::filepath::FileInfo& info_record) override
     {
@@ -91,6 +100,10 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     virtual void ProcessStateBeginMarker(uint64_t frame_number) override;
 
     virtual void ProcessStateEndMarker(uint64_t frame_number) override;
+
+    virtual void ProcessFrameBeginMarker(uint64_t frame_number) override;
+
+    virtual void ProcessFrameEndMarker(uint64_t frame_number) override;
 
     virtual void ProcessDisplayMessageCommand(const std::string& message) override;
 
@@ -295,6 +308,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         }
     }
 
+    void ForwardIdToCaptureLayer(const format::HandleId* id, VkObjectType type)
+    {
+        if (override_capture_obj_id_fp_ != nullptr && id != nullptr)
+        {
+            override_capture_obj_id_fp_(*id, type);
+        }
+    }
+
     template <typename T>
     void AddHandles(format::HandleId              parent_id,
                     const format::HandleId*       ids,
@@ -317,6 +338,42 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                     void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
         handle_mapping::AddHandleArray(parent_id, ids, ids_len, handles, handles_len, &object_info_table_, AddFunc);
+    }
+
+    template <typename T>
+    void ForwardIdsToCaptureLayer(const format::HandleId*       ids,
+                                  size_t                        ids_len,
+                                  const typename T::HandleType* handles,
+                                  size_t                        handles_len,
+                                  VkObjectType                  type)
+    {
+        // GFXRECON_WRITE_CONSOLE("%s()", __func__)
+
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %p", ids);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %zu", ids_len);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %p", handles);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %zu", handles_len);
+        // GFXRECON_WRITE_CONSOLE("GFXRECON_WRITE_CONSOLE: %u", type);
+
+        if (override_capture_obj_id_fp_ != nullptr && ids != nullptr && handles != nullptr)
+        {
+            size_t len = std::min(ids_len, handles_len);
+            for (size_t i = 0; i < len; ++i)
+            {
+                override_capture_obj_id_fp_(ids[i], type);
+            }
+        }
+    }
+
+    void ForwardIdsToCaptureLayer(const format::HandleId* ids, size_t ids_len, VkObjectType type)
+    {
+        if (override_capture_obj_id_fp_ != nullptr && ids != nullptr)
+        {
+            for (size_t i = 0; i < ids_len; ++i)
+            {
+                override_capture_obj_id_fp_(ids[i], type);
+            }
+        }
     }
 
     template <typename T>
@@ -362,6 +419,17 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                                 std::move(initial_infos),
                                                 AddFunc,
                                                 std::move(result_future));
+        }
+    }
+
+    void ForwardAsyncIdsToCaptureLayer(const format::HandleId* ids, size_t ids_len, VkObjectType type)
+    {
+        if (override_capture_obj_id_fp_ != nullptr && ids != nullptr)
+        {
+            for (size_t i = 0; i < ids_len; ++i)
+            {
+                override_capture_obj_id_fp_(ids[i], type);
+            }
         }
     }
 
@@ -418,8 +486,16 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                         S* (VulkanObjectInfoTable::*GetPoolInfoFunc)(format::HandleId),
                         void (VulkanObjectInfoTable::*AddFunc)(T&&))
     {
-        handle_mapping::AddHandleArray(
-            parent_id, pool_id, ids, ids_len, handles, handles_len, &object_info_table_, GetPoolInfoFunc, AddFunc);
+        handle_mapping::AddHandleArray(parent_id,
+                                       pool_id,
+                                       ids,
+                                       ids_len,
+                                       handles,
+                                       handles_len,
+                                       &object_info_table_,
+                                       GetPoolInfoFunc,
+                                       AddFunc,
+                                       override_capture_obj_id_fp_);
     }
 
     void RemoveHandle(format::HandleId id, void (VulkanObjectInfoTable::*RemoveFunc)(format::HandleId))
@@ -1272,6 +1348,8 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     void InitializeLoader();
 
+    // void InitializeCaptureLayerCustomFuncs();
+
     void AddInstanceTable(VkInstance instance);
 
     void AddDeviceTable(VkDevice device, PFN_vkGetDeviceProcAddr gpa);
@@ -1500,6 +1578,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     void*                capture_pipeline_cache_data_;
     bool                 matched_replay_cache_data_exist_ = false;
     std::vector<uint8_t> matched_replay_cache_data_;
+    format::FrameNumber  current_frame_ = 1;
+
+    const gfxrecon::format::AssetFileOffsets* asset_file_offsets_          = nullptr;
+    encode::SetUniqueIdOffsetGFXRPtr          set_unique_id_offset_fp_     = nullptr;
+    encode::LoadAssetFileOffsetsGFXRPtr       load_asset_file_offsets_fp_  = nullptr;
+    encode::OverrideCaptureObjectIdFuncPtr    override_capture_obj_id_fp_  = nullptr;
+    encode::OverrideFrameNumberGFXRPtr        override_frame_number_fp_    = nullptr;
+    encode::NotifyFrameStateSetupGFXRPtr      notify_frame_state_setup_fp_ = nullptr;
 };
 
 GFXRECON_END_NAMESPACE(decode)

@@ -32,6 +32,8 @@ target_sources(gfxrecon_decode
                PRIVATE
                     ${CMAKE_CURRENT_LIST_DIR}/annotation_handler.h
                     ${CMAKE_CURRENT_LIST_DIR}/api_decoder.h
+                    ${CMAKE_CURRENT_LIST_DIR}/asset_file_consumer.h
+                    ${CMAKE_CURRENT_LIST_DIR}/asset_file_consumer.cpp
                     ${CMAKE_CURRENT_LIST_DIR}/common_consumer_base.h
                     ${CMAKE_CURRENT_LIST_DIR}/copy_shaders.h
                     ${CMAKE_CURRENT_LIST_DIR}/custom_vulkan_struct_decoders.h

@@ -341,14 +341,17 @@ class VulkanReplayConsumerBodyGenerator(
             if is_async:
                 body += '    if (UseAsyncOperations())\n'
                 body += '    {\n'
+                body += '        {}\n'.format(postexpr[0])
                 body += '        auto task = {}(call_info, returnValue, {});\n'.format(self.REPLAY_ASYNC_OVERRIDES[name], arglist)
                 body += '        if(task)\n'
                 body += '        {\n'
-                body += '           {}\n'.format(postexpr[0])
+                body += '           {}\n'.format(postexpr[1])
                 body += '           return;\n'
                 body += '        }\n'
                 body += '    }\n'
-                postexpr = postexpr[1:]  # drop async post-expression, don't repeat later
+                body += '\n'
+                body += '{}\n'.format(postexpr[2])
+                postexpr = postexpr[3:]  # drop async post-expression, don't repeat later
 
             body += '    VkResult replay_result = {};\n'.format(call_expr)
             body += '    CheckResult("{}", returnValue, replay_result, call_info);\n'.format(name)
@@ -482,6 +485,61 @@ class VulkanReplayConsumerBodyGenerator(
         postexpr = [
         ]  # Expressions to add new handles to the handle map and delete temporary allocations.
 
+# "" : "VK_OBJECT_TYPE_UNKNOWN",
+        vulkan_types_to_object_types = {
+            "VkInstance" : "VK_OBJECT_TYPE_INSTANCE",
+            "VkPhysicalDevice" : "VK_OBJECT_TYPE_PHYSICAL_DEVICE",
+            "VkDevice" : "VK_OBJECT_TYPE_DEVICE",
+            "VkQueue" : "VK_OBJECT_TYPE_QUEUE",
+            "VkSemaphore" : "VK_OBJECT_TYPE_SEMAPHORE",
+            "VkCommandBuffer" : "VK_OBJECT_TYPE_COMMAND_BUFFER",
+            "VkFence" : "VK_OBJECT_TYPE_FENCE",
+            "VkDeviceMemory" : "VK_OBJECT_TYPE_DEVICE_MEMORY",
+            "VkBuffer" : "VK_OBJECT_TYPE_BUFFER",
+            "VkImage" : "VK_OBJECT_TYPE_IMAGE",
+            "VkEvent" : "VK_OBJECT_TYPE_EVENT",
+            "VkQueryPool" : "VK_OBJECT_TYPE_QUERY_POOL",
+            "VkBufferView" : "VK_OBJECT_TYPE_BUFFER_VIEW",
+            "VkImageView" : "VK_OBJECT_TYPE_IMAGE_VIEW",
+            "VkShaderModule" : "VK_OBJECT_TYPE_SHADER_MODULE",
+            "VkPipelineCache" : "VK_OBJECT_TYPE_PIPELINE_CACHE",
+            "VkPipelineLayout" : "VK_OBJECT_TYPE_PIPELINE_LAYOUT",
+            "VkRenderPass" : "VK_OBJECT_TYPE_RENDER_PASS",
+            "VkPipeline" : "VK_OBJECT_TYPE_PIPELINE",
+            "VkDescriptorSetLayout" : "VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT",
+            "VkSampler" : "VK_OBJECT_TYPE_SAMPLER",
+            "VkDescriptorPool" : "VK_OBJECT_TYPE_DESCRIPTOR_POOL",
+            "VkDescriptorSet" : "VK_OBJECT_TYPE_DESCRIPTOR_SET",
+            "VkFramebuffer" : "VK_OBJECT_TYPE_FRAMEBUFFER",
+            "VkCommandPool" : "VK_OBJECT_TYPE_COMMAND_POOL",
+            "VkSamplerYcbcrConversion" : "VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION",
+            "VkDescriptorUpdateTemplate" : "VK_OBJECT_TYPE_DESCRIPTOR_UPDATE_TEMPLATE",
+            "VkPrivateDataSlot" : "VK_OBJECT_TYPE_PRIVATE_DATA_SLOT",
+            "VkSurfaceKHR" : "VK_OBJECT_TYPE_SURFACE_KHR",
+            "VkSwapchainKHR" : "VK_OBJECT_TYPE_SWAPCHAIN_KHR",
+            "VkDisplayKHR" : "VK_OBJECT_TYPE_DISPLAY_KHR",
+            "VkDisplayModeKHR" : "VK_OBJECT_TYPE_DISPLAY_MODE_KHR",
+            "VkDebugReportCallbackEXT" : "VK_OBJECT_TYPE_DEBUG_REPORT_CALLBACK_EXT",
+            "VkVideoSessionKHR" : "VK_OBJECT_TYPE_VIDEO_SESSION_KHR",
+            "VkVideoSessionParametersKHR" : "VK_OBJECT_TYPE_VIDEO_SESSION_PARAMETERS_KHR",
+            "VkCuModuleNVX" : "VK_OBJECT_TYPE_CU_MODULE_NVX",
+            "VkCuFunctionNVX" : "VK_OBJECT_TYPE_CU_FUNCTION_NVX",
+            "VkDebugUtilsMessengerEXT" : "VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT",
+            "VkAccelerationStructureKHR" : "VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_KHR",
+            "VkValidationCacheEXT" : "VK_OBJECT_TYPE_VALIDATION_CACHE_EXT",
+            "VkAccelerationStructureNV" : "VK_OBJECT_TYPE_ACCELERATION_STRUCTURE_NV",
+            "VkPerformanceConfigurationINTEL" : "VK_OBJECT_TYPE_PERFORMANCE_CONFIGURATION_INTEL",
+            "VkDeferredOperationKHR" : "VK_OBJECT_TYPE_DEFERRED_OPERATION_KHR",
+            "VkIndirectCommandsLayoutNV" : "VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_NV",
+            "VkCudaModuleNV" : "VK_OBJECT_TYPE_CUDA_MODULE_NV",
+            "VkCudaFunctionNV" : "VK_OBJECT_TYPE_CUDA_FUNCTION_NV",
+            # "" : "VK_OBJECT_TYPE_BUFFER_COLLECTION_FUCHSIA",
+            "VkMicromapEXT" : "VK_OBJECT_TYPE_MICROMAP_EXT",
+            "VkOpticalFlowSessionNV" : "VK_OBJECT_TYPE_OPTICAL_FLOW_SESSION_NV",
+            "VkShaderEXT" : "VK_OBJECT_TYPE_SHADER_EXT"
+            }
+
+        preexpr.append('GFXRECON_WRITE_CONSOLE("[REPLAY] %s()", __func__)')
         for value in values:
             need_initialize_output_pnext_struct = ''
             if value.is_pointer or value.is_array:
@@ -489,6 +547,8 @@ class VulkanReplayConsumerBodyGenerator(
                 is_input = self.is_input_pointer(value)
                 is_extenal_object = False
                 need_temp_value = True
+                vk_obj_type = vulkan_types_to_object_types[value.base_type] if value.base_type in vulkan_types_to_object_types else "VK_OBJECT_TYPE_UNKNOWN"
+
                 expr = ''
 
                 if (
@@ -644,10 +704,11 @@ class VulkanReplayConsumerBodyGenerator(
                             if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
                                 preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'.format(length_name))
                             if need_temp_value:
-                                expr += '{}->GetHandlePointer();'.format(
+                                expr += '{}->GetHandlePointer();\n'.format(
                                     value.name
                                 )
                                 if self.is_pool_allocation(name):
+                                    expr += 'ForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name)
                                     postexpr.append(
                                         'AddPoolHandles<{pooltype}Info, {basetype}Info>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectInfoTable::Get{pooltype}Info, &VulkanObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -657,12 +718,11 @@ class VulkanReplayConsumerBodyGenerator(
                                             length_name,
                                             paramname=value.name,
                                             basetype=value.base_type[2:],
-                                            pooltype=self.
-                                            POOL_OBJECT_ASSOCIATIONS[
-                                                value.base_type][2:]
+                                            pooltype=self.POOL_OBJECT_ASSOCIATIONS[value.base_type][2:]
                                         )
                                     )
                                 else:
+                                    expr += 'ForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name)
                                     postexpr.append(
                                         'AddHandles<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {}, {}, &VulkanObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -682,6 +742,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     length_name, value.name
                                 )
                                 if self.is_pool_allocation(name):
+                                    expr += '\nForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name)
                                     postexpr.append(
                                         'AddPoolHandles<{pooltype}Info, {basetype}Info>({}, handle_mapping::GetPoolId({}->GetMetaStructPointer()), {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Get{pooltype}Info, &VulkanObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -698,6 +759,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 else:
                                     # additionally add an asynchronous flavour to postexpr, so both are available later
                                     if name in self.REPLAY_ASYNC_OVERRIDES:
+                                        postexpr.append('ForwardIdsToCaptureLayer({paramname}->GetPointer(), {paramname}->GetLength(), {});'.format(vk_obj_type, paramname=value.name))
                                         postexpr.append(
                                             'AddHandlesAsync<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info, std::move(task));'
                                             .format(
@@ -708,6 +770,9 @@ class VulkanReplayConsumerBodyGenerator(
                                                 basetype=value.base_type[2:]
                                             )
                                         )
+                                        postexpr.append('ForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name))
+                                    else:
+                                        preexpr.append('ForwardIdsToCaptureLayer<{basetype}Info>({paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type[2:], paramname=value.name))
                                     postexpr.append(
                                         'AddHandles<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetLength(), {paramname}->GetHandlePointer(), {}, std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'
                                         .format(
@@ -747,6 +812,7 @@ class VulkanReplayConsumerBodyGenerator(
                                                 paramname=value.name
                                             )
                                         )
+                                    # expr += '\nForwardIdsToCaptureLayer<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type, paramname=value.name)
                                     postexpr.append(
                                         'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {}, {}, &GetObjectInfoTable());'
                                         .format(
@@ -771,6 +837,7 @@ class VulkanReplayConsumerBodyGenerator(
                                                 paramname=value.name
                                             )
                                         )
+                                    # expr += '\nForwardIdsToCaptureLayer<Decoded_{basetype}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, {});'.format(length_name, vk_obj_type, basetype=value.base_type, paramname=value.name)
                                     postexpr.append(
                                         'AddStructArrayHandles<Decoded_{basetype}>({}, {paramname}->GetMetaStructPointer(), {paramname}->GetLength(), {paramname}->GetOutputPointer(), {}, &GetObjectInfoTable());'
                                         .format(
@@ -830,6 +897,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name
                                 )
+                                expr += '\nForwardIdToCaptureLayer({paramname}->GetPointer(), {});'.format(vk_obj_type, paramname=value.name)
                                 postexpr.append(
                                     'AddHandle<{basetype}Info>({}, {}->GetPointer(), {}, &VulkanObjectInfoTable::Add{basetype}Info);'
                                     .format(
@@ -848,6 +916,7 @@ class VulkanReplayConsumerBodyGenerator(
                                 expr = '{}->SetConsumerData(0, &handle_info);'.format(
                                     value.name
                                 )
+                                expr += '\nForwardIdToCaptureLayer({paramname}->GetPointer(), {});'.format(vk_obj_type, paramname=value.name)
                                 postexpr.append(
                                     'AddHandle<{basetype}Info>({}, {paramname}->GetPointer(), {paramname}->GetHandlePointer(), std::move(handle_info), &VulkanObjectInfoTable::Add{basetype}Info);'
                                     .format(

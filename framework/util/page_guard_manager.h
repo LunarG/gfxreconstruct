@@ -145,6 +145,9 @@ class PageGuardManager
 
     void UffdUnblockRtSignal();
 
+    void
+    GetDirtyMemoryRegions(std::unordered_map<uint64_t, const PageStatusTracker::PageStatus&>& memories_page_status);
+
   protected:
     PageGuardManager();
 

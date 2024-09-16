@@ -33,7 +33,9 @@
 #include "util/driver_info.h"
 
 #include <cinttypes>
+#include <map>
 #include <type_traits>
+#include <unordered_map>
 
 #define GFXRECON_FOURCC GFXRECON_MAKE_FOURCC('G', 'F', 'X', 'R')
 #define GFXRECON_FILE_EXTENSION ".gfxr"
@@ -57,6 +59,11 @@ typedef uint32_t FormatEncodeType;
 
 typedef HandleEncodeType HandleId;
 typedef uint64_t         ThreadId;
+typedef uint64_t         FrameNumber;
+
+typedef std::unordered_map<HandleId, int64_t> FrameAssetFileOffsets;
+// This must be an ordered map
+typedef std::map<FrameNumber, FrameAssetFileOffsets> AssetFileOffsets;
 
 const uint32_t kCompressedBlockTypeBit    = 0x80000000;
 const size_t   kUuidSize                  = 16;
@@ -154,6 +161,8 @@ enum class MetaDataType : uint16_t
     kReserved30                             = 30,
     kReserved31                             = 31,
     kSetEnvironmentVariablesCommand         = 32,
+    kExecuteBlocksFromFile                  = 33,
+    kSetBlockIndexCommand                   = 34
 };
 
 // MetaDataId is stored in the capture file and its type must be uint32_t to avoid breaking capture file compatibility.
@@ -659,6 +668,30 @@ struct SetEnvironmentVariablesCommand
 
     // In the capture file, a string will immediately follow this block
     // containing a list of environment variables and their values
+};
+
+struct ExecuteBlocksFromFile
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+
+    // Number of commands to execute from file.
+    // 0 means execute till the end of file.
+    uint32_t n_blocks;
+
+    // The offset from the start of the file to start executing
+    int64_t offset;
+
+    // Number of characters in file name
+    uint32_t filename_length;
+};
+
+struct SetBlockIndexCommand
+{
+    MetaDataHeader   meta_header;
+    format::ThreadId thread_id;
+
+    uint64_t block_index;
 };
 
 // Restore size_t to normal behavior.

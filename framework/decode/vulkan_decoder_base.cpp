@@ -54,6 +54,14 @@ void VulkanDecoderBase::DispatchStateEndMarker(uint64_t frame_number)
     }
 }
 
+void VulkanDecoderBase::DispatchFrameBeginMarker(uint64_t frame_number)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessFrameBeginMarker(frame_number);
+    }
+}
+
 void VulkanDecoderBase::DispatchFrameEndMarker(uint64_t frame_number)
 {
     for (auto consumer : consumers_)
@@ -565,6 +573,27 @@ void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     for (auto consumer : consumers_)
     {
         consumer->SetCurrentBlockIndex(block_index);
+    }
+}
+
+void VulkanDecoderBase::SetCurrentFileOffset(int64_t offset)
+{
+    for (auto consumer : consumers_)
+    {
+        consumer->SetCurrentFileOffset(offset);
+    }
+}
+
+void VulkanDecoderBase::DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
+                                                      uint32_t           n_blocks,
+                                                      int64_t            offset,
+                                                      const std::string& filename)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessExecuteBlocksFromFile(n_blocks, offset, filename);
     }
 }
 

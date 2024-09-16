@@ -52,6 +52,8 @@ class CommonConsumerBase : public MetadataConsumerBase, public MarkerConsumerBas
 
     virtual void SetCurrentBlockIndex(uint64_t block_index) override { block_index_ = block_index; }
 
+    virtual void SetCurrentFileOffset(int64_t offset) override { block_header_file_offset_ = offset; }
+
     virtual void ProcessSetEnvironmentVariablesCommand(format::SetEnvironmentVariablesCommand& header,
                                                        const char*                             env_string)
     {}

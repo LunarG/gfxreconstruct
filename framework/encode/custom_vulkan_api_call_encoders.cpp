@@ -33,9 +33,11 @@
 #include "encode/vulkan_capture_manager.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "format/api_call_id.h"
+#include "format/format.h"
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
+#include "vulkan/vulkan_core.h"
 
 #include <cassert>
 
@@ -401,6 +403,42 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     return manager->GetBlockIndex();
+}
+
+VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR()
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->SetWriteAssets();
+}
+
+VKAPI_ATTR void VKAPI_CALL LoadAssetFileOffsetsGFXR(const format::AssetFileOffsets& offsets)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->LoadAssetFileOffsets(offsets);
+}
+
+VKAPI_ATTR void VKAPI_CALL SetUniqueIdOffsetGFXR(format::HandleId offset)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->SetUniqueIdOffset(offset);
+}
+
+VKAPI_ATTR void VKAPI_CALL OverrideIdForNextVulkanObjectGFXR(format::HandleId id, VkObjectType type)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->OverrideIdForNextVulkanObject(id, type);
+}
+
+VKAPI_ATTR void VKAPI_CALL OverrideFrameNumberGFXR(format::FrameNumber frame)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->OverrideFrameNumber(frame);
+}
+
+VKAPI_ATTR void VKAPI_CALL NotifyFrameStateSetupGFXR(uint32_t is_in_frame_state_setup)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->NotifyFrameStateSetup(is_in_frame_state_setup);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,

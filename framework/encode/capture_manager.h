@@ -40,11 +40,16 @@
 #include <atomic>
 #include <cassert>
 #include <mutex>
+#include <stack>
 #include <shared_mutex>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 #include "util/file_path.h"
+#include "util/logging.h"
+#include "util/to_string.h"
+#include "vulkan/vulkan_core.h"
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(encode)
@@ -55,9 +60,16 @@ class ApiCaptureManager;
 class CommonCaptureManager
 {
   public:
+    // One based frame count.
+    static constexpr format::FrameNumber kInvalidFrame         = 0;
+    static constexpr format::FrameNumber kFirstFrame           = 1;
+    static constexpr size_t              kFileStreamBufferSize = 256 * 1024;
+
     typedef std::shared_mutex ApiCallMutexT;
 
     static format::HandleId GetUniqueId() { return ++unique_id_counter_; }
+
+    static format::HandleId GetUniqueId(VkObjectType type);
 
     static auto AcquireSharedApiCallLock() { return std::move(std::shared_lock<ApiCallMutexT>(api_call_mutex_)); }
 
@@ -134,11 +146,11 @@ class CommonCaptureManager
 
     bool IsTrimHotkeyPressed();
 
-    CaptureSettings::RuntimeTriggerState GetRuntimeTriggerState();
-
     bool RuntimeTriggerEnabled();
 
     bool RuntimeTriggerDisabled();
+
+    bool RuntimeWriteAssetsEnabled();
 
     void WriteDisplayMessageCmd(format::ApiFamilyId api_family, const char* message);
 
@@ -250,7 +262,8 @@ class CommonCaptureManager
     PageGuardMemoryMode                 GetPageGuardMemoryMode() const { return page_guard_memory_mode_; }
     const std::string&                  GetTrimKey() const { return trim_key_; }
     bool                                IsTrimEnabled() const { return trim_enabled_; }
-    uint32_t                            GetCurrentFrame() const { return current_frame_; }
+    format::FrameNumber                 GetCurrentFrame() const { return current_frame_; }
+    format::FrameNumber                 GetOverrideFrame() const { return override_frame_; }
     CaptureMode                         GetCaptureMode() const { return capture_mode_; }
     bool                                GetDebugLayerSetting() const { return debug_layer_; }
     bool                                GetDebugDeviceLostSetting() const { return debug_device_lost_; }
@@ -264,12 +277,18 @@ class CommonCaptureManager
     util::ScreenshotFormat GetScreenShotFormat() const { return screenshot_format_; }
 
     std::string CreateTrimFilename(const std::string& base_filename, const util::UintRange& trim_range);
+    void        CreateAssetFile();
+    std::string CreateAssetFilename(const std::string& base_filename);
+    std::string CreateFrameStateFilename(const std::string& base_filename) const;
     bool        CreateCaptureFile(format::ApiFamilyId api_family, const std::string& base_filename);
     void        WriteCaptureOptions(std::string& operation_annotation);
     void        ActivateTrimming();
     void        DeactivateTrimming();
 
     void WriteFileHeader();
+
+    void WriteFileHeader(util::FileOutputStream* file_stream);
+
     void BuildOptionList(const format::EnabledOptions&        enabled_options,
                          std::vector<format::FileOptionPair>* option_list);
 
@@ -285,7 +304,7 @@ class CommonCaptureManager
 
     void WriteCreateHeapAllocationCmd(format::ApiFamilyId api_family, uint64_t allocation_id, uint64_t allocation_size);
 
-    void WriteToFile(const void* data, size_t size);
+    void WriteToFile(const void* data, size_t size, util::FileOutputStream* file_stream = nullptr);
 
     template <size_t N>
     void CombineAndWriteToFile(const std::pair<const void*, size_t> (&buffers)[N])
@@ -311,6 +330,29 @@ class CommonCaptureManager
         GetThreadData()->block_index_ = block_index_;
     }
 
+    void SetWriteAssets() { write_assets_ = true; }
+
+    bool WriteFrameStateFile();
+
+    void SetUniqueIdOffset(format::HandleId id)
+    {
+        GFXRECON_WRITE_CONSOLE("%s(id: %" PRIu64 ")", __func__, id);
+        unique_id_counter_ = id + 1;
+    }
+
+    void OverrideIdForNextVulkanObject(format::HandleId id, VkObjectType type);
+
+    void OverrideFrame(format::FrameNumber frame);
+
+  private:
+    void WriteExecuteFromFile(util::FileOutputStream& out_stream,
+                              const std::string&      filename,
+                              format::ThreadId        thread_id,
+                              uint32_t                n_blocks,
+                              int64_t                 offset);
+
+    void WriteSetBlockIndex(util::FileOutputStream& out_stream, format::ThreadId thread_id, uint64_t block_index);
+
   protected:
     std::unique_ptr<util::Compressor> compressor_;
     std::mutex                        mapped_memory_lock_;
@@ -323,11 +365,12 @@ class CommonCaptureManager
     static void AtExit();
 
   private:
-    static std::mutex                               instance_lock_;
-    static CommonCaptureManager*                    singleton_;
-    static thread_local std::unique_ptr<ThreadData> thread_data_;
-    static std::atomic<format::HandleId>            unique_id_counter_;
-    static ApiCallMutexT                            api_call_mutex_;
+    static std::mutex                                            instance_lock_;
+    static CommonCaptureManager*                                 singleton_;
+    static thread_local std::unique_ptr<ThreadData>              thread_data_;
+    static std::atomic<format::HandleId>                         unique_id_counter_;
+    static std::stack<std::pair<format::HandleId, VkObjectType>> handle_ids_override;
+    static ApiCallMutexT                                         api_call_mutex_;
 
     uint32_t instance_count_ = 0;
     struct ApiInstanceRecord
@@ -343,8 +386,10 @@ class CommonCaptureManager
         capture_settings_; // Settings from the settings file and environment at capture manager creation time.
 
     std::unique_ptr<util::FileOutputStream> file_stream_;
+    std::unique_ptr<util::FileOutputStream> asset_file_stream_;
     format::EnabledOptions                  file_options_;
     std::string                             base_filename_;
+    std::string                             capture_filename_;
     bool                                    timestamp_filename_;
     bool                                    force_file_flush_;
     CaptureSettings::MemoryTrackingMode     memory_tracking_mode_;
@@ -364,7 +409,8 @@ class CommonCaptureManager
     uint32_t                                trim_key_frames_;
     uint32_t                                trim_key_first_frame_;
     size_t                                  trim_current_range_;
-    uint32_t                                current_frame_;
+    format::FrameNumber                     current_frame_;
+    format::FrameNumber                     override_frame_;
     uint32_t                                queue_submit_count_;
     CaptureMode                             capture_mode_;
     bool                                    previous_hotkey_state_;
@@ -380,6 +426,13 @@ class CommonCaptureManager
     bool                                    queue_zero_only_;
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
+    bool                                    use_asset_file_;
+    bool                                    write_assets_;
+    bool                                    previous_write_assets_;
+    bool                                    write_state_files_;
+    std::string                             asset_file_name_;
+    bool                                    reuse_asset_file{ false };
+    bool                                    is_replay_in_frame_state_setup{ false };
 
     struct
     {

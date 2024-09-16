@@ -67,6 +67,8 @@ static constexpr uint64_t GFXRECON_PTR_TO_UINT64(T ptr)
     return static_cast<uint64_t>(reinterpret_cast<uintptr_t>(ptr));
 }
 
+#define GFXRECON_ARRAY_ELEMENTS(_array_) sizeof((_array_)) / sizeof((_array_)[0])
+
 #ifdef NDEBUG
 #define GFXRECON_RELEASE_BUILD 1
 #else
