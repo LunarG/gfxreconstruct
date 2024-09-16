@@ -31,7 +31,7 @@
 namespace gfxrecon::decode
 {
 //! forward declaration to avoid cyclic include
-class ReplayDeviceInfo;
+struct ReplayDeviceInfo;
 } // namespace gfxrecon::decode
 
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
