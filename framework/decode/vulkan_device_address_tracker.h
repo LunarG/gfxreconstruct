@@ -31,18 +31,18 @@
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(decode)
 
-class VulkanBufferTracker
+class VulkanDeviceAddressTracker
 {
   public:
-    explicit VulkanBufferTracker(const VulkanObjectInfoTable& object_info_table);
+    explicit VulkanDeviceAddressTracker(const VulkanObjectInfoTable& object_info_table);
 
     //! prevent copying
-    VulkanBufferTracker(const VulkanBufferTracker&) = delete;
+    VulkanDeviceAddressTracker(const VulkanDeviceAddressTracker&) = delete;
 
     //! allow moving
-    VulkanBufferTracker(VulkanBufferTracker&&) = default;
+    VulkanDeviceAddressTracker(VulkanDeviceAddressTracker&&) = default;
 
-    ~VulkanBufferTracker() = default;
+    ~VulkanDeviceAddressTracker() = default;
 
     /**
      * @brief   Track an existing buffer by its capture-time VkDeviceAddress.
@@ -84,7 +84,7 @@ class VulkanBufferTracker
     /**
      * @brief   Retrieve an acceleration-structure by providing a capture-time VkDeviceAddress.
      *
-     * @param   capture_address  a capture-time VkDeviceAddress pointing inside a buffer.
+     * @param   capture_address  a capture-time VkDeviceAddress for an acceleration-structure.
      * @return  a const-pointer to a found AccelerationStructureKHRInfo or nullptr.
      */
     [[nodiscard]] const AccelerationStructureKHRInfo*
