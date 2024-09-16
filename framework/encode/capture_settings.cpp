@@ -134,6 +134,8 @@ GFXRECON_BEGIN_NAMESPACE(encode)
 #define RV_ANNOTATION_GPUVA_UPPER                            "RV_ANNOTATION_GPUVA"
 #define RV_ANNOTATION_DESCRIPTOR_LOWER                       "rv_annotation_descriptor"
 #define RV_ANNOTATION_DESCRIPTOR_UPPER                       "RV_ANNOTATION_DESCRIPTOR"
+#define CAPTURE_PACKAGE_NAME_LOWER                           "capture_package_name"
+#define CAPTURE_PACKAGE_NAME_UPPER                           "CAPTURE_PACKAGE_NAME"
 
 #if defined(__ANDROID__)
 // Android Properties
@@ -187,6 +189,7 @@ const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_
 const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_LOWER;
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_LOWER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_LOWER;
+const char kCapturePackageNameEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX CAPTURE_PACKAGE_NAME_LOWER;
 
 #else
 // Desktop environment settings
@@ -239,6 +242,7 @@ const char kAnnotationExperimentalEnvVar[]                   = GFXRECON_ENV_VAR_
 const char kAnnotationRandEnvVar[]                           = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_RAND_UPPER;
 const char kAnnotationGPUVAEnvVar[]                          = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_GPUVA_UPPER;
 const char kAnnotationDescriptorEnvVar[]                     = GFXRECON_ENV_VAR_PREFIX RV_ANNOTATION_DESCRIPTOR_UPPER;
+const char kCapturePackageNameEnvVar[]                       = GFXRECON_ENV_VAR_PREFIX CAPTURE_PACKAGE_NAME_UPPER;
 
 #endif
 
@@ -290,6 +294,7 @@ const std::string kOptionKeyAnnotationExperimental                   = std::stri
 const std::string kOptionKeyAnnotationRand                           = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_RAND_LOWER);
 const std::string kOptionKeyAnnotationGPUVA                          = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_GPUVA_LOWER);
 const std::string kOptionKeyAnnotationDescriptor                     = std::string(kSettingsFilter) + std::string(RV_ANNOTATION_DESCRIPTOR_LOWER);
+const std::string kOptionCapturePackageName                          = std::string(kSettingsFilter) + std::string(CAPTURE_PACKAGE_NAME_LOWER);
 
 #if defined(GFXRECON_ENABLE_LZ4_COMPRESSION)
 const format::CompressionType kDefaultCompressionType = format::CompressionType::kLz4;
@@ -445,6 +450,7 @@ void CaptureSettings::LoadOptionsEnvVar(OptionsMap* options)
     LoadSingleOptionEnvVar(options, kAnnotationRandEnvVar, kOptionKeyAnnotationRand);
     LoadSingleOptionEnvVar(options, kAnnotationGPUVAEnvVar, kOptionKeyAnnotationGPUVA);
     LoadSingleOptionEnvVar(options, kAnnotationDescriptorEnvVar, kOptionKeyAnnotationDescriptor);
+    LoadSingleOptionEnvVar(options, kCapturePackageNameEnvVar, kOptionCapturePackageName);
 }
 
 void CaptureSettings::LoadOptionsFile(OptionsMap* options)
@@ -616,6 +622,8 @@ void CaptureSettings::ProcessOptions(OptionsMap* options, CaptureSettings* setti
     settings->trace_settings_.rv_anotation_info.descriptor_mask =
         ParseUnsignedInteger16String(FindOption(options, kOptionKeyAnnotationDescriptor),
                                      settings->trace_settings_.rv_anotation_info.descriptor_mask);
+    settings->trace_settings_.capture_package_name =
+        FindOption(options, kOptionCapturePackageName, settings->trace_settings_.capture_package_name);
 }
 
 void CaptureSettings::ProcessLogOptions(OptionsMap* options, CaptureSettings* settings)
