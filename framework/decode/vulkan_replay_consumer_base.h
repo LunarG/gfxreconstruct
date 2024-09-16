@@ -29,7 +29,7 @@
 #include "decode/pointer_decoder.h"
 #include "decode/screenshot_handler.h"
 #include "decode/swapchain_image_tracker.h"
-#include "decode/vulkan_buffer_tracker.h"
+#include "decode/vulkan_device_address_tracker.h"
 #include "decode/vulkan_handle_mapping_util.h"
 #include "decode/vulkan_object_info.h"
 #include "decode/vulkan_object_info_table.h"
@@ -1432,7 +1432,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
                                              const DescriptorUpdateTemplateInfo*    template_info,
                                              const DescriptorUpdateTemplateDecoder* decoder) const;
 
-    VulkanBufferTracker& GetBufferTracker(VkDevice device);
+    VulkanDeviceAddressTracker& GetDeviceAddressTracker(VkDevice device);
 
   private:
     struct HardwareBufferInfo
@@ -1481,7 +1481,7 @@ class VulkanReplayConsumerBase : public VulkanConsumer
     std::string                                                                screenshot_file_prefix_;
     graphics::FpsInfo*                                                         fps_info_;
 
-    std::unordered_map<VkDevice, decode::VulkanBufferTracker> _buffer_trackers;
+    std::unordered_map<VkDevice, decode::VulkanDeviceAddressTracker> _device_address_trackers;
 
     util::ThreadPool main_thread_queue_;
     util::ThreadPool background_queue_;

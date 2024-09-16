@@ -4459,7 +4459,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
                 GetDeviceTable(device_info->handle)->GetBufferDeviceAddress(device_info->handle, &info);
 
             // track buffer-addresses
-            GetBufferTracker(device_info->handle).TrackBuffer(buffer_info);
+            GetDeviceAddressTracker(device_info->handle).TrackBuffer(buffer_info);
         }
     }
     return result;
@@ -4871,7 +4871,7 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
 
     // remove from device-address tracking
-    GetBufferTracker(device_info->handle).RemoveBuffer(buffer_info);
+    GetDeviceAddressTracker(device_info->handle).RemoveBuffer(buffer_info);
 }
 
 VkResult
@@ -7501,8 +7501,10 @@ void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureKHR(
             //            acceleration_structure_info);
             //        tracked_addresses_.erase(acceleration_structure_info->capture_id);
         }
-    }
 
+        // remove from address-tracking
+        GetDeviceAddressTracker(device_info->handle).RemoveAccelerationStructure(acceleration_structure_info);
+    }
     func(device_info->handle, acceleration_structure, GetAllocationCallbacks(pAllocator));
 }
 
@@ -7904,7 +7906,7 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     buffer_info->replay_address  = replay_device_address;
 
     // track device-addresses
-    GetBufferTracker(device).TrackBuffer(buffer_info);
+    GetDeviceAddressTracker(device).TrackBuffer(buffer_info);
     return replay_device_address;
 }
 
@@ -7923,13 +7925,6 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
                                   "replay. The replay device does not support this feature, so replay may fail.");
     }
 
-    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
-    {
-        GFXRECON_LOG_WARNING_ONCE(
-            "The captured application used vkGetAccelerationStructureDeviceAddressKHR. The specified replay option '-m "
-            "rebind' may not support the replay of captured device addresses, so replay may fail.");
-    }
-
     VkDevice                                           device       = device_info->handle;
     const VkAccelerationStructureDeviceAddressInfoKHR* address_info = pInfo->GetPointer();
 
@@ -7942,7 +7937,19 @@ void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     acceleration_structure_info->replay_address  = replay_address;
 
     // track device-address
-    GetBufferTracker(device).TrackAccelerationStructure(acceleration_structure_info);
+    GetDeviceAddressTracker(device).TrackAccelerationStructure(acceleration_structure_info);
+
+    if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "The captured application used vkGetAccelerationStructureDeviceAddressKHR. The specified replay option '-m "
+            "rebind' may not support the replay of captured device addresses, so replay may fail.");
+    }
+    else
+    {
+        // opaque addresses should match
+        GFXRECON_ASSERT(original_result == replay_address);
+    }
 }
 
 VkResult
@@ -8276,7 +8283,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
 
         // assert we can identify the buffer(s) by their device-address
         const DeviceInfo* device_info    = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
-        const auto&       buffer_tracker = GetBufferTracker(device_info->handle);
+        const auto&       buffer_tracker = GetDeviceAddressTracker(device_info->handle);
         GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pRaygenShaderBindingTable->deviceAddress));
         GFXRECON_ASSERT(in_pMissShaderBindingTable->size == 0 ||
                         buffer_tracker.GetBufferByCaptureDeviceAddress(in_pMissShaderBindingTable->deviceAddress));
@@ -9070,12 +9077,13 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(DescriptorSet
     }
 }
 
-VulkanBufferTracker& VulkanReplayConsumerBase::GetBufferTracker(VkDevice device)
+VulkanDeviceAddressTracker& VulkanReplayConsumerBase::GetDeviceAddressTracker(VkDevice device)
 {
-    auto it = _buffer_trackers.find(device);
-    if (it == _buffer_trackers.end())
+    auto it = _device_address_trackers.find(device);
+    if (it == _device_address_trackers.end())
     {
-        auto [new_it, success] = _buffer_trackers.insert({ device, VulkanBufferTracker(object_info_table_) });
+        auto [new_it, success] =
+            _device_address_trackers.insert({ device, VulkanDeviceAddressTracker(object_info_table_) });
         return new_it->second;
     }
     return it->second;
