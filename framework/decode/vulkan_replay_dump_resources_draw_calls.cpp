@@ -2769,7 +2769,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
     // uses color and/or depth attachments. This information might be necessary when
     // defining the dependencies of the custom render passes
     bool has_color = false, has_depth = false;
-    for (uint32_t sub = 0; sub < original_render_pass->subpass_refs.size(); ++sub)
+    for (size_t sub = 0; sub < original_render_pass->subpass_refs.size(); ++sub)
     {
         if (original_render_pass->subpass_refs[sub].color_att_refs.size())
         {
@@ -2798,7 +2798,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
         bool                             has_external_dependencies_post = false;
         bool                             has_external_dependencies_pre  = false;
         std::vector<VkSubpassDependency> modified_dependencies;
-        for (uint32_t d = 0; d < original_render_pass->dependencies.size(); ++d)
+        for (size_t d = 0; d < original_render_pass->dependencies.size(); ++d)
         {
             const VkSubpassDependency& original_dep = original_render_pass->dependencies[d];
 
@@ -2901,6 +2901,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
         if (original_render_pass->has_multiview)
         {
             renderPassMultiviewCI.sType = VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO;
+            renderPassMultiviewCI.pNext = nullptr;
 
             renderPassMultiviewCI.subpassCount         = original_render_pass->multiview.view_masks.size();
             renderPassMultiviewCI.pViewMasks           = original_render_pass->multiview.view_masks.empty()
