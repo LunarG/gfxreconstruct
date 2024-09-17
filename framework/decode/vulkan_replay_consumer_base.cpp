@@ -7816,7 +7816,8 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
 
     if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
-        // TODO: make this warning obsolete by re-mapping addresses (and a whole lot more ...)
+        // TODO: make this warning obsolete by re-mapping addresses (and fix addresses stored in buffers)
+        // TODO: remove TODO/warning when issue #1526 is solved
         GFXRECON_LOG_WARNING_ONCE(
             "The captured application used vkGetBufferDeviceAddress. The specified replay option '-m rebind' may not "
             "support the replay of captured device addresses, so replay may fail.");
@@ -8217,6 +8218,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 physical_device_info->shaderGroupBaseAlignment != replay_props.shaderGroupBaseAlignment)
             {
                 // TODO: move forward with address-remapping and re-assembly of a binding-table
+                // TODO: remove TODO/warning when issue #1526 is solved
                 GFXRECON_LOG_WARNING_ONCE("capture/replay have mismatching shader-binding-table size or alignments");
             }
         }
