@@ -4440,6 +4440,28 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
             buffer_info->handle, buffer_info->allocator_data, memory_info->allocator_data);
     }
 
+    if (result == VK_SUCCESS && !allocator->SupportsOpaqueDeviceAddresses())
+    {
+        // On fast-forwarded traces buffer device addresses might be missing (no GetBufferDeviceAddress calls)
+        // Fill out this data based on original memory device address and binding offset
+        auto entry = device_info->opaque_addresses.find(memory_info->capture_id);
+        if (entry != device_info->opaque_addresses.end())
+        {
+            uint64_t                  memory_device_address   = entry->second;
+            uint64_t                  original_buffer_address = memory_device_address + memoryOffset;
+            VkBufferDeviceAddressInfo info                    = {};
+            info.sType                                        = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+            info.pNext                                        = nullptr;
+            info.buffer                                       = buffer_info->handle;
+
+            buffer_info->capture_address = original_buffer_address;
+            buffer_info->replay_address =
+                GetDeviceTable(device_info->handle)->GetBufferDeviceAddress(device_info->handle, &info);
+
+            // track buffer-addresses
+            GetBufferTracker(device_info->handle).TrackBuffer(buffer_info);
+        }
+    }
     return result;
 }
 
@@ -4847,6 +4869,9 @@ void VulkanReplayConsumerBase::OverrideDestroyBuffer(
     }
 
     allocator->DestroyBuffer(buffer, GetAllocationCallbacks(pAllocator), allocator_data);
+
+    // remove from device-address tracking
+    GetBufferTracker(device_info->handle).RemoveBuffer(buffer_info);
 }
 
 VkResult
@@ -7735,6 +7760,7 @@ VkResult VulkanReplayConsumerBase::OverrideDeferredOperationJoinKHR(PFN_vkDeferr
 
 VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     PFN_vkGetBufferDeviceAddress                                   func,
+    VkDeviceAddress                                                original_result,
     const DeviceInfo*                                              device_info,
     const StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
@@ -7746,22 +7772,40 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
                                 "bufferDeviceAddressCaptureReplay feature for accurate capture and replay. The "
                                 "replay device does not support this feature, so replay may fail.");
     }
+    VkDevice                         device       = device_info->handle;
+    const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
+
+    // retrieve replay-time device-address
+    VkDeviceAddress replay_device_address = func(device, address_info);
 
     if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
+        // TODO: make this warning obsolete by re-mapping addresses (and fix addresses stored in buffers)
+        // TODO: remove TODO/warning when issue #1526 is solved
         GFXRECON_LOG_WARNING_ONCE(
             "The captured application used vkGetBufferDeviceAddress. The specified replay option '-m rebind' may not "
             "support the replay of captured device addresses, so replay may fail.");
     }
+    else
+    {
+        // opaque device-addresses are expected to match
+        GFXRECON_ASSERT(original_result == replay_device_address);
+    }
 
-    VkDevice                         device       = device_info->handle;
-    const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
+    // keep track of old/new addresses in any case
+    format::HandleId buffer      = pInfo->GetMetaStructPointer()->buffer;
+    BufferInfo*      buffer_info = GetObjectInfoTable().GetBufferInfo(buffer);
+    buffer_info->capture_address = original_result;
+    buffer_info->replay_address  = replay_device_address;
 
-    return func(device, address_info);
+    // track device-addresses
+    GetBufferTracker(device).TrackBuffer(buffer_info);
+    return replay_device_address;
 }
 
 void VulkanReplayConsumerBase::OverrideGetAccelerationStructureDeviceAddressKHR(
     PFN_vkGetAccelerationStructureDeviceAddressKHR                                   func,
+    VkDeviceAddress                                                                  original_result,
     const DeviceInfo*                                                                device_info,
     const StructPointerDecoder<Decoded_VkAccelerationStructureDeviceAddressInfoKHR>* pInfo)
 {
@@ -8094,6 +8138,64 @@ void VulkanReplayConsumerBase::OverrideCmdBeginRenderPass2(
     VkCommandBuffer command_buffer = command_buffer_info->handle;
 
     func(command_buffer, render_pass_begin_info_decoder->GetPointer(), subpass_begin_info_decode->GetPointer());
+}
+
+void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
+    PFN_vkCmdTraceRaysKHR                                          func,
+    CommandBufferInfo*                                             command_buffer_info,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pRaygenShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pMissShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pHitShaderBindingTable,
+    StructPointerDecoder<Decoded_VkStridedDeviceAddressRegionKHR>* pCallableShaderBindingTable,
+    uint32_t                                                       width,
+    uint32_t                                                       height,
+    uint32_t                                                       depth)
+{
+    if (command_buffer_info != nullptr)
+    {
+        VkCommandBuffer                        commandBuffer                = command_buffer_info->handle;
+        const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable = pRaygenShaderBindingTable->GetPointer();
+        const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable   = pMissShaderBindingTable->GetPointer();
+        const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable    = pHitShaderBindingTable->GetPointer();
+        const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable =
+            pCallableShaderBindingTable->GetPointer();
+
+        // assert we can identify the buffer(s) by their device-address
+        const DeviceInfo* device_info    = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
+        const auto&       buffer_tracker = GetBufferTracker(device_info->handle);
+        GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pRaygenShaderBindingTable->deviceAddress));
+        GFXRECON_ASSERT(in_pMissShaderBindingTable->size == 0 ||
+                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pMissShaderBindingTable->deviceAddress));
+        GFXRECON_ASSERT(in_pHitShaderBindingTable->size == 0 ||
+                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pHitShaderBindingTable->deviceAddress));
+        GFXRECON_ASSERT(in_pCallableShaderBindingTable->size == 0 ||
+                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pCallableShaderBindingTable->deviceAddress));
+
+        const PhysicalDeviceInfo* physical_device_info =
+            GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
+
+        if (physical_device_info && physical_device_info->replay_device_info->raytracing_properties)
+        {
+            const auto& replay_props = *physical_device_info->replay_device_info->raytracing_properties;
+            if (physical_device_info->shaderGroupHandleSize != replay_props.shaderGroupHandleSize ||
+                physical_device_info->shaderGroupHandleAlignment != replay_props.shaderGroupHandleAlignment ||
+                physical_device_info->shaderGroupBaseAlignment != replay_props.shaderGroupBaseAlignment)
+            {
+                // TODO: move forward with address-remapping and re-assembly of a binding-table
+                // TODO: remove TODO/warning when issue #1526 is solved
+                GFXRECON_LOG_WARNING_ONCE("capture/replay have mismatching shader-binding-table size or alignments");
+            }
+        }
+
+        func(commandBuffer,
+             in_pRaygenShaderBindingTable,
+             in_pMissShaderBindingTable,
+             in_pHitShaderBindingTable,
+             in_pCallableShaderBindingTable,
+             width,
+             height,
+             depth);
+    }
 }
 
 VkResult VulkanReplayConsumerBase::OverrideCreateImageView(
@@ -8852,6 +8954,17 @@ void VulkanReplayConsumerBase::UpdateDescriptorSetInfoWithTemplate(DescriptorSet
         assert(texel_buffer_view_count == decoder->GetTexelBufferViewCount());
         assert(accel_struct_count == decoder->GetAccelerationStructureKHRCount());
     }
+}
+
+VulkanBufferTracker& VulkanReplayConsumerBase::GetBufferTracker(VkDevice device)
+{
+    auto it = _buffer_trackers.find(device);
+    if (it == _buffer_trackers.end())
+    {
+        auto [new_it, success] = _buffer_trackers.insert({ device, VulkanBufferTracker(object_info_table_) });
+        return new_it->second;
+    }
+    return it->second;
 }
 
 void VulkanReplayConsumerBase::Process_vkUpdateDescriptorSetWithTemplate(const ApiCallInfo& call_info,
