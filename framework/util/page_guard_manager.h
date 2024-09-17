@@ -55,6 +55,18 @@
 #endif
 #endif
 
+#if defined(__ANDROID__)
+struct SigchainAction
+{
+    bool (*sc_sigaction)(int, siginfo_t*, void*);
+    sigset_t sc_mask;
+    uint64_t sc_flags;
+};
+
+typedef void (*PFN_AddSpecialSignalHandlerFn)(int signal, SigchainAction* sa);
+typedef void (*PFN_RemoveSpecialSignalHandlerFn)(int signal, bool (*fn)(int, siginfo_t*, void*));
+#endif
+
 GFXRECON_BEGIN_NAMESPACE(gfxrecon)
 GFXRECON_BEGIN_NAMESPACE(util)
 
@@ -298,6 +310,12 @@ class PageGuardManager
     static std::atomic<bool>     stop_uffd_handler_thread_;
     std::unique_ptr<uint8_t[]>   uffd_page_size_tmp_buff_;
     std::unordered_set<uint64_t> uffd_fault_causing_threads;
+#endif
+
+#if defined(__ANDROID__)
+    PFN_AddSpecialSignalHandlerFn    AddSpecialSignalHandlerFn    = nullptr;
+    PFN_RemoveSpecialSignalHandlerFn RemoveSpecialSignalHandlerFn = nullptr;
+    bool                             libsigchain_active_          = false;
 #endif
 
     bool     InitializeUserFaultFd();
