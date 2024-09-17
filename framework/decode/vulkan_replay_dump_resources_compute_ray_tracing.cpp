@@ -1071,7 +1071,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             const VkShaderStageFlagBits stage       = mutable_resources_clones_before.images[i].stage;
 
             std::vector<VkImageAspectFlagBits> aspects;
-            graphics::GetFormatAspects(modified_image_info.format, &aspects);
+            GetFormatAspects(modified_image_info.format, aspects);
 
             const size_t total_files =
                 dump_all_image_subresources
@@ -1082,12 +1082,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
             size_t                   f = 0;
             for (auto aspect : aspects)
             {
-                // Dumping stencil is not supported at the moment
-                if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                {
-                    continue;
-                }
-
                 for (uint32_t mip = 0; mip < modified_image_info.level_count; ++mip)
                 {
                     for (uint32_t layer = 0; layer < modified_image_info.layer_count; ++layer)
@@ -1192,7 +1186,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
         const VkShaderStageFlagBits stage       = mutable_resources_clones.images[i].stage;
 
         std::vector<VkImageAspectFlagBits> aspects;
-        graphics::GetFormatAspects(modified_image_info.format, &aspects);
+        GetFormatAspects(modified_image_info.format, aspects);
 
         const size_t total_files =
             dump_all_image_subresources
@@ -1203,12 +1197,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpMutableResources(uint64_t bcb_inde
         size_t                   f = 0;
         for (auto aspect : aspects)
         {
-            // Dumping stencil is not supported at the moment
-            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-            {
-                continue;
-            }
-
             for (uint32_t mip = 0; mip < modified_image_info.level_count; ++mip)
             {
                 for (uint32_t layer = 0; layer < modified_image_info.layer_count; ++layer)
@@ -1688,7 +1676,7 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
     for (const auto& img_info : image_descriptors)
     {
         std::vector<VkImageAspectFlagBits> aspects;
-        graphics::GetFormatAspects(img_info->format, &aspects);
+        GetFormatAspects(img_info->format, aspects);
 
         const size_t total_files = dump_all_image_subresources
                                        ? (aspects.size() * img_info->layer_count * img_info->level_count)
@@ -1699,12 +1687,6 @@ VkResult DispatchTraceRaysDumpingContext::DumpImmutableDescriptors(uint64_t qs_i
         size_t f = 0;
         for (auto aspect : aspects)
         {
-            // Dumping stencil is not supported at the moment
-            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-            {
-                continue;
-            }
-
             for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
             {
                 for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -2144,17 +2126,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                 auto& image_json_entry_desc    = image_json_entry["images"];
 
                 std::vector<VkImageAspectFlagBits> aspects;
-                graphics::GetFormatAspects(img_info->format, &aspects);
+                GetFormatAspects(img_info->format, aspects);
 
                 size_t f = 0;
                 for (auto aspect : aspects)
                 {
-                    // Dumping stencil is not supported at the moment
-                    if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                    {
-                        continue;
-                    }
-
                     for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                     {
                         for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -2254,17 +2230,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
             auto& image_json_entry_desc    = image_json_entry["images"];
 
             std::vector<VkImageAspectFlagBits> aspects;
-            graphics::GetFormatAspects(img_info->format, &aspects);
+            GetFormatAspects(img_info->format, aspects);
 
             size_t f = 0;
             for (auto aspect : aspects)
             {
-                // Dumping stencil is not supported at the moment
-                if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                {
-                    continue;
-                }
-
                 for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                 {
                     for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -2375,17 +2345,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonDispatchInfo(uint64_t qs
                             assert(img_info);
 
                             std::vector<VkImageAspectFlagBits> aspects;
-                            graphics::GetFormatAspects(img_info->format, &aspects);
+                            GetFormatAspects(img_info->format, aspects);
 
                             size_t f = 0;
                             for (auto aspect : aspects)
                             {
-                                // Dumping stencil is not supported at the moment
-                                if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                                {
-                                    continue;
-                                }
-
                                 for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                                 {
                                     for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -2588,7 +2552,7 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                 assert(img_info != nullptr);
 
                 std::vector<VkImageAspectFlagBits> aspects;
-                graphics::GetFormatAspects(img_info->format, &aspects);
+                GetFormatAspects(img_info->format, aspects);
 
                 auto& image_json_entry         = before_command_output_image_entries[output_image_index++];
                 image_json_entry["type"]       = util::ToString<VkDescriptorType>(image.desc_type);
@@ -2600,12 +2564,6 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                 size_t f = 0;
                 for (auto aspect : aspects)
                 {
-                    // Dumping stencil is not supported at the moment
-                    if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                    {
-                        continue;
-                    }
-
                     for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                     {
                         for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -2704,17 +2662,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
             auto& image_json_entry_desc    = image_json_entry["image"];
 
             std::vector<VkImageAspectFlagBits> aspects;
-            graphics::GetFormatAspects(img_info->format, &aspects);
+            GetFormatAspects(img_info->format, aspects);
 
             size_t f = 0;
             for (auto aspect : aspects)
             {
-                // Dumping stencil is not supported at the moment
-                if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                {
-                    continue;
-                }
-
                 for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                 {
                     for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)
@@ -2827,17 +2779,11 @@ void DispatchTraceRaysDumpingContext::GenerateOutputJsonTraceRaysIndex(uint64_t 
                                 entry["arrayIndex"] = img;
 
                                 std::vector<VkImageAspectFlagBits> aspects;
-                                graphics::GetFormatAspects(img_info->format, &aspects);
+                                GetFormatAspects(img_info->format, aspects);
 
                                 size_t f = 0;
                                 for (auto aspect : aspects)
                                 {
-                                    // Dumping stencil is not supported at the moment
-                                    if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                                    {
-                                        continue;
-                                    }
-
                                     for (uint32_t mip = 0; mip < img_info->level_count; ++mip)
                                     {
                                         for (uint32_t layer = 0; layer < img_info->layer_count; ++layer)

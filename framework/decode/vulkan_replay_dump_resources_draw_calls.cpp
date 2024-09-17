@@ -1120,16 +1120,10 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
             assert(image_info != nullptr);
 
             std::vector<VkImageAspectFlagBits> aspects;
-            graphics::GetFormatAspects(image_info->format, &aspects);
+            GetFormatAspects(image_info->format, aspects);
 
             for (auto aspect : aspects)
             {
-                // Dumping stencil is not supported at the moment
-                if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                {
-                    continue;
-                }
-
                 for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
                 {
                     for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -1200,17 +1194,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
         const ImageInfo* image_info = render_targets[rp][sp].depth_att_img;
 
         std::vector<VkImageAspectFlagBits> aspects;
-        graphics::GetFormatAspects(image_info->format, &aspects);
+        GetFormatAspects(image_info->format, aspects);
 
         size_t f = 0;
         for (auto aspect : aspects)
         {
-            // Dumping stencil is not supported at the moment
-            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-            {
-                continue;
-            }
-
             for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
             {
                 for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -1364,17 +1352,11 @@ void DrawCallsDumpingContext::GenerateOutputJsonDrawCallInfo(
                                     assert(image_info != nullptr);
 
                                     std::vector<VkImageAspectFlagBits> aspects;
-                                    graphics::GetFormatAspects(image_info->format, &aspects);
+                                    GetFormatAspects(image_info->format, aspects);
 
                                     size_t f = 0;
                                     for (auto aspect : aspects)
                                     {
-                                        // Dumping stencil is not supported at the moment
-                                        if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-                                        {
-                                            continue;
-                                        }
-
                                         for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
                                         {
                                             for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -1655,7 +1637,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         const ImageInfo* image_info = render_targets[rp][sp].color_att_imgs[i];
 
         std::vector<VkImageAspectFlagBits> aspects;
-        graphics::GetFormatAspects(image_info->format, &aspects);
+        GetFormatAspects(image_info->format, aspects);
 
         const size_t total_files = dump_all_image_subresources
                                        ? (aspects.size() * image_info->layer_count * image_info->level_count)
@@ -1665,12 +1647,6 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         size_t                   f = 0;
         for (auto aspect : aspects)
         {
-            // Dumping stencil is not supported at the moment
-            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-            {
-                continue;
-            }
-
             for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
             {
                 for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -1728,7 +1704,7 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         const ImageInfo* image_info = render_targets[rp][sp].depth_att_img;
 
         std::vector<VkImageAspectFlagBits> aspects;
-        graphics::GetFormatAspects(image_info->format, &aspects);
+        GetFormatAspects(image_info->format, aspects);
 
         const size_t total_files = dump_all_image_subresources
                                        ? (aspects.size() * image_info->layer_count * image_info->level_count)
@@ -1738,12 +1714,6 @@ VkResult DrawCallsDumpingContext::DumpRenderTargetAttachments(
         size_t                   f = 0;
         for (auto aspect : aspects)
         {
-            // Dumping stencil is not supported at the moment
-            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-            {
-                continue;
-            }
-
             for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
             {
                 for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -2008,7 +1978,7 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
     for (const auto& image_info : image_descriptors)
     {
         std::vector<VkImageAspectFlagBits> aspects;
-        graphics::GetFormatAspects(image_info->format, &aspects);
+        GetFormatAspects(image_info->format, aspects);
 
         const size_t total_files = dump_all_image_subresources
                                        ? (aspects.size() * image_info->layer_count * image_info->level_count)
@@ -2019,12 +1989,6 @@ DrawCallsDumpingContext::DumpImmutableDescriptors(uint64_t qs_index, uint64_t bc
         size_t f = 0;
         for (auto aspect : aspects)
         {
-            // Dumping stencil is not supported at the moment
-            if (aspect == VK_IMAGE_ASPECT_STENCIL_BIT)
-            {
-                continue;
-            }
-
             for (uint32_t mip = 0; mip < image_info->level_count; ++mip)
             {
                 for (uint32_t layer = 0; layer < image_info->layer_count; ++layer)
@@ -2829,7 +2793,7 @@ VkResult DrawCallsDumpingContext::CloneRenderPass(const RenderPassInfo*  origina
     // Each draw call that is marked for dumping will be "assigned" the appropriate render pass depending on which
     // subpasses it was called from in the original render pass
     std::vector<VkSubpassDescription> subpass_descs;
-    for (uint32_t sub = 0; sub < original_render_pass->subpass_refs.size(); ++sub)
+    for (size_t sub = 0; sub < original_render_pass->subpass_refs.size(); ++sub)
     {
         bool                             has_external_dependencies_post = false;
         bool                             has_external_dependencies_pre  = false;

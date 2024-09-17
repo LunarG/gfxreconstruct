@@ -835,5 +835,23 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     return VK_SUCCESS;
 }
 
+void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects)
+{
+    aspects.clear();
+    graphics::GetFormatAspects(format, &aspects);
+
+    for (auto it = aspects.begin(); it < aspects.end();)
+    {
+        if (*it == VK_IMAGE_ASPECT_STENCIL_BIT)
+        {
+            it = aspects.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+
 GFXRECON_END_NAMESPACE(gfxrecon)
 GFXRECON_END_NAMESPACE(decode)
