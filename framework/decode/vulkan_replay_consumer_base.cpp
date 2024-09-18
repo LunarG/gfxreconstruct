@@ -8356,23 +8356,33 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
 {
     if (command_buffer_info != nullptr)
     {
-        VkCommandBuffer                        commandBuffer                = command_buffer_info->handle;
-        const VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable = pRaygenShaderBindingTable->GetPointer();
-        const VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable   = pMissShaderBindingTable->GetPointer();
-        const VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable    = pHitShaderBindingTable->GetPointer();
-        const VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable =
-            pCallableShaderBindingTable->GetPointer();
+        VkCommandBuffer                  commandBuffer                  = command_buffer_info->handle;
+        VkStridedDeviceAddressRegionKHR* in_pRaygenShaderBindingTable   = pRaygenShaderBindingTable->GetPointer();
+        VkStridedDeviceAddressRegionKHR* in_pMissShaderBindingTable     = pMissShaderBindingTable->GetPointer();
+        VkStridedDeviceAddressRegionKHR* in_pHitShaderBindingTable      = pHitShaderBindingTable->GetPointer();
+        VkStridedDeviceAddressRegionKHR* in_pCallableShaderBindingTable = pCallableShaderBindingTable->GetPointer();
 
-        // assert we can identify the buffer(s) by their device-address
-        const DeviceInfo* device_info    = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
-        const auto&       buffer_tracker = GetDeviceAddressTracker(device_info->handle);
-        GFXRECON_ASSERT(buffer_tracker.GetBufferByCaptureDeviceAddress(in_pRaygenShaderBindingTable->deviceAddress));
-        GFXRECON_ASSERT(in_pMissShaderBindingTable->size == 0 ||
-                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pMissShaderBindingTable->deviceAddress));
-        GFXRECON_ASSERT(in_pHitShaderBindingTable->size == 0 ||
-                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pHitShaderBindingTable->deviceAddress));
-        GFXRECON_ASSERT(in_pCallableShaderBindingTable->size == 0 ||
-                        buffer_tracker.GetBufferByCaptureDeviceAddress(in_pCallableShaderBindingTable->deviceAddress));
+        // identify buffer(s) by their device-address
+        const DeviceInfo* device_info     = GetObjectInfoTable().GetDeviceInfo(command_buffer_info->parent_id);
+        const auto&       address_tracker = GetDeviceAddressTracker(device_info->handle);
+
+        auto address_remap = [&address_tracker](VkStridedDeviceAddressRegionKHR* address_region) {
+            if (address_region->size > 0)
+            {
+                auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(address_region->deviceAddress);
+                GFXRECON_ASSERT(buffer_info != nullptr);
+
+                uint64_t offset = address_region->deviceAddress - buffer_info->capture_address;
+
+                // in-place address-remap via const-cast
+                address_region->deviceAddress = buffer_info->replay_address + offset;
+            }
+        };
+        // in-place remap: capture-addresses -> replay-addresses
+        address_remap(in_pRaygenShaderBindingTable);
+        address_remap(in_pMissShaderBindingTable);
+        address_remap(in_pHitShaderBindingTable);
+        address_remap(in_pCallableShaderBindingTable);
 
         const PhysicalDeviceInfo* physical_device_info =
             GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
@@ -8384,7 +8394,7 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 physical_device_info->shaderGroupHandleAlignment != replay_props.shaderGroupHandleAlignment ||
                 physical_device_info->shaderGroupBaseAlignment != replay_props.shaderGroupBaseAlignment)
             {
-                // TODO: move forward with address-remapping and re-assembly of a binding-table
+                // TODO: binding-table re-assembly
                 // TODO: remove TODO/warning when issue #1526 is solved
                 GFXRECON_LOG_WARNING_ONCE("capture/replay have mismatching shader-binding-table size or alignments");
             }
