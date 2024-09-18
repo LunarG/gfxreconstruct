@@ -87,8 +87,6 @@ VulkanStateWriter::VulkanStateWriter(util::FileOutputStream* output_stream,
     assert(output_stream != nullptr);
 }
 
-VulkanStateWriter::~VulkanStateWriter() {}
-
 uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint64_t frame_number)
 {
     // clang-format off
@@ -139,6 +137,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
 
     // Map memory after uploading resource data to buffers and images, which may require mapping resource memory ranges.
     WriteMappedMemoryState(state_table);
+
+    // Retrieve buffer-device-addresses
+    WriteBufferDeviceAddressCalls(state_table);
 
     WriteBufferViewState(state_table);
     WriteImageViewState(state_table);
@@ -1184,6 +1185,24 @@ void VulkanStateWriter::WriteAccelerationStructureKHRState(const VulkanStateTabl
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
+    });
+}
+
+void VulkanStateWriter::WriteBufferDeviceAddressCalls(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
+        if (wrapper->address != 0)
+        {
+            parameter_stream_.Clear();
+            encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
+            VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
+                                               nullptr,
+                                               wrapper->handle };
+            EncodeStructPtr(&encoder_, &info);
+            encoder_.EncodeVkDeviceAddressValue(wrapper->address);
+            WriteFunctionCall(format::ApiCall_vkGetBufferDeviceAddressKHR, &parameter_stream_);
+            parameter_stream_.Clear();
+        }
     });
 }
 
