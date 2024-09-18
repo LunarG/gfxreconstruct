@@ -587,7 +587,6 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                     "%s format is not handled. Images with that format will be dump as a plain binary file.",
                     util::ToString<VkFormat>(image_info->format).c_str());
 
-                filename = filename + std::string(".bin");
                 util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
             }
         }
