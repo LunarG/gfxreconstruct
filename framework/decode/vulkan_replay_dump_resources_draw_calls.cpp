@@ -931,12 +931,12 @@ std::string DrawCallsDumpingContext::GenerateRenderTargetImageFilename(VkFormat 
         if (dump_resources_before)
         {
             filename << "draw_" << ((cmd_buf_index % 2) ? "after_" : "before_") << dc_index << "_qs_" << qs_index
-                     << "_bcb_" << bcb_index << "_" << qs_index << "_" << bcb_index << "_" << attachment_str
+                     << "_bcb_" << bcb_index << "_" << qs_index << "_" << bcb_index << attachment_str << "_"
                      << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
         }
         else
         {
-            filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << "_dc_" << attachment_str
+            filename << "draw_" << dc_index << "_qs_" << qs_index << "_bcb_" << bcb_index << attachment_str << "_"
                      << util::ToString<VkFormat>(format) << "_aspect_" << aspect_str;
         }
     }
