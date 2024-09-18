@@ -285,6 +285,12 @@ class VulkanStructDeepCopyBodyGenerator(BaseGenerator):
         for value in self.feature_struct_members[typename]:
             if value.name == 'pNext':
                 write('        handle_pnext(base_struct, i, offset, out_data);', file=self.outFile)
+            elif value.name == 'hmonitor' and value.base_type == 'void':
+                # For VkSurfaceFullScreenExclusiveWin32InfoEXT, the member "hmonitor" should be considered a non-pointer member,
+                # as it is an opaque pointer defined by the Windows platform. A valid hmonitor is guaranteed not to be a null
+                # pointer, but it may not access the pointed memory. Therefore, we treat "hmonitor" as a non-pointer member and
+                # do not generate any source code to copy its pointed data.
+                continue
             elif value.is_pointer:
                 count_exp = self.getPointerCountExpression(typename, value)
                 if value.pointer_count == 1:

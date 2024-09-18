@@ -15208,7 +15208,6 @@ size_t vulkan_struct_deep_copy(const VkSurfaceFullScreenExclusiveWin32InfoEXT* s
         }
         auto handle_pointer_member = create_pointer_helper_function(base_struct, i, offset, out_data);
         handle_pnext(base_struct, i, offset, out_data);
-        handle_pointer_member(base_struct.hmonitor, 1);
     }
     return offset;
 }
