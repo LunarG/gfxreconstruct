@@ -183,6 +183,12 @@ static bool CheckIndicesForErrors(const gfxrecon::decode::VulkanReplayOptions& v
             GFXRECON_LOG_ERROR("Each Draw item must have a corresponding RenderPass item");
             return true;
         }
+        else if (vulkan_replay_options.Draw_Indices[i].empty() && !vulkan_replay_options.RenderPass_Indices[i].empty())
+        {
+            GFXRECON_LOG_ERROR("ERROR - incomplete --dump-resources parameters");
+            GFXRECON_LOG_ERROR("RenderPass item is not accompanied by draw call indices");
+            return true;
+        }
     }
 
     // Each dump command must specify one and only one of draw, tracerays, or dispatch
