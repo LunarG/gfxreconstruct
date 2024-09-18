@@ -569,7 +569,8 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                                                      subresource_sizes[0],
                                                      data.data(),
                                                      stride,
-                                                     output_image_format);
+                                                     output_image_format,
+                                                     vkuFormatHasAlpha(image_info->format));
                 }
                 else if (image_file_format == util::ScreenshotFormat::kPng)
                 {
@@ -579,7 +580,8 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                                                      subresource_sizes[0],
                                                      data.data(),
                                                      stride,
-                                                     output_image_format);
+                                                     output_image_format,
+                                                     vkuFormatHasAlpha(image_info->format));
                 }
             }
             else
