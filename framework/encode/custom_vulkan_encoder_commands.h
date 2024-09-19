@@ -921,32 +921,32 @@ struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkResetQueryPoolEXT>
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddress>
 {
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
-        manager->PreProcess_vkGetBufferDeviceAddress(args...);
+        manager->PostProcess_vkGetBufferDeviceAddress(args...);
     }
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressKHR>
 {
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
-        manager->PreProcess_vkGetBufferDeviceAddress(args...);
+        manager->PostProcess_vkGetBufferDeviceAddress(args...);
     }
 };
 
 template <>
-struct CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>
+struct CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetBufferDeviceAddressEXT>
 {
     template <typename... Args>
     static void Dispatch(VulkanCaptureManager* manager, Args... args)
     {
-        manager->PreProcess_vkGetBufferDeviceAddress(args...);
+        manager->PostProcess_vkGetBufferDeviceAddress(args...);
     }
 };
 

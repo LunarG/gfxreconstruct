@@ -379,7 +379,7 @@ void VulkanCaptureManager::WriteSetDeviceMemoryPropertiesCommand(
 
 void VulkanCaptureManager::WriteSetOpaqueAddressCommand(format::HandleId device_id,
                                                         format::HandleId object_id,
-                                                        uint64_t         address)
+                                                        uint64_t         opaque_address)
 {
     if (IsCaptureModeWrite())
     {
@@ -395,7 +395,7 @@ void VulkanCaptureManager::WriteSetOpaqueAddressCommand(format::HandleId device_
         opaque_address_cmd.thread_id = thread_data->thread_id_;
         opaque_address_cmd.device_id = device_id;
         opaque_address_cmd.object_id = object_id;
-        opaque_address_cmd.address   = address;
+        opaque_address_cmd.address   = opaque_address;
 
         WriteToFile(&opaque_address_cmd, sizeof(opaque_address_cmd));
     }
@@ -800,6 +800,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
     auto     device_table         = vulkan_wrappers::GetDeviceTable(device);
     auto     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
 
+    // TODO: we need to do a deep-copy, in pNext-chain we can expect e.g. VkBufferUsageFlags2CreateInfoKHR
     VkBufferCreateInfo modified_create_info = (*pCreateInfo);
 
     if (IsTrimEnabled())
@@ -860,26 +861,27 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
             VkBufferDeviceAddressInfo info = { VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO };
             info.pNext                     = nullptr;
             info.buffer                    = buffer_wrapper->handle;
-            uint64_t address               = 0;
+            uint64_t opaque_address        = 0;
 
             if (device_wrapper->physical_device->instance_api_version >= VK_MAKE_VERSION(1, 2, 0))
             {
-                address = device_table->GetBufferOpaqueCaptureAddress(device_unwrapped, &info);
+                opaque_address = device_table->GetBufferOpaqueCaptureAddress(device_unwrapped, &info);
             }
             else
             {
-                address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
+                opaque_address = device_table->GetBufferOpaqueCaptureAddressKHR(device_unwrapped, &info);
             }
-
-            WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, address);
+            WriteSetOpaqueAddressCommand(device_wrapper->handle_id, buffer_wrapper->handle_id, opaque_address);
 
             if (IsCaptureModeTrack())
             {
-                state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
+                //                state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
+                auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
+                wrapper->device_id      = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+                wrapper->opaque_address = opaque_address;
             }
         }
     }
-
     return result;
 }
 
@@ -2527,7 +2529,9 @@ void VulkanCaptureManager::PreProcess_vkCreateDescriptorUpdateTemplateKHR(
     }
 }
 
-void VulkanCaptureManager::PreProcess_vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo)
+void VulkanCaptureManager::PostProcess_vkGetBufferDeviceAddress(VkDeviceAddress                  result,
+                                                                VkDevice                         device,
+                                                                const VkBufferDeviceAddressInfo* pInfo)
 {
     auto device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
     if (!device_wrapper->property_feature_info.feature_bufferDeviceAddressCaptureReplay)
@@ -2536,6 +2540,11 @@ void VulkanCaptureManager::PreProcess_vkGetBufferDeviceAddress(VkDevice device, 
             "The application is using vkGetBufferDeviceAddress, which requires the bufferDeviceAddressCaptureReplay "
             "feature for accurate capture and replay. The capture device does not support this feature, so replay of "
             "the captured file may fail.");
+    }
+
+    if (IsCaptureModeTrack() && pInfo != nullptr)
+    {
+        state_tracker_->TrackBufferDeviceAddress(device, pInfo->buffer, result);
     }
 }
 
