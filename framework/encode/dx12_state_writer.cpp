@@ -1467,7 +1467,7 @@ void Dx12StateWriter::WriteAccelerationStructuresState(
                 {
                     D3D12_GPU_VIRTUAL_ADDRESS* address = reinterpret_cast<D3D12_GPU_VIRTUAL_ADDRESS*>(
                         inputs_data_ptr + i * address_stride + address_offset);
-                    if (blas_addresses.count(*address) == 0)
+                    if ((*address != 0x0) && (blas_addresses.count(*address) == 0))
                     {
                         valid = false;
                         break;
