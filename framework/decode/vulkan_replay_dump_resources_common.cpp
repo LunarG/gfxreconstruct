@@ -546,7 +546,6 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                 const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, aspects[i]);
                 const uint32_t stride     = texel_size * scaled_extent.width;
 
-                filename += ImageFileExtension(image_info->format, image_file_format);
                 if (output_image_format == util::imagewriter::DataFormats::kFormat_ASTC)
                 {
                     VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);
@@ -590,7 +589,6 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                     "%s format is not handled. Images with that format will be dump as a plain binary file.",
                     util::ToString<VkFormat>(image_info->format).c_str());
 
-                filename = filename + std::string(".bin");
                 util::bufferwriter::WriteBuffer(filename, data.data(), data.size());
             }
         }
@@ -630,7 +628,6 @@ VkResult DumpImageToFile(const ImageInfo*                   image_info,
                         const uint32_t texel_size = vkuFormatElementSizeWithAspect(image_info->format, aspect);
                         const uint32_t stride     = texel_size * scaled_extent.width;
 
-                        filename += ImageFileExtension(image_info->format, image_file_format);
                         if (output_image_format == util::imagewriter::DataFormats::kFormat_ASTC)
                         {
                             VKU_FORMAT_INFO format_info = vkuGetFormatInfo(image_info->format);
@@ -837,6 +834,24 @@ VkResult CreateVkBuffer(VkDeviceSize                            size,
     }
 
     return VK_SUCCESS;
+}
+
+void GetFormatAspects(VkFormat format, std::vector<VkImageAspectFlagBits>& aspects)
+{
+    aspects.clear();
+    graphics::GetFormatAspects(format, &aspects);
+
+    for (auto it = aspects.begin(); it < aspects.end();)
+    {
+        if (*it == VK_IMAGE_ASPECT_STENCIL_BIT)
+        {
+            it = aspects.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(gfxrecon)
