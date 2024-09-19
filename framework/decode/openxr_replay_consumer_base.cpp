@@ -593,6 +593,28 @@ void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     session_data.AddGraphicsBinding(MakeGraphicsBinding(decoded_info));
 }
 
+void OpenXrReplayConsumerBase::UpdateState_xrEndSession(const ApiCallInfo& call_info,
+                                                        XrResult           returnValue,
+                                                        format::HandleId   session,
+                                                        XrResult           replay_result)
+{
+    XrSession    in_session   = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    SessionData& session_data = GetSessionData(in_session);
+
+    session_data.ClearViewRelativeProxySpaces(GetInstanceTable(in_session));
+}
+
+void OpenXrReplayConsumerBase::UpdateState_xrBeginFrame(const ApiCallInfo&                              call_info,
+                                                        XrResult                                        returnValue,
+                                                        format::HandleId                                session,
+                                                        StructPointerDecoder<Decoded_XrFrameBeginInfo>* frameBeginInfo,
+                                                        XrResult                                        replay_result)
+{
+    XrSession    in_session   = MapHandle<OpenXrSessionInfo>(session, &CommonObjectInfoTable::GetXrSessionInfo);
+    SessionData& session_data = GetSessionData(in_session);
+    session_data.ClearViewRelativeProxySpaces(GetInstanceTable(in_session));
+}
+
 struct EventStrings
 {
     XrStructureType type;
@@ -890,6 +912,19 @@ void OpenXrReplayConsumerBase::Process_xrReleaseSwapchainImage(
     CheckResult("xrReleaseSwapchainImage", returnValue, replay_result, call_info);
 }
 
+void OpenXrReplayConsumerBase::ProcessViewRelativeLocation(format::ThreadId              thread_id,
+                                                           format::ViewRelativeLocation& location)
+{
+    // Create a proxy space for a given space_id at a view relative location
+    XrSession replay_session =
+        MapHandle<OpenXrSessionInfo>(location.session_id, &CommonObjectInfoTable::GetXrSessionInfo);
+    XrSpace replay_space = MapHandle<OpenXrSpaceInfo>(location.space_id, &CommonObjectInfoTable::GetXrSpaceInfo);
+    assert(replay_session != XR_NULL_HANDLE);
+    assert(replay_space != XR_NULL_HANDLE);
+    auto& session_data = GetSessionData(replay_session);
+    session_data.AddViewRelativeProxySpace(GetInstanceTable(replay_session), location, replay_space);
+}
+
 void OpenXrReplayConsumerBase::Process_xrEndFrame(const ApiCallInfo&                            call_info,
                                                   XrResult                                      returnValue,
                                                   format::HandleId                              session,
@@ -910,6 +945,9 @@ void OpenXrReplayConsumerBase::Process_xrEndFrame(const ApiCallInfo&            
     // NOTE: A closer approximation of the capture would be having the displayTime be at the same offset of
     // the replay predictedDisplayTime, as the recorded displayTime has from the recorded predictedDisplayTime.
     replay_frame_end_info.displayTime = session_data.GetDisplayTime();
+
+    // TODO: Control this with a command line parameter
+    session_data.RemapFrameEndSpaces(replay_frame_end_info);
 
     XrResult replay_result = GetInstanceTable(in_session)->EndFrame(in_session, &replay_frame_end_info);
     CheckResult("xrEndFrame", returnValue, replay_result, call_info);
@@ -1890,6 +1928,67 @@ void OpenXrReplayConsumerBase::SessionData::AddReferenceSpaces(uint32_t         
     for (uint32_t space = 0; space < count; space++)
     {
         reference_spaces_.insert(replay_spaces[space]);
+    }
+}
+
+void OpenXrReplayConsumerBase::SessionData::AddViewRelativeProxySpace(const encode::OpenXrInstanceTable* instance_table,
+                                                                      const format::ViewRelativeLocation& location,
+                                                                      const XrSpace                       replay_space)
+{
+
+    // View space at view relative location
+    XrReferenceSpaceCreateInfo view_relative_ci = { XR_TYPE_REFERENCE_SPACE_CREATE_INFO,
+                                                    nullptr,
+                                                    XR_REFERENCE_SPACE_TYPE_VIEW,
+                                                    { { location.qx, location.qy, location.qz, location.qw },
+                                                      { location.x, location.y, location.z } } };
+
+    XrSpace view_relative_space = XR_NULL_HANDLE;
+    // TODO: Cleanup this reference space object at DestroySession time
+    XrResult result = instance_table->CreateReferenceSpace(session_, &view_relative_ci, &view_relative_space);
+
+    if (XR_SUCCEEDED(result))
+    {
+        proxy_spaces_[replay_space] = view_relative_space;
+    }
+    else
+    {
+        GFXRECON_LOG_WARNING("Unable to create view relative space for  %" PRIu64, location.space_id);
+    }
+}
+
+void OpenXrReplayConsumerBase::SessionData::ClearViewRelativeProxySpaces(
+    const encode::OpenXrInstanceTable* instance_table)
+{
+    assert(instance_table);
+    for (const auto& proxy : proxy_spaces_)
+    {
+        if (proxy.second != XR_NULL_HANDLE)
+        {
+            instance_table->DestroySpace(proxy.second);
+        }
+    }
+    proxy_spaces_.clear();
+}
+
+void OpenXrReplayConsumerBase::SessionData::RemapFrameEndSpaces(XrFrameEndInfo& frame_end_info)
+{
+    const XrCompositionLayerBaseHeader* const* layers = frame_end_info.layers;
+    if (!layers)
+        return;
+
+    // Replace all spaces in the composition layer with view relative proxies
+    for (uint32_t layer_index = 0; layer_index < frame_end_info.layerCount; layer_index++)
+    {
+        XrCompositionLayerBaseHeader* layer = const_cast<XrCompositionLayerBaseHeader*>(layers[layer_index]);
+        if (layer && (layer->space != XR_NULL_HANDLE))
+        {
+            auto found_it = proxy_spaces_.find(layer->space);
+            if (found_it != proxy_spaces_.end())
+            {
+                layer->space = found_it->second;
+            }
+        }
     }
 }
 

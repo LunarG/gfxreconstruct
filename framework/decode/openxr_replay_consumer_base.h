@@ -108,6 +108,8 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                     format::HandleId                                           swapchain,
                                     StructPointerDecoder<Decoded_XrSwapchainImageReleaseInfo>* releaseInfo) override;
 
+    void ProcessViewRelativeLocation(format::ThreadId thread_id, format::ViewRelativeLocation& location) override;
+
     virtual void Process_xrEndFrame(const ApiCallInfo&                            call_info,
                                     XrResult                                      returnValue,
                                     format::HandleId                              session,
@@ -143,6 +145,17 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                      StructPointerDecoder<Decoded_XrSessionCreateInfo>* createInfo,
                                      HandlePointerDecoder<XrSession>*                   session,
                                      XrResult                                           replay_result);
+
+    void UpdateState_xrEndSession(const ApiCallInfo& call_info,
+                                  XrResult           returnValue,
+                                  format::HandleId   session,
+                                  XrResult           replay_result);
+
+    void UpdateState_xrBeginFrame(const ApiCallInfo&                              call_info,
+                                  XrResult                                        returnValue,
+                                  format::HandleId                                session,
+                                  StructPointerDecoder<Decoded_XrFrameBeginInfo>* frameBeginInfo,
+                                  XrResult                                        replay_result);
 
     void UpdateState_xrWaitFrame(const ApiCallInfo&                             call_info,
                                  XrResult                                       returnValue,
@@ -498,9 +511,12 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     GraphicsBinding MakeGraphicsBinding(Decoded_XrSessionCreateInfo* create_info);
 
     using ReferenceSpaceSet = std::unordered_set<XrReferenceSpaceType>;
+    using ViewRelativeProxySpaceMap = std::unordered_map<XrSpace, XrSpace>;
+
     class SessionData
     {
       public:
+        SessionData(XrSession session) : session_(session) {}
         bool                   AddGraphicsBinding(const GraphicsBinding& binding);
         const GraphicsBinding& GetGraphicsBinding() const { return graphics_binding_; }
 
@@ -508,8 +524,18 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         void   SetDisplayTime(const XrTime& predicted) { last_display_time_ = predicted; }
         XrTime GetDisplayTime() const { return last_display_time_; }
 
+        void AddViewRelativeProxySpace(const encode::OpenXrInstanceTable*  instance_table,
+                                       const format::ViewRelativeLocation& location,
+                                       XrSpace                             replay_space);
+        void ClearViewRelativeProxySpaces(const encode::OpenXrInstanceTable* instance_table);
+
+        void RemapFrameEndSpaces(XrFrameEndInfo& frame_end_info);
+
       protected:
+        XrSession                 session_;
         ReferenceSpaceSet reference_spaces_;
+        ViewRelativeProxySpaceMap proxy_spaces_;
+
         XrTime            last_display_time_ = XrTime();
 
         // These are the replay handles
@@ -520,6 +546,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     class SwapchainData
     {
       public:
+        SwapchainData(XrSwapchain swapchain) : swapchain_(swapchain) {}
         void
         InitSwapchainData(const GraphicsBinding& binding, const XrSwapchainCreateInfo& info, XrSwapchain replay_handle);
         XrResult ImportReplaySwapchain(StructPointerDecoder<Decoded_XrSwapchainImageBaseHeader>* images);
@@ -532,6 +559,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         void     WaitedWithoutTimeout();
 
       protected:
+        XrSwapchain swapchain_;
         static void MapVulkanSwapchainImageFlags(XrSwapchainUsageFlags xr_flags, VkImageCreateInfo& info);
         XrResult    InitSwapchainData(const XrSwapchainCreateInfo& xr_info, VulkanSwapchainInfo& vk_info);
         XrResult AcquireSwapchainImage(uint32_t capture_index, uint32_t replay_index, VulkanSwapchainInfo& swap_info);
@@ -550,7 +578,7 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
     template <typename Handle, typename DataMap>
     static typename DataMap::iterator AddHandleData(Handle handle, DataMap& data_map)
     {
-        auto insert_info = data_map.insert(std::make_pair(handle, typename DataMap::mapped_type()));
+        auto insert_info = data_map.insert(std::make_pair(handle, typename DataMap::mapped_type(handle)));
         assert(insert_info.second);
         return insert_info.first;
     }
@@ -600,6 +628,25 @@ struct CustomProcess<format::ApiCallId::ApiCall_xrCreateSession>
     static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
     {
         consumer->UpdateState_xrCreateSession(args...);
+    }
+};
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrEndSession>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrEndSession(args...);
+    }
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrBeginFrame>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrBeginFrame(args...);
     }
 };
 
