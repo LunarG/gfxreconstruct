@@ -1415,6 +1415,16 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
 {
     assert((image != VK_NULL_HANDLE) && (resolved_image != nullptr) && (resolved_image_memory != nullptr));
 
+    VkFormatProperties format_properties{};
+    instance_table_.GetPhysicalDeviceFormatProperties(physical_device_, format, &format_properties);
+    if ((format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) !=
+        VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+    {
+        GFXRECON_LOG_WARNING_ONCE(
+            "Multisampled images that do not support VK_FORMAT_FEATURE_COLOR_ATTACHMENT will not be resolved");
+        return VK_ERROR_FEATURE_NOT_PRESENT;
+    }
+
     VkImageCreateInfo create_info     = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
     create_info.pNext                 = nullptr;
     create_info.flags                 = 0;
@@ -1555,7 +1565,7 @@ VkResult VulkanResourcesUtil::ResolveImage(VkImage           image,
                     memory_barriers[0].srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
                     memory_barriers[0].dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
                     memory_barriers[0].oldLayout     = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-                    memory_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+                    memory_barriers[0].newLayout     = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 
                     if (num_barriers == 2)
                     {
