@@ -547,8 +547,44 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
             else:
                 if handle.base_type in self.struct_names:
-                    # TODO: No cases in current Vulkan spec of handle inside non-array output structure
-                    raise NotImplementedError
+                    length_name = None
+                    for mem in self.feature_struct_members[handle.base_type]:
+                        # Assuming only one member is_array
+                        if mem.is_array:
+                            length_name = '{}->{}'.format(handle.name, mem.array_length)
+                    if length_name == None:
+                        # No member of the structure was an array
+                        # Shouldn't happen
+                        raise NotImplementedError
+
+
+                    # "handle" is actually a struct with embedded handles
+                    unwrap_handle_def = 'nullptr'
+                    member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
+                        self.structs_with_handles[handle.base_type]
+                    )
+
+                    if not member_array_length:
+                        unwrap_handle_def = '[]({}* handle_struct)->{wrapper_prefix}::{wrapper}Wrapper* {{ return vulkan_wrappers::GetWrapper<{wrapper_prefix}::{wrapper}Wrapper>(handle_struct->{}); }}'.format(
+                            handle.base_type,
+                            member_handle_name,
+                            wrapper_prefix=wrapper_prefix,
+                            wrapper=member_handle_type[2:]
+                        )
+
+
+                    decl += 'EndStructGroupCreateApiCallCapture<{}, {}::{}Wrapper, {}>({}, {}, {}, {}, {})'.format(
+                        parent_handle.base_type,
+                        wrapper_prefix,
+                        member_handle_type[2:],
+                        handle.base_type,
+                        return_value,
+                        parent_handle.name,
+                        length_name,
+                        handle.name,
+                        unwrap_handle_def
+                    )
+
                 elif parent_handle:
                     decl += 'EndCreateApiCallCapture<{}, {}::{}Wrapper, {}>({}, {}, {}, {})'.format(
                         parent_handle.base_type,
