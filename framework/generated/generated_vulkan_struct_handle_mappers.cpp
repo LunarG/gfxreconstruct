@@ -2125,8 +2125,10 @@ void SetStructHandleLengths(Decoded_VkPhysicalDeviceGroupProperties* wrapper)
 
 void SetStructHandleLengths(Decoded_VkPipelineBinaryHandlesInfoKHR* wrapper)
 {
-    if (wrapper != nullptr)
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
     {
+        VkPipelineBinaryHandlesInfoKHR* value = wrapper->decoded_value;
+
         wrapper->pPipelineBinaries.SetHandleLength(wrapper->pPipelineBinaries.GetLength());
         value->pPipelineBinaries = wrapper->pPipelineBinaries.GetHandlePointer();
     }

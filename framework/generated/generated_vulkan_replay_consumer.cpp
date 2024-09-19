@@ -6025,14 +6025,14 @@ void VulkanReplayConsumer::Process_vkCreatePipelineBinariesKHR(
     const VkPipelineBinaryCreateInfoKHR* in_pCreateInfo = pCreateInfo->GetPointer();
     MapStructHandles(pCreateInfo->GetMetaStructPointer(), GetObjectInfoTable());
     const VkAllocationCallbacks* in_pAllocator = GetAllocationCallbacks(pAllocator);
-    SetStructHandleLengths<Decoded_VkPipelineBinaryHandlesInfoKHR>(pBinaries->GetMetaStructPointer(), pBinaries->GetLength());
+    SetStructArrayHandleLengths<Decoded_VkPipelineBinaryHandlesInfoKHR>(pBinaries->GetMetaStructPointer(), pBinaries->GetLength());
     VkPipelineBinaryHandlesInfoKHR* out_pBinaries = pBinaries->IsNull() ? nullptr : pBinaries->AllocateOutputData(1, { VK_STRUCTURE_TYPE_PIPELINE_BINARY_HANDLES_INFO_KHR, nullptr });
     InitializeOutputStructPNext(pBinaries);
 
     VkResult replay_result = GetDeviceTable(in_device)->CreatePipelineBinariesKHR(in_device, in_pCreateInfo, in_pAllocator, out_pBinaries);
     CheckResult("vkCreatePipelineBinariesKHR", returnValue, replay_result, call_info);
 
-    AddStructHandles<Decoded_VkPipelineBinaryHandlesInfoKHR>(device, pBinaries->GetMetaStructPointer(), out_pBinaries, &GetObjectInfoTable());
+    AddStructArrayHandles<Decoded_VkPipelineBinaryHandlesInfoKHR>(device, pBinaries->GetMetaStructPointer(), pBinaries->GetLength(), out_pBinaries, pBinaries->GetLength(), &GetObjectInfoTable());
 }
 
 void VulkanReplayConsumer::Process_vkDestroyPipelineBinaryKHR(
