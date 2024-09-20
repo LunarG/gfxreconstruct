@@ -228,8 +228,7 @@ typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureN
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkMicromapEXT>                   MicromapEXTInfo;
 typedef VulkanObjectInfo<VkOpticalFlowSessionNV>          OpticalFlowSessionNVInfo;
-typedef VulkanObjectInfo<VkVideoSessionParametersKHR>     VideoSessionParametersKHRInfo;
-
+typedef VulkanObjectInfo<VkVideoSessionParametersKHR>                   VideoSessionParametersKHRInfo;
 typedef VulkanObjectInfo<VkPipelineBinaryKHR>                           PipelineBinaryKHRInfo;
 typedef VulkanObjectInfo<VkPipelineBinaryCreateInfoKHR>                 PipelineBinaryCreateInfoKHRInfo;
 typedef VulkanObjectInfo<VkPipelineBinaryDataInfoKHR>                   PipelineBinaryDataInfoKHRInfo;
@@ -242,20 +241,6 @@ typedef VulkanObjectInfo<VkDevicePipelineBinaryInternalCacheControlKHR> DevicePi
 typedef VulkanObjectInfo<VkPipelineBinaryInfoKHR>                       PipelineBinaryInfoKHRInfo;
 typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryFeaturesKHR>     PhysicalDevicePipelineBinaryFeaturesKHRInfo;
 typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryPropertiesKHR>   PhysicalDevicePipelineBinaryPropertiesKHRInfo;
-
-// struct PipelineBinaryKHRWrapper                       : public HandleWrapper<VkPipelineBinaryKHR> {};
-// struct PipelineBinaryCreateInfoKHRWrapper             : public HandleWrapper<VkPipelineBinaryCreateInfoKHR> {};
-// struct PipelineBinaryDataInfoKHRWrapper               : public HandleWrapper<VkPipelineBinaryDataInfoKHR> {};
-// struct PipelineBinaryDataKHRWrapper                   : public HandleWrapper<VkPipelineBinaryDataKHR> {};
-// struct PipelineBinaryHandlesInfoKHRWrapper            : public HandleWrapper<VkPipelineBinaryHandlesInfoKHR> {};
-// struct PipelineBinaryKeyKHRWrapper                    : public HandleWrapper<VkPipelineBinaryKeyKHR> {};
-// struct PipelineBinaryKeysAndDataKHRWrapper            : public HandleWrapper<VkPipelineBinaryKeysAndDataKHR> {};
-// struct ReleaseCapturedPipelineDataInfoKHRWrapper      : public HandleWrapper<VkReleaseCapturedPipelineDataInfoKHR>
-// {}; struct DevicePipelineBinaryInternalCacheControlKHRWrapper      : public
-// HandleWrapper<VkDevicePipelineBinaryInternalCacheControlKHR> {}; struct PipelineBinaryInfoKHRWrapper      : public
-// HandleWrapper<VkPipelineBinaryInfoKHR> {}; struct PhysicalDevicePipelineBinaryFeaturesKHRWrapper      : public
-// HandleWrapper<VkPhysicalDevicePipelineBinaryFeaturesKHR> {}; struct PhysicalDevicePipelineBinaryPropertiesKHRWrapper
-// : public HandleWrapper<VkPhysicalDevicePipelineBinaryPropertiesKHR> {};
 
 //
 // Declarations for Vulkan objects with additional replay state info.
