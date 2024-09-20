@@ -2287,29 +2287,24 @@ bool VulkanReplayConsumerBase::CheckPNextChainForFrameBoundary(const DeviceInfo*
     return true;
 }
 
-VkResult
-VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
-                                                 const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
-                                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
-                                                 HandlePointerDecoder<VkInstance>*                          pInstance)
+VulkanReplayConsumerBase::CreateInstanceInfoState VulkanReplayConsumerBase::ModifyCreateInstanceInfo(
+    const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo, HandlePointerDecoder<VkInstance>* pInstance)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     assert((pInstance != nullptr) && !pInstance->IsNull() && (pInstance->GetHandlePointer() != nullptr) &&
-           (pCreateInfo != nullptr) && (pCreateInfo->GetPointer() != nullptr) &&
-           (pInstance->GetHandlePointer() != nullptr));
+           (pCreateInfo != nullptr) && (pCreateInfo->GetPointer() != nullptr));
 
     const VkInstanceCreateInfo* replay_create_info = pCreateInfo->GetPointer();
-    VkInstance*                 replay_instance    = pInstance->GetHandlePointer();
 
     if (loader_handle_ == nullptr)
     {
         InitializeLoader();
     }
 
-    std::vector<const char*> modified_layers;
-    std::vector<const char*> modified_extensions;
-    VkInstanceCreateInfo     modified_create_info = (*replay_create_info);
+    CreateInstanceInfoState   state;
+    std::vector<const char*>& modified_layers      = state.modified_layers;
+    std::vector<const char*>& modified_extensions  = state.modified_extensions;
+    VkInstanceCreateInfo&     modified_create_info = state.modified_create_info;
+    modified_create_info                           = *replay_create_info;
 
     // If VkDebugUtilsMessengerCreateInfoEXT or VkDebugReportCallbackCreateInfoEXT are in the pNext chain, update the
     // callback pointers.
@@ -2487,23 +2482,42 @@ VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
         modified_create_info.enabledLayerCount   = static_cast<uint32_t>(modified_layers.size());
         modified_create_info.ppEnabledLayerNames = modified_layers.data();
     }
+    return state;
+}
 
-    VkResult result = create_instance_proc_(&modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
+void VulkanReplayConsumerBase::PostCreateInstanceUpdateConsumerData(const VkInstance*           replay_instance,
+                                                                    const VkInstanceCreateInfo& modified_create_info,
+                                                                    HandlePointerDecoder<VkInstance>* pInstance)
+{
+    AddInstanceTable(*replay_instance);
+
+    if (modified_create_info.pApplicationInfo != nullptr)
+    {
+        auto instance_info = reinterpret_cast<InstanceInfo*>(pInstance->GetConsumerData(0));
+        assert(instance_info != nullptr);
+
+        instance_info->api_version = modified_create_info.pApplicationInfo->apiVersion;
+        instance_info->enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
+                                                 modified_create_info.ppEnabledExtensionNames +
+                                                     modified_create_info.enabledExtensionCount);
+    }
+}
+
+VkResult
+VulkanReplayConsumerBase::OverrideCreateInstance(VkResult original_result,
+                                                 const StructPointerDecoder<Decoded_VkInstanceCreateInfo>*  pCreateInfo,
+                                                 const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
+                                                 HandlePointerDecoder<VkInstance>*                          pInstance)
+{
+    CreateInstanceInfoState create_state = ModifyCreateInstanceInfo(pCreateInfo, pInstance);
+
+    VkInstance* replay_instance = pInstance->GetHandlePointer();
+    VkResult    result =
+        create_instance_proc_(&create_state.modified_create_info, GetAllocationCallbacks(pAllocator), replay_instance);
 
     if ((replay_instance != nullptr) && (result == VK_SUCCESS))
     {
-        AddInstanceTable(*replay_instance);
-
-        if (modified_create_info.pApplicationInfo != nullptr)
-        {
-            auto instance_info = reinterpret_cast<InstanceInfo*>(pInstance->GetConsumerData(0));
-            assert(instance_info != nullptr);
-
-            instance_info->api_version = modified_create_info.pApplicationInfo->apiVersion;
-            instance_info->enabled_extensions.assign(modified_create_info.ppEnabledExtensionNames,
-                                                     modified_create_info.ppEnabledExtensionNames +
-                                                         modified_create_info.enabledExtensionCount);
-        }
+        PostCreateInstanceUpdateConsumerData(replay_instance, create_state.modified_create_info, pInstance);
     }
 
     return result;
