@@ -484,8 +484,10 @@ struct ID3D12CommandListInfo : public DxWrapperInfo
     uint32_t draw_call_count{ 0 }; // DrawInstanced, DrawIndexedInstanced, Dispatch, ExecuteIndirect, ExecuteBundle
 
     // GFXRECON_CAPTURE_DRAW_CALLS
-    std::array<graphics::dx12::CommandSet, 3> split_command_sets;
-    bool                                      is_split_commandlist{ false };
+    std::array<graphics::dx12::CommandSet, 3>    split_command_sets;
+    bool                                         is_split_commandlist{ false };
+    bool                                         find_target_draw_calls{ false };
+    std::shared_ptr<const ID3D12CommandListInfo> target_bundle_commandlist_info{ false };
 };
 
 struct ID3D10BlobInfo : public DxWrapperInfo
