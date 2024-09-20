@@ -229,6 +229,47 @@ class VulkanReplayConsumerBase : public VulkanConsumer
             parent_id, &id, &handle, std::move(initial_info), &VulkanObjectInfoTable::AddVkImageInfo);
     }
 
+    // Utilities for correctly setting up a vulkan create instance/device calls.  Shared with OpenXR
+    struct CreateInstanceInfoState
+    {
+        std::vector<const char*> modified_layers;
+        std::vector<const char*> modified_extensions;
+        VkInstanceCreateInfo     modified_create_info;
+    };
+    CreateInstanceInfoState
+    ModifyCreateInstanceInfo(const StructPointerDecoder<Decoded_VkInstanceCreateInfo>* pCreateInfo);
+
+    void PostCreateInstanceUpdateState(VkInstance                  replay_instance,
+                                       const VkInstanceCreateInfo& modified_create_info,
+                                       VulkanInstanceInfo&         instance_info);
+
+    struct CreateDeviceInfoState
+    {
+        VkDeviceCreateInfo                        modified_create_info;
+        std::vector<const char*>                  modified_extensions;
+        std::vector<std::string>                  trim_extensions;
+        VkDeviceGroupDeviceCreateInfo             modified_device_group_create_info;
+        std::vector<VkPhysicalDevice>             replay_device_group;
+        graphics::VulkanDeviceUtil                device_util;
+        graphics::VulkanDevicePropertyFeatureInfo property_feature_info;
+    };
+    CreateDeviceInfoState ModifyCreateDeviceInfo(VulkanPhysicalDeviceInfo* physical_device_info,
+                                                 const StructPointerDecoder<Decoded_VkDeviceCreateInfo>* pCreateInfo);
+
+    VkResult PostCreateDeviceUpdateState(VulkanPhysicalDeviceInfo* physical_device_info,
+                                         VkDevice                  replay_device,
+                                         CreateDeviceInfoState&    create_state,
+                                         VulkanDeviceInfo*         device_info);
+
+    void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
+
+    PFN_vkGetInstanceProcAddr GetGetInstanceProcAddr()
+    {
+        if (loader_handle_ == nullptr)
+            InitializeLoader(); // Ensures GIPA is set
+        return get_instance_proc_addr_;
+    }
+
   protected:
     const CommonObjectInfoTable& GetObjectInfoTable() const { return *object_info_table_; }
 
@@ -241,8 +282,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     const VkAllocationCallbacks*
     GetAllocationCallbacks(const StructPointerDecoder<Decoded_VkAllocationCallbacks>* original_callbacks);
-
-    void CheckResult(const char* func_name, VkResult original, VkResult replay, const decode::ApiCallInfo& call_info);
 
     template <typename T>
     typename T::HandleType MapHandle(format::HandleId id,
