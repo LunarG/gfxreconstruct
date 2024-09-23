@@ -160,7 +160,7 @@ void handle_array_of_pointers(const T&  base_struct,
                               uint8_t*  out_data)
 {
     using pointer_type = std::decay_t<decltype(*struct_pointer_array)>;
-    static_assert(std::is_pointer_v<pointer_type>);
+    static_assert(std::is_pointer_v<U> && std::is_pointer_v<pointer_type>);
 
     if (struct_pointer_array == nullptr || struct_pointer_array_count == 0)
     {
