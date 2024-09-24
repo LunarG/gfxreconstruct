@@ -1215,7 +1215,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                                         const VkAllocationCallbacks*                pAllocator,
                                                         VkDescriptorUpdateTemplate* pDescriptorUpdateTemplate);
 
-    void PreProcess_vkGetBufferDeviceAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
+    void PostProcess_vkGetBufferDeviceAddress(VkDeviceAddress                  result,
+                                              VkDevice                         device,
+                                              const VkBufferDeviceAddressInfo* pInfo);
 
     void PreProcess_vkGetBufferOpaqueCaptureAddress(VkDevice device, const VkBufferDeviceAddressInfo* pInfo);
 

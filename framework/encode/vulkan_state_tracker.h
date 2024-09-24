@@ -303,6 +303,8 @@ class VulkanStateTracker
 
     void TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address);
 
+    void TrackOpaqueBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress opaque_address);
+
     void TrackBufferMemoryBinding(VkDevice       device,
                                   VkBuffer       buffer,
                                   VkDeviceMemory memory,

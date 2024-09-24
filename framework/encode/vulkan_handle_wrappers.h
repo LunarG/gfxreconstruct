@@ -198,6 +198,7 @@ struct BufferWrapper : public HandleWrapper<VkBuffer>
     // State tracking info for buffers with device addresses.
     format::HandleId device_id{ format::kNullHandleId };
     VkDeviceAddress  address{ 0 };
+    VkDeviceAddress  opaque_address{ 0 };
 };
 
 struct ImageWrapper : public HandleWrapper<VkImage>
