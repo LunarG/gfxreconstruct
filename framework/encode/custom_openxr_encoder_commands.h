@@ -58,6 +58,18 @@ struct CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice
                                  VkPhysicalDevice*     vkPhysicalDevice);
 };
 
+template <>
+struct CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>
+{
+    template <typename... Args>
+    static void Dispatch(OpenXrCaptureManager*, Args...)
+    {}
+    static void PreLockReentrant(OpenXrCaptureManager*                   manager,
+                                 XrInstance                              instance,
+                                 const XrVulkanGraphicsDeviceGetInfoKHR* getInfo,
+                                 VkPhysicalDevice*                       vulkanPhysicalDevice);
+};
+
 template <format::ApiCallId Id>
 struct CustomEncoderPostCall
 {

@@ -39,7 +39,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanInstanceCreateInfoKHR
 {
     encoder->EncodeEnumValue(value.type);
     EncodeNextStruct(encoder, value.next);
-    encoder->EncodeUInt64Value(value.systemId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::SystemIdWrapper>(value.systemId);
     encoder->EncodeFlags64Value(value.createFlags);
     encoder->EncodeFunctionPtr(value.pfnGetInstanceProcAddr);
     EncodeStructPtr(encoder, value.vulkanCreateInfo);
@@ -50,7 +50,7 @@ void EncodeStruct(ParameterEncoder* encoder, const XrVulkanDeviceCreateInfoKHR& 
 {
     encoder->EncodeEnumValue(value.type);
     EncodeNextStruct(encoder, value.next);
-    encoder->EncodeUInt64Value(value.systemId);
+    encoder->EncodeOpenXrAtomValue<openxr_wrappers::SystemIdWrapper>(value.systemId);
     encoder->EncodeFlags64Value(value.createFlags);
     encoder->EncodeFunctionPtr(value.pfnGetInstanceProcAddr);
     encoder->EncodeVulkanHandleValue<vulkan_wrappers::PhysicalDeviceWrapper>(value.vulkanPhysicalDevice);

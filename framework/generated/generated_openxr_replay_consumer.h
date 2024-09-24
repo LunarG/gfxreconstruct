@@ -495,22 +495,6 @@ class OpenXrReplayConsumer : public OpenXrReplayConsumerBase
         XrTime                                      time,
         StructPointerDecoder<Decoded_timespec>*     timespecTime) override;
 
-    virtual void Process_xrCreateVulkanInstanceKHR(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            instance,
-        StructPointerDecoder<Decoded_XrVulkanInstanceCreateInfoKHR>* createInfo,
-        HandlePointerDecoder<VkInstance>*           vulkanInstance,
-        PointerDecoder<VkResult>*                   vulkanResult) override;
-
-    virtual void Process_xrCreateVulkanDeviceKHR(
-        const ApiCallInfo&                          call_info,
-        XrResult                                    returnValue,
-        format::HandleId                            instance,
-        StructPointerDecoder<Decoded_XrVulkanDeviceCreateInfoKHR>* createInfo,
-        HandlePointerDecoder<VkDevice>*             vulkanDevice,
-        PointerDecoder<VkResult>*                   vulkanResult) override;
-
     virtual void Process_xrGetVulkanGraphicsDevice2KHR(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

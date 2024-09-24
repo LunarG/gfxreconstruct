@@ -699,6 +699,8 @@ def make_gen_opts(args):
                 'xrLocateHandJointsEXT',
                 'xrGetHandMeshFB',
                 'xrLocateBodyJointsFB',
+                'xrCreateVulkanInstanceKHR',
+                'xrCreateVulkanDeviceKHR',
             ]
         )
     ]

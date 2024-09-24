@@ -110,6 +110,8 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrLocateHandJointsEXT',
             'xrGetHandMeshFB',
             'xrLocateBodyJointsFB',
+            'xrCreateVulkanInstanceKHR',
+            'xrCreateVulkanDeviceKHR',
         ]
 
         # These structures require a customized manager when they are an output struct
