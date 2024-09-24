@@ -2096,11 +2096,14 @@ void VulkanReplayDumpResourcesBase::DumpGraphicsPipelineInfos(
         {
             for (size_t s = 0; s < stages_count; ++s)
             {
-                ShaderModuleInfo* module_info = object_info_table_.GetShaderModuleInfo(stages_info_meta[s].module);
-                assert(module_info);
-                assert(pipeline_info);
+                if (stages_info_meta[s].module != format::kNullHandleId)
+                {
+                    ShaderModuleInfo* module_info = object_info_table_.GetShaderModuleInfo(stages_info_meta[s].module);
+                    assert(module_info);
+                    assert(pipeline_info);
 
-                pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
+                    pipeline_info->shaders.insert({ pCreateInfos->GetPointer()->pStages[s].stage, *module_info });
+                }
             }
         }
 
