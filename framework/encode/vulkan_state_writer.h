@@ -138,8 +138,6 @@ class VulkanStateWriter
 
     void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);
 
-    void WriteBufferDeviceAddressCalls(const VulkanStateTable& state_table);
-
     void WriteDeferredOperationJoinCommand(format::HandleId device_id, format::HandleId deferred_operation_id);
 
     void

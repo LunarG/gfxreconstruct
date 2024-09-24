@@ -880,10 +880,7 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
             if (IsCaptureModeTrack())
             {
-                //                state_tracker_->TrackBufferDeviceAddress(device, *pBuffer, address);
-                auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(*pBuffer);
-                wrapper->device_id      = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
-                wrapper->opaque_address = opaque_address;
+                state_tracker_->TrackOpaqueBufferDeviceAddress(device, *pBuffer, opaque_address);
             }
         }
     }

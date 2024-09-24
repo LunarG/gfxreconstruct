@@ -326,11 +326,22 @@ void VulkanStateTracker::TrackDeviceGroupSurfacePresentModes(VkDevice           
 
 void VulkanStateTracker::TrackBufferDeviceAddress(VkDevice device, VkBuffer buffer, VkDeviceAddress address)
 {
-    assert((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+    GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
 
     auto wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
     wrapper->device_id = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
     wrapper->address   = address;
+}
+
+void VulkanStateTracker::TrackOpaqueBufferDeviceAddress(VkDevice        device,
+                                                        VkBuffer        buffer,
+                                                        VkDeviceAddress opaque_address)
+{
+    GFXRECON_ASSERT((device != VK_NULL_HANDLE) && (buffer != VK_NULL_HANDLE));
+
+    auto wrapper            = vulkan_wrappers::GetWrapper<vulkan_wrappers::BufferWrapper>(buffer);
+    wrapper->device_id      = vulkan_wrappers::GetWrappedId<vulkan_wrappers::DeviceWrapper>(device);
+    wrapper->opaque_address = opaque_address;
 }
 
 void VulkanStateTracker::TrackBufferMemoryBinding(
