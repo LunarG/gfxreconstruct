@@ -606,26 +606,39 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshGetIndexBufferFB(XrTriangleMeshFB m
     return result;
 }
 
-void CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::PreLockReentrant(
-    OpenXrCaptureManager* manager,
-    XrInstance            instance,
-    XrSystemId            systemId,
-    VkInstance            vkInstance,
-    VkPhysicalDevice*     vkPhysicalDevice)
+static void ForceVulkanEnumeratePhysicalDevices(VkInstance vkInstance)
 {
+    if (vkInstance == VK_NULL_HANDLE)
+        return;
 
     // Force gfxrecon Vulkan entrypoints to get the physical device information
     // NOTE: Must be called without the lock held
-    // NOTE: this adds a phantom call to the capture file, but on replay assures that the Vulkan side has physical
-    // device handle mapping
-    //       it will need.  Xr can't create that handle mapping because it has a different *wrapped* handle from the
-    //       loader and cannot determine the mapping from the wrapped physical device it has to the unwrapped physical
-    // Physical devices
+    //
+    // NOTE: this adds a phantom call to the capture file, but on replay assures that the Vulkan side has the physical
+    // device handle mapping it will need.  Xr can't create that handle mapping because it has a different *wrapped*
+    // handle from the loader and cannot determine the mapping from the wrapped physical device it has to the
+    // unwrapped physical devices
     uint32_t device_count = 0;
     EnumeratePhysicalDevices(vkInstance, &device_count, nullptr);
     std::vector<VkPhysicalDevice> vk_devices(device_count);
     EnumeratePhysicalDevices(vkInstance, &device_count, vk_devices.data());
 }
+
+void CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>::PreLockReentrant(
+    OpenXrCaptureManager*, XrInstance, XrSystemId, VkInstance vkInstance, VkPhysicalDevice*)
+{
+    ForceVulkanEnumeratePhysicalDevices(vkInstance);
+}
+
+void CustomEncoderPreCall<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>::PreLockReentrant(
+    OpenXrCaptureManager*, XrInstance, const XrVulkanGraphicsDeviceGetInfoKHR* getInfo, VkPhysicalDevice*)
+{
+    if (getInfo)
+    {
+        ForceVulkanEnumeratePhysicalDevices(getInfo->vulkanInstance);
+    }
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
