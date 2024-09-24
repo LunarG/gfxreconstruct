@@ -717,8 +717,6 @@ class BaseGenerator(OutputGenerator):
                 array_length = self.get_array_len(param)
 
             # Get array length for HandlesInfo structs e.g. VkPipelineBinaryHandlesInfoKHR
-            
-
             array_capacity = None
             if self.is_static_array(param):
                 array_capacity = array_length
