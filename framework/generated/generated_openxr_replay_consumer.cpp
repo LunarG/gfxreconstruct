@@ -1123,50 +1123,6 @@ void OpenXrReplayConsumer::Process_xrConvertTimeToTimespecTimeKHR(
 }
 
 
-void OpenXrReplayConsumer::Process_xrCreateVulkanInstanceKHR(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            instance,
-    StructPointerDecoder<Decoded_XrVulkanInstanceCreateInfoKHR>* createInfo,
-    HandlePointerDecoder<VkInstance>*           vulkanInstance,
-    PointerDecoder<VkResult>*                   vulkanResult)
-{
-    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
-    const XrVulkanInstanceCreateInfoKHR* in_createInfo = createInfo->GetPointer();
-    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    if (!vulkanInstance->IsNull()) { vulkanInstance->SetHandleLength(1); }
-    VkInstance* out_vulkanInstance = vulkanInstance->GetHandlePointer();
-    VkResult* out_vulkanResult = vulkanResult->IsNull() ? nullptr : vulkanResult->AllocateOutputData(1, static_cast<VkResult>(0));
-
-    XrResult replay_result = GetInstanceTable(in_instance)->CreateVulkanInstanceKHR(in_instance, in_createInfo, out_vulkanInstance, out_vulkanResult);
-    CheckResult("xrCreateVulkanInstanceKHR", returnValue, replay_result, call_info);
-
-    AddHandle<VulkanInstanceInfo>(instance, vulkanInstance->GetPointer(), out_vulkanInstance, &CommonObjectInfoTable::AddVkInstanceInfo);
-    CustomProcess<format::ApiCallId::ApiCall_xrCreateVulkanInstanceKHR>::UpdateState(this, call_info, returnValue, instance, createInfo, vulkanInstance, vulkanResult, replay_result);
-}
-
-void OpenXrReplayConsumer::Process_xrCreateVulkanDeviceKHR(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    format::HandleId                            instance,
-    StructPointerDecoder<Decoded_XrVulkanDeviceCreateInfoKHR>* createInfo,
-    HandlePointerDecoder<VkDevice>*             vulkanDevice,
-    PointerDecoder<VkResult>*                   vulkanResult)
-{
-    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
-    const XrVulkanDeviceCreateInfoKHR* in_createInfo = createInfo->GetPointer();
-    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
-    if (!vulkanDevice->IsNull()) { vulkanDevice->SetHandleLength(1); }
-    VkDevice* out_vulkanDevice = vulkanDevice->GetHandlePointer();
-    VkResult* out_vulkanResult = vulkanResult->IsNull() ? nullptr : vulkanResult->AllocateOutputData(1, static_cast<VkResult>(0));
-
-    XrResult replay_result = GetInstanceTable(in_instance)->CreateVulkanDeviceKHR(in_instance, in_createInfo, out_vulkanDevice, out_vulkanResult);
-    CheckResult("xrCreateVulkanDeviceKHR", returnValue, replay_result, call_info);
-
-    AddHandle<VulkanDeviceInfo>(instance, vulkanDevice->GetPointer(), out_vulkanDevice, &CommonObjectInfoTable::AddVkDeviceInfo);
-    CustomProcess<format::ApiCallId::ApiCall_xrCreateVulkanDeviceKHR>::UpdateState(this, call_info, returnValue, instance, createInfo, vulkanDevice, vulkanResult, replay_result);
-}
-
 void OpenXrReplayConsumer::Process_xrGetVulkanGraphicsDevice2KHR(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,

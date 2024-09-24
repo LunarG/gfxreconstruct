@@ -579,6 +579,131 @@ void OpenXrReplayConsumerBase::Process_xrCreateApiLayerInstance(
                                   &CommonObjectInfoTable::AddXrInstanceInfo);
 }
 
+void OpenXrReplayConsumerBase::Process_xrCreateVulkanInstanceKHR(
+    const ApiCallInfo&                                           call_info,
+    XrResult                                                     returnValue,
+    format::HandleId                                             instance,
+    StructPointerDecoder<Decoded_XrVulkanInstanceCreateInfoKHR>* createInfo,
+    HandlePointerDecoder<VkInstance>*                            vulkanInstance,
+    PointerDecoder<VkResult>*                                    vulkanResult)
+{
+    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    const XrVulkanInstanceCreateInfoKHR* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
+    StructPointerDecoder<Decoded_VkInstanceCreateInfo>* vulkanCreateInfo =
+        createInfo->GetMetaStructPointer()->vulkanCreateInfo;
+
+    if (!vulkanInstance->IsNull())
+    {
+        vulkanInstance->SetHandleLength(1);
+    }
+    VkInstance*        out_vulkanInstance = vulkanInstance->GetHandlePointer();
+    VulkanInstanceInfo vulkan_handle_info;
+    vulkanInstance->SetConsumerData(
+        0, &vulkan_handle_info); // To match what the shared routines from vkCreateInstance expect
+
+    // Customize the Vulkan instance the way Vulkan Replay does.
+    VulkanReplayConsumerBase::CreateInstanceInfoState create_state;
+    vulkan_replay_consumer_->ModifyCreateInstanceInfo(vulkanCreateInfo, create_state);
+
+    // Make a shallow copy and touch-up
+    XrVulkanInstanceCreateInfoKHR replay_info = *in_createInfo;
+    replay_info.vulkanCreateInfo              = &create_state.modified_create_info;
+    replay_info.pfnGetInstanceProcAddr        = vulkan_replay_consumer_->GetGetInstanceProcAddr();
+
+    VkResult replay_vulkan_result = VK_RESULT_MAX_ENUM; // An invalid value
+    XrResult replay_result =
+        GetInstanceTable(in_instance)
+            ->CreateVulkanInstanceKHR(in_instance, &replay_info, out_vulkanInstance, &replay_vulkan_result);
+    CheckResult("xrCreateVulkanInstanceKHR", returnValue, replay_result, call_info);
+
+    // We also need to check the Vulkan Result
+    VkResult* in_vulkan_result = vulkanResult->GetPointer();
+    assert(in_vulkan_result);
+    vulkan_replay_consumer_->CheckResult(
+        "xrCreateVulkanInstanceKHR", *in_vulkan_result, replay_vulkan_result, call_info);
+
+    if (replay_vulkan_result == VK_SUCCESS)
+    {
+        vulkan_replay_consumer_->PostCreateInstanceUpdateState(
+            *out_vulkanInstance, create_state.modified_create_info, vulkan_handle_info);
+    }
+
+    AddHandle<VulkanInstanceInfo>(instance,
+                                  vulkanInstance->GetPointer(),
+                                  out_vulkanInstance,
+                                  std::move(vulkan_handle_info),
+                                  &CommonObjectInfoTable::AddVkInstanceInfo);
+}
+
+void OpenXrReplayConsumerBase::Process_xrCreateVulkanDeviceKHR(
+    const ApiCallInfo&                                         call_info,
+    XrResult                                                   returnValue,
+    format::HandleId                                           instance,
+    StructPointerDecoder<Decoded_XrVulkanDeviceCreateInfoKHR>* createInfo,
+    HandlePointerDecoder<VkDevice>*                            vulkanDevice,
+    PointerDecoder<VkResult>*                                  vulkanResult)
+{
+    XrInstance in_instance = MapHandle<OpenXrInstanceInfo>(instance, &CommonObjectInfoTable::GetXrInstanceInfo);
+    const XrVulkanDeviceCreateInfoKHR* in_createInfo = createInfo->GetPointer();
+    MapStructHandles(createInfo->GetMetaStructPointer(), GetObjectInfoTable());
+
+    Decoded_XrVulkanDeviceCreateInfoKHR* xr_create_info_wrapper = createInfo->GetMetaStructPointer();
+    assert(xr_create_info_wrapper);
+
+    VulkanPhysicalDeviceInfo* physical_device_info =
+        GetObjectInfoTable().GetVkPhysicalDeviceInfo(xr_create_info_wrapper->vulkanPhysicalDevice);
+    assert(
+        physical_device_info); // The Vulkan replay consumer doesn't test the result or LOG this so just assert for now
+
+    // NOTE: The "GetMatchingDevice" process has side effects that are needed, though it's unclear whether
+    //       the matching process is valid for Xr
+    vulkan_replay_consumer_->GetMatchingDevice(physical_device_info);
+
+    VulkanReplayConsumerBase::CreateDeviceInfoState create_state;
+    vulkan_replay_consumer_->ModifyCreateDeviceInfo(
+        physical_device_info, xr_create_info_wrapper->vulkanCreateInfo, create_state);
+    XrVulkanDeviceCreateInfoKHR replay_info = *in_createInfo;
+    replay_info.vulkanCreateInfo            = &create_state.modified_create_info;
+    replay_info.pfnGetInstanceProcAddr      = vulkan_replay_consumer_->GetGetInstanceProcAddr();
+
+    if (!vulkanDevice->IsNull())
+    {
+        vulkanDevice->SetHandleLength(1);
+    }
+    VkDevice* out_vulkanDevice = vulkanDevice->GetHandlePointer();
+    assert(out_vulkanDevice);
+
+    VkResult replay_vulkan_result = VK_RESULT_MAX_ENUM;
+
+    XrResult replay_result =
+        GetInstanceTable(in_instance)
+            ->CreateVulkanDeviceKHR(in_instance, &replay_info, out_vulkanDevice, &replay_vulkan_result);
+    CheckResult("xrCreateVulkanDeviceKHR", returnValue, replay_result, call_info);
+
+    // There's a bit more Vulkan to call to finish device creation
+    VulkanDeviceInfo device_info;
+    if (replay_vulkan_result == VK_SUCCESS)
+    {
+        replay_vulkan_result = vulkan_replay_consumer_->PostCreateDeviceUpdateState(
+            physical_device_info, *out_vulkanDevice, create_state, &device_info);
+    }
+
+    // We also need to check the Vulkan Result
+    VkResult* in_vulkan_result = vulkanResult->GetPointer();
+    assert(in_vulkan_result);
+    vulkan_replay_consumer_->CheckResult(
+        "xrCreateVulkanInstanceKHR", *in_vulkan_result, replay_vulkan_result, call_info);
+
+    // Note: we use the physical device *alias* (if present) instead of the parameter
+    //       s.t. the HandleId is consistent across the call and in later use
+    AddHandle<VulkanDeviceInfo>(physical_device_info->capture_id,
+                                vulkanDevice->GetPointer(),
+                                out_vulkanDevice,
+                                std::move(device_info),
+                                &CommonObjectInfoTable::AddVkDeviceInfo);
+}
+
 void OpenXrReplayConsumerBase::UpdateState_xrCreateSession(
     const ApiCallInfo&                                 call_info,
     XrResult                                           returnValue,
@@ -1183,6 +1308,46 @@ void OpenXrReplayConsumerBase::Process_xrLocateBodyJointsFB(
     CheckResult("xrLocateBodyJointsFB", returnValue, replay_result, call_info);
     CustomProcess<format::ApiCallId::ApiCall_xrLocateBodyJointsFB>::UpdateState(
         this, call_info, returnValue, bodyTracker, locateInfo, locations, replay_result);
+}
+
+void OpenXrReplayConsumerBase::UpdateState_xrGetVulkanGraphicsDeviceKHR(
+    const ApiCallInfo&                      call_info,
+    XrResult                                returnValue,
+    format::HandleId                        instance,
+    format::HandleId                        systemId,
+    format::HandleId                        vulkan_instance,
+    HandlePointerDecoder<VkPhysicalDevice>* vkPhysicalDevice,
+    XrResult                                replay_result)
+{
+    if (XR_SUCCEEDED(replay_result))
+    {
+        VulkanPhysicalDeviceInfo* vulkan_physical_device_info =
+            GetObjectInfoTable().GetVkPhysicalDeviceInfo(*vkPhysicalDevice->GetPointer());
+        assert(vulkan_physical_device_info); // We call this just after we insert it
+        vulkan_replay_consumer_->SetPhysicalDeviceAlias(vulkan_instance, *vulkan_physical_device_info);
+    }
+}
+
+void OpenXrReplayConsumerBase::UpdateState_xrGetVulkanGraphicsDevice2KHR(
+    const ApiCallInfo&                                              call_info,
+    XrResult                                                        returnValue,
+    format::HandleId                                                instance,
+    StructPointerDecoder<Decoded_XrVulkanGraphicsDeviceGetInfoKHR>* getInfo,
+    HandlePointerDecoder<VkPhysicalDevice>*                         vulkanPhysicalDevice,
+    XrResult                                                        replay_result)
+{
+    if (XR_SUCCEEDED(replay_result))
+    {
+        const Decoded_XrVulkanGraphicsDeviceGetInfoKHR* decoded_info = getInfo->GetMetaStructPointer();
+        assert(decoded_info);
+        const format::HandleId vulkan_instance = decoded_info->vulkanInstance;
+
+        VulkanPhysicalDeviceInfo* vulkan_physical_device_info =
+            GetObjectInfoTable().GetVkPhysicalDeviceInfo(*vulkanPhysicalDevice->GetPointer());
+        assert(vulkan_physical_device_info); // We call this just after we insert it
+
+        vulkan_replay_consumer_->SetPhysicalDeviceAlias(vulkan_instance, *vulkan_physical_device_info);
+    }
 }
 
 void OpenXrReplayConsumerBase::CheckResult(const char*                func_name,
@@ -1886,12 +2051,11 @@ OpenXrReplayConsumerBase::VulkanGraphicsBinding::VulkanGraphicsBinding(
     VulkanReplayConsumerBase& vulkan_consumer, const Decoded_XrGraphicsBindingVulkanKHR& xr_binding) :
     XrGraphicsBindingVulkanKHR(*xr_binding.decoded_value),
     vulkan_consumer(&vulkan_consumer), instance_table(vulkan_consumer.GetInstanceTable(physicalDevice)),
-    device_table(vulkan_consumer.GetDeviceTable(device)), instance_id(xr_binding.instance),
-    physicalDevice_id(xr_binding.physicalDevice), device_id(xr_binding.device)
+    device_table(vulkan_consumer.GetDeviceTable(device)), instance_id(xr_binding.instance), device_id(xr_binding.device)
 {
     next = nullptr; // We don't have a safe (deep) copy of the original so stub out the copies downchain pointer
 
-    //
+    // Touch up the queue
     device_table->GetDeviceQueue(device, queueFamilyIndex, queueIndex, &queue);
 }
 

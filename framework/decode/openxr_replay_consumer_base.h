@@ -91,6 +91,21 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                                   StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* apiLayerInfo,
                                                   HandlePointerDecoder<XrInstance>*) override;
 
+    virtual void
+    Process_xrCreateVulkanInstanceKHR(const ApiCallInfo&                                           call_info,
+                                      XrResult                                                     returnValue,
+                                      format::HandleId                                             instance,
+                                      StructPointerDecoder<Decoded_XrVulkanInstanceCreateInfoKHR>* createInfo,
+                                      HandlePointerDecoder<VkInstance>*                            vulkanInstance,
+                                      PointerDecoder<VkResult>* vulkanResult) override;
+
+    virtual void Process_xrCreateVulkanDeviceKHR(const ApiCallInfo&                                         call_info,
+                                                 XrResult                                                   returnValue,
+                                                 format::HandleId                                           instance,
+                                                 StructPointerDecoder<Decoded_XrVulkanDeviceCreateInfoKHR>* createInfo,
+                                                 HandlePointerDecoder<VkDevice>* vulkanDevice,
+                                                 PointerDecoder<VkResult>*       vulkanResult) override;
+
     virtual void Process_xrPollEvent(const ApiCallInfo&                               call_info,
                                      XrResult                                         returnValue,
                                      format::HandleId                                 instance,
@@ -138,6 +153,22 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
                                               format::HandleId                                        bodyTracker,
                                               StructPointerDecoder<Decoded_XrBodyJointsLocateInfoFB>* locateInfo,
                                               StructPointerDecoder<Decoded_XrBodyJointLocationsFB>* locations) override;
+
+    void UpdateState_xrGetVulkanGraphicsDeviceKHR(const ApiCallInfo&                      call_info,
+                                                  XrResult                                returnValue,
+                                                  format::HandleId                        instance,
+                                                  format::HandleId                        systemId,
+                                                  format::HandleId                        vkInstance,
+                                                  HandlePointerDecoder<VkPhysicalDevice>* vkPhysicalDevice,
+                                                  XrResult                                replay_result);
+
+    void
+    UpdateState_xrGetVulkanGraphicsDevice2KHR(const ApiCallInfo& call_info,
+                                              XrResult           returnValue,
+                                              format::HandleId   instance,
+                                              StructPointerDecoder<Decoded_XrVulkanGraphicsDeviceGetInfoKHR>* getInfo,
+                                              HandlePointerDecoder<VkPhysicalDevice>* vulkanPhysicalDevice,
+                                              XrResult                                replay_result);
 
     void UpdateState_xrCreateSession(const ApiCallInfo&                                 call_info,
                                      XrResult                                           returnValue,
@@ -475,7 +506,6 @@ class OpenXrReplayConsumerBase : public OpenXrConsumer
         const encode::VulkanInstanceTable* instance_table{ nullptr };
         const encode::VulkanDeviceTable*   device_table{ nullptr };
         format::HandleId                   instance_id{ format::kNullHandleId };
-        format::HandleId                   physicalDevice_id{ format::kNullHandleId };
         format::HandleId                   device_id{ format::kNullHandleId };
         VkQueue                            queue = VK_NULL_HANDLE;
 
@@ -619,6 +649,26 @@ struct CustomProcess
     template <typename... Args>
     static void UpdateState(OpenXrReplayConsumerBase*, Args...)
     {}
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDeviceKHR>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrGetVulkanGraphicsDeviceKHR(args...);
+    }
+};
+
+template <>
+struct CustomProcess<format::ApiCallId::ApiCall_xrGetVulkanGraphicsDevice2KHR>
+{
+    template <typename... Args>
+    static void UpdateState(OpenXrReplayConsumerBase* consumer, Args... args)
+    {
+        consumer->UpdateState_xrGetVulkanGraphicsDevice2KHR(args...);
+    }
 };
 
 template <>

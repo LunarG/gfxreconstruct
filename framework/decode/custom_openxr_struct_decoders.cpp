@@ -53,7 +53,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanI
     bytes_read +=
         ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->systemId));
     bytes_read +=
-        ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->createFlags));
+        ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->createFlags));
     bytes_read += ValueDecoder::DecodeAddress(
         (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pfnGetInstanceProcAddr));
     value->pfnGetInstanceProcAddr = nullptr;
@@ -80,7 +80,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_XrVulkanD
     bytes_read +=
         ValueDecoder::DecodeHandleIdValue((buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->systemId));
     bytes_read +=
-        ValueDecoder::DecodeFlagsValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->createFlags));
+        ValueDecoder::DecodeFlags64Value((buffer + bytes_read), (buffer_size - bytes_read), &(value->createFlags));
     bytes_read += ValueDecoder::DecodeAddress(
         (buffer + bytes_read), (buffer_size - bytes_read), &(wrapper->pfnGetInstanceProcAddr));
     value->pfnGetInstanceProcAddr = nullptr;
