@@ -1407,6 +1407,14 @@ class VulkanReplayConsumerBase : public VulkanConsumer
 
     VulkanBufferTracker& GetBufferTracker(VkDevice device);
 
+    [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                      create_info_count,
+                                                                      VkGraphicsPipelineCreateInfo* create_infos,
+                                                                      const format::HandleId*       pipelines) const;
+
+    [[nodiscard]] std::vector<std::unique_ptr<char[]>> ReplaceShaders(uint32_t                create_info_count,
+                                                                      VkShaderCreateInfoEXT*  create_infos,
+                                                                      const format::HandleId* shaders) const;
+
   private:
     struct HardwareBufferInfo
     {

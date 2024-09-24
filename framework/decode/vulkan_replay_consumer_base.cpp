@@ -9280,6 +9280,57 @@ void VulkanReplayConsumerBase::OverrideUpdateDescriptorSets(
     }
 }
 
+[[nodiscard]] std::vector<std::unique_ptr<char[]>> VulkanReplayConsumerBase::ReplaceShaders(
+    uint32_t create_info_count, VkGraphicsPipelineCreateInfo* create_infos, const format::HandleId* pipelines) const
+{
+    std::vector<std::unique_ptr<char[]>> replaced_file_code;
+
+    for (size_t i = 0; i < create_info_count; i++)
+    {
+        auto& pipeline_create_info = create_infos[i];
+        for (size_t j = 0; j < pipeline_create_info.stageCount; j++)
+        {
+            auto& stage_create_info = pipeline_create_info.pStages[i];
+            if (stage_create_info.module != VK_NULL_HANDLE)
+                continue;
+
+            void* pNext = const_cast<void*>(stage_create_info.pNext);
+            while (pNext != nullptr)
+            {
+                auto* base = reinterpret_cast<VkBaseInStructure*>(pNext);
+                if (base->sType == VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
+                {
+                    auto*       create_info = reinterpret_cast<VkShaderModuleCreateInfo*>(base);
+                    const void* orig_code   = create_info->pCode;
+                    size_t      orig_size   = create_info->codeSize;
+                    uint64_t    handle_id   = pipelines[i];
+                    std::string file_name =
+                        "sh" + std::to_string(handle_id) + "_" + std::to_string(stage_create_info.stage);
+                    std::string file_path = util::filepath::Join(options_.replace_dir, file_name);
+
+                    FILE*   fp     = nullptr;
+                    int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "rb");
+                    if (result == 0)
+                    {
+                        util::platform::FileSeek(fp, 0L, util::platform::FileSeekEnd);
+                        size_t                  file_size = static_cast<size_t>(util::platform::FileTell(fp));
+                        std::unique_ptr<char[]> file_code = std::make_unique<char[]>(file_size);
+                        util::platform::FileSeek(fp, 0L, util::platform::FileSeekSet);
+                        util::platform::FileRead(file_code.get(), file_size, fp);
+                        create_info->pCode    = (uint32_t*)file_code.get();
+                        create_info->codeSize = file_size;
+                        GFXRECON_LOG_INFO("Replacement shader found: %s", file_path.c_str());
+                        replaced_file_code.emplace_back(std::move(file_code));
+                    }
+                }
+                pNext = const_cast<VkBaseInStructure*>(base->pNext);
+            }
+        }
+    }
+
+    return replaced_file_code;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     PFN_vkCreateGraphicsPipelines                                     func,
     VkResult                                                          original_result,
@@ -9290,8 +9341,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>*        pAllocator,
     HandlePointerDecoder<VkPipeline>*                                 pPipelines)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
-
     assert((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
            (pPipelines != nullptr) && !pPipelines->IsNull() && (pPipelines->GetHandlePointer() != nullptr));
 
@@ -9301,8 +9350,28 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
     VkPipeline*                         out_pipelines             = pPipelines->GetHandlePointer();
     VkPipelineCache in_pipeline_cache = (pipeline_cache_info != nullptr) ? pipeline_cache_info->handle : VK_NULL_HANDLE;
 
-    VkResult replay_result = func(
-        in_device, in_pipeline_cache, create_info_count, in_p_create_infos, in_p_allocation_callbacks, out_pipelines);
+    std::vector<uint8_t>                 create_info_data;
+    std::vector<std::unique_ptr<char[]>> replaced_file_code;
+    auto*                                maybe_replaced_create_infos = in_p_create_infos;
+
+    if (original_result >= 0 && !options_.replace_dir.empty())
+    {
+        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
+        create_info_data.resize(num_bytes);
+        graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, create_info_data.data());
+        auto* replaced_create_infos = reinterpret_cast<VkGraphicsPipelineCreateInfo*>(create_info_data.data());
+
+        replaced_file_code = ReplaceShaders(create_info_count, replaced_create_infos, pPipelines->GetPointer());
+
+        maybe_replaced_create_infos = replaced_create_infos;
+    }
+
+    VkResult replay_result = func(in_device,
+                                  in_pipeline_cache,
+                                  create_info_count,
+                                  maybe_replaced_create_infos,
+                                  in_p_allocation_callbacks,
+                                  out_pipelines);
 
     // Information is stored in the created PipelineInfos only when the dumping resources feature is in use
     if (replay_result == VK_SUCCESS)
@@ -9313,7 +9382,7 @@ VkResult VulkanReplayConsumerBase::OverrideCreateGraphicsPipelines(
         }
 
         // check potentially inlined spirv
-        graphics::vulkan_check_buffer_references(in_p_create_infos, create_info_count);
+        graphics::vulkan_check_buffer_references(maybe_replaced_create_infos, create_info_count);
     }
     return replay_result;
 }
@@ -9363,6 +9432,39 @@ VkResult VulkanReplayConsumerBase::OverrideCreateComputePipelines(
     return replay_result;
 }
 
+[[nodiscard]] std::vector<std::unique_ptr<char[]>> VulkanReplayConsumerBase::ReplaceShaders(
+    uint32_t create_info_count, VkShaderCreateInfoEXT* create_infos, const format::HandleId* shaders) const
+{
+    std::vector<std::unique_ptr<char[]>> replaced_file_code;
+
+    for (size_t i = 0; i < create_info_count; i++)
+    {
+        auto*       create_info = &create_infos[i];
+        const void* orig_code   = create_info->pCode;
+        size_t      orig_size   = create_info->codeSize;
+        uint64_t    handle_id   = shaders[i];
+        std::string file_name   = "sh" + std::to_string(handle_id);
+        std::string file_path   = util::filepath::Join(options_.replace_dir, file_name);
+
+        FILE*   fp     = nullptr;
+        int32_t result = util::platform::FileOpen(&fp, file_path.c_str(), "rb");
+        if (result == 0)
+        {
+            util::platform::FileSeek(fp, 0L, util::platform::FileSeekEnd);
+            size_t                  file_size = static_cast<size_t>(util::platform::FileTell(fp));
+            std::unique_ptr<char[]> file_code = std::make_unique<char[]>(file_size);
+            util::platform::FileSeek(fp, 0L, util::platform::FileSeekSet);
+            util::platform::FileRead(file_code.get(), file_size, fp);
+            create_info->pCode    = (uint32_t*)file_code.get();
+            create_info->codeSize = file_size;
+            GFXRECON_LOG_INFO("Replacement shader found: %s", file_path.c_str());
+            replaced_file_code.emplace_back(std::move(file_code));
+        }
+    }
+
+    return replaced_file_code;
+}
+
 VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     PFN_vkCreateShadersEXT                                     func,
     VkResult                                                   original_result,
@@ -9372,7 +9474,6 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     const StructPointerDecoder<Decoded_VkAllocationCallbacks>* pAllocator,
     HandlePointerDecoder<VkShaderEXT>*                         pShaders)
 {
-    GFXRECON_UNREFERENCED_PARAMETER(original_result);
     GFXRECON_ASSERT((device_info != nullptr) && (pCreateInfos != nullptr) && (pAllocator != nullptr) &&
                     (pShaders != nullptr) && !pShaders->IsNull() && (pShaders->GetHandlePointer() != nullptr));
 
@@ -9381,17 +9482,34 @@ VkResult VulkanReplayConsumerBase::OverrideCreateShadersEXT(
     const VkAllocationCallbacks* in_p_allocation_callbacks = GetAllocationCallbacks(pAllocator);
     VkShaderEXT*                 out_shaders               = pShaders->GetHandlePointer();
 
+    std::vector<uint8_t>                 create_info_data;
+    std::vector<std::unique_ptr<char[]>> replaced_file_code;
+    auto*                                maybe_replaced_create_infos = in_p_create_infos;
+
+    if (original_result >= 0 && !options_.replace_dir.empty())
+    {
+        uint32_t num_bytes = graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, nullptr);
+        create_info_data.resize(num_bytes);
+        graphics::vulkan_struct_deep_copy(in_p_create_infos, create_info_count, create_info_data.data());
+        auto* replaced_create_infos = reinterpret_cast<VkShaderCreateInfoEXT*>(create_info_data.data());
+
+        replaced_file_code = ReplaceShaders(create_info_count, replaced_create_infos, pShaders->GetPointer());
+
+        maybe_replaced_create_infos = replaced_create_infos;
+    }
+
     VkResult replay_result =
-        func(in_device, create_info_count, in_p_create_infos, in_p_allocation_callbacks, out_shaders);
+        func(in_device, create_info_count, maybe_replaced_create_infos, in_p_allocation_callbacks, out_shaders);
 
     if (replay_result == VK_SUCCESS)
     {
         for (uint32_t i = 0; i < create_info_count; ++i)
         {
-            if (in_p_create_infos[i].codeType == VK_SHADER_CODE_TYPE_SPIRV_EXT)
+            if (maybe_replaced_create_infos[i].codeType == VK_SHADER_CODE_TYPE_SPIRV_EXT)
             {
-                graphics::vulkan_check_buffer_references(reinterpret_cast<const uint32_t*>(in_p_create_infos[i].pCode),
-                                                         in_p_create_infos[i].codeSize);
+                graphics::vulkan_check_buffer_references(
+                    reinterpret_cast<const uint32_t*>(maybe_replaced_create_infos[i].pCode),
+                    maybe_replaced_create_infos[i].codeSize);
             }
         }
     }
@@ -9508,12 +9626,15 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
     uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+    std::vector<format::HandleId> pipelines(createInfoCount);
 
     // extract handle-dependencies and track those
     auto                  handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
     std::function<void()> sync_fn;
     if (pPipelines != nullptr && createInfoCount > 0)
     {
+        std::copy_n(pPipelines->GetPointer(), createInfoCount, pipelines.begin());
+
         sync_fn = [this, parent_id = pPipelines->GetPointer()[0]]() {
             MapHandle<PipelineInfo>(parent_id, &VulkanObjectInfoTable::GetPipelineInfo);
         };
@@ -9529,9 +9650,17 @@ std::function<decode::handle_create_result_t<VkPipeline>()> VulkanReplayConsumer
                  in_pAllocator,
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
-                 handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkPipeline> {
+                 handle_deps      = std::move(handle_deps),
+                 pipelines        = std::move(pipelines)]() mutable -> handle_create_result_t<VkPipeline> {
         std::vector<VkPipeline> out_pipelines(createInfoCount);
-        auto     create_infos  = reinterpret_cast<const VkGraphicsPipelineCreateInfo*>(create_info_data.data());
+        auto                    create_infos = reinterpret_cast<VkGraphicsPipelineCreateInfo*>(create_info_data.data());
+
+        std::vector<std::unique_ptr<char[]>> replaced_file_code;
+        if (returnValue >= 0 && !options_.replace_dir.empty())
+        {
+            replaced_file_code = ReplaceShaders(createInfoCount, create_infos, pipelines.data());
+        }
+
         auto     device_table  = GetDeviceTable(device_handle);
         VkResult replay_result = device_table->CreateGraphicsPipelines(
             device_handle, pipeline_cache_handle, createInfoCount, create_infos, in_pAllocator, out_pipelines.data());
@@ -9633,12 +9762,15 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
     uint32_t             num_bytes = graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, nullptr);
     std::vector<uint8_t> create_info_data(num_bytes);
     graphics::vulkan_struct_deep_copy(in_pCreateInfos, createInfoCount, create_info_data.data());
+    std::vector<format::HandleId> shaders(createInfoCount);
 
     // extract handle-dependencies and track those
     auto                  handle_deps = graphics::vulkan_struct_extract_handle_ids(pCreateInfos);
     std::function<void()> sync_fn;
     if (pShaders != nullptr && createInfoCount > 0)
     {
+        std::copy_n(pShaders->GetPointer(), createInfoCount, shaders.begin());
+
         sync_fn = [this, parent_id = pShaders->GetPointer()[0]]() {
             MapHandle<ShaderEXTInfo>(parent_id, &VulkanObjectInfoTable::GetShaderEXTInfo);
         };
@@ -9653,11 +9785,19 @@ VulkanReplayConsumerBase::AsyncCreateShadersEXT(const ApiCallInfo&              
                  in_pAllocator,
                  createInfoCount,
                  create_info_data = std::move(create_info_data),
-                 handle_deps      = std::move(handle_deps)]() mutable -> handle_create_result_t<VkShaderEXT> {
+                 handle_deps      = std::move(handle_deps),
+                 shaders          = std::move(shaders)]() mutable -> handle_create_result_t<VkShaderEXT> {
         std::vector<VkShaderEXT> out_shaders(createInfoCount);
-        auto                     create_infos = reinterpret_cast<const VkShaderCreateInfoEXT*>(create_info_data.data());
-        auto                     device_table = GetDeviceTable(device_handle);
-        VkResult                 replay_result = device_table->CreateShadersEXT(
+        auto                     create_infos = reinterpret_cast<VkShaderCreateInfoEXT*>(create_info_data.data());
+
+        std::vector<std::unique_ptr<char[]>> replaced_file_code;
+        if (returnValue >= 0 && !options_.replace_dir.empty())
+        {
+            replaced_file_code = ReplaceShaders(createInfoCount, create_infos, shaders.data());
+        }
+
+        auto     device_table  = GetDeviceTable(device_handle);
+        VkResult replay_result = device_table->CreateShadersEXT(
             device_handle, createInfoCount, create_infos, in_pAllocator, out_shaders.data());
         CheckResult("vkCreateShadersEXT", returnValue, replay_result, call_info);
 
