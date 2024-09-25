@@ -1840,6 +1840,20 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateBuffer>::Dispatch(manager, device, pCreateInfo, pAllocator, pBuffer);
 
+    // While attempting to recapture trim for a particular title's trace file, an issue related to binding
+    // resources to memory arose, leading to playback failure. Further investigation uncovered that the root cause
+    // was the addition of VK_BUFFER_USAGE_TRANSFER_SRC_BIT or VK_IMAGE_USAGE_TRANSFER_SRC_BIT flags in the
+    // image/buffer create info during trim capture handling. This resulted in a change in memory requirements for
+    // some resources compared to the original capturing process, which caused memory binding errors and playback
+    // failure. To resolve this, here we add the flags into the capturing process and captured trace file, ensuring
+    // consistent memory usage across all scenarios (including target title running with capturing, full trace or
+    // trim trace playback, and recapturing trace files with or without trim). This solution fixed the issues
+    // described above.
+
+    VkBufferCreateInfo modified_create_info = (*pCreateInfo);
+    modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    pCreateInfo = const_cast<const VkBufferCreateInfo*>(&modified_create_info);
+
     VkResult result = manager->OverrideCreateBuffer(device, pCreateInfo, pAllocator, pBuffer);
     if (result < 0)
     {
@@ -2016,8 +2030,30 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
 
     CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateImage>::Dispatch(manager, device, pCreateInfo, pAllocator, pImage);
 
-    VkResult result = manager->OverrideCreateImage(device, pCreateInfo, pAllocator, pImage);
-    if (result < 0)
+    // While attempting to recapture trim for a particular title's trace file, an issue related to binding
+    // resources to memory arose, leading to playback failure. Further investigation uncovered that the root cause
+    // was the addition of VK_BUFFER_USAGE_TRANSFER_SRC_BIT or VK_IMAGE_USAGE_TRANSFER_SRC_BIT flags in the
+    // image/buffer create info during trim capture handling. This resulted in a change in memory requirements for
+    // some resources compared to the original capturing process, which caused memory binding errors and playback
+    // failure. To resolve this, here we add the flags into the capturing process and captured trace file, ensuring
+    // consistent memory usage across all scenarios (including target title running with capturing, full trace or
+    // trim trace playback, and recapturing trace files with or without trim). This solution fixed the issues
+    // described above.
+
+    VkImageCreateInfo modified_create_info = (*pCreateInfo);
+    modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+    pCreateInfo = const_cast<const VkImageCreateInfo*>(&modified_create_info);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkImageCreateInfo* pCreateInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateImage(device, pCreateInfo_unwrapped, pAllocator, pImage);
+
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::NoParentWrapper, vulkan_wrappers::ImageWrapper>(device, vulkan_wrappers::NoParentWrapper::kHandleValue, pImage, VulkanCaptureManager::GetUniqueId);
+    }
+    else
     {
         omit_output_data = true;
     }

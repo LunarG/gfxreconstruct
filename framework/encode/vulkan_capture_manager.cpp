@@ -1,7 +1,7 @@
 /*
  ** Copyright (c) 2018-2021 Valve Corporation
  ** Copyright (c) 2018-2023 LunarG, Inc.
- ** Copyright (c) 2019-2023 Advanced Micro Devices, Inc. All rights reserved.
+ ** Copyright (c) 2019-2024 Advanced Micro Devices, Inc. All rights reserved.
  **
  ** Permission is hereby granted, free of charge, to any person obtaining a
  ** copy of this software and associated documentation files (the "Software"),
@@ -802,11 +802,6 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
 
     VkBufferCreateInfo modified_create_info = (*pCreateInfo);
 
-    if (IsTrimEnabled())
-    {
-        modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-    }
-
     bool                uses_address         = false;
     VkBufferCreateFlags address_create_flags = 0;
     VkBufferUsageFlags  address_usage_flags  = 0;
@@ -880,35 +875,6 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
         }
     }
 
-    return result;
-}
-
-VkResult VulkanCaptureManager::OverrideCreateImage(VkDevice                     device,
-                                                   const VkImageCreateInfo*     pCreateInfo,
-                                                   const VkAllocationCallbacks* pAllocator,
-                                                   VkImage*                     pImage)
-{
-    auto                     handle_unwrap_memory = VulkanCaptureManager::Get()->GetHandleUnwrapMemory();
-    const VkImageCreateInfo* pCreateInfo_unwrapped =
-        vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
-
-    VkImageCreateInfo modified_create_info = (*pCreateInfo_unwrapped);
-
-    if (IsTrimEnabled())
-    {
-        modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
-    }
-
-    VkResult result =
-        vulkan_wrappers::GetDeviceTable(device)->CreateImage(device, &modified_create_info, pAllocator, pImage);
-
-    if (result >= 0)
-    {
-        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper,
-                                             vulkan_wrappers::NoParentWrapper,
-                                             vulkan_wrappers::ImageWrapper>(
-            device, vulkan_wrappers::NoParentWrapper::kHandleValue, pImage, VulkanCaptureManager::GetUniqueId);
-    }
     return result;
 }
 

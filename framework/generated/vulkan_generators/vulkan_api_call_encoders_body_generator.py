@@ -2,7 +2,7 @@
 #
 # Copyright (c) 2018-2019 Valve Corporation
 # Copyright (c) 2018-2019 LunarG, Inc.
-# Copyright (c) 2023 Advanced Micro Devices, Inc. All rights reserved.
+# Copyright (c) 2024 Advanced Micro Devices, Inc. All rights reserved.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to
@@ -221,6 +221,28 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
 
         return [call_setup_expr, '{}({})->{}({})'.format(dispatchfunc, object_name, name[2:], arg_list)]
 
+    def change_usage_flag_for_image_and_buffer(self, name, arg_list_string, indent):
+        arg_list = arg_list_string.split(',')
+        comment = indent + '// While attempting to recapture trim for a particular title\'s trace file, an issue related to binding\n'\
+                 + indent + '// resources to memory arose, leading to playback failure. Further investigation uncovered that the root cause\n'\
+                 + indent + '// was the addition of VK_BUFFER_USAGE_TRANSFER_SRC_BIT or VK_IMAGE_USAGE_TRANSFER_SRC_BIT flags in the\n'\
+                 + indent + '// image/buffer create info during trim capture handling. This resulted in a change in memory requirements for\n'\
+                 + indent + '// some resources compared to the original capturing process, which caused memory binding errors and playback\n'\
+                 + indent + '// failure. To resolve this, here we add the flags into the capturing process and captured trace file, ensuring\n'\
+                 + indent + '// consistent memory usage across all scenarios (including target title running with capturing, full trace or\n'\
+                 + indent + '// trim trace playback, and recapturing trace files with or without trim). This solution fixed the issues\n'\
+                 + indent + '// described above.\n'
+        if name == 'vkCreateBuffer':
+            change_usage_flag = '\n' + comment + '\n' + indent + 'VkBufferCreateInfo modified_create_info = (*{});\n' \
+                 + indent + 'modified_create_info.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;\n' \
+                 + indent + '{} = const_cast<const VkBufferCreateInfo*>(&modified_create_info);\n'
+            return change_usage_flag.format(arg_list[1].strip(), arg_list[1].strip())
+        else: # name is vkCreateImage
+            change_usage_flag = '\n' + comment + '\n' + indent + 'VkImageCreateInfo modified_create_info = (*{});\n' \
+                 + indent + 'modified_create_info.usage |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;\n' \
+                 + indent + '{} = const_cast<const VkImageCreateInfo*>(&modified_create_info);\n'
+            return change_usage_flag.format(arg_list[1].strip(), arg_list[1].strip())
+
     def make_cmd_body(self, return_type, name, values):
         """Command definition."""
         indent = ' ' * self.INDENT_SIZE
@@ -265,6 +287,10 @@ class VulkanApiCallEncodersBodyGenerator(BaseGenerator):
         body += indent + 'CustomEncoderPreCall<format::ApiCallId::ApiCall_{}>::Dispatch({}, {});\n'.format(
             name, capture_manager, arg_list
         )
+
+        # Change usage flag of create info for vkCreateBuffer and vkCreateImage
+        if name in ['vkCreateBuffer', 'vkCreateImage']:
+            body += self.change_usage_flag_for_image_and_buffer(name, arg_list, indent)
 
         if not encode_after:
             body += self.make_parameter_encoding(
