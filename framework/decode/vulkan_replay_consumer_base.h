@@ -1101,7 +1101,6 @@ class VulkanReplayConsumerBase : public VulkanConsumer
         const StructPointerDecoder<Decoded_VkAllocationCallbacks>*             pAllocator,
         HandlePointerDecoder<VkPipeline>*                                      pPipelines);
 
-
     VkResult OverrideDeferredOperationJoinKHR(PFN_vkDeferredOperationJoinKHR func,
                                               VkResult                       original_result,
                                               const DeviceInfo*              device_info,

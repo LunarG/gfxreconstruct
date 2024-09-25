@@ -7594,7 +7594,8 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
                 {
                     auto& instances = geometry->geometry.instances;
                     address_remap(instances.data.deviceAddress);
-                    // TODO: replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer (issue #1526)
+                    // TODO: replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer
+                    // (issue #1526)
                     break;
                 }
                 default:

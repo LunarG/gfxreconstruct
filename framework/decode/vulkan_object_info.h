@@ -674,7 +674,7 @@ struct DescriptorSetInfo : public VulkanPoolObjectInfo<VkDescriptorSet>
 struct AccelerationStructureKHRInfo : public VulkanObjectInfo<VkAccelerationStructureKHR>
 {
     VkDeviceAddress capture_address = 0;
-    VkDeviceAddress replay_address = 0;
+    VkDeviceAddress replay_address  = 0;
 };
 
 //
