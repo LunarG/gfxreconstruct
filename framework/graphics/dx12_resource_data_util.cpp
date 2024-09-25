@@ -842,7 +842,8 @@ Dx12ResourceDataUtil::ExecuteCopyCommandList(ID3D12Resource*                    
 HRESULT
 Dx12ResourceDataUtil::ExecuteTransitionCommandList(ID3D12Resource*                             target_resource,
                                                    const std::vector<dx12::ResourceStateInfo>& before_states,
-                                                   const std::vector<dx12::ResourceStateInfo>& after_states)
+                                                   const std::vector<dx12::ResourceStateInfo>& after_states,
+                                                   ID3D12CommandQueue*                         queue)
 {
     GFXRECON_ASSERT(before_states.size() == after_states.size());
     uint64_t subresource_count = before_states.size();
@@ -868,7 +869,7 @@ Dx12ResourceDataUtil::ExecuteTransitionCommandList(ID3D12Resource*              
             result = command_list_->Close();
             if (SUCCEEDED(result) && !cmd_list_empty)
             {
-                result = ExecuteAndWaitForCommandList();
+                result = ExecuteAndWaitForCommandList(queue);
             }
         }
     }

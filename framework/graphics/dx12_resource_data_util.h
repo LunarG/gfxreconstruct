@@ -123,7 +123,8 @@ class Dx12ResourceDataUtil
     HRESULT
     ExecuteTransitionCommandList(ID3D12Resource*                             target_resource,
                                  const std::vector<dx12::ResourceStateInfo>& before_states,
-                                 const std::vector<dx12::ResourceStateInfo>& after_states);
+                                 const std::vector<dx12::ResourceStateInfo>& after_states,
+                                 ID3D12CommandQueue*                         queue = nullptr);
 
   private:
     // Copy data to or from a mappable resource.

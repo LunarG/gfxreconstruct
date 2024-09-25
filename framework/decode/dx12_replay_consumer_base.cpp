@@ -390,6 +390,8 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
         // 2. One ExecuteCommandLists could work for only one swapchain buffer.
         // 3. The current back buffer index has to match the swapchain buffer.
         // 4. After ExecuteCommandLists, the current back buffer index has to back init.
+        // 5. It shouldn't change resource states until all Presnt are done since Present require 
+        //    D3D12_RESOURCE_STATE_PRESENT. The before_states supposes to be PRESENT.
 
         // Although it has only one swapchain mostly, it probably has a plural in some cases.
         std::map<IDXGISwapChain3*, DxgiSwapchainInfo*> swapchain_infos;
@@ -402,6 +404,16 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
             auto swapchain             = reinterpret_cast<IDXGISwapChain3*>(swapchain_info->object);
             swapchain_infos[swapchain] = swapchain_extra_info;
 
+            for (auto &state : resource_info.second->before_states)
+            {
+                if (state.states != D3D12_RESOURCE_STATE_PRESENT)
+                {
+                    GFXRECON_LOG_WARNING(
+                        "Initializing Swapchain Buffers. The before state supposed to be COMMON|PRESENT, but it's %s",
+                        util::ToString(state.states));
+                }
+            }
+
             while (extra_info->buffer_index != swapchain->GetCurrentBackBufferIndex())
             {
                 swapchain->Present(0, 0);
@@ -413,7 +425,7 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
                 resource_data_util_->WriteToResource(resource_info.second->resource,
                                                      resource_info.second->try_map_and_copy,
                                                      resource_info.second->before_states,
-                                                     resource_info.second->after_states,
+                                                     resource_info.second->before_states,
                                                      resource_info.second->data,
                                                      resource_info.second->subresource_offsets,
                                                      resource_info.second->subresource_sizes,
@@ -430,6 +442,19 @@ void Dx12ReplayConsumerBase::ApplyBatchedResourceInitInfo(
             {
                 info.first->Present(0, 0);
             }
+        }
+
+        for (const auto& resource_info : swapchain_resource_infos)
+        {
+            auto object_info          = GetObjectInfo(resource_info.second->resource_id);
+            auto extra_info           = GetExtraInfo<D3D12ResourceInfo>(object_info);
+            auto swapchain_info       = GetObjectInfo(extra_info->swap_chain_id);
+            auto swapchain_extra_info = GetExtraInfo<DxgiSwapchainInfo>(swapchain_info);
+
+            resource_data_util_->ExecuteTransitionCommandList(resource_info.second->resource,
+                                                              resource_info.second->before_states,
+                                                              resource_info.second->after_states,
+                                                              swapchain_extra_info->command_queue);
         }
 
         resource_data_util_->ResetCommandList();
