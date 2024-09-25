@@ -7536,13 +7536,6 @@ void VulkanReplayConsumerBase::OverrideDestroyAccelerationStructureKHR(
     {
         acceleration_structure = acceleration_structure_info->handle;
 
-        if (!allocator->SupportsOpaqueDeviceAddresses())
-        {
-            //        acceleration_structure_builders_[device_info->capture_id]->OnDestroyAccelerationStructure(
-            //            acceleration_structure_info);
-            //        tracked_addresses_.erase(acceleration_structure_info->capture_id);
-        }
-
         // remove from address-tracking
         GetDeviceAddressTracker(device_info->handle).RemoveAccelerationStructure(acceleration_structure_info);
     }
@@ -7563,48 +7556,45 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
 
     auto& address_tracker = GetDeviceAddressTracker(device_info->handle);
 
-    auto address_remap = [&address_tracker](const VkDeviceAddress& capture_address) {
+    auto address_remap = [&address_tracker](VkDeviceAddress& capture_address) {
         auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
         GFXRECON_ASSERT(buffer_info != nullptr);
 
         uint64_t offset = capture_address - buffer_info->capture_address;
 
         // in-place address-remap via const-cast
-        auto& dst = *const_cast<VkDeviceAddress*>(&capture_address);
-        dst       = buffer_info->replay_address + offset;
+        capture_address = buffer_info->replay_address + offset;
     };
 
     for (uint32_t i = 0; i < infoCount; ++i)
     {
-        const auto& build_geometry_info = build_geometry_infos[i];
+        auto& build_geometry_info = build_geometry_infos[i];
 
         for (uint32_t j = 0; j < build_geometry_info.geometryCount; ++j)
         {
-            const VkAccelerationStructureGeometryKHR* geometry = build_geometry_info.pGeometries != nullptr
-                                                                     ? build_geometry_info.pGeometries + j
-                                                                     : build_geometry_info.ppGeometries[j];
-
+            auto geometry = const_cast<VkAccelerationStructureGeometryKHR*>(build_geometry_info.pGeometries != nullptr
+                                                                                ? build_geometry_info.pGeometries + j
+                                                                                : build_geometry_info.ppGeometries[j]);
             switch (geometry->geometryType)
             {
                 case VK_GEOMETRY_TYPE_TRIANGLES_KHR:
                 {
-                    const auto& triangles = geometry->geometry.triangles;
+                    auto& triangles = geometry->geometry.triangles;
                     address_remap(triangles.vertexData.deviceAddress);
                     address_remap(triangles.indexData.deviceAddress);
                     break;
                 }
                 case VK_GEOMETRY_TYPE_AABBS_KHR:
                 {
-                    const auto& aabbs = geometry->geometry.aabbs;
+                    auto& aabbs = geometry->geometry.aabbs;
                     address_remap(aabbs.data.deviceAddress);
                     break;
                 }
                 case VK_GEOMETRY_TYPE_INSTANCES_KHR:
                 {
-                    const auto& instances = geometry->geometry.instances;
-                    // TODO: inside buffer:
-                    // replace all VkAccelerationStructureInstanceKHR::accelerationStructureReference
+                    auto& instances = geometry->geometry.instances;
                     address_remap(instances.data.deviceAddress);
+                    // TODO: replace VkAccelerationStructureInstanceKHR::accelerationStructureReference inside buffer (issue #1526)
                     break;
                 }
                 default:
@@ -7629,9 +7619,7 @@ void VulkanReplayConsumerBase::OverrideCmdCopyAccelerationStructureKHR(
     }
     else if (!loading_trim_state_)
     {
-        GFXRECON_ASSERT(false);
-        //        acceleration_structure_builders_[command_buffer_info->parent_id]->CmdCopyAccelerationStructure(
-        //            command_buffer_info->handle, pInfo->GetPointer());
+        // TODO: raytracing delegate-hook (issue #1526)
     }
 }
 
@@ -7654,14 +7642,7 @@ void VulkanReplayConsumerBase::OverrideCmdWriteAccelerationStructuresPropertiesK
     }
     else if (!loading_trim_state_)
     {
-        GFXRECON_ASSERT(false);
-        //        acceleration_structure_builders_[command_buffer_info->parent_id]->CmdWriteAccelerationStructuresProperties(
-        //            command_buffer_info->handle,
-        //            count,
-        //            pAccelerationStructures->GetHandlePointer(),
-        //            queryType,
-        //            query_pool_info->handle,
-        //            firstQuery);
+        // TODO: raytracing delegate-hook (issue #1526)
     }
 }
 
