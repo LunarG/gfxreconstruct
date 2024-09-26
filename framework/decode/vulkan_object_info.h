@@ -103,6 +103,7 @@ enum DeviceArrayIndices : uint32_t
     kDeviceArrayGetEncodedVideoSessionParametersKHR                     = 5,
     kPhysicalDeviceArrayGetPhysicalDeviceCooperativeMatrixPropertiesKHR = 6,
     kPhysicalDeviceArrayGetPhysicalDeviceCalibrateableTimeDomainsKHR    = 7,
+    kDeviceArrayGetPipelineBinaryDataKHR                                = 8,
 
     // Aliases for extensions functions that were promoted to core.
     kDeviceArrayGetImageSparseMemoryRequirements2KHR      = kDeviceArrayGetImageSparseMemoryRequirements2,
@@ -227,7 +228,19 @@ typedef VulkanObjectInfo<VkAccelerationStructureNV>       AccelerationStructureN
 typedef VulkanObjectInfo<VkPerformanceConfigurationINTEL> PerformanceConfigurationINTELInfo;
 typedef VulkanObjectInfo<VkMicromapEXT>                   MicromapEXTInfo;
 typedef VulkanObjectInfo<VkOpticalFlowSessionNV>          OpticalFlowSessionNVInfo;
-typedef VulkanObjectInfo<VkVideoSessionParametersKHR>     VideoSessionParametersKHRInfo;
+typedef VulkanObjectInfo<VkVideoSessionParametersKHR>                   VideoSessionParametersKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryKHR>                           PipelineBinaryKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryCreateInfoKHR>                 PipelineBinaryCreateInfoKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryDataInfoKHR>                   PipelineBinaryDataInfoKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryDataKHR>                       PipelineBinaryDataKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryHandlesInfoKHR>                PipelineBinaryHandlesInfoKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryKeyKHR>                        PipelineBinaryKeyKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryKeysAndDataKHR>                PipelineBinaryKeysAndDataKHRInfo;
+typedef VulkanObjectInfo<VkReleaseCapturedPipelineDataInfoKHR>          ReleaseCapturedPipelineDataInfoKHRInfo;
+typedef VulkanObjectInfo<VkDevicePipelineBinaryInternalCacheControlKHR> DevicePipelineBinaryInternalCacheControlKHRInfo;
+typedef VulkanObjectInfo<VkPipelineBinaryInfoKHR>                       PipelineBinaryInfoKHRInfo;
+typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryFeaturesKHR>     PhysicalDevicePipelineBinaryFeaturesKHRInfo;
+typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryPropertiesKHR>   PhysicalDevicePipelineBinaryPropertiesKHRInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.

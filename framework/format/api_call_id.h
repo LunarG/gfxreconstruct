@@ -719,6 +719,12 @@ enum ApiCallId : uint32_t
     ApiCall_vkSetLatencyMarkerNV                                                                  = MakeApiCallId(ApiFamily_Vulkan, 0x12ea),
     ApiCall_vkGetLatencyTimingsNV                                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12eb),
     ApiCall_vkQueueNotifyOutOfBandNV                                                              = MakeApiCallId(ApiFamily_Vulkan, 0x12ec),
+    ApiCall_vkCreatePipelineBinariesKHR                                                           = MakeApiCallId(ApiFamily_Vulkan, 0x12ed),
+    ApiCall_vkDestroyPipelineBinaryKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12ee),
+    ApiCall_vkGetPipelineBinaryDataKHR                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12ef),
+    ApiCall_vkGetPipelineKeyKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12f0),
+    ApiCall_vkReleaseCapturedPipelineDataKHR                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12f1),
+    ApiCall_vkAntiLagUpdateAMD                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12f2),
 
     ApiCall_VulkanLast,
 

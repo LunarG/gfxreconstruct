@@ -71,6 +71,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void AddPerformanceConfigurationINTELInfo(PerformanceConfigurationINTELInfo&& info) { AddObjectInfo(std::move(info), &performanceConfigurationINTEL_map_); }
     void AddPhysicalDeviceInfo(PhysicalDeviceInfo&& info) { AddObjectInfo(std::move(info), &physicalDevice_map_); }
     void AddPipelineInfo(PipelineInfo&& info) { AddObjectInfo(std::move(info), &pipeline_map_); }
+    void AddPipelineBinaryKHRInfo(PipelineBinaryKHRInfo&& info) { AddObjectInfo(std::move(info), &pipelineBinaryKHR_map_); }
     void AddPipelineCacheInfo(PipelineCacheInfo&& info) { AddObjectInfo(std::move(info), &pipelineCache_map_); }
     void AddPipelineLayoutInfo(PipelineLayoutInfo&& info) { AddObjectInfo(std::move(info), &pipelineLayout_map_); }
     void AddPrivateDataSlotInfo(PrivateDataSlotInfo&& info) { AddObjectInfo(std::move(info), &privateDataSlot_map_); }
@@ -117,6 +118,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void RemovePerformanceConfigurationINTELInfo(format::HandleId id) { performanceConfigurationINTEL_map_.erase(id); }
     void RemovePhysicalDeviceInfo(format::HandleId id) { physicalDevice_map_.erase(id); }
     void RemovePipelineInfo(format::HandleId id) { pipeline_map_.erase(id); }
+    void RemovePipelineBinaryKHRInfo(format::HandleId id) { pipelineBinaryKHR_map_.erase(id); }
     void RemovePipelineCacheInfo(format::HandleId id) { pipelineCache_map_.erase(id); }
     void RemovePipelineLayoutInfo(format::HandleId id) { pipelineLayout_map_.erase(id); }
     void RemovePrivateDataSlotInfo(format::HandleId id) { privateDataSlot_map_.erase(id); }
@@ -163,6 +165,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     const PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id) const { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
     const PhysicalDeviceInfo* GetPhysicalDeviceInfo(format::HandleId id) const { return GetObjectInfo<PhysicalDeviceInfo>(id, &physicalDevice_map_); }
     const PipelineInfo* GetPipelineInfo(format::HandleId id) const { return GetObjectInfo<PipelineInfo>(id, &pipeline_map_); }
+    const PipelineBinaryKHRInfo* GetPipelineBinaryKHRInfo(format::HandleId id) const { return GetObjectInfo<PipelineBinaryKHRInfo>(id, &pipelineBinaryKHR_map_); }
     const PipelineCacheInfo* GetPipelineCacheInfo(format::HandleId id) const { return GetObjectInfo<PipelineCacheInfo>(id, &pipelineCache_map_); }
     const PipelineLayoutInfo* GetPipelineLayoutInfo(format::HandleId id) const { return GetObjectInfo<PipelineLayoutInfo>(id, &pipelineLayout_map_); }
     const PrivateDataSlotInfo* GetPrivateDataSlotInfo(format::HandleId id) const { return GetObjectInfo<PrivateDataSlotInfo>(id, &privateDataSlot_map_); }
@@ -209,6 +212,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     PerformanceConfigurationINTELInfo* GetPerformanceConfigurationINTELInfo(format::HandleId id) { return GetObjectInfo<PerformanceConfigurationINTELInfo>(id, &performanceConfigurationINTEL_map_); }
     PhysicalDeviceInfo* GetPhysicalDeviceInfo(format::HandleId id) { return GetObjectInfo<PhysicalDeviceInfo>(id, &physicalDevice_map_); }
     PipelineInfo* GetPipelineInfo(format::HandleId id) { return GetObjectInfo<PipelineInfo>(id, &pipeline_map_); }
+    PipelineBinaryKHRInfo* GetPipelineBinaryKHRInfo(format::HandleId id) { return GetObjectInfo<PipelineBinaryKHRInfo>(id, &pipelineBinaryKHR_map_); }
     PipelineCacheInfo* GetPipelineCacheInfo(format::HandleId id) { return GetObjectInfo<PipelineCacheInfo>(id, &pipelineCache_map_); }
     PipelineLayoutInfo* GetPipelineLayoutInfo(format::HandleId id) { return GetObjectInfo<PipelineLayoutInfo>(id, &pipelineLayout_map_); }
     PrivateDataSlotInfo* GetPrivateDataSlotInfo(format::HandleId id) { return GetObjectInfo<PrivateDataSlotInfo>(id, &privateDataSlot_map_); }
@@ -255,6 +259,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
     void VisitPerformanceConfigurationINTELInfo(std::function<void(const PerformanceConfigurationINTELInfo*)> visitor) const {  for (const auto& entry : performanceConfigurationINTEL_map_) { visitor(&entry.second); }  }
     void VisitPhysicalDeviceInfo(std::function<void(const PhysicalDeviceInfo*)> visitor) const {  for (const auto& entry : physicalDevice_map_) { visitor(&entry.second); }  }
     void VisitPipelineInfo(std::function<void(const PipelineInfo*)> visitor) const {  for (const auto& entry : pipeline_map_) { visitor(&entry.second); }  }
+    void VisitPipelineBinaryKHRInfo(std::function<void(const PipelineBinaryKHRInfo*)> visitor) const {  for (const auto& entry : pipelineBinaryKHR_map_) { visitor(&entry.second); }  }
     void VisitPipelineCacheInfo(std::function<void(const PipelineCacheInfo*)> visitor) const {  for (const auto& entry : pipelineCache_map_) { visitor(&entry.second); }  }
     void VisitPipelineLayoutInfo(std::function<void(const PipelineLayoutInfo*)> visitor) const {  for (const auto& entry : pipelineLayout_map_) { visitor(&entry.second); }  }
     void VisitPrivateDataSlotInfo(std::function<void(const PrivateDataSlotInfo*)> visitor) const {  for (const auto& entry : privateDataSlot_map_) { visitor(&entry.second); }  }
@@ -302,6 +307,7 @@ class VulkanObjectInfoTableBase2 : VulkanObjectInfoTableBase
      std::unordered_map<format::HandleId, PerformanceConfigurationINTELInfo> performanceConfigurationINTEL_map_;
      std::unordered_map<format::HandleId, PhysicalDeviceInfo> physicalDevice_map_;
      std::unordered_map<format::HandleId, PipelineInfo> pipeline_map_;
+     std::unordered_map<format::HandleId, PipelineBinaryKHRInfo> pipelineBinaryKHR_map_;
      std::unordered_map<format::HandleId, PipelineCacheInfo> pipelineCache_map_;
      std::unordered_map<format::HandleId, PipelineLayoutInfo> pipelineLayout_map_;
      std::unordered_map<format::HandleId, PrivateDataSlotInfo> privateDataSlot_map_;
