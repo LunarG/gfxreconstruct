@@ -4440,7 +4440,7 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
             buffer_info->handle, buffer_info->allocator_data, memory_info->allocator_data);
     }
 
-    if (result == VK_SUCCESS  && !allocator->SupportsOpaqueDeviceAddresses())
+    if (result == VK_SUCCESS && !allocator->SupportsOpaqueDeviceAddresses())
     {
         // TODO: this might be not necessary
         // On fast-forwarded traces buffer device addresses might be missing (no GetBufferDeviceAddress calls)

@@ -108,6 +108,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     WriteDeviceState(state_table);
     StandardCreateWrite<vulkan_wrappers::QueueWrapper>(state_table);
 
+    // physical-device / raytracing properties
+    WriteRayTracingPipelinePropertiesState(state_table);
+
     // Utility object creation.
     StandardCreateWrite<vulkan_wrappers::DebugReportCallbackEXTWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::DebugUtilsMessengerEXTWrapper>(state_table);
@@ -233,18 +236,6 @@ void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_t
                                        "ID from state snapshot");
                     break;
             }
-        }
-
-        if (wrapper->ray_tracing_pipeline_properties != std::nullopt)
-        {
-//            parameter_stream_.Clear();
-//            encoder_.EncodeHandleIdValue(wrapper->handle_id);
-//            VkPhysicalDeviceProperties2 properties2 = {};
-//            properties2.sType                       = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR;
-//            properties2.pNext                       = (void*)&wrapper->ray_tracing_pipeline_properties.value();
-//            EncodeStructPtr(&encoder_, &properties2);
-//            WriteFunctionCall(format::ApiCall_vkGetPhysicalDeviceProperties2, &parameter_stream_);
-//            parameter_stream_.Clear();
         }
     });
 }
@@ -1198,6 +1189,25 @@ void VulkanStateWriter::WriteTlasToBlasDependenciesMetadata(const VulkanStateTab
             }
 
             ++blocks_written_;
+        }
+    });
+}
+
+void VulkanStateWriter::WriteRayTracingPipelinePropertiesState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const vulkan_wrappers::PhysicalDeviceWrapper* wrapper) {
+        assert(wrapper != nullptr);
+
+        if (wrapper->ray_tracing_pipeline_properties != std::nullopt)
+        {
+            parameter_stream_.Clear();
+            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+            VkPhysicalDeviceProperties2 properties2 = {};
+            properties2.sType                       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+            properties2.pNext                       = (void*)&wrapper->ray_tracing_pipeline_properties.value();
+            EncodeStructPtr(&encoder_, &properties2);
+            WriteFunctionCall(format::ApiCall_vkGetPhysicalDeviceProperties2, &parameter_stream_);
+            parameter_stream_.Clear();
         }
     });
 }
