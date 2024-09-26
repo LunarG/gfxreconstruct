@@ -1765,9 +1765,8 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
         {
             DecrementCallScope();
 
-            auto                       target_cmdlist = lists[trim_draw_calls.command_index];
-            ID3D12CommandList_Wrapper* target_wrapper = nullptr;
-            target_cmdlist->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&target_wrapper));
+            auto target_cmdlist = lists[trim_draw_calls.command_index];
+            auto target_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(target_cmdlist);
             GFXRECON_ASSERT(target_wrapper);
 
             auto target_info = target_wrapper->GetObjectInfo();
@@ -1902,9 +1901,8 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
             DecrementCallScope();
             common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12);
 
-            auto                            target_cmdlist = lists[trim_draw_calls.command_index];
-            ID3D12CommandList_Wrapper*      target_wrapper = nullptr;
-            target_cmdlist->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&target_wrapper));
+            auto target_cmdlist = lists[trim_draw_calls.command_index];
+            auto target_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(target_cmdlist);
             GFXRECON_ASSERT(target_wrapper);
 
             auto target_info = target_wrapper->GetObjectInfo();
@@ -1957,8 +1955,7 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
     bool is_split_commandlist = false;
     for (uint32_t i = 0; i < num_lists; ++i)
     {
-        ID3D12CommandList_Wrapper* cmd_wrapper = nullptr;
-        lists[i]->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&cmd_wrapper));
+        auto cmd_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[0]);
         GFXRECON_ASSERT(cmd_wrapper);
 
         auto cmd_info = cmd_wrapper->GetObjectInfo();
@@ -3016,8 +3013,8 @@ HRESULT D3D12CaptureManager::OverrideID3D12GraphicsCommandList_Reset(ID3D12Graph
             GetCommandListsForTrimDrawCalls(wrapper, format::ApiCall_ID3D12GraphicsCommandList_Reset);
         for (auto& command_set : trim_draw_calls_command_sets)
         {
-            ID3D12GraphicsCommandList_Wrapper* list_wrapper = nullptr;
-            command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&list_wrapper));
+            auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
+            GFXRECON_ASSERT(list_wrapper);
             HRESULT result_trim_draw_calls = list_wrapper->Reset(command_set.allocator, pInitialState);
 
             if (result != result_trim_draw_calls)
@@ -3049,8 +3046,7 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList_ExecuteBundle(ID3D12
         if (trim_draw_calls_command_sets.size() == 3)
         {
             // Here is the target draw call for trim draw calls.
-            ID3D12GraphicsCommandList_Wrapper* bunlde_wrapper = nullptr;
-            pCommandList->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&bunlde_wrapper));
+            auto bunlde_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(pCommandList);
             GFXRECON_ASSERT(bunlde_wrapper);
 
             auto bundle_info = bunlde_wrapper->GetObjectInfo();
@@ -3065,8 +3061,7 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList_ExecuteBundle(ID3D12
             {
                 GFXRECON_ASSERT(bundle_info->split_command_sets[i].list);
 
-                ID3D12GraphicsCommandList_Wrapper* list_wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&list_wrapper));
+                auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 GFXRECON_ASSERT(list_wrapper);
 
                 list_wrapper->ExecuteBundle(bundle_info->split_command_sets[i].list);
@@ -3075,9 +3070,8 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList_ExecuteBundle(ID3D12
         }
         else if (trim_draw_calls_command_sets.size() == 1)
         {
-            ID3D12GraphicsCommandList_Wrapper* list_wrapper = nullptr;
-            trim_draw_calls_command_sets[0].list->QueryInterface(IID_IUnknown_Wrapper,
-                                                                reinterpret_cast<void**>(&list_wrapper));
+            auto list_wrapper =
+                reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(trim_draw_calls_command_sets[0].list.GetInterfacePtr());
             GFXRECON_ASSERT(list_wrapper);
             list_wrapper->ExecuteBundle(pCommandList);
         }
@@ -3126,9 +3120,10 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList4_BeginRenderPass(
                 p_before_ds_desc                        = &before_ds_desc;
             }
 
-            ID3D12GraphicsCommandList4_Wrapper* before4_wrappr = nullptr;
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr before4 = nullptr;
             trim_draw_calls_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list->QueryInterface(
-                IID_IUnknown_Wrapper, reinterpret_cast<void**>(&before4_wrappr));
+                IID_PPV_ARGS(&before4));
+            auto before4_wrappr = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(before4.GetInterfacePtr());
             GFXRECON_ASSERT(before4_wrappr);
 
             before4_wrappr->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
@@ -3155,9 +3150,10 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList4_BeginRenderPass(
                 p_target_ds_desc                           = &target_ds_desc;
             }
 
-            ID3D12GraphicsCommandList4_Wrapper* target4_wrapper = nullptr;
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr target4 = nullptr;
             trim_draw_calls_command_sets[graphics::dx12::kDrawCallArrayIndex].list->QueryInterface(
-                IID_IUnknown_Wrapper, reinterpret_cast<void**>(&target4_wrapper));
+                IID_PPV_ARGS(&target4));
+            auto target4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(target4.GetInterfacePtr());
             GFXRECON_ASSERT(target4_wrapper);
 
             target4_wrapper->BeginRenderPass(NumRenderTargets, target_rt_descs.data(), p_target_ds_desc, Flags);
@@ -3181,19 +3177,21 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList4_BeginRenderPass(
                 p_after_ds_desc                           = &after_ds_desc;
             }
 
-            ID3D12GraphicsCommandList4_Wrapper* after4_wrapper = nullptr;
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr after4 = nullptr;
             trim_draw_calls_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list->QueryInterface(
-                IID_IUnknown_Wrapper, reinterpret_cast<void**>(&after4_wrapper));
+                IID_PPV_ARGS(&after4));
+            auto after4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(after4.GetInterfacePtr());
             GFXRECON_ASSERT(after4_wrapper);
 
             after4_wrapper->BeginRenderPass(NumRenderTargets, after_rt_descs.data(), p_after_ds_desc, Flags);
         }
         else if (trim_draw_calls_command_sets.size() == 1)
         {
-            ID3D12GraphicsCommandList4_Wrapper* list4_wrapper = nullptr;
-            trim_draw_calls_command_sets[0].list->QueryInterface(IID_IUnknown_Wrapper,
-                                                                reinterpret_cast<void**>(&list4_wrapper));
+            graphics::dx12::ID3D12GraphicsCommandList4ComPtr list4 = nullptr;
+            trim_draw_calls_command_sets[0].list->QueryInterface(IID_PPV_ARGS(&list4));
+            auto list4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(list4.GetInterfacePtr());
             GFXRECON_ASSERT(list4_wrapper);
+
             list4_wrapper->BeginRenderPass(NumRenderTargets, pRenderTargets, pDepthStencil, Flags);
         }
         IncrementCallScope();
@@ -3450,8 +3448,7 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
     HRESULT                            ret             = wrapper->GetDevice(IID_PPV_ARGS(&device));
     GFXRECON_ASSERT(SUCCEEDED(ret));
 
-    ID3D12Device_Wrapper* device_wrapper = nullptr;
-    device->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&device_wrapper));
+    auto device_wrapper = reinterpret_cast<ID3D12Device_Wrapper*>(device.GetInterfacePtr());
     GFXRECON_ASSERT(device_wrapper);
 
     for (auto& command_set : cmd_list_info->split_command_sets)
@@ -3463,8 +3460,8 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
             device_wrapper->CreateCommandList(
                 0, cmd_list_info->command_list_type, command_set.allocator, nullptr, IID_PPV_ARGS(&command_set.list));
 
-            ID3D12CommandList_Wrapper* split_list_wrapper = nullptr;
-            command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&split_list_wrapper));
+            auto split_list_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(command_set.list.GetInterfacePtr());
+            GFXRECON_ASSERT(split_list_wrapper);
             auto split_list_info                  = split_list_wrapper->GetObjectInfo();
             split_list_info->is_split_commandlist = true;
         }
@@ -3516,16 +3513,20 @@ D3D12CaptureManager::GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* 
         {
             for (auto& command_set : cmd_list_info->split_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* list_wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&list_wrapper));
+                auto list_wrapper =
+                    reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
+                GFXRECON_ASSERT(list_wrapper);
+
                 auto list_info = list_wrapper->GetObjectInfo();
                 if (!list_info->is_closed)
                 {
                     list_wrapper->Close();
                 }
 
-                ID3D12CommandAllocator_Wrapper* alc_wrapper = nullptr;
-                command_set.allocator->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&alc_wrapper));
+                auto alc_wrapper =
+                    reinterpret_cast<ID3D12CommandAllocator_Wrapper*>(command_set.allocator.GetInterfacePtr());
+                GFXRECON_ASSERT(alc_wrapper);
+
                 alc_wrapper->Reset();
                 cmd_sets.emplace_back(command_set);
             }

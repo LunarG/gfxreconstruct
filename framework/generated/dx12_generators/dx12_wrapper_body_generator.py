@@ -818,13 +818,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
                 expr += indent1 + '{\n'
 
                 if class_name != 'ID3D12GraphicsCommandList':
-                    expr += indent2 + '{}* command_list;\n'.format(class_name)
+                    expr += indent2 + 'graphics::dx12::{}ComPtr command_list = nullptr;\n'.format(class_name)
                     expr += indent2 + 'command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));\n'
-                    expr += indent2 + '{}_Wrapper* wrapper = nullptr;\n'.format(class_name)
-                    expr += indent2 + 'command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));\n'
+                    expr += indent2 + 'auto* wrapper = reinterpret_cast<{}_Wrapper*>(command_list.GetInterfacePtr());\n'.format(class_name)
                 else:
-                    expr += indent2 + 'ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;\n'
-                    expr += indent2 + 'command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));\n'
+                    expr += indent2 + 'auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());\n'
 
                 if return_type != 'void':
                     expr += indent2 + 'HRESULT result_trim_draw_calls = wrapper'

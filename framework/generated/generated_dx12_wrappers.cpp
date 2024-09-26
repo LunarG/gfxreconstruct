@@ -11725,8 +11725,7 @@ HRESULT STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Close()
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_Close);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 HRESULT result_trim_draw_calls = wrapper->Close();
                 if (result != result_trim_draw_calls)
                 {
@@ -11850,8 +11849,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearState(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearState);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ClearState(
                     pPipelineState);
             }
@@ -11922,8 +11920,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawInstanced(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_DrawInstanced);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->DrawInstanced(
                     VertexCountPerInstance,
                     InstanceCount,
@@ -12007,8 +12004,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DrawIndexedInstanced(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_DrawIndexedInstanced);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->DrawIndexedInstanced(
                     IndexCountPerInstance,
                     InstanceCount,
@@ -12087,8 +12083,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::Dispatch(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_Dispatch);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->Dispatch(
                     ThreadGroupCountX,
                     ThreadGroupCountY,
@@ -12169,8 +12164,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyBufferRegion(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyBufferRegion);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->CopyBufferRegion(
                     pDstBuffer,
                     DstOffset,
@@ -12263,8 +12257,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTextureRegion(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyTextureRegion);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->CopyTextureRegion(
                     pDst,
                     DstX,
@@ -12342,8 +12335,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyResource(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyResource);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->CopyResource(
                     pDstResource,
                     pSrcResource);
@@ -12425,8 +12417,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::CopyTiles(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_CopyTiles);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->CopyTiles(
                     pTiledResource,
                     pTileRegionStartCoordinate,
@@ -12516,8 +12507,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveSubresource(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ResolveSubresource);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ResolveSubresource(
                     pDstResource,
                     DstSubresource,
@@ -12588,8 +12578,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetPrimitiveTopology
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_IASetPrimitiveTopology);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->IASetPrimitiveTopology(
                     PrimitiveTopology);
             }
@@ -12652,8 +12641,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetViewports(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_RSSetViewports);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->RSSetViewports(
                     NumViewports,
                     pViewports);
@@ -12719,8 +12707,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::RSSetScissorRects(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_RSSetScissorRects);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->RSSetScissorRects(
                     NumRects,
                     pRects);
@@ -12782,8 +12769,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetBlendFactor(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_OMSetBlendFactor);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->OMSetBlendFactor(
                     BlendFactor);
             }
@@ -12842,8 +12828,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetStencilRef(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_OMSetStencilRef);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->OMSetStencilRef(
                     StencilRef);
             }
@@ -12902,8 +12887,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPipelineState(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetPipelineState);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetPipelineState(
                     pPipelineState);
             }
@@ -12968,8 +12952,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResourceBarrier(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ResourceBarrier);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ResourceBarrier(
                     NumBarriers,
                     pBarriers);
@@ -13084,8 +13067,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetDescriptorHeaps(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetDescriptorHeaps);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetDescriptorHeaps(
                     NumDescriptorHeaps,
                     ppDescriptorHeaps);
@@ -13147,8 +13129,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootSignatur
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootSignature);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetComputeRootSignature(
                     pRootSignature);
             }
@@ -13207,8 +13188,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootSignatu
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootSignature);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetGraphicsRootSignature(
                     pRootSignature);
             }
@@ -13273,8 +13253,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootDescript
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootDescriptorTable);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetComputeRootDescriptorTable(
                     RootParameterIndex,
                     BaseDescriptor);
@@ -13342,8 +13321,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootDescrip
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootDescriptorTable);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetGraphicsRootDescriptorTable(
                     RootParameterIndex,
                     BaseDescriptor);
@@ -13413,8 +13391,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstant);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetComputeRoot32BitConstant(
                     RootParameterIndex,
                     SrcData,
@@ -13487,8 +13464,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstant);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetGraphicsRoot32BitConstant(
                     RootParameterIndex,
                     SrcData,
@@ -13565,8 +13541,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRoot32BitCon
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRoot32BitConstants);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetComputeRoot32BitConstants(
                     RootParameterIndex,
                     Num32BitValuesToSet,
@@ -13646,8 +13621,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRoot32BitCo
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRoot32BitConstants);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetGraphicsRoot32BitConstants(
                     RootParameterIndex,
                     Num32BitValuesToSet,
@@ -13721,8 +13695,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootConstant
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootConstantBufferView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetComputeRootConstantBufferView(
                     RootParameterIndex,
                     BufferLocation);
@@ -13790,8 +13763,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootConstan
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootConstantBufferView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetGraphicsRootConstantBufferView(
                     RootParameterIndex,
                     BufferLocation);
@@ -13859,8 +13831,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootShaderRe
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootShaderResourceView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetComputeRootShaderResourceView(
                     RootParameterIndex,
                     BufferLocation);
@@ -13928,8 +13899,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootShaderR
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootShaderResourceView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetGraphicsRootShaderResourceView(
                     RootParameterIndex,
                     BufferLocation);
@@ -13997,8 +13967,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetComputeRootUnordere
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetComputeRootUnorderedAccessView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetComputeRootUnorderedAccessView(
                     RootParameterIndex,
                     BufferLocation);
@@ -14066,8 +14035,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetGraphicsRootUnorder
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetGraphicsRootUnorderedAccessView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetGraphicsRootUnorderedAccessView(
                     RootParameterIndex,
                     BufferLocation);
@@ -14136,8 +14104,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetIndexBuffer(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_IASetIndexBuffer);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->IASetIndexBuffer(
                     pView);
             }
@@ -14211,8 +14178,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::IASetVertexBuffers(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_IASetVertexBuffers);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->IASetVertexBuffers(
                     StartSlot,
                     NumViews,
@@ -14292,8 +14258,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SOSetTargets(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SOSetTargets);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SOSetTargets(
                     StartSlot,
                     NumViews,
@@ -14372,8 +14337,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::OMSetRenderTargets(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_OMSetRenderTargets);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->OMSetRenderTargets(
                     NumRenderTargetDescriptors,
                     pRenderTargetDescriptors,
@@ -14463,8 +14427,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearDepthStencilView(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearDepthStencilView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ClearDepthStencilView(
                     DepthStencilView,
                     ClearFlags,
@@ -14552,8 +14515,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearRenderTargetView(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearRenderTargetView);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ClearRenderTargetView(
                     RenderTargetView,
                     ColorRGBA,
@@ -14645,8 +14607,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewUint);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ClearUnorderedAccessViewUint(
                     ViewGPUHandleInCurrentHeap,
                     ViewCPUHandle,
@@ -14744,8 +14705,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ClearUnorderedAccessVi
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ClearUnorderedAccessViewFloat);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ClearUnorderedAccessViewFloat(
                     ViewGPUHandleInCurrentHeap,
                     ViewCPUHandle,
@@ -14823,8 +14783,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::DiscardResource(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_DiscardResource);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->DiscardResource(
                     pResource,
                     pRegion);
@@ -14894,8 +14853,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginQuery(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_BeginQuery);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->BeginQuery(
                     pQueryHeap,
                     Type,
@@ -14968,8 +14926,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndQuery(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_EndQuery);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->EndQuery(
                     pQueryHeap,
                     Type,
@@ -15054,8 +15011,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ResolveQueryData(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ResolveQueryData);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ResolveQueryData(
                     pQueryHeap,
                     Type,
@@ -15137,8 +15093,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetPredication(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetPredication);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetPredication(
                     pBuffer,
                     AlignedBufferOffset,
@@ -15211,8 +15166,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::SetMarker(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_SetMarker);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->SetMarker(
                     Metadata,
                     pData,
@@ -15285,8 +15239,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::BeginEvent(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_BeginEvent);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->BeginEvent(
                     Metadata,
                     pData,
@@ -15347,8 +15300,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::EndEvent()
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_EndEvent);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->EndEvent();
             }
             manager->IncrementCallScope();
@@ -15424,8 +15376,7 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList_Wrapper::ExecuteIndirect(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList_ExecuteIndirect);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
                 wrapper->ExecuteIndirect(
                     pCommandSignature,
                     MaxCommandCount,
@@ -15529,10 +15480,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList1* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList1ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList1_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->AtomicCopyBufferUINT(
                     pDstBuffer,
                     DstOffset,
@@ -15635,10 +15585,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::AtomicCopyBufferUINT6
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_AtomicCopyBufferUINT64);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList1* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList1ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList1_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->AtomicCopyBufferUINT64(
                     pDstBuffer,
                     DstOffset,
@@ -15719,10 +15668,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::OMSetDepthBounds(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_OMSetDepthBounds);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList1* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList1ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList1_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->OMSetDepthBounds(
                     Min,
                     Max);
@@ -15792,10 +15740,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetSamplePositions(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_SetSamplePositions);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList1* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList1ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList1_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->SetSamplePositions(
                     NumSamplesPerPixel,
                     NumPixels,
@@ -15892,10 +15839,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::ResolveSubresourceReg
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_ResolveSubresourceRegion);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList1* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList1ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList1_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->ResolveSubresourceRegion(
                     pDstResource,
                     DstSubresource,
@@ -15978,10 +15924,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList1_Wrapper::SetViewInstanceMask(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList1_SetViewInstanceMask);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList1* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList1ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList1_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList1_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->SetViewInstanceMask(
                     Mask);
             }
@@ -16059,10 +16004,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList2_Wrapper::WriteBufferImmediate(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList2_WriteBufferImmediate);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList2* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList2ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList2_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList2_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->WriteBufferImmediate(
                     Count,
                     pParams,
@@ -23593,10 +23537,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList3_Wrapper::SetProtectedResourceS
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList3_SetProtectedResourceSession);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList3* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList3ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList3_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList3_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->SetProtectedResourceSession(
                     pProtectedResourceSession);
             }
@@ -23800,10 +23743,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EndRenderPass()
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_EndRenderPass);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->EndRenderPass();
             }
             manager->IncrementCallScope();
@@ -23867,10 +23809,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::InitializeMetaCommand
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_InitializeMetaCommand);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->InitializeMetaCommand(
                     pMetaCommand,
                     pInitializationParametersData,
@@ -23943,10 +23884,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::ExecuteMetaCommand(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_ExecuteMetaCommand);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->ExecuteMetaCommand(
                     pMetaCommand,
                     pExecutionParametersData,
@@ -24034,10 +23974,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::BuildRaytracingAccele
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_BuildRaytracingAccelerationStructure);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->BuildRaytracingAccelerationStructure(
                     pDesc,
                     NumPostbuildInfoDescs,
@@ -24124,10 +24063,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::EmitRaytracingAcceler
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_EmitRaytracingAccelerationStructurePostbuildInfo);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->EmitRaytracingAccelerationStructurePostbuildInfo(
                     pDesc,
                     NumSourceAccelerationStructures,
@@ -24204,10 +24142,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::CopyRaytracingAcceler
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_CopyRaytracingAccelerationStructure);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->CopyRaytracingAccelerationStructure(
                     DestAccelerationStructureData,
                     SourceAccelerationStructureData,
@@ -24272,10 +24209,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::SetPipelineState1(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_SetPipelineState1);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->SetPipelineState1(
                     pStateObject);
             }
@@ -24341,10 +24277,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList4_Wrapper::DispatchRays(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList4_DispatchRays);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList4* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList4ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList4_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->DispatchRays(
                     pDesc);
             }
@@ -26471,10 +26406,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRate(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRate);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList5* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList5ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList5_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList5_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->RSSetShadingRate(
                     baseShadingRate,
                     combiners);
@@ -26536,10 +26470,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList5_Wrapper::RSSetShadingRateImage
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList5_RSSetShadingRateImage);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList5* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList5ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList5_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList5_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->RSSetShadingRateImage(
                     shadingRateImage);
             }
@@ -26610,10 +26543,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList6_Wrapper::DispatchMesh(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList6_DispatchMesh);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList6* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList6ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList6_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList6_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->DispatchMesh(
                     ThreadGroupCountX,
                     ThreadGroupCountY,
@@ -26688,10 +26620,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList7_Wrapper::Barrier(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList7_Barrier);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList7* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList7ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList7_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList7_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->Barrier(
                     NumBarrierGroups,
                     pBarrierGroups);
@@ -26761,10 +26692,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList8_Wrapper::OMSetFrontAndBackSten
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList8_OMSetFrontAndBackStencilRef);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList8* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList8ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList8_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList8_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->OMSetFrontAndBackStencilRef(
                     FrontStencilRef,
                     BackStencilRef);
@@ -26838,10 +26768,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::RSSetDepthBias(
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList9_RSSetDepthBias);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList9* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList9ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList9_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList9_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->RSSetDepthBias(
                     DepthBias,
                     DepthBiasClamp,
@@ -26906,10 +26835,9 @@ void STDMETHODCALLTYPE ID3D12GraphicsCommandList9_Wrapper::IASetIndexBufferStrip
             auto trim_draw_calls_command_sets = manager->GetCommandListsForTrimDrawCalls(this, format::ApiCall_ID3D12GraphicsCommandList9_IASetIndexBufferStripCutValue);
             for(auto& command_set : trim_draw_calls_command_sets)
             {
-                ID3D12GraphicsCommandList9* command_list;
+                graphics::dx12::ID3D12GraphicsCommandList9ComPtr command_list = nullptr;
                 command_set.list->QueryInterface(IID_PPV_ARGS(&command_list));
-                ID3D12GraphicsCommandList9_Wrapper* wrapper = nullptr;
-                command_set.list->QueryInterface(IID_IUnknown_Wrapper, reinterpret_cast<void**>(&wrapper));
+                auto* wrapper = reinterpret_cast<ID3D12GraphicsCommandList9_Wrapper*>(command_list.GetInterfacePtr());
                 wrapper->IASetIndexBufferStripCutValue(
                     IBStripCutValue);
             }

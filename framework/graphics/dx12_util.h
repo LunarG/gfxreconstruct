@@ -55,8 +55,24 @@ typedef _com_ptr_t<_com_IIID<ID3D12CommandQueue, &__uuidof(ID3D12CommandQueue)>>
 typedef _com_ptr_t<_com_IIID<ID3D12CommandAllocator, &__uuidof(ID3D12CommandAllocator)>> ID3D12CommandAllocatorComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList, &__uuidof(ID3D12GraphicsCommandList)>>
     ID3D12GraphicsCommandListComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList1, &__uuidof(ID3D12GraphicsCommandList1)>>
+    ID3D12GraphicsCommandList1ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList2, &__uuidof(ID3D12GraphicsCommandList2)>>
+    ID3D12GraphicsCommandList2ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList3, &__uuidof(ID3D12GraphicsCommandList3)>>
+    ID3D12GraphicsCommandList3ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList4, &__uuidof(ID3D12GraphicsCommandList4)>>
     ID3D12GraphicsCommandList4ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList5, &__uuidof(ID3D12GraphicsCommandList5)>>
+    ID3D12GraphicsCommandList5ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList6, &__uuidof(ID3D12GraphicsCommandList6)>>
+    ID3D12GraphicsCommandList6ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList7, &__uuidof(ID3D12GraphicsCommandList7)>>
+    ID3D12GraphicsCommandList7ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList8, &__uuidof(ID3D12GraphicsCommandList8)>>
+    ID3D12GraphicsCommandList8ComPtr;
+typedef _com_ptr_t<_com_IIID<ID3D12GraphicsCommandList9, &__uuidof(ID3D12GraphicsCommandList9)>>
+    ID3D12GraphicsCommandList9ComPtr;
 typedef _com_ptr_t<_com_IIID<ID3D12DeviceRemovedExtendedData1, &__uuidof(ID3D12DeviceRemovedExtendedData1)>>
     ID3D12DeviceRemovedExtendedData1ComPtr;
 typedef _com_ptr_t<
