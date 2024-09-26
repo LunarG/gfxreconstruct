@@ -234,6 +234,18 @@ void VulkanStateWriter::WritePhysicalDeviceState(const VulkanStateTable& state_t
                     break;
             }
         }
+
+        if (wrapper->ray_tracing_pipeline_properties != std::nullopt)
+        {
+//            parameter_stream_.Clear();
+//            encoder_.EncodeHandleIdValue(wrapper->handle_id);
+//            VkPhysicalDeviceProperties2 properties2 = {};
+//            properties2.sType                       = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR;
+//            properties2.pNext                       = (void*)&wrapper->ray_tracing_pipeline_properties.value();
+//            EncodeStructPtr(&encoder_, &properties2);
+//            WriteFunctionCall(format::ApiCall_vkGetPhysicalDeviceProperties2, &parameter_stream_);
+//            parameter_stream_.Clear();
+        }
     });
 }
 

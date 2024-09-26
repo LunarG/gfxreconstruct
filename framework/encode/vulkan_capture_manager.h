@@ -302,6 +302,9 @@ class VulkanCaptureManager : public ApiCaptureManager
                                     const VkAllocationCallbacks* pAllocator,
                                     VkDeviceMemory*              pMemory);
 
+    void OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice             physicalDevice,
+                                                  VkPhysicalDeviceProperties2* pProperties);
+
     VkResult OverrideGetPhysicalDeviceToolPropertiesEXT(VkPhysicalDevice                   physicalDevice,
                                                         uint32_t*                          pToolCount,
                                                         VkPhysicalDeviceToolPropertiesEXT* pToolProperties);

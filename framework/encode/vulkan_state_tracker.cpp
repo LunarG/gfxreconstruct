@@ -1385,6 +1385,14 @@ void VulkanStateTracker::TrackDeviceMemoryDeviceAddress(VkDevice device, VkDevic
     device_memory_addresses_map.emplace(address, wrapper);
 }
 
+void VulkanStateTracker::TrackRayTracingPipelineProperties(
+    VkPhysicalDevice physicalDevice, VkPhysicalDeviceRayTracingPipelinePropertiesKHR* ray_properties)
+{
+    auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+    wrapper->ray_tracing_pipeline_properties = *ray_properties;
+    wrapper->ray_tracing_pipeline_properties->pNext = nullptr;
+}
+
 void VulkanStateTracker::TrackRayTracingShaderGroupHandles(VkDevice    device,
                                                            VkPipeline  pipeline,
                                                            size_t      data_size,

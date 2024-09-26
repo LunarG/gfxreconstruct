@@ -1143,6 +1143,21 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
     return result;
 }
 
+void VulkanCaptureManager::OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice             physicalDevice,
+                                                                VkPhysicalDeviceProperties2* pProperties)
+{
+    vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
+
+    if (auto raytracing_props =
+            graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(pProperties))
+    {
+        if(IsCaptureModeTrack())
+        {
+            state_tracker_->TrackRayTracingPipelineProperties(physicalDevice, raytracing_props);
+        }
+    }
+}
+
 VkResult VulkanCaptureManager::OverrideGetPhysicalDeviceToolPropertiesEXT(
     VkPhysicalDevice physicalDevice, uint32_t* pToolCount, VkPhysicalDeviceToolPropertiesEXT* pToolProperties)
 {
