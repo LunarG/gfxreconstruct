@@ -134,6 +134,8 @@ class VulkanStateWriter
 
     void WriteBufferState(const VulkanStateTable& state_table);
 
+    void WriteBufferDeviceAddressState(const VulkanStateTable& state_table);
+
     void WriteDeviceMemoryState(const VulkanStateTable& state_table);
 
     void WriteAccelerationStructureKHRState(const VulkanStateTable& state_table);

@@ -143,6 +143,9 @@ uint64_t VulkanStateWriter::WriteState(const VulkanStateTable& state_table, uint
     StandardCreateWrite<vulkan_wrappers::SamplerWrapper>(state_table);
     StandardCreateWrite<vulkan_wrappers::SamplerYcbcrConversionWrapper>(state_table);
 
+    // Retrieve buffer-device-addresses
+    WriteBufferDeviceAddressState(state_table);
+
     // Render object creation.
     StandardCreateWrite<vulkan_wrappers::RenderPassWrapper>(state_table);
     WriteFramebufferState(state_table);
@@ -1119,6 +1122,25 @@ void VulkanStateWriter::WriteDeviceMemoryState(const VulkanStateTable& state_tab
     });
 }
 
+void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& state_table)
+{
+    state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
+        assert(wrapper != nullptr);
+        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
+        {
+            parameter_stream_.Clear();
+            encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
+            VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
+                                               nullptr,
+                                               wrapper->handle };
+            EncodeStructPtr(&encoder_, &info);
+            encoder_.EncodeVkDeviceAddressValue(wrapper->address);
+            WriteFunctionCall(format::ApiCall_vkGetBufferDeviceAddressKHR, &parameter_stream_);
+            parameter_stream_.Clear();
+        }
+    });
+}
+
 void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
 {
     state_table.VisitWrappers([&](const vulkan_wrappers::BufferWrapper* wrapper) {
@@ -1133,19 +1155,6 @@ void VulkanStateWriter::WriteBufferState(const VulkanStateTable& state_table)
         }
 
         WriteFunctionCall(wrapper->create_call_id, wrapper->create_parameters.get());
-
-        if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
-        {
-            parameter_stream_.Clear();
-            encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
-            VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
-                                               nullptr,
-                                               wrapper->handle };
-            EncodeStructPtr(&encoder_, &info);
-            encoder_.EncodeVkDeviceAddressValue(wrapper->address);
-            WriteFunctionCall(format::ApiCall_vkGetBufferDeviceAddressKHR, &parameter_stream_);
-            parameter_stream_.Clear();
-        }
     });
 }
 

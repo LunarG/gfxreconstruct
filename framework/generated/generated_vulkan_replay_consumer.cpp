@@ -7947,11 +7947,11 @@ void VulkanReplayConsumer::Process_vkGetBufferDeviceAddressEXT(
     format::HandleId                            device,
     StructPointerDecoder<Decoded_VkBufferDeviceAddressInfo>* pInfo)
 {
-    VkDevice in_device = MapHandle<DeviceInfo>(device, &VulkanObjectInfoTable::GetDeviceInfo);
-    const VkBufferDeviceAddressInfo* in_pInfo = pInfo->GetPointer();
+    auto in_device = GetObjectInfoTable().GetDeviceInfo(device);
+
     MapStructHandles(pInfo->GetMetaStructPointer(), GetObjectInfoTable());
 
-    GetDeviceTable(in_device)->GetBufferDeviceAddressEXT(in_device, in_pInfo);
+    OverrideGetBufferDeviceAddress(GetDeviceTable(in_device->handle)->GetBufferDeviceAddressEXT, returnValue, in_device, pInfo);
 }
 
 void VulkanReplayConsumer::Process_vkGetPhysicalDeviceToolPropertiesEXT(

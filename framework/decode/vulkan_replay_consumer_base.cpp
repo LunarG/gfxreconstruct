@@ -4440,8 +4440,9 @@ VkResult VulkanReplayConsumerBase::OverrideBindBufferMemory(PFN_vkBindBufferMemo
             buffer_info->handle, buffer_info->allocator_data, memory_info->allocator_data);
     }
 
-    if (result == VK_SUCCESS && !allocator->SupportsOpaqueDeviceAddresses())
+    if (result == VK_SUCCESS  && !allocator->SupportsOpaqueDeviceAddresses())
     {
+        // TODO: this might be not necessary
         // On fast-forwarded traces buffer device addresses might be missing (no GetBufferDeviceAddress calls)
         // Fill out this data based on original memory device address and binding offset
         auto entry = device_info->opaque_addresses.find(memory_info->capture_id);
@@ -7945,8 +7946,11 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     VkDevice                         device       = device_info->handle;
     const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
 
+    // TODO: we get back a noop here due to always encoding KHR flavor
     // retrieve replay-time device-address
-    VkDeviceAddress replay_device_address = func(device, address_info);
+    //    VkDeviceAddress replay_device_address = func(device, address_info);
+    VkDeviceAddress replay_device_address =
+        GetDeviceTable(device_info->handle)->GetBufferDeviceAddress(device, address_info);
 
     if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
@@ -7959,7 +7963,7 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     else
     {
         // opaque device-addresses are expected to match
-        GFXRECON_ASSERT(original_result == replay_device_address);
+        GFXRECON_ASSERT(original_result == replay_device_address)
     }
 
     // keep track of old/new addresses in any case
@@ -8354,10 +8358,18 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
                 auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(address_region->deviceAddress);
                 GFXRECON_ASSERT(buffer_info != nullptr);
 
-                uint64_t offset = address_region->deviceAddress - buffer_info->capture_address;
+                if (buffer_info->replay_address != 0)
+                {
+                    uint64_t offset = address_region->deviceAddress - buffer_info->capture_address;
 
-                // in-place address-remap via const-cast
-                address_region->deviceAddress = buffer_info->replay_address + offset;
+                    // in-place address-remap via const-cast
+                    address_region->deviceAddress = buffer_info->replay_address + offset;
+                }
+                else
+                {
+                    GFXRECON_LOG_WARNING_ONCE(
+                        "OverrideCmdTraceRaysKHR: missing buffer_info->replay_address, remap failed")
+                }
             }
         };
         // in-place remap: capture-addresses -> replay-addresses
@@ -8378,7 +8390,8 @@ void VulkanReplayConsumerBase::OverrideCmdTraceRaysKHR(
             {
                 // TODO: binding-table re-assembly
                 // TODO: remove TODO/warning when issue #1526 is solved
-                GFXRECON_LOG_WARNING_ONCE("capture/replay have mismatching shader-binding-table size or alignments");
+                GFXRECON_LOG_WARNING_ONCE(
+                    "OverrideCmdTraceRaysKHR: mismatching shader-binding-table size or alignments")
             }
         }
 

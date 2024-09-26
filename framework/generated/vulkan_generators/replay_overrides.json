@@ -91,6 +91,7 @@
     "vkGetRandROutputDisplayEXT": "OverrideGetRandROutputDisplayEXT",
     "vkGetBufferDeviceAddress": "OverrideGetBufferDeviceAddress",
     "vkGetBufferDeviceAddressKHR": "OverrideGetBufferDeviceAddress",
+    "vkGetBufferDeviceAddressEXT": "OverrideGetBufferDeviceAddress",
     "vkGetAccelerationStructureDeviceAddressKHR": "OverrideGetAccelerationStructureDeviceAddressKHR",
     "vkGetRayTracingShaderGroupHandlesKHR": "OverrideGetRayTracingShaderGroupHandlesKHR",
     "vkGetAndroidHardwareBufferPropertiesANDROID": "OverrideGetAndroidHardwareBufferPropertiesANDROID",
