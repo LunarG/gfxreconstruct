@@ -25,6 +25,7 @@ import sys
 from base_generator import *
 from reformat_code import format_cpp_code, indent_cpp_code, remove_leading_empty_lines, remove_trailing_newlines
 
+
 class VulkanStructToJsonBodyGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for serializing Vulkan structures to JSON"""
 
@@ -92,13 +93,6 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
         }
 
         self.pnext_extension_structs = dict()
-        self.flagsType = dict()
-        self.flagsTypeAlias = dict()
-        self.flagEnumBitsType = dict()
-
-        self.all_structs = list()         # Map of all struct names
-        self.all_struct_members = OrderedDict()  # Map of all struct names to lists of per-member ValueInfo
-        self.all_struct_aliases = OrderedDict()  # Map of all struct aliases
 
     # Method override
     # yapf: disable
@@ -124,9 +118,8 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
     def endFile(self):
         body = ''
         for struct in self.all_structs:
-            typename = struct
-            if struct in self.all_struct_aliases:
-                typename = self.all_struct_aliases[struct]
+            if struct in self.customImplementationRequired or self.is_struct_black_listed(struct) or struct in self.all_unions or struct in self.all_struct_aliases:
+                continue
 
             body += '''
                 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
@@ -136,7 +129,7 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                         const {0}& decoded_value = *data->decoded_value;
                         const Decoded_{0}& meta_struct = *data;
 
-                '''.format(typename)
+                '''.format(struct)
             body += self.makeStructBody(struct, self.all_struct_members[struct])
             body += remove_leading_empty_lines('''
                     }
@@ -179,17 +172,6 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
         if self.feature_struct_members:
             return True
         return False
-
-    #
-    # Performs C++ code generation for the feature.
-    # yapf: disable
-    def generate_feature(self):
-        for struct in self.get_filtered_struct_names():
-            if struct in self.customImplementationRequired:
-                continue
-            self.all_structs.append(struct)
-            self.all_struct_members[struct] = self.feature_struct_members[struct]
-    # yapf: enable
 
     #
     # Command definition
@@ -244,8 +226,8 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
                     elif self.is_struct(value_type):
                         to_json = 'FieldToJson(jdata["{0}"], meta_struct.{0}, options)'
                     elif self.is_flags(value_type):
-                        if value_type in self.flagsTypeAlias:
-                            flagsEnumType = self.flagsTypeAlias[value_type]
+                        if value_type in self.flags_type_aliases:
+                            flagsEnumType = self.flags_type_aliases[value_type]
                         to_json = 'FieldToJson({2}_t(),jdata["{0}"], decoded_value.{0}, options)'
                     elif self.is_enum(value_type):
                         to_json = 'FieldToJson(jdata["{0}"], decoded_value.{0}, options)'
@@ -264,24 +246,28 @@ class VulkanStructToJsonBodyGenerator(BaseGenerator):
     def genStruct(self, typeinfo, typename, alias):
         super().genStruct(typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
             if typeinfo.elem.get('structextends'):
-                pnext_extension_struct = self.make_structure_type_enum(typeinfo, typename)
+                pnext_extension_struct = self.make_structure_type_enum(
+                    typeinfo, typename
+                )
                 if pnext_extension_struct:
-                    self.pnext_extension_structs[typename] = pnext_extension_struct
+                    self.pnext_extension_structs[typename
+                                                 ] = pnext_extension_struct
 
     def genType(self, typeinfo, name, alias):
         super().genType(typeinfo, name, alias)
         if self.is_flags(name):
             if alias is None:
-                self.flagsType[name] = self.flags_types[name]
                 bittype = typeinfo.elem.get('requires')
                 if bittype is None:
                     bittype = typeinfo.elem.get('bitvalues')
                 if bittype is not None:
-                    self.flagEnumBitsType[bittype] = name
+                    self.flag_enum_bits_type[bittype] = name
             else:
-                self.flagsTypeAlias[name] = alias
+                self.flags_type_aliases[name] = alias
 
     def make_pnext_body(self):
         body = ''

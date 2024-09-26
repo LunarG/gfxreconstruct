@@ -1,17 +1,30 @@
 {
     "functions": {
-        "vkCreateInstance": "VulkanCaptureManager::OverrideCreateInstance",
-        "vkCreateDevice": "manager->OverrideCreateDevice",
-        "vkCreateBuffer": "manager->OverrideCreateBuffer",
-        "vkCreateImage": "manager->OverrideCreateImage",
-        "vkAllocateMemory": "manager->OverrideAllocateMemory",
-        "vkGetPhysicalDeviceToolPropertiesEXT": "manager->OverrideGetPhysicalDeviceToolPropertiesEXT",
-        "vkCreateAccelerationStructureKHR": "manager->OverrideCreateAccelerationStructureKHR",
-        "vkGetDeferredOperationResultKHR": "manager->OverrideGetDeferredOperationResultKHR",
-        "vkDeferredOperationJoinKHR": "manager->OverrideDeferredOperationJoinKHR",
-        "vkGetPhysicalDeviceQueueFamilyProperties": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties",
-        "vkGetPhysicalDeviceQueueFamilyProperties2": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2",
-        "vkGetPhysicalDeviceQueueFamilyProperties2KHR": "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR",
-        "vkCmdBuildAccelerationStructuresKHR": "manager->OverrideCmdBuildAccelerationStructuresKHR"
+        "vkCreateInstance":
+        "VulkanCaptureManager::OverrideCreateInstance",
+        "vkCreateDevice":
+        "manager->OverrideCreateDevice",
+        "vkCreateBuffer":
+        "manager->OverrideCreateBuffer",
+        "vkCreateImage":
+        "manager->OverrideCreateImage",
+        "vkAllocateMemory":
+        "manager->OverrideAllocateMemory",
+        "vkGetPhysicalDeviceToolPropertiesEXT":
+        "manager->OverrideGetPhysicalDeviceToolPropertiesEXT",
+        "vkCreateAccelerationStructureKHR":
+        "manager->OverrideCreateAccelerationStructureKHR",
+        "vkGetDeferredOperationResultKHR":
+        "manager->OverrideGetDeferredOperationResultKHR",
+        "vkDeferredOperationJoinKHR":
+        "manager->OverrideDeferredOperationJoinKHR",
+        "vkGetPhysicalDeviceQueueFamilyProperties":
+        "manager->OverrideGetPhysicalDeviceQueueFamilyProperties",
+        "vkGetPhysicalDeviceQueueFamilyProperties2":
+        "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2",
+        "vkGetPhysicalDeviceQueueFamilyProperties2KHR":
+        "manager->OverrideGetPhysicalDeviceQueueFamilyProperties2KHR",
+        "vkCmdBuildAccelerationStructuresKHR":
+        "manager->OverrideCmdBuildAccelerationStructuresKHR"
     }
 }

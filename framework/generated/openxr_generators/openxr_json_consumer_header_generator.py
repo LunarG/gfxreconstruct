@@ -77,33 +77,3 @@ class OpenXrExportJsonConsumerHeaderGenerator(OpenXrConsumerHeaderGenerator):
         self.MANUALLY_GENERATED_COMMANDS = [
             'xrEnumerateSwapchainImages', 'xrPollEvent'
         ]
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
-
-        for cmd in self.get_filtered_cmd_names():
-
-            if self.is_manually_generated_cmd_name(cmd):
-                continue
-
-            info = self.feature_cmd_params[cmd]
-            return_type = info[0]
-            values = info[2]
-
-            decl = self.make_consumer_func_decl(
-                return_type, 'Process_' + cmd, values
-            )
-
-            cmddef = '' if first else '\n'
-            if self.genOpts.is_override:
-                cmddef += self.indent(
-                    'virtual ' + decl + ' override;', self.INDENT_SIZE
-                )
-            else:
-                cmddef += self.indent(
-                    'virtual ' + decl + ' {}', self.INDENT_SIZE
-                )
-
-            write(cmddef, file=self.outFile)
-            first = False

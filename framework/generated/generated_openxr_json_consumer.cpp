@@ -887,23 +887,6 @@ void OpenXrExportJsonConsumer::Process_xrStopHapticFeedback(
     WriteBlockEnd();
 }
 
-void OpenXrExportJsonConsumer::Process_xrCreateApiLayerInstance(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    StructPointerDecoder<Decoded_XrInstanceCreateInfo>* info,
-    StructPointerDecoder<Decoded_XrApiLayerCreateInfo>* layerInfo,
-    HandlePointerDecoder<XrInstance>*           instance)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrCreateApiLayerInstance");
-    const JsonOptions& json_options = GetJsonOptions();
-    FieldToJson(jdata[NameReturn()], returnValue, json_options);
-    auto& args = jdata[NameArgs()];
-    FieldToJson(args["info"], info, json_options);
-    FieldToJson(args["layerInfo"], layerInfo, json_options);
-    HandleToJson(args["instance"], instance, json_options);
-    WriteBlockEnd();
-}
-
 void OpenXrExportJsonConsumer::Process_xrLocateSpaces(
     const ApiCallInfo&                          call_info,
     XrResult                                    returnValue,
@@ -1206,29 +1189,6 @@ void OpenXrExportJsonConsumer::Process_xrConvertTimeToTimespecTimeKHR(
     HandleToJson(args["instance"], instance, json_options);
     FieldToJson(args["time"], time, json_options);
     FieldToJson(args["timespecTime"], timespecTime, json_options);
-    WriteBlockEnd();
-}
-
-void OpenXrExportJsonConsumer::Process_xrInitializeLoaderKHR(
-    const ApiCallInfo&                          call_info,
-    XrResult                                    returnValue,
-    StructPointerDecoder<Decoded_XrLoaderInitInfoBaseHeaderKHR>* loaderInitInfo)
-{
-    nlohmann::ordered_json& jdata = WriteApiCallStart(call_info, "xrInitializeLoaderKHR");
-    const JsonOptions& json_options = GetJsonOptions();
-    FieldToJson(jdata[NameReturn()], returnValue, json_options);
-    auto& args = jdata[NameArgs()];
-        switch (loaderInitInfo->GetPointer()->type)
-        {
-            default:
-                FieldToJson(args["loaderInitInfo"], loaderInitInfo, json_options);
-                break;
-            case XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR:
-                FieldToJson(args["loaderInitInfo"],
-                            reinterpret_cast<StructPointerDecoder<Decoded_XrLoaderInitInfoAndroidKHR>*>(loaderInitInfo),
-                            json_options);
-                break;
-        }
     WriteBlockEnd();
 }
 

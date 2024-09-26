@@ -69,7 +69,9 @@ class BaseStructHandleMappersHeaderGenerator():
             write('{', file=self.outFile)
             write('    if (structs != nullptr)', file=self.outFile)
             write('    {', file=self.outFile)
-            write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+            write(
+                '        for (size_t i = 0; i < len; ++i)', file=self.outFile
+            )
             write('        {', file=self.outFile)
             write(
                 '            MapStruct{}(&structs[i], object_info_table{});'.
@@ -110,7 +112,9 @@ class BaseStructHandleMappersHeaderGenerator():
                 '        size_t len = std::min(id_len, handle_len);',
                 file=self.outFile
             )
-            write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+            write(
+                '        for (size_t i = 0; i < len; ++i)', file=self.outFile
+            )
             write('        {', file=self.outFile)
             write(
                 '            AddStruct{}(parent_id, &id_wrappers[i], &handle_structs[i], object_info_table);'
@@ -141,10 +145,13 @@ class BaseStructHandleMappersHeaderGenerator():
             write('{', file=self.outFile)
             write('    if (wrappers != nullptr)', file=self.outFile)
             write('    {', file=self.outFile)
-            write('        for (size_t i = 0; i < len; ++i)', file=self.outFile)
+            write(
+                '        for (size_t i = 0; i < len; ++i)', file=self.outFile
+            )
             write('        {', file=self.outFile)
             write(
-                '            SetStruct{}Lengths(&wrappers[i]);'.format(map_type),
+                '            SetStruct{}Lengths(&wrappers[i]);'.
+                format(map_type),
                 file=self.outFile
             )
             write('        }', file=self.outFile)
@@ -152,7 +159,10 @@ class BaseStructHandleMappersHeaderGenerator():
             write('}', file=self.outFile)
             self.newline()
         else:
-            write('#include "decode/common_struct_handle_mappers.h"', file=self.outFile)
+            write(
+                '#include "decode/common_struct_handle_mappers.h"',
+                file=self.outFile
+            )
 
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -169,9 +179,9 @@ class BaseStructHandleMappersHeaderGenerator():
 
         for struct in self.get_filtered_struct_names():
             if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-                or (struct in self.structs_with_map_data)
+                (struct in self.structs_with_handles) or
+                (struct in self.GENERIC_HANDLE_STRUCTS) or
+                (struct in self.structs_with_map_data)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
                 body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table{});'.format(

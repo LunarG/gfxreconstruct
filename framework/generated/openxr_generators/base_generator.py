@@ -42,20 +42,10 @@ import os
 import re
 import sys
 import json
+from base_generator_defines import BaseGeneratorDefines, bits_enum_to_flags_typedef, make_re_string
 from collections import OrderedDict
 from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
 from xrconventions import OpenXRConventions
-
-
-def _make_re_string(list, default=None):
-    """Turn a list of strings into a regexp string matching exactly those strings.
-    From Khronos genvk.py
-    """
-    if (len(list) > 0) or (default is None):
-        return '^(' + '|'.join(list) + ')$'
-    else:
-        return default
-
 
 # Descriptive names for various regexp patterns used to select versions and extensions.
 _default_extensions = 'openxr'
@@ -77,42 +67,10 @@ _supported_subsets = ["openxr"]
 
 # Turn lists of names/patterns into matching regular expressions.
 # From Khronos genvk.py
-_add_extensions_pat = _make_re_string(_extensions)
-_remove_extensions_pat = _make_re_string(_remove_extensions)
-_emit_extensions_pat = _make_re_string(_emit_extensions, '.*')
-_features_pat = _make_re_string(_features, '.*')
-
-
-def removesuffix(self: str, suffix: str, /) -> str:
-    # suffix='' should not call self[:-0].
-    if suffix and self.endswith(suffix):
-        return self[:-len(suffix)]
-    else:
-        return self[:]
-
-
-# Strip the "Bit" ending or near-ending from an enum representing a group of
-# flag bits to give the name of the type (typedef of Flags or Flags64) used to
-# hold a disjoint set of them.
-# It works for true enums and the 64 bit collections of static const variables
-# which are tied together only with a naming convention in the C header.
-def BitsEnumToFlagsTypedef(enum):
-    # if enum.endswith
-    flags = removesuffix(enum, 'Bits')
-    if flags != enum:
-        flags = flags + 's'
-        return flags
-    flags = removesuffix(enum, 'Bits2')
-    if flags != enum:
-        flags = flags + 's2'
-        return flags
-    # Gods preserve us from Bits 3, 4, 5, etc.
-    # It might have more extension suffix.
-    flags = removesuffix(enum, 'Bits2KHR')
-    if flags != enum:
-        flags = flags + 's2KHR'
-        return flags
-    return flags
+_add_extensions_pat = make_re_string(_extensions)
+_remove_extensions_pat = make_re_string(_remove_extensions)
+_emit_extensions_pat = make_re_string(_emit_extensions, '.*')
+_features_pat = make_re_string(_features, '.*')
 
 
 class ValueInfo():
@@ -130,6 +88,7 @@ class ValueInfo():
       platform_base_type - For platform specific type definitions, stores the original base_type declaration before platform to trace type substitution.
       platform_full_type - For platform specific type definitions, stores the original full_type declaration before platform to trace type substitution.
       is_pointer - True if the value is a pointer.
+      is_optional - True if the value is optional
       is_array - True if the member is an array.
       is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
       is_const - True if the member is a const.
@@ -149,7 +108,7 @@ class ValueInfo():
         platform_full_type=None,
         bitfield_width=None,
         is_const=False,
-        is_com_outptr=False
+        is_optional=False
     ):
         self.name = name
         self.base_type = base_type
@@ -164,10 +123,10 @@ class ValueInfo():
         self.bitfield_width = bitfield_width
 
         self.is_pointer = True if pointer_count > 0 else False
+        self.is_optional = is_optional
         self.is_array = True if array_length else False
         self.is_dynamic = True if not array_capacity else False
         self.is_const = is_const
-        self.is_com_outptr = is_com_outptr
 
 
 class BaseGeneratorOptions(GeneratorOptions):
@@ -258,7 +217,7 @@ class BaseGeneratorOptions(GeneratorOptions):
         self.extraOpenXrHeaders = extraOpenXrHeaders
 
 
-class BaseGenerator(OutputGenerator):
+class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
     """BaseGenerator - subclass of OutputGenerator.
     Base class providing common operations used to generate C++-language code for framework
       components that encode and decode OpenXR API parameters.
@@ -275,107 +234,14 @@ class BaseGenerator(OutputGenerator):
         diag_file=sys.stdout
     ):
         OutputGenerator.__init__(self, err_file, warn_file, diag_file)
-
-        # These API calls should not be processed by the code generator.  They require special implementations.
-        self.APICALL_BLACKLIST = []
-
-        self.APICALL_ENCODER_BLACKLIST = []
-
-        self.APICALL_DECODER_BLACKLIST = []
-
-        # These method calls should not be processed by the code generator.  They require special implementations.
-        self.METHODCALL_BLACKLIST = []
-
-        # These structures should not be processed by the code generator.  They require special implementations.
-        self.STRUCT_BLACKLIST = []
-
-        # These structures should be ignored for handle mapping/unwrapping. They require special implementations.
-        self.STRUCT_MAPPERS_BLACKLIST = []
-
-        # Platform specific basic types that have been defined extarnally to the OpenXR header.
-        self.PLATFORM_TYPES = {}
+        BaseGeneratorDefines.__init__(self)
 
         # Platform specific structure types that have been defined extarnally to the OpenXR header.
         self.PLATFORM_STRUCTS = ['timespec']
 
-        self.GENERIC_HANDLE_APICALLS = {}
-
-        self.GENERIC_HANDLE_STRUCTS = {}
-
-        self.OPENXR_REPLACE_TYPE = {}
-
-        # These types represent pointers to non-OpenXR objects that were written as 64-bit address IDs.
-        self.EXTERNAL_OBJECT_TYPES = ['void', 'Void']
-
-        self.MAP_STRUCT_TYPE = {}
-
-        # Dispatchable handle types.
-        self.DISPATCHABLE_HANDLE_TYPES = [
-            'XrInstance', 'XrSession', 'XrSpace', 'XrAction', 'XrSwapchain',
-            'XrActionSet'
-        ]
-
         self.DUPLICATE_HANDLE_TYPES = []
 
-        # Default C++ code indentation size.
-        self.INDENT_SIZE = 4
-
-        # Typenames
-        self.base_types = dict()  # Set of OpenXR basetypes
-        self.struct_names = set()  # Set of OpenXR struct typenames
-        self.handle_names = set()  # Set of OpenXR handle typenames
-        self.atom_names = set()  # Set of OpenXR Atom typenames
-        self.opaque_names = set()  # Set of OpenXR Opaque typenames
-        self.flags_types = dict(
-        )  # Map of flags types to base flag type (VkFlags or VkFlags64)
-        self.enum_names = set()  # Set of OpenXR enumeration typenames
-        self.enumAliases = dict()  # Map of enum names to aliases
-        self.enumEnumerants = dict()  # Map of enum names to enumerants
-
-        # Map of typename to XrStructureType for each struct that is not an alias and has a XrStructureType associated
-        self.struct_type_enums = dict()
-
-        # Type processing options
-        self.process_cmds = process_cmds  # Populate the feature_cmd_params map
-        self.process_structs = process_structs  # Populate the feature_struct_members map
-        self.feature_break = feature_break  # Insert a line break between features
-
-        # Command parameter and struct member data for the current feature
-        if self.process_structs:
-            self.all_structs = list(
-            )  # List of all struct names -- filtered by blacklist. TODO: DRY this
-            self.all_struct_aliases = OrderedDict(
-            )  # Map of struct names to aliases
-            self.cumulative_struct_members = OrderedDict(
-            )  # Map of all struct names to lists of per-member ValueInfo cumulative for all features
-            self.all_struct_members = OrderedDict(
-            )  # Map of all struct names to lists of per-member ValueInfo -- filtered by blacklist. TODO: DRY this
-            self.base_header_structs = OrderedDict(
-            )  # Map of base header struct names to lists of child struct names
-            self.struct_extends = dict(
-            )  # Map of the struct this struct extends
-            self.feature_struct_members = OrderedDict(
-            )  # Map of per-feature struct names to lists of per-member ValueInfo
-            self.feature_struct_aliases = OrderedDict(
-            )  # Map of struct names to aliases
-            self._structs_with_handles = OrderedDict(
-            )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
-            self._structs_with_handle_ptrs = OrderedDict(
-            )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer
-        if self.process_cmds:
-            self.feature_cmd_params = OrderedDict(
-            )  # Map of cmd names to lists of per-parameter ValueInfo
-
         # Basetypes and their corresponding encode command type
-        self.encode_types = dict()
-        self.encode_types['int8_t'] = 'Int8'
-        self.encode_types['int16_t'] = 'Int16'
-        self.encode_types['int32_t'] = 'Int32'
-        self.encode_types['int64_t'] = 'Int64'
-        self.encode_types['uint8_t'] = 'UInt8'
-        self.encode_types['uint16_t'] = 'UInt16'
-        self.encode_types['uint32_t'] = 'UInt32'
-        self.encode_types['uint64_t'] = 'UInt64'
         self.encode_types['XR_DEFINE_ATOM'] = 'UInt64'
         self.encode_types['XR_DEFINE_OPAQUE_64'] = 'UInt64'
 
@@ -397,6 +263,12 @@ class BaseGenerator(OutputGenerator):
         self.enum_names.add('VkSamplerAddressMode')
         self.enum_names.add('VkComponentSwizzle')
 
+        if self.process_structs:
+            self.extension_structs_with_handles = OrderedDict(
+            )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
+            self.extension_structs_with_handle_ptrs = OrderedDict(
+            )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer]
+
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate.
         The subclass should override this method."""
@@ -405,23 +277,12 @@ class BaseGenerator(OutputGenerator):
     def generate_feature(self):
         """Performs C++ code generation for the feature.
         The subclass should override this method."""
+        BaseGeneratorDefines.generate_feature(self)
 
     def beginFile(self, gen_opts):
         """Method override."""
         OutputGenerator.beginFile(self, gen_opts)
-
-        if gen_opts.blacklists:
-            self.__load_blacklists(gen_opts.blacklists)
-        if gen_opts.platform_types:
-            self.__load_platform_types(gen_opts.platform_types)
-
-            # Platform defined struct processing must be implemented manually,
-            # so these structs will be added to the blacklist.
-            self.STRUCT_BLACKLIST += self.PLATFORM_STRUCTS
-
-        self.header_sym = 'GFXRECON_' + re.sub(
-            '\.h', '_H', os.path.basename(self.genOpts.filename)
-        ).upper()
+        BaseGeneratorDefines.beginFile(self, gen_opts)
 
         # User-supplied prefix text, if any (list of strings)
         if (gen_opts.prefix_text):
@@ -430,6 +291,9 @@ class BaseGenerator(OutputGenerator):
 
         # Multiple inclusion protection & C++ wrappers.
         if (gen_opts.protect_file and self.genOpts.filename):
+            self.header_sym = 'GFXRECON_' + os.path.basename(
+                self.genOpts.filename
+            ).replace('.h', '_H').upper()
             write('#ifndef ', self.header_sym, file=self.outFile)
             write('#define ', self.header_sym, file=self.outFile)
             self.newline()
@@ -468,13 +332,7 @@ class BaseGenerator(OutputGenerator):
     def beginFeature(self, interface, emit):
         """Method override. Start processing in superclass."""
         OutputGenerator.beginFeature(self, interface, emit)
-
-        # Reset feature specific data sets
-        if self.process_structs:
-            self.feature_struct_members = OrderedDict()
-            self.feature_struct_aliases = OrderedDict()
-        if self.process_cmds:
-            self.feature_cmd_params = OrderedDict()
+        BaseGeneratorDefines.beginFeature(self, interface, emit)
 
         # Some generation cases require that extra feature protection be suppressed
         if self.genOpts.protect_feature:
@@ -512,21 +370,48 @@ class BaseGenerator(OutputGenerator):
         # generating a structure. Otherwise, emit the tag text.
         category = type_elem.get('category')
         if (category == 'struct' or category == 'union'):
-            self.struct_names.add(name)
+            self.all_structs.append(name)
             # Skip code generation for union encode/decode functions.
             if category == 'struct':
                 self.genStruct(typeinfo, name, alias)
+            else:
+                self.all_unions.append(name)
         elif (category == 'handle'):
             self.handle_names.add(name)
+            if (
+                type_elem is not None and type_elem.find('type') is not None
+                and type_elem.find('type').text == 'XR_DEFINE_HANDLE'
+            ):
+                self.dispatchable_handle_names.add(name)
         elif (category == 'bitmask'):
-            # Flags can have either VkFlags or VkFlags64 base type
+            # Flags can have either XrFlags or XrFlags64 base type
             alias = type_elem.get('alias')
             if alias:
+                if name not in self.flags_types:
+                    self.flags_types[name] = self.flags_types[alias]
+
                 # Use same base type as the alias if one exists
-                self.flags_types[name] = self.flags_types[alias]
+                self.flags_type_aliases[name] = alias
+                if alias in self.flag_enum_bits_type:
+                    self.flag_enum_bits_type[name] = self.flag_enum_bits_type[
+                        alias]
             else:
-                # Otherwise, look for base type inside type declaration
-                self.flags_types[name] = type_elem.find('type').text
+                if name not in self.flags_types:
+                    # Otherwise, look for base type inside type declaration
+                    self.flags_types[name] = type_elem.find('type').text
+
+                    bittype = typeinfo.elem.get('requires')
+                    if bittype is None:
+                        bittype = typeinfo.elem.get('bitvalues')
+                    if bittype is not None:
+                        self.flag_enum_bits_type[name] = bittype
+                        if bittype not in self.bitfields_names:
+                            self.bitfields_names.append(bittype)
+                        if bittype not in self.flag_bits_types:
+                            self.flag_bits_types[bittype] = type_elem.find(
+                                'type'
+                            ).text
+
         elif (category == "basetype") and type_elem.find('type') is not None:
             type_info = type_elem.find('type').text
             if type_info == 'XR_DEFINE_ATOM':
@@ -558,7 +443,7 @@ class BaseGenerator(OutputGenerator):
             return
 
         struct_type_enum = self.make_structure_type_enum(typeinfo, typename)
-        if struct_type_enum is not None and struct_type_enum in self.enumEnumerants[
+        if struct_type_enum is not None and struct_type_enum in self.enum_enumerants[
             'XrStructureType']:
             self.struct_type_enums[typename] = struct_type_enum
 
@@ -566,15 +451,10 @@ class BaseGenerator(OutputGenerator):
         # would produce multiple definition errors for functions with struct parameters.
         if self.process_structs:
             if not alias:
-                self.feature_struct_members[typename] = self.make_value_info(
-                    typeinfo.elem.findall('.//member')
+                self.set_struct_members(
+                    typename,
+                    self.make_value_info(typeinfo.elem.findall('.//member'))
                 )
-
-                # As feature is cleared per feature, keep running copy here
-                # NOTE: blacklist is not applied here, intentionally as data about blacklisted structs
-                #       may still be needed by non blacklisted structs
-                self.cumulative_struct_members[
-                    typename] = self.feature_struct_members[typename]
 
                 # If this struct has a parent name, keep track of all
                 # the parents and their children
@@ -589,10 +469,33 @@ class BaseGenerator(OutputGenerator):
 
                 extended_struct = typeinfo.elem.get('structextends')
                 if extended_struct:
-                    self.struct_extends[typename] = extended_struct
+                    self.extended_structs[typename] = extended_struct
             else:
-                self.feature_struct_aliases[typename] = alias
-                self.all_struct_aliases[typename] = alias
+                self.set_struct_aliases(typename, alias)
+
+    def genUnion(self, typeinfo, typename, alias):
+        """Method override.
+        Union (e.g. C "union" type) generation.
+        This is a special case of the <type> tag where the contents are
+        interpreted as a set of <member> tags instead of freeform C
+        C type declarations. The <member> tags are just like <param>
+        tags - they are a declaration of a struct or union member.
+        """
+        # For structs, we ignore the alias because it is a typedef.  Not ignoring the alias
+        # would produce multiple definition errors for functions with struct parameters.
+        if self.process_structs:
+            self.all_unions.append(typename)
+            if not alias:
+                if typename not in self.feature_union_members:
+                    self.set_union_members(
+                        typename,
+                        self.make_value_info(
+                            typeinfo.elem.findall('.//member')
+                        )
+                    )
+            else:
+                if typename not in self.feature_union_aliases:
+                    self.set_union_aliases(typename, alias)
 
     def genGroup(self, groupinfo, group_name, alias):
         """Method override.
@@ -618,17 +521,9 @@ class BaseGenerator(OutputGenerator):
                     name = elem.get('name')
                     if name and not elem.get('alias'):
                         enumerants[name] = elem.get('value')
-            self.enumEnumerants[group_name] = enumerants
+            self.enum_enumerants[group_name] = enumerants
         else:
-            self.enumAliases[group_name] = alias
-
-    def genEnum(self, enuminfo, name, alias):
-        """Method override.
-        Enumerant generation
-        <enum> tags may specify their values in several ways, but are usually
-        just integers.
-        """
-        OutputGenerator.genEnum(self, enuminfo, name, alias)
+            self.enum_aliases[group_name] = alias
 
     def genCmd(
         self,
@@ -643,6 +538,9 @@ class BaseGenerator(OutputGenerator):
             OutputGenerator.genCmd(self, cmdinfo, name, alias)
 
         if self.process_cmds and not supress_local_processing:
+            if self.is_cmd_black_listed(name):
+                return
+
             # Create the declaration for the function prototype
             proto = cmdinfo.elem.find('proto')
             proto_decl = self.genOpts.apicall + noneStr(proto.text)
@@ -657,10 +555,11 @@ class BaseGenerator(OutputGenerator):
             return_type = noneStr(proto.text
                                   ) + noneStr(proto.find('type').text)
 
-            # TODO: Define a class or namedtuple for the dictionary entry
-            self.feature_cmd_params[name] = (
-                return_type, proto_decl,
-                self.make_value_info(cmdinfo.elem.findall('param'))
+            self.save_command_and_params(
+                name, (
+                    return_type, proto_decl,
+                    self.make_value_info(cmdinfo.elem.findall('param'))
+                )
             )
 
     def make_value_info(self, params):
@@ -691,6 +590,10 @@ class BaseGenerator(OutputGenerator):
                     base_type, type_info['replaceWith']
                 )
                 base_type = type_info['baseType']
+
+            is_optional = False
+            if 'optional' in param.attrib:
+                is_optional = param.attrib.get('optional').lower() == 'true'
 
             # Get array length, always use altlen when available to avoid parsing latexmath
             if 'altlen' in param.attrib:
@@ -727,7 +630,8 @@ class BaseGenerator(OutputGenerator):
                     array_dimension=array_dimension,
                     platform_base_type=platform_base_type,
                     platform_full_type=platform_full_type,
-                    bitfield_width=bitfield_width
+                    bitfield_width=bitfield_width,
+                    is_optional=is_optional
                 )
             )
 
@@ -745,7 +649,7 @@ class BaseGenerator(OutputGenerator):
     def is_struct(self, base_type):
         """Check for struct type."""
         if (
-            (base_type in self.struct_names)
+            (base_type in self.all_structs)
             or (base_type in self.PLATFORM_STRUCTS)
         ):
             return True
@@ -756,9 +660,18 @@ class BaseGenerator(OutputGenerator):
 
     def is_handle(self, base_type):
         """Check for handle type."""
-        if base_type in self.handle_names:
+        if base_type in self.handle_names and self.is_valid_handle(base_type):
             return True
         return False
+
+    def is_dispatchable_handle(self, base_type):
+        """Check for handle type."""
+        if base_type in self.dispatchable_handle_names:
+            return True
+        return False
+
+    def is_valid_handle(self, base_type):
+        return True
 
     def is_atom(self, base_type):
         if base_type in self.atom_names:
@@ -767,6 +680,14 @@ class BaseGenerator(OutputGenerator):
 
     def is_opaque(self, base_type):
         if base_type in self.opaque_names:
+            return True
+        return False
+
+    def is_handle_like(self, base_type):
+        """Check for handle type."""
+        if self.is_handle(base_type) or self.is_atom(
+            base_type
+        ) or self.is_opaque(base_type):
             return True
         return False
 
@@ -803,12 +724,6 @@ class BaseGenerator(OutputGenerator):
     def get_basetype(self, base_type):
         return self.base_types[base_type]
 
-    def is_dispatchable_handle(self, base_type):
-        """Check for dispatchable handle type."""
-        if base_type in self.DISPATCHABLE_HANDLE_TYPES:
-            return True
-        return False
-
     def is_enum(self, base_type):
         """Check for enum type."""
         if base_type in self.enum_names:
@@ -816,11 +731,24 @@ class BaseGenerator(OutputGenerator):
         return False
 
     def is_union(self, value):
+        if value in self.all_unions:
+            return True
         return False
+
+    def get_union_members(self, type):
+        if type in self.all_unions:
+            return self.all_union_members[type]
+        return None
 
     def is_flags(self, base_type):
         """Check for flags (bitmask) type."""
         if base_type in self.flags_types:
+            return True
+        return False
+
+    def is_bittype(self, base_type):
+        """Check for bittype (for flags) type."""
+        if base_type in self.bitfields_names:
             return True
         return False
 
@@ -920,72 +848,6 @@ class BaseGenerator(OutputGenerator):
         # Not all static arrays have an associated length parameter. These will use capacity as length.
         return capacity
 
-    def is_struct_black_listed(self, typename):
-        """Determines if a struct with the specified typename is blacklisted."""
-        if typename in self.STRUCT_BLACKLIST:
-            return True
-        return False
-
-    def is_cmd_black_listed(self, name):
-        """Determines if a function with the specified typename is blacklisted."""
-        if name in self.APICALL_BLACKLIST:
-            return True
-        if 'Decoder' in self.__class__.__name__ and name in self.APICALL_DECODER_BLACKLIST:
-            return True
-        if 'Encoder' in self.__class__.__name__ and name in self.APICALL_ENCODER_BLACKLIST:
-            return True
-        return False
-
-    def is_method_black_listed(self, class_name, method_name=None):
-        """Determines if a method call with the specified typename is blacklisted."""
-        combined_name = class_name
-        if method_name:
-            combined_name += '_' + method_name
-        if combined_name in self.METHODCALL_BLACKLIST:
-            return True
-        return False
-
-    def is_dx12_class(self):
-        return True if ('Dx12' in self.__class__.__name__) else False
-
-    def is_openxr_class(self):
-        return True if ('OpenXr' in self.__class__.__name__) else False
-
-    def is_resource_dump_class(self):
-        return True if (
-            'ReplayDumpResources' in self.__class__.__name__
-        ) else False
-
-    def get_filtered_feature_struct_names(self):
-        """Retrieves a filtered list of keys from self.feature_struct_memebers with blacklisted items removed."""
-        return [
-            key for key in self.feature_struct_members
-            if not self.is_struct_black_listed(key)
-        ]
-
-    def get_filtered_struct_names(self):
-        return self.get_filtered_feature_struct_names()
-
-    def get_filtered_all_feature_struct_names(self):
-        """Retrieves a filtered list of keys from self.all_feature_struct_memebers with blacklisted items removed."""
-        return [
-            key for key in self.cumulative_struct_members
-            if not self.is_struct_black_listed(key)
-        ]
-
-    def get_filtered_cmd_names(self):
-        """Retrieves a filtered list of keys from self.feature_cmd_params with blacklisted items removed."""
-        return [
-            key for key in self.feature_cmd_params
-            if not self.is_cmd_black_listed(key)
-        ]
-
-    def is_manually_generated_cmd_name(self, command):
-        """Determines if a command is in the list of manually generated command names."""
-        if self.MANUALLY_GENERATED_COMMANDS is not None and command in self.MANUALLY_GENERATED_COMMANDS:
-            return True
-        return False
-
     def clean_type_define(self, full_type):
         """Default to identity function, base classes may override."""
         return full_type
@@ -1000,7 +862,7 @@ class BaseGenerator(OutputGenerator):
         if valid_extension_structs:
             # Need to search the XML tree for next structures that have not been processed yet.
             for struct_name in valid_extension_structs:
-                found_handles, found_handle_ptrs = self.struct_has_handles(
+                found_handles, found_handle_ptrs, handle_list = self.struct_has_handles(
                     struct_name
                 )
                 has_handles = has_handles or found_handles
@@ -1008,10 +870,10 @@ class BaseGenerator(OutputGenerator):
                 if has_handles and has_handle_ptrs:
                     break
 
-        if typename in self.struct_extends:
+        if typename in self.extended_structs:
             # If struct has a extends another, then its "next" has the same has_* as the parent
             has_handles, has_handle_ptrs = self.check_struct_next_handles(
-                self.struct_extends[typename]
+                self.extended_structs[typename]
             )
 
         return has_handles, has_handle_ptrs
@@ -1022,7 +884,6 @@ class BaseGenerator(OutputGenerator):
         structs_with_handles,
         structs_with_handle_ptrs=None,
         ignore_output=False,
-        structs_with_map_data=None,
         extra_types=None,
         struct_members=None
     ):
@@ -1030,18 +891,20 @@ class BaseGenerator(OutputGenerator):
         Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
         An optional list of structure types that contain handle members with pointer types may also be generated.
         """
+        handles = []
+        has_handles = False
+        has_handle_pointer = False
+
         # Allow the caller to use a different member list
         if not struct_members:
-            struct_members = self.feature_struct_members[typename]
+            if typename not in self.all_struct_members:
+                return has_handles, has_handle_pointer, handles
+            struct_members = self.all_struct_members[typename]
 
-        handles = []
-        has_handle_pointer = False
         map_data = []
         for value in struct_members:
             if (
-                self.is_handle(value.base_type)
-                or self.is_atom(value.base_type)
-                or self.is_opaque(value.base_type) or self.is_class(value)
+                self.is_handle_like(value.base_type) or self.is_class(value)
                 or (extra_types and value.base_type in extra_types)
             ):
                 # The member is a handle.
@@ -1052,7 +915,7 @@ class BaseGenerator(OutputGenerator):
                 ):
                     has_handle_pointer = True
             elif self.is_struct(value.base_type):
-                has_handles, has_handle_ptrs = self.struct_has_handles(
+                has_handles, has_handle_ptrs, handle_list = self.struct_has_handles(
                     value.base_type
                 )
                 if has_handles and (
@@ -1078,9 +941,6 @@ class BaseGenerator(OutputGenerator):
                                                                   ]:
                         handles.append(value)
                         has_handle_pointer = True
-                    elif union_info.base_type in self.MAP_STRUCT_TYPE:
-                        if (structs_with_map_data is not None):
-                            map_data.append(value)
             elif ('next' == value.name):
                 # The next chain may include a struct with handles.
                 has_next_handles, has_next_handle_ptrs = self.check_struct_next_handles(
@@ -1092,15 +952,6 @@ class BaseGenerator(OutputGenerator):
                         structs_with_handle_ptrs is not None
                     ) and has_next_handle_ptrs:
                         has_handle_pointer = True
-
-            if (structs_with_map_data is not None) and (
-                (value.base_type in self.MAP_STRUCT_TYPE) or
-                (value.base_type in structs_with_map_data)
-            ):
-                map_data.append(value)
-
-        if map_data:
-            structs_with_map_data[typename] = map_data
 
         if handles:
             # Process the list of struct members a second time to check for
@@ -1208,10 +1059,7 @@ class BaseGenerator(OutputGenerator):
         """Convert a type name to a string to be used as part of an encoder/decoder function/method name."""
         if self.is_struct(base_type):
             return base_type
-        elif (
-            self.is_handle(base_type) or self.is_atom(base_type)
-            or self.is_opaque(base_type)
-        ):
+        elif self.is_handle_like(base_type):
             type_name = self.get_prefix_from_type(base_type)
             type_name += 'Handle'
             return type_name
@@ -1291,10 +1139,7 @@ class BaseGenerator(OutputGenerator):
                 else:
                     # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
                     type_name = 'uint64_t'
-            elif (
-                self.is_handle(type_name) or self.is_atom(type_name)
-                or self.is_opaque(type_name)
-            ):
+            elif self.is_handle_like(type_name):
                 type_name = 'HandlePointerDecoder<{}>'.format(type_name)
             else:
                 if count > 1:
@@ -1306,10 +1151,7 @@ class BaseGenerator(OutputGenerator):
             type_name = 'uint64_t'
         elif self.is_struct(type_name):
             type_name = 'Decoded_{}'.format(type_name)
-        elif (
-            self.is_handle(type_name) or self.is_atom(type_name)
-            or self.is_opaque(type_name)
-        ):
+        elif self.is_handle_like(type_name):
             type_name = 'format::HandleId'
         else:
             type_name = '{}'.format(type_name)
@@ -1317,8 +1159,8 @@ class BaseGenerator(OutputGenerator):
         return type_name
 
     def make_consumer_func_decl(self, return_type, name, values):
-        """make_consumer_decl - return OpenXrConsumer class member function declaration.
-        Generate OpenXrConsumer class member function declaration.
+        """make_consumer_decl - return Dx12Consumer class member function declaration.
+        Generate Dx12Consumer class member function declaration.
         """
         param_decls = []
         param_decl = self.make_aligned_param_decl(
@@ -1351,6 +1193,88 @@ class BaseGenerator(OutputGenerator):
 
         return 'void {}()'.format(name)
 
+    def make_dump_resources_func_decl(
+        self, return_type, name, values, is_override
+    ):
+        """make_consumer_decl - return OpenXrConsumer class member function declaration.
+        Generate OpenXrConsumer class member function declaration.
+        """
+        param_decls = []
+        param_decl = self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        param_decl = self.make_aligned_param_decl(
+            'PFN_' + name.rsplit('_', 1)[1], 'func', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        if return_type != 'void':
+            param_decl = self.make_aligned_param_decl(
+                return_type, 'returnValue', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        for value in values:
+            type_name = value.base_type
+            if self.process_structs and (
+                self.is_struct(type_name)
+                and type_name in self.all_struct_aliases
+            ):
+                type_name = self.all_struct_aliases[type_name]
+
+            if is_override:
+                prefix_from_type = self.get_prefix_from_type(value.base_type)
+                info_type = prefix_from_type + value.base_type[2:] + 'Info'
+                if value.is_pointer or value.is_array:
+                    count = value.pointer_count
+
+                    if self.is_struct(type_name):
+                        param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
+                            type_name
+                        )
+                    elif self.is_class(value):
+                        if count == 1:
+                            param_type = info_type + '*'
+                        else:
+                            param_type = 'HandlePointerDecoder<{}*>'.format(
+                                type_name
+                            )
+                    elif self.is_handle_like(type_name):
+                        param_type = 'HandlePointerDecoder<{}>*'.format(
+                            type_name
+                        )
+                    else:
+                        param_type = 'const ' + type_name + '*'
+                else:
+                    if self.is_handle_like(type_name):
+                        param_type = "const " + info_type + '*'
+                    else:
+                        param_type = type_name
+            else:
+                if value.is_pointer or value.is_array:
+                    count = value.pointer_count
+                    param_type = 'const ' + type_name + '*'
+                    if count > 1:
+                        param_type += ' const *' * (count - 1)
+                else:
+                    param_type = type_name
+
+            param_decl = self.make_aligned_param_decl(
+                param_type, value.name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
+
+        return 'void {}()'.format(name)
+
     def make_structure_type_enum(self, typeinfo, typename):
         """Generate the XrStructureType enumeration value for the specified structure type."""
         members = typeinfo.elem.findall('.//member')
@@ -1369,7 +1293,8 @@ class BaseGenerator(OutputGenerator):
                     # If the value was not specified by the XML element, process the struct type to create it.
                     type = re.sub('([a-z0-9])([A-Z])', r'\1_\2', typename)
                     type = type.upper()
-                    return re.sub('XR_', 'XR_TYPE_', type)
+                    replace_1 = re.sub('XR_', 'XR_TYPE_', type)
+                    return re.sub('VK_', 'VK_STRUCTURE_TYPE_', replace_1)
         return None
 
     def make_array_length_expression(self, value, prefix=''):
@@ -1573,33 +1498,6 @@ class BaseGenerator(OutputGenerator):
             return platform_dict[platform]
         return None
 
-    def __load_blacklists(self, filename):
-        lists = json.loads(open(filename, 'r').read())
-        self.APICALL_BLACKLIST += lists['functions-all']
-        self.APICALL_ENCODER_BLACKLIST += lists['functions-encoder']
-        self.APICALL_DECODER_BLACKLIST += lists['functions-decoder']
-        self.STRUCT_BLACKLIST += lists['structures']
-        if 'classmethods' in lists:
-            for class_name, method_list in lists['classmethods'].items():
-                for method_name in method_list:
-                    self.METHODCALL_BLACKLIST.append(
-                        class_name + '_' + method_name
-                    )
-
-    def __load_platform_types(self, filename):
-        platforms = json.loads(open(filename, 'r').read())
-        for platform_name in platforms:
-            platform = platforms[platform_name]
-            platform_types = platform['types']
-            platform_types.update(self.OPENXR_REPLACE_TYPE)
-
-            for type in platform_types:
-                self.PLATFORM_TYPES[type] = platform_types[type]
-
-            platform_structs = platform['structs']
-            if platform_structs:
-                self.PLATFORM_STRUCTS += platform_structs
-
     # Return true if the type passed in is used to hold a set of bitwise flags
     # that is 64 bits wide.
     def is_64bit_flags(self, flag_type):
@@ -1612,15 +1510,24 @@ class BaseGenerator(OutputGenerator):
     # of bitwise flags.
     # Note, all 64 bit pseudo-enums represent flags since the only reason to go to
     # 64 bits is to allow more than 32 flags to be represented.
-    def is_flags_enum_64bit(self, enum):
-        flag_type = BitsEnumToFlagsTypedef(enum)
-        return self.is_64bit_flags(flag_type)
+    def is_64bit_flags(self, flag_type):
+        if (
+            (
+                flag_type in self.flags_types
+                and self.flags_types[flag_type] == 'XrFlags64'
+            ) or (
+                flag_type in self.flag_bits_types
+                and self.flag_bits_types[flag_type] == 'XrFlags64'
+            )
+        ):
+            return True
+        return False
 
     def is_has_specific_key_word_in_type(self, value, key_word):
         if key_word in value.base_type:
             return True
 
-        values = self.feature_struct_members.get(value.base_type)
+        values = self.struct_members.get(value.base_type)
         if values:
             for value in values:
                 return self.is_has_specific_key_word_in_type(value, key_word)
@@ -1668,28 +1575,27 @@ class BaseGenerator(OutputGenerator):
         # Check for cached results from a previous check for this struct
         has_handles = False
         has_handle_ptrs = False
+        handles = []
 
-        if struct_name in self._structs_with_handles:
-            has_handles = self._structs_with_handles[struct_name]
-            has_handle_ptrs = self._structs_with_handle_ptrs[struct_name]
-            return has_handles, has_handle_ptrs
+        if struct_name in self.structs_with_handles:
+            has_handles = True
+            handles.extend(self.structs_with_handles[struct_name])
+            if struct_name in self.structs_with_handle_ptrs:
+                has_handle_ptrs = True
 
-        # If a pre-existing result was not found, check the XML registry for the struct
-        # Prevent recurance
-        self._structs_with_handles[struct_name] = False
-        self._structs_with_handle_ptrs[struct_name] = False
+            return has_handles, has_handle_ptrs, handles
 
         type_info = self.registry.lookupElementInfo(
             struct_name, self.registry.typedict
         )
         if not type_info:
-            return has_handles, has_handle_ptrs
+            return has_handles, has_handle_ptrs, handles
 
         member_infos = [
             member for member in type_info.elem.findall('.//member/type')
         ]
         if not member_infos:
-            return has_handles, has_handle_ptrs
+            return has_handles, has_handle_ptrs, handles
 
         member_type_infos = [
             self.registry.lookupElementInfo(
@@ -1706,12 +1612,15 @@ class BaseGenerator(OutputGenerator):
 
             # Check to see if this is a struct and recur
             if member_category == 'struct':
-                # For compound types we recur
-                found_handles, found_handle_ptrs = self.struct_has_handles(
+                if not self.is_struct_black_listed(
                     member_type
-                )
-                has_handles = has_handles or found_handles
-                has_handle_ptrs = has_handle_ptrs or found_handle_ptrs
+                ) and not 'XrApiLayerNextInfo' == member_type:
+                    # For compound types we recur
+                    found_handles, found_handle_ptrs, handles = self.struct_has_handles(
+                        member_type
+                    )
+                    has_handles = has_handles or found_handles
+                    has_handle_ptrs = has_handle_ptrs or found_handle_ptrs
             else:
                 # Check to see if this is a handle
                 found_handle = member_category == 'handle'
@@ -1745,6 +1654,8 @@ class BaseGenerator(OutputGenerator):
                 # Nothing more to be learned
                 break
 
-        self._structs_with_handles[struct_name] = has_handles
-        self._structs_with_handle_ptrs[struct_name] = has_handle_ptrs
-        return has_handles, has_handle_ptrs
+        if has_handles:
+            self.structs_with_handles[struct_name] = handles
+        if has_handle_ptrs:
+            self.structs_with_handle_ptrs.append(struct_name)
+        return has_handles, has_handle_ptrs, handles

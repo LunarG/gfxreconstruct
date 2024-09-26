@@ -64,6 +64,9 @@ class VulkanConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
         self.is_override = is_override
         self.constructor_args = constructor_args
 
+    def getExtraSkipCommands(self):
+        return self.extra_skip_commands
+
 
 class VulkanConsumerHeaderGenerator(BaseGenerator):
     """VulkanConsumerHeaderGenerator - subclass of BaseGenerator.
@@ -84,13 +87,6 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-
-        self.all_cmds = list(
-        ) # Set of all command names
-        self.all_cmd_params = OrderedDict(
-        )  # Map of all cmd parameters
-        self.all_struct_aliases = OrderedDict(
-        ) # Map of struct names to aliases
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -142,8 +138,13 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        first = True
-        for cmd in self.all_cmds:
+        for cmd in self.cmd_names:
+            if (
+                self.is_cmd_black_listed(cmd)
+                or self.is_manually_generated_cmd_name(cmd)
+            ):
+                continue
+
             info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
@@ -152,7 +153,7 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
                 return_type, 'Process_' + cmd, values
             )
 
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             if self.genOpts.is_override:
                 cmddef += self.indent(
                     'virtual ' + decl + ' override;', self.INDENT_SIZE
@@ -163,7 +164,6 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
                 )
 
             write(cmddef, file=self.outFile)
-            first = False
 
         write('};', file=self.outFile)
         self.newline()
@@ -179,9 +179,3 @@ class VulkanConsumerHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.all_cmds.append(cmd)
-            self.all_cmd_params[cmd] = self.feature_cmd_params[cmd]

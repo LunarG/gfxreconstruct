@@ -25,11 +25,13 @@ from reformat_code import format_cpp_code
 
 VulkanSTypeUtilGeneratorOptions = BaseGeneratorOptions
 
+
 class VulkanSTypeUtilGenerator(BaseGenerator):
     """VulkanSTypeUtilGenerator - subclass of BaseGenerator.
     Generates C++ utility header to do compile-time lookups between Vulkan
     structure types and their corresponding VkStructureType values
     """
+
     def __init__(self, **kwargs):
         BaseGenerator.__init__(
             self,
@@ -51,18 +53,26 @@ class VulkanSTypeUtilGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(util)', file=self.outFile)
         self.newline()
-        write(format_cpp_code('''
+        write(
+            format_cpp_code(
+                '''
             // Instantiating the primary template indicates that either the template was
             // called with an invalid Vulkan struct type or that the code generation is out
             // of date, both of which are errors
-            template <typename T> VkStructureType GetSType() = delete;'''), file=self.outFile)
+            template <typename T> VkStructureType GetSType() = delete;'''
+            ),
+            file=self.outFile
+        )
         self.newline()
 
     def genStruct(self, typeinfo, typename, alias):
-        if not alias and typename not in self.missing_stypes:
+        if self.process_structs and not alias and typename not in self.missing_stypes:
             stype = self.make_structure_type_enum(typeinfo, typename)
             if stype:
-                write(f'template <> constexpr VkStructureType GetSType<{typename}>(){{ return {stype}; }}', file=self.outFile)
+                write(
+                    f'template <> constexpr VkStructureType GetSType<{typename}>(){{ return {stype}; }}',
+                    file=self.outFile
+                )
 
     def endFile(self):
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)

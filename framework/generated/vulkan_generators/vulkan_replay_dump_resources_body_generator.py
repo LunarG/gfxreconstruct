@@ -74,9 +74,15 @@ class VulkanReplayDumpResourcesBodyGenerator(
         'VkDescriptorPool': 'VkDescriptorSet'
     }
 
-    SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
+    SKIP_PNEXT_STRUCT_TYPES = [
+        'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE',
+        'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE'
+    ]
 
-    NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
+    NOT_SKIP_FUNCTIONS_OFFSCREEN = [
+        'Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage',
+        'QueuePresent'
+    ]
 
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
 
@@ -97,7 +103,6 @@ class VulkanReplayDumpResourcesBodyGenerator(
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
         # Map of struct types to associated VkStructureType.
         self.stype_values = dict()
 
@@ -122,6 +127,7 @@ class VulkanReplayDumpResourcesBodyGenerator(
 
     def endFile(self):
         """Method override."""
+        BaseReplayConsumerBodyGenerator.endFile(self)
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -130,15 +136,14 @@ class VulkanReplayDumpResourcesBodyGenerator(
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
+    def isValidCommand(self, command):
+        return command.startswith('vkCmd')
+
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        BaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def make_consumer_func_body(self, return_type, name, values):
         """Return VulkanReplayConsumer class member function definition."""
@@ -181,8 +186,12 @@ class VulkanReplayDumpResourcesBodyGenerator(
             for val in values:
                 if val.is_pointer or val.is_array:
                     count = val.pointer_count
-                    if self.is_handle(val.base_type) and val.base_type != 'VkCommandBuffer':
-                        override_call_expr += '{}->GetPointer(), '.format(val.name)
+                    if self.is_handle(
+                        val.base_type
+                    ) and val.base_type != 'VkCommandBuffer':
+                        override_call_expr += '{}->GetPointer(), '.format(
+                            val.name
+                        )
                     else:
                         override_call_expr += '{}, '.format(val.name)
                 else:
@@ -191,9 +200,10 @@ class VulkanReplayDumpResourcesBodyGenerator(
             override_call_expr = override_call_expr[:-2]
             body += '    if (IsRecording(commandBuffer))\n'
             body += '    {\n'
-            body += '        {}({});\n'.format(self.DUMP_RESOURCES_OVERRIDES[name], override_call_expr)
+            body += '        {}({});\n'.format(
+                self.DUMP_RESOURCES_OVERRIDES[name], override_call_expr
+            )
             body += '    }\n'
-
 
         return body
 

@@ -22,7 +22,8 @@
 # IN THE SOFTWARE.
 
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
-from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator # For the list of substrings in bitflag enums.
+from dx12_enum_to_string_header_generator import Dx12EnumToStringHeaderGenerator  # For the list of substrings in bitflag enums.
+
 
 # returns true if any of the strings in the list appear at the end of the string.
 def ends_with_any(string, suffixes):
@@ -31,10 +32,11 @@ def ends_with_any(string, suffixes):
             return True
     return False
 
+
 # Base class with features shared by multiple DX12 JSON Generators.
 class Dx12JsonCommonGenerator(Dx12BaseGenerator):
 
-    BIT_FLAG_SUFFIXES = Dx12EnumToStringHeaderGenerator.BITS_LIST;
+    BIT_FLAG_SUFFIXES = Dx12EnumToStringHeaderGenerator.BITS_LIST
 
     ## A set of strings which are the types of arguments and struct fields which should be output as hexadecimal.
     ## @todo Expand this to include more types.
@@ -42,7 +44,9 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
 
     ## @param value_info A ValueInfo object from base_generator.py.
     def is_raw_bitflags(self, value_info):
-        if (not ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES)) and value_info.base_type.upper().startswith('UINT') and value_info.name.upper().endswith("MASK"):
+        if (not ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES)
+            ) and value_info.base_type.upper(
+            ).startswith('UINT') and value_info.name.upper().endswith("MASK"):
             return True
         return False
 
@@ -55,12 +59,12 @@ class Dx12JsonCommonGenerator(Dx12BaseGenerator):
                 return "Bool32ToJson"
             if self.is_handle(value_info.base_type):
                 return "HandleToJson"
-            if("HRESULT" in value_info.base_type):
+            if ("HRESULT" in value_info.base_type):
                 return "HresultToJson"
             if ends_with_any(value_info.base_type, self.BIT_FLAG_SUFFIXES):
                 return "FieldToJson_" + value_info.base_type
-            if  self.is_raw_bitflags(value_info):
+            if self.is_raw_bitflags(value_info):
                 return "FieldToJsonAsFixedWidthBinary"
         return "FieldToJson"
-    pass
 
+    pass

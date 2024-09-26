@@ -24,8 +24,6 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo, json, write
-from reformat_code import format_cpp_code
-from collections import namedtuple
 
 
 class OpenXrApiCallEncodersBodyGeneratorOptions(BaseGeneratorOptions):
@@ -86,11 +84,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         # member that contains handles).
         self.structs_with_handles = dict()
 
-        self.CommandInfo = namedtuple(
-            "CommandInfo", "proto return_type cmd values"
-        )
-        self.commands_to_process = []
-
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -99,28 +92,38 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
             self.__load_capture_overrides(gen_opts.capture_overrides)
 
         write(
-            format_cpp_code(
-                '''
-            #include "encode/custom_openxr_encoder_commands.h"
-            #include "encode/custom_openxr_struct_handle_wrappers.h"
-            #include "encode/openxr_capture_manager.h"
-            #include "encode/openxr_handle_wrappers.h"
-            #include "encode/openxr_handle_wrapper_util.h"
-            #include "encode/parameter_encoder.h"
-            #include "encode/struct_pointer_encoder.h"
-
-            #include "format/api_call_id.h"
-
-            #include "generated/generated_openxr_api_call_encoders.h"
-            #include "generated/generated_openxr_struct_handle_wrappers.h"
-            #include "generated/generated_vulkan_struct_handle_wrappers.h"
-
-            #include "util/defines.h"
-
-        '''
-            ),
+            '#include "encode/custom_openxr_encoder_commands.h"',
             file=self.outFile
         )
+        write(
+            '#include "encode/custom_openxr_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
+        write('#include "encode/openxr_capture_manager.h"', file=self.outFile)
+        write('#include "encode/openxr_handle_wrappers.h"', file=self.outFile)
+        write(
+            '#include "encode/openxr_handle_wrapper_util.h"',
+            file=self.outFile
+        )
+        write('#include "encode/parameter_encoder.h"', file=self.outFile)
+        write('#include "encode/struct_pointer_encoder.h"', file=self.outFile)
+        self.newline()
+        write('#include "format/api_call_id.h"', file=self.outFile)
+        self.newline()
+        write(
+            '#include "generated/generated_openxr_api_call_encoders.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_openxr_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
+        write(
+            '#include "generated/generated_vulkan_struct_handle_wrappers.h"',
+            file=self.outFile
+        )
+        self.newline()
+        write('#include "util/defines.h"', file=self.outFile)
 
         self.newline()
         self.includeOpenXrHeaders(gen_opts)
@@ -132,12 +135,15 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
 
-        for cmd_info in self.commands_to_process:
-            cmddef = self.make_cmd_decl(cmd_info.proto, cmd_info.values)
+        for cmd in self.cmd_names:
+            if self.is_cmd_black_listed(cmd):
+                continue
+
+            cmd_info = self.all_cmd_params[cmd]
+
+            cmddef = self.make_cmd_decl(cmd_info[1], cmd_info[2])
             cmddef += '{\n'
-            cmddef += self.make_cmd_body(
-                cmd_info.return_type, cmd_info.cmd, cmd_info.values
-            )
+            cmddef += self.make_cmd_body(cmd_info[0], cmd, cmd_info[2])
             cmddef += '}\n'
             write(cmddef, file=self.outFile)
 
@@ -151,9 +157,10 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             self.check_struct_member_handles(
-                typename, self.structs_with_handles
+                typename, self.structs_with_handles,
+                self.structs_with_handle_ptrs
             )
 
     def need_feature_generation(self):
@@ -161,18 +168,6 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            return_type = info[0]
-            proto = info[1]
-            values = info[2]
-
-            self.commands_to_process.append(
-                self.CommandInfo(proto, return_type, cmd, values)
-            )
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""
@@ -509,7 +504,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                     # handle as their second parameter, which is of interest to the state tracker (e.g. the hPipelineCache handle
                     # from vkCreateGraphicsPipelines or the vkSwapchain handle from vkGetSwapchainImagesKHR). For api calls that do
                     # not receive a handle as the second parameter (e.g. vkEnumeratePhysicalDevices), the handle type is set to 'void*'.
-                    if handle.base_type in self.struct_names:
+                    if handle.base_type in self.all_structs:
                         # "handle" is actually a struct with embedded handles
                         unwrap_handle_def = 'nullptr'
                         member_handle_type, member_handle_name, member_array_length = self.get_struct_handle_member_info(
@@ -551,7 +546,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 if handle.base_type in self.atom_names:
                     end_api_call = 'EndCreateAtomApiCallCapture'
 
-                if handle.base_type in self.struct_names:
+                if handle.base_type in self.all_structs:
                     # TODO: No cases in current OpenXr spec of handle inside non-array output structure
                     raise NotImplementedError
                 elif parent_handle:
@@ -585,15 +580,11 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
         decl += ';\n'
         return decl
 
-    def need_wrapping(self, type):
-        return self.is_handle(type) or self.is_atom(type
-                                                    ) or self.is_opaque(type)
-
     def make_handle_wrapping(self, values, indent):
         expr = ''
         for value in values:
             if self.is_output_parameter(value) and (
-                self.need_wrapping(value.base_type) or (
+                self.is_handle_like(value.base_type) or (
                     self.is_struct(value.base_type) and
                     (value.base_type in self.structs_with_handles)
                 )
@@ -617,7 +608,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 # values will be provided to the wrapper creation function.
                 parent_type = parent_prefix + 'NoParentWrapper'
                 parent_value = parent_prefix + 'NoParentWrapper::kHandleValue'
-                if self.need_wrapping(values[0].base_type):
+                if self.is_handle_like(values[0].base_type):
                     parent_type = self.get_handle_wrapper(values[0].base_type)
                     parent_value = values[0].name
 
@@ -625,7 +616,7 @@ class OpenXrApiCallEncodersBodyGenerator(BaseGenerator):
                 # or command buffers and descriptor sets allocated from pools.
                 co_parent_type = co_parent_prefix + 'NoParentWrapper'
                 co_parent_value = co_parent_prefix + 'NoParentWrapper::kHandleValue'
-                if self.need_wrapping(
+                if self.is_handle_like(
                     values[1].base_type
                 ) and not self.is_output_parameter(values[1]):
                     co_parent_type = self.get_handle_wrapper(

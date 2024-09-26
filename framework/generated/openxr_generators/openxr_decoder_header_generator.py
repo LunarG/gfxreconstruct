@@ -76,7 +76,6 @@ class OpenXrDecoderHeaderGenerator(BaseGenerator):
         self.MANUALLY_GENERATED_COMMANDS = [
             'xrEnumerateSwapchainImages',
         ]
-        self.command_names = []
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -118,8 +117,14 @@ class OpenXrDecoderHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd in self.command_names:
-            cmddef = f'    size_t Decode_{cmd}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);\n'
+        for cmd in self.cmd_names:
+            if self.is_cmd_black_listed(
+                cmd
+            ) or self.is_manually_generated_cmd_name(cmd):
+                continue
+
+            cmddef = '\n'
+            cmddef += f'    size_t Decode_{cmd}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'
             write(cmddef, file=self.outFile)
         write('};', file=self.outFile)
         self.newline()
@@ -134,10 +139,3 @@ class OpenXrDecoderHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            if self.is_manually_generated_cmd_name(cmd):
-                continue
-            self.command_names.append(cmd)

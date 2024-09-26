@@ -73,7 +73,7 @@ class OpenXrStructNextEncodersGenerator(BaseGenerator):
         )
 
         # Map to store XrStructureType enum values.
-        self.type_values = dict()
+        self.structure_type_enums = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -172,25 +172,27 @@ class OpenXrStructNextEncodersGenerator(BaseGenerator):
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
-        if not alias:
-            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a next chain.
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
+            # Only process struct types that specify a 'structextends' tag, which indicates the struct can be used in a pNext chain.
             parent_structs = typeinfo.elem.get('structextends')
             if parent_structs:
                 type = self.make_structure_type_enum(typeinfo, typename)
                 if type:
-                    self.type_values[typename] = type
+                    self.structure_type_enums[typename] = type
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
-        if self.type_values:
+        if self.structure_type_enums:
             return True
         return False
 
     def generate_feature(self):
         """Performs C++ code generation for the feature."""
-        for struct in self.type_values:
+        for struct in self.structure_type_enums:
             write(
-                '        case {}:'.format(self.type_values[struct]),
+                '        case {}:'.format(self.structure_type_enums[struct]),
                 file=self.outFile
             )
             write(
@@ -199,4 +201,4 @@ class OpenXrStructNextEncodersGenerator(BaseGenerator):
                 file=self.outFile
             )
             write('            break;', file=self.outFile)
-        self.type_values = dict()
+        self.structure_type_enums = dict()

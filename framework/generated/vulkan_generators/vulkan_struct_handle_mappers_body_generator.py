@@ -115,7 +115,7 @@ class VulkanStructHandleMappersBodyGenerator(
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             if self.check_struct_member_handles(
                 typename, self.structs_with_handles,
                 self.structs_with_handle_ptrs
@@ -131,18 +131,17 @@ class VulkanStructHandleMappersBodyGenerator(
         """Method override."""
         BaseGenerator.genCmd(self, cmdinfo, name, alias)
 
+        if self.is_cmd_black_listed(name) or alias is not None:
+            return
+
         # Look for output structs that contain handles and add to list
-        if not alias:
-            for value_info in self.feature_cmd_params[name][2]:
-                if self.is_output_parameter(value_info) and (
-                    value_info.base_type in self.get_filtered_struct_names()
-                ) and (value_info.base_type in self.structs_with_handles) and (
-                    value_info.base_type
-                    not in self.output_structs_with_handles
-                ):
-                    self.output_structs_with_handles.append(
-                        value_info.base_type
-                    )
+        for value_info in self.feature_cmd_params[name][2]:
+            if self.is_output_parameter(value_info) and (
+                value_info.base_type in self.get_filtered_struct_names()
+            ) and (value_info.base_type in self.structs_with_handles) and (
+                value_info.base_type not in self.output_structs_with_handles
+            ):
+                self.output_structs_with_handles.append(value_info.base_type)
 
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""

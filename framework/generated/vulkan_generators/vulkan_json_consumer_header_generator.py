@@ -24,7 +24,9 @@ import sys, inspect
 from vulkan_consumer_header_generator import VulkanConsumerHeaderGenerator, VulkanConsumerHeaderGeneratorOptions, write
 
 
-class VulkanExportJsonConsumerHeaderGeneratorOptions(VulkanConsumerHeaderGeneratorOptions):
+class VulkanExportJsonConsumerHeaderGeneratorOptions(
+    VulkanConsumerHeaderGeneratorOptions
+):
     """Options for generating a C++ class for Vulkan capture file to JSON file generation."""
 
     def __init__(
@@ -68,14 +70,10 @@ class VulkanExportJsonConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
     ):
         VulkanConsumerHeaderGenerator.__init__(
-            self,
-            err_file=err_file,
-            warn_file=warn_file,
-            diag_file=diag_file
+            self, err_file=err_file, warn_file=warn_file, diag_file=diag_file
         )
 
-
-        self.customImplementationRequired = {
+        self.MANUALLY_GENERATED_COMMANDS = {
             'vkCmdBuildAccelerationStructuresIndirectKHR',
             'vkCmdPushConstants',
             'vkCreatePipelineCache',
@@ -83,35 +81,10 @@ class VulkanExportJsonConsumerHeaderGenerator(VulkanConsumerHeaderGenerator):
             'vkGetPipelineCacheData',
         }
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
+    def beginFile(self, gen_opts):
+        """Method override."""
+        VulkanConsumerHeaderGenerator.beginFile(self, gen_opts)
 
-        # TODO: Each code generator is passed a blacklist like framework\generated\vulkan_generators\blacklists.json
-        # of functions and structures not to generate code for. Once the feature is implemented, the following can be
-        # replaced with adding vkCreateRayTracingPipelinesKHR in corresponding blacklist.
+        black_list_len = len(self.APICALL_BLACKLIST)
         if 'vkCreateRayTracingPipelinesKHR' in self.APICALL_BLACKLIST:
             self.APICALL_BLACKLIST.remove('vkCreateRayTracingPipelinesKHR')
-
-        for cmd in self.get_filtered_cmd_names():
-            if cmd not in self.customImplementationRequired:
-                info = self.feature_cmd_params[cmd]
-                return_type = info[0]
-                values = info[2]
-
-                decl = self.make_consumer_func_decl(
-                    return_type, 'Process_' + cmd, values
-                )
-
-                cmddef = '' if first else '\n'
-                if self.genOpts.is_override:
-                    cmddef += self.indent(
-                        'virtual ' + decl + ' override;', self.INDENT_SIZE
-                    )
-                else:
-                    cmddef += self.indent(
-                        'virtual ' + decl + ' {}', self.INDENT_SIZE
-                    )
-
-                write(cmddef, file=self.outFile)
-                first = False

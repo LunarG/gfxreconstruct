@@ -58,8 +58,7 @@ class VulkanEnumToJsonBodyGeneratorOptions(BaseGeneratorOptions):
 class VulkanEnumToJsonBodyGenerator(BaseGenerator):
     """Generate C++ functions for Vulkan FieldToJson() functions"""
 
-    SKIP_ENUM = [
-    ]
+    SKIP_ENUM = []
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -78,9 +77,6 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
         #   referenced by extensions multiple times.  This list is prepopulated with
         #   enums that should be skipped.
         self.processedEnums = set()
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagEnumBitsType = dict()
 
     # Method override
     # yapf: disable
@@ -146,64 +142,50 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
             return True
         return False
 
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'VkFlags64'
-        else:
-            self.enumType[group_name] = 'VkFlags'
-
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagEnumBitsType[name] = bittype
     #
     # Performs C++ code generation for the feature.
     # yapf: disable
     def make_decls(self):
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.enumAliases and not enum in self.SKIP_ENUM and not enum in self.flagEnumBitsType:
-                self.processedEnums.add(enum)
-                bitwidth = 'VkFlags'
+            if enum in self.processedEnums or enum in self.enum_aliases or enum in self.SKIP_ENUM:
+                continue
 
-                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
-                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                else:
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                body += '{{\n'
-                if len(self.enumEnumerants[enum]):
-                    body += '    switch (value) {{\n'
-                    for enumerant in self.enumEnumerants[enum]:
-                        body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
-                        case {0}:
-                            jdata = "{0}";
-                            break;
-                        '''.format(enumerant)))
-                    body += '        default:\n'
-                    body += '            jdata = to_hex_fixed_width(value);\n'
-                    body += '            break;\n'
-                    body += '    }}\n'
-                else:
-                    body += '    jdata = to_hex_fixed_width(value);\n'
+            self.processedEnums.add(enum)
+            bitwidth = 'VkFlags'
 
-                body += '}}\n'
-                body = body.format(enum, bitwidth)
-                write(body, file=self.outFile)
+            if (self.is_flags(enum) or self.is_bittype(enum)) and self.is_64bit_flags(enum):
+                body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
+            else:
+                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
+            body += '{{\n'
+            if len(self.enum_enumerants[enum]):
+                body += '    switch (value) {{\n'
+                for enumerant in self.enum_enumerants[enum]:
+                    body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
+                    case {0}:
+                        jdata = "{0}";
+                        break;
+                    '''.format(enumerant)))
+                body += '        default:\n'
+                body += '            jdata = to_hex_fixed_width(value);\n'
+                body += '            break;\n'
+                body += '    }}\n'
+            else:
+                body += '    jdata = to_hex_fixed_width(value);\n'
 
-        for enum in sorted(self.flagsType):
+            body += '}}\n'
+            body = body.format(enum, bitwidth)
+            write(body, file=self.outFile)
+
+        for enum in sorted(self.flags_types):
             bittype = None
-            if enum in self.flagEnumBitsType:
-                bittype = self.flagEnumBitsType[enum]
+            if enum in self.enum_names or enum in self.enum_aliases or enum in self.flags_type_aliases:
+                continue
+            if enum in self.flag_enum_bits_type:
+                bittype = self.flag_enum_bits_type[enum]
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
             body += '{{\n'
-            if bittype is not None and bittype in self.enum_names and len(self.enumEnumerants[bittype]):
+            if bittype is not None and bittype in self.enum_names and len(self.enum_enumerants[bittype]):
                 body += "    if (!options.expand_flags)\n"
                 body += "    {{\n"
                 body += "        jdata = to_hex_fixed_width(flags);\n"
@@ -213,7 +195,7 @@ class VulkanEnumToJsonBodyGenerator(BaseGenerator):
                 body += "    {{\n"
                 body += '        switch (flags)\n'
                 body += '        {{\n'
-                for enumerant in self.enumEnumerants[bittype]:
+                for enumerant in self.enum_enumerants[bittype]:
                     body += textwrap.indent(prefix='            ', text=textwrap.dedent('''\
                     case {0}:
                         return std::string("{0}");

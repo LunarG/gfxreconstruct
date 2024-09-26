@@ -23,7 +23,6 @@
 
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-from collections import namedtuple
 
 
 class OpenXrApiCallEncodersHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -71,10 +70,6 @@ class OpenXrApiCallEncodersHeaderGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-        self.CommandInfo = namedtuple(
-            "CommandInfo", "proto return_type cmd values"
-        )
-        self.commands_to_process = []
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -92,8 +87,12 @@ class OpenXrApiCallEncodersHeaderGenerator(BaseGenerator):
     def endFile(self):
         """Method override."""
 
-        for cmd_info in self.commands_to_process:
-            cmddef = self.make_cmd_decl(cmd_info.proto, cmd_info.values) + '\n'
+        for cmd in self.cmd_names:
+            if self.is_cmd_black_listed(cmd):
+                continue
+
+            cmd_info = self.all_cmd_params[cmd]
+            cmddef = self.make_cmd_decl(cmd_info[1], cmd_info[2]) + '\n'
             write(cmddef, file=self.outFile)
 
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -107,18 +106,6 @@ class OpenXrApiCallEncodersHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            return_type = info[0]
-            proto = info[1]
-            values = info[2]
-
-            self.commands_to_process.append(
-                self.CommandInfo(proto, return_type, cmd, values)
-            )
 
     def make_cmd_decl(self, proto, values):
         """Generate function declaration for a command."""

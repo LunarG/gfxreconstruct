@@ -136,13 +136,27 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
                 '    {}() {{ }}\n'.format(gen_opts.class_name),
                 file=self.outFile
             )
-        write(
-            '    ~{}() {{ }}'.format(gen_opts.class_name),
-            file=self.outFile
-        )
+        write('    ~{}() {{ }}'.format(gen_opts.class_name), file=self.outFile)
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            info = self.all_cmd_params[cmd]
+            return_type = info[0]
+            values = info[2]
+
+            if cmd[:5] != "vkCmd":
+                continue
+
+            decl = self.make_dump_resources_func_decl(
+                return_type, 'Process_' + cmd, values, cmd
+                in self.DUMP_RESOURCES_OVERRIDES
+            )
+
+            cmddef = decl + ';\n'
+
+            write(cmddef, file=self.outFile)
+
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -156,26 +170,6 @@ class VulkanReplayDumpResourcesHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
-        for cmd in self.get_filtered_cmd_names():
-            info = self.feature_cmd_params[cmd]
-            return_type = info[0]
-            values = info[2]
-
-            if cmd[:5] != "vkCmd":
-                continue
-
-            decl = self.make_dump_resources_func_decl(
-                return_type, 'Process_' + cmd, values, cmd in self.DUMP_RESOURCES_OVERRIDES
-            )
-
-            cmddef = decl + ';\n'
-
-            write(cmddef, file=self.outFile)
-            first = False
 
     def __load_replay_overrides(self, filename):
         overrides = json.loads(open(filename, 'r').read())

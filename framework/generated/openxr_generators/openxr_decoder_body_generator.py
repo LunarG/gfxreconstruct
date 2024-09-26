@@ -74,10 +74,6 @@ class OpenXrDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
             diag_file=diag_file
         )
 
-        # Names of all OpenXR commands processed by the generator.
-        self.cmd_names = []
-        self.cmd_info = OrderedDict()
-
         # Names of any OpenXR commands whose decoders are manually generated
         self.MANUALLY_GENERATED_COMMANDS = [
             'xrEnumerateSwapchainImages',
@@ -135,7 +131,3 @@ class OpenXrDecoderBodyGenerator(BaseDecoderBodyGenerator, BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        BaseDecoderBodyGenerator.generate_feature(self)

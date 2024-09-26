@@ -51,6 +51,7 @@ class OpenXrConsumer : public OpenXrConsumerBase
     OpenXrConsumer() { }
 
     virtual ~OpenXrConsumer() override { }
+
     virtual void Process_xrDestroyInstance(
         const ApiCallInfo&                          call_info,
         XrResult                                    returnValue,

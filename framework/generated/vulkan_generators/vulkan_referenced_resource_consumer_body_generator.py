@@ -88,7 +88,6 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
         self.structs_with_handles = dict()
         self.pnext_structs = dict(
         )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
-        self.command_info = dict()  # Map of Vulkan commands to parameter info
         self.restrict_handles = True  # Determines if the 'is_handle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
 
     def beginFile(self, gen_opts):
@@ -107,14 +106,13 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd, info in self.command_info.items():
+        for cmd, info in self.all_cmd_params.items():
             return_type = info[0]
             params = info[2]
             if params and params[0].base_type == 'VkCommandBuffer':
-                # Check for parameters with resource handle types.
-                handles = self.get_param_list_handles(params[1:])
+                if self.has_select_handles(params[1:]):
+                    handles = self.get_select_handles(params[1:])
 
-                if (handles):
                     # Generate a function to add handles to the command buffer's referenced handle list.
                     cmddef = '\n'
 
@@ -160,7 +158,7 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
@@ -172,37 +170,37 @@ class VulkanReferencedResourceBodyGenerator(BaseGenerator):
                 if stype:
                     self.pnext_structs[typename] = stype
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
+    def has_select_handles(self, values):
+        """Create list of parameters that have handle types or are structs that contain handles."""
+        for value in values:
+            if self.is_handle(value.base_type):
+                return True
+            elif self.is_struct(
+                value.base_type
+            ) and (value.base_type in self.structs_with_handles):
+                return self.has_select_handles(
+                    self.all_struct_members[value.base_type]
+                )
         return False
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.command_info[cmd] = self.feature_cmd_params[cmd]
-
-    def is_handle(self, base_type):
-        """Override method to check for handle type, only matching resource handle types."""
-        if self.restrict_handles:
-            if base_type in self.RESOURCE_HANDLE_TYPES:
-                return True
-            return False
-        else:
-            return BaseGenerator.is_handle(self, base_type)
-
-    def get_param_list_handles(self, values):
+    def get_select_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""
         handles = []
         for value in values:
             if self.is_handle(value.base_type):
                 handles.append(value)
-            elif self.is_struct(
-                value.base_type
-            ) and (value.base_type in self.structs_with_handles):
+            elif (
+                self.is_struct(value.base_type)
+                and (value.base_type in self.structs_with_handles)
+                and self.has_select_handles(
+                    self.all_struct_members[value.base_type]
+                )
+            ):
                 handles.append(value)
         return handles
+
+    def is_valid_handle(self, base_type):
+        return not self.restrict_handles or base_type in self.RESOURCE_HANDLE_TYPES
 
     def track_command_handle(
         self, index, command_param_name, value, value_prefix='', indent=''

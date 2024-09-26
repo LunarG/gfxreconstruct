@@ -77,10 +77,6 @@ class OpenXrEnumToJsonHeaderGenerator(BaseGenerator):
         #   enums that should be skipped.
         self.processedEnums = set()
 
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagBitsType = dict()
-
     # Method override
     def beginFile(self, genOpts):
         BaseGenerator.beginFile(self, genOpts)
@@ -132,51 +128,60 @@ class OpenXrEnumToJsonHeaderGenerator(BaseGenerator):
             return True
         return False
 
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'XrFlags64'
-        else:
-            self.enumType[group_name] = 'XrFlags'
-
     def genType(self, typeinfo, name, alias):
         super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagBitsType[bittype] = name
+        if self.is_flags(name):
+            if alias is None:
+                bittype = typeinfo.elem.get('requires')
+                if bittype is None:
+                    bittype = typeinfo.elem.get('bitvalues')
+                if bittype is not None:
+                    self.flag_enum_bits_type[bittype] = name
+            else:
+                self.flags_type_aliases[name] = alias
 
     def make_decls(self):
-        for flag in sorted(self.flagsType):
+        for flag in sorted(self.flags_types):
+            if (
+                flag in self.flags_type_aliases or flag.startswith('Vk')
+                or self.is_bittype(flag)
+            ):
+                continue
+
             body = 'struct {0}_t {{ }};'
             write(body.format(flag), file=self.outFile)
 
         for enum in sorted(self.enum_names):
-            if enum.startswith('Vk') or 'Bits' in enum:
+            if (
+                enum in self.enum_aliases or enum in self.SKIP_ENUM
+                or enum.startswith('Vk') or self.is_bittype(enum)
+            ):
                 continue
-            if not enum in self.enumAliases:
-                if enum in self.enumType and self.enumType[enum] == 'XrFlags64':
-                    body = 'struct {0}_t {{ }};'
-                    write(body.format(enum), file=self.outFile)
+            if enum in self.flags_types and self.flags_types[enum
+                                                             ] == 'XrFlags64':
+                body = 'struct {0}_t {{ }};'
+                write(body.format(enum), file=self.outFile)
 
         self.newline()
         for enum in sorted(self.enum_names):
-            if enum.startswith('Vk') or 'Bits' in enum:
+            if (
+                enum in self.processedEnums or enum in self.enum_aliases
+                or enum in self.SKIP_ENUM or enum.startswith('Vk')
+                or self.is_bittype(enum)
+            ):
                 continue
-            if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
-                self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if enum in self.enumType and self.enumType[
-                        enum] == 'XrFlags64':
-                        body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    else:
-                        body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    write(body.format(enum), file=self.outFile)
 
-        for flag in sorted(self.flagsType):
+            self.processedEnums.add(enum)
+            if enum in self.flags_types and self.flags_types[enum
+                                                             ] == 'XrFlags64':
+                body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+            else:
+                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+            write(body.format(enum), file=self.outFile)
+
+        for flag in sorted(self.flags_types):
+            if flag in self.flags_type_aliases or self.is_bittype(flag):
+                continue
+
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
-            write(body.format(flag, self.flagsType[flag]), file=self.outFile)
+            write(body.format(flag, self.flags_types[flag]), file=self.outFile)

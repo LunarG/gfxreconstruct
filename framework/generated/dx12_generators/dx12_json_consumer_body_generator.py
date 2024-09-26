@@ -53,7 +53,9 @@ class Dx12JsonBodyGeneratorOptions(Dx12JsonConsumerHeaderGeneratorOptions):
         self.json_overrides = json_overrides
 
 
-class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCommonGenerator):
+class Dx12JsonConsumerBodyGenerator(
+    Dx12JsonConsumerHeaderGenerator, Dx12JsonCommonGenerator
+):
 
     JSON_OVERRIDES = {}
 
@@ -64,7 +66,9 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             self.JSON_OVERRIDES = overrides
 
     def write_include(self):
-        write(format_cpp_code('''
+        write(
+            format_cpp_code(
+                '''
             #include "generated_dx12_json_consumer.h"
             #include "generated_dx12_enum_to_json.h"
             #include "generated_dx12_struct_decoders_to_json.h"
@@ -73,7 +77,10 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             #include "decode/json_writer.h"
             #include "util/to_string.h"
             #include "format/format_json.h"
-        '''), file=self.outFile)
+        '''
+            ),
+            file=self.outFile
+        )
         self.newline()
 
     def generate_feature(self):
@@ -87,16 +94,22 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         class_end = ''
         return (declaration, indent, function_class, class_end)
 
-    def get_consumer_function_body(self, class_name, method_info, return_type, return_value):
+    def get_consumer_function_body(
+        self, class_name, method_info, return_type, return_value
+    ):
         class_method_name = method_info['name']
         code = '''
             {
                 using namespace gfxrecon::util;
         '''
-        if(class_name == None or len(class_name) == 0):
-            code += self.make_consumer_func_body(method_info, return_type, return_value)
+        if (class_name == None or len(class_name) == 0):
+            code += self.make_consumer_func_body(
+                method_info, return_type, return_value
+            )
         else:
-            code += self.make_consumer_method_body(class_name, method_info, return_type, return_value)
+            code += self.make_consumer_method_body(
+                class_name, method_info, return_type, return_value
+            )
 
         code += "\n}"
         code = "\n" + format_cpp_code(code)
@@ -105,7 +118,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     ## Generate a FieldToJson appropriate to the return type.
     ## @param func_type Either "function" or "method" for expected use.
     def make_return(self, func_type, return_value):
-        if(None == return_value):
+        if (None == return_value):
             return ""
         function_name = self.choose_field_to_json_name(return_value)
         ret_line = "{0}({1}[format::kNameReturn], return_value, options);\n"
@@ -119,7 +132,7 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
     def make_consumer_func_body(self, method_info, return_type, return_value):
         # Deal with the function's returned value:
         if return_type != 'HRESULT WINAPI':
-            print ("Warning - Unexpected return type:", return_type)
+            print("Warning - Unexpected return type:", return_type)
         ret_line = self.make_return("function", return_value)
 
         code = '''
@@ -133,16 +146,22 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         # Generate a correct FieldToJson for each argument:
         for parameter in method_info['parameters']:
             value = self.get_value_info(parameter)
-            code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+            code += "    " + self.make_field_to_json(
+                "args", value, "options"
+            ) + "\n"
 
-        code += remove_leading_empty_lines('''
+        code += remove_leading_empty_lines(
+            '''
                 }}
             writer_->WriteBlockEnd();
-        ''')
+        '''
+        )
         code = code.format(method_info['name'])
         return code
 
-    def make_consumer_method_body(self, class_name, method_info, return_type, return_value):
+    def make_consumer_method_body(
+        self, class_name, method_info, return_type, return_value
+    ):
         code = '''
             nlohmann::ordered_json& method = writer_->WriteApiCallStart(call_info, "{0}", object_id, "{1}");
             const JsonOptions& options = writer_->GetOptions();
@@ -160,7 +179,9 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
             # Generate a correct FieldToJson for each argument:
             for parameter in method_info['parameters']:
                 value = self.get_value_info(parameter)
-                code += "    " + self.make_field_to_json("args", value, "options") + "\n"
+                code += "    " + self.make_field_to_json(
+                    "args", value, "options"
+                ) + "\n"
             code += "}}\n"
 
         code += "writer_->WriteBlockEnd();"
@@ -175,9 +196,13 @@ class Dx12JsonConsumerBodyGenerator(Dx12JsonConsumerHeaderGenerator, Dx12JsonCom
         ## (easier than having pointer decoder versions of each flagset type's FieldToString)
         if value_info.is_pointer and function_name.startswith("FieldToJson_"):
             src = "*" + src + "->GetPointer()"
-        field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(function_name, parent_name, value_info.name, src, options_name)
+        field_to_json = '{0}({1}["{2}"], {3}, {4});'.format(
+            function_name, parent_name, value_info.name, src, options_name
+        )
         if "anon-union" in value_info.base_type:
             field_to_json += "// [anon-union] "
-            print("ALERT: anon union " + value_info.name + " in " + parent_name)
+            print(
+                "ALERT: anon union " + value_info.name + " in " + parent_name
+            )
 
         return field_to_json

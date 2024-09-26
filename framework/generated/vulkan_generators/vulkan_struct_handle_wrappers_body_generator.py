@@ -215,7 +215,7 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             has_handles = self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
@@ -240,8 +240,8 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
         """Performs C++ code generation for the feature."""
         for struct in self.get_filtered_struct_names():
             if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
+                (struct in self.structs_with_handles) or
+                (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = dict()
                 generic_handle_members = dict()

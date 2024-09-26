@@ -22,6 +22,7 @@
 
 import os, re, sys, inspect
 from base_generator import *
+from base_generator_defines import bits_enum_to_flags_typedef
 
 
 class VulkanEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -126,14 +127,14 @@ class VulkanEnumToStringHeaderGenerator(BaseGenerator):
         for enum in sorted(self.enum_names):
             if not enum in self.processedEnums:
                 self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if self.is_flags_enum_64bit(enum):
+                if not enum in self.enum_aliases:
+                    if self.is_64bit_flags(enum):
                         body = 'std::string {0}ToString(const {0} value);'
                         body += '\nstd::string {1}ToString(VkFlags64 vkFlags);'
                     else:
                         body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
                         if 'Bits' in enum:
                             body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
+                    write(body.format(enum, bits_enum_to_flags_typedef(enum)),
                           file=self.outFile)
     # yapf: enable

@@ -23,7 +23,6 @@
 
 import re
 from base_generator import write
-import base_utils
 
 
 class BaseStructDecodersHeaderGenerator():
@@ -36,6 +35,11 @@ class BaseStructDecodersHeaderGenerator():
         """Performs C++ code generation for the feature."""
         body = '\n'
         for struct in self.all_structs:
+            if struct in self.all_struct_aliases or struct in self.all_unions or self.is_struct_black_listed(
+                struct
+            ):
+                continue
+
             size_union_name = ''
 
             if struct in self.base_header_structs.keys():
@@ -83,9 +87,13 @@ class BaseStructDecodersHeaderGenerator():
             body += '\n'
             body += '    {}* decoded_value{{ nullptr }};\n'.format(struct)
             body += '\n'
-            body += '    static Decoded_{}* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)\n'.format(struct)
+            body += '    static Decoded_{}* AllocateAppropriate(const uint8_t* buffer, size_t buffer_size, size_t len, bool initialize = false)\n'.format(
+                struct
+            )
             body += '    {\n'
-            body += '        Decoded_{}* return_type = nullptr;\n'.format(struct)
+            body += '        Decoded_{}* return_type = nullptr;\n'.format(
+                struct
+            )
             body += '\n'
             body += '        // Peek at the actual structure type\n'
             body += '        uint32_t peek_structure_type = 0;\n'
@@ -95,19 +103,25 @@ class BaseStructDecodersHeaderGenerator():
             body += '        switch (xr_type)\n'
             body += '        {\n'
             body += '            default:\n'
-            body += '                return_type = DecodeAllocator::Allocate<Decoded_{}>(len, initialize);\n'.format(struct)
+            body += '                return_type = DecodeAllocator::Allocate<Decoded_{}>(len, initialize);\n'.format(
+                struct
+            )
             body += '                break;\n'
             for child in self.base_header_structs[struct]:
-                switch_type = base_utils.GenerateStructureType(child)
+                switch_type = self.generate_structure_type(child)
 
                 body += '         case {}:\n'.format(switch_type)
-                body += '             return_type = reinterpret_cast<Decoded_{}*>(DecodeAllocator::Allocate<Decoded_{}>(len, initialize));\n'.format(struct, child)
+                body += '             return_type = reinterpret_cast<Decoded_{}*>(DecodeAllocator::Allocate<Decoded_{}>(len, initialize));\n'.format(
+                    struct, child
+                )
                 body += '             break;\n'
             body += '        }\n'
             body += '        return return_type;\n'
             body += '    }\n'
             body += '\n'
-            body += '    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_{}* dest)\n'.format(struct)
+            body += '    static size_t DecodeAppropriate(const uint8_t* buffer, size_t buffer_size, Decoded_{}* dest)\n'.format(
+                struct
+            )
             body += '    {\n'
             body += '        size_t   bytes_read          = 0;\n'
             body += '\n'
@@ -122,11 +136,13 @@ class BaseStructDecodersHeaderGenerator():
             body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), dest);\n'
             body += '                break;\n'
             for child in self.base_header_structs[struct]:
-                switch_type = base_utils.GenerateStructureType(child)
+                switch_type = self.generate_structure_type(child)
 
                 body += '            case {}:\n'.format(switch_type)
                 body += '            {\n'
-                body += '                Decoded_{}* local_dest = reinterpret_cast<Decoded_{}*>(dest);\n'.format(child, child)
+                body += '                Decoded_{}* local_dest = reinterpret_cast<Decoded_{}*>(dest);\n'.format(
+                    child, child
+                )
                 body += '                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), local_dest);\n'
                 body += '                break;\n'
                 body += '            }\n'
@@ -143,19 +159,27 @@ class BaseStructDecodersHeaderGenerator():
             body += '        switch (struct_type)\n'
             body += '        {\n'
             body += '            default:\n'
-            body += '                output_data = DecodeAllocator::Allocate<{}>(len);\n'.format(struct)
+            body += '                output_data = DecodeAllocator::Allocate<{}>(len);\n'.format(
+                struct
+            )
             body += '                break;\n'
             for child in self.base_header_structs[struct]:
-                switch_type = base_utils.GenerateStructureType(child)
+                switch_type = self.generate_structure_type(child)
 
                 body += '            case {}:\n'.format(switch_type)
                 body += '            {\n'
-                body += '                auto *allocation = DecodeAllocator::Allocate<{}>(len);\n'.format(child)
+                body += '                auto *allocation = DecodeAllocator::Allocate<{}>(len);\n'.format(
+                    child
+                )
                 body += '                for (size_t i=0; i < len; i++)\n'
                 body += '                {\n'
-                body += '                    allocation[i] = {}{{ {} }};\n'.format(child, switch_type)
+                body += '                    allocation[i] = {}{{ {} }};\n'.format(
+                    child, switch_type
+                )
                 body += '                }\n'
-                body += '                output_data = reinterpret_cast<{}*>(allocation);\n'.format(struct)
+                body += '                output_data = reinterpret_cast<{}*>(allocation);\n'.format(
+                    struct
+                )
                 body += '                break;\n'
                 body += '            }\n'
             body += '        }\n'
@@ -173,13 +197,6 @@ class BaseStructDecodersHeaderGenerator():
             body += '};\n\n'
 
         return body
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for struct in self.get_filtered_struct_names():
-            self.all_structs.append(struct)
-            self.all_struct_members[struct] = self.feature_struct_members[struct]
-
 
     def needs_member_declaration(self, name, value):
         """Determines if a Vulkan struct member needs an associated member

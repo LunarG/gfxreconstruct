@@ -1592,6 +1592,17 @@ void TrackCmdBuildAccelerationStructuresKHRHandles(vulkan_wrappers::CommandBuffe
         {
             if(pInfos[pInfos_index].srcAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].srcAccelerationStructure));
             if(pInfos[pInfos_index].dstAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].dstAccelerationStructure));
+
+            if (pInfos[pInfos_index].pGeometries != nullptr)
+            {
+                for (uint32_t pGeometries_index = 0; pGeometries_index < pInfos[pInfos_index].geometryCount; ++pGeometries_index)
+                {
+                }
+            }
+
+            if (pInfos[pInfos_index].ppGeometries != nullptr)
+            {
+            }
         }
     }
 }
@@ -1606,6 +1617,17 @@ void TrackCmdBuildAccelerationStructuresIndirectKHRHandles(vulkan_wrappers::Comm
         {
             if(pInfos[pInfos_index].srcAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].srcAccelerationStructure));
             if(pInfos[pInfos_index].dstAccelerationStructure != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::AccelerationStructureKHRHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::AccelerationStructureKHRWrapper>(pInfos[pInfos_index].dstAccelerationStructure));
+
+            if (pInfos[pInfos_index].pGeometries != nullptr)
+            {
+                for (uint32_t pGeometries_index = 0; pGeometries_index < pInfos[pInfos_index].geometryCount; ++pGeometries_index)
+                {
+                }
+            }
+
+            if (pInfos[pInfos_index].ppGeometries != nullptr)
+            {
+            }
         }
     }
 }

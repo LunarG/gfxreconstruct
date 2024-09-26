@@ -21,11 +21,8 @@ from base_generator import BaseGenerator, BaseGeneratorOptions, write
 
 # Copyright text prefixing all headers (list of strings).
 CPP_PREFIX_STRING = [
-    '/*',
-    '** Copyright (c) 2020 Samsung',
-    '** Copyright (c) 2023 Google',
-    '** Copyright (c) 2023 LunarG, Inc.',
-    '**',
+    '/*', '** Copyright (c) 2020 Samsung', '** Copyright (c) 2023 Google',
+    '** Copyright (c) 2023 LunarG, Inc.', '**',
     '** Permission is hereby granted, free of charge, to any person obtaining a',
     '** copy of this software and associated documentation files (the "Software"),',
     '** to deal in the Software without restriction, including without limitation',
@@ -41,15 +38,11 @@ CPP_PREFIX_STRING = [
     '** AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER',
     '** LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING',
     '** FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER',
-    '** DEALINGS IN THE SOFTWARE.',
-    '*/',
-    '',
-    '/*',
+    '** DEALINGS IN THE SOFTWARE.', '*/', '', '/*',
     '** This file is generated from the Khronos Vulkan XML API Registry.',
-    '**',
-    '*/',
-    ''
+    '**', '*/', ''
 ]
+
 
 class VulkanCppConsumerHeaderGeneratorOptions(BaseGeneratorOptions):
     """Adds the following new option:
@@ -111,8 +104,7 @@ class VulkanCppConsumerHeaderGenerator(BaseGenerator):
 
         # TODO: Don't currently support Nvidia raytracing entrypoints
         self.APICALL_BLACKLIST = [
-            'vkCmdBuildAccelerationStructureNV',
-            'vkCmdTraceRaysNV',
+            'vkCmdBuildAccelerationStructureNV', 'vkCmdTraceRaysNV',
             'vkCreateAccelerationStructureNV'
         ]
 
@@ -178,7 +170,7 @@ class VulkanCppConsumerHeaderGenerator(BaseGenerator):
     #
     # Indicates that the current feature has C++ code to generate.
     def need_feature_generation(self):
-        if self.feature_cmd_params or self.struct_names:
+        if self.feature_cmd_params or self.all_structs:
             return True
         return False
 
@@ -193,13 +185,19 @@ class VulkanCppConsumerHeaderGenerator(BaseGenerator):
             returnType = info[0]
             values = info[2]
 
-            decl = self.make_consumer_func_decl(returnType, 'Process_' + cmd, values)
+            decl = self.make_consumer_func_decl(
+                returnType, 'Process_' + cmd, values
+            )
 
             cmddef = '' if first else '\n'
             if self.genOpts.is_override:
-                cmddef += self.indent('virtual ' + decl + ' override;', self.INDENT_SIZE)
+                cmddef += self.indent(
+                    'virtual ' + decl + ' override;', self.INDENT_SIZE
+                )
             else:
-                cmddef += self.indent('virtual ' + decl + ' {}', self.INDENT_SIZE)
+                cmddef += self.indent(
+                    'virtual ' + decl + ' {}', self.INDENT_SIZE
+                )
 
             write(cmddef, file=self.outFile)
             first = False

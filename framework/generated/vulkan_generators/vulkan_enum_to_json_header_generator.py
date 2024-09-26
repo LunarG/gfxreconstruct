@@ -24,6 +24,7 @@ import sys
 from base_generator import *
 from reformat_code import format_cpp_code
 
+
 class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
     """Options for generating C++ functions for Vulkan ToString() functions"""
 
@@ -56,8 +57,7 @@ class VulkanEnumToJsonHeaderGeneratorOptions(BaseGeneratorOptions):
 class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
     """Generate C++ functions to serialize Vulkan enumaration to JSON"""
 
-    SKIP_ENUM = [
-    ]
+    SKIP_ENUM = []
 
     def __init__(
         self, err_file=sys.stderr, warn_file=sys.stderr, diag_file=sys.stdout
@@ -76,10 +76,6 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
         #   referenced by extensions multiple times.  This list is prepopulated with
         #   enums that should be skipped.
         self.processedEnums = set()
-
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagBitsType = dict()
 
     # Method override
     # yapf: disable
@@ -127,48 +123,39 @@ class VulkanEnumToJsonHeaderGenerator(BaseGenerator):
             return True
         return False
 
-
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'VkFlags64'
-        else:
-            self.enumType[group_name] = 'VkFlags'
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagBitsType[bittype] = name
-
     def make_decls(self):
-        for flag in sorted(self.flagsType):
+        for flag in sorted(self.flags_types):
+            if flag in self.flags_type_aliases or self.is_bittype(flag):
+                continue
+
             body = 'struct {0}_t {{ }};'
             write(body.format(flag), file=self.outFile)
 
-
         for enum in sorted(self.enum_names):
-            if not enum in self.enumAliases:
-                if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
-                    body = 'struct {0}_t {{ }};'
-                    write(body.format(enum), file=self.outFile)
+            if (
+                not enum in self.enum_aliases
+                and (self.is_bittype(enum) and self.is_64bit_flags(enum))
+            ):
+                body = 'struct {0}_t {{ }};'
+                write(body.format(enum), file=self.outFile)
 
         self.newline()
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.SKIP_ENUM:
-                self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    if enum in self.enumType and self.enumType[enum] == 'VkFlags64':
-                        body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    else:
-                        body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
-                    write(body.format(enum), file=self.outFile)
+            if enum in self.processedEnums or enum in self.SKIP_ENUM or enum in self.enum_aliases:
+                continue
 
-        for flag in sorted(self.flagsType):
+            self.processedEnums.add(enum)
+
+            if (self.is_flags(enum)
+                or self.is_bittype(enum)) and self.is_64bit_flags(enum):
+                body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+            else:
+                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const util::JsonOptions& options = util::JsonOptions());'
+            write(body.format(enum), file=self.outFile)
+
+        for flag in sorted(self.flags_types):
+            if flag in self.enum_names or flag in self.enum_aliases or flag in self.flags_type_aliases:
+                continue
+
             body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const util::JsonOptions& options = util::JsonOptions());'
-            write(body.format(flag, self.flagsType[flag]), file=self.outFile)
+            write(body.format(flag, self.flags_types[flag]), file=self.outFile)

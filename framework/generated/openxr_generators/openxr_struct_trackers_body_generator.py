@@ -71,6 +71,8 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
+        self.skip_structs = ['XrBaseInStructure', 'XrBaseOutStructure']
+
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
@@ -95,8 +97,78 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for struct in self.all_structs:
+            if struct in self.all_struct_aliases or struct in self.skip_structs:
+                continue
 
+            write(
+                '{0}* TrackStruct(const {0}* value, HandleUnwrapMemory* unwrap_memory)'
+                .format(struct),
+                file=self.outFile
+            )
+            write('{', file=self.outFile)
+            write('    if (value == nullptr)', file=self.outFile)
+            write('    {', file=self.outFile)
+            write('        return nullptr;', file=self.outFile)
+            write('    }', file=self.outFile)
+            self.newline()
+            wrapper_prefix = self.get_wrapper_prefix_from_type(struct) + '::'
+            write(
+                '    {}* unwrapped_struct = {}MakeUnwrapStructs(value, 1, unwrap_memory);'
+                .format(struct, wrapper_prefix),
+                file=self.outFile
+            )
+            self.newline()
+
+            for value in self.all_struct_members[struct]:
+                if value.is_array and value.is_dynamic:
+                    if value.array_dimension == 1:
+                        member_expr = f'unwrapped_struct->{value.name}'
+                        length_expr = self.make_array_length_expression(
+                            value, 'unwrapped_struct->'
+                        )
+
+                        wrapper_prefix = self.get_wrapper_prefix_from_type(
+                            value.base_type
+                        )
+                        if wrapper_prefix == 'UNKNOWN_WRAPPERS':
+                            wrapper_prefix = 'openxr_wrappers'
+                        wrapper_prefix += '::'
+
+                        if value.base_type == 'void':
+                            call_expr = f'{wrapper_prefix}MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
+                        else:
+                            call_expr = f'{wrapper_prefix}MakeUnwrapStructs({member_expr}, {length_expr}, unwrap_memory)'
+                        write(
+                            '    if ({})'.format(member_expr),
+                            file=self.outFile
+                        )
+                        write('    {', file=self.outFile)
+                        write(
+                            '        {} = {};'.format(member_expr, call_expr),
+                            file=self.outFile
+                        )
+                        write('    }', file=self.outFile)
+                    else:
+                        print(
+                            f'OpenXrStructTrackersBodyGenerator ignored: {struct}.{value.name}'
+                        )  # TODO
+
+            for value in self.all_struct_members[struct]:
+                if value.name == 'pNext':
+                    self.newline()
+                    write(
+                        '    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);',
+                        file=self.outFile
+                    )
+                    break
+
+            self.newline()
+            write('    return unwrapped_struct;', file=self.outFile)
+            write('}', file=self.outFile)
+            self.newline()
         self.newline()
+
         write(
             'void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)',
             file=self.outFile
@@ -139,77 +211,3 @@ class OpenXrStructTrackersBodyGenerator(BaseGenerator):
 
         # Finish processing in superclass
         BaseGenerator.endFile(self)
-
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if alias:
-            return
-
-        if typename in ['XrBaseInStructure', 'XrBaseOutStructure']:
-            return
-
-        write(
-            '{0}* TrackStruct(const {0}* value, HandleUnwrapMemory* unwrap_memory)'
-            .format(typename),
-            file=self.outFile
-        )
-        write('{', file=self.outFile)
-        write('    if (value == nullptr)', file=self.outFile)
-        write('    {', file=self.outFile)
-        write('        return nullptr;', file=self.outFile)
-        write('    }', file=self.outFile)
-        self.newline()
-        wrapper_prefix = self.get_wrapper_prefix_from_type(typename) + '::'
-        write(
-            '    {}* unwrapped_struct = {}MakeUnwrapStructs(value, 1, unwrap_memory);'
-            .format(typename, wrapper_prefix),
-            file=self.outFile
-        )
-        self.newline()
-
-        for value in self.feature_struct_members[typename]:
-            if value.is_array and value.is_dynamic:
-                if value.array_dimension == 1:
-                    member_expr = f'unwrapped_struct->{value.name}'
-                    length_expr = self.make_array_length_expression(
-                        value, 'unwrapped_struct->'
-                    )
-
-                    wrapper_prefix = self.get_wrapper_prefix_from_type(
-                        value.base_type
-                    )
-                    if wrapper_prefix == 'UNKNOWN_WRAPPERS':
-                        wrapper_prefix = 'openxr_wrappers'
-                    wrapper_prefix += '::'
-
-                    if value.base_type == 'void':
-                        call_expr = f'{wrapper_prefix}MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
-                    else:
-                        call_expr = f'{wrapper_prefix}MakeUnwrapStructs({member_expr}, {length_expr}, unwrap_memory)'
-                    write('    if ({})'.format(member_expr), file=self.outFile)
-                    write('    {', file=self.outFile)
-                    write(
-                        '        {} = {};'.format(member_expr, call_expr),
-                        file=self.outFile
-                    )
-                    write('    }', file=self.outFile)
-                else:
-                    print(
-                        f'OpenXrStructTrackersBodyGenerator ignored: {typename}.{value.name}'
-                    )  # TODO
-
-        for value in self.feature_struct_members[typename]:
-            if value.name == 'pNext':
-                self.newline()
-                write(
-                    '    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);',
-                    file=self.outFile
-                )
-                break
-
-        self.newline()
-        write('    return unwrapped_struct;', file=self.outFile)
-        write('}', file=self.outFile)
-        self.newline()

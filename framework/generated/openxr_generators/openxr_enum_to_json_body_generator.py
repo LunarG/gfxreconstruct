@@ -77,9 +77,6 @@ class OpenXrEnumToJsonBodyGenerator(BaseGenerator):
         #   referenced by extensions multiple times.  This list is prepopulated with
         #   enums that should be skipped.
         self.processedEnums = set()
-        self.enumType = dict()
-        self.flagsType = dict()
-        self.flagEnumBitsType = dict()
 
     # Method override
     # yapf: disable
@@ -145,89 +142,69 @@ class OpenXrEnumToJsonBodyGenerator(BaseGenerator):
             return True
         return False
 
-    def genGroup(self, groupinfo, group_name, alias):
-        BaseGenerator.genGroup(self, groupinfo, group_name, alias)
-        type_elem = groupinfo.elem
-        if type_elem.get('bitwidth') == '64':
-            self.enumType[group_name] = 'XrFlags64'
-        else:
-            self.enumType[group_name] = 'XrFlags'
-
-    def genType(self, typeinfo, name, alias):
-        super().genType(typeinfo, name, alias)
-        if self.is_flags(name) and alias is None:
-            self.flagsType[name] = self.flags_types[name]
-            bittype = typeinfo.elem.get('requires')
-            if bittype is None:
-                bittype = typeinfo.elem.get('bitvalues')
-            if bittype is not None:
-                self.flagEnumBitsType[name] = bittype
-
     #
     # Performs C++ code generation for the feature.
     # yapf: disable
     def make_decls(self):
         for enum in sorted(self.enum_names):
-            if enum.startswith('Vk') or 'Bits' in enum:
+            if (enum in self.processedEnums or enum in self.enum_aliases or enum in self.SKIP_ENUM or enum.startswith('Vk') or self.is_bittype(enum)):
                 continue
-            if not enum in self.processedEnums and not enum in self.enumAliases and not enum in self.SKIP_ENUM and not enum in self.flagEnumBitsType:
-                self.processedEnums.add(enum)
-                bitwidth = 'XrFlags'
 
-                if enum in self.enumType and self.enumType[enum] == 'XrFlags64':
-                    body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                else:
-                    body = 'void FieldToJson(nlohmann::ordered_json& jdata, const {0}& value, const JsonOptions& options)\n'
-                body += '{{\n'
-                if len(self.enumEnumerants[enum]):
-                    body += '    switch (value) {{\n'
-                    for enumerant in self.enumEnumerants[enum]:
-                        body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
-                        case {0}:
-                            jdata = "{0}";
-                            break;
-                        '''.format(enumerant)))
-                    body += '        default:\n'
-                    body += '            jdata = to_hex_fixed_width(value);\n'
-                    body += '            break;\n'
-                    body += '    }}\n'
-                else:
-                    body += '    jdata = to_hex_fixed_width(value);\n'
+            self.processedEnums.add(enum)
+            bitwidth = 'XrFlags'
 
-                body += '}}\n'
-                body = body.format(enum, bitwidth)
-                write(body, file=self.outFile)
+            if enum in self.flags_types and self.flags_types[enum] == 'XrFlags64':
+                body = f'void FieldToJson({enum}_t, nlohmann::ordered_json& jdata, const {enum}& value, const JsonOptions& options)\n'
+            else:
+                body = f'void FieldToJson(nlohmann::ordered_json& jdata, const {enum}& value, const JsonOptions& options)\n'
+            body += '{\n'
+            if len(self.enum_enumerants[enum]):
+                body += '    switch (value) {\n'
+                for enumerant in self.enum_enumerants[enum]:
+                    body += textwrap.indent(prefix='        ', text=textwrap.dedent('''\
+                    case {0}:
+                        jdata = "{0}";
+                        break;
+                    '''.format(enumerant)))
+                body += '        default:\n'
+                body += '            jdata = to_hex_fixed_width(value);\n'
+                body += '            break;\n'
+                body += '    }\n'
+            else:
+                body += '    jdata = to_hex_fixed_width(value);\n'
 
-        for enum in sorted(self.flagsType):
-            bittype = None
-            if enum.startswith('Vk') or 'Bits' in enum:
+            body += '}\n'
+            write(body, file=self.outFile)
+
+        for flag in sorted(self.flags_types):
+            if flag in self.flags_type_aliases or self.is_bittype(flag):
                 continue
-            if enum in self.flagEnumBitsType:
-                bittype = self.flagEnumBitsType[enum]
-            body = 'void FieldToJson({0}_t, nlohmann::ordered_json& jdata, const {1} flags, const JsonOptions& options)\n'
-            body += '{{\n'
-            if bittype is not None and bittype in self.enum_names and len(self.enumEnumerants[bittype]):
+
+            bittype = self.flag_enum_bits_type[flag]
+            body = f'void FieldToJson({flag}_t, nlohmann::ordered_json& jdata, const {self.flags_types[flag]} flags, const JsonOptions& options)\n'
+            body += '{\n'
+            if bittype is not None and bittype in self.enum_names and len(self.enum_enumerants[bittype]):
                 body += "    if (!options.expand_flags)\n"
-                body += "    {{\n"
+                body += "    {\n"
                 body += "        jdata = to_hex_fixed_width(flags);\n"
                 body += "        return;\n"
-                body += "    }}\n"
-                body += "    jdata = ExpandFlags(flags, []({1} flags)\n"
-                body += "    {{\n"
+                body += "    }\n"
+                body += f"    jdata = ExpandFlags(flags, []({self.flags_types[flag]} flags)\n"
+                body += "    {\n"
                 body += '        switch (flags)\n'
-                body += '        {{\n'
-                for enumerant in self.enumEnumerants[bittype]:
+                body += '        {\n'
+                for enumerant in self.enum_enumerants[bittype]:
                     body += textwrap.indent(prefix='            ', text=textwrap.dedent('''\
                     case {0}:
                         return std::string("{0}");
                     '''.format(enumerant)))
-                body += '        }}\n'
+                body += '        }\n'
                 body += '        return to_hex_fixed_width(flags);\n'
-                body += '    }});\n'
+                body += '    });\n'
             else:
                 body += '    jdata = to_hex_fixed_width(flags);\n'
 
-            body += '}}\n'
-            write(body.format(enum, self.flags_types[enum]), file=self.outFile)
+            body += '}\n'
+            write(body, file=self.outFile)
 
     # yapf: enable

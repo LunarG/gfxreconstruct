@@ -25,6 +25,7 @@ from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_empty_lines
 
+
 class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
     """Convert Struct Decoders to JSON."""
 
@@ -44,10 +45,14 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
     def beginFile(self, gen_opts):
         """Method override."""
         Dx12BaseGenerator.beginFile(self, gen_opts)
-        write('#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)', file=self.outFile)
+        write(
+            '#if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)',
+            file=self.outFile
+        )
         self.newline()
 
-        code = inspect.cleandoc('''
+        code = inspect.cleandoc(
+            '''
             /// @file Functions to convert decoded structs to JSON.
             /// Note these Decoded_StructX versions have the pointer tree linking the
             /// structs set-up during decode, unlike the raw structs, which is why they
@@ -65,19 +70,28 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
             struct JsonOptions;
             GFXRECON_END_NAMESPACE(util)
             GFXRECON_BEGIN_NAMESPACE(decode)
-        ''')
+        '''
+        )
         write(code, file=self.outFile)
         self.newline()
 
     def generate_feature(self):
         struct_dict = self.source_dict['struct_dict']
-        ref_wrappers = remove_trailing_empty_lines(indent_cpp_code('''
+        ref_wrappers = remove_trailing_empty_lines(
+            indent_cpp_code(
+                '''
           // Reference versions of above which simply pipe through to the pointer versions.
-        '''))
+        '''
+            )
+        )
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
-                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* pObj, const util::JsonOptions& options);'.format(k)
-                ref_wrappers += 'inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}& obj, const util::JsonOptions& options){{ FieldToJson(jdata, &obj, options); }}\n'.format(k)
+                body = 'void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* pObj, const util::JsonOptions& options);'.format(
+                    k
+                )
+                ref_wrappers += 'inline void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}& obj, const util::JsonOptions& options){{ FieldToJson(jdata, &obj, options); }}\n'.format(
+                    k
+                )
                 write(body, file=self.outFile)
         write(ref_wrappers, file=self.outFile)
 
@@ -94,14 +108,15 @@ class Dx12StructDecodersToJsonHeaderGenerator(Dx12BaseGenerator):
         custom_to_fields = format_cpp_code(custom_to_fields)
         write(custom_to_fields, file=self.outFile)
         self.newline()
-        code = format_cpp_code('''
+        code = format_cpp_code(
+            '''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
 
             #endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
-        ''')
+        '''
+        )
         write(code, file=self.outFile)
 
         # Finish processing in superclass
         Dx12BaseGenerator.endFile(self)
-

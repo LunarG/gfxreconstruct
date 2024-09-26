@@ -21,32 +21,40 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import write
+from base_generator import BaseGenerator, write
 
 
 class BaseReplayConsumerBodyGenerator():
     """Base class for generating replay cousumers body code."""
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
+    def genStruct(self, typeinfo, typename, alias):
+        """Method override."""
+        BaseGenerator.genStruct(self, typeinfo, typename, alias)
+
+        if self.process_structs and not alias:
+            self.check_struct_member_handles(
+                typename, self.structs_with_handles
+            )
+
+    def isValidCommand(self, command):
+        return True
+
+    def endFile(self):
         platform_type = self.get_api_prefix()
-
-        first = True
-        for cmd in self.get_filtered_cmd_names():
-
-            if self.is_resource_dump_class() and cmd[:5] != "vkCmd":
+        for cmd in self.get_all_filtered_cmd_names():
+            if not self.isValidCommand(cmd):
                 continue
 
-            info = self.feature_cmd_params[cmd]
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             if self.is_resource_dump_class():
                 cmddef += self.make_dump_resources_func_decl(
                     return_type,
-                    '{}ReplayDumpResources::Process_'.format(platform_type) + cmd,
-                    values, cmd in self.DUMP_RESOURCES_OVERRIDES
+                    '{}ReplayDumpResources::Process_'.format(platform_type)
+                    + cmd, values, cmd in self.DUMP_RESOURCES_OVERRIDES
                 ) + '\n'
             else:
                 cmddef += self.make_consumer_func_decl(
@@ -59,4 +67,3 @@ class BaseReplayConsumerBodyGenerator():
             cmddef += '}'
 
             write(cmddef, file=self.outFile)
-            first = False

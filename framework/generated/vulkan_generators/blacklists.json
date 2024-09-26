@@ -1,44 +1,29 @@
 {
-  "functions-all": [
-    "vkGetInstanceProcAddr",
-    "vkGetDeviceProcAddr",
-    "vkEnumerateInstanceLayerProperties",
-    "vkEnumerateDeviceLayerProperties",
-    "vkEnumerateInstanceExtensionProperties",
-    "vkEnumerateDeviceExtensionProperties",
-    "vkEnumerateInstanceVersion",
-    "vkUpdateDescriptorSetWithTemplate",
-    "vkUpdateDescriptorSetWithTemplateKHR",
-    "vkCmdPushDescriptorSetWithTemplateKHR",
-    "vkCmdPushDescriptorSetWithTemplate2KHR",
-    "vkBuildAccelerationStructuresKHR",
-    "vkCopyAccelerationStructureKHR",
-    "vkCreateRayTracingPipelinesKHR"
-  ],
-  "functions-encoder": [
-    "vkCreateComputePipelines",
-    "vkCreateGraphicsPipelines",
-    "vkCreateRayTracingPipelinesNV",
-    "vkCreateRayTracingPipelinesKHR",
-    "vkCreateFence",
-    "vkDestroyFence",
-    "vkResetFences",
-    "vkGetFenceStatus",
-    "vkWaitForFences",
-    "vkImportFenceWin32HandleKHR",
-    "vkImportFenceFdKHR"
-  ],
-  "functions-decoder": [
-    "vkDeferredOperationJoinKHR"
-  ],
-  "structures": [
-    "VkBaseOutStructure",
-    "VkBaseInStructure",
-    "VkDescriptorImageInfo",
-    "VkWriteDescriptorSet",
-    "VkPerformanceValueINTEL",
-    "VkPushDescriptorSetWithTemplateInfoKHR",
-    "VkAccelerationStructureGeometryKHR",
-    "VkAccelerationStructureMotionInstanceNV"
-  ]
+    "functions-all": [
+        "vkGetInstanceProcAddr", "vkGetDeviceProcAddr",
+        "vkEnumerateInstanceLayerProperties",
+        "vkEnumerateDeviceLayerProperties",
+        "vkEnumerateInstanceExtensionProperties",
+        "vkEnumerateDeviceExtensionProperties", "vkEnumerateInstanceVersion",
+        "vkUpdateDescriptorSetWithTemplate",
+        "vkUpdateDescriptorSetWithTemplateKHR",
+        "vkCmdPushDescriptorSetWithTemplateKHR",
+        "vkCmdPushDescriptorSetWithTemplate2KHR",
+        "vkBuildAccelerationStructuresKHR", "vkCopyAccelerationStructureKHR",
+        "vkCreateRayTracingPipelinesKHR"
+    ],
+    "functions-encoder": [
+        "vkCreateComputePipelines", "vkCreateGraphicsPipelines",
+        "vkCreateRayTracingPipelinesNV", "vkCreateRayTracingPipelinesKHR",
+        "vkCreateFence", "vkDestroyFence", "vkResetFences", "vkGetFenceStatus",
+        "vkWaitForFences", "vkImportFenceWin32HandleKHR", "vkImportFenceFdKHR"
+    ],
+    "functions-decoder": ["vkDeferredOperationJoinKHR"],
+    "structures": [
+        "VkBaseOutStructure", "VkBaseInStructure", "VkDescriptorImageInfo",
+        "VkWriteDescriptorSet", "VkPerformanceValueINTEL",
+        "VkPushDescriptorSetWithTemplateInfoKHR",
+        "VkAccelerationStructureGeometryKHR",
+        "VkAccelerationStructureMotionInstanceNV"
+    ]
 }

@@ -25,6 +25,7 @@ import re
 import sys
 import inspect
 from base_generator import *
+from base_generator_defines import bits_enum_to_flags_typedef
 
 
 class VulkanEnumToStringBodyGeneratorOptions(BaseGeneratorOptions):
@@ -121,66 +122,65 @@ class VulkanEnumToStringBodyGenerator(BaseGenerator):
 
     def generate_feature(self):
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums and not enum in self.enumAliases:
+            if not enum in self.processedEnums and not enum in self.enum_aliases:
                 self.processedEnums.add(enum)
-                if self.is_flags_enum_64bit(enum):
+                if self.is_64bit_flags(enum):
                     # print(enum)
                     # body = 'std::string {0}ToString(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
                     # Since every caller needs to know exactly what it is calling, we may as well
                     # dispense with the parameters that are always ignored:
-                    body = 'std::string {0}ToString(const {0} value)\n'
+                    body = f'std::string {enum}ToString(const {enum} value)\n'
                 else:
-                    body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags, uint32_t, uint32_t)\n'
-                body += '{{\n'
-                enumerants = self.enumEnumerants[enum]
+                    body = f'template <> std::string ToString<{enum}>(const {enum}& value, ToStringFlags, uint32_t, uint32_t)\n'
+                body += '{\n'
+                enumerants = self.enum_enumerants[enum]
                 if len(enumerants):
-                    body += '    switch (value) {{\n'
+                    body += '    switch (value) {\n'
                     for enumerant in enumerants:
-                        body += '    case {0}: return "{0}";\n'.format(
-                            enumerant)
+                        body += f'    case {enumerant}: return "{enumerant}";\n'
                     body += '    default: break;\n'
-                    body += '    }}\n'
-                body += '    return "Unhandled {0}";\n'
-                body += '}}\n'
-                if 'Bits' in enum:
-                    if self.is_flags_enum_64bit(enum):
-                        body += '\nstd::string {1}ToString(VkFlags64 vkFlags)\n'
-                        body += '{{\n'
-                        body += '    std::string   str;\n'
-                        body += '    VkFlags64     index = 0U;\n'
-                        body += '    while (vkFlags)\n'
-                        body += '    {{\n'
-                        body += '        if (vkFlags & 1U)\n'
-                        body += '        {{\n'
-                        body += '            if (!str.empty())\n'
-                        body += '            {{\n'
-                        body += '                str += \'|\';\n'
-                        body += '            }}\n'
-                        body += '            str.append({0}ToString(static_cast<{0}>(1U) << index));\n'
-                        body += '        }}\n'
-                        body += '        ++index;\n'
-                        body += '        vkFlags >>= 1U;\n'
-                        body += '    }}\n'
-                        body += '    if (str.empty())\n'
-                        body += '    {{\n'
-                        body += '        str.append({0}ToString(0U));\n'
-                        body += '    }}\n'
-                        body += '    return str;\n'
-                        body += '}}\n'
+                    body += '    }\n'
+                body += f'    return "Unhandled {enum}";\n'
+                body += '}\n'
+                if self.is_bittype(enum):
+                    if self.is_64bit_flags(enum):
+                        flag_name = enum
+                        flag_name = flag_name.replace('Bit', '')
+                        if flag_name in self.flags_types:
+                            body += f'\nstd::string {flag_name}ToString(VkFlags64 vkFlags)\n'
+                            body += '{\n'
+                            body += '    std::string   str;\n'
+                            body += '    VkFlags64     index = 0U;\n'
+                            body += '    while (vkFlags)\n'
+                            body += '    {\n'
+                            body += '        if (vkFlags & 1U)\n'
+                            body += '        {\n'
+                            body += '            if (!str.empty())\n'
+                            body += '            {\n'
+                            body += '                str += \'|\';\n'
+                            body += '            }\n'
+                            body += f'            str.append({enum}ToString(static_cast<{enum}>(1U) << index));\n'
+                            body += '        }\n'
+                            body += '        ++index;\n'
+                            body += '        vkFlags >>= 1U;\n'
+                            body += '    }\n'
+                            body += '    if (str.empty())\n'
+                            body += '    {\n'
+                            body += f'        str.append({enum}ToString(0U));\n'
+                            body += '    }\n'
+                            body += '    return str;\n'
+                            body += '}\n'
                     else:
                         # Original version(these are never actually being called which is part of issue #620):
-                        body += '\ntemplate <> std::string ToString<{0}>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)\n'
+                        body += f'\ntemplate <> std::string ToString<{enum}>(VkFlags vkFlags, ToStringFlags, uint32_t, uint32_t)\n'
                         # Simpler, non-template version that matches the 64 bit version above. Changing
                         # to these signatures actually compiles fine, showing the originals were never
                         # called anywhere. Leaving this commented-out but ready for the PR that fixes
                         # issue #620 to use.
                         # body += '\nstd::string {1}ToString(VkFlags vkFlags)\n'
-                        body += '{{\n'
-                        body += '    return BitmaskToString<{0}>(vkFlags);\n'
-                        body += '}}\n'
-                write(body.format(enum, BitsEnumToFlagsTypedef(enum)),
-                      file=self.outFile)
-                # if self.is_flags_enum_64bit(enum):
-                #    print(body.format(enum, BitsEnumToFlagsTypedef(enum)))
+                        body += '{\n'
+                        body += f'    return BitmaskToString<{enum}>(vkFlags);\n'
+                        body += '}\n'
+                write(body, file=self.outFile)
 
     # yapf: enable

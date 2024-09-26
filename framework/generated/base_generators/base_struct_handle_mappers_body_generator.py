@@ -21,7 +21,6 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import base_utils
 import sys
 from base_generator import write
 
@@ -36,20 +35,11 @@ class BaseStructHandleMappersBodyGenerator():
         # member that contains handles).
         self.structs_with_handles = structs_with_handles
 
-        # TODO: Add comment
-        self.structs_with_handle_ptrs = []
-
         # Map of structure types to type value for structs that can be part of a pNext (or next) chain and contain handles.
         self.pnext_structs_with_handles = dict()
 
         # Map of structure types to sType (or type) value for structs that can be part of a pNext (or next) chain.
         self.pnext_structs = dict()
-
-        # List of structs containing handles that are also used as output parameters for a command
-        self.output_structs_with_handles = []
-
-        # TODO: Add comment
-        self.structs_with_map_data = dict()
 
     def endFile(self):
 
@@ -110,7 +100,9 @@ class BaseStructHandleMappersBodyGenerator():
             for base_type in self.pnext_structs:
                 if base_type in self.structs_with_handles:
                     write(
-                        '        case {}:'.format(self.pnext_structs[base_type]),
+                        '        case {}:'.format(
+                            self.pnext_structs[base_type]
+                        ),
                         file=self.outFile
                     )
                     write(
@@ -164,10 +156,13 @@ class BaseStructHandleMappersBodyGenerator():
             map_table = ', const graphics::Dx12GpuVaMap& gpu_va_map'
 
         for struct in struct_list:
+
             if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-                or (struct in self.structs_with_map_data)
+                (struct in self.structs_with_handles) or
+                (struct in self.GENERIC_HANDLE_STRUCTS) or (
+                    self.is_dx12_class()
+                    and struct in self.structs_with_map_data
+                )
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = list()
                 generic_handle_members = dict()
@@ -175,7 +170,8 @@ class BaseStructHandleMappersBodyGenerator():
                 if struct in self.structs_with_handles:
                     handle_members = self.structs_with_handles[struct].copy()
 
-                if struct in self.structs_with_map_data:
+                if self.is_dx12_class(
+                ) and struct in self.structs_with_map_data:
                     handle_members.extend(
                         self.structs_with_map_data[struct].copy()
                     )
@@ -192,10 +188,17 @@ class BaseStructHandleMappersBodyGenerator():
                 else:
                     for member in handle_members:
                         if (
-                            (self.is_handle(member.base_type) or self.is_atom(member.base_type) or
-                             self.is_opaque(member.base_type) or self.is_class(member)) and
+                            (
+                                self.is_handle(member.base_type)
+                                or self.is_atom(member.base_type)
+                                or self.is_opaque(member.base_type)
+                                or self.is_class(member)
+                            ) and
                             not (member.is_array and not member.is_dynamic)
-                        ) or (member.base_type in self.MAP_STRUCT_TYPE):
+                        ) or (
+                            self.is_dx12_class()
+                            and member.base_type in self.MAP_STRUCT_TYPE
+                        ):
                             needs_value_ptr = True
                             break
 
@@ -224,7 +227,7 @@ class BaseStructHandleMappersBodyGenerator():
                         body += '                break;\n'
 
                         for child in self.base_header_structs[struct]:
-                            switch_type = base_utils.GenerateStructureType(child)
+                            switch_type = self.generate_structure_type(child)
 
                             body += f'            case {switch_type}:\n'
                             body += f'                MapStructHandles(reinterpret_cast<Decoded_{child}*>(wrapper),\n'
@@ -264,9 +267,12 @@ class BaseStructHandleMappersBodyGenerator():
         body = ''
         for member in handle_members:
             body += '\n'
-            map_func = self.MAP_STRUCT_TYPE.get(member.base_type)
+            map_func = self.is_dx12_class() and self.MAP_STRUCT_TYPE.get(
+                member.base_type
+            )
 
-            if ('pNext' == member.name or 'next' == member.name) and (not is_dx12_class):
+            if ('pNext' == member.name
+                or 'next' == member.name) and (not is_dx12_class):
                 func_id = 'PNext'
                 if 'next' == member.name:
                     func_id = 'Next'
@@ -306,9 +312,7 @@ class BaseStructHandleMappersBodyGenerator():
                         unwrap_function = f'MapStructArray{map_types}<Decoded_{member.base_type}>'
 
                     body += '        {}(wrapper->{name}->GetMetaStructPointer(), wrapper->{name}->GetLength(), object_info_table{});\n'.format(
-                        unwrap_function,
-                        given_object,
-                        name=member.name
+                        unwrap_function, given_object, name=member.name
                     )
                 elif member.is_pointer:
                     body += '        MapStructArray{}<Decoded_{}>(wrapper->{}->GetMetaStructPointer(), 1, object_info_table{});\n'.format(
@@ -321,7 +325,9 @@ class BaseStructHandleMappersBodyGenerator():
             else:
                 type = member.base_type
                 if not is_dx12_class:
-                    prefix_from_type = self.get_prefix_from_type(member.base_type)
+                    prefix_from_type = self.get_prefix_from_type(
+                        member.base_type
+                    )
                     func_id = member.base_type + 'Info'
                     type = prefix_from_type + member.base_type[2:] + 'Info'
                     object_info_table_get = ', &{}ObjectInfoTable::Get{}'.format(
@@ -398,7 +404,8 @@ class BaseStructHandleMappersBodyGenerator():
 
         for member in members:
 
-            if ('pNext' == member.name or 'next' == member.name) and (not is_dx12_class):
+            if ('pNext' == member.name
+                or 'next' == member.name) and (not is_dx12_class):
                 func_id = 'PNext'
                 if 'next' == member.name:
                     func_id = 'Next'
@@ -504,7 +511,8 @@ class BaseStructHandleMappersBodyGenerator():
             body += '\n'
 
         for member in members:
-            if ('pNext' == member.name or 'next' == member.name) and (not is_dx12_class):
+            if ('pNext' == member.name
+                or 'next' == member.name) and (not is_dx12_class):
                 func_id = 'PNext'
                 if 'next' == member.name:
                     func_id = 'Next'

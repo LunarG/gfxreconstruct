@@ -22,7 +22,67 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions, ValueInfo
+from base_generator import BaseGenerator, BaseGeneratorOptions
+from base_generator_defines import BaseGeneratorDefines, make_re_string
+
+
+class ValueInfo():
+    """ValueInfo - Class to store parameter/struct member information.
+    Contains information descripting Vulkan API call parameters and struct members.
+
+    Members:
+      name - Parameter/struct member name of the value.
+      base_type - Undecorated typename of the value.
+      full_type - Fully qualified typename of the value.
+      pointer_count - Number of '*' characters in the type declaration.
+      array_length - The parameter that specifies the number of elements in an array, or None if the value is not an array.
+      array_capacity - The max size of a statically allocated array, or None for a dynamically allocated array.
+      array_dimension - Number of the array dimension
+      platform_base_type - For platform specific type definitions, stores the original base_type declaration before platform to trace type substitution.
+      platform_full_type - For platform specific type definitions, stores the original full_type declaration before platform to trace type substitution.
+      bitfield_width -
+      is_pointer - True if the value is a pointer.
+      is_optional - True if the value is optional
+      is_array - True if the member is an array.
+      is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
+      is_const - True if the member is a const.
+    """
+
+    def __init__(
+        self,
+        name,
+        base_type,
+        full_type,
+        pointer_count=0,
+        array_length=None,
+        array_length_value=None,
+        array_capacity=None,
+        array_dimension=None,
+        platform_base_type=None,
+        platform_full_type=None,
+        bitfield_width=None,
+        is_const=False,
+        is_optional=False,
+        is_com_outptr=False
+    ):
+        self.name = name
+        self.base_type = base_type
+        self.full_type = full_type
+        self.pointer_count = pointer_count
+        self.array_length = array_length
+        self.array_length_value = array_length_value
+        self.array_capacity = array_capacity
+        self.array_dimension = array_dimension
+        self.platform_base_type = platform_base_type
+        self.platform_full_type = platform_full_type
+        self.bitfield_width = bitfield_width
+
+        self.is_pointer = True if pointer_count > 0 else False
+        self.is_optional = is_optional
+        self.is_array = True if array_length else False
+        self.is_dynamic = True if not array_capacity else False
+        self.is_const = is_const
+        self.is_com_outptr = is_com_outptr
 
 
 class Dx12GeneratorOptions(BaseGeneratorOptions):
@@ -44,8 +104,15 @@ class Dx12GeneratorOptions(BaseGeneratorOptions):
         )
 
 
-class Dx12BaseGenerator(BaseGenerator):
+class Dx12BaseGenerator(BaseGenerator, BaseGeneratorDefines):
 
+    NO_STRUCT_BREAKDOWN = [
+        'LARGE_INTEGER',
+        'D3D12_AUTO_BREADCRUMB_NODE',
+        'D3D12_AUTO_BREADCRUMB_NODE1',
+        'D3D12_DRED_ALLOCATION_NODE',
+        'D3D12_DRED_ALLOCATION_NODE1',
+    ]
     ARRAY_SIZE_LIST = [
         ['D3D12_AUTO_BREADCRUMB_NODE', 'pCommandHistory', 'BreadcrumbCount'],
         ['D3D12_AUTO_BREADCRUMB_NODE1', 'pCommandHistory', 'BreadcrumbCount'],
@@ -134,8 +201,7 @@ class Dx12BaseGenerator(BaseGenerator):
 
     # ID3D23CommandList is top parent class for all ID3D12GraphicsCommandList[n]
     FAMILY_CLASSES_EXECPTION = {
-        'ID3D12GraphicsCommandList':
-        'ID3D12CommandList'
+        'ID3D12GraphicsCommandList': 'ID3D12CommandList'
     }
 
     ADD_RV_ANNOTATION_METHODS = [
@@ -145,19 +211,21 @@ class Dx12BaseGenerator(BaseGenerator):
     ]
 
     REMOVE_RV_ANNOTATION_TYPES = {
-        'D3D12_GPU_VIRTUAL_ADDRESS':'',
-        'D3D12_GPU_DESCRIPTOR_HANDLE':'',
-        'D3D12_INDEX_BUFFER_VIEW':'',
-        'D3D12_VERTEX_BUFFER_VIEW':'',
-        'D3D12_STREAM_OUTPUT_BUFFER_VIEW':'',
-        'D3D12_CONSTANT_BUFFER_VIEW_DESC':'',
-        'D3D12_SHADER_RESOURCE_VIEW_DESC':'',
-        'D3D12_WRITEBUFFERIMMEDIATE_PARAMETER':'',
-        'D3D12_DISPATCH_RAYS_DESC':'',
-        'D3D12_RAYTRACING_GEOMETRY_DESC':'',
-        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC':'D3D12_RAYTRACING_GEOMETRY_DESC[]',
-        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS':'D3D12_RAYTRACING_GEOMETRY_DESC[]',
-        'D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC':'',
+        'D3D12_GPU_VIRTUAL_ADDRESS': '',
+        'D3D12_GPU_DESCRIPTOR_HANDLE': '',
+        'D3D12_INDEX_BUFFER_VIEW': '',
+        'D3D12_VERTEX_BUFFER_VIEW': '',
+        'D3D12_STREAM_OUTPUT_BUFFER_VIEW': '',
+        'D3D12_CONSTANT_BUFFER_VIEW_DESC': '',
+        'D3D12_SHADER_RESOURCE_VIEW_DESC': '',
+        'D3D12_WRITEBUFFERIMMEDIATE_PARAMETER': '',
+        'D3D12_DISPATCH_RAYS_DESC': '',
+        'D3D12_RAYTRACING_GEOMETRY_DESC': '',
+        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC':
+        'D3D12_RAYTRACING_GEOMETRY_DESC[]',
+        'D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS':
+        'D3D12_RAYTRACING_GEOMETRY_DESC[]',
+        'D3D12_RAYTRACING_ACCELERATION_STRUCTURE_POSTBUILD_INFO_DESC': '',
     }
 
     def __init__(
@@ -178,13 +246,20 @@ class Dx12BaseGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
+        BaseGeneratorDefines.__init__(self)
         self.source_dict = source_dict
         self.dx12_prefix_strings = dx12_prefix_strings
         self.feature_method_params = dict()
         self.check_blacklist = False
-        self.all_structs = list()         # List of all struct names
-        self.all_struct_members = dict()  # Map of all struct names to lists of per-member ValueInfo
-        self.all_struct_aliases = dict()  # Map of all struct aliases
+
+        self.MAP_STRUCT_TYPE = {
+            'D3D12_GPU_DESCRIPTOR_HANDLE': [
+                'MapGpuDescriptorHandle', 'MapGpuDescriptorHandles',
+                'descriptor_map'
+            ],
+            'D3D12_GPU_VIRTUAL_ADDRESS':
+            ['MapGpuVirtualAddress', 'MapGpuVirtualAddresses', 'gpu_va_map']
+        }
 
     def clean_type_define(self, type):
         rtn = ''
@@ -397,10 +472,13 @@ class Dx12BaseGenerator(BaseGenerator):
         for k, v in header_dict.items():
             for class_name, class_value in v.classes.items():
                 if self.is_required_struct_data(class_name, class_value):
-                    self.feature_struct_members[
-                        class_name] = self.make_value_info(
+                    self.all_structs.append(class_name)
+                    self.set_struct_members(
+                        class_name,
+                        self.make_value_info(
                             class_value['properties']['public']
                         )
+                    )
 
     def genCmd(self, cmdinfo, name, alias):
         """Method override."""
@@ -409,10 +487,160 @@ class Dx12BaseGenerator(BaseGenerator):
             for m in v.functions:
                 if self.is_required_function_data(m):
                     name = m['name']
-                    self.feature_cmd_params[name] = (
-                        self.clean_type_define(m['rtnType']), '',
-                        self.make_value_info(m['parameters'])
+                    self.save_command_and_params(
+                        name, (
+                            self.clean_type_define(m['rtnType']), '',
+                            self.make_value_info(m['parameters'])
+                        )
                     )
+
+    def make_consumer_func_decl(self, return_type, name, values):
+        """make_consumer_decl - return OpenXrConsumer class member function declaration.
+        Generate OpenXrConsumer class member function declaration.
+        """
+        param_decls = []
+        param_decl = self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        param_decl = self.make_aligned_param_decl(
+            'format::HandleId', 'object_id', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        if return_type != 'void':
+            method_name = name[name.find('::Process_') + 10:]
+            return_value = self.get_return_value_info(return_type, method_name)
+            rtn_type1 = self.make_decoded_param_type(return_value)
+            if rtn_type1.find('Decoder') != -1:
+                rtn_type1 += '*'
+            param_decl = self.make_aligned_param_decl(
+                rtn_type1, 'return_value', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+
+        for value in values:
+            param_type = self.make_decoded_param_type(value)
+
+            if 'Decoder' in param_type:
+                param_type = '{}*'.format(param_type)
+
+            param_decl = self.make_aligned_param_decl(
+                param_type, value.name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
+
+        return 'void {}()'.format(name)
+
+    def check_struct_member_handles(
+        self,
+        typename,
+        structs_with_handles,
+        structs_with_handle_ptrs=None,
+        ignore_output=False,
+        structs_with_map_data=None,
+        extra_types=None
+    ):
+        """Determines if the specified struct type contains members that have a handle type or are structs that contain handles.
+        Structs with member handles are added to a dictionary, where the key is the structure type and the value is a list of the handle members.
+        An optional list of structure types that contain handle members with pointer types may also be generated.
+        """
+        handles = []
+        has_handle_pointer = False
+        map_data = []
+
+        for value in self.all_struct_members[typename]:
+            if (
+                self.is_struct(value.base_type)
+                and value.base_type not in self.NO_STRUCT_BREAKDOWN
+            ):
+                self.check_struct_member_handles(
+                    value.base_type, structs_with_handles,
+                    structs_with_handle_ptrs, ignore_output,
+                    structs_with_map_data, extra_types
+                )
+
+            if self.is_handle(value.base_type) or self.is_class(value) or (
+                extra_types and value.base_type in extra_types
+            ):
+                # The member is a handle.
+                handles.append(value)
+                if (
+                    (structs_with_handle_ptrs is not None)
+                    and (value.is_pointer or value.is_array)
+                ):
+                    has_handle_pointer = True
+            elif self.is_struct(value.base_type) and (
+                (value.base_type in structs_with_handles) and
+                ((not ignore_output) or (not '_Out_' in value.full_type))
+            ):
+                # The member is a struct that contains a handle.
+                handles.append(value)
+                if (
+                    (structs_with_handle_ptrs is not None)
+                    and (value.name in structs_with_handle_ptrs)
+                ):
+                    has_handle_pointer = True
+            elif self.is_union(value.base_type):
+                # Check the anonymous union for objects.
+                union_members = self.get_union_members(value.base_type)
+                for union_info in union_members:
+                    if self.is_struct(
+                        union_info.base_type
+                    ) and (union_info.base_type in structs_with_handles):
+                        handles.append(value)
+                        has_handle_pointer = True
+                    elif union_info.base_type in self.MAP_STRUCT_TYPE:
+                        if (structs_with_map_data is not None):
+                            map_data.append(value)
+            elif ('pNext' in value.name) and (not self.is_dx12_class()):
+                # The pNext chain may include a struct with handles.
+                has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(
+                    typename
+                )
+                if has_pnext_handles:
+                    handles.append(value)
+                    if (
+                        structs_with_handle_ptrs is not None
+                    ) and has_pnext_handle_ptrs:
+                        has_handle_pointer = True
+
+            if (structs_with_map_data is not None) and (
+                (value.base_type in self.MAP_STRUCT_TYPE) or
+                (value.base_type in structs_with_map_data)
+            ):
+                map_data.append(value)
+
+        if map_data:
+            structs_with_map_data[typename] = map_data
+
+        if handles:
+            # Process the list of struct members a second time to check for
+            # members with the same type as the struct.  The current struct
+            # type has not been added to the table of structs with handles
+            # yet, so we must check the struct members a second time, looking
+            # for members with the struct type, now that we know the current
+            # struct type contains members that are handles/objects.  Any
+            # struct members that have the same type as the struct must be
+            # added to the handle member list.
+            for value in self.all_struct_members[typename]:
+                if (value.base_type == typename) and (
+                    (not ignore_output) or (not '_Out_' in value.full_type)
+                ):
+                    handles.append(value)
+
+            structs_with_handles[typename] = handles
+            if (structs_with_handle_ptrs is not None) and has_handle_pointer:
+                structs_with_handle_ptrs.append(typename)
+            return True
+        return False
 
     def gen_method(self):
         header_dict = self.source_dict['header_dict']
@@ -654,9 +882,8 @@ class Dx12BaseGenerator(BaseGenerator):
         if struct_source_data['declaration_method'] == 'struct' and (
             not self.check_blacklist
             or not struct_source_data['name'] in self.STRUCT_BLACKLIST
-        ) and struct_type[-4:] != 'Vtbl' and struct_type.find(
-            "::<anon-union-"
-        ) == -1:
+        ) and struct_type[
+            -4:] != 'Vtbl' and struct_type.find("::<anon-union-") == -1:
             return True
         return False
 

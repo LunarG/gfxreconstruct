@@ -76,8 +76,6 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structs_with_handles = dict()
-        self.output_structs = [
-        ]  # Output structures that retrieve handles, which need to be wrapped.
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -227,7 +225,9 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
@@ -255,8 +255,8 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
         # Generate unwrap and rewrap code for input structures.
         for struct in self.get_filtered_struct_names():
             if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
+                (struct in self.structs_with_handles) or
+                (struct in self.GENERIC_HANDLE_STRUCTS)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
                 body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
@@ -295,7 +295,8 @@ class VulkanStructHandleWrappersHeaderGenerator(BaseGenerator):
                 else:
                     if member.is_array:
                         body += '        vulkan_wrappers::CreateWrappedHandles<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, value->{}, get_id);\n'.format(
-                            wrapper_prefix, member.base_type[2:], member.name, member.array_length
+                            wrapper_prefix, member.base_type[2:], member.name,
+                            member.array_length
                         )
                     elif member.is_pointer:
                         body += '        vulkan_wrappers::CreateWrappedHandle<ParentWrapper, CoParentWrapper, {}::{}Wrapper>(parent, co_parent, value->{}, get_id);\n'.format(

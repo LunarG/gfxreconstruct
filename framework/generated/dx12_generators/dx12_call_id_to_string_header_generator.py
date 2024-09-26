@@ -27,7 +27,6 @@ from dx12_base_generator import Dx12BaseGenerator
 
 
 class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
-
     """Generates C++ function responsible for converting Dx12 ApiCallId to string."""
 
     def __init__(
@@ -56,19 +55,18 @@ class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
         self.write_function_call()
 
     def write_include(self):
-        code = ("\n"
-                "#include \"format/api_call_id.h\"\n"
-                "#include <string>\n"
-               "\n")
+        code = (
+            "\n"
+            "#include \"format/api_call_id.h\"\n"
+            "#include <string>\n"
+            "\n"
+        )
         write(code, file=self.outFile)
 
     def write_function_call(self):
         code = (
             "inline std::wstring GetDx12CallIdString(format::ApiCallId call_id){}\n"
-            "\n"
-            .format(
-                self.get_function_call_body()
-            )
+            "\n".format(self.get_function_call_body())
         )
         write(code, file=self.outFile)
 
@@ -95,9 +93,7 @@ class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
                         code += (
                             "    case format::ApiCallId::ApiCall_{0}_{1}:\n"
                             "        out = L\"{0}_{1}\";\n"
-                            "        break;\n".format(
-                                class_name, m['name']
-                            )
+                            "        break;\n".format(class_name, m['name'])
                         )
 
 
@@ -108,7 +104,6 @@ class Dx12CallIdToStringHeaderGenerator(Dx12BaseGenerator):
                 '}'
 
         return code
-
 
     def endFile(self):
         write('GFXRECON_END_NAMESPACE(util)', file=self.outFile)

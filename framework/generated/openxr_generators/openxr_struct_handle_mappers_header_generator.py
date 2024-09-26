@@ -79,10 +79,6 @@ class OpenXrStructHandleMappersHeaderGenerator(
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        # List of structs containing handles that are also used as output parameters for a command
-        self.output_structs_with_handles = []
-        self.structs_with_map_data = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -118,7 +114,9 @@ class OpenXrStructHandleMappersHeaderGenerator(
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles,
                 self.structs_with_handle_ptrs
@@ -129,7 +127,9 @@ class OpenXrStructHandleMappersHeaderGenerator(
         BaseGenerator.genCmd(self, cmdinfo, name, alias)
 
         # Look for output structs that contain handles and add to list
-        if not alias:
+        if self.process_cmds and not self.is_cmd_black_listed(
+            name
+        ) and not alias:
             for value_info in self.feature_cmd_params[name][2]:
                 if self.is_output_parameter(value_info) and (
                     value_info.base_type in self.get_filtered_struct_names()

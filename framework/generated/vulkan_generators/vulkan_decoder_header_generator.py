@@ -108,10 +108,17 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
             '                                    size_t                        buffer_size) override;\n',
             file=self.outFile
         )
-        write('  private:', end='', file=self.outFile)
+        write('  private:\n', end='', file=self.outFile)
 
     def endFile(self):
         """Method override."""
+        for cmd in self.cmd_names:
+            if self.is_cmd_black_listed(cmd):
+                continue
+
+            cmddef = '\n'
+            cmddef += f'    size_t Decode_{cmd}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'
+            write(cmddef, file=self.outFile)
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(decode)', file=self.outFile)
@@ -125,14 +132,3 @@ class VulkanDecoderHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        first = True
-        for cmd in self.get_filtered_cmd_names():
-            cmddef = '' if first else '\n'
-            cmddef += '    size_t Decode_{}(const ApiCallInfo& call_info, const uint8_t* parameter_buffer, size_t buffer_size);'.format(
-                cmd
-            )
-            write(cmddef, file=self.outFile)
-            first = False

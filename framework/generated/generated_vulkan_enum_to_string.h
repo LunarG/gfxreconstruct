@@ -433,8 +433,8 @@ template <> std::string ToString<VkMicromapTypeEXT>(const VkMicromapTypeEXT& val
 template <> std::string ToString<VkOpacityMicromapFormatEXT>(const VkOpacityMicromapFormatEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkOpacityMicromapSpecialIndexEXT>(const VkOpacityMicromapSpecialIndexEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDisplacementMicromapFormatNV>(const VkDisplacementMicromapFormatNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(const VkPhysicalDeviceSchedulingControlsFlagBitsARM& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
-template <> std::string ToString<VkPhysicalDeviceSchedulingControlsFlagBitsARM>(VkFlags vkFlags, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
+std::string VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(const VkPhysicalDeviceSchedulingControlsFlagBitsARM value);
+std::string VkPhysicalDeviceSchedulingControlsFlagBitsARMToString(VkFlags64 vkFlags);
 template <> std::string ToString<VkSubpassMergeStatusEXT>(const VkSubpassMergeStatusEXT& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkDirectDriverLoadingModeLUNARG>(const VkDirectDriverLoadingModeLUNARG& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);
 template <> std::string ToString<VkOpticalFlowExecuteFlagBitsNV>(const VkOpticalFlowExecuteFlagBitsNV& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);

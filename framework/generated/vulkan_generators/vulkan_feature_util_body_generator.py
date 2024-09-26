@@ -102,7 +102,9 @@ class VulkanFeatureUtilBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
             # Track this struct if it can be present in a pNext chain for features
             parent_structs = typeinfo.elem.get('structextends')
             if parent_structs:

@@ -22,6 +22,7 @@
 
 import os, re, sys, inspect
 from base_generator import *
+from base_generator_defines import bits_enum_to_flags_typedef
 
 
 class OpenXrEnumToStringHeaderGeneratorOptions(BaseGeneratorOptions):
@@ -121,19 +122,25 @@ class OpenXrEnumToStringHeaderGenerator(BaseGenerator):
     # Performs C++ code generation for the feature.
     def generate_feature(self):
         for enum in sorted(self.enum_names):
-            if not enum in self.processedEnums:
-                if enum.startswith('Vk'):
-                    continue
-                self.processedEnums.add(enum)
-                if not enum in self.enumAliases:
-                    body = ''
-                    if self.is_flags_enum_64bit(enum):
-                        body = 'std::string {0}ToString(const uint64_t& value);'
-                        body += '\nstd::string {1}ToString(XrFlags64 vkFlags);'
-                    elif 'Bits' not in enum:
-                        body = 'template <> std::string ToString<{0}>(const {0}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);'
-                    if len(body) > 0:
-                        write(
-                            body.format(enum, BitsEnumToFlagsTypedef(enum)),
-                            file=self.outFile
-                        )
+            if enum.startswith(
+                'Vk'
+            ) or enum in self.processedEnums or enum in self.enum_aliases:
+                continue
+
+            self.processedEnums.add(enum)
+            body = ''
+            if self.is_64bit_flags(enum) or self.is_bittype(enum):
+                body += f'std::string {enum}ToString(const uint64_t& value);\n'
+                flag_name = enum
+                flag_name = flag_name.replace('Bit', '')
+                body += f'std::string {flag_name}ToString(XrFlags64 vkFlags);\n'
+            elif not self.is_bittype(enum):
+                body += f'template <> std::string ToString<{enum}>(const {enum}& value, ToStringFlags toStringFlags, uint32_t tabCount, uint32_t tabSize);\n'
+
+            if len(body) == 0:
+                continue
+
+            write(
+                body.format(enum, bits_enum_to_flags_typedef(enum)),
+                file=self.outFile
+            )

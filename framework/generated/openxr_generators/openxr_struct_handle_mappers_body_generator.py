@@ -126,9 +126,7 @@ class OpenXrStructHandleMappersBodyGenerator(
             self.local_gen_cmd(cmdinfo, name, alias)
 
         # Create the struct handle mappers for all features
-        self.generate_struct_mappers(
-            self.get_filtered_all_feature_struct_names()
-        )
+        self.generate_struct_mappers(self.get_all_filtered_struct_names())
 
         BaseStructHandleMappersBodyGenerator.endFile(self)
         # Finish processing in superclass
@@ -138,8 +136,10 @@ class OpenXrStructHandleMappersBodyGenerator(
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias, False, True)
 
-        self.gen_struct_replay_info.append([typeinfo, typename, alias])
-        #self.local_gen_struct(typeinfo, typename, alias)
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
+            self.gen_struct_replay_info.append([typeinfo, typename, alias])
 
     def local_gen_struct(self, typeinfo, typename, alias):
         if not alias:
@@ -160,7 +160,10 @@ class OpenXrStructHandleMappersBodyGenerator(
     def genCmd(self, cmdinfo, name, alias):
         """Method override."""
         BaseGenerator.genCmd(self, cmdinfo, name, alias, False, True)
-        self.gen_cmd_replay_info.append([cmdinfo, name, alias])
+        if self.process_cmds and not self.is_cmd_black_listed(
+            name
+        ) and not alias:
+            self.gen_cmd_replay_info.append([cmdinfo, name, alias])
 
     def local_gen_cmd(self, cmdinfo, name, alias):
         # Look for output structs that contain handles and add to list
@@ -168,7 +171,7 @@ class OpenXrStructHandleMappersBodyGenerator(
             for value_info in self.feature_cmd_params[name][2]:
                 if self.is_output_parameter(value_info) and (
                     value_info.base_type
-                    in self.get_filtered_feature_struct_names()
+                    in self.get_all_filtered_struct_names()
                 ) and (value_info.base_type in self.structs_with_handles) and (
                     value_info.base_type
                     not in self.output_structs_with_handles

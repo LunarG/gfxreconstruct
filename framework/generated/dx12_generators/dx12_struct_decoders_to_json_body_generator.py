@@ -36,7 +36,7 @@
 ## If the generated ouput for a struct is ever observed to be incorrect, the
 ## procedure for generating a custom function is as follows:
 ## 1. Add cases to makeUnionFieldToJson() if it is only union members
-##    that are causing the issue. 
+##    that are causing the issue.
 ## If the issue is not just union members with determining type fields in the
 ## same struct:
 ## 2. Copy the generated function into the custom function section below.
@@ -56,6 +56,7 @@ from base_generator import write
 from dx12_base_generator import Dx12BaseGenerator
 from dx12_json_common_generator import Dx12JsonCommonGenerator
 from reformat_code import format_cpp_code
+
 
 class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
     """Generates C++ functions responsible for converting structs to JSON."""
@@ -79,13 +80,12 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
         ## so add any field names here that you want to be output as a binary file.
         ## * If the JsonOptions::dump_binaries flag is set.
         ## The binary file will be named as follows: <struct_name>.<field_name>-<instance_counter>.bin
-        self.binary_blobs = {
-            ('D3D12_SHADER_BYTECODE', 'pShaderBytecode')
-        }
+        self.binary_blobs = {('D3D12_SHADER_BYTECODE', 'pShaderBytecode')}
 
     def beginFile(self, gen_opts):
         Dx12BaseGenerator.beginFile(self, gen_opts)
-        code = format_cpp_code('''
+        code = format_cpp_code(
+            '''
             #if defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
 
             #include "generated_dx12_struct_decoders_to_json.h"
@@ -133,7 +133,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             {
                 return RepresentBinaryFile(json_options, jdata, filename_base, instance_counter, data.GetLength(), data.GetPointer());
             }
-        ''')
+        '''
+        )
         write(code, file=self.outFile)
         self.newline()
 
@@ -141,7 +142,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
         struct_dict = self.source_dict['struct_dict']
         for k, v in struct_dict.items():
             if not self.is_struct_black_listed(k):
-                body = format_cpp_code('''
+                body = format_cpp_code(
+                    '''
                     void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const JsonOptions& options)
                     {{
                         using namespace util;
@@ -149,13 +151,16 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
                         {{
                             const {0}& decoded_value = *data->decoded_value;
                             const Decoded_{0}& meta_struct = *data;
-                    '''.format(k))
+                    '''.format(k)
+                )
                 body += '\n'
                 body += self.makeStructBody(k, v)
-                body += format_cpp_code('''
+                body += format_cpp_code(
+                    '''
                     }
                 }
-                ''', 2)
+                ''', 2
+                )
                 body += '\n'
                 write(body, file=self.outFile)
 
@@ -199,7 +204,9 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
     # provide a custom FieldToJson for the anon union to be injected into an
     # otherwise generated FieldtoJson implementation.
     def makeUnionFieldToJson(self, properties, struct_name, union_index):
-        message = "ALERT: Union member {0} of {1} needs special handling.".format(union_index, struct_name)
+        message = "ALERT: Union member {0} of {1} needs special handling.".format(
+            union_index, struct_name
+        )
         field_to_json = '        ; ///< @todo ' + message
 
         match struct_name:
@@ -816,7 +823,8 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
 
     def endFile(self):
         """Method override."""
-        custom_impls = format_cpp_code('''
+        custom_impls = format_cpp_code(
+            '''
             // TODO Move all these manual functions out of the generator and into a .cpp file.
 
             /// @defgroup custom_dx12_struct_decoders_to_json_bodies Custom implementations for
@@ -954,15 +962,18 @@ class Dx12StructDecodersToJsonBodyGenerator(Dx12JsonCommonGenerator):
             }
 
             /** @} */
-        ''') + '\n'
+        '''
+        ) + '\n'
         write(custom_impls, file=self.outFile)
         self.newline()
-        code = format_cpp_code('''
+        code = format_cpp_code(
+            '''
             GFXRECON_END_NAMESPACE(decode)
             GFXRECON_END_NAMESPACE(gfxrecon)
 
             #endif // defined(D3D12_SUPPORT) || defined(ENABLE_OPENXR_SUPPORT)
-        ''')
+        '''
+        )
         write(code, file=self.outFile)
 
         # Finish processing in superclass

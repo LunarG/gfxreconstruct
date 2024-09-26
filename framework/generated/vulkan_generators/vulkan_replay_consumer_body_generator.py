@@ -81,9 +81,15 @@ class VulkanReplayConsumerBodyGenerator(
         'VkDescriptorPool': 'VkDescriptorSet'
     }
 
-    SKIP_PNEXT_STRUCT_TYPES = [ 'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE', 'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE' ]
+    SKIP_PNEXT_STRUCT_TYPES = [
+        'VK_STRUCTURE_TYPE_BASE_IN_STRUCTURE',
+        'VK_STRUCTURE_TYPE_BASE_OUT_STRUCTURE'
+    ]
 
-    NOT_SKIP_FUNCTIONS_OFFSCREEN = ['Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage', 'QueuePresent']
+    NOT_SKIP_FUNCTIONS_OFFSCREEN = [
+        'Create', 'Destroy', 'GetSwapchainImages', 'AcquireNextImage',
+        'QueuePresent'
+    ]
 
     SKIP_FUNCTIONS_OFFSCREEN = ['Surface', 'Swapchain', 'Present']
 
@@ -104,7 +110,6 @@ class VulkanReplayConsumerBodyGenerator(
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
         # Map of struct types to associated VkStructureType.
         self.stype_values = dict()
 
@@ -113,7 +118,9 @@ class VulkanReplayConsumerBodyGenerator(
         BaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.replay_overrides:
-            self.__load_replay_overrides(gen_opts.replay_overrides, gen_opts.dump_resources_overrides)
+            self.__load_replay_overrides(
+                gen_opts.replay_overrides, gen_opts.dump_resources_overrides
+            )
 
         write(
             '#include "generated/generated_vulkan_replay_consumer.h"',
@@ -142,12 +149,19 @@ class VulkanReplayConsumerBodyGenerator(
         write('GFXRECON_BEGIN_NAMESPACE(decode)', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
-        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder);', file=self.outFile)
+        write(
+            'void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder);',
+            file=self.outFile
+        )
 
     def endFile(self):
+        BaseReplayConsumerBodyGenerator.endFile(self)
         """Method override."""
         self.newline()
-        write('static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)', file=self.outFile)
+        write(
+            'static void InitializeOutputStructPNextImpl(const VkBaseInStructure* in_pnext, VkBaseOutStructure* output_struct)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    while(in_pnext)', file=self.outFile)
         write('    {', file=self.outFile)
@@ -156,9 +170,13 @@ class VulkanReplayConsumerBodyGenerator(
         for struct in self.stype_values:
             struct_type = self.stype_values[struct]
             if not struct_type in self.SKIP_PNEXT_STRUCT_TYPES:
-                write('            case {}:'.format(struct_type), file=self.outFile)
+                write(
+                    '            case {}:'.format(struct_type),
+                    file=self.outFile
+                )
                 write('            {', file=self.outFile)
-                write('                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<{}>());'
+                write(
+                    '                output_struct->pNext = reinterpret_cast<VkBaseOutStructure*>(DecodeAllocator::Allocate<{}>());'
                     .format(struct),
                     file=self.outFile
                 )
@@ -167,26 +185,48 @@ class VulkanReplayConsumerBodyGenerator(
         write('            default:', file=self.outFile)
         write('                break;', file=self.outFile)
         write('        }', file=self.outFile)
-        write('        output_struct = output_struct->pNext;', file=self.outFile)
-        write('        output_struct->sType = in_pnext->sType;',file=self.outFile)
+        write(
+            '        output_struct = output_struct->pNext;', file=self.outFile
+        )
+        write(
+            '        output_struct->sType = in_pnext->sType;',
+            file=self.outFile
+        )
         write('        in_pnext = in_pnext->pNext;', file=self.outFile)
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 
         self.newline()
         write('template <typename T>', file=self.outFile)
-        write('void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)', file=self.outFile)
+        write(
+            'void InitializeOutputStructPNext(StructPointerDecoder<T> *decoder)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    if(decoder->IsNull()) return;', file=self.outFile)
-        write('    size_t len = decoder->GetOutputLength();', file=self.outFile)
+        write(
+            '    size_t len = decoder->GetOutputLength();', file=self.outFile
+        )
         write('    auto input = decoder->GetPointer();', file=self.outFile)
-        write('    auto output = decoder->GetOutputPointer();', file=self.outFile)
+        write(
+            '    auto output = decoder->GetOutputPointer();',
+            file=self.outFile
+        )
         write('    for( size_t i = 0 ; i < len; ++i )', file=self.outFile)
         write('    {', file=self.outFile)
-        write('        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(input[i].pNext);', file=self.outFile)
+        write(
+            '        const auto* in_pnext = reinterpret_cast<const VkBaseInStructure*>(input[i].pNext);',
+            file=self.outFile
+        )
         write('        if( in_pnext == nullptr ) continue;', file=self.outFile)
-        write('        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(&output[i]);', file=self.outFile)
-        write('        InitializeOutputStructPNextImpl(in_pnext, output_struct);', file=self.outFile)
+        write(
+            '        auto* output_struct = reinterpret_cast<VkBaseOutStructure*>(&output[i]);',
+            file=self.outFile
+        )
+        write(
+            '        InitializeOutputStructPNextImpl(in_pnext, output_struct);',
+            file=self.outFile
+        )
         write('    }', file=self.outFile)
         write('}', file=self.outFile)
 
@@ -201,7 +241,7 @@ class VulkanReplayConsumerBodyGenerator(
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles,
                 self.structs_with_handle_ptrs
@@ -217,10 +257,6 @@ class VulkanReplayConsumerBodyGenerator(
             return True
         return False
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        BaseReplayConsumerBodyGenerator.generate_feature(self)
-
     def use_instance_table(self, name, typename):
         """Check for dispatchable handle types associated with the instance dispatch table."""
         if typename in ['VkInstance', 'VkPhysicalDevice']:
@@ -230,7 +266,9 @@ class VulkanReplayConsumerBodyGenerator(
         # https://github.com/KhronosGroup/Vulkan-Loader/issues/1109
         # TODO : When loader with fix for issue is widely available, remove this
         # special case.
-        if name in ['vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT']:
+        if name in [
+            'vkSetDebugUtilsObjectNameEXT', 'vkSetDebugUtilsObjectTagEXT'
+        ]:
             return True
         return False
 
@@ -292,13 +330,19 @@ class VulkanReplayConsumerBodyGenerator(
                 dispatchfunc = 'GetInstanceTable'
                 if values[0].base_type == 'VkDevice':
                     object_name = 'physical_device'
-                    preexpr.append("VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);")
-                    preexpr.append("VkPhysicalDevice  physical_device = device_info->parent;")
+                    preexpr.append(
+                        "VulkanDeviceInfo* device_info     = GetObjectInfoTable().GetVkDeviceInfo(device);"
+                    )
+                    preexpr.append(
+                        "VkPhysicalDevice  physical_device = device_info->parent;"
+                    )
             else:
                 dispatchfunc = 'GetDeviceTable'
 
             if is_override:
-                dispatchfunc += '({}->handle)->{}'.format(object_name, name[2:])
+                dispatchfunc += '({}->handle)->{}'.format(
+                    object_name, name[2:]
+                )
             else:
                 dispatchfunc += '({})->{}'.format(object_name, name[2:])
 
@@ -346,9 +390,13 @@ class VulkanReplayConsumerBodyGenerator(
             dump_resource_arglist = ''
             if is_override:
                 for val in values:
-                    if val.is_pointer and self.is_struct(val.base_type) and not is_dr_override:
+                    if val.is_pointer and self.is_struct(
+                        val.base_type
+                    ) and not is_dr_override:
                         dump_resource_arglist += val.name + '->GetPointer()'
-                    elif val.is_pointer and self.is_struct(val.base_type) and is_dr_override:
+                    elif val.is_pointer and self.is_struct(
+                        val.base_type
+                    ) and is_dr_override:
                         dump_resource_arglist += val.name
                     elif self.is_handle(val.base_type):
                         dump_resource_arglist += 'in_' + val.name + '->handle'
@@ -359,16 +407,22 @@ class VulkanReplayConsumerBodyGenerator(
             else:
                 if is_dr_override:
                     for val in values:
-                        if val.is_pointer and not self.is_handle(val.base_type):
+                        if val.is_pointer and not self.is_handle(
+                            val.base_type
+                        ):
                             if self.is_struct(val.base_type):
                                 dump_resource_arglist += val.name
                             else:
                                 dump_resource_arglist += 'in_' + val.name
                         elif val.base_type == 'VkPipeline':
                             dump_resource_arglist += 'GetObjectInfoTable().GetVkPipelineInfo(pipeline)'
-                        elif self.is_handle(val.base_type) and not val.is_pointer and val.base_type == 'VkCommandBuffer':
+                        elif self.is_handle(
+                            val.base_type
+                        ) and not val.is_pointer and val.base_type == 'VkCommandBuffer':
                             dump_resource_arglist += 'in_' + val.name
-                        elif self.is_handle(val.base_type) and not val.is_pointer and val.base_type != 'VkCommandBuffer':
+                        elif self.is_handle(
+                            val.base_type
+                        ) and not val.is_pointer and val.base_type != 'VkCommandBuffer':
                             dump_resource_arglist += 'GetObjectInfoTable().Get' + val.base_type + "Info(" + val.name + ")"
                         else:
                             dump_resource_arglist += val.name
@@ -383,7 +437,9 @@ class VulkanReplayConsumerBodyGenerator(
             body += '\n'
             body += '    if (options_.dumping_resources)\n'
             body += '    {\n'
-            body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(name, dispatchfunc, dump_resource_arglist)
+            body += '        resource_dumper_->Process_{}(call_info, {}, {});\n'.format(
+                name, dispatchfunc, dump_resource_arglist
+            )
             body += '    }\n'
 
         if postexpr:
@@ -556,7 +612,10 @@ class VulkanReplayConsumerBodyGenerator(
                     elif self.is_handle(value.base_type):
                         # We received an array of 64-bit integer IDs from the decoder.
                         expr += 'MapHandles<Vulkan{type}Info>({}, {}, &CommonObjectInfoTable::Get{base_type}Info);'.format(
-                            value.name, length_name, type=value.base_type[2:], base_type=value.base_type
+                            value.name,
+                            length_name,
+                            type=value.base_type[2:],
+                            base_type=value.base_type
                         )
                     else:
                         if need_temp_value:
@@ -593,8 +652,7 @@ class VulkanReplayConsumerBodyGenerator(
                                     )
                                     preexpr.append(expr)
                                     expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo({}->surface)->surface_creation_skipped) {{ return; }}'.format(
-                                        var_name,
-                                        var_name
+                                        var_name, var_name
                                     )
                                     preexpr.append(expr)
                                     expr = ''
@@ -626,7 +684,10 @@ class VulkanReplayConsumerBodyGenerator(
                                 .format(length_name, paramname=value.name)
                             )
                             if name == 'vkCreateGraphicsPipelines' or name == 'vkCreateComputePipelines' or name == 'vkCreateRayTracingPipelinesNV':
-                                preexpr.append('if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'.format(length_name))
+                                preexpr.append(
+                                    'if (omitted_pipeline_cache_data_) {{AllowCompileDuringPipelineCreation({}, pCreateInfos->GetPointer());}}'
+                                    .format(length_name)
+                                )
                             if need_temp_value:
                                 expr += '{}->GetHandlePointer();'.format(
                                     value.name
@@ -664,8 +725,8 @@ class VulkanReplayConsumerBodyGenerator(
                                     )
                             else:
                                 preexpr.append(
-                                    'std::vector<Vulkan{}Info> handle_info({});'.
-                                    format(value.base_type[2:], length_name)
+                                    'std::vector<Vulkan{}Info> handle_info({});'
+                                    .format(value.base_type[2:], length_name)
                                 )
                                 expr = 'for (size_t i = 0; i < {}; ++i) {{ {}->SetConsumerData(i, &handle_info[i]); }}'.format(
                                     length_name, value.name
@@ -781,12 +842,16 @@ class VulkanReplayConsumerBodyGenerator(
                                 if return_type != 'void':
                                     postexpr.append(
                                         'PostProcessExternalObject(replay_result, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
-                                        .format(value.name, arg_name, name=name)
+                                        .format(
+                                            value.name, arg_name, name=name
+                                        )
                                     )
                                 else:
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{}->GetPointer()), static_cast<void*>(*{}), format::ApiCallId::ApiCall_{name}, "{name}");'
-                                        .format(value.name, arg_name, name=name)
+                                        .format(
+                                            value.name, arg_name, name=name
+                                        )
                                     )
                             else:
                                 expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1);'.format(
@@ -795,12 +860,16 @@ class VulkanReplayConsumerBodyGenerator(
                                 if return_type != 'void':
                                     postexpr.append(
                                         'PostProcessExternalObject(replay_result, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
-                                        .format(paramname=value.name, name=name)
+                                        .format(
+                                            paramname=value.name, name=name
+                                        )
                                     )
                                 else:
                                     postexpr.append(
                                         'PostProcessExternalObject(VK_SUCCESS, (*{paramname}->GetPointer()), *{paramname}->GetOutputPointer(), format::ApiCallId::ApiCall_{name}, "{name}");'
-                                        .format(paramname=value.name, name=name)
+                                        .format(
+                                            paramname=value.name, name=name
+                                        )
                                     )
                         elif self.is_handle(value.base_type):
                             # Add mapping for the newly created handle
@@ -934,14 +1003,15 @@ class VulkanReplayConsumerBodyGenerator(
                     # Swapchain also need to check if a dummy swapchain was created instead
                     if value.name == "surface":
                         expr = 'if ({} == nullptr || {}->surface_creation_skipped) {{ return; }}'.format(
-                            arg_name,
-                            arg_name
+                            arg_name, arg_name
                         )
                         preexpr.append(expr)
                 else:
                     expr = '{} {} = '.format(value.full_type, arg_name)
                     expr += 'MapHandle<Vulkan{type}Info>({}, &CommonObjectInfoTable::Get{basetype}Info);'.format(
-                        value.name, type=value.base_type[2:], basetype=value.base_type
+                        value.name,
+                        type=value.base_type[2:],
+                        basetype=value.base_type
                     )
                     preexpr.append(expr)
 
@@ -949,14 +1019,13 @@ class VulkanReplayConsumerBodyGenerator(
                     # Swapchain also need to check if a dummy swapchain was created instead
                     if value.name == "surface":
                         expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo({}) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo({})->surface_creation_skipped) {{ return; }}'.format(
-                            value.name,
-                            value.name
+                            value.name, value.name
                         )
                         preexpr.append(expr)
                     elif value.name == "swapchain":
                         expr = 'if (GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id) == nullptr || GetObjectInfoTable().GetVkSurfaceKHRInfo(GetObjectInfoTable().Get{}Info({})->surface_id)->surface_creation_skipped) {{ return; }}'.format(
-                            value.base_type, value.name,
-                            value.base_type, value.name
+                            value.base_type, value.name, value.base_type,
+                            value.name
                         )
                         preexpr.append(expr)
             elif self.is_generic_cmd_handle_value(name, value.name):
@@ -981,7 +1050,10 @@ class VulkanReplayConsumerBodyGenerator(
                 args.append(value.name)
 
             if len(need_initialize_output_pnext_struct) > 0:
-                preexpr.append('InitializeOutputStructPNext({});'.format(need_initialize_output_pnext_struct))
+                preexpr.append(
+                    'InitializeOutputStructPNext({});'.
+                    format(need_initialize_output_pnext_struct)
+                )
         return args, preexpr, postexpr
 
     def make_remove_handle_expression(self, name, values):
@@ -1019,9 +1091,13 @@ class VulkanReplayConsumerBodyGenerator(
 
         return expr
 
-    def __load_replay_overrides(self, filename, dump_resources_overrides_filename):
+    def __load_replay_overrides(
+        self, filename, dump_resources_overrides_filename
+    ):
         overrides = json.loads(open(filename, 'r').read())
         self.REPLAY_OVERRIDES = overrides['functions']
 
-        dump_resources_overrides = json.loads(open(dump_resources_overrides_filename, 'r').read())
+        dump_resources_overrides = json.loads(
+            open(dump_resources_overrides_filename, 'r').read()
+        )
         self.DUMP_RESOURCES_OVERRIDES = dump_resources_overrides['functions']

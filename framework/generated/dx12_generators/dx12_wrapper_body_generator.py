@@ -214,8 +214,7 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
             union_members = self.get_union_members(member.base_type)
             for union_info in union_members:
                 if self.is_struct(union_info.base_type):
-                    umembers = self.feature_struct_members[union_info.base_type
-                                                           ]
+                    umembers = self.all_struct_members[union_info.base_type]
                     for umember in umembers:
                         if self.is_struct_object_member(umember):
                             return True
@@ -255,7 +254,11 @@ class Dx12WrapperBodyGenerator(Dx12BaseGenerator):
 
             data = []
             if not refiid_value:
-                if ((value.base_type == 'GUID') and (value.name != "rclsid") and (value.name != "CreatorID") and (value.name != "clsid")):
+                if (
+                    (value.base_type == 'GUID') and (value.name != "rclsid")
+                    and (value.name != "CreatorID")
+                    and (value.name != "clsid")
+                ):
                     refiid_value = value
                 elif (
                     self.is_class(value)

@@ -86,21 +86,39 @@ class VulkanStructTrackersHeaderGenerator(BaseGenerator):
         write('GFXRECON_BEGIN_NAMESPACE(vulkan_trackers)', file=self.outFile)
         self.newline()
         write('template <typename T>', file=self.outFile)
-        write('T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
+        write(
+            'T* MakeUnwrapStructs(const T* values, size_t len, HandleUnwrapMemory* unwrap_memory)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
-        write('    assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));', file=self.outFile)
+        write(
+            '    assert((values != nullptr) && (len > 0) && (unwrap_memory != nullptr));',
+            file=self.outFile
+        )
         self.newline()
-        write('    const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(values);', file=self.outFile)
-        write('    size_t         num_bytes = len * sizeof(T);', file=self.outFile)
+        write(
+            '    const uint8_t* bytes     = reinterpret_cast<const uint8_t*>(values);',
+            file=self.outFile
+        )
+        write(
+            '    size_t         num_bytes = len * sizeof(T);',
+            file=self.outFile
+        )
         self.newline()
-        write('    return reinterpret_cast<T*>(unwrap_memory->GetFilledBuffer(bytes, num_bytes));', file=self.outFile)
+        write(
+            '    return reinterpret_cast<T*>(unwrap_memory->GetFilledBuffer(bytes, num_bytes));',
+            file=self.outFile
+        )
         write('}', file=self.outFile)
         self.newline()
 
     def endFile(self):
         """Method override."""
         self.newline()
-        write('void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory);', file=self.outFile)
+        write(
+            'void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory);',
+            file=self.outFile
+        )
         self.newline()
         write('GFXRECON_END_NAMESPACE(vulkan_trackers)', file=self.outFile)
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -113,14 +131,14 @@ class VulkanStructTrackersHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if alias:
+        if alias or typename in ['VkBaseOutStructure', 'VkBaseInStructure']:
             return
-        
-        if typename in ['VkBaseInStructure', 'VkBaseOutStructure']:
-            return
-        
+
         struct_type_enum = self.make_structure_type_enum(typeinfo, typename)
         if struct_type_enum is None:
             return
-        
-        write(f'{typename}* TrackStruct(const {typename}* value, HandleUnwrapMemory* unwrap_memory);', file=self.outFile)
+
+        write(
+            f'{typename}* TrackStruct(const {typename}* value, HandleUnwrapMemory* unwrap_memory);',
+            file=self.outFile
+        )

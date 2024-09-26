@@ -23,7 +23,6 @@
 import re
 import sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
-import base_utils
 from collections import OrderedDict
 from reformat_code import format_cpp_code, indent_cpp_code, remove_trailing_newlines
 
@@ -75,13 +74,6 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        self.flagsType = dict()
-        self.flagsTypeAlias = dict()
-        self.flagEnumBitsType = dict()
-
-        self.cmd_names = []
-        self.cmd_info = OrderedDict()
-
         self.externalStructs = ['LARGE_INTEGER', 'LUID']
 
         # Names of any OpenXR commands whose decoders are manually generated
@@ -93,6 +85,11 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
+
+        self.MANUALLY_GENERATED_COMMANDS += [
+            'xrInitializeLoaderKHR',
+            'xrCreateApiLayerInstance',
+        ]
 
         includes = format_cpp_code(
             '''
@@ -122,7 +119,10 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
 
         self.newline()
         for cmd in self.cmd_names:
-            info = self.cmd_info[cmd]
+            if self.is_manually_generated_cmd_name(cmd):
+                continue
+
+            info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
 
@@ -162,25 +162,6 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
-            return True
-        return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            if self.is_manually_generated_cmd_name(cmd):
-                continue
-
-            self.cmd_names.append(cmd)
-            self.cmd_info[cmd] = self.feature_cmd_params[cmd]
-
-        for struct in self.get_filtered_struct_names():
-            self.all_structs.append(struct)
-            self.all_struct_members[struct] = self.feature_struct_members[
-                struct]
-
-    def is_command_buffer_cmd(self, command):
-        if 'vkCmd' in command:
             return True
         return False
 
@@ -230,7 +211,7 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                             body += f'                FieldToJson(args["{value.name}"], {value.name}, json_options);\n'
                             body += '                break;\n'
                             for child in self.base_header_structs[value.base_type]:
-                                switch_type = base_utils.GenerateStructureType(child)
+                                switch_type = self.generate_structure_type(child)
                                 body += f'            case {switch_type}:\n'
                                 body += f'                FieldToJson(args["{value.name}"],\n'
                                 body += f'                            reinterpret_cast<StructPointerDecoder<Decoded_{child}>*>({value.name}),\n'
@@ -246,8 +227,8 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
                 elif (self.is_handle(value.base_type) or self.is_atom(value.base_type) or self.is_opaque(value.base_type)):
                     to_json = 'HandleToJson(args["{0}"], {0}, json_options)'
                 elif self.is_flags(value.base_type):
-                    if value.base_type in self.flagsTypeAlias:
-                        flagsEnumType = self.flagsTypeAlias[value.base_type]
+                    if value.base_type in self.flags_type_aliases:
+                        flagsEnumType = self.flags_type_aliases[value.base_type]
                     if not (value.is_pointer or value.is_array):
                         to_json = 'FieldToJson({2}_t(), args["{0}"], {0}, json_options)'
                     else:
@@ -264,11 +245,10 @@ class OpenXrExportJsonConsumerBodyGenerator(BaseGenerator):
         super().genType(typeinfo, name, alias)
         if self.is_flags(name):
             if alias is None:
-                self.flagsType[name] = self.flags_types[name]
                 bittype = typeinfo.elem.get('requires')
                 if bittype is None:
                     bittype = typeinfo.elem.get('bitvalues')
                 if bittype is not None:
-                    self.flagEnumBitsType[bittype] = name
+                    self.flag_enum_bits_type[bittype] = name
             else:
-                self.flagsTypeAlias[name] = alias
+                self.flags_type_aliases[name] = alias

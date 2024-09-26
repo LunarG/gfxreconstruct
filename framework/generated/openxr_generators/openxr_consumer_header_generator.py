@@ -89,21 +89,23 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-        self.all_cmds = list()  # Set of all command names
-        self.all_cmd_params = OrderedDict()  # Map of all cmd parameters
-        self.all_struct_aliases = OrderedDict(
-        )  # Map of struct names to aliases
 
         # These functions should be manual if anything, not code-gened
         self.skip_cmds = [
             'xrNegotiateLoaderRuntimeInterface',
-            'xrNegotiateLoaderApiLayerInterface', 'xrInitializeLoaderKHR',
-            'xrCreateInstance', 'xrCreateApiLayerInstance'
+            'xrNegotiateLoaderApiLayerInterface',
+            'xrCreateInstance',
         ]
 
     def beginFile(self, gen_opts):
         """Method override."""
         self.skip_cmds.extend(gen_opts.getExtraSkipCommands())
+
+        if '.h' in self.genOpts.filename:
+            self.MANUALLY_GENERATED_COMMANDS += [
+                'xrInitializeLoaderKHR',
+                'xrCreateApiLayerInstance',
+            ]
 
         BaseGenerator.beginFile(self, gen_opts)
         write(
@@ -156,8 +158,14 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        first = True
-        for cmd in self.all_cmds:
+        for cmd in self.cmd_names:
+            if (
+                self.is_cmd_black_listed(cmd)
+                or self.is_manually_generated_cmd_name(cmd)
+                or cmd in self.skip_cmds
+            ):
+                continue
+
             info = self.all_cmd_params[cmd]
             return_type = info[0]
             values = info[2]
@@ -166,7 +174,7 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
                 return_type, 'Process_' + cmd, values
             )
 
-            cmddef = '' if first else '\n'
+            cmddef = '\n'
             if self.genOpts.is_override:
                 cmddef += self.indent(
                     'virtual ' + decl + ' override;', self.INDENT_SIZE
@@ -177,7 +185,6 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
                 )
 
             write(cmddef, file=self.outFile)
-            first = False
 
         write('};', file=self.outFile)
         self.newline()
@@ -193,11 +200,3 @@ class OpenXrConsumerHeaderGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            if cmd in self.skip_cmds:
-                continue
-            self.all_cmds.append(cmd)
-            self.all_cmd_params[cmd] = self.feature_cmd_params[cmd]

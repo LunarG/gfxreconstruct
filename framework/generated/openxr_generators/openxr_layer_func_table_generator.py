@@ -72,15 +72,6 @@ class OpenXrLayerFuncTableGenerator(BaseGenerator):
             diag_file=diag_file
         )
 
-        # API Calls that the trace layer should ignore
-        self.APICALL_BLACKLIST += [
-            'xrNegotiateLoaderRuntimeInterface',
-            'xrNegotiateLoaderApiLayerInterface',
-            'xrInitializeLoaderKHR',
-            'xrCreateInstance',
-            'xrCreateApiLayerInstance',
-        ]
-
         # These functions are provided directly by the layer, and are not encoded
         self.LAYER_FUNCTIONS = [
             'xrEnumerateInstanceExtensionProperties',
@@ -92,6 +83,15 @@ class OpenXrLayerFuncTableGenerator(BaseGenerator):
     def beginFile(self, gen_opts):
         """Method override."""
         BaseGenerator.beginFile(self, gen_opts)
+
+        # API Calls that the trace layer should ignore
+        self.APICALL_BLACKLIST += [
+            'xrNegotiateLoaderRuntimeInterface',
+            'xrNegotiateLoaderApiLayerInterface',
+            'xrInitializeLoaderKHR',
+            'xrCreateInstance',
+            'xrCreateApiLayerInstance',
+        ]
 
         write(
             '#include "encode/custom_openxr_api_call_encoders.h"',
@@ -117,6 +117,18 @@ class OpenXrLayerFuncTableGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        for cmd in self.get_all_filtered_cmd_names():
+            align = 100 - len(cmd)
+            if (cmd in self.LAYER_FUNCTIONS):
+                body = '    {{ "{}",{}reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::{}) }},'.format(
+                    cmd, (' ' * align), cmd[2:]
+                )
+            else:
+                body = '    {{ "{}",{}reinterpret_cast<PFN_xrVoidFunction>(encode::{}) }},'.format(
+                    cmd, (' ' * align), cmd
+                )
+            write(body, file=self.outFile)
+
         write('};', file=self.outFile)
         self.newline()
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -129,17 +141,3 @@ class OpenXrLayerFuncTableGenerator(BaseGenerator):
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            align = 100 - len(cmd)
-            if (cmd in self.LAYER_FUNCTIONS):
-                body = '    {{ "{}",{}reinterpret_cast<PFN_xrVoidFunction>(openxr_entry::{}) }},'.format(
-                    cmd, (' ' * align), cmd[2:]
-                )
-            else:
-                body = '    {{ "{}",{}reinterpret_cast<PFN_xrVoidFunction>(encode::{}) }},'.format(
-                    cmd, (' ' * align), cmd
-                )
-            write(body, file=self.outFile)

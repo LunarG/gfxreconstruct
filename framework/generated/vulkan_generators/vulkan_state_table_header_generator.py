@@ -100,7 +100,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         vk_remove_code = ''
         vk_const_get_code = ''
         vk_get_code = ''
-        vk_map_code = ''        
+        vk_map_code = ''
 
         for vkhandle_name in sorted(self.handle_names):
             if vkhandle_name in self.DUPLICATE_HANDLE_TYPES:
@@ -160,7 +160,7 @@ class VulkanStateTableHeaderGenerator(BaseGenerator):
         code += '    template<typename Wrapper> const Wrapper* GetWrapper(typename Wrapper::HandleType handle) const { return nullptr; }\n'
         code += '\n'
         code += '    template<typename Wrapper> Wrapper* GetWrapper(typename Wrapper::HandleType handle) { return nullptr; }\n'
-        code += '\n'                
+        code += '\n'
         code += '  private:\n'
         code += vk_map_code
         code += '};\n'

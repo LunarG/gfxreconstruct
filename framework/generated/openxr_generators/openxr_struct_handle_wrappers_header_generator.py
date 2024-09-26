@@ -75,8 +75,6 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         # Map of OpenXR structs containing handles to a list values for handle members or struct members
         # that contain handles.
         self.structs_with_handles = dict()
-        self.output_structs = [
-        ]  # Output structures that retrieve handles, which need to be wrapped.
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -101,6 +99,35 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
+        # Check for output structures, which retrieve handles that need to be wrapped.
+        for cmd in self.cmd_names:
+            info = self.all_cmd_params[cmd]
+            values = info[2]
+
+            for value in values:
+                if self.is_output_parameter(value) and self.is_struct(
+                    value.base_type
+                ) and (value.base_type in self.structs_with_handles
+                       ) and (value.base_type not in self.output_structs):
+                    self.output_structs.append(value.base_type)
+                    for member in self.all_struct_members[value.base_type]:
+                        if self.is_struct(
+                            member.base_type
+                        ) and (member.base_type not in self.output_structs):
+                            self.output_structs.append(member.base_type)
+
+        # Generate unwrap and rewrap code for input structures.
+        for struct in self.get_all_filtered_struct_names():
+            if (
+                (struct in self.structs_with_handles)
+                or (struct in self.GENERIC_HANDLE_STRUCTS)
+            ):
+                body = '\n'
+                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
+                    struct
+                )
+                write(body, file=self.outFile)
+
         self.newline()
         write(
             'XrBaseInStructure* CopyNextStruct(const XrBaseInStructure* base, HandleUnwrapMemory* unwrap_memory);',
@@ -265,7 +292,9 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
@@ -275,37 +304,6 @@ class OpenXrStructHandleWrappersHeaderGenerator(BaseGenerator):
         if self.feature_struct_members or self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        # Check for output structures, which retrieve handles that need to be wrapped.
-        for cmd in self.feature_cmd_params:
-            info = self.feature_cmd_params[cmd]
-            values = info[2]
-
-            for value in values:
-                if self.is_output_parameter(value) and self.is_struct(
-                    value.base_type
-                ) and (value.base_type in self.structs_with_handles
-                       ) and (value.base_type not in self.output_structs):
-                    self.output_structs.append(value.base_type)
-                    for member in self.feature_struct_members[value.base_type]:
-                        if self.is_struct(
-                            member.base_type
-                        ) and (member.base_type not in self.output_structs):
-                            self.output_structs.append(member.base_type)
-
-        # Generate unwrap and rewrap code for input structures.
-        for struct in self.get_filtered_struct_names():
-            if (
-                (struct in self.structs_with_handles)
-                or (struct in self.GENERIC_HANDLE_STRUCTS)
-            ):
-                body = '\n'
-                body += 'void UnwrapStructHandles({}* value, HandleUnwrapMemory* unwrap_memory);'.format(
-                    struct
-                )
-                write(body, file=self.outFile)
 
     def generate_create_wrapper_funcs(self):
         """Generates functions that wrap struct handle members."""

@@ -51,10 +51,6 @@ class Dx12StructObjectMappersHeaderGenerator(
             **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
             ['ptr']
         }
-        self.structs_with_handle_ptrs = []
-        # List of structs containing handles that are also used as output parameters for a command
-        self.output_structs_with_handles = []
-        self.structs_with_map_data = dict()
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -102,7 +98,7 @@ class Dx12StructObjectMappersHeaderGenerator(
 
         Dx12BaseGenerator.genStruct(self, typeinfo, typename, alias)
         if not alias:
-            for struct_name in self.feature_struct_members:
+            for struct_name in self.all_struct_members:
                 self.check_struct_member_handles(
                     struct_name, self.structs_with_handles,
                     self.structs_with_handle_ptrs, True,

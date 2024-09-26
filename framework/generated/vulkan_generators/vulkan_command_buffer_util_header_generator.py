@@ -102,7 +102,7 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
@@ -120,8 +120,8 @@ class VulkanCommandBufferUtilHeaderGenerator(BaseGenerator):
             info = self.feature_cmd_params[cmd]
             values = info[2]
 
-            if values and (len(values) >
-                           1) and (values[0].base_type == 'VkCommandBuffer'):
+            if values and (len(values) > 1
+                           ) and (values[0].base_type == 'VkCommandBuffer'):
                 # Check for parameters with handle types, ignoring the first VkCommandBuffer parameter.
                 handles = self.get_param_list_handles(values[1:])
 

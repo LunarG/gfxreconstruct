@@ -41,8 +41,13 @@ class Dx12DecoderHeaderGenerator(
         feature_break=True
     ):
         Dx12BaseGenerator.__init__(
-            self, source_dict, dx12_prefix_strings, err_file, warn_file,
-            diag_file, feature_break=feature_break
+            self,
+            source_dict,
+            dx12_prefix_strings,
+            err_file,
+            warn_file,
+            diag_file,
+            feature_break=feature_break
         )
 
     def beginFile(self, gen_opts):
@@ -61,7 +66,9 @@ class Dx12DecoderHeaderGenerator(
 
     def write_include(self):
         """Method override."""
-        code = ("\n" "#include \"decode/dx12_decoder_base.h\"\n" "\n")
+        code = ("\n"
+                "#include \"decode/dx12_decoder_base.h\"\n"
+                "\n")
         write(code, file=self.outFile)
 
     def get_decoder_method_body(self, params):

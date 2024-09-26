@@ -88,12 +88,20 @@ class OpenXrReplayConsumerBodyGenerator(
         )
 
         # Map of OpenXR structs containing handles to a list values for handle members or struct members
-        # that contain handles (eg. XrGraphicsPipelineCreateInfo contains a XrPipelineShaderStageCreateInfo
-        # member that contains handles).
+        # that contain handles.
         self.structs_with_handles = dict()
-        self.structs_with_handle_ptrs = []
-        # Map of struct types to associated XrStructureType.
-        self.type_values = dict()
+
+        # These structures require a customized manager when they are an output struct
+        # in a `Next` chain
+        self.OUTPUT_NEXT_OVERRIDES = [
+            'XrSpaceVelocities',
+            'XrBindingModificationsKHR',
+            'XrHandJointVelocitiesEXT',
+        ]
+
+    def beginFile(self, gen_opts):
+        """Method override."""
+        BaseGenerator.beginFile(self, gen_opts)
 
         # These functions should be manual if anything, not code-gened
         self.APICALL_BLACKLIST += [
@@ -113,18 +121,6 @@ class OpenXrReplayConsumerBodyGenerator(
             'xrCreateVulkanInstanceKHR',
             'xrCreateVulkanDeviceKHR',
         ]
-
-        # These structures require a customized manager when they are an output struct
-        # in a `Next` chain
-        self.OUTPUT_NEXT_OVERRIDES = [
-            'XrSpaceVelocities',
-            'XrBindingModificationsKHR',
-            'XrHandJointVelocitiesEXT',
-        ]
-
-    def beginFile(self, gen_opts):
-        """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
 
         if gen_opts.replay_overrides:
             self.__load_replay_overrides(gen_opts.replay_overrides)
@@ -151,6 +147,8 @@ class OpenXrReplayConsumerBodyGenerator(
 
     def endFile(self):
         """Method override."""
+        BaseReplayConsumerBodyGenerator.endFile(self)
+
         self.newline()
         write(
             'void InitializeOutputStructNextImpl(const XrBaseInStructure* in_next, XrBaseOutStructure* output_struct)',
@@ -161,8 +159,8 @@ class OpenXrReplayConsumerBodyGenerator(
         write('    {', file=self.outFile)
         write('        switch(in_next->type)', file=self.outFile)
         write('        {', file=self.outFile)
-        for struct in self.type_values:
-            struct_type = self.type_values[struct]
+        for struct in self.struct_type_enums.keys():
+            struct_type = self.struct_type_enums[struct]
             if struct in self.OUTPUT_NEXT_OVERRIDES:
                 write(
                     '            case {}:'.format(struct_type),
@@ -209,29 +207,11 @@ class OpenXrReplayConsumerBodyGenerator(
         # Finish processing in superclass
         BaseGenerator.endFile(self)
 
-    def genStruct(self, typeinfo, typename, alias):
-        """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
-
-        if not alias:
-            self.check_struct_member_handles(
-                typename, self.structs_with_handles,
-                self.structs_with_handle_ptrs
-            )
-
-            struct_type = self.make_structure_type_enum(typeinfo, typename)
-            if struct_type and 'BASE_HEADER' not in struct_type:
-                self.type_values[typename] = struct_type
-
     def need_feature_generation(self):
         """Indicates that the current feature has C++ code to generate."""
         if self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        BaseReplayConsumerBodyGenerator.generate_feature(self)
 
     def get_parent_id(self, value, values):
         """Get the ID of the parent object when creating a OpenXR handle.  XrInstance is does not have a parent object."""
@@ -316,11 +296,7 @@ class OpenXrReplayConsumerBodyGenerator(
     ):
         """Generate expressions to store the result of the count query for an array containing a variable number of values."""
         handle_value = values[0]
-        if (
-            self.is_handle(values[1].base_type)
-            or self.is_atom(values[1].base_type)
-            or self.is_opaque(values[1].base_type)
-        ):
+        if self.is_handle_like(values[1].base_type):
             handle_value = values[1]
 
         prefix_type = self.get_prefix_from_type(handle_value.base_type)
@@ -344,11 +320,7 @@ class OpenXrReplayConsumerBodyGenerator(
             return_value = 'returnValue'
 
         handle_value = values[0]
-        if (
-            self.is_handle(values[1].base_type)
-            or self.is_atom(values[1].base_type)
-            or self.is_opaque(values[1].base_type)
-        ):
+        if self.is_handle_like(values[1].base_type):
             handle_value = values[1]
 
         array_name = None
@@ -477,11 +449,7 @@ class OpenXrReplayConsumerBodyGenerator(
                             expr += 'GetAllocationCallbacks({});'.format(
                                 value.name
                             )
-                    elif (
-                        self.is_handle(value.base_type)
-                        or self.is_atom(value.base_type)
-                        or self.is_opaque(values[1].base_type)
-                    ):
+                    elif (self.is_handle_like(value.base_type)):
                         # We received an array of 64-bit integer IDs from the decoder.
                         expr += 'MapHandles<{prefix_type}{type}Info>({}, {}, &CommonObjectInfoTable::Get{type}Info);'.format(
                             value.name,
@@ -527,11 +495,7 @@ class OpenXrReplayConsumerBodyGenerator(
                                 expr = 'if (!{name}->IsNull()) {{ {name}->AllocateOutputData({}); }}'.format(
                                     length_name, name=value.name
                                 )
-                        elif (
-                            self.is_handle(value.base_type)
-                            or self.is_atom(value.base_type)
-                            or self.is_opaque(value.base_type)
-                        ):
+                        elif (self.is_handle_like(value.base_type)):
                             # Add mappings for the newly created handles.
                             preexpr.append(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength({}); }}'
@@ -578,12 +542,12 @@ class OpenXrReplayConsumerBodyGenerator(
                         elif self.is_struct(value.base_type):
                             # Generate the expression to allocate the output array.
                             alloc_expr = ''
-                            if value.base_type in self.type_values:
+                            if value.base_type in self.struct_type_enums:
                                 # If this is a struct with type and next fields, we need to initialize them.
                                 # TODO: recreate next value read from the capture file.
                                 alloc_expr += 'AllocateOutputData({}, {}{{ {}, nullptr }});'.format(
                                     length_name, value.base_type,
-                                    self.type_values[value.base_type]
+                                    self.struct_type_enums[value.base_type]
                                 )
                             else:
                                 alloc_expr += 'AllocateOutputData({});'.format(
@@ -690,11 +654,7 @@ class OpenXrReplayConsumerBodyGenerator(
                                             paramname=value.name, name=name
                                         )
                                     )
-                        elif (
-                            self.is_handle(value.base_type)
-                            or self.is_atom(value.base_type)
-                            or self.is_opaque(value.base_type)
-                        ):
+                        elif self.is_handle_like(value.base_type):
                             # Add mapping for the newly created handle
                             preexpr.append(
                                 'if (!{paramname}->IsNull()) {{ {paramname}->SetHandleLength(1); }}'
@@ -738,9 +698,9 @@ class OpenXrReplayConsumerBodyGenerator(
                             if self.is_handle(
                                 value.base_type
                             ) and not value.base_type.startswith('Vk'):
+                                postexpr.append('')
                                 postexpr.append(
-                                    '\n    AssociateParent(*out_{}, in_{});'.
-                                    format(
+                                    'AssociateParent(*out_{}, in_{});'.format(
                                         value.name,
                                         self.get_parent_id(value, values)
                                     )
@@ -768,9 +728,10 @@ class OpenXrReplayConsumerBodyGenerator(
                                 value.base_type
                             ) or 'LARGE_INTEGER' in value.base_type:
                                 # If this is a struct with type and next fields, we need to initialize them.
-                                if value.base_type in self.type_values:
+                                if value.base_type in self.struct_type_enums:
                                     expr += '{paramname}->IsNull() ? nullptr : {paramname}->AllocateOutputData(1, {{ {}, nullptr }});'.format(
-                                        self.type_values[value.base_type],
+                                        self.struct_type_enums[value.base_type
+                                                               ],
                                         paramname=value.name
                                     )
                                     need_initialize_output_next_struct = value.name
@@ -826,11 +787,7 @@ class OpenXrReplayConsumerBodyGenerator(
                                 )
                 if expr:
                     preexpr.append(expr)
-            elif (
-                self.is_handle(value.base_type)
-                or self.is_atom(value.base_type)
-                or self.is_opaque(value.base_type)
-            ):
+            elif self.is_handle_like(value.base_type):
                 # Handles need to be mapped.
                 arg_name = 'in_' + value.name
                 args.append(arg_name)

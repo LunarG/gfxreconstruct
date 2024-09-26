@@ -46,7 +46,10 @@ class Dx12StructObjectMappersBodyGenerator(
 
         BaseStructHandleMappersBodyGenerator.__init__(
             self,
-            structs_with_handles={ **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE': ['ptr'] } 
+            structs_with_handles={
+                **self.CUSTOM_STRUCT_HANDLE_MAP, 'D3D12_CPU_DESCRIPTOR_HANDLE':
+                ['ptr']
+            }
         )
 
     def beginFile(self, gen_opts):
@@ -101,7 +104,7 @@ class Dx12StructObjectMappersBodyGenerator(
 
         Dx12BaseGenerator.genStruct(self, typeinfo, typename, alias)
         if not alias:
-            for struct_name in self.get_filtered_struct_names():
+            for struct_name in self.get_all_filtered_struct_names():
                 self.check_struct_member_handles(
                     struct_name, self.structs_with_handles,
                     self.structs_with_handle_ptrs, True,

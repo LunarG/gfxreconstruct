@@ -71,7 +71,6 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
             warn_file=warn_file,
             diag_file=diag_file
         )
-        self.all_feature_struct_members = []
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -120,8 +119,10 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for feature_struct_members in self.all_feature_struct_members:
-            self.generate_struct_bodies(feature_struct_members)
+        for struct in self.get_all_filtered_struct_names():
+            self.generate_struct_bodies(
+                struct, self.all_struct_members[struct]
+            )
 
         self.newline()
         write('GFXRECON_END_NAMESPACE(encode)', file=self.outFile)
@@ -136,38 +137,27 @@ class OpenXrStructEncodersBodyGenerator(BaseGenerator):
             return True
         return False
 
-    def generate_feature(self):
-        """Gather up struct names for processing deferred to endFile"""
-        self.all_feature_struct_members.append(self.feature_struct_members)
-
-    def generate_struct_bodies(self, feature_struct_members):
+    def generate_struct_bodies(self, struct, struct_members):
         """Performs C++ code generation for the feature."""
-
-        for struct in [
-            key for key in feature_struct_members
-            if not self.is_struct_black_listed(key)
-        ]:
-            body = '\n'
-            value_name = 'value'
-            value_ref = value_name + '.'
-            array_loop_specialization = None
-            body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& {})\n'.format(
-                struct, value_name
+        body = '\n'
+        value_name = 'value'
+        value_ref = value_name + '.'
+        array_loop_specialization = None
+        body += 'void EncodeStruct(ParameterEncoder* encoder, const {}& {})\n'.format(
+            struct, value_name
+        )
+        body += '{\n'
+        if struct in self.base_header_structs:
+            body += self.make_child_struct_cast_switch(struct, value_name)
+            array_loop_specialization = self.make_child_loop_cast_switch(
+                struct
             )
-            body += '{\n'
-            if struct in self.base_header_structs:
-                body += self.make_child_struct_cast_switch(struct, value_name)
-                array_loop_specialization = self.make_child_loop_cast_switch(
-                    struct
-                )
-            else:
-                body += self.make_struct_body(
-                    struct, feature_struct_members[struct], value_ref
-                )
-            body += '}'
-            if (array_loop_specialization):
-                body += '\n\n' + array_loop_specialization
-            write(body, file=self.outFile)
+        else:
+            body += self.make_struct_body(struct, struct_members, value_ref)
+        body += '}'
+        if (array_loop_specialization):
+            body += '\n\n' + array_loop_specialization
+        write(body, file=self.outFile)
 
     def make_child_struct_cast_switch(self, base_struct, value):
         default_case = f'GFXRECON_LOG_WARNING("EncodeStruct: unrecognized Base Header child structure type %d", {value}.type);'

@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import base_utils, re, sys
+import re, sys
 from base_generator import BaseGenerator, BaseGeneratorOptions, write
 from collections import OrderedDict
 
@@ -81,14 +81,6 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         )  # Map of OpenXR structure types to type value for structs that can be part of a next chain and contain handles.
         self.next_structs = dict(
         )  # Map of OpenXR structure types to type value for structs that can be part of a next chain and do not contain handles.
-        self.output_structs = [
-        ]  # Output structures that retrieve handles, which need to be wrapped.
-
-        # Names of all OpenXR commands processed by the generator.
-        self.cmd_names = []
-        self.cmd_info = OrderedDict()
-        self.all_structs = []
-        self.all_struct_members = OrderedDict()
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -108,7 +100,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
 
         # Check for output structures, which retrieve handles that need to be wrapped.
         for cmd in self.cmd_names:
-            info = self.cmd_info[cmd]
+            info = self.all_cmd_params[cmd]
             values = info[2]
 
             for value in values:
@@ -144,7 +136,7 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
                     body += '                break;\n'
 
                     for child in self.base_header_structs[struct]:
-                        switch_type = base_utils.GenerateStructureType(child)
+                        switch_type = self.generate_structure_type(child)
 
                         body += f'            case {switch_type}:\n'
                         body += f'                UnwrapStructHandles(reinterpret_cast<{child}*>(value),\n'
@@ -263,7 +255,9 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not self.is_struct_black_listed(
+            typename
+        ) and not alias:
             has_handles = self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
@@ -283,17 +277,6 @@ class OpenXrStructHandleWrappersBodyGenerator(BaseGenerator):
         if self.feature_struct_members or self.feature_cmd_params:
             return True
         return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.cmd_names.append(cmd)
-            self.cmd_info[cmd] = self.feature_cmd_params[cmd]
-
-        for struct in self.get_filtered_struct_names():
-            self.all_structs.append(struct)
-            self.all_struct_members[struct] = self.feature_struct_members[
-                struct]
 
     def make_struct_handle_unwrappings(self, name, handle_members):
         """Generating expressions for unwrapping struct handles before an API call."""

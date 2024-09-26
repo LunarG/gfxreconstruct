@@ -93,7 +93,9 @@ def make_gen_opts(args):
     json_blocklists = os.path.join(args.configs, "json_blocklists.json")
     # Structs, functions etc. to exclude from codegen of the header files for conversion to JSON.
     # (we can codegen a lot more header content than body as the function signatures are not tricky)
-    json_headers_blocklists = os.path.join(args.configs, "json_headers_blocklists.json")
+    json_headers_blocklists = os.path.join(
+        args.configs, "json_headers_blocklists.json"
+    )
 
     # Copyright text prefixing all headers (list of strings).
     prefix_strings = [
@@ -631,6 +633,7 @@ def make_gen_opts(args):
             protect_feature=False
         )
     ]
+
 
 def gen_target(args, source_dict):
     """Generate a target based on the options in the matching gen_opts{} object.

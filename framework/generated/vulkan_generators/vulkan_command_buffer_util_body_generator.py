@@ -80,9 +80,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         )  # Map of Vulkan structure types to sType value for structs that can be part of a pNext chain.
         self.command_info = dict()  # Map of Vulkan commands to parameter info
         # The following functions require custom implementations
-        self.customImplementationRequired = {
-            'CmdPushDescriptorSetKHR'
-        }
+        self.customImplementationRequired = {'CmdPushDescriptorSetKHR'}
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -116,7 +114,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                         # Generate a function to build a list of handle types and values.
                         cmddef = '\n'
                         cmddef += 'void Track{}Handles({}::CommandBufferWrapper* wrapper, {})\n'.format(
-                            cmd[2:], wrapper_prefix, self.get_arg_list(handles)
+                            cmd[2:], wrapper_prefix,
+                            self.get_arg_list(handles)
                         )
                         cmddef += '{\n'
                         indent = self.INDENT_SIZE * ' '
@@ -141,7 +140,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
@@ -188,6 +187,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
         body = ''
         tail = ''
         index_name = None
+
         if (
             value.is_pointer or value.is_array
         ) and value.name != 'pnext_value':
@@ -200,7 +200,7 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             tail = indent + '}\n' + tail
             indent += ' ' * self.INDENT_SIZE
 
-            if value.is_array:
+            if value.is_array and not ',' in value.array_length:
                 index_name = '{}_index'.format(value.name)
                 body += indent + 'for (uint32_t {i} = 0; {i} < {}{}; ++{i})\n'.format(
                     value_prefix, value.array_length, i=index_name
@@ -218,7 +218,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
             elif value.is_pointer:
                 value_name = '(*{})'.format(value_name)
             body += indent + 'if({} != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::{}].insert(vulkan_wrappers::GetWrappedId<{}>({}));\n'.format(
-                value_name, type_enum_value, wrapper_prefix + '::' + value.base_type[2:] + 'Wrapper' ,value_name
+                value_name, type_enum_value, wrapper_prefix + '::'
+                + value.base_type[2:] + 'Wrapper', value_name
             )
 
         elif self.is_struct(
@@ -285,5 +286,8 @@ class VulkanCommandBufferUtilBodyGenerator(BaseGenerator):
                         index, entry,
                         value_prefix + value.name + access_operator, indent
                     )
+        else:
+            body = ''
+            tail = ''
 
         return body + tail

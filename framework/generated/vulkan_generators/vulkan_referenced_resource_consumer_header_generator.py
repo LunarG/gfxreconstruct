@@ -80,7 +80,6 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
         # that contain handles (eg. VkGraphicsPipelineCreateInfo contains a VkPipelineShaderStageCreateInfo
         # member that contains handles).
         self.structs_with_handles = dict()
-        self.command_info = dict()  # Map of Vulkan commands to parameter info
         self.restrict_handles = True  # Determines if the 'is_handle' override limits the handle test to only the values conained by RESOURCE_HANDLE_TYPES.
 
     def beginFile(self, gen_opts):
@@ -114,14 +113,11 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
 
     def endFile(self):
         """Method override."""
-        for cmd, info in self.command_info.items():
+        for cmd, info in self.all_cmd_params.items():
             return_type = info[0]
             params = info[2]
             if params and params[0].base_type == 'VkCommandBuffer':
-                # Check for parameters with resource handle types.
-                handles = self.get_param_list_handles(params[1:])
-
-                if (handles):
+                if self.has_select_handles(params[1:]):
                     # Generate a function to build a list of handle types and values.
                     cmddef = '\n'
 
@@ -149,39 +145,24 @@ class VulkanReferencedResourceHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if not alias:
+        if self.process_structs and not alias:
             self.check_struct_member_handles(
                 typename, self.structs_with_handles
             )
 
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate."""
-        if self.feature_cmd_params:
-            return True
-        return False
+    def is_valid_handle(self, base_type):
+        return not self.restrict_handles or base_type in self.RESOURCE_HANDLE_TYPES
 
-    def generate_feature(self):
-        """Performs C++ code generation for the feature."""
-        for cmd in self.get_filtered_cmd_names():
-            self.command_info[cmd] = self.feature_cmd_params[cmd]
-
-    def is_handle(self, base_type):
-        """Override method to check for handle type, only matching resource handle types."""
-        if self.restrict_handles:
-            if base_type in self.RESOURCE_HANDLE_TYPES:
-                return True
-            return False
-        else:
-            return BaseGenerator.is_handle(self, base_type)
-
-    def get_param_list_handles(self, values):
+    def has_select_handles(self, values):
         """Create list of parameters that have handle types or are structs that contain handles."""
-        handles = []
+
         for value in values:
             if self.is_handle(value.base_type):
-                handles.append(value)
+                return True
             elif self.is_struct(
                 value.base_type
             ) and (value.base_type in self.structs_with_handles):
-                handles.append(value)
-        return handles
+                return self.has_select_handles(
+                    self.all_struct_members[value.base_type]
+                )
+        return False

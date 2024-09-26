@@ -105,10 +105,7 @@ class OpenXrStructTrackersHeaderGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if alias:
-            return
-
-        if typename in ['XrBaseInStructure', 'XrBaseOutStructure']:
+        if alias or typename in ['XrBaseInStructure', 'XrBaseOutStructure']:
             return
 
         struct_type_enum = self.make_structure_type_enum(typeinfo, typename)

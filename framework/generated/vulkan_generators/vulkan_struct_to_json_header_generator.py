@@ -125,4 +125,3 @@ class VulkanStructToJsonHeaderGenerator(BaseGenerator):
                 body = "void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_{0}* data, const util::JsonOptions& options = util::JsonOptions());".format(struct)
                 write(body, file=self.outFile)
     # yapf: enable
-

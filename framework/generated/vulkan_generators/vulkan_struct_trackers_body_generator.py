@@ -82,7 +82,10 @@ class VulkanStructTrackersBodyGenerator(BaseGenerator):
             '#include "generated/generated_vulkan_struct_handle_wrappers.h"',
             file=self.outFile
         )
-        write('#include "generated/generated_vulkan_struct_trackers.h"', file=self.outFile)
+        write(
+            '#include "generated/generated_vulkan_struct_trackers.h"',
+            file=self.outFile
+        )
         self.newline()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
         write('GFXRECON_BEGIN_NAMESPACE(encode)', file=self.outFile)
@@ -93,21 +96,36 @@ class VulkanStructTrackersBodyGenerator(BaseGenerator):
         """Method override."""
 
         self.newline()
-        write('void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)', file=self.outFile)
+        write(
+            'void* TrackStruct(const void* value, HandleUnwrapMemory* unwrap_memory)',
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    if (value == nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
         write('        return nullptr;', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
-        write('    VkStructureType valueType = reinterpret_cast<const VkBaseInStructure*>(value)->sType;', file=self.outFile)
+        write(
+            '    VkStructureType valueType = reinterpret_cast<const VkBaseInStructure*>(value)->sType;',
+            file=self.outFile
+        )
         write('    switch (valueType)', file=self.outFile)
         write('    {', file=self.outFile)
         for typename, struct_type_enum in self.struct_type_enums.items():
-            write('        case {}:'.format(struct_type_enum), file=self.outFile)
-            write('            return TrackStruct(reinterpret_cast<const {}*>(value), unwrap_memory);'.format(typename), file=self.outFile)
+            write(
+                '        case {}:'.format(struct_type_enum), file=self.outFile
+            )
+            write(
+                '            return TrackStruct(reinterpret_cast<const {}*>(value), unwrap_memory);'
+                .format(typename),
+                file=self.outFile
+            )
         write('        default:', file=self.outFile)
-        write('            GFXRECON_LOG_ERROR("Unknown structure type: %u", valueType);', file=self.outFile)
+        write(
+            '            GFXRECON_LOG_ERROR("Unknown structure type: %u", valueType);',
+            file=self.outFile
+        )
         write('    }', file=self.outFile)
         self.newline()
         write('    return nullptr;', file=self.outFile)
@@ -125,52 +143,66 @@ class VulkanStructTrackersBodyGenerator(BaseGenerator):
         """Method override."""
         BaseGenerator.genStruct(self, typeinfo, typename, alias)
 
-        if alias:
+        if alias or typename in ['VkBaseOutStructure', 'VkBaseInStructure']:
             return
-        
-        if typename in ['VkBaseInStructure', 'VkBaseOutStructure']:
-            return
-        
+
         struct_type_enum = self.make_structure_type_enum(typeinfo, typename)
         if struct_type_enum is None:
             return
 
         self.struct_type_enums[typename] = struct_type_enum
-        
-        write('{0}* TrackStruct(const {0}* value, HandleUnwrapMemory* unwrap_memory)'.format(typename), file=self.outFile)
+
+        write(
+            '{0}* TrackStruct(const {0}* value, HandleUnwrapMemory* unwrap_memory)'
+            .format(typename),
+            file=self.outFile
+        )
         write('{', file=self.outFile)
         write('    if (value == nullptr)', file=self.outFile)
         write('    {', file=self.outFile)
         write('        return nullptr;', file=self.outFile)
         write('    }', file=self.outFile)
         self.newline()
-        write('    {}* unwrapped_struct = vulkan_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);'.format(typename), file=self.outFile)
+        write(
+            '    {}* unwrapped_struct = vulkan_wrappers::MakeUnwrapStructs(value, 1, unwrap_memory);'
+            .format(typename),
+            file=self.outFile
+        )
         self.newline()
 
         for value in self.feature_struct_members[typename]:
             if value.is_array and value.is_dynamic:
                 if value.array_dimension == 1:
                     member_expr = f'unwrapped_struct->{value.name}'
-                    length_expr = self.make_array_length_expression(value, 'unwrapped_struct->')
+                    length_expr = self.make_array_length_expression(
+                        value, 'unwrapped_struct->'
+                    )
                     if value.base_type == 'void':
                         call_expr = f'vulkan_wrappers::MakeUnwrapStructs<uint8_t>(reinterpret_cast<const uint8_t*>({member_expr}), {length_expr}, unwrap_memory)'
                     else:
                         call_expr = f'vulkan_wrappers::MakeUnwrapStructs({member_expr}, {length_expr}, unwrap_memory)'
                     write('    if ({})'.format(member_expr), file=self.outFile)
                     write('    {', file=self.outFile)
-                    write('        {} = {};'.format(member_expr, call_expr), file=self.outFile)
+                    write(
+                        '        {} = {};'.format(member_expr, call_expr),
+                        file=self.outFile
+                    )
                     write('    }', file=self.outFile)
                 else:
-                    print(f'VulkanStructTrackersBodyGenerator ignored: {typename}.{value.name}') # TODO
+                    print(
+                        f'VulkanStructTrackersBodyGenerator ignored: {typename}.{value.name}'
+                    )  # TODO
 
         for value in self.feature_struct_members[typename]:
             if value.name == 'pNext':
                 self.newline()
-                write('    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);', file=self.outFile)
+                write(
+                    '    unwrapped_struct->pNext = TrackStruct(unwrapped_struct->pNext, unwrap_memory);',
+                    file=self.outFile
+                )
                 break
-        
+
         self.newline()
         write('    return unwrapped_struct;', file=self.outFile)
         write('}', file=self.outFile)
         self.newline()
-
