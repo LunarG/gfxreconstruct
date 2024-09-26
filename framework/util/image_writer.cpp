@@ -566,6 +566,49 @@ static const uint8_t* ConvertIntoTemporaryBuffer(uint32_t    width,
         }
         break;
 
+        case kFormat_R32G32B32A32_SFLOAT:
+        {
+            const float* float_vals = reinterpret_cast<const float*>(data);
+
+            for (uint32_t y = 0; y < height; ++y)
+            {
+                for (uint32_t x = 0; x < 4 * width; x += 4)
+                {
+                    float float_r = float_vals[x];
+                    float float_g = float_vals[x + 1];
+                    float float_b = float_vals[x + 2];
+                    float float_a = float_vals[x + 3];
+
+                    uint8_t r = static_cast<uint8_t>(float_r * 255.0f);
+                    uint8_t g = static_cast<uint8_t>(float_g * 255.0f);
+                    uint8_t b = static_cast<uint8_t>(float_b * 255.0f);
+                    uint8_t a = static_cast<uint8_t>(float_a * 255.0f);
+
+                    if (is_png)
+                    {
+                        *(temp_buffer++) = r;
+                        *(temp_buffer++) = g;
+                        *(temp_buffer++) = b;
+                    }
+                    else
+                    {
+                        *(temp_buffer++) = b;
+                        *(temp_buffer++) = g;
+                        *(temp_buffer++) = r;
+                    }
+
+                    if (write_alpha)
+                    {
+                        *(temp_buffer++) = a;
+                    }
+                }
+
+                float_vals  = reinterpret_cast<const float*>(reinterpret_cast<const uint8_t*>(float_vals) + data_pitch);
+                temp_buffer = reinterpret_cast<uint8_t*>(temporary_buffer.get()) + (y + 1) * output_pitch;
+            }
+        }
+        break;
+
         case kFormat_D32_FLOAT:
         {
             const float* floats = reinterpret_cast<const float*>(data);
