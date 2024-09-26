@@ -216,34 +216,27 @@ void OpenXrCaptureManager::WriteViewRelativeLocationMetadata(const XrSession    
         }
     }
 
-    const std::vector<XrSpace>       layer_spaces(found_spaces.begin(), found_spaces.end());
-    const uint32_t     space_count = static_cast<uint32_t>(layer_spaces.size());
-    XrSpacesLocateInfo locate_info = { XR_TYPE_SPACES_LOCATE_INFO, nullptr,     session_data.view_ref_space,
-                                       frameEndInfo.displayTime,   space_count, layer_spaces.data() };
-    std::vector<XrSpaceLocationData> location_data(space_count);
-    XrSpaceLocations space_locations = { XR_TYPE_SPACE_LOCATIONS, nullptr, space_count, location_data.data() };
-
-    XrResult result = openxr_wrappers::GetInstanceTable(session)->LocateSpaces(session, &locate_info, &space_locations);
-
-    const auto                      thread_data = GetThreadData();
     format::ViewRelativeLocationCmd location_cmd;
     location_cmd.meta_header.block_header.type = format::BlockType::kMetaDataBlock;
     location_cmd.meta_header.block_header.size = format::GetMetaDataBlockBaseSize(location_cmd);
     location_cmd.meta_header.meta_data_id =
         format::MakeMetaDataId(format::ApiFamily_OpenXR, format::MetaDataType::kViewRelativeLocation);
+
+    const auto thread_data = GetThreadData();
     location_cmd.thread_id = thread_data->thread_id_;
 
-    format::ViewRelativeLocation& location = location_cmd.location;
-
     // Same session for all spaces
+    format::ViewRelativeLocation& location = location_cmd.location;
     location.session_id = openxr_wrappers::GetWrappedId<openxr_wrappers::SessionWrapper>(session);
 
-    for (uint32_t space_index = 0; space_index < space_count; space_index++)
+    for (const XrSpace space : found_spaces)
     {
+        XrSpaceLocation space_location = { XR_TYPE_SPACE_LOCATION, nullptr };
+        XrResult        locate_result  = openxr_wrappers::GetInstanceTable(session)->LocateSpace(
+            space, session_data.view_ref_space, frameEndInfo.displayTime, &space_location);
 
-        location.space_id = openxr_wrappers::GetWrappedId<openxr_wrappers::SpaceWrapper>(layer_spaces[space_index]);
+        location.space_id = openxr_wrappers::GetWrappedId<openxr_wrappers::SpaceWrapper>(space);
 
-        const XrSpaceLocationData& space_location = location_data[space_index];
         location.flags                            = space_location.locationFlags;
 
         location.qx = space_location.pose.orientation.x;
