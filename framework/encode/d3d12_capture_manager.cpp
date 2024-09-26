@@ -1742,82 +1742,6 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
     GFXRECON_UNREFERENCED_PARAMETER(num_lists);
     GFXRECON_UNREFERENCED_PARAMETER(lists);
 
-    bool is_split_commandlist = false;
-    for (uint32_t i = 0; i < num_lists; ++i)
-    {
-        auto cmd_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[i]);
-        GFXRECON_ASSERT(cmd_wrapper);
-
-        auto cmd_info = cmd_wrapper->GetObjectInfo();
-        GFXRECON_ASSERT(cmd_info);
-
-        if (cmd_info->is_split_commandlist)
-        {
-            is_split_commandlist = true;
-            break;
-        }
-    }
-
-    if (!is_split_commandlist && IsTrimEnabled() && GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
-    {
-        auto trim_draw_calls = GetTrimDrawCalls();
-        if (common_manager_->GetQueueSubmitCount() == trim_draw_calls.submit_index)
-        {
-            DecrementCallScope();
-
-            auto target_cmdlist = lists[trim_draw_calls.command_index];
-            auto target_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(target_cmdlist);
-            GFXRECON_ASSERT(target_wrapper);
-
-            auto target_info = target_wrapper->GetObjectInfo();
-            GFXRECON_ASSERT(target_info);
-
-            if (num_lists <= trim_draw_calls.command_index)
-            {
-                GFXRECON_LOG_FATAL(
-                    "CAPTURE_DRAW_CALLS can't find the commandlist index(%d). It might be out of range(%d).",
-                    trim_draw_calls.command_index,
-                    num_lists);
-                GFXRECON_ASSERT(num_lists > trim_draw_calls.command_index);
-            }
-
-            // before of lists and splitted
-            std::vector<ID3D12CommandList*> cmdlists;
-            for (uint32_t i = 0; i < trim_draw_calls.command_index; ++i)
-            {
-                cmdlists.emplace_back(lists[i]);
-            }
-
-            if (!target_info->find_target_draw_calls)
-            {
-                GFXRECON_LOG_FATAL(
-                    "CAPTURE_DRAW_CALLS can't find the draw call indices(%d-%d). It might be out of range.",
-                    trim_draw_calls.draw_call_indices.first,
-                    trim_draw_calls.draw_call_indices.last);
-                GFXRECON_ASSERT(target_info->find_target_draw_calls);
-            }
-
-            if (target_info->target_bundle_commandlist_info &&
-                !target_info->target_bundle_commandlist_info->find_target_draw_calls)
-            {
-                GFXRECON_LOG_FATAL(
-                    "CAPTURE_DRAW_CALLS can't find the bundle draw call indices(%d-%d). It might be out of range.",
-                    trim_draw_calls.bundle_draw_call_indices.first,
-                    trim_draw_calls.bundle_draw_call_indices.last);
-                GFXRECON_ASSERT(target_info->target_bundle_commandlist_info->find_target_draw_calls);
-            }
-
-            auto before_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list;
-            GFXRECON_ASSERT(before_draw_call_cmd);
-            cmdlists.emplace_back(before_draw_call_cmd);
-
-            wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
-            auto queue = reinterpret_cast<ID3D12CommandQueue*>(wrapper->GetWrappedObject());
-            graphics::dx12::WaitForQueue(queue);
-            IncrementCallScope();
-        }
-    }
-
     if (GetMemoryTrackingMode() == CaptureSettings::MemoryTrackingMode::kPageGuard)
     {
         util::PageGuardManager* manager = util::PageGuardManager::Get();
@@ -1863,6 +1787,22 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
         }
     }
 
+    bool is_split_commandlist = false;
+    for (uint32_t i = 0; i < num_lists; ++i)
+    {
+        auto cmd_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[i]);
+        GFXRECON_ASSERT(cmd_wrapper);
+
+        auto cmd_info = cmd_wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(cmd_info);
+
+        if (cmd_info->is_split_commandlist)
+        {
+            is_split_commandlist = true;
+            break;
+        }
+    }
+
     // Split commandlist is for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
     // queue_submit_count_.
     if (!is_split_commandlist)
@@ -1898,8 +1838,14 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
         // TODO: When queue_submit_count_ becomes 0-based, remove "-1".
         if ((common_manager_->GetQueueSubmitCount() - 1) == trim_draw_calls.submit_index)
         {
-            DecrementCallScope();
-            common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12);
+            if (num_lists <= trim_draw_calls.command_index)
+            {
+                GFXRECON_LOG_FATAL(
+                    "CAPTURE_DRAW_CALLS can't find the commandlist index(%d). It might be out of range(%d).",
+                    trim_draw_calls.command_index,
+                    num_lists);
+                GFXRECON_ASSERT(num_lists > trim_draw_calls.command_index);
+            }
 
             auto target_cmdlist = lists[trim_draw_calls.command_index];
             auto target_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(target_cmdlist);
@@ -1908,22 +1854,64 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
             auto target_info = target_wrapper->GetObjectInfo();
             GFXRECON_ASSERT(target_info);
 
+            if (!target_info->find_target_draw_calls)
+            {
+                GFXRECON_LOG_FATAL(
+                    "CAPTURE_DRAW_CALLS can't find the draw call indices(%d-%d). It might be out of range.",
+                    trim_draw_calls.draw_call_indices.first,
+                    trim_draw_calls.draw_call_indices.last);
+                GFXRECON_ASSERT(target_info->find_target_draw_calls);
+            }
+
+            if (target_info->target_bundle_commandlist_info &&
+                !target_info->target_bundle_commandlist_info->find_target_draw_calls)
+            {
+                GFXRECON_LOG_FATAL(
+                    "CAPTURE_DRAW_CALLS can't find the bundle draw call indices(%d-%d). It might be out of range.",
+                    trim_draw_calls.bundle_draw_call_indices.first,
+                    trim_draw_calls.bundle_draw_call_indices.last);
+                GFXRECON_ASSERT(target_info->target_bundle_commandlist_info->find_target_draw_calls);
+            }
+
             std::vector<ID3D12CommandList*> cmdlists;
+
+            // before of lists and before of splitted
+            for (uint32_t i = 0; i < trim_draw_calls.command_index; ++i)
+            {
+                cmdlists.emplace_back(lists[i]);
+            }
+
+            auto before_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list;
+            GFXRECON_ASSERT(before_draw_call_cmd);
+            cmdlists.emplace_back(before_draw_call_cmd);
+
+            // Here has to use the wrapped queue since this ExecuteCommandLists needs to be tracked.
+            DecrementCallScope();
+            wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
+            IncrementCallScope();
+
+            auto queue = reinterpret_cast<ID3D12CommandQueue*>(wrapper->GetWrappedObject());
+            graphics::dx12::WaitForQueue(queue);
+            cmdlists.clear();
+
+            // target of splitted
+            common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12);
 
             auto target_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex].list;
             GFXRECON_ASSERT(target_draw_call_cmd);
             cmdlists.emplace_back(target_draw_call_cmd);
 
-            // target of splitted
-            wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
+            auto unwrap_memory = GetHandleUnwrapMemory();
+            queue->ExecuteCommandLists(
+                cmdlists.size(), UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
 
+            Encode_ID3D12CommandQueue_ExecuteCommandLists(wrapper, cmdlists.size(), cmdlists.data());
             cmdlists.clear();
 
             common_manager_->DeactivateTrimmingDrawCalls();
 
-            // after of splitted and lists
-            auto after_draw_call_cmd =
-                target_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list;
+            // after of splitted and after of lists
+            auto after_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list;
             GFXRECON_ASSERT(after_draw_call_cmd);
             cmdlists.emplace_back(after_draw_call_cmd);
 
@@ -1932,9 +1920,9 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
                 cmdlists.emplace_back(lists[i]);
             }
 
-            wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
+            queue->ExecuteCommandLists(
+                cmdlists.size(), UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
             is_complete = true;
-            IncrementCallScope();
         }
     }
 
