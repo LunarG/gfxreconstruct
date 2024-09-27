@@ -10507,15 +10507,15 @@ struct Decoded_VkIndirectCommandsExecutionSetTokenEXT
     VkIndirectCommandsExecutionSetTokenEXT* decoded_value{ nullptr };
 };
 
-struct Decoded_VkIndirectCommandsLayoutTokenEXT
-{
-    using struct_type = VkIndirectCommandsLayoutTokenEXT;
+// struct Decoded_VkIndirectCommandsLayoutTokenEXT
+// {
+//     using struct_type = VkIndirectCommandsLayoutTokenEXT;
 
-    VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
+//     VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
 
-    PNextNode* pNext{ nullptr };
-    Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
-};
+//     PNextNode* pNext{ nullptr };
+//     Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
+// };
 
 struct Decoded_VkIndirectCommandsLayoutCreateInfoEXT
 {

@@ -217,6 +217,27 @@ struct Decoded_VkIndirectExecutionSetCreateInfoEXT {
     Decoded_VkIndirectExecutionSetInfoEXT*          info;
 };
 
+struct Decoded_VkIndirectCommandsTokenDataEXT
+{
+    using struct_type = VkIndirectCommandsTokenDataEXT;
+
+    Decoded_VkIndirectCommandsPushConstantTokenEXT* pPushConstant;
+    Decoded_VkIndirectCommandsVertexBufferTokenEXT* pVertexBuffer;
+    Decoded_VkIndirectCommandsIndexBufferTokenEXT*  pIndexBuffer;
+    Decoded_VkIndirectCommandsExecutionSetTokenEXT* pExecutionSet;
+};
+
+struct Decoded_VkIndirectCommandsLayoutTokenEXT
+{
+    using struct_type = VkIndirectCommandsLayoutTokenEXT;
+
+    VkIndirectCommandsLayoutTokenEXT* decoded_value;
+
+    PNextNode*                              pNext{ nullptr };
+    VkIndirectCommandsTokenTypeEXT          decoded_type;
+    Decoded_VkIndirectCommandsTokenDataEXT* data;
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 
