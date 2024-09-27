@@ -1218,21 +1218,23 @@ std::string GenerateStruct_VkIndirectExecutionSetCreateInfoEXT(std::ostream&    
     std::stringstream struct_body;
     std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     // sType
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << std::endl;
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")" << std::endl;
     // pNext
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     // type
-    struct_body << "\t\t\t" << "VkIndirectExecutionSetInfoTypeEXT(" << structInfo->type << ")" << std::endl;
+    struct_body << "\t\t\t"
+                << "VkIndirectExecutionSetInfoTypeEXT(" << structInfo->type << ")" << std::endl;
     // info
     switch (metaInfo->decoded_type)
     {
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            struct_body << "\t\t\t" << "VkIndirectExecutionSetInfoEXT(" << structInfo->info.pPipelineInfo << ")"
-                        << std::endl;
+            struct_body << "\t\t\t"
+                        << "VkIndirectExecutionSetInfoEXT(" << structInfo->info.pPipelineInfo << ")" << std::endl;
             break;
         case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            struct_body << "\t\t\t" << "VkIndirectExecutionSetInfoEXT(" << structInfo->info.pShaderInfo << ")"
-                        << std::endl;
+            struct_body << "\t\t\t"
+                        << "VkIndirectExecutionSetInfoEXT(" << structInfo->info.pShaderInfo << ")" << std::endl;
             break;
     }
 
@@ -1251,7 +1253,8 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     std::stringstream struct_body;
     std::string       pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
     // sType
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << std::endl;
+    struct_body << "\t"
+                << "VkStructureType(" << structInfo->sType << ")" << std::endl;
     // pNext
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     // type
@@ -1260,25 +1263,26 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     switch (metaInfo->decoded_type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
-            struct_body << "\t\t\t" << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pPushConstant << ")"
-                        << std::endl;
+            struct_body << "\t\t\t"
+                        << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pPushConstant << ")" << std::endl;
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
-            struct_body << "\t\t\t" << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pVertexBuffer << ")"
-                        << std::endl;
+            struct_body << "\t\t\t"
+                        << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pVertexBuffer << ")" << std::endl;
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
-            struct_body << "\t\t\t" << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pIndexBuffer << ")"
-                        << std::endl;
+            struct_body << "\t\t\t"
+                        << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pIndexBuffer << ")" << std::endl;
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
-            struct_body << "\t\t\t" << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pExecutionSet << ")"
-                        << std::endl;
+            struct_body << "\t\t\t"
+                        << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pExecutionSet << ")" << std::endl;
             break;
     }
     // offset
-    struct_body << "\t\t\t" << "uint32_t(" << structInfo->offset << ")" << std::endl;
-
+    struct_body << "\t\t\t"
+                << "uint32_t(" << structInfo->offset << ")" << std::endl;
+                
     out << "\t";
     std::string variable_name = consumer.AddStruct(struct_body, "type");
     out << "VkIndirectExecutionSetInfoTypeEXT " << variable_name << " {" << std::endl;
