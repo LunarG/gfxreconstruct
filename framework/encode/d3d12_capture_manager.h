@@ -814,6 +814,26 @@ class D3D12CaptureManager : public ApiCaptureManager
 
     int GetAgsVersion() { return ags_version_; }
 
+    void TrimDrawCalls_ID3D12GraphicsCommandList_Reset(HRESULT                            replay_result,
+                                                       ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                       ID3D12CommandAllocator*            pAllocator,
+                                                       ID3D12PipelineState*               pInitialState);
+
+    void TrimDrawCalls_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                               ID3D12GraphicsCommandList*         pCommandList);
+    void
+    TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPass(ID3D12GraphicsCommandList4_Wrapper* wrapper,
+                                                             UINT                                NumRenderTargets,
+                                                             const D3D12_RENDER_PASS_RENDER_TARGET_DESC* pRenderTargets,
+                                                             const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
+                                                             D3D12_RENDER_PASS_FLAGS                     Flags);
+
+    bool TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                              UINT                        num_lists,
+                                                              ID3D12CommandList* const*   lists);
+
+    bool HasSplitCommandLists(UINT num_lists, ID3D12CommandList* const* lists);
+
     std::vector<graphics::dx12::CommandSet> GetCommandListsForTrimDrawCalls(ID3D12CommandList_Wrapper* wrapper,
                                                                             format::ApiCallId          api_call_id);
 

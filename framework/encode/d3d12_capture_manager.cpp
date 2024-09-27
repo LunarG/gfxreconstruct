@@ -1787,25 +1787,9 @@ void D3D12CaptureManager::PreProcess_ID3D12CommandQueue_ExecuteCommandLists(
         }
     }
 
-    bool is_split_commandlist = false;
-    for (uint32_t i = 0; i < num_lists; ++i)
-    {
-        auto cmd_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[i]);
-        GFXRECON_ASSERT(cmd_wrapper);
-
-        auto cmd_info = cmd_wrapper->GetObjectInfo();
-        GFXRECON_ASSERT(cmd_info);
-
-        if (cmd_info->is_split_commandlist)
-        {
-            is_split_commandlist = true;
-            break;
-        }
-    }
-
     // Split commandlist is for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
     // queue_submit_count_.
-    if (!is_split_commandlist)
+    if (!HasSplitCommandLists(num_lists, lists))
     {
         PreQueueSubmit(current_lock);
     }
@@ -1815,115 +1799,12 @@ void D3D12CaptureManager::OverrideID3D12CommandQueue_ExecuteCommandLists(ID3D12C
                                                                          UINT                        num_lists,
                                                                          ID3D12CommandList* const*   lists)
 {
-    bool is_complete          = false;
-    bool is_split_commandlist = false;
-    for (uint32_t i = 0; i < num_lists; ++i)
+    bool is_complete            = false;
+
+    if (!HasSplitCommandLists(num_lists, lists) && IsTrimEnabled() &&
+        GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
     {
-        auto cmd_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[i]);
-        GFXRECON_ASSERT(cmd_wrapper);
-
-        auto cmd_info = cmd_wrapper->GetObjectInfo();
-        GFXRECON_ASSERT(cmd_info);
-
-        if (cmd_info->is_split_commandlist)
-        {
-            is_split_commandlist = true;
-            break;
-        }
-    }
-
-    if (!is_split_commandlist && IsTrimEnabled() && GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
-    {
-        auto trim_draw_calls = GetTrimDrawCalls();
-        // TODO: When queue_submit_count_ becomes 0-based, remove "-1".
-        if ((common_manager_->GetQueueSubmitCount() - 1) == trim_draw_calls.submit_index)
-        {
-            if (num_lists <= trim_draw_calls.command_index)
-            {
-                GFXRECON_LOG_FATAL(
-                    "CAPTURE_DRAW_CALLS can't find the commandlist index(%d). It might be out of range(%d).",
-                    trim_draw_calls.command_index,
-                    num_lists);
-                GFXRECON_ASSERT(num_lists > trim_draw_calls.command_index);
-            }
-
-            auto target_cmdlist = lists[trim_draw_calls.command_index];
-            auto target_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(target_cmdlist);
-            GFXRECON_ASSERT(target_wrapper);
-
-            auto target_info = target_wrapper->GetObjectInfo();
-            GFXRECON_ASSERT(target_info);
-
-            if (!target_info->find_target_draw_calls)
-            {
-                GFXRECON_LOG_FATAL(
-                    "CAPTURE_DRAW_CALLS can't find the draw call indices(%d-%d). It might be out of range.",
-                    trim_draw_calls.draw_call_indices.first,
-                    trim_draw_calls.draw_call_indices.last);
-                GFXRECON_ASSERT(target_info->find_target_draw_calls);
-            }
-
-            if (target_info->target_bundle_commandlist_info &&
-                !target_info->target_bundle_commandlist_info->find_target_draw_calls)
-            {
-                GFXRECON_LOG_FATAL(
-                    "CAPTURE_DRAW_CALLS can't find the bundle draw call indices(%d-%d). It might be out of range.",
-                    trim_draw_calls.bundle_draw_call_indices.first,
-                    trim_draw_calls.bundle_draw_call_indices.last);
-                GFXRECON_ASSERT(target_info->target_bundle_commandlist_info->find_target_draw_calls);
-            }
-
-            std::vector<ID3D12CommandList*> cmdlists;
-
-            // before of lists and before of splitted
-            for (uint32_t i = 0; i < trim_draw_calls.command_index; ++i)
-            {
-                cmdlists.emplace_back(lists[i]);
-            }
-
-            auto before_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list;
-            GFXRECON_ASSERT(before_draw_call_cmd);
-            cmdlists.emplace_back(before_draw_call_cmd);
-
-            // Here has to use the wrapped queue since this ExecuteCommandLists needs to be tracked.
-            DecrementCallScope();
-            wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
-            IncrementCallScope();
-
-            auto queue = reinterpret_cast<ID3D12CommandQueue*>(wrapper->GetWrappedObject());
-            graphics::dx12::WaitForQueue(queue);
-            cmdlists.clear();
-
-            // target of splitted
-            common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12);
-
-            auto target_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex].list;
-            GFXRECON_ASSERT(target_draw_call_cmd);
-            cmdlists.emplace_back(target_draw_call_cmd);
-
-            auto unwrap_memory = GetHandleUnwrapMemory();
-            queue->ExecuteCommandLists(
-                cmdlists.size(), UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
-
-            Encode_ID3D12CommandQueue_ExecuteCommandLists(wrapper, cmdlists.size(), cmdlists.data());
-            cmdlists.clear();
-
-            common_manager_->DeactivateTrimmingDrawCalls();
-
-            // after of splitted and after of lists
-            auto after_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list;
-            GFXRECON_ASSERT(after_draw_call_cmd);
-            cmdlists.emplace_back(after_draw_call_cmd);
-
-            for (uint32_t i = (trim_draw_calls.command_index + 1); i < num_lists; ++i)
-            {
-                cmdlists.emplace_back(lists[i]);
-            }
-
-            queue->ExecuteCommandLists(
-                cmdlists.size(), UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
-            is_complete = true;
-        }
+        is_complete = TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(wrapper, num_lists, lists);
     }
 
     if (!is_complete)
@@ -1940,25 +1821,9 @@ void D3D12CaptureManager::PostProcess_ID3D12CommandQueue_ExecuteCommandLists(
     UINT                                                   num_lists,
     ID3D12CommandList* const*                              lists)
 {
-    bool is_split_commandlist = false;
-    for (uint32_t i = 0; i < num_lists; ++i)
-    {
-        auto cmd_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[0]);
-        GFXRECON_ASSERT(cmd_wrapper);
-
-        auto cmd_info = cmd_wrapper->GetObjectInfo();
-        GFXRECON_ASSERT(cmd_info);
-
-        if (cmd_info->is_split_commandlist)
-        {
-            is_split_commandlist = true;
-            break;
-        }
-    }
-
-    // Split commandlist is for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
+    // Split commandlists are for trim drawcalls. It means that this is a extra ExecuteCommandLists. It shouldn't count
     // queue_submit_count_.
-    if (!is_split_commandlist)
+    if (!HasSplitCommandLists(num_lists, lists))
     {
         PostQueueSubmit(current_lock);
     }
@@ -2995,25 +2860,7 @@ HRESULT D3D12CaptureManager::OverrideID3D12GraphicsCommandList_Reset(ID3D12Graph
 
     if (GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
     {
-        DecrementCallScope();
-
-        auto trim_draw_calls_command_sets =
-            GetCommandListsForTrimDrawCalls(wrapper, format::ApiCall_ID3D12GraphicsCommandList_Reset);
-        for (auto& command_set : trim_draw_calls_command_sets)
-        {
-            auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
-            GFXRECON_ASSERT(list_wrapper);
-            HRESULT result_trim_draw_calls = list_wrapper->Reset(command_set.allocator, pInitialState);
-
-            if (result != result_trim_draw_calls)
-            {
-                GFXRECON_LOG_WARNING(
-                    "Splitting commandlists of ID3D12GraphicsCommandList::Reset get different results: %s and %s",
-                    decode::enumutil::GetResultValueString(result).c_str(),
-                    decode::enumutil::GetResultValueString(result_trim_draw_calls).c_str());
-            }
-        }
-        IncrementCallScope();
+        TrimDrawCalls_ID3D12GraphicsCommandList_Reset(result, wrapper, pAllocator, pInitialState);
     }
     return result;
 }
@@ -3026,44 +2873,7 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList_ExecuteBundle(ID3D12
 
     if (GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
     {
-        DecrementCallScope();
-
-        auto trim_draw_calls_command_sets =
-            GetCommandListsForTrimDrawCalls(wrapper, format::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle);
-
-        if (trim_draw_calls_command_sets.size() == 3)
-        {
-            // Here is the target draw call for trim draw calls.
-            auto bunlde_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(pCommandList);
-            GFXRECON_ASSERT(bunlde_wrapper);
-
-            auto bundle_info = bunlde_wrapper->GetObjectInfo();
-            GFXRECON_ASSERT(bundle_info);
-
-            auto cmd_info = wrapper->GetObjectInfo();
-            GFXRECON_ASSERT(cmd_info);
-            cmd_info->target_bundle_commandlist_info = bundle_info;
-
-            uint32_t i = 0;
-            for (auto& command_set : trim_draw_calls_command_sets)
-            {
-                GFXRECON_ASSERT(bundle_info->split_command_sets[i].list);
-
-                auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
-                GFXRECON_ASSERT(list_wrapper);
-
-                list_wrapper->ExecuteBundle(bundle_info->split_command_sets[i].list);
-                ++i;
-            }
-        }
-        else if (trim_draw_calls_command_sets.size() == 1)
-        {
-            auto list_wrapper =
-                reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(trim_draw_calls_command_sets[0].list.GetInterfacePtr());
-            GFXRECON_ASSERT(list_wrapper);
-            list_wrapper->ExecuteBundle(pCommandList);
-        }
-        IncrementCallScope();
+        TrimDrawCalls_ID3D12GraphicsCommandList_ExecuteBundle(wrapper, pCommandList);
     }
 }
 
@@ -3083,106 +2893,8 @@ void D3D12CaptureManager::OverrideID3D12GraphicsCommandList4_BeginRenderPass(
 
     if (GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
     {
-        DecrementCallScope();
-
-        auto trim_draw_calls_command_sets =
-            GetCommandListsForTrimDrawCalls(wrapper, format::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass);
-        if (trim_draw_calls_command_sets.size() == 3)
-        {
-            // before
-            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> before_rt_descs;
-            for (uint32_t i = 0; i < NumRenderTargets; ++i)
-            {
-                D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = pRenderTargets[i];
-                desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-                before_rt_descs.emplace_back(std::move(desc));
-            }
-
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  before_ds_desc   = {};
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_before_ds_desc = nullptr;
-            if (pDepthStencil)
-            {
-                before_ds_desc                          = *pDepthStencil;
-                before_ds_desc.DepthEndingAccess.Type   = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-                before_ds_desc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-                p_before_ds_desc                        = &before_ds_desc;
-            }
-
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr before4 = nullptr;
-            trim_draw_calls_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list->QueryInterface(
-                IID_PPV_ARGS(&before4));
-            auto before4_wrappr = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(before4.GetInterfacePtr());
-            GFXRECON_ASSERT(before4_wrappr);
-
-            before4_wrappr->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
-
-            // target
-            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> target_rt_descs;
-            for (uint32_t i = 0; i < NumRenderTargets; ++i)
-            {
-                D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = pRenderTargets[i];
-                desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-                target_rt_descs.emplace_back(std::move(desc));
-            }
-
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  target_ds_desc   = {};
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_target_ds_desc = nullptr;
-            if (pDepthStencil)
-            {
-                target_ds_desc                             = *pDepthStencil;
-                target_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                target_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                target_ds_desc.DepthEndingAccess.Type      = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-                target_ds_desc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
-                p_target_ds_desc                           = &target_ds_desc;
-            }
-
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr target4 = nullptr;
-            trim_draw_calls_command_sets[graphics::dx12::kDrawCallArrayIndex].list->QueryInterface(
-                IID_PPV_ARGS(&target4));
-            auto target4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(target4.GetInterfacePtr());
-            GFXRECON_ASSERT(target4_wrapper);
-
-            target4_wrapper->BeginRenderPass(NumRenderTargets, target_rt_descs.data(), p_target_ds_desc, Flags);
-
-            // after
-            std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> after_rt_descs;
-            for (uint32_t i = 0; i < NumRenderTargets; ++i)
-            {
-                D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = pRenderTargets[i];
-                desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                after_rt_descs.emplace_back(std::move(desc));
-            }
-
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  after_ds_desc   = {};
-            D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_after_ds_desc = nullptr;
-            if (pDepthStencil)
-            {
-                after_ds_desc                             = *pDepthStencil;
-                after_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                after_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
-                p_after_ds_desc                           = &after_ds_desc;
-            }
-
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr after4 = nullptr;
-            trim_draw_calls_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list->QueryInterface(
-                IID_PPV_ARGS(&after4));
-            auto after4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(after4.GetInterfacePtr());
-            GFXRECON_ASSERT(after4_wrapper);
-
-            after4_wrapper->BeginRenderPass(NumRenderTargets, after_rt_descs.data(), p_after_ds_desc, Flags);
-        }
-        else if (trim_draw_calls_command_sets.size() == 1)
-        {
-            graphics::dx12::ID3D12GraphicsCommandList4ComPtr list4 = nullptr;
-            trim_draw_calls_command_sets[0].list->QueryInterface(IID_PPV_ARGS(&list4));
-            auto list4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(list4.GetInterfacePtr());
-            GFXRECON_ASSERT(list4_wrapper);
-
-            list4_wrapper->BeginRenderPass(NumRenderTargets, pRenderTargets, pDepthStencil, Flags);
-        }
-        IncrementCallScope();
+        TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPass(
+            wrapper, NumRenderTargets, pRenderTargets, pDepthStencil, Flags);
     }
 }
 
@@ -3402,6 +3114,298 @@ void D3D12CaptureManager::UpdateSwapChainSize(uint32_t width, uint32_t height, I
             WriteResizeWindowCmd(0, swapchain_desc.Width, swapchain_desc.Height);
         }
     }
+}
+
+void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList_Reset(HRESULT replay_result,
+                                                                        ID3D12GraphicsCommandList_Wrapper* wrapper,
+                                                                        ID3D12CommandAllocator*            pAllocator,
+                                                                        ID3D12PipelineState* pInitialState)
+{
+    DecrementCallScope();
+
+    auto trim_draw_calls_command_sets =
+        GetCommandListsForTrimDrawCalls(wrapper, format::ApiCall_ID3D12GraphicsCommandList_Reset);
+    for (auto& command_set : trim_draw_calls_command_sets)
+    {
+        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
+        GFXRECON_ASSERT(list_wrapper);
+        auto result_trim_draw_calls = list_wrapper->Reset(command_set.allocator, pInitialState);
+
+        if (replay_result != result_trim_draw_calls)
+        {
+            GFXRECON_LOG_WARNING(
+                "Splitting commandlists of ID3D12GraphicsCommandList::Reset get different results: %s and %s",
+                decode::enumutil::GetResultValueString(replay_result).c_str(),
+                decode::enumutil::GetResultValueString(result_trim_draw_calls).c_str());
+        }
+    }
+    IncrementCallScope();
+}
+
+void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList_ExecuteBundle(
+    ID3D12GraphicsCommandList_Wrapper* wrapper, ID3D12GraphicsCommandList* pCommandList)
+{
+    DecrementCallScope();
+
+    auto trim_draw_calls_command_sets =
+        GetCommandListsForTrimDrawCalls(wrapper, format::ApiCall_ID3D12GraphicsCommandList_ExecuteBundle);
+
+    if (trim_draw_calls_command_sets.size() == 3)
+    {
+        // Here is the target draw call for trim draw calls.
+        auto bunlde_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(pCommandList);
+        GFXRECON_ASSERT(bunlde_wrapper);
+
+        auto bundle_info = bunlde_wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(bundle_info);
+
+        auto cmd_info = wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(cmd_info);
+        cmd_info->target_bundle_commandlist_info = bundle_info;
+
+        uint32_t i = 0;
+        for (auto& command_set : trim_draw_calls_command_sets)
+        {
+            GFXRECON_ASSERT(bundle_info->split_command_sets[i].list);
+
+            auto list_wrapper =
+                reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(command_set.list.GetInterfacePtr());
+            GFXRECON_ASSERT(list_wrapper);
+
+            list_wrapper->ExecuteBundle(bundle_info->split_command_sets[i].list);
+            ++i;
+        }
+    }
+    else if (trim_draw_calls_command_sets.size() == 1)
+    {
+        auto list_wrapper = reinterpret_cast<ID3D12GraphicsCommandList_Wrapper*>(
+            trim_draw_calls_command_sets[0].list.GetInterfacePtr());
+        GFXRECON_ASSERT(list_wrapper);
+        list_wrapper->ExecuteBundle(pCommandList);
+    }
+    IncrementCallScope();
+}
+
+void D3D12CaptureManager::TrimDrawCalls_ID3D12GraphicsCommandList4_BeginRenderPass(
+    ID3D12GraphicsCommandList4_Wrapper*         wrapper,
+    UINT                                        NumRenderTargets,
+    const D3D12_RENDER_PASS_RENDER_TARGET_DESC* pRenderTargets,
+    const D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* pDepthStencil,
+    D3D12_RENDER_PASS_FLAGS                     Flags)
+{
+    DecrementCallScope();
+
+    auto trim_draw_calls_command_sets =
+        GetCommandListsForTrimDrawCalls(wrapper, format::ApiCall_ID3D12GraphicsCommandList4_BeginRenderPass);
+    if (trim_draw_calls_command_sets.size() == 3)
+    {
+        // before
+        std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> before_rt_descs;
+        for (uint32_t i = 0; i < NumRenderTargets; ++i)
+        {
+            D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = pRenderTargets[i];
+            desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            before_rt_descs.emplace_back(std::move(desc));
+        }
+
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  before_ds_desc   = {};
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_before_ds_desc = nullptr;
+        if (pDepthStencil)
+        {
+            before_ds_desc                          = *pDepthStencil;
+            before_ds_desc.DepthEndingAccess.Type   = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            before_ds_desc.StencilEndingAccess.Type = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            p_before_ds_desc                        = &before_ds_desc;
+        }
+
+        graphics::dx12::ID3D12GraphicsCommandList4ComPtr before4 = nullptr;
+        trim_draw_calls_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list->QueryInterface(
+            IID_PPV_ARGS(&before4));
+        auto before4_wrappr = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(before4.GetInterfacePtr());
+        GFXRECON_ASSERT(before4_wrappr);
+
+        before4_wrappr->BeginRenderPass(NumRenderTargets, before_rt_descs.data(), p_before_ds_desc, Flags);
+
+        // target
+        std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> target_rt_descs;
+        for (uint32_t i = 0; i < NumRenderTargets; ++i)
+        {
+            D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = pRenderTargets[i];
+            desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+            desc.EndingAccess.Type                    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            target_rt_descs.emplace_back(std::move(desc));
+        }
+
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  target_ds_desc   = {};
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_target_ds_desc = nullptr;
+        if (pDepthStencil)
+        {
+            target_ds_desc                             = *pDepthStencil;
+            target_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+            target_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+            target_ds_desc.DepthEndingAccess.Type      = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            target_ds_desc.StencilEndingAccess.Type    = D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+            p_target_ds_desc                           = &target_ds_desc;
+        }
+
+        graphics::dx12::ID3D12GraphicsCommandList4ComPtr target4 = nullptr;
+        trim_draw_calls_command_sets[graphics::dx12::kDrawCallArrayIndex].list->QueryInterface(IID_PPV_ARGS(&target4));
+        auto target4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(target4.GetInterfacePtr());
+        GFXRECON_ASSERT(target4_wrapper);
+
+        target4_wrapper->BeginRenderPass(NumRenderTargets, target_rt_descs.data(), p_target_ds_desc, Flags);
+
+        // after
+        std::vector<D3D12_RENDER_PASS_RENDER_TARGET_DESC> after_rt_descs;
+        for (uint32_t i = 0; i < NumRenderTargets; ++i)
+        {
+            D3D12_RENDER_PASS_RENDER_TARGET_DESC desc = pRenderTargets[i];
+            desc.BeginningAccess.Type                 = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+            after_rt_descs.emplace_back(std::move(desc));
+        }
+
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC  after_ds_desc   = {};
+        D3D12_RENDER_PASS_DEPTH_STENCIL_DESC* p_after_ds_desc = nullptr;
+        if (pDepthStencil)
+        {
+            after_ds_desc                             = *pDepthStencil;
+            after_ds_desc.DepthBeginningAccess.Type   = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+            after_ds_desc.StencilBeginningAccess.Type = D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+            p_after_ds_desc                           = &after_ds_desc;
+        }
+
+        graphics::dx12::ID3D12GraphicsCommandList4ComPtr after4 = nullptr;
+        trim_draw_calls_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list->QueryInterface(
+            IID_PPV_ARGS(&after4));
+        auto after4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(after4.GetInterfacePtr());
+        GFXRECON_ASSERT(after4_wrapper);
+
+        after4_wrapper->BeginRenderPass(NumRenderTargets, after_rt_descs.data(), p_after_ds_desc, Flags);
+    }
+    else if (trim_draw_calls_command_sets.size() == 1)
+    {
+        graphics::dx12::ID3D12GraphicsCommandList4ComPtr list4 = nullptr;
+        trim_draw_calls_command_sets[0].list->QueryInterface(IID_PPV_ARGS(&list4));
+        auto list4_wrapper = reinterpret_cast<ID3D12GraphicsCommandList4_Wrapper*>(list4.GetInterfacePtr());
+        GFXRECON_ASSERT(list4_wrapper);
+
+        list4_wrapper->BeginRenderPass(NumRenderTargets, pRenderTargets, pDepthStencil, Flags);
+    }
+    IncrementCallScope();
+}
+
+bool D3D12CaptureManager::TrimDrawCalls_ID3D12CommandQueue_ExecuteCommandLists(ID3D12CommandQueue_Wrapper* wrapper,
+                                                                               UINT                        num_lists,
+                                                                               ID3D12CommandList* const*   lists)
+{
+    auto trim_draw_calls = GetTrimDrawCalls();
+
+    // TODO: When queue_submit_count_ becomes 0-based, remove "-1".
+    if ((common_manager_->GetQueueSubmitCount() - 1) == trim_draw_calls.submit_index)
+    {
+        if (num_lists <= trim_draw_calls.command_index)
+        {
+            GFXRECON_LOG_FATAL("CAPTURE_DRAW_CALLS can't find the commandlist index(%d). It might be out of range(%d).",
+                               trim_draw_calls.command_index,
+                               num_lists);
+            GFXRECON_ASSERT(num_lists > trim_draw_calls.command_index);
+        }
+
+        auto target_cmdlist = lists[trim_draw_calls.command_index];
+        auto target_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(target_cmdlist);
+        GFXRECON_ASSERT(target_wrapper);
+
+        auto target_info = target_wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(target_info);
+
+        if (!target_info->find_target_draw_calls)
+        {
+            GFXRECON_LOG_FATAL("CAPTURE_DRAW_CALLS can't find the draw call indices(%d-%d). It might be out of range.",
+                               trim_draw_calls.draw_call_indices.first,
+                               trim_draw_calls.draw_call_indices.last);
+            GFXRECON_ASSERT(target_info->find_target_draw_calls);
+        }
+
+        if (target_info->target_bundle_commandlist_info &&
+            !target_info->target_bundle_commandlist_info->find_target_draw_calls)
+        {
+            GFXRECON_LOG_FATAL(
+                "CAPTURE_DRAW_CALLS can't find the bundle draw call indices(%d-%d). It might be out of range.",
+                trim_draw_calls.bundle_draw_call_indices.first,
+                trim_draw_calls.bundle_draw_call_indices.last);
+            GFXRECON_ASSERT(target_info->target_bundle_commandlist_info->find_target_draw_calls);
+        }
+
+        std::vector<ID3D12CommandList*> cmdlists;
+
+        // before of lists and before of splitted
+        for (uint32_t i = 0; i < trim_draw_calls.command_index; ++i)
+        {
+            cmdlists.emplace_back(lists[i]);
+        }
+
+        auto before_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kBeforeDrawCallArrayIndex].list;
+        GFXRECON_ASSERT(before_draw_call_cmd);
+        cmdlists.emplace_back(before_draw_call_cmd);
+
+        // Here has to use the wrapped queue since this ExecuteCommandLists needs to be tracked.
+        DecrementCallScope();
+        wrapper->ExecuteCommandLists(cmdlists.size(), cmdlists.data());
+        IncrementCallScope();
+
+        auto queue = reinterpret_cast<ID3D12CommandQueue*>(wrapper->GetWrappedObject());
+        graphics::dx12::WaitForQueue(queue);
+        cmdlists.clear();
+
+        // target of splitted
+        common_manager_->ActivateTrimmingDrawCalls(format::ApiFamilyId::ApiFamily_D3D12);
+
+        auto target_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kDrawCallArrayIndex].list;
+        GFXRECON_ASSERT(target_draw_call_cmd);
+        cmdlists.emplace_back(target_draw_call_cmd);
+
+        auto unwrap_memory = GetHandleUnwrapMemory();
+        queue->ExecuteCommandLists(cmdlists.size(),
+                                   UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
+
+        Encode_ID3D12CommandQueue_ExecuteCommandLists(wrapper, cmdlists.size(), cmdlists.data());
+        cmdlists.clear();
+
+        common_manager_->DeactivateTrimmingDrawCalls();
+
+        // after of splitted and after of lists
+        auto after_draw_call_cmd = target_info->split_command_sets[graphics::dx12::kAfterDrawCallArrayIndex].list;
+        GFXRECON_ASSERT(after_draw_call_cmd);
+        cmdlists.emplace_back(after_draw_call_cmd);
+
+        for (uint32_t i = (trim_draw_calls.command_index + 1); i < num_lists; ++i)
+        {
+            cmdlists.emplace_back(lists[i]);
+        }
+
+        queue->ExecuteCommandLists(cmdlists.size(),
+                                   UnwrapObjects<ID3D12CommandList>(cmdlists.data(), cmdlists.size(), unwrap_memory));
+        return true;
+    }
+    return false;
+}
+
+bool D3D12CaptureManager::HasSplitCommandLists(UINT num_lists, ID3D12CommandList* const* lists)
+{
+    for (uint32_t i = 0; i < num_lists; ++i)
+    {
+        auto cmd_wrapper = reinterpret_cast<ID3D12CommandList_Wrapper*>(lists[i]);
+        GFXRECON_ASSERT(cmd_wrapper);
+
+        auto cmd_info = cmd_wrapper->GetObjectInfo();
+        GFXRECON_ASSERT(cmd_info);
+
+        if (cmd_info->is_split_commandlist)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 // It does something similar to Dx12DumpResources::GetCommandListsForDumpResources, but a bit different.
