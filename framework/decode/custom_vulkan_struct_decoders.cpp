@@ -430,6 +430,7 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirec
     switch (wrapper->decoded_type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
             wrapper->data->pPushConstant = DecodeAllocator::Allocate<Decoded_VkIndirectCommandsPushConstantTokenEXT>();
             bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->data->pPushConstant);
             break;
