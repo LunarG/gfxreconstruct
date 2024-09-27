@@ -21,9 +21,9 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
-from dx12_base_generator import Dx12BaseGenerator
+from base_generator_defines import write
 from base_struct_handle_mappers_header_generator import BaseStructHandleMappersHeaderGenerator
+from dx12_base_generator import Dx12BaseGenerator
 
 
 class Dx12StructObjectMappersHeaderGenerator(

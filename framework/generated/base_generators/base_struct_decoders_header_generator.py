@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import re
-from base_generator import write
+from base_generator_defines import write
 
 
 class BaseStructDecodersHeaderGenerator():

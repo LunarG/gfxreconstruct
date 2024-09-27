@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
+from base_generator_defines import write
 
 
 class BaseStructHandleMappersHeaderGenerator():
@@ -179,9 +179,8 @@ class BaseStructHandleMappersHeaderGenerator():
 
         for struct in self.get_filtered_struct_names():
             if (
-                (struct in self.structs_with_handles) or
-                (struct in self.GENERIC_HANDLE_STRUCTS) or
-                (struct in self.structs_with_map_data)
+                struct in self.structs_with_handles or struct
+                in self.GENERIC_HANDLE_STRUCTS or self.is_map_struct(struct)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 body = '\n'
                 body += 'void MapStruct{}(Decoded_{}* wrapper, const {}ObjectInfoTable& object_info_table{});'.format(

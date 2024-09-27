@@ -21,9 +21,9 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, write
-from dx12_base_generator import Dx12BaseGenerator
+from base_generator_defines import write
 from base_struct_decoders_header_generator import BaseStructDecodersHeaderGenerator
+from dx12_base_generator import Dx12BaseGenerator
 from reformat_code import format_cpp_code
 
 

@@ -21,10 +21,10 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, write
-from dx12_base_generator import Dx12BaseGenerator
-from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
+from base_generator_defines import write
 from base_decoder_body_generator import BaseDecoderBodyGenerator
+from base_struct_decoders_body_generator import BaseStructDecodersBodyGenerator
+from dx12_base_generator import Dx12BaseGenerator
 
 
 class Dx12StructDecodersBodyGenerator(

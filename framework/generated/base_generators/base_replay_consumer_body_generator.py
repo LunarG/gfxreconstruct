@@ -21,7 +21,7 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-from base_generator import BaseGenerator, write
+from base_generator_defines import write
 
 
 class BaseReplayConsumerBodyGenerator():
@@ -29,7 +29,7 @@ class BaseReplayConsumerBodyGenerator():
 
     def genStruct(self, typeinfo, typename, alias):
         """Method override."""
-        BaseGenerator.genStruct(self, typeinfo, typename, alias)
+        super().genStruct(typeinfo, typename, alias)
 
         if self.process_structs and not alias:
             self.check_struct_member_handles(

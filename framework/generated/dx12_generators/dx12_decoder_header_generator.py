@@ -21,9 +21,9 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import BaseGenerator, write
-from dx12_base_generator import Dx12BaseGenerator
+from base_generator_defines import write
 from base_struct_decoders_header_generator import BaseStructDecodersHeaderGenerator
+from dx12_base_generator import Dx12BaseGenerator
 
 
 class Dx12DecoderHeaderGenerator(
@@ -52,7 +52,7 @@ class Dx12DecoderHeaderGenerator(
 
     def beginFile(self, gen_opts):
         """Method override."""
-        BaseGenerator.beginFile(self, gen_opts)
+        Dx12BaseGenerator.beginFile(self, gen_opts)
 
         self.write_include()
         write('GFXRECON_BEGIN_NAMESPACE(gfxrecon)', file=self.outFile)
@@ -171,4 +171,4 @@ class Dx12DecoderHeaderGenerator(
         write('GFXRECON_END_NAMESPACE(gfxrecon)', file=self.outFile)
 
         # Finish processing in superclass
-        BaseGenerator.endFile(self)
+        Dx12BaseGenerator.endFile(self)

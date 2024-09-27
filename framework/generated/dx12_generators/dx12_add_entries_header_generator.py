@@ -21,7 +21,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
+from base_generator_defines import write
 from dx12_base_generator import Dx12BaseGenerator
 
 

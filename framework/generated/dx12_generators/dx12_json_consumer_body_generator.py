@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import json
-from base_generator import write
+from base_generator_defines import write
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_json_consumer_header_generator import Dx12JsonConsumerHeaderGenerator, Dx12JsonConsumerHeaderGeneratorOptions
 from dx12_json_common_generator import Dx12JsonCommonGenerator

@@ -21,71 +21,51 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import os
+import re
+import shutil
 import sys
-from base_generator import BaseGenerator, BaseGeneratorOptions
-from base_generator_defines import BaseGeneratorDefines, make_re_string
+from base_generator_defines import BaseGeneratorDefines, ValueInfo, make_re_string, write
+import tempfile
+try:
+    from pathlib import Path
+except ImportError:
+    # For limited python 2 compat as used by some Vulkan consumers
+    from pathlib2 import Path  # type: ignore
+
+def noneStr(s):
+    """Return string argument, or "" if argument is None.
+
+    Used in converting etree Elements into text.
+    s - string to convert"""
+    if s:
+        return s
+    return ""
 
 
-class ValueInfo():
-    """ValueInfo - Class to store parameter/struct member information.
-    Contains information descripting Vulkan API call parameters and struct members.
-
-    Members:
-      name - Parameter/struct member name of the value.
-      base_type - Undecorated typename of the value.
-      full_type - Fully qualified typename of the value.
-      pointer_count - Number of '*' characters in the type declaration.
-      array_length - The parameter that specifies the number of elements in an array, or None if the value is not an array.
-      array_capacity - The max size of a statically allocated array, or None for a dynamically allocated array.
-      array_dimension - Number of the array dimension
-      platform_base_type - For platform specific type definitions, stores the original base_type declaration before platform to trace type substitution.
-      platform_full_type - For platform specific type definitions, stores the original full_type declaration before platform to trace type substitution.
-      bitfield_width -
-      is_pointer - True if the value is a pointer.
-      is_optional - True if the value is optional
-      is_array - True if the member is an array.
-      is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
-      is_const - True if the member is a const.
-    """
-
-    def __init__(
-        self,
-        name,
-        base_type,
-        full_type,
-        pointer_count=0,
-        array_length=None,
-        array_length_value=None,
-        array_capacity=None,
-        array_dimension=None,
-        platform_base_type=None,
-        platform_full_type=None,
-        bitfield_width=None,
-        is_const=False,
-        is_optional=False,
-        is_com_outptr=False
-    ):
-        self.name = name
-        self.base_type = base_type
-        self.full_type = full_type
-        self.pointer_count = pointer_count
-        self.array_length = array_length
-        self.array_length_value = array_length_value
-        self.array_capacity = array_capacity
-        self.array_dimension = array_dimension
-        self.platform_base_type = platform_base_type
-        self.platform_full_type = platform_full_type
-        self.bitfield_width = bitfield_width
-
-        self.is_pointer = True if pointer_count > 0 else False
-        self.is_optional = is_optional
-        self.is_array = True if array_length else False
-        self.is_dynamic = True if not array_capacity else False
-        self.is_const = is_const
-        self.is_com_outptr = is_com_outptr
+def enquote(s):
+    """Return string argument with surrounding quotes,
+    for serialization into Python code."""
+    if s:
+        if isinstance(s, str):
+            return f"'{s}'"
+        else:
+            return s
+    return None
 
 
-class Dx12GeneratorOptions(BaseGeneratorOptions):
+class MissingGeneratorOptionsError(RuntimeError):
+    """Error raised when a Generator tries to do something that requires GeneratorOptions but it is None."""
+
+    def __init__(self, msg=None):
+        full_msg = 'Missing generator options object self.genOpts'
+        if msg:
+            full_msg += f": {msg}"
+        super().__init__(full_msg)
+
+
+
+class Dx12GeneratorOptions():
     """Options for generating C++ function declarations for Dx12 API."""
 
     def __init__(
@@ -98,13 +78,31 @@ class Dx12GeneratorOptions(BaseGeneratorOptions):
         protect_file=False,
         protect_feature=True
     ):
-        BaseGeneratorOptions.__init__(
-            self, blacklists, platform_types, filename, directory, prefix_text,
-            protect_file, protect_feature
-        )
+        self.blacklists = blacklists
+        self.platform_types = platform_types
+        self.filename = filename
+        self.directory = directory
+        self.prefix_text = prefix_text
+        self.protect_file = protect_file
+        self.protect_feature = protect_feature
+        self.apicall = ''
+        self.apientry = ''
+        self.apientryp = ''
+        self.indent_func_proto = ''
+        self.align_func_param = ''
+        self.code_generator = True
+        self.conventions = None
+        self.apiname='Dx12',
+        self.profile=None,
+        self.versions=None,
+        self.emitversions=None,
+        self.default_extensions=None,
+        self.add_extensions=None,
+        self.remove_extensions=None,
+        self.emit_extensions=None,
 
 
-class Dx12BaseGenerator(BaseGenerator, BaseGeneratorDefines):
+class Dx12BaseGenerator(BaseGeneratorDefines):
 
     NO_STRUCT_BREAKDOWN = [
         'LARGE_INTEGER',
@@ -237,20 +235,39 @@ class Dx12BaseGenerator(BaseGenerator, BaseGeneratorDefines):
         diag_file=sys.stdout,
         feature_break=True
     ):
-        BaseGenerator.__init__(
-            self,
-            process_cmds=True,
-            process_structs=True,
-            feature_break=feature_break,
-            err_file=err_file,
-            warn_file=warn_file,
-            diag_file=diag_file
-        )
+        self.outFile = None
+        self.errFile = err_file
+        self.warnFile = warn_file
+        self.diagFile = diag_file
+        # Internal state
+        self.featureName = None
+        """The current feature name being generated."""
+
+        self.genOpts = None
+        """The GeneratorOptions subclass instance."""
+
+        self.registry = None
+        """The specification registry object."""
+
+        self.featureDictionary = {}
+        """The dictionary of dictionaries of API features."""
+
+        # Used for extension enum value generation
+        self.extBase = 1000000000
+        self.extBlockSize = 1000
+        self.madeDirs = {}
+
+        # API dictionary, which may be loaded by the beginFile method of
+        # derived generators.
+        self.apidict = None
+
         BaseGeneratorDefines.__init__(self)
         self.source_dict = source_dict
         self.dx12_prefix_strings = dx12_prefix_strings
         self.feature_method_params = dict()
         self.check_blacklist = False
+
+        self.structs_with_map_data = dict()
 
         self.MAP_STRUCT_TYPE = {
             'D3D12_GPU_DESCRIPTOR_HANDLE': [
@@ -451,6 +468,84 @@ class Dx12BaseGenerator(BaseGenerator, BaseGeneratorDefines):
             is_com_outptr=self.is_com_outptr(struct_name, name, full_type)
         )
 
+    def make_decoded_param_type(self, value):
+        """Method override."""
+        return BaseGeneratorDefines.make_decoded_param_type(self, value, False)
+
+    def beginFile(self, gen_opts):
+        """Method override."""
+        self.genOpts = gen_opts
+
+        # Open a temporary file for accumulating output.
+        if self.genOpts.filename is not None:
+            self.outFile = tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', newline='\n', delete=False)
+        else:
+            self.outFile = sys.stdout
+
+        BaseGeneratorDefines.beginFile(self, gen_opts)
+
+        # User-supplied prefix text, if any (list of strings)
+        if (gen_opts.prefix_text):
+            for s in gen_opts.prefix_text:
+                write(s, file=self.outFile)
+
+        # Multiple inclusion protection & C++ wrappers.
+        if (gen_opts.protect_file and self.genOpts.filename):
+            header_sym = 'GFXRECON_' + os.path.basename(
+                self.genOpts.filename
+            ).replace('.h', '_H').upper()
+            write('#ifndef ', header_sym, file=self.outFile)
+            write('#define ', header_sym, file=self.outFile)
+            self.newline()
+
+    def endFile(self):
+        """Method override."""
+        # Finish C++ wrapper and multiple inclusion protection
+        if (self.genOpts.protect_file and self.genOpts.filename):
+            self.newline()
+            write('#endif', file=self.outFile)
+
+        if self.errFile:
+            self.errFile.flush()
+        if self.warnFile:
+            self.warnFile.flush()
+        if self.diagFile:
+            self.diagFile.flush()
+        if self.outFile:
+            self.outFile.flush()
+            if self.outFile != sys.stdout and self.outFile != sys.stderr:
+                self.outFile.close()
+
+            if self.genOpts is None:
+                raise MissingGeneratorOptionsError()
+
+            # On successfully generating output, move the temporary file to the
+            # target file.
+            if self.genOpts.filename is not None:
+                directory = Path(self.genOpts.directory)
+                if sys.platform == 'win32':
+                    if not Path.exists(directory):
+                        os.makedirs(directory)
+                shutil.copy(self.outFile.name, directory / self.genOpts.filename)
+                os.remove(self.outFile.name)
+        self.genOpts = None
+
+    def beginFeature(self, interface, emit):
+        """Write interface for a feature and tag generated features as having been done.
+
+        - interface - element for the `<version>` / `<extension>` to generate
+        - emit - actually write to the header only when True"""
+        self.emit = emit
+        self.featureName = None
+        self.featureExtraProtect = None
+
+    def endFeature(self):
+        """Finish an interface file, closing it when done.
+
+        Derived classes responsible for emitting feature"""
+        self.featureName = None
+        self.featureExtraProtect = None
+
     def get_api_prefix(self):
         return 'Dx12'
 
@@ -597,9 +692,8 @@ class Dx12BaseGenerator(BaseGenerator, BaseGeneratorDefines):
                     ) and (union_info.base_type in structs_with_handles):
                         handles.append(value)
                         has_handle_pointer = True
-                    elif union_info.base_type in self.MAP_STRUCT_TYPE:
-                        if (structs_with_map_data is not None):
-                            map_data.append(value)
+                    elif (union_info.base_type in self.MAP_STRUCT_TYPE and (structs_with_map_data is not None)):
+                        map_data.append(value)
             elif ('pNext' in value.name) and (not self.is_dx12_class()):
                 # The pNext chain may include a struct with handles.
                 has_pnext_handles, has_pnext_handle_ptrs = self.check_struct_pnext_handles(
@@ -854,7 +948,6 @@ class Dx12BaseGenerator(BaseGenerator, BaseGeneratorDefines):
     def make_invocation_type_name(self, base_type):
         """Method override."""
         type = self.convert_function(base_type)
-        type = BaseGenerator.make_invocation_type_name(self, type)
         if type == 'Function':
             type = 'FunctionPtr'
         else:
@@ -923,3 +1016,7 @@ class Dx12BaseGenerator(BaseGenerator, BaseGeneratorDefines):
         if value.full_type.find('_Out') != -1:
             return True
         return False
+
+    def newline(self):
+        """Print a newline to the output file (utility function)"""
+        write('', file=self.outFile)

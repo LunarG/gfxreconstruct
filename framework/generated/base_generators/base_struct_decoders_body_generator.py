@@ -23,7 +23,7 @@
 
 import re
 import sys
-from base_generator import write
+from base_generator_defines import write
 from copy import deepcopy
 
 
@@ -183,6 +183,8 @@ class BaseStructDecodersBodyGenerator():
                             buffer_args
                         )
                     else:
+                        if self.is_enum(type_name):
+                            type_name = 'Enum'
                         main_body += '    bytes_read += wrapper->{}.Decode{}({});\n'.format(
                             value.name, type_name, buffer_args
                         )
@@ -311,6 +313,8 @@ class BaseStructDecodersBodyGenerator():
                         buffer_args, value.name
                     )
             else:
+                if self.is_enum(type_name):
+                    type_name = 'Enum'
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &(value->{}));\n'.format(
                     type_name, buffer_args, value.name
                 )

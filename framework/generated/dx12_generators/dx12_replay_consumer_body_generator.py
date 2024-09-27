@@ -23,10 +23,10 @@
 import json
 import sys
 import re
-from base_generator import write
+from base_generator_defines import write
+from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
 from dx12_base_generator import Dx12BaseGenerator, Dx12GeneratorOptions
 from dx12_replay_consumer_header_generator import Dx12ReplayConsumerHeaderGenerator, Dx12ReplayConsumerHeaderGeneratorOptions
-from base_replay_consumer_body_generator import BaseReplayConsumerBodyGenerator
 
 
 class Dx12ReplayConsumerBodyGeneratorOptions(

@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import re
-from base_generator import ValueInfo, write
+from base_generator_defines import BaseGeneratorDefines, ValueInfo, make_re_string, write
 from copy import deepcopy
 
 
@@ -82,9 +82,9 @@ class BaseDecoderBodyGenerator():
                 for child in self.base_header_structs[value.base_type]:
                     new_value = deepcopy(value)
                     new_value.base_type = child
-                    decode_type = self.make_decoded_param_type(new_value)
+                    child_decode_type = self.make_decoded_param_type(new_value)
                     main_body += '    {} {};\n'.format(
-                        decode_type, self.make_simple_var_name(child)
+                        child_decode_type, self.make_simple_var_name(child)
                     )
             else:
                 decode_type = self.make_decoded_param_type(value)
@@ -298,6 +298,8 @@ class BaseDecoderBodyGenerator():
                     )
 
                 else:
+                    if self.is_enum(type_name):
+                        type_name = 'Enum'
                     main_body += '    bytes_read += {}.Decode{}({});\n'.format(
                         value.name, type_name, buffer_args
                     )
@@ -320,6 +322,8 @@ class BaseDecoderBodyGenerator():
                     self.encode_types[base_type], buffer_args, value.name
                 )
             else:
+                if self.is_enum(type_name):
+                    type_name = 'Enum'
                 main_body += '    bytes_read += ValueDecoder::Decode{}Value({}, &{});\n'.format(
                     type_name, buffer_args, value.name
                 )

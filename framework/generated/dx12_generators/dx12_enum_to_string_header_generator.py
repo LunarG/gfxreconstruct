@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys, inspect
-from base_generator import write
+from base_generator_defines import write
 from dx12_base_generator import Dx12BaseGenerator
 from reformat_code import format_cpp_code
 

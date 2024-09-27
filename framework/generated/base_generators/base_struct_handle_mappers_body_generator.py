@@ -22,7 +22,7 @@
 # IN THE SOFTWARE.
 
 import sys
-from base_generator import write
+from base_generator_defines import write
 
 
 class BaseStructHandleMappersBodyGenerator():
@@ -156,13 +156,9 @@ class BaseStructHandleMappersBodyGenerator():
             map_table = ', const graphics::Dx12GpuVaMap& gpu_va_map'
 
         for struct in struct_list:
-
             if (
-                (struct in self.structs_with_handles) or
-                (struct in self.GENERIC_HANDLE_STRUCTS) or (
-                    self.is_dx12_class()
-                    and struct in self.structs_with_map_data
-                )
+                struct in self.structs_with_handles or struct
+                in self.GENERIC_HANDLE_STRUCTS or self.is_map_struct(struct)
             ) and (struct not in self.STRUCT_MAPPERS_BLACKLIST):
                 handle_members = list()
                 generic_handle_members = dict()
@@ -170,8 +166,7 @@ class BaseStructHandleMappersBodyGenerator():
                 if struct in self.structs_with_handles:
                     handle_members = self.structs_with_handles[struct].copy()
 
-                if self.is_dx12_class(
-                ) and struct in self.structs_with_map_data:
+                if self.is_map_struct(struct):
                     handle_members.extend(
                         self.structs_with_map_data[struct].copy()
                     )

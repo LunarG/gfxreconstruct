@@ -42,7 +42,7 @@ import os
 import re
 import sys
 import json
-from base_generator_defines import BaseGeneratorDefines, bits_enum_to_flags_typedef, make_re_string
+from base_generator_defines import BaseGeneratorDefines, ValueInfo, bits_enum_to_flags_typedef, make_re_string
 from collections import OrderedDict
 from generator import GeneratorOptions, OutputGenerator, noneStr, regSortFeatures, write
 from xrconventions import OpenXRConventions
@@ -71,62 +71,6 @@ _add_extensions_pat = make_re_string(_extensions)
 _remove_extensions_pat = make_re_string(_remove_extensions)
 _emit_extensions_pat = make_re_string(_emit_extensions, '.*')
 _features_pat = make_re_string(_features, '.*')
-
-
-class ValueInfo():
-    """ValueInfo - Class to store parameter/struct member information.
-    Contains information descripting OpenXR API call parameters and struct members.
-
-    Members:
-      name - Parameter/struct member name of the value.
-      base_type - Undecorated typename of the value.
-      full_type - Fully qualified typename of the value.
-      pointer_count - Number of '*' characters in the type declaration.
-      array_length - The parameter that specifies the number of elements in an array, or None if the value is not an array.
-      array_capacity - The max size of a statically allocated array, or None for a dynamically allocated array.
-      array_dimension - Number of the array dimension
-      platform_base_type - For platform specific type definitions, stores the original base_type declaration before platform to trace type substitution.
-      platform_full_type - For platform specific type definitions, stores the original full_type declaration before platform to trace type substitution.
-      is_pointer - True if the value is a pointer.
-      is_optional - True if the value is optional
-      is_array - True if the member is an array.
-      is_dynamic - True if the memory for the member is an array and it is dynamically allocated.
-      is_const - True if the member is a const.
-    """
-
-    def __init__(
-        self,
-        name,
-        base_type,
-        full_type,
-        pointer_count=0,
-        array_length=None,
-        array_length_value=None,
-        array_capacity=None,
-        array_dimension=None,
-        platform_base_type=None,
-        platform_full_type=None,
-        bitfield_width=None,
-        is_const=False,
-        is_optional=False
-    ):
-        self.name = name
-        self.base_type = base_type
-        self.full_type = full_type
-        self.pointer_count = pointer_count
-        self.array_length = array_length
-        self.array_length_value = array_length_value
-        self.array_capacity = array_capacity
-        self.array_dimension = array_dimension
-        self.platform_base_type = platform_base_type
-        self.platform_full_type = platform_full_type
-        self.bitfield_width = bitfield_width
-
-        self.is_pointer = True if pointer_count > 0 else False
-        self.is_optional = is_optional
-        self.is_array = True if array_length else False
-        self.is_dynamic = True if not array_capacity else False
-        self.is_const = is_const
 
 
 class BaseGeneratorOptions(GeneratorOptions):
@@ -268,16 +212,6 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
             )  # Map of extension struct names to a Boolean value indicating that a struct member has a handle type
             self.extension_structs_with_handle_ptrs = OrderedDict(
             )  # Map of extension struct names to a Boolean value indicating that a struct member with a handle type is a pointer]
-
-    def need_feature_generation(self):
-        """Indicates that the current feature has C++ code to generate.
-        The subclass should override this method."""
-        return False
-
-    def generate_feature(self):
-        """Performs C++ code generation for the feature.
-        The subclass should override this method."""
-        BaseGeneratorDefines.generate_feature(self)
 
     def beginFile(self, gen_opts):
         """Method override."""
@@ -646,32 +580,17 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
 
         return values
 
-    def is_struct(self, base_type):
-        """Check for struct type."""
-        if (
-            (base_type in self.all_structs)
-            or (base_type in self.PLATFORM_STRUCTS)
-        ):
-            return True
-        return False
-
-    def is_class(self, value):
-        return False
-
     def is_handle(self, base_type):
-        """Check for handle type."""
+        """Check for handle type.  The subclass may override this method."""
         if base_type in self.handle_names and self.is_valid_handle(base_type):
             return True
         return False
 
     def is_dispatchable_handle(self, base_type):
-        """Check for handle type."""
+        """Check for dispatchable type.  The subclass may override this method."""
         if base_type in self.dispatchable_handle_names:
             return True
         return False
-
-    def is_valid_handle(self, base_type):
-        return True
 
     def is_atom(self, base_type):
         if base_type in self.atom_names:
@@ -680,14 +599,6 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
 
     def is_opaque(self, base_type):
         if base_type in self.opaque_names:
-            return True
-        return False
-
-    def is_handle_like(self, base_type):
-        """Check for handle type."""
-        if self.is_handle(base_type) or self.is_atom(
-            base_type
-        ) or self.is_opaque(base_type):
             return True
         return False
 
@@ -714,49 +625,6 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
             return default_type
         elif self.is_opaque(base_type):
             return '0'
-
-    def has_basetype(self, base_type):
-        if base_type in self.base_types and self.base_types[base_type
-                                                            ] is not None:
-            return True
-        return False
-
-    def get_basetype(self, base_type):
-        return self.base_types[base_type]
-
-    def is_enum(self, base_type):
-        """Check for enum type."""
-        if base_type in self.enum_names:
-            return True
-        return False
-
-    def is_union(self, value):
-        if value in self.all_unions:
-            return True
-        return False
-
-    def get_union_members(self, type):
-        if type in self.all_unions:
-            return self.all_union_members[type]
-        return None
-
-    def is_flags(self, base_type):
-        """Check for flags (bitmask) type."""
-        if base_type in self.flags_types:
-            return True
-        return False
-
-    def is_bittype(self, base_type):
-        """Check for bittype (for flags) type."""
-        if base_type in self.bitfields_names:
-            return True
-        return False
-
-    def is_function_ptr(self, base_type):
-        """Check for function pointer type."""
-        if (base_type[:4] == 'PFN_') or (base_type[-4:] == 'Func'):
-            return True
-        return False
 
     def is_array_len(self, name, values):
         """Determine if the value name specifies an array length."""
@@ -847,10 +715,6 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
 
         # Not all static arrays have an associated length parameter. These will use capacity as length.
         return capacity
-
-    def clean_type_define(self, full_type):
-        """Default to identity function, base classes may override."""
-        return full_type
 
     def check_struct_next_handles(self, typename):
         """Determines if the specified struct type can reference next extension structs that contain handles."""
@@ -974,307 +838,6 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
             return True
         return False
 
-    def get_generic_struct_handle_type_value(self, struct_name, member_name):
-        """For a struct member that contains a generic handle value, retrieve the struct member
-        containing an enum value defining the specific handle type.  Generic handles have an
-        integer type such as uint64_t, with an associated enum value defining the specific
-        type such as XrObjectType.
-        """
-        if struct_name in self.GENERIC_HANDLE_STRUCTS:
-            struct_entry = self.GENERIC_HANDLE_STRUCTS[struct_name]
-            if member_name in struct_entry:
-                return struct_entry[member_name]
-        return None
-
-    def get_generic_cmd_handle_type_value(self, cmd_name, param_name):
-        """For an API call parameter that contains a generic handle value, retrieve the parameter
-        containing an enum value defining the specific handle type.  Generic handles have an
-        integer type such as uint64_t, with an associated enum value defining the specific
-        type such as XrObjectType.
-        """
-        if cmd_name in self.GENERIC_HANDLE_APICALLS:
-            cmd_entry = self.GENERIC_HANDLE_APICALLS[cmd_name]
-            if param_name in cmd_entry:
-                return cmd_entry[param_name]
-        return None
-
-    def is_generic_struct_handle_value(self, struct_name, member_name):
-        """Determine if a struct member contains a generic handle value.  Generic handles have an
-        integer type such as uint64_t, with an associated enum value defining the specific
-        type such as XrObjectType.
-        """
-        if self.get_generic_struct_handle_type_value(struct_name, member_name):
-            return True
-        return False
-
-    def is_generic_cmd_handle_value(self, cmd_name, param_name):
-        """Determine if an API call parameter contains a generic handle value.  Generic handles have an
-        integer type such as uint64_t, with an associated enum value defining the specific
-        type such as XrObjectType.
-        """
-        if self.get_generic_cmd_handle_type_value(cmd_name, param_name):
-            return True
-        return False
-
-    def indent(self, value, spaces):
-        """Indent all lines in a string.
-        value - String to indent.
-        spaces - Number of spaces to indent.
-        """
-        prefix = ' ' * spaces
-        return '\n'.join([prefix + v if v else v for v in value.split('\n')])
-
-    def make_unique_list(self, in_list):
-        """Return a copy of in_list with duplicates removed, preserving order."""
-        out_list = []
-        for value in in_list:
-            if value not in out_list:
-                out_list.append(value)
-        return out_list
-
-    def make_arg_list(self, values):
-        """Create a string containing a comma separated argument list from a list of ValueInfo values.
-        values - List of ValueInfo objects providing the parameter names for the argument list.
-        """
-        return ', '.join([value.name for value in values])
-
-    def make_aligned_param_decl(
-        self, param_type, param_name, indent_column, align_column
-    ):
-        """make_aligned_param_decl - return an indented parameter declaration string with the parameter
-        name aligned to the specified column.
-        """
-        param_decl = ' ' * indent_column
-        param_decl += param_type
-
-        if align_column:
-            param_decl = param_decl.ljust(align_column - 1)
-
-        param_decl += ' '
-        param_decl += param_name
-
-        return param_decl
-
-    def make_invocation_type_name(self, base_type):
-        """Convert a type name to a string to be used as part of an encoder/decoder function/method name."""
-        if self.is_struct(base_type):
-            return base_type
-        elif self.is_handle_like(base_type):
-            type_name = self.get_prefix_from_type(base_type)
-            type_name += 'Handle'
-            return type_name
-        elif self.is_flags(base_type):
-            # Strip 'Xr' from base flag type
-            return self.flags_types[base_type][2:]
-        elif self.is_enum(base_type):
-            return 'Enum'
-        elif base_type == 'wchar_t':
-            return 'WString'
-        elif base_type == 'char':
-            return 'String'
-        elif self.is_function_ptr(base_type):
-            return 'FunctionPtr'
-        elif base_type == 'size_t':
-            return 'SizeT'
-        elif base_type == 'int':
-            # Extensions use the int type when dealing with file descriptors
-            return 'Int32'
-        elif base_type.endswith('_t'):
-            if base_type[0] == 'u':
-                # For unsigned types, capitalize the first two characters.
-                return base_type[0].upper() + base_type[1].upper(
-                ) + base_type[2:-2]
-            else:
-                return base_type[:-2].title()
-        elif base_type[0].islower():
-            return base_type.title()
-
-        return base_type
-
-    def make_decoded_param_type(self, value):
-        """Create a type to use for a decoded parameter, using the decoder wrapper types for pointers."""
-        type_name = value.base_type
-
-        if self.process_structs and (
-            self.is_struct(type_name) and type_name in self.all_struct_aliases
-        ):
-            type_name = self.all_struct_aliases[type_name]
-
-        # is_pointer will be False for static arrays.
-        if value.is_pointer or value.is_array:
-            count = value.pointer_count
-
-            if self.is_struct(type_name):
-                if count > 1:
-                    type_name = 'StructPointerDecoder<Decoded_{}*>'.format(
-                        type_name
-                    )
-                else:
-                    type_name = 'StructPointerDecoder<Decoded_{}>'.format(
-                        type_name
-                    )
-            elif self.is_class(value):
-                if count == 1:
-                    type_name = 'format::HandleId'
-                else:
-                    type_name = 'HandlePointerDecoder<{}*>'.format(type_name)
-            elif type_name == 'wchar_t':
-                if count > 1:
-                    type_name = 'WStringArrayDecoder'
-                else:
-                    type_name = 'WStringDecoder'
-            elif type_name == 'char':
-                if count > 1:
-                    type_name = 'StringArrayDecoder'
-                else:
-                    type_name = 'StringDecoder'
-            elif type_name == 'void':
-                if value.is_array:
-                    # If this was an array (void*) it was encoded as an array of bytes.
-                    type_name = 'PointerDecoder<uint8_t>'
-                elif count > 1:
-                    # If this was a pointer to a pointer to an unknown object (void**), it was encoded as a pointer to a 64-bit address value.
-                    # So, we specify uint64_t as the decode type and void* as the type to be used for OpenXR API call output parameters.
-                    type_name = 'PointerDecoder<uint64_t, void*>'
-                else:
-                    # If this was a pointer to an unknown object (void*), it was encoded as a 64-bit address value.
-                    type_name = 'uint64_t'
-            elif self.is_handle_like(type_name):
-                type_name = 'HandlePointerDecoder<{}>'.format(type_name)
-            else:
-                if count > 1:
-                    type_name = 'PointerDecoder<{}*>'.format(type_name)
-                else:
-                    type_name = 'PointerDecoder<{}>'.format(type_name)
-        elif self.is_function_ptr(type_name):
-            # Function pointers are encoded as a 64-bit address value.
-            type_name = 'uint64_t'
-        elif self.is_struct(type_name):
-            type_name = 'Decoded_{}'.format(type_name)
-        elif self.is_handle_like(type_name):
-            type_name = 'format::HandleId'
-        else:
-            type_name = '{}'.format(type_name)
-
-        return type_name
-
-    def make_consumer_func_decl(self, return_type, name, values):
-        """make_consumer_decl - return Dx12Consumer class member function declaration.
-        Generate Dx12Consumer class member function declaration.
-        """
-        param_decls = []
-        param_decl = self.make_aligned_param_decl(
-            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
-            self.genOpts.align_func_param
-        )
-        param_decls.append(param_decl)
-
-        if return_type != 'void':
-            param_decl = self.make_aligned_param_decl(
-                return_type, 'returnValue', self.INDENT_SIZE,
-                self.genOpts.align_func_param
-            )
-            param_decls.append(param_decl)
-
-        for value in values:
-            param_type = self.make_decoded_param_type(value)
-
-            if 'Decoder' in param_type:
-                param_type = '{}*'.format(param_type)
-
-            param_decl = self.make_aligned_param_decl(
-                param_type, value.name, self.INDENT_SIZE,
-                self.genOpts.align_func_param
-            )
-            param_decls.append(param_decl)
-
-        if param_decls:
-            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
-
-        return 'void {}()'.format(name)
-
-    def make_dump_resources_func_decl(
-        self, return_type, name, values, is_override
-    ):
-        """make_consumer_decl - return OpenXrConsumer class member function declaration.
-        Generate OpenXrConsumer class member function declaration.
-        """
-        param_decls = []
-        param_decl = self.make_aligned_param_decl(
-            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
-            self.genOpts.align_func_param
-        )
-        param_decls.append(param_decl)
-
-        param_decl = self.make_aligned_param_decl(
-            'PFN_' + name.rsplit('_', 1)[1], 'func', self.INDENT_SIZE,
-            self.genOpts.align_func_param
-        )
-        param_decls.append(param_decl)
-
-        if return_type != 'void':
-            param_decl = self.make_aligned_param_decl(
-                return_type, 'returnValue', self.INDENT_SIZE,
-                self.genOpts.align_func_param
-            )
-            param_decls.append(param_decl)
-
-        for value in values:
-            type_name = value.base_type
-            if self.process_structs and (
-                self.is_struct(type_name)
-                and type_name in self.all_struct_aliases
-            ):
-                type_name = self.all_struct_aliases[type_name]
-
-            if is_override:
-                prefix_from_type = self.get_prefix_from_type(value.base_type)
-                info_type = prefix_from_type + value.base_type[2:] + 'Info'
-                if value.is_pointer or value.is_array:
-                    count = value.pointer_count
-
-                    if self.is_struct(type_name):
-                        param_type = 'StructPointerDecoder<Decoded_{}>*'.format(
-                            type_name
-                        )
-                    elif self.is_class(value):
-                        if count == 1:
-                            param_type = info_type + '*'
-                        else:
-                            param_type = 'HandlePointerDecoder<{}*>'.format(
-                                type_name
-                            )
-                    elif self.is_handle_like(type_name):
-                        param_type = 'HandlePointerDecoder<{}>*'.format(
-                            type_name
-                        )
-                    else:
-                        param_type = 'const ' + type_name + '*'
-                else:
-                    if self.is_handle_like(type_name):
-                        param_type = "const " + info_type + '*'
-                    else:
-                        param_type = type_name
-            else:
-                if value.is_pointer or value.is_array:
-                    count = value.pointer_count
-                    param_type = 'const ' + type_name + '*'
-                    if count > 1:
-                        param_type += ' const *' * (count - 1)
-                else:
-                    param_type = type_name
-
-            param_decl = self.make_aligned_param_decl(
-                param_type, value.name, self.INDENT_SIZE,
-                self.genOpts.align_func_param
-            )
-            param_decls.append(param_decl)
-
-        if param_decls:
-            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
-
-        return 'void {}()'.format(name)
-
     def make_structure_type_enum(self, typeinfo, typename):
         """Generate the XrStructureType enumeration value for the specified structure type."""
         members = typeinfo.elem.findall('.//member')
@@ -1317,40 +880,6 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
             )
         return length_expr
 
-    def make_array2d_length_expression(self, value, values, prefix=''):
-        length_exprs = value.array_length.split(',')
-        if len(length_exprs) == value.pointer_count:
-            # All dimensions are provided in the xml
-            lengths = []
-            for length_expr in length_exprs:
-                # Prefix members
-                for v in values:
-                    length_expr = re.sub(
-                        r'\b({})\b'.format(v.name), r'{}\1'.format(prefix),
-                        length_expr
-                    )
-                lengths.append(length_expr)
-            return lengths
-        else:
-            if value.base_type in self.base_header_structs.keys():
-                lengths = []
-                for length_expr in length_exprs:
-                    for v in values:
-                        length_expr = re.sub(
-                            r'\b({})\b'.format(v.name), r'{}\1'.format(prefix),
-                            length_expr
-                        )
-                    lengths.append(length_expr)
-                lengths.append('1')
-                return lengths
-            else:
-                # XML does not provide lengths for all dimensions, instantiate a specialization of ArraySize2D to fetch the sizes
-                type_list = ', '.join(
-                    [self.clean_type_define(v.full_type) for v in values]
-                )
-                arg_list = ', '.join([v.name for v in values])
-                return ['ArraySize2D<{}>({})'.format(type_list, arg_list)]
-
     def get_api_prefix(self):
         platform_type = 'Vulkan'
         if self.is_dx12_class():
@@ -1383,6 +912,41 @@ class BaseGenerator(BaseGeneratorDefines, OutputGenerator):
             return 'openxr_wrappers'
         else:
             return 'UNKNOWN_WRAPPERS'
+
+    def make_consumer_func_decl(self, return_type, name, values):
+        """make_consumer_decl - return VulkanConsumer class member function declaration.
+        Generate VulkanConsumer class member function declaration.
+        """
+        param_decls = []
+        param_decl = self.make_aligned_param_decl(
+            'const ApiCallInfo&', 'call_info', self.INDENT_SIZE,
+            self.genOpts.align_func_param
+        )
+        param_decls.append(param_decl)
+
+        if return_type != 'void':
+            param_decl = self.make_aligned_param_decl(
+                return_type, 'returnValue', self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        for value in values:
+            param_type = self.make_decoded_param_type(value)
+
+            if 'Decoder' in param_type:
+                param_type = '{}*'.format(param_type)
+
+            param_decl = self.make_aligned_param_decl(
+                param_type, value.name, self.INDENT_SIZE,
+                self.genOpts.align_func_param
+            )
+            param_decls.append(param_decl)
+
+        if param_decls:
+            return 'void {}(\n{})'.format(name, ',\n'.join(param_decls))
+
+        return 'void {}()'.format(name)
 
     def make_encoder_method_call(
         self, name, value, values, prefix, omit_output_param=None
