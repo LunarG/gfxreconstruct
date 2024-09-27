@@ -703,7 +703,7 @@ void OpenXrReplayConsumerBase::Process_xrPollEvent(const ApiCallInfo&           
     XrResult replay_result;
 
     // WIP: Put this constant somewhere interesting
-    const uint32_t kRetryLimit      = 10000;
+    const uint32_t kRetryLimit      = 10;
     const int64_t  kMaxSleepLimitNs = 500000000; // 500ms
     uint32_t       retry_count      = 0;
 
