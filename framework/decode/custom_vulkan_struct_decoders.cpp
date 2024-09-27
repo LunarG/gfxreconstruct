@@ -386,29 +386,30 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_SECURITY_
     return bytes_read;
 }
 
-size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirectExecutionSetCreateInfoEXT* wrapper)
-{
-    assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
+    size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirectExecutionSetCreateInfoEXT* wrapper)
+    {
+        assert((wrapper != nullptr) && (wrapper->decoded_value != nullptr));
 
-    size_t                                  bytes_read = 0;
-    VkIndirectExecutionSetCreateInfoEXT* value      = wrapper->decoded_value;
+        size_t                                  bytes_read = 0;
+        VkIndirectExecutionSetCreateInfoEXT* value      = wrapper->decoded_value;
 
-    bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->pNext);
-    bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->decoded_type);
+        bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &(value->sType));
+        bytes_read += DecodePNextStruct((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->pNext);
+        bytes_read += ValueDecoder::DecodeEnumValue((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->decoded_type);
 
-    switch (wrapper->decoded_type) {
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
-            wrapper->info->pPipelineInfo = DecodeAllocator::Allocate<Decoded_VkIndirectExecutionSetPipelineInfoEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->info->pPipelineInfo);
-            break;
-        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
-            wrapper->info->pShaderInfo = DecodeAllocator::Allocate<Decoded_VkIndirectExecutionSetShaderInfoEXT>();
-            bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->info->pPipelineInfo);
-            break;
+        switch (wrapper->decoded_type) {
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+                wrapper->info->pPipelineInfo = DecodeAllocator::Allocate<Decoded_VkIndirectExecutionSetPipelineInfoEXT>();
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->info->pPipelineInfo);
+                break;
+            case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+                wrapper->info->pShaderInfo = DecodeAllocator::Allocate<Decoded_VkIndirectExecutionSetShaderInfoEXT>();
+                bytes_read += DecodeStruct((buffer + bytes_read), (buffer_size - bytes_read), wrapper->info->pPipelineInfo);
+                break;
+        }
+
+        return bytes_read;
     }
-
-    return bytes_read;
-}
 
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
