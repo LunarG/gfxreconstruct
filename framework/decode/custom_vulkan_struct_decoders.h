@@ -200,21 +200,23 @@ struct Decoded_SECURITY_ATTRIBUTES
 // This union wrapper does not have a DecodeStruct function.  It is decoded by the
 // Decoded_VkIndirectExecutionSetCreateInfoEXT DecodeStruct function, based on the value of
 // VkIndirectExecutionSetCreateInfoEXT::type.
-struct Decoded_VkIndirectExecutionSetInfoEXT {
+struct Decoded_VkIndirectExecutionSetInfoEXT
+{
     using struct_type = VkIndirectExecutionSetEXT;
 
     Decoded_VkIndirectExecutionSetPipelineInfoEXT* pPipelineInfo;
-    Decoded_VkIndirectExecutionSetShaderInfoEXT*   pShaderInfo;    
+    Decoded_VkIndirectExecutionSetShaderInfoEXT*   pShaderInfo;
 };
 
-struct Decoded_VkIndirectExecutionSetCreateInfoEXT {
+struct Decoded_VkIndirectExecutionSetCreateInfoEXT
+{
     using struct_type = VkIndirectExecutionSetCreateInfoEXT;
 
     VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
 
-    PNextNode*                                      pNext{ nullptr };
-    VkIndirectExecutionSetInfoTypeEXT               decoded_type;
-    Decoded_VkIndirectExecutionSetInfoEXT*          info;
+    PNextNode*                             pNext{ nullptr };
+    VkIndirectExecutionSetInfoTypeEXT      decoded_type;
+    Decoded_VkIndirectExecutionSetInfoEXT* info;
 };
 
 struct Decoded_VkIndirectCommandsTokenDataEXT
