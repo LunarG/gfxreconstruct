@@ -1317,7 +1317,7 @@ void UnwrapStructHandles(VkGeneratedCommandsMemoryRequirementsInfoEXT* value, Ha
     {
         if (value->pNext != nullptr)
         {
-            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);
+            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));
         }
     }
 }

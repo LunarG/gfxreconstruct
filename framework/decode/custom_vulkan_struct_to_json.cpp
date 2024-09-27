@@ -418,17 +418,9 @@ void FieldToJson(nlohmann::ordered_json&                                     jda
     FieldToJson(jdata["pData"], &pData->pData, options);
 }
 
-// void FieldToJson(nlohmann::ordered_json&                                     jdata,
-//                  const Decoded_VkIndirectExecutionSetPipelineInfoEXT* const pData,
-//                  const util::JsonOptions&                                    options = util::JsonOptions())
-// {
-//     HandleToJson(jdata["initialPipeline"], pData->initialPipeline, options);
-//     FieldToJson(jdata["maxPipelineCount"], pData->decoded_value->maxPipelineCount, options);
-// }
-
 void FieldToJson(nlohmann::ordered_json&                                  jdata,
                  const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData,
-                 const util::JsonOptions&                                 options = util::JsonOptions())
+                 const util::JsonOptions&                                 options)
 {
     FieldToJson(jdata["type"], pData->decoded_type, options);
     switch (pData->decoded_type)
@@ -446,7 +438,7 @@ void FieldToJson(nlohmann::ordered_json&                                  jdata,
 
 void FieldToJson(nlohmann::ordered_json&                               jdata,
                  const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData,
-                 const util::JsonOptions&                              options = util::JsonOptions())
+                 const util::JsonOptions&                              options)
 {
     FieldToJson(jdata["type"], pData->decoded_type, options);
     switch (pData->decoded_type)
