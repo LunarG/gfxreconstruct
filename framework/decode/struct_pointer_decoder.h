@@ -372,8 +372,11 @@ class StructPointerDecoder<T*> : public PointerDecoderBase
 
                     typename T::struct_type* inner_struct_memory = reinterpret_cast<typename T::struct_type*>(
                         DecodeAllocator::Allocate<typename T::union_size_type>(inner_len));
+                    // TODO: We initialize == true because the next field isn't always cleared on kIsNull in the lower
+                    //       level decoders.  If this is a performance bottleneck, can clean up the lower decoders to
+                    //       initialize all fields.
                     T* inner_decoded_structs =
-                        T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), len);
+                        T::AllocateAppropriate((buffer + bytes_read), (buffer_size - bytes_read), len, true);
 
                     for (size_t j = 0; j < inner_len; ++j)
                     {
