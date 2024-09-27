@@ -795,10 +795,10 @@ VkResult VulkanCaptureManager::OverrideCreateBuffer(VkDevice                    
                                                     const VkAllocationCallbacks* pAllocator,
                                                     VkBuffer*                    pBuffer)
 {
-    VkResult result               = VK_SUCCESS;
-    auto     device_wrapper       = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
-    VkDevice device_unwrapped     = device_wrapper->handle;
-    auto     device_table         = vulkan_wrappers::GetDeviceTable(device);
+    VkResult result           = VK_SUCCESS;
+    auto     device_wrapper   = vulkan_wrappers::GetWrapper<vulkan_wrappers::DeviceWrapper>(device);
+    VkDevice device_unwrapped = device_wrapper->handle;
+    auto     device_table     = vulkan_wrappers::GetDeviceTable(device);
 
     // we need to deep-copy, potentially contains VkBufferUsageFlags2CreateInfoKHR in pNext-chain
     std::unique_ptr<uint8_t[]> struct_storage;
@@ -1146,12 +1146,22 @@ VkResult VulkanCaptureManager::OverrideAllocateMemory(VkDevice                  
 void VulkanCaptureManager::OverrideGetPhysicalDeviceProperties2(VkPhysicalDevice             physicalDevice,
                                                                 VkPhysicalDeviceProperties2* pProperties)
 {
-    vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
+    auto physical_device_wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
+    GFXRECON_ASSERT(physical_device_wrapper != nullptr)
+
+    if (physical_device_wrapper->instance_api_version >= VK_MAKE_VERSION(1, 1, 0))
+    {
+        vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2(physicalDevice, pProperties);
+    }
+    else
+    {
+        vulkan_wrappers::GetInstanceTable(physicalDevice)->GetPhysicalDeviceProperties2KHR(physicalDevice, pProperties);
+    }
 
     if (auto raytracing_props =
             graphics::vulkan_struct_get_pnext<VkPhysicalDeviceRayTracingPipelinePropertiesKHR>(pProperties))
     {
-        if(IsCaptureModeTrack())
+        if (IsCaptureModeTrack())
         {
             state_tracker_->TrackRayTracingPipelineProperties(physicalDevice, raytracing_props);
         }

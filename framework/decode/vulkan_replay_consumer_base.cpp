@@ -7946,11 +7946,14 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     VkDevice                         device       = device_info->handle;
     const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
 
-    // TODO: we get back a noop here due to always encoding KHR flavor
+    // override function-pointer
+    auto physical_device_info = GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
+    func                      = physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 2, 0)
+                                    ? GetDeviceTable(device_info->handle)->GetBufferDeviceAddress
+                                    : GetDeviceTable(device_info->handle)->GetBufferDeviceAddressKHR;
+
     // retrieve replay-time device-address
-    //    VkDeviceAddress replay_device_address = func(device, address_info);
-    VkDeviceAddress replay_device_address =
-        GetDeviceTable(device_info->handle)->GetBufferDeviceAddress(device, address_info);
+    VkDeviceAddress replay_device_address = func(device, address_info);
 
     if (!device_info->allocator->SupportsOpaqueDeviceAddresses())
     {
