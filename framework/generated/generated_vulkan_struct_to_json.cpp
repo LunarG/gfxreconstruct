@@ -15424,6 +15424,18 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkShaderCreateInfo
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDepthClampRangeEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkDepthClampRangeEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkDepthClampRangeEXT& meta_struct = *data;
+
+        FieldToJson(jdata["minDepthClamp"], decoded_value.minDepthClamp, options);
+        FieldToJson(jdata["maxDepthClamp"], decoded_value.maxDepthClamp, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceTilePropertiesFeaturesQCOM* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16055,6 +16067,314 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceRa
     }
 }
 
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["deviceGeneratedCommands"] = static_cast<bool>(decoded_value.deviceGeneratedCommands);
+        jdata["dynamicGeneratedPipelineLayout"] = static_cast<bool>(decoded_value.dynamicGeneratedPipelineLayout);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["maxIndirectPipelineCount"], decoded_value.maxIndirectPipelineCount, options);
+        FieldToJson(jdata["maxIndirectShaderObjectCount"], decoded_value.maxIndirectShaderObjectCount, options);
+        FieldToJson(jdata["maxIndirectSequenceCount"], decoded_value.maxIndirectSequenceCount, options);
+        FieldToJson(jdata["maxIndirectCommandsTokenCount"], decoded_value.maxIndirectCommandsTokenCount, options);
+        FieldToJson(jdata["maxIndirectCommandsTokenOffset"], decoded_value.maxIndirectCommandsTokenOffset, options);
+        FieldToJson(jdata["maxIndirectCommandsIndirectStride"], decoded_value.maxIndirectCommandsIndirectStride, options);
+        FieldToJson(VkIndirectCommandsInputModeFlagsEXT_t(),jdata["supportedIndirectCommandsInputModes"], decoded_value.supportedIndirectCommandsInputModes, options);
+        FieldToJson(VkShaderStageFlags_t(),jdata["supportedIndirectCommandsShaderStages"], decoded_value.supportedIndirectCommandsShaderStages, options);
+        FieldToJson(VkShaderStageFlags_t(),jdata["supportedIndirectCommandsShaderStagesPipelineBinding"], decoded_value.supportedIndirectCommandsShaderStagesPipelineBinding, options);
+        FieldToJson(VkShaderStageFlags_t(),jdata["supportedIndirectCommandsShaderStagesShaderBinding"], decoded_value.supportedIndirectCommandsShaderStagesShaderBinding, options);
+        jdata["deviceGeneratedCommandsTransformFeedback"] = static_cast<bool>(decoded_value.deviceGeneratedCommandsTransformFeedback);
+        jdata["deviceGeneratedCommandsMultiDrawIndirectCount"] = static_cast<bool>(decoded_value.deviceGeneratedCommandsMultiDrawIndirectCount);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGeneratedCommandsMemoryRequirementsInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        HandleToJson(jdata["indirectExecutionSet"], meta_struct.indirectExecutionSet, options);
+        HandleToJson(jdata["indirectCommandsLayout"], meta_struct.indirectCommandsLayout, options);
+        FieldToJson(jdata["maxSequenceCount"], decoded_value.maxSequenceCount, options);
+        FieldToJson(jdata["maxDrawCount"], decoded_value.maxDrawCount, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetPipelineInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectExecutionSetPipelineInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectExecutionSetPipelineInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        HandleToJson(jdata["initialPipeline"], meta_struct.initialPipeline, options);
+        FieldToJson(jdata["maxPipelineCount"], decoded_value.maxPipelineCount, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectExecutionSetShaderLayoutInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["setLayoutCount"], decoded_value.setLayoutCount, options);
+        HandleToJson(jdata["pSetLayouts"], &meta_struct.pSetLayouts, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetShaderInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectExecutionSetShaderInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectExecutionSetShaderInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["shaderCount"], decoded_value.shaderCount, options);
+        HandleToJson(jdata["pInitialShaders"], &meta_struct.pInitialShaders, options);
+        FieldToJson(jdata["pSetLayoutInfos"], meta_struct.pSetLayoutInfos, options);
+        FieldToJson(jdata["maxShaderCount"], decoded_value.maxShaderCount, options);
+        FieldToJson(jdata["pushConstantRangeCount"], decoded_value.pushConstantRangeCount, options);
+        FieldToJson(jdata["pPushConstantRanges"], meta_struct.pPushConstantRanges, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetCreateInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectExecutionSetCreateInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectExecutionSetCreateInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["info"], meta_struct.info, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGeneratedCommandsInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkGeneratedCommandsInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkShaderStageFlags_t(),jdata["shaderStages"], decoded_value.shaderStages, options);
+        HandleToJson(jdata["indirectExecutionSet"], meta_struct.indirectExecutionSet, options);
+        HandleToJson(jdata["indirectCommandsLayout"], meta_struct.indirectCommandsLayout, options);
+        FieldToJson(jdata["indirectAddress"], to_hex_variable_width(decoded_value.indirectAddress), options);
+        FieldToJson(jdata["indirectAddressSize"], decoded_value.indirectAddressSize, options);
+        FieldToJson(jdata["preprocessAddress"], to_hex_variable_width(decoded_value.preprocessAddress), options);
+        FieldToJson(jdata["preprocessSize"], decoded_value.preprocessSize, options);
+        FieldToJson(jdata["maxSequenceCount"], decoded_value.maxSequenceCount, options);
+        FieldToJson(jdata["sequenceCountAddress"], to_hex_variable_width(decoded_value.sequenceCountAddress), options);
+        FieldToJson(jdata["maxDrawCount"], decoded_value.maxDrawCount, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteIndirectExecutionSetPipelineEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkWriteIndirectExecutionSetPipelineEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkWriteIndirectExecutionSetPipelineEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["index"], decoded_value.index, options);
+        HandleToJson(jdata["pipeline"], meta_struct.pipeline, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsPushConstantTokenEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectCommandsPushConstantTokenEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectCommandsPushConstantTokenEXT& meta_struct = *data;
+
+        FieldToJson(jdata["updateRange"], meta_struct.updateRange, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsVertexBufferTokenEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectCommandsVertexBufferTokenEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectCommandsVertexBufferTokenEXT& meta_struct = *data;
+
+        FieldToJson(jdata["vertexBindingUnit"], decoded_value.vertexBindingUnit, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsIndexBufferTokenEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectCommandsIndexBufferTokenEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectCommandsIndexBufferTokenEXT& meta_struct = *data;
+
+        FieldToJson(jdata["mode"], decoded_value.mode, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsExecutionSetTokenEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectCommandsExecutionSetTokenEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectCommandsExecutionSetTokenEXT& meta_struct = *data;
+
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(VkShaderStageFlags_t(),jdata["shaderStages"], decoded_value.shaderStages, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectCommandsLayoutTokenEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectCommandsLayoutTokenEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["type"], decoded_value.type, options);
+        FieldToJson(jdata["data"], meta_struct.data, options);
+        FieldToJson(jdata["offset"], decoded_value.offset, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutCreateInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkIndirectCommandsLayoutCreateInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkIndirectCommandsLayoutCreateInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(VkIndirectCommandsLayoutUsageFlagsEXT_t(),jdata["flags"], decoded_value.flags, options);
+        FieldToJson(VkShaderStageFlags_t(),jdata["shaderStages"], decoded_value.shaderStages, options);
+        FieldToJson(jdata["indirectStride"], decoded_value.indirectStride, options);
+        HandleToJson(jdata["pipelineLayout"], meta_struct.pipelineLayout, options);
+        FieldToJson(jdata["tokenCount"], decoded_value.tokenCount, options);
+        FieldToJson(jdata["pTokens"], meta_struct.pTokens, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkDrawIndirectCountIndirectCommandEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkDrawIndirectCountIndirectCommandEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkDrawIndirectCountIndirectCommandEXT& meta_struct = *data;
+
+        FieldToJson(jdata["bufferAddress"], to_hex_variable_width(decoded_value.bufferAddress), options);
+        FieldToJson(jdata["stride"], decoded_value.stride, options);
+        FieldToJson(jdata["commandCount"], decoded_value.commandCount, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindVertexBufferIndirectCommandEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkBindVertexBufferIndirectCommandEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkBindVertexBufferIndirectCommandEXT& meta_struct = *data;
+
+        FieldToJson(jdata["bufferAddress"], to_hex_variable_width(decoded_value.bufferAddress), options);
+        FieldToJson(jdata["size"], decoded_value.size, options);
+        FieldToJson(jdata["stride"], decoded_value.stride, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkBindIndexBufferIndirectCommandEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkBindIndexBufferIndirectCommandEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkBindIndexBufferIndirectCommandEXT& meta_struct = *data;
+
+        FieldToJson(jdata["bufferAddress"], to_hex_variable_width(decoded_value.bufferAddress), options);
+        FieldToJson(jdata["size"], decoded_value.size, options);
+        FieldToJson(jdata["indexType"], decoded_value.indexType, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsPipelineInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGeneratedCommandsPipelineInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkGeneratedCommandsPipelineInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        HandleToJson(jdata["pipeline"], meta_struct.pipeline, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsShaderInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkGeneratedCommandsShaderInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkGeneratedCommandsShaderInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["shaderCount"], decoded_value.shaderCount, options);
+        HandleToJson(jdata["pShaders"], &meta_struct.pShaders, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkWriteIndirectExecutionSetShaderEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkWriteIndirectExecutionSetShaderEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkWriteIndirectExecutionSetShaderEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["index"], decoded_value.index, options);
+        HandleToJson(jdata["shader"], meta_struct.shader, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16090,6 +16410,33 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkImageAlignmentCo
 
         FieldToJson(jdata["sType"], decoded_value.sType, options);
         FieldToJson(jdata["maximumRequestedAlignment"], decoded_value.maximumRequestedAlignment, options);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPhysicalDeviceDepthClampControlFeaturesEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        jdata["depthClampControl"] = static_cast<bool>(decoded_value.depthClampControl);
+        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkPipelineViewportDepthClampControlCreateInfoEXT* data, const JsonOptions& options)
+{
+    if (data && data->decoded_value)
+    {
+        const VkPipelineViewportDepthClampControlCreateInfoEXT& decoded_value = *data->decoded_value;
+        const Decoded_VkPipelineViewportDepthClampControlCreateInfoEXT& meta_struct = *data;
+
+        FieldToJson(jdata["sType"], decoded_value.sType, options);
+        FieldToJson(jdata["depthClampMode"], decoded_value.depthClampMode, options);
+        FieldToJson(jdata["pDepthClampRange"], meta_struct.pDepthClampRange, options);
         FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
@@ -20362,6 +20709,34 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
                 break;
             }
 
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGeneratedCommandsPipelineInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkGeneratedCommandsShaderInfoEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_ALIGNMENT_CONTROL_FEATURES_MESA:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceImageAlignmentControlFeaturesMESA*>(data->GetMetaStructPointer());
@@ -20379,6 +20754,20 @@ void FieldToJson(nlohmann::ordered_json& jdata, const PNextNode* data, const Jso
             case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA:
             {
                 const auto* pnext = reinterpret_cast<const Decoded_VkImageAlignmentControlCreateInfoMESA*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT*>(data->GetMetaStructPointer());
+                FieldToJson(jdata, pnext, options);
+                break;
+            }
+
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT:
+            {
+                const auto* pnext = reinterpret_cast<const Decoded_VkPipelineViewportDepthClampControlCreateInfoEXT*>(data->GetMetaStructPointer());
                 FieldToJson(jdata, pnext, options);
                 break;
             }

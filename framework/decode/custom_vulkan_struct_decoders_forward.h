@@ -39,6 +39,7 @@ struct Decoded_VkDeviceOrHostAddressConstKHR;
 struct Decoded_VkAccelerationStructureGeometryDataKHR;
 struct Decoded_VkAccelerationStructureMotionInstanceNV;
 struct Decoded_VkPerformanceValueDataINTEL;
+struct Decoded_VkIndirectExecutionSetInfoEXT;
 
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearColorValue* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkClearValue* wrapper);
@@ -55,12 +56,14 @@ struct Decoded_VkWriteDescriptorSet;
 struct Decoded_VkPerformanceValueINTEL;
 struct Decoded_VkAccelerationStructureGeometryKHR;
 struct Decoded_VkPushDescriptorSetWithTemplateInfoKHR;
+struct Decoded_VkIndirectExecutionSetCreateInfoEXT;
 
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkDescriptorImageInfo* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkWriteDescriptorSet* wrapper);
 size_t DecodeStruct(const uint8_t* parameter_buffer, size_t buffer_size, Decoded_VkPerformanceValueINTEL* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkAccelerationStructureGeometryKHR* wrapper);
 size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkPushDescriptorSetWithTemplateInfoKHR* wrapper);
+size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirectExecutionSetCreateInfoEXT* wrapper);
 
 // Decoded struct wrappers for SECURITY_ATTRIBUTES and related WIN32 structures.
 struct Decoded_ACL;

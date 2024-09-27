@@ -1869,6 +1869,13 @@ void Process_vkCmdBindShadersEXT(
     const VkShaderStageFlagBits*                pStages,
     const VkShaderEXT*                          pShaders);
 
+void Process_vkCmdSetDepthClampRangeEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetDepthClampRangeEXT              func,
+    VkCommandBuffer                             commandBuffer,
+    VkDepthClampModeEXT                         depthClampMode,
+    const VkDepthClampRangeEXT*                 pDepthClampRange);
+
 
 
 
@@ -1877,6 +1884,21 @@ void Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
     PFN_vkCmdSetAttachmentFeedbackLoopEnableEXT func,
     VkCommandBuffer                             commandBuffer,
     VkImageAspectFlags                          aspectMask);
+
+
+void Process_vkCmdPreprocessGeneratedCommandsEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPreprocessGeneratedCommandsEXT     func,
+    VkCommandBuffer                             commandBuffer,
+    const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo,
+    VkCommandBuffer                             stateCommandBuffer);
+
+void Process_vkCmdExecuteGeneratedCommandsEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdExecuteGeneratedCommandsEXT        func,
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    isPreprocessed,
+    const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo);
 
 
 void Process_vkCmdBuildAccelerationStructuresKHR(

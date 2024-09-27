@@ -197,6 +197,26 @@ struct Decoded_SECURITY_ATTRIBUTES
     StructPointerDecoder<Decoded_SECURITY_DESCRIPTOR>* lpSecurityDescriptor{ nullptr };
 };
 
+// This union wrapper does not have a DecodeStruct function.  It is decoded by the
+// Decoded_VkIndirectExecutionSetCreateInfoEXT DecodeStruct function, based on the value of
+// VkIndirectExecutionSetCreateInfoEXT::type.
+struct Decoded_VkIndirectExecutionSetInfoEXT {
+    using struct_type = VkIndirectExecutionSetEXT;
+
+    Decoded_VkIndirectExecutionSetPipelineInfoEXT* pPipelineInfo;
+    Decoded_VkIndirectExecutionSetShaderInfoEXT*   pShaderInfo;    
+};
+
+struct Decoded_VkIndirectExecutionSetCreateInfoEXT {
+    using struct_type = VkIndirectExecutionSetCreateInfoEXT;
+
+    VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
+
+    PNextNode*                                      pNext{ nullptr };
+    VkIndirectExecutionSetInfoTypeEXT               decoded_type;
+    Decoded_VkIndirectExecutionSetInfoEXT*          info;
+};
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
 

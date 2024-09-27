@@ -23990,6 +23990,41 @@ VKAPI_ATTR void VKAPI_CALL CmdBindShadersEXT(
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdBindShadersEXT>::Dispatch(manager, commandBuffer, stageCount, pStages, pShaders);
 }
 
+VKAPI_ATTR void VKAPI_CALL CmdSetDepthClampRangeEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkDepthClampModeEXT                         depthClampMode,
+    const VkDepthClampRangeEXT*                 pDepthClampRange)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdSetDepthClampRangeEXT>::Dispatch(manager, commandBuffer, depthClampMode, pDepthClampRange);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdSetDepthClampRangeEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeEnumValue(depthClampMode);
+        EncodeStructPtr(encoder, pDepthClampRange);
+        manager->EndCommandApiCallCapture(commandBuffer);
+    }
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetDepthClampRangeEXT(commandBuffer, depthClampMode, pDepthClampRange);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetDepthClampRangeEXT>::Dispatch(manager, commandBuffer, depthClampMode, pDepthClampRange);
+}
+
 VKAPI_ATTR VkResult VKAPI_CALL GetFramebufferTilePropertiesQCOM(
     VkDevice                                    device,
     VkFramebuffer                               framebuffer,
@@ -24296,6 +24331,381 @@ VKAPI_ATTR void VKAPI_CALL CmdSetAttachmentFeedbackLoopEnableEXT(
     vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdSetAttachmentFeedbackLoopEnableEXT(commandBuffer, aspectMask);
 
     CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdSetAttachmentFeedbackLoopEnableEXT>::Dispatch(manager, commandBuffer, aspectMask);
+}
+
+VKAPI_ATTR void VKAPI_CALL GetGeneratedCommandsMemoryRequirementsEXT(
+    VkDevice                                    device,
+    const VkGeneratedCommandsMemoryRequirementsInfoEXT* pInfo,
+    VkMemoryRequirements2*                      pMemoryRequirements)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsEXT>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkGeneratedCommandsMemoryRequirementsInfoEXT* pInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pInfo, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(device)->GetGeneratedCommandsMemoryRequirementsEXT(device, pInfo_unwrapped, pMemoryRequirements);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        EncodeStructPtr(encoder, pInfo);
+        EncodeStructPtr(encoder, pMemoryRequirements);
+        manager->EndApiCallCapture();
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkGetGeneratedCommandsMemoryRequirementsEXT>::Dispatch(manager, device, pInfo, pMemoryRequirements);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdPreprocessGeneratedCommandsEXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo,
+    VkCommandBuffer                             stateCommandBuffer)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsEXT>::Dispatch(manager, commandBuffer, pGeneratedCommandsInfo, stateCommandBuffer);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        EncodeStructPtr(encoder, pGeneratedCommandsInfo);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(stateCommandBuffer);
+        manager->EndCommandApiCallCapture(commandBuffer, TrackCmdPreprocessGeneratedCommandsEXTHandles, pGeneratedCommandsInfo, stateCommandBuffer);
+    }
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pGeneratedCommandsInfo, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdPreprocessGeneratedCommandsEXT(commandBuffer, pGeneratedCommandsInfo_unwrapped, stateCommandBuffer);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdPreprocessGeneratedCommandsEXT>::Dispatch(manager, commandBuffer, pGeneratedCommandsInfo, stateCommandBuffer);
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdExecuteGeneratedCommandsEXT(
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    isPreprocessed,
+    const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsEXT>::Dispatch(manager, commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::CommandBufferWrapper>(commandBuffer);
+        encoder->EncodeUInt32Value(isPreprocessed);
+        EncodeStructPtr(encoder, pGeneratedCommandsInfo);
+        manager->EndCommandApiCallCapture(commandBuffer, TrackCmdExecuteGeneratedCommandsEXTHandles, pGeneratedCommandsInfo);
+    }
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pGeneratedCommandsInfo, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(commandBuffer)->CmdExecuteGeneratedCommandsEXT(commandBuffer, isPreprocessed, pGeneratedCommandsInfo_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCmdExecuteGeneratedCommandsEXT>::Dispatch(manager, commandBuffer, isPreprocessed, pGeneratedCommandsInfo);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutEXT(
+    VkDevice                                    device,
+    const VkIndirectCommandsLayoutCreateInfoEXT* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkIndirectCommandsLayoutEXT*                pIndirectCommandsLayout)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutEXT>::Dispatch(manager, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkIndirectCommandsLayoutCreateInfoEXT* pCreateInfo_unwrapped = vulkan_wrappers::UnwrapStructPtrHandles(pCreateInfo, handle_unwrap_memory);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateIndirectCommandsLayoutEXT(device, pCreateInfo_unwrapped, pAllocator, pIndirectCommandsLayout);
+
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::NoParentWrapper, vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(device, vulkan_wrappers::NoParentWrapper::kHandleValue, pIndirectCommandsLayout, VulkanCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(pIndirectCommandsLayout, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<VkDevice, vulkan_wrappers::IndirectCommandsLayoutEXTWrapper, VkIndirectCommandsLayoutCreateInfoEXT>(result, device, pIndirectCommandsLayout, pCreateInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectCommandsLayoutEXT>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pIndirectCommandsLayout);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutEXT(
+    VkDevice                                    device,
+    VkIndirectCommandsLayoutEXT                 indirectCommandsLayout,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutEXT>::Dispatch(manager, device, indirectCommandsLayout, pAllocator);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(indirectCommandsLayout);
+        EncodeStructPtr(encoder, pAllocator);
+        manager->EndDestroyApiCallCapture<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(indirectCommandsLayout);
+    }
+
+    ScopedDestroyLock exclusive_scoped_lock;
+    vulkan_wrappers::GetDeviceTable(device)->DestroyIndirectCommandsLayoutEXT(device, indirectCommandsLayout, pAllocator);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectCommandsLayoutEXT>::Dispatch(manager, device, indirectCommandsLayout, pAllocator);
+
+    vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(indirectCommandsLayout);
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectExecutionSetEXT(
+    VkDevice                                    device,
+    const VkIndirectExecutionSetCreateInfoEXT*  pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkIndirectExecutionSetEXT*                  pIndirectExecutionSet)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    bool omit_output_data = false;
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkCreateIndirectExecutionSetEXT>::Dispatch(manager, device, pCreateInfo, pAllocator, pIndirectExecutionSet);
+
+    VkResult result = vulkan_wrappers::GetDeviceTable(device)->CreateIndirectExecutionSetEXT(device, pCreateInfo, pAllocator, pIndirectExecutionSet);
+
+    if (result >= 0)
+    {
+        vulkan_wrappers::CreateWrappedHandle<vulkan_wrappers::DeviceWrapper, vulkan_wrappers::NoParentWrapper, vulkan_wrappers::IndirectExecutionSetEXTWrapper>(device, vulkan_wrappers::NoParentWrapper::kHandleValue, pIndirectExecutionSet, VulkanCaptureManager::GetUniqueId);
+    }
+    else
+    {
+        omit_output_data = true;
+    }
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkCreateIndirectExecutionSetEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        EncodeStructPtr(encoder, pCreateInfo);
+        EncodeStructPtr(encoder, pAllocator);
+        encoder->EncodeVulkanHandlePtr<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(pIndirectExecutionSet, omit_output_data);
+        encoder->EncodeEnumValue(result);
+        manager->EndCreateApiCallCapture<VkDevice, vulkan_wrappers::IndirectExecutionSetEXTWrapper, VkIndirectExecutionSetCreateInfoEXT>(result, device, pIndirectExecutionSet, pCreateInfo);
+    }
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkCreateIndirectExecutionSetEXT>::Dispatch(manager, result, device, pCreateInfo, pAllocator, pIndirectExecutionSet);
+
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyIndirectExecutionSetEXT(
+    VkDevice                                    device,
+    VkIndirectExecutionSetEXT                   indirectExecutionSet,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkDestroyIndirectExecutionSetEXT>::Dispatch(manager, device, indirectExecutionSet, pAllocator);
+
+    auto encoder = manager->BeginTrackedApiCallCapture(format::ApiCallId::ApiCall_vkDestroyIndirectExecutionSetEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(indirectExecutionSet);
+        EncodeStructPtr(encoder, pAllocator);
+        manager->EndDestroyApiCallCapture<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(indirectExecutionSet);
+    }
+
+    ScopedDestroyLock exclusive_scoped_lock;
+    vulkan_wrappers::GetDeviceTable(device)->DestroyIndirectExecutionSetEXT(device, indirectExecutionSet, pAllocator);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkDestroyIndirectExecutionSetEXT>::Dispatch(manager, device, indirectExecutionSet, pAllocator);
+
+    vulkan_wrappers::DestroyWrappedHandle<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(indirectExecutionSet);
+}
+
+VKAPI_ATTR void VKAPI_CALL UpdateIndirectExecutionSetPipelineEXT(
+    VkDevice                                    device,
+    VkIndirectExecutionSetEXT                   indirectExecutionSet,
+    uint32_t                                    executionSetWriteCount,
+    const VkWriteIndirectExecutionSetPipelineEXT* pExecutionSetWrites)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetPipelineEXT>::Dispatch(manager, device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetPipelineEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(indirectExecutionSet);
+        encoder->EncodeUInt32Value(executionSetWriteCount);
+        EncodeStructArray(encoder, pExecutionSetWrites, executionSetWriteCount);
+        manager->EndApiCallCapture();
+    }
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkWriteIndirectExecutionSetPipelineEXT* pExecutionSetWrites_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pExecutionSetWrites, executionSetWriteCount, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(device)->UpdateIndirectExecutionSetPipelineEXT(device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetPipelineEXT>::Dispatch(manager, device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
+}
+
+VKAPI_ATTR void VKAPI_CALL UpdateIndirectExecutionSetShaderEXT(
+    VkDevice                                    device,
+    VkIndirectExecutionSetEXT                   indirectExecutionSet,
+    uint32_t                                    executionSetWriteCount,
+    const VkWriteIndirectExecutionSetShaderEXT* pExecutionSetWrites)
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    GFXRECON_ASSERT(manager != nullptr);
+    auto force_command_serialization = manager->GetForceCommandSerialization();
+    std::shared_lock<CommonCaptureManager::ApiCallMutexT> shared_api_call_lock;
+    std::unique_lock<CommonCaptureManager::ApiCallMutexT> exclusive_api_call_lock;
+    if (force_command_serialization)
+    {
+        exclusive_api_call_lock = VulkanCaptureManager::AcquireExclusiveApiCallLock();
+    }
+    else
+    {
+        shared_api_call_lock = VulkanCaptureManager::AcquireSharedApiCallLock();
+    }
+
+    CustomEncoderPreCall<format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetShaderEXT>::Dispatch(manager, device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
+
+    auto encoder = manager->BeginApiCallCapture(format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetShaderEXT);
+    if (encoder)
+    {
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::DeviceWrapper>(device);
+        encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(indirectExecutionSet);
+        encoder->EncodeUInt32Value(executionSetWriteCount);
+        EncodeStructArray(encoder, pExecutionSetWrites, executionSetWriteCount);
+        manager->EndApiCallCapture();
+    }
+
+    auto handle_unwrap_memory = manager->GetHandleUnwrapMemory();
+    const VkWriteIndirectExecutionSetShaderEXT* pExecutionSetWrites_unwrapped = vulkan_wrappers::UnwrapStructArrayHandles(pExecutionSetWrites, executionSetWriteCount, handle_unwrap_memory);
+
+    vulkan_wrappers::GetDeviceTable(device)->UpdateIndirectExecutionSetShaderEXT(device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites_unwrapped);
+
+    CustomEncoderPostCall<format::ApiCallId::ApiCall_vkUpdateIndirectExecutionSetShaderEXT>::Dispatch(manager, device, indirectExecutionSet, executionSetWriteCount, pExecutionSetWrites);
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateAccelerationStructureKHR(

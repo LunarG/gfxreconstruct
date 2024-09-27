@@ -725,6 +725,15 @@ enum ApiCallId : uint32_t
     ApiCall_vkGetPipelineKeyKHR                                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12f0),
     ApiCall_vkReleaseCapturedPipelineDataKHR                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12f1),
     ApiCall_vkAntiLagUpdateAMD                                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12f2),
+    ApiCall_vkGetGeneratedCommandsMemoryRequirementsEXT                                           = MakeApiCallId(ApiFamily_Vulkan, 0x12f3),
+    ApiCall_vkCmdPreprocessGeneratedCommandsEXT                                                   = MakeApiCallId(ApiFamily_Vulkan, 0x12f4),
+    ApiCall_vkCmdExecuteGeneratedCommandsEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12f5),
+    ApiCall_vkCreateIndirectCommandsLayoutEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12f6),
+    ApiCall_vkDestroyIndirectCommandsLayoutEXT                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12f7),
+    ApiCall_vkCreateIndirectExecutionSetEXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12f8),
+    ApiCall_vkDestroyIndirectExecutionSetEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12fa),
+    ApiCall_vkUpdateIndirectExecutionSetPipelineEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12fb),
+    ApiCall_vkUpdateIndirectExecutionSetShaderEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12fc),
 
     ApiCall_VulkanLast,
 
