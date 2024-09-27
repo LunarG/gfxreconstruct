@@ -1264,6 +1264,7 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     switch (metaInfo->decoded_type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
             struct_body << "\t\t\t"
                         << "VkIndirectCommandsTokenDataEXT(" << structInfo->data.pPushConstant << ")" << std::endl;
             break;

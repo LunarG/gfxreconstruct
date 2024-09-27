@@ -314,6 +314,7 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutToken
     switch (value.type)
     {
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_SEQUENCE_INDEX_EXT:
             EncodeStructPtr(encoder, value.data.pPushConstant);
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
