@@ -1258,7 +1258,8 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     // pNext
     struct_body << "\t\t\t" << pnext_name << "," << std::endl;
     // type
-    struct_body << "\t\t\t" << "VkIndirectCommandsTokenTypeEXT(" << structInfo->type << ")" << std::endl;
+    struct_body << "\t\t\t"
+                << "VkIndirectCommandsTokenTypeEXT(" << structInfo->type << ")" << std::endl;
     // data
     switch (metaInfo->decoded_type)
     {
@@ -1282,7 +1283,7 @@ std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream&       
     // offset
     struct_body << "\t\t\t"
                 << "uint32_t(" << structInfo->offset << ")" << std::endl;
-                
+
     out << "\t";
     std::string variable_name = consumer.AddStruct(struct_body, "type");
     out << "VkIndirectExecutionSetInfoTypeEXT " << variable_name << " {" << std::endl;
