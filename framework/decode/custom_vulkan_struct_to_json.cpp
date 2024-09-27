@@ -455,7 +455,10 @@ void FieldToJson(nlohmann::ordered_json&                               jdata,
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
             FieldToJson(jdata["data"], pData->data->pExecutionSet, options);
             break;
+        default:
+            break;
     }
+    FieldToJson(jdata["offset"], pData->offset, options);
 }
 
 GFXRECON_END_NAMESPACE(decode)

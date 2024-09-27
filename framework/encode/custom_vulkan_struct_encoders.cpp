@@ -288,5 +288,51 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPushDescriptorSetWithTempla
     encoder->EncodeUInt32Value(value.set);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            EncodeStructPtr(encoder, value.info.pPipelineInfo);
+            break;
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            EncodeStructPtr(encoder, value.info.pShaderInfo);
+            break;
+        default:
+            break;
+    }
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.type);
+    switch (value.type)
+    {
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+            EncodeStructPtr(encoder, value.data.pPushConstant);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+            EncodeStructPtr(encoder, value.data.pVertexBuffer);
+
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+            EncodeStructPtr(encoder, value.data.pIndexBuffer);
+
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+            EncodeStructPtr(encoder, value.data.pExecutionSet);
+
+            break;
+        default:
+            break;
+    }
+    encoder->EncodeUInt32Value(value.offset);
+}
+
 GFXRECON_END_NAMESPACE(encode)
 GFXRECON_END_NAMESPACE(gfxrecon)
