@@ -76,6 +76,12 @@ class CaptureSettings
         kQueueSubmits,
     };
 
+    enum class FenceQueryDelayUnit
+    {
+        kCalls,
+        kFrames
+    };
+
     const static char kDefaultCaptureFileName[];
 
     struct ResourveValueAnnotationInfo
@@ -119,6 +125,8 @@ class CaptureSettings
         bool                         allow_pipeline_compile_required{ false };
         bool                         quit_after_frame_ranges{ false };
         bool                         force_fifo_present_mode{ true };
+        uint32_t                     fence_query_delay{ 0 };
+        FenceQueryDelayUnit          fence_query_delay_unit{ FenceQueryDelayUnit::kCalls };
 
         // An optimization for the page_guard memory tracking mode that eliminates the need for shadow memory by
         // overriding vkAllocateMemory so that all host visible allocations use the external memory extension with a
@@ -194,6 +202,9 @@ class CaptureSettings
 
     static util::ScreenshotFormat ParseScreenshotFormatString(const std::string&     value_string,
                                                               util::ScreenshotFormat default_value);
+
+    static FenceQueryDelayUnit ParseFenceQueryDelayUnit(const std::string&  value_string,
+                                                        FenceQueryDelayUnit default_value);
 
   private:
     TraceSettings       trace_settings_;

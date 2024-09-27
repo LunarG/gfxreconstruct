@@ -169,6 +169,9 @@ class CommonCaptureManager
     }
 
     static bool CreateInstance(ApiCaptureManager* api_instance_, const std::function<void()>& destroyer);
+    uint32_t    GetFenceQueryDelay() const { return fence_query_delay_; }
+    CaptureSettings::FenceQueryDelayUnit GetFenceQueryDelayUnit() const { return fence_query_delay_unit_; }
+
     template <typename Derived>
     static bool CreateInstance()
     {
@@ -382,6 +385,8 @@ class CommonCaptureManager
     bool                                    allow_pipeline_compile_required_;
     bool                                    quit_after_frame_ranges_;
     bool                                    force_fifo_present_mode_;
+    uint32_t                                fence_query_delay_;
+    CaptureSettings::FenceQueryDelayUnit    fence_query_delay_unit_;
 
     struct
     {
