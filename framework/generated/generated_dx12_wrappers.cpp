@@ -9642,7 +9642,7 @@ HRESULT WINAPI D3D12SerializeVersionedRootSignature(
             ppBlob,
             ppErrorBlob);
 
-        result = manager->GetD3D12DispatchTable().D3D12SerializeVersionedRootSignature(
+        result = D3D12CaptureManager::Get()->OverrideD3D12SerializeVersionedRootSignature(
             pRootSignature,
             ppBlob,
             ppErrorBlob);

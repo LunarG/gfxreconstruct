@@ -1887,6 +1887,17 @@ void D3D12CaptureManager::PostProcess_ID3D12GraphicsCommandList_ExecuteBundle(
     ++info->draw_call_count;
 }
 
+HRESULT
+D3D12CaptureManager::OverrideD3D12SerializeVersionedRootSignature(
+    const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature, ID3DBlob** ppBlob, ID3DBlob** ppErrorBlob)
+{
+    if (IsTrimEnabled() && GetTrimBoundary() == CaptureSettings::TrimBoundary::kDrawCalls)
+    {
+        TrimDrawCalls_D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
+    }
+    return GetD3D12DispatchTable().D3D12SerializeVersionedRootSignature(pRootSignature, ppBlob, ppErrorBlob);
+}
+
 D3D12_CPU_DESCRIPTOR_HANDLE D3D12CaptureManager::OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(
     ID3D12DescriptorHeap_Wrapper* wrapper)
 {
@@ -3112,6 +3123,58 @@ void D3D12CaptureManager::UpdateSwapChainSize(uint32_t width, uint32_t height, I
         {
             swapchain->GetDesc1(&swapchain_desc);
             WriteResizeWindowCmd(0, swapchain_desc.Width, swapchain_desc.Height);
+        }
+    }
+}
+
+void D3D12CaptureManager::TrimDrawCalls_D3D12SerializeVersionedRootSignature(
+    const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature, ID3DBlob** ppBlob, ID3DBlob** ppErrorBlob)
+{
+    uint32_t                     param_size = 0;
+    const D3D12_ROOT_PARAMETER1* params     = nullptr;
+
+    if (pRootSignature->Version == D3D_ROOT_SIGNATURE_VERSION_1_1)
+    {
+        param_size = pRootSignature->Desc_1_1.NumParameters;
+        params     = pRootSignature->Desc_1_1.pParameters;
+    }
+    else if (pRootSignature->Version == D3D_ROOT_SIGNATURE_VERSION_1_2)
+    {
+        param_size = pRootSignature->Desc_1_2.NumParameters;
+        params     = pRootSignature->Desc_1_2.pParameters;
+    }
+
+    if (params)
+    {
+        for (uint32_t i = 0; i < param_size; ++i)
+        {
+            switch (params[i].ParameterType)
+            {
+                case D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE:
+                {
+                    auto range_size = params[i].DescriptorTable.NumDescriptorRanges;
+                    for (uint32_t j = 0; j < range_size; ++j)
+                    {
+                        auto& range = params[i].DescriptorTable.pDescriptorRanges[j];
+
+                        // DATA_STATIC could cause error for splitted commandlists.
+                        // Error log is like: Resource is bound as DATA_STATIC on Command List. Its state was changed by
+                        // a previous command list execution which indicates a change to its data (or possibly resource
+                        // metadata), but it is invalid to change it until this command list has finished executing for
+                        // the last time.
+                        if (range.Flags & D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
+                        {
+                            GFXRECON_LOG_WARNING(
+                                "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC could cause error for trim draw calls. "
+                                "Recommend using D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE.");
+                            break;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
         }
     }
 }

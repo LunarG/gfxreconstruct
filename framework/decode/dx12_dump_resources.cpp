@@ -308,10 +308,19 @@ bool Dx12DumpResources::CreateRootSignature(DxObjectInfo*                device_
                                     range_size * sizeof(D3D12_DESCRIPTOR_RANGE1));
                         for (uint32_t j = 0; j < range_size; ++j)
                         {
-                            if (ranges[i][j].Flags == D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
+                            // DATA_STATIC could cause error for splitted commandlists.
+                            // Error log is like: Resource is bound as DATA_STATIC on Command List. Its state was
+                            // changed by a previous command list execution which indicates a change to its data (or
+                            // possibly resource metadata), but it is invalid to change it until this command list has
+                            // finished executing for the last time. 
+                            if (ranges[i][j].Flags & D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC)
                             {
-                                ranges[i][j].Flags = D3D12_DESCRIPTOR_RANGE_FLAG_NONE;
-                                is_modified        = true;
+                                ranges[i][j].Flags &= ~D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
+                                ranges[i][j].Flags |= D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE;
+                                is_modified = true;
+                                GFXRECON_LOG_WARNING(
+                                    "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC could cause error for dump resources. "
+                                    "Modify to D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE.");
                             }
                         }
                         params[i].DescriptorTable.pDescriptorRanges = ranges[i].data();

@@ -642,6 +642,10 @@ class D3D12CaptureManager : public ApiCaptureManager
     void PostProcess_ID3D12GraphicsCommandList_ExecuteBundle(ID3D12GraphicsCommandList_Wrapper* wrapper,
                                                              ID3D12GraphicsCommandList*         pCommandList);
 
+    HRESULT OverrideD3D12SerializeVersionedRootSignature(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature,
+                                                         ID3DBlob**                                 ppBlob,
+                                                         ID3DBlob**                                 ppErrorBlob);
+
     D3D12_CPU_DESCRIPTOR_HANDLE
     OverrideID3D12DescriptorHeap_GetCPUDescriptorHandleForHeapStart(ID3D12DescriptorHeap_Wrapper* wrapper);
 
@@ -813,6 +817,10 @@ class D3D12CaptureManager : public ApiCaptureManager
     void SetAgsVersion(int ags_version) { ags_version_ = ags_version; }
 
     int GetAgsVersion() { return ags_version_; }
+
+    void TrimDrawCalls_D3D12SerializeVersionedRootSignature(const D3D12_VERSIONED_ROOT_SIGNATURE_DESC* pRootSignature,
+                                                            ID3DBlob**                                 ppBlob,
+                                                            ID3DBlob**                                 ppErrorBlob);
 
     void TrimDrawCalls_ID3D12GraphicsCommandList_Reset(HRESULT                            replay_result,
                                                        ID3D12GraphicsCommandList_Wrapper* wrapper,

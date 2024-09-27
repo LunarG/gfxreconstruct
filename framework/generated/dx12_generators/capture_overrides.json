@@ -1,6 +1,7 @@
 {
   "functions": {
-    "CreateDXGIFactory2": "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2"
+    "CreateDXGIFactory2": "D3D12CaptureManager::Get()->OverrideCreateDXGIFactory2",
+    "D3D12SerializeVersionedRootSignature": "D3D12CaptureManager::Get()->OverrideD3D12SerializeVersionedRootSignature"
   },
   "classmethods": {
     "ID3D12DescriptorHeap": {
