@@ -418,5 +418,53 @@ void FieldToJson(nlohmann::ordered_json&                                     jda
     FieldToJson(jdata["pData"], &pData->pData, options);
 }
 
+// void FieldToJson(nlohmann::ordered_json&                                     jdata,
+//                  const Decoded_VkIndirectExecutionSetPipelineInfoEXT* const pData,
+//                  const util::JsonOptions&                                    options = util::JsonOptions())
+// {
+//     HandleToJson(jdata["initialPipeline"], pData->initialPipeline, options);
+//     FieldToJson(jdata["maxPipelineCount"], pData->decoded_value->maxPipelineCount, options);
+// }
+
+void FieldToJson(nlohmann::ordered_json&                                  jdata,
+                 const Decoded_VkIndirectExecutionSetCreateInfoEXT* const pData,
+                 const util::JsonOptions&                                 options = util::JsonOptions())
+{
+    FieldToJson(jdata["type"], pData->decoded_type, options);
+    switch (pData->decoded_type)
+    {
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_PIPELINES_EXT:
+            FieldToJson(jdata["info"], pData->info->pPipelineInfo, options);
+            break;
+        case VK_INDIRECT_EXECUTION_SET_INFO_TYPE_SHADER_OBJECTS_EXT:
+            FieldToJson(jdata["info"], pData->info->pShaderInfo, options);
+            break;
+        default:
+            break;
+    }
+}
+
+void FieldToJson(nlohmann::ordered_json&                               jdata,
+                 const Decoded_VkIndirectCommandsLayoutTokenEXT* const pData,
+                 const util::JsonOptions&                              options = util::JsonOptions())
+{
+    FieldToJson(jdata["type"], pData->decoded_type, options);
+    switch (pData->decoded_type)
+    {
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_PUSH_CONSTANT_EXT:
+            FieldToJson(jdata["data"], pData->data->pPushConstant, options);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
+            FieldToJson(jdata["data"], pData->data->pVertexBuffer, options);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
+            FieldToJson(jdata["data"], pData->data->pIndexBuffer, options);
+            break;
+        case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
+            FieldToJson(jdata["data"], pData->data->pExecutionSet, options);
+            break;
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
