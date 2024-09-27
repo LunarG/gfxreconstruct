@@ -318,15 +318,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutToken
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_VERTEX_BUFFER_EXT:
             EncodeStructPtr(encoder, value.data.pVertexBuffer);
-
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_INDEX_BUFFER_EXT:
             EncodeStructPtr(encoder, value.data.pIndexBuffer);
-
             break;
         case VK_INDIRECT_COMMANDS_TOKEN_TYPE_EXECUTION_SET_EXT:
             EncodeStructPtr(encoder, value.data.pExecutionSet);
-
             break;
         default:
             break;
