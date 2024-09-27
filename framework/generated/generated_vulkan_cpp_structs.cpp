@@ -21096,26 +21096,6 @@ std::string GenerateStruct_VkIndirectCommandsLayoutCreateInfoEXT(std::ostream &o
 }
 
 
-std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream &out, const VkIndirectCommandsLayoutTokenEXT* structInfo, Decoded_VkIndirectCommandsLayoutTokenEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string ppush_constant_info_var = GenerateStruct_VkIndirectCommandsPushConstantTokenEXT(out,
-                                                                                                &structInfo->data.pPushConstant,
-                                                                                                metaInfo->data->pPushConstant,
-                                                                                                consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkIndirectCommandsTokenTypeEXT(" << structInfo->type << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << ppush_constant_info_var << "," << std::endl;
-    struct_body << "\t\t\t" << structInfo->offset << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "indirectCommandsLayoutTokenEXT");
-    out << "\t\t" << "VkIndirectCommandsLayoutTokenEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
 std::string GenerateStruct_VkIndirectCommandsPushConstantTokenEXT(std::ostream &out, const VkIndirectCommandsPushConstantTokenEXT* structInfo, Decoded_VkIndirectCommandsPushConstantTokenEXT* metaInfo, VulkanCppConsumerBase &consumer){
     std::stringstream struct_body;
     std::string update_range_info_var = GenerateStruct_VkPushConstantRange(out,
@@ -21136,25 +21116,6 @@ std::string GenerateStruct_VkIndirectCommandsVertexBufferTokenEXT(std::ostream &
     struct_body << "\t" << structInfo->vertexBindingUnit << ",";
     std::string variable_name = consumer.AddStruct(struct_body, "indirectCommandsVertexBufferTokenEXT");
     out << "\t\t" << "VkIndirectCommandsVertexBufferTokenEXT " << variable_name << " {" << std::endl;
-    out << "\t\t" << struct_body.str() << std::endl;
-    out << "\t\t" << "};" << std::endl;
-    return variable_name;
-}
-
-
-std::string GenerateStruct_VkIndirectExecutionSetCreateInfoEXT(std::ostream &out, const VkIndirectExecutionSetCreateInfoEXT* structInfo, Decoded_VkIndirectExecutionSetCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer){
-    std::stringstream struct_body;
-    std::string pnext_name = GenerateExtension(out, structInfo->pNext, metaInfo->pNext, consumer);
-    std::string ppipeline_info_info_var = GenerateStruct_VkIndirectExecutionSetPipelineInfoEXT(out,
-                                                                                               &structInfo->info.pPipelineInfo,
-                                                                                               metaInfo->info->pPipelineInfo,
-                                                                                               consumer);
-    struct_body << "\t" << "VkStructureType(" << structInfo->sType << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << pnext_name << "," << std::endl;
-    struct_body << "\t\t\t" << "VkIndirectExecutionSetInfoTypeEXT(" << structInfo->type << ")" << "," << std::endl;
-    struct_body << "\t\t\t" << ppipeline_info_info_var << ",";
-    std::string variable_name = consumer.AddStruct(struct_body, "indirectExecutionSetCreateInfoEXT");
-    out << "\t\t" << "VkIndirectExecutionSetCreateInfoEXT " << variable_name << " {" << std::endl;
     out << "\t\t" << struct_body.str() << std::endl;
     out << "\t\t" << "};" << std::endl;
     return variable_name;

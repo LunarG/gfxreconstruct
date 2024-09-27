@@ -1342,14 +1342,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsMemoryRequ
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetPipelineInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetShaderLayoutInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetShaderInfoEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkWriteIndirectExecutionSetPipelineEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsPushConstantTokenEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsVertexBufferTokenEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsIndexBufferTokenEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsExecutionSetTokenEXT& value);
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutCreateInfoEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkDrawIndirectCountIndirectCommandEXT& value);
 void EncodeStruct(ParameterEncoder* encoder, const VkBindVertexBufferIndirectCommandEXT& value);

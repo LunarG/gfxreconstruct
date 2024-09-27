@@ -449,6 +449,8 @@ size_t DecodeStruct(const uint8_t* buffer, size_t buffer_size, Decoded_VkIndirec
             break;
     }
 
+    bytes_read += ValueDecoder::DecodeUInt32Value((buffer + bytes_read), (buffer_size - bytes_read), &wrapper->offset);
+
     return bytes_read;
 }
 

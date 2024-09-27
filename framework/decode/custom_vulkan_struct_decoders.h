@@ -236,6 +236,7 @@ struct Decoded_VkIndirectCommandsLayoutTokenEXT
     PNextNode*                              pNext{ nullptr };
     VkIndirectCommandsTokenTypeEXT          decoded_type;
     Decoded_VkIndirectCommandsTokenDataEXT* data;
+    uint32_t                                offset;
 };
 
 GFXRECON_END_NAMESPACE(decode)

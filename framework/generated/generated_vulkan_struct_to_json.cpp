@@ -16167,20 +16167,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutio
     }
 }
 
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectExecutionSetCreateInfoEXT* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkIndirectExecutionSetCreateInfoEXT& decoded_value = *data->decoded_value;
-        const Decoded_VkIndirectExecutionSetCreateInfoEXT& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        FieldToJson(jdata["info"], meta_struct.info, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
-    }
-}
-
 void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkGeneratedCommandsInfoEXT* data, const JsonOptions& options)
 {
     if (data && data->decoded_value)
@@ -16259,21 +16245,6 @@ void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommands
 
         FieldToJson(jdata["type"], decoded_value.type, options);
         FieldToJson(VkShaderStageFlags_t(),jdata["shaderStages"], decoded_value.shaderStages, options);
-    }
-}
-
-void FieldToJson(nlohmann::ordered_json& jdata, const Decoded_VkIndirectCommandsLayoutTokenEXT* data, const JsonOptions& options)
-{
-    if (data && data->decoded_value)
-    {
-        const VkIndirectCommandsLayoutTokenEXT& decoded_value = *data->decoded_value;
-        const Decoded_VkIndirectCommandsLayoutTokenEXT& meta_struct = *data;
-
-        FieldToJson(jdata["sType"], decoded_value.sType, options);
-        FieldToJson(jdata["type"], decoded_value.type, options);
-        FieldToJson(jdata["data"], meta_struct.data, options);
-        FieldToJson(jdata["offset"], decoded_value.offset, options);
-        FieldToJson(jdata["pNext"], meta_struct.pNext, options);
     }
 }
 

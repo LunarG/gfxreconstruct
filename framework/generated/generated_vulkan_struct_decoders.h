@@ -10446,16 +10446,6 @@ struct Decoded_VkIndirectExecutionSetShaderInfoEXT
     StructPointerDecoder<Decoded_VkPushConstantRange>* pPushConstantRanges{ nullptr };
 };
 
-// struct Decoded_VkIndirectExecutionSetCreateInfoEXT
-// {
-//     using struct_type = VkIndirectExecutionSetCreateInfoEXT;
-
-//     VkIndirectExecutionSetCreateInfoEXT* decoded_value{ nullptr };
-
-//     PNextNode* pNext{ nullptr };
-//     Decoded_VkIndirectExecutionSetInfoEXT* info{ nullptr };
-// };
-
 struct Decoded_VkGeneratedCommandsInfoEXT
 {
     using struct_type = VkGeneratedCommandsInfoEXT;
@@ -10506,16 +10496,6 @@ struct Decoded_VkIndirectCommandsExecutionSetTokenEXT
 
     VkIndirectCommandsExecutionSetTokenEXT* decoded_value{ nullptr };
 };
-
-// struct Decoded_VkIndirectCommandsLayoutTokenEXT
-// {
-//     using struct_type = VkIndirectCommandsLayoutTokenEXT;
-
-//     VkIndirectCommandsLayoutTokenEXT* decoded_value{ nullptr };
-
-//     PNextNode* pNext{ nullptr };
-//     Decoded_VkIndirectCommandsTokenDataEXT* data{ nullptr };
-// };
 
 struct Decoded_VkIndirectCommandsLayoutCreateInfoEXT
 {

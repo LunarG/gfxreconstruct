@@ -98,6 +98,8 @@ struct DevicePipelineBinaryInternalCacheControlKHRWrapper      : public HandleWr
 struct PipelineBinaryInfoKHRWrapper      : public HandleWrapper<VkPipelineBinaryInfoKHR> {};
 struct PhysicalDevicePipelineBinaryFeaturesKHRWrapper      : public HandleWrapper<VkPhysicalDevicePipelineBinaryFeaturesKHR> {};
 struct PhysicalDevicePipelineBinaryPropertiesKHRWrapper      : public HandleWrapper<VkPhysicalDevicePipelineBinaryPropertiesKHR> {};
+struct IndirectCommandsLayoutEXTWrapper : public HandleWrapper<VkIndirectCommandsLayoutEXT> {};
+struct IndirectExecutionSetEXTWrapper : public HandleWrapper<VkIndirectExecutionSetEXT> {};
 
 
 // This handle type has a create function, but no destroy function. The handle wrapper will be owned by its parent VkDisplayKHR

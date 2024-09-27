@@ -241,6 +241,8 @@ typedef VulkanObjectInfo<VkDevicePipelineBinaryInternalCacheControlKHR> DevicePi
 typedef VulkanObjectInfo<VkPipelineBinaryInfoKHR>                       PipelineBinaryInfoKHRInfo;
 typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryFeaturesKHR>     PhysicalDevicePipelineBinaryFeaturesKHRInfo;
 typedef VulkanObjectInfo<VkPhysicalDevicePipelineBinaryPropertiesKHR>   PhysicalDevicePipelineBinaryPropertiesKHRInfo;
+typedef VulkanObjectInfo<VkIndirectCommandsLayoutEXT>                   IndirectCommandsLayoutEXTInfo;
+typedef VulkanObjectInfo<VkIndirectExecutionSetEXT>                     IndirectExecutionSetEXTInfo;
 
 //
 // Declarations for Vulkan objects with additional replay state info.

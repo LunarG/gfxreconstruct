@@ -2107,13 +2107,9 @@ std::string GenerateStruct_VkIndirectCommandsIndexBufferTokenEXT(std::ostream &o
 
 std::string GenerateStruct_VkIndirectCommandsLayoutCreateInfoEXT(std::ostream &out, const VkIndirectCommandsLayoutCreateInfoEXT* structInfo, Decoded_VkIndirectCommandsLayoutCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
-std::string GenerateStruct_VkIndirectCommandsLayoutTokenEXT(std::ostream &out, const VkIndirectCommandsLayoutTokenEXT* structInfo, Decoded_VkIndirectCommandsLayoutTokenEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
 std::string GenerateStruct_VkIndirectCommandsPushConstantTokenEXT(std::ostream &out, const VkIndirectCommandsPushConstantTokenEXT* structInfo, Decoded_VkIndirectCommandsPushConstantTokenEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkIndirectCommandsVertexBufferTokenEXT(std::ostream &out, const VkIndirectCommandsVertexBufferTokenEXT* structInfo, Decoded_VkIndirectCommandsVertexBufferTokenEXT* metaInfo, VulkanCppConsumerBase &consumer);
-
-std::string GenerateStruct_VkIndirectExecutionSetCreateInfoEXT(std::ostream &out, const VkIndirectExecutionSetCreateInfoEXT* structInfo, Decoded_VkIndirectExecutionSetCreateInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 
 std::string GenerateStruct_VkIndirectExecutionSetPipelineInfoEXT(std::ostream &out, const VkIndirectExecutionSetPipelineInfoEXT* structInfo, Decoded_VkIndirectExecutionSetPipelineInfoEXT* metaInfo, VulkanCppConsumerBase &consumer);
 

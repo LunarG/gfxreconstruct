@@ -731,9 +731,10 @@ enum ApiCallId : uint32_t
     ApiCall_vkCreateIndirectCommandsLayoutEXT                                                     = MakeApiCallId(ApiFamily_Vulkan, 0x12f6),
     ApiCall_vkDestroyIndirectCommandsLayoutEXT                                                    = MakeApiCallId(ApiFamily_Vulkan, 0x12f7),
     ApiCall_vkCreateIndirectExecutionSetEXT                                                       = MakeApiCallId(ApiFamily_Vulkan, 0x12f8),
-    ApiCall_vkDestroyIndirectExecutionSetEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12fa),
-    ApiCall_vkUpdateIndirectExecutionSetPipelineEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12fb),
-    ApiCall_vkUpdateIndirectExecutionSetShaderEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12fc),
+    ApiCall_vkDestroyIndirectExecutionSetEXT                                                      = MakeApiCallId(ApiFamily_Vulkan, 0x12f9),
+    ApiCall_vkUpdateIndirectExecutionSetPipelineEXT                                               = MakeApiCallId(ApiFamily_Vulkan, 0x12fa),
+    ApiCall_vkUpdateIndirectExecutionSetShaderEXT                                                 = MakeApiCallId(ApiFamily_Vulkan, 0x12fb),
+    ApiCall_vkCmdSetDepthClampRangeEXT                                                            = MakeApiCallId(ApiFamily_Vulkan, 0x12fc),
 
     ApiCall_VulkanLast,
 

@@ -9981,14 +9981,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetShaderI
     EncodeStructArray(encoder, value.pPushConstantRanges, value.pushConstantRangeCount);
 }
 
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetCreateInfoEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.type);
-    EncodeStruct(encoder, value.info);
-}
-
 void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsInfoEXT& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -10032,15 +10024,6 @@ void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsExecutionSe
 {
     encoder->EncodeEnumValue(value.type);
     encoder->EncodeFlagsValue(value.shaderStages);
-}
-
-void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutTokenEXT& value)
-{
-    encoder->EncodeEnumValue(value.sType);
-    EncodePNextStruct(encoder, value.pNext);
-    encoder->EncodeEnumValue(value.type);
-    EncodeStruct(encoder, value.data);
-    encoder->EncodeUInt32Value(value.offset);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutCreateInfoEXT& value)
