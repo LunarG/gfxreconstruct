@@ -1867,6 +1867,127 @@ void MapStructHandles(Decoded_VkLatencySleepInfoNV* wrapper, const VulkanObjectI
     }
 }
 
+void MapStructHandles(Decoded_VkGeneratedCommandsMemoryRequirementsInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkGeneratedCommandsMemoryRequirementsInfoEXT* value = wrapper->decoded_value;
+
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+        }
+
+        value->indirectExecutionSet = handle_mapping::MapHandle<IndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &VulkanObjectInfoTable::GetIndirectExecutionSetEXTInfo);
+
+        value->indirectCommandsLayout = handle_mapping::MapHandle<IndirectCommandsLayoutEXTInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutEXTInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkIndirectExecutionSetPipelineInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkIndirectExecutionSetPipelineInfoEXT* value = wrapper->decoded_value;
+
+        value->initialPipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->initialPipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkIndirectExecutionSetShaderLayoutInfoEXT* value = wrapper->decoded_value;
+
+        value->pSetLayouts = handle_mapping::MapHandleArray<DescriptorSetLayoutInfo>(&wrapper->pSetLayouts, object_info_table, &VulkanObjectInfoTable::GetDescriptorSetLayoutInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkIndirectExecutionSetShaderInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkIndirectExecutionSetShaderInfoEXT* value = wrapper->decoded_value;
+
+        value->pInitialShaders = handle_mapping::MapHandleArray<ShaderEXTInfo>(&wrapper->pInitialShaders, object_info_table, &VulkanObjectInfoTable::GetShaderEXTInfo);
+
+        MapStructArrayHandles<Decoded_VkIndirectExecutionSetShaderLayoutInfoEXT>(wrapper->pSetLayoutInfos->GetMetaStructPointer(), wrapper->pSetLayoutInfos->GetLength(), object_info_table);
+    }
+}
+
+void MapStructHandles(Decoded_VkGeneratedCommandsInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkGeneratedCommandsInfoEXT* value = wrapper->decoded_value;
+
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+        }
+
+        value->indirectExecutionSet = handle_mapping::MapHandle<IndirectExecutionSetEXTInfo>(wrapper->indirectExecutionSet, object_info_table, &VulkanObjectInfoTable::GetIndirectExecutionSetEXTInfo);
+
+        value->indirectCommandsLayout = handle_mapping::MapHandle<IndirectCommandsLayoutEXTInfo>(wrapper->indirectCommandsLayout, object_info_table, &VulkanObjectInfoTable::GetIndirectCommandsLayoutEXTInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkWriteIndirectExecutionSetPipelineEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkWriteIndirectExecutionSetPipelineEXT* value = wrapper->decoded_value;
+
+        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkIndirectCommandsLayoutCreateInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkIndirectCommandsLayoutCreateInfoEXT* value = wrapper->decoded_value;
+
+        if (wrapper->pNext)
+        {
+            MapPNextStructHandles(wrapper->pNext->GetPointer(), wrapper->pNext->GetMetaStructPointer(), object_info_table);
+        }
+
+        value->pipelineLayout = handle_mapping::MapHandle<PipelineLayoutInfo>(wrapper->pipelineLayout, object_info_table, &VulkanObjectInfoTable::GetPipelineLayoutInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkGeneratedCommandsPipelineInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkGeneratedCommandsPipelineInfoEXT* value = wrapper->decoded_value;
+
+        value->pipeline = handle_mapping::MapHandle<PipelineInfo>(wrapper->pipeline, object_info_table, &VulkanObjectInfoTable::GetPipelineInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkGeneratedCommandsShaderInfoEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkGeneratedCommandsShaderInfoEXT* value = wrapper->decoded_value;
+
+        value->pShaders = handle_mapping::MapHandleArray<ShaderEXTInfo>(&wrapper->pShaders, object_info_table, &VulkanObjectInfoTable::GetShaderEXTInfo);
+    }
+}
+
+void MapStructHandles(Decoded_VkWriteIndirectExecutionSetShaderEXT* wrapper, const VulkanObjectInfoTable& object_info_table)
+{
+    if ((wrapper != nullptr) && (wrapper->decoded_value != nullptr))
+    {
+        VkWriteIndirectExecutionSetShaderEXT* value = wrapper->decoded_value;
+
+        value->shader = handle_mapping::MapHandle<ShaderEXTInfo>(wrapper->shader, object_info_table, &VulkanObjectInfoTable::GetShaderEXTInfo);
+    }
+}
+
 void MapStructHandles(Decoded_VkAccelerationStructureGeometryTrianglesDataKHR* wrapper, const VulkanObjectInfoTable& object_info_table)
 {
     if (wrapper != nullptr)
@@ -2043,6 +2164,12 @@ void MapPNextStructHandles(const void* value, void* wrapper, const VulkanObjectI
             break;
         case VK_STRUCTURE_TYPE_RENDER_PASS_STRIPE_SUBMIT_INFO_ARM:
             MapStructHandles(reinterpret_cast<Decoded_VkRenderPassStripeSubmitInfoARM*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
+            MapStructHandles(reinterpret_cast<Decoded_VkGeneratedCommandsPipelineInfoEXT*>(wrapper), object_info_table);
+            break;
+        case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
+            MapStructHandles(reinterpret_cast<Decoded_VkGeneratedCommandsShaderInfoEXT*>(wrapper), object_info_table);
             break;
         case VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR:
             MapStructHandles(reinterpret_cast<Decoded_VkWriteDescriptorSetAccelerationStructureKHR*>(wrapper), object_info_table);

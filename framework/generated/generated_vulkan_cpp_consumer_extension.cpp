@@ -5513,6 +5513,46 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
 
                 break;
             }
+            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkGeneratedCommandsPipelineInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkGeneratedCommandsPipelineInfoEXT(out,
+                                                   casted_struct,
+                                                   decoded_struct,
+                                                   consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkGeneratedCommandsShaderInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkGeneratedCommandsShaderInfoEXT(out,
+                                                 casted_struct,
+                                                 decoded_struct,
+                                                 consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT(out,
+                                                                   casted_struct,
+                                                                   decoded_struct,
+                                                                   consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_GENERATED_COMMANDS_PROPERTIES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT(out,
+                                                                     casted_struct,
+                                                                     decoded_struct,
+                                                                     consumer);
+
+                break;
+            }
             case VK_STRUCTURE_TYPE_IMAGE_ALIGNMENT_CONTROL_CREATE_INFO_MESA: {
                 auto casted_struct = reinterpret_cast<const VkImageAlignmentControlCreateInfoMESA*>(struct_info);
                 auto decoded_struct = reinterpret_cast<Decoded_VkImageAlignmentControlCreateInfoMESA*>(pnext_meta_data->GetMetaStructPointer());
@@ -5540,6 +5580,26 @@ std::string GenerateExtension(std::ostream& out, const void* struct_info, void* 
                                                                     casted_struct,
                                                                     decoded_struct,
                                                                     consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_CLAMP_CONTROL_FEATURES_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPhysicalDeviceDepthClampControlFeaturesEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPhysicalDeviceDepthClampControlFeaturesEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPhysicalDeviceDepthClampControlFeaturesEXT(out,
+                                                             casted_struct,
+                                                             decoded_struct,
+                                                             consumer);
+
+                break;
+            }
+            case VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_DEPTH_CLAMP_CONTROL_CREATE_INFO_EXT: {
+                auto casted_struct = reinterpret_cast<const VkPipelineViewportDepthClampControlCreateInfoEXT*>(struct_info);
+                auto decoded_struct = reinterpret_cast<Decoded_VkPipelineViewportDepthClampControlCreateInfoEXT*>(pnext_meta_data->GetMetaStructPointer());
+                next_var_name = "&" +  GenerateStruct_VkPipelineViewportDepthClampControlCreateInfoEXT(out,
+                                                                 casted_struct,
+                                                                 decoded_struct,
+                                                                 consumer);
 
                 break;
             }

@@ -9556,6 +9556,12 @@ void EncodeStruct(ParameterEncoder* encoder, const VkShaderCreateInfoEXT& value)
     EncodeStructPtr(encoder, value.pSpecializationInfo);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkDepthClampRangeEXT& value)
+{
+    encoder->EncodeFloatValue(value.minDepthClamp);
+    encoder->EncodeFloatValue(value.maxDepthClamp);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceTilePropertiesFeaturesQCOM& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -9911,6 +9917,171 @@ void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceRayTracingVal
     encoder->EncodeUInt32Value(value.rayTracingValidation);
 }
 
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.deviceGeneratedCommands);
+    encoder->EncodeUInt32Value(value.dynamicGeneratedPipelineLayout);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDeviceGeneratedCommandsPropertiesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.maxIndirectPipelineCount);
+    encoder->EncodeUInt32Value(value.maxIndirectShaderObjectCount);
+    encoder->EncodeUInt32Value(value.maxIndirectSequenceCount);
+    encoder->EncodeUInt32Value(value.maxIndirectCommandsTokenCount);
+    encoder->EncodeUInt32Value(value.maxIndirectCommandsTokenOffset);
+    encoder->EncodeUInt32Value(value.maxIndirectCommandsIndirectStride);
+    encoder->EncodeFlagsValue(value.supportedIndirectCommandsInputModes);
+    encoder->EncodeFlagsValue(value.supportedIndirectCommandsShaderStages);
+    encoder->EncodeFlagsValue(value.supportedIndirectCommandsShaderStagesPipelineBinding);
+    encoder->EncodeFlagsValue(value.supportedIndirectCommandsShaderStagesShaderBinding);
+    encoder->EncodeUInt32Value(value.deviceGeneratedCommandsTransformFeedback);
+    encoder->EncodeUInt32Value(value.deviceGeneratedCommandsMultiDrawIndirectCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsMemoryRequirementsInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(value.indirectExecutionSet);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(value.indirectCommandsLayout);
+    encoder->EncodeUInt32Value(value.maxSequenceCount);
+    encoder->EncodeUInt32Value(value.maxDrawCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetPipelineInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineWrapper>(value.initialPipeline);
+    encoder->EncodeUInt32Value(value.maxPipelineCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetShaderLayoutInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.setLayoutCount);
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::DescriptorSetLayoutWrapper>(value.pSetLayouts, value.setLayoutCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectExecutionSetShaderInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.shaderCount);
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::ShaderEXTWrapper>(value.pInitialShaders, value.shaderCount);
+    EncodeStructArray(encoder, value.pSetLayoutInfos, value.shaderCount);
+    encoder->EncodeUInt32Value(value.maxShaderCount);
+    encoder->EncodeUInt32Value(value.pushConstantRangeCount);
+    EncodeStructArray(encoder, value.pPushConstantRanges, value.pushConstantRangeCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.shaderStages);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(value.indirectExecutionSet);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(value.indirectCommandsLayout);
+    encoder->EncodeUInt64Value(value.indirectAddress);
+    encoder->EncodeUInt64Value(value.indirectAddressSize);
+    encoder->EncodeUInt64Value(value.preprocessAddress);
+    encoder->EncodeUInt64Value(value.preprocessSize);
+    encoder->EncodeUInt32Value(value.maxSequenceCount);
+    encoder->EncodeUInt64Value(value.sequenceCountAddress);
+    encoder->EncodeUInt32Value(value.maxDrawCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkWriteIndirectExecutionSetPipelineEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.index);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineWrapper>(value.pipeline);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsPushConstantTokenEXT& value)
+{
+    EncodeStruct(encoder, value.updateRange);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsVertexBufferTokenEXT& value)
+{
+    encoder->EncodeUInt32Value(value.vertexBindingUnit);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsIndexBufferTokenEXT& value)
+{
+    encoder->EncodeEnumValue(value.mode);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsExecutionSetTokenEXT& value)
+{
+    encoder->EncodeEnumValue(value.type);
+    encoder->EncodeFlagsValue(value.shaderStages);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkIndirectCommandsLayoutCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeFlagsValue(value.flags);
+    encoder->EncodeFlagsValue(value.shaderStages);
+    encoder->EncodeUInt32Value(value.indirectStride);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineLayoutWrapper>(value.pipelineLayout);
+    encoder->EncodeUInt32Value(value.tokenCount);
+    EncodeStructArray(encoder, value.pTokens, value.tokenCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkDrawIndirectCountIndirectCommandEXT& value)
+{
+    encoder->EncodeUInt64Value(value.bufferAddress);
+    encoder->EncodeUInt32Value(value.stride);
+    encoder->EncodeUInt32Value(value.commandCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBindVertexBufferIndirectCommandEXT& value)
+{
+    encoder->EncodeUInt64Value(value.bufferAddress);
+    encoder->EncodeUInt32Value(value.size);
+    encoder->EncodeUInt32Value(value.stride);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkBindIndexBufferIndirectCommandEXT& value)
+{
+    encoder->EncodeUInt64Value(value.bufferAddress);
+    encoder->EncodeUInt32Value(value.size);
+    encoder->EncodeEnumValue(value.indexType);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsPipelineInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::PipelineWrapper>(value.pipeline);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkGeneratedCommandsShaderInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.shaderCount);
+    encoder->EncodeVulkanHandleArray<vulkan_wrappers::ShaderEXTWrapper>(value.pShaders, value.shaderCount);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkWriteIndirectExecutionSetShaderEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.index);
+    encoder->EncodeVulkanHandleValue<vulkan_wrappers::ShaderEXTWrapper>(value.shader);
+}
+
 void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceImageAlignmentControlFeaturesMESA& value)
 {
     encoder->EncodeEnumValue(value.sType);
@@ -9930,6 +10101,21 @@ void EncodeStruct(ParameterEncoder* encoder, const VkImageAlignmentControlCreate
     encoder->EncodeEnumValue(value.sType);
     EncodePNextStruct(encoder, value.pNext);
     encoder->EncodeUInt32Value(value.maximumRequestedAlignment);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPhysicalDeviceDepthClampControlFeaturesEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeUInt32Value(value.depthClampControl);
+}
+
+void EncodeStruct(ParameterEncoder* encoder, const VkPipelineViewportDepthClampControlCreateInfoEXT& value)
+{
+    encoder->EncodeEnumValue(value.sType);
+    EncodePNextStruct(encoder, value.pNext);
+    encoder->EncodeEnumValue(value.depthClampMode);
+    EncodeStructPtr(encoder, value.pDepthClampRange);
 }
 
 void EncodeStruct(ParameterEncoder* encoder, const VkAccelerationStructureBuildRangeInfoKHR& value)
