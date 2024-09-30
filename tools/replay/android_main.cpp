@@ -153,7 +153,9 @@ void android_main(struct android_app* app)
                 replay_consumer.SetFpsInfo(&fps_info);
 
                 decoder.AddConsumer(&replay_consumer);
+
                 file_processor->AddDecoder(&decoder);
+
                 application->SetPauseFrame(GetPauseFrame(arg_parser));
 
                 // Warn if the capture layer is active.

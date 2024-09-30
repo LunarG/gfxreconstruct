@@ -502,5 +502,108 @@ std::vector<SpirVParsingUtil::BufferReferenceInfo> SpirVParsingUtil::GetBufferRe
     return ret;
 }
 
+static VkDescriptorType SpvReflectToVkDescriptorType(SpvReflectDescriptorType type)
+{
+    switch (type)
+    {
+        case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER:
+            return VK_DESCRIPTOR_TYPE_SAMPLER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER:
+            return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE:
+            return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE:
+            return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER:
+            return VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER:
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC:
+            return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC:
+            return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_INPUT_ATTACHMENT:
+            return VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+
+        case SPV_REFLECT_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR:
+            return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
+
+        default:
+            GFXRECON_LOG_WARNING("%s(): Unrecognised SPIRV-Reflect descriptor type");
+            assert(0);
+            return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+    }
+}
+
+bool SpirVParsingUtil::SPIRVReflectPerformReflectionOnShaderModule(
+    size_t                                                          spirv_size,
+    const uint32_t*                                                 spirv_code,
+    encode::vulkan_state_info::ShaderReflectionDescriptorSetsInfos& shader_reflection)
+{
+    assert(spirv_size);
+    assert(spirv_code != nullptr);
+
+    shader_reflection.clear();
+
+    spv_reflect::ShaderModule reflection(spirv_size, spirv_code);
+    if (reflection.GetResult() != SPV_REFLECT_RESULT_SUCCESS)
+    {
+        GFXRECON_LOG_WARNING("Could not generate reflection data about shader module")
+        assert(0);
+        return false;
+    }
+
+    // Scan shader descriptor bindings
+    uint32_t         count  = 0;
+    SpvReflectResult result = reflection.EnumerateDescriptorBindings(&count, nullptr);
+    if (result != SPV_REFLECT_RESULT_SUCCESS)
+    {
+        // GFXRECON_LOG_ERROR("Shader reflection on shader %" PRIu64 " failed", shader_info->capture_id);
+        assert(0);
+        return false;
+    }
+
+    if (count)
+    {
+        std::vector<SpvReflectDescriptorBinding*> bindings(count, nullptr);
+        result = reflection.EnumerateDescriptorBindings(&count, bindings.data());
+        if (result != SPV_REFLECT_RESULT_SUCCESS)
+        {
+            // GFXRECON_LOG_ERROR("Shader reflection on shader %" PRIu64 " failed", shader_info->capture_id);
+            assert(0);
+            return false;
+        }
+
+        for (const auto binding : bindings)
+        {
+            VkDescriptorType type     = SpvReflectToVkDescriptorType(binding->descriptor_type);
+            bool             readonly = ((binding->decoration_flags & SPV_REFLECT_DECORATION_NON_WRITABLE) ==
+                             SPV_REFLECT_DECORATION_NON_WRITABLE);
+            const uint32_t   count    = binding->count;
+            const bool       is_array = binding->array.dims_count > 0;
+
+            shader_reflection[binding->set].emplace(binding->binding,
+                                                    encode::vulkan_state_info::ShaderReflectionDescriptorInfo(
+                                                        type, readonly, binding->accessed, count, is_array));
+        }
+    }
+
+    return true;
+}
+
 GFXRECON_END_NAMESPACE(util)
 GFXRECON_END_NAMESPACE(gfxrecon)

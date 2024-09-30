@@ -25,6 +25,7 @@
 #include "util/page_guard_manager.h"
 
 #include "util/logging.h"
+#include "util/page_status_tracker.h"
 #include "util/platform.h"
 
 #include <cassert>
@@ -1111,6 +1112,7 @@ void* PageGuardManager::AddTrackedMemory(uint64_t  memory_id,
                                      std::forward_as_tuple(memory_id),
                                      std::forward_as_tuple(mapped_memory,
                                                            mapped_range,
+                                                           mapped_offset,
                                                            shadow_memory,
                                                            shadow_size,
                                                            aligned_address,
@@ -1367,6 +1369,31 @@ const void* PageGuardManager::GetMappedMemory(uint64_t memory_id) const
     }
 
     return nullptr;
+}
+
+void PageGuardManager::GetDirtyMemoryRegions(uint64_t                                         memory_id,
+                                             std::unordered_map<uint64_t, const MemoryInfo&>& memories_page_status)
+{
+    std::lock_guard<std::mutex> lock(tracked_memory_lock_);
+
+    if (memory_id)
+    {
+        for (auto& entry : memory_info_)
+        {
+            if (entry.second.is_modified)
+            {
+                memories_page_status.emplace(entry.first, entry.second);
+            }
+        }
+    }
+    else
+    {
+        const auto entry = memory_info_.find(memory_id);
+        if (entry != memory_info_.end())
+        {
+            memories_page_status.emplace(entry->first, entry->second);
+        }
+    }
 }
 
 GFXRECON_END_NAMESPACE(util)

@@ -203,14 +203,15 @@ static std::string GetVersionString(uint32_t api_version)
 
 void GatherApiAgnosticStats(ApiAgnosticStats&                api_agnostic_stats,
                             gfxrecon::decode::FileProcessor& file_processor,
-                            gfxrecon::decode::StatConsumer&  stat_consumer)
+                            gfxrecon::decode::StatConsumer&  stat_consumer,
+                            const std::string&               input_filename)
 {
     api_agnostic_stats.error_state = file_processor.GetErrorState();
 
     // File options.
     gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
 
-    auto file_options = file_processor.GetFileOptions();
+    auto file_options = file_processor.GetFileOptions(input_filename);
     for (const auto& option : file_options)
     {
         if (option.key == gfxrecon::format::FileOption::kCompressionType)
@@ -360,7 +361,8 @@ void GatherAndPrintExeInfo(const std::string& input_filename)
 void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_consumer,
                       const gfxrecon::decode::FileProcessor&       file_processor,
                       const ApiAgnosticStats&                      api_agnostic_stats,
-                      const AnnotationRecorder&                    annotation_recoder)
+                      const AnnotationRecorder&                    annotation_recoder,
+                      const std::string&                           input_filename)
 {
     if (api_agnostic_stats.error_state == gfxrecon::decode::FileProcessor::kErrorNone)
     {
@@ -368,7 +370,7 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         GFXRECON_WRITE_CONSOLE("File info:");
         gfxrecon::format::CompressionType compression_type = gfxrecon::format::CompressionType::kNone;
 
-        auto file_options = file_processor.GetFileOptions();
+        auto file_options = file_processor.GetFileOptions(input_filename);
         for (const auto& option : file_options)
         {
             if (option.key == gfxrecon::format::FileOption::kCompressionType)
@@ -792,7 +794,7 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
         if (file_processor.GetErrorState() == gfxrecon::decode::FileProcessor::kErrorNone)
         {
             ApiAgnosticStats api_agnostic_stats = {};
-            GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer);
+            GatherApiAgnosticStats(api_agnostic_stats, file_processor, stat_consumer, input_filename);
 
             std::vector<AnnotationInfo> target_annotations = {
                 { "GFXR version", gfxrecon::format::kOperationAnnotationGfxreconstructVersion },
@@ -815,7 +817,8 @@ void GatherAndPrintAllInfo(const std::string& input_filename)
 
             if (vulkan_detection_consumer.WasVulkanAPIDetected() || print_all_apis)
             {
-                PrintVulkanStats(vulkan_stats_consumer, file_processor, api_agnostic_stats, annotation_recorder);
+                PrintVulkanStats(
+                    vulkan_stats_consumer, file_processor, api_agnostic_stats, annotation_recorder, input_filename);
 
                 // Add annotations relevant to Vulkan
                 target_annotations.push_back({ "Vulkan version", gfxrecon::format::kOperationAnnotationVulkanVersion });
