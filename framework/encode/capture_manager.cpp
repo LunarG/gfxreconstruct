@@ -1061,7 +1061,12 @@ void CommonCaptureManager::ActivateTrimming(std::shared_lock<ApiCallMutexT>& cur
     }
 
     {
-        auto state_lock = AcquireExclusiveApiCallLock();
+        auto exclusive_api_call_lock = std::unique_lock<CommonCaptureManager::ApiCallMutexT>{};
+        if (!GetForceCommandSerialization())
+        {
+            // If command serialization is active, the caller already holds the exclusive lock.
+            exclusive_api_call_lock = AcquireExclusiveApiCallLock();
+        }
 
         capture_mode_ |= kModeWrite;
 
@@ -1089,7 +1094,12 @@ void CommonCaptureManager::DeactivateTrimming(std::shared_lock<ApiCallMutexT>& c
     }
 
     {
-        auto state_lock = AcquireExclusiveApiCallLock();
+        auto exclusive_api_call_lock = std::unique_lock<CommonCaptureManager::ApiCallMutexT>{};
+        if (!GetForceCommandSerialization())
+        {
+            // If command serialization is active, the caller already holds the exclusive lock.
+            exclusive_api_call_lock = AcquireExclusiveApiCallLock();
+        }
 
         capture_mode_ &= ~kModeWrite;
 
