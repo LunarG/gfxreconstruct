@@ -3315,12 +3315,13 @@ VkResult VulkanReplayConsumerBase::OverrideGetQueryPoolResults(PFN_vkGetQueryPoo
     VkQueryPool query_pool = query_pool_info->handle;
     size_t      retries    = 0;
 
+    // Some timing mismatch issue was observed when replaying a specific title's trace. At playback time,
+    // vkGetQueryPoolResults returned VK_NOT_READY, while at capture time it returned VK_SUCCESS. Therefore, we handle
+    // the possible timing difference in the same way as vkGetFenceStatus.
     do
     {
         result = func(device, query_pool, firstQuery, queryCount, dataSize, pData->GetOutputPointer(), stride, flags);
-    } while ((((original_result == VK_SUCCESS) && (result == VK_NOT_READY)) ||
-              ((original_result == VK_NOT_READY) && (result == VK_SUCCESS))) &&
-             (++retries <= kMaxQueryPoolResultsRetries));
+    } while ((original_result == VK_SUCCESS) && (result == VK_NOT_READY));
 
     return result;
 }
