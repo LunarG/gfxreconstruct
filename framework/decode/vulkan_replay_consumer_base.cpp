@@ -7561,14 +7561,13 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
         auto buffer_info = address_tracker.GetBufferByCaptureDeviceAddress(capture_address);
 
         // TODO: we 'should' find that buffer here, check what's missing
-        if(buffer_info != nullptr && buffer_info->replay_address != 0)
+        if (buffer_info != nullptr && buffer_info->replay_address != 0)
         {
             uint64_t offset = capture_address - buffer_info->capture_address;
 
             // in-place address-remap via const-cast
             capture_address = buffer_info->replay_address + offset;
         }
-
     };
 
     for (uint32_t i = 0; i < infoCount; ++i)
