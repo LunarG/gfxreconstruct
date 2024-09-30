@@ -23,7 +23,6 @@
 #include "encode/vulkan_state_tracker.h"
 
 #include "encode/vulkan_state_info.h"
-#include "encode/custom_vulkan_struct_handle_wrappers.h"
 #include "encode/vulkan_handle_wrapper_util.h"
 #include "encode/vulkan_track_struct.h"
 #include "graphics/vulkan_struct_get_pnext.h"
@@ -1389,7 +1388,7 @@ void VulkanStateTracker::TrackRayTracingPipelineProperties(
     VkPhysicalDevice physicalDevice, VkPhysicalDeviceRayTracingPipelinePropertiesKHR* ray_properties)
 {
     auto wrapper = vulkan_wrappers::GetWrapper<vulkan_wrappers::PhysicalDeviceWrapper>(physicalDevice);
-    wrapper->ray_tracing_pipeline_properties = *ray_properties;
+    wrapper->ray_tracing_pipeline_properties        = *ray_properties;
     wrapper->ray_tracing_pipeline_properties->pNext = nullptr;
 }
 
