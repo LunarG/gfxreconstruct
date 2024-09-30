@@ -36,6 +36,7 @@
 #include "generated/generated_vulkan_struct_encoders.h"
 #include "generated/generated_vulkan_struct_handle_wrappers.h"
 #include "util/defines.h"
+#include "util/logging.h"
 
 #include <cassert>
 
@@ -401,6 +402,12 @@ VKAPI_ATTR uint64_t VKAPI_CALL GetBlockIndexGFXR()
 {
     VulkanCaptureManager* manager = VulkanCaptureManager::Get();
     return manager->GetBlockIndex();
+}
+
+VKAPI_ATTR void VKAPI_CALL DumpAssetsGFXR()
+{
+    VulkanCaptureManager* manager = VulkanCaptureManager::Get();
+    manager->SetWriteAssets();
 }
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(VkDevice                            device,

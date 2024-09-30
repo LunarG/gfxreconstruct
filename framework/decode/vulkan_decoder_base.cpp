@@ -568,5 +568,18 @@ void VulkanDecoderBase::SetCurrentBlockIndex(uint64_t block_index)
     }
 }
 
+void VulkanDecoderBase::DispatchExecuteBlocksFromFile(format::ThreadId   thread_id,
+                                                      uint32_t           n_blocks,
+                                                      int64_t            offset,
+                                                      const std::string& filename)
+{
+    GFXRECON_UNREFERENCED_PARAMETER(thread_id);
+
+    for (auto consumer : consumers_)
+    {
+        consumer->ProcessExecuteBlocksFromFile(n_blocks, offset, filename);
+    }
+}
+
 GFXRECON_END_NAMESPACE(decode)
 GFXRECON_END_NAMESPACE(gfxrecon)
