@@ -42,19 +42,20 @@ GFXRECON_BEGIN_NAMESPACE(decode)
 class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
 {
   public:
-    uint32_t                        GetTrimmedStartFrame() const { return trimmed_frame_; }
-    const std::string&              GetAppName() const { return app_name_; }
-    uint32_t                        GetAppVersion() const { return app_version_; }
-    const std::string&              GetEngineName() const { return engine_name_; }
-    uint32_t                        GetEngineVersion() const { return engine_version_; }
-    uint32_t                        GetApiVersion() const { return api_version_; }
-    uint64_t                        GetGraphicsPipelineCount() const { return graphics_pipelines_; }
-    uint64_t                        GetComputePipelineCount() const { return compute_pipelines_; }
-    uint64_t                        GetDrawCount() const { return draw_count_; }
-    uint64_t                        GetDispatchCount() const { return dispatch_count_; }
-    uint64_t                        GetAllocationCount() const { return allocation_count_; }
-    uint64_t                        GetMinAllocationSize() const { return min_allocation_size_; }
-    uint64_t                        GetMaxAllocationSize() const { return max_allocation_size_; }
+    uint32_t           GetTrimmedStartFrame() const { return trimmed_frame_; }
+    const std::string& GetAppName() const { return app_name_; }
+    uint32_t           GetAppVersion() const { return app_version_; }
+    const std::string& GetEngineName() const { return engine_name_; }
+    uint32_t           GetEngineVersion() const { return engine_version_; }
+    uint32_t           GetApiVersion() const { return api_version_; }
+    uint64_t           GetGraphicsPipelineCount() const { return graphics_pipelines_; }
+    uint64_t           GetComputePipelineCount() const { return compute_pipelines_; }
+    uint64_t           GetRayTracingPipelineCount() const { return raytracing_pipelines_; }
+    uint64_t           GetDrawCount() const { return draw_count_; }
+    uint64_t           GetDispatchCount() const { return dispatch_count_; }
+    uint64_t           GetAllocationCount() const { return allocation_count_; }
+    uint64_t           GetMinAllocationSize() const { return min_allocation_size_; }
+    uint64_t           GetMaxAllocationSize() const { return max_allocation_size_; }
 
     const std::set<gfxrecon::format::HandleId>& GetInstantiatedDevices() const { return used_physical_devices_; }
     const VkPhysicalDeviceProperties*           GetDeviceProperties(gfxrecon::format::HandleId id) const
@@ -185,6 +186,22 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
         if (returnValue >= 0)
         {
             compute_pipelines_ += createInfoCount;
+        }
+    }
+
+    void Process_vkCreateRayTracingPipelinesKHR(const ApiCallInfo& call_info,
+                                                VkResult           returnValue,
+                                                format::HandleId,
+                                                format::HandleId,
+                                                format::HandleId,
+                                                uint32_t createInfoCount,
+                                                StructPointerDecoder<Decoded_VkRayTracingPipelineCreateInfoKHR>*,
+                                                StructPointerDecoder<Decoded_VkAllocationCallbacks>*,
+                                                HandlePointerDecoder<VkPipeline>*) override
+    {
+        if (returnValue >= 0)
+        {
+            raytracing_pipelines_ += createInfoCount;
         }
     }
 
@@ -408,6 +425,7 @@ class VulkanStatsConsumer : public gfxrecon::decode::VulkanConsumer
     // Total pipeline counts by type.
     uint64_t graphics_pipelines_{ 0 };
     uint64_t compute_pipelines_{ 0 };
+    uint64_t raytracing_pipelines_{ 0 };
 
     // Total draw/dispatch counts.
     uint64_t draw_count_{ 0 };

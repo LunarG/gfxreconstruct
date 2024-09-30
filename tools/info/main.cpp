@@ -456,6 +456,8 @@ void PrintVulkanStats(const gfxrecon::decode::VulkanStatsConsumer& vulkan_stats_
         GFXRECON_WRITE_CONSOLE("\tTotal graphics pipelines: %" PRIu64,
                                vulkan_stats_consumer.GetGraphicsPipelineCount());
         GFXRECON_WRITE_CONSOLE("\tTotal compute pipelines: %" PRIu64, vulkan_stats_consumer.GetComputePipelineCount());
+        GFXRECON_WRITE_CONSOLE("\tTotal raytracing pipelines: %" PRIu64,
+                               vulkan_stats_consumer.GetRayTracingPipelineCount());
 
         // TODO: This is the number of recorded draw calls, which will not reflect the number of draw calls
         // executed when recorded once to a command buffer that is submitted/replayed more than once.
