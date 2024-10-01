@@ -7603,6 +7603,9 @@ void VulkanReplayConsumerBase::OverrideCmdBuildAccelerationStructuresKHR(
                     break;
                 }
                 default:
+                    GFXRECON_LOG_ERROR(
+                        "OverrideCmdBuildAccelerationStructuresKHR: unhandled case in switch-statement: %d",
+                        geometry->geometryType);
                     break;
             }
         }
@@ -7949,7 +7952,8 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     VkDevice                         device       = device_info->handle;
     const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
 
-    // override function-pointer
+    // TODO: remove this override after fixing issue
+    // override function-pointer (we seem to always encode the KHR-flavor, resulting in a noop when the other was used)
     auto physical_device_info = GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
     func                      = physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 2, 0)
                                     ? GetDeviceTable(device_info->handle)->GetBufferDeviceAddress
