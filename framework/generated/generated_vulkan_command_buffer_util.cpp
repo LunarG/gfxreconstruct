@@ -1582,6 +1582,85 @@ void TrackCmdBindShadersEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrappe
     }
 }
 
+void TrackCmdPreprocessGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo, VkCommandBuffer stateCommandBuffer)
+{
+    assert(wrapper != nullptr);
+
+    if (pGeneratedCommandsInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pGeneratedCommandsInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(pnext_header);
+                    if(pnext_value->pipeline != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineWrapper>(pnext_value->pipeline));
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(pnext_header);
+                    if (pnext_value->pShaders != nullptr)
+                    {
+                        for (uint32_t pShaders_index = 0; pShaders_index < pnext_value->shaderCount; ++pShaders_index)
+                        {
+                            if(pnext_value->pShaders[pShaders_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ShaderEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ShaderEXTWrapper>(pnext_value->pShaders[pShaders_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pGeneratedCommandsInfo->indirectExecutionSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectExecutionSetEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(pGeneratedCommandsInfo->indirectExecutionSet));
+        if(pGeneratedCommandsInfo->indirectCommandsLayout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectCommandsLayoutEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(pGeneratedCommandsInfo->indirectCommandsLayout));
+    }
+    if(stateCommandBuffer != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::CommandBufferHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::CommandBufferWrapper>(stateCommandBuffer));
+}
+
+void TrackCmdExecuteGeneratedCommandsEXTHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, const VkGeneratedCommandsInfoEXT* pGeneratedCommandsInfo)
+{
+    assert(wrapper != nullptr);
+
+    if (pGeneratedCommandsInfo != nullptr)
+    {
+        auto pnext_header = reinterpret_cast<const VkBaseInStructure*>(pGeneratedCommandsInfo->pNext);
+        while (pnext_header)
+        {
+            switch (pnext_header->sType)
+            {
+                default:
+                    break;
+                case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_PIPELINE_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsPipelineInfoEXT*>(pnext_header);
+                    if(pnext_value->pipeline != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::PipelineHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::PipelineWrapper>(pnext_value->pipeline));
+                    break;
+                }
+                case VK_STRUCTURE_TYPE_GENERATED_COMMANDS_SHADER_INFO_EXT:
+                {
+                    auto pnext_value = reinterpret_cast<const VkGeneratedCommandsShaderInfoEXT*>(pnext_header);
+                    if (pnext_value->pShaders != nullptr)
+                    {
+                        for (uint32_t pShaders_index = 0; pShaders_index < pnext_value->shaderCount; ++pShaders_index)
+                        {
+                            if(pnext_value->pShaders[pShaders_index] != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::ShaderEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::ShaderEXTWrapper>(pnext_value->pShaders[pShaders_index]));
+                        }
+                    }
+                    break;
+                }
+            }
+            pnext_header = pnext_header->pNext;
+        }
+        if(pGeneratedCommandsInfo->indirectExecutionSet != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectExecutionSetEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectExecutionSetEXTWrapper>(pGeneratedCommandsInfo->indirectExecutionSet));
+        if(pGeneratedCommandsInfo->indirectCommandsLayout != VK_NULL_HANDLE) wrapper->command_handles[vulkan_state_info::CommandHandleType::IndirectCommandsLayoutEXTHandle].insert(vulkan_wrappers::GetWrappedId<vulkan_wrappers::IndirectCommandsLayoutEXTWrapper>(pGeneratedCommandsInfo->indirectCommandsLayout));
+    }
+}
+
 void TrackCmdBuildAccelerationStructuresKHRHandles(vulkan_wrappers::CommandBufferWrapper* wrapper, uint32_t infoCount, const VkAccelerationStructureBuildGeometryInfoKHR* pInfos)
 {
     assert(wrapper != nullptr);

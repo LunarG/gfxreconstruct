@@ -897,14 +897,14 @@ class VulkanReplayConsumerBodyGenerator(
                                     if need_temp_value:
                                         if value.base_type in self.structs_with_handle_ptrs:
                                             preexpr.append(
-                                                'SetStructHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
+                                                'SetStructArrayHandleLengths<Decoded_{}>({paramname}->GetMetaStructPointer(), {paramname}->GetLength());'
                                                 .format(
                                                     value.base_type,
                                                     paramname=value.name
                                                 )
                                             )
                                         postexpr.append(
-                                            'AddStructHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {}, &GetObjectInfoTable());'
+                                            'AddStructArrayHandles<Decoded_{basetype}>({}, {name}->GetMetaStructPointer(), {name}->GetLength(), {}, {name}->GetLength(), &GetObjectInfoTable());'
                                             .format(
                                                 self.get_parent_id(
                                                     value, values

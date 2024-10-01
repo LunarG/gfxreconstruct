@@ -2752,6 +2752,7 @@ void VulkanReplayDumpResources::Process_vkCmdBindIndexBuffer2KHR(
 }
 
 
+
 void VulkanReplayDumpResources::Process_vkCmdSetLineStippleKHR(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdSetLineStippleKHR                  func,
@@ -5856,6 +5857,7 @@ void VulkanReplayDumpResources::Process_vkCmdOpticalFlowExecuteNV(
     }
 }
 
+
 void VulkanReplayDumpResources::Process_vkCmdBindShadersEXT(
     const ApiCallInfo&                          call_info,
     PFN_vkCmdBindShadersEXT                     func,
@@ -5884,6 +5886,33 @@ void VulkanReplayDumpResources::Process_vkCmdBindShadersEXT(
     }
 }
 
+void VulkanReplayDumpResources::Process_vkCmdSetDepthClampRangeEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdSetDepthClampRangeEXT              func,
+    VkCommandBuffer                             commandBuffer,
+    VkDepthClampModeEXT                         depthClampMode,
+    const VkDepthClampRangeEXT*                 pDepthClampRange)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, depthClampMode, pDepthClampRange);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, depthClampMode, pDepthClampRange);
+        }
+    }
+}
+
 
 
 void VulkanReplayDumpResources::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
@@ -5908,6 +5937,60 @@ void VulkanReplayDumpResources::Process_vkCmdSetAttachmentFeedbackLoopEnableEXT(
         if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
         {
              func(dispatch_rays_command_buffer, aspectMask);
+        }
+    }
+}
+
+void VulkanReplayDumpResources::Process_vkCmdPreprocessGeneratedCommandsEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdPreprocessGeneratedCommandsEXT     func,
+    VkCommandBuffer                             commandBuffer,
+    const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo,
+    VkCommandBuffer                             stateCommandBuffer)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, pGeneratedCommandsInfo, stateCommandBuffer);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, pGeneratedCommandsInfo, stateCommandBuffer);
+        }
+    }
+}
+
+void VulkanReplayDumpResources::Process_vkCmdExecuteGeneratedCommandsEXT(
+    const ApiCallInfo&                          call_info,
+    PFN_vkCmdExecuteGeneratedCommandsEXT        func,
+    VkCommandBuffer                             commandBuffer,
+    VkBool32                                    isPreprocessed,
+    const VkGeneratedCommandsInfoEXT*           pGeneratedCommandsInfo)
+{
+    if (IsRecording(commandBuffer))
+    {
+        CommandBufferIterator first, last;
+        bool found = GetDrawCallActiveCommandBuffers(commandBuffer, first, last);
+        if (found)
+        {
+            for (CommandBufferIterator it = first; it < last; ++it)
+            {
+                 func(*it, isPreprocessed, pGeneratedCommandsInfo);
+            }
+        }
+
+        VkCommandBuffer dispatch_rays_command_buffer = GetDispatchRaysCommandBuffer(commandBuffer);
+        if (dispatch_rays_command_buffer != VK_NULL_HANDLE)
+        {
+             func(dispatch_rays_command_buffer, isPreprocessed, pGeneratedCommandsInfo);
         }
     }
 }

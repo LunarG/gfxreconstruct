@@ -277,7 +277,11 @@ class VulkanStructHandleWrappersBodyGenerator(BaseGenerator):
             if 'pNext' in member.name:
                 body += '        if (value->pNext != nullptr)\n'
                 body += '        {\n'
-                body += '            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);\n'
+                # Workaround for spec missing const in VkGeneratedCommandsMemoryRequirementsInfoEXT::pNext, should be removed next header update
+                if (name == 'VkGeneratedCommandsMemoryRequirementsInfoEXT'):
+                    body += '            value->pNext = const_cast<void*>(UnwrapPNextStructHandles(value->pNext, unwrap_memory));\n'
+                else:
+                    body += '            value->pNext = UnwrapPNextStructHandles(value->pNext, unwrap_memory);\n'
                 body += '        }\n'
             elif self.is_struct(member.base_type):
                 # This is a struct that includes handles.
