@@ -1131,14 +1131,17 @@ void VulkanStateWriter::WriteBufferDeviceAddressState(const VulkanStateTable& st
         assert(wrapper != nullptr);
         if ((wrapper->device_id != format::kNullHandleId) && (wrapper->address != 0))
         {
+            auto physical_device_wrapper = wrapper->bind_device->physical_device;
+            auto call_id                 = physical_device_wrapper->instance_api_version >= VK_MAKE_VERSION(1, 2, 0)
+                                               ? format::ApiCall_vkGetBufferDeviceAddress
+                                               : format::ApiCall_vkGetBufferDeviceAddressKHR;
+
             parameter_stream_.Clear();
             encoder_.EncodeHandleIdValue(wrapper->bind_device->handle_id);
-            VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO_KHR,
-                                               nullptr,
-                                               wrapper->handle };
+            VkBufferDeviceAddressInfoKHR info{ VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, wrapper->handle };
             EncodeStructPtr(&encoder_, &info);
             encoder_.EncodeVkDeviceAddressValue(wrapper->address);
-            WriteFunctionCall(format::ApiCall_vkGetBufferDeviceAddressKHR, &parameter_stream_);
+            WriteFunctionCall(call_id, &parameter_stream_);
             parameter_stream_.Clear();
         }
     });

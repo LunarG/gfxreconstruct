@@ -7952,13 +7952,6 @@ VkDeviceAddress VulkanReplayConsumerBase::OverrideGetBufferDeviceAddress(
     VkDevice                         device       = device_info->handle;
     const VkBufferDeviceAddressInfo* address_info = pInfo->GetPointer();
 
-    // TODO: remove this workaround after fixing issue #1778 (wrong KHR-suffix)
-    // override function-pointer (we seem to always encode the KHR-flavor, resulting in a noop when using Vulkan 1.3)
-    auto physical_device_info = GetObjectInfoTable().GetPhysicalDeviceInfo(device_info->parent_id);
-    func                      = physical_device_info->parent_api_version >= VK_MAKE_VERSION(1, 2, 0)
-                                    ? GetDeviceTable(device_info->handle)->GetBufferDeviceAddress
-                                    : GetDeviceTable(device_info->handle)->GetBufferDeviceAddressKHR;
-
     // retrieve replay-time device-address
     VkDeviceAddress replay_device_address = func(device, address_info);
 
